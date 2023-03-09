@@ -6,7 +6,7 @@ Convert RAW files from I'm back to DNG files for processing
 
 Stefan Hegny, 2023
 
-Free Software, use as you like
+Free Software, use at own risk as you like
 
 Compile: gcc -Wall -o imbraw2dng imbraw2dng.c
 
@@ -126,7 +126,7 @@ int main (int argc, char** argv) {
 		0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x13, 0xc6, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00,
 		0x00, 0x00, 0x14, 0xc6, 0x02, 0x00, 0x07, 0x00, 0x00, 0x00
 	};
-/* w*h + 50 * /32  a2  d6  00 */
+	/* w*h + 50 * /32  a2  d6  00 */
 	write(1, rest6, sizeof(rest6));
 	off = 306 + (w*h);
 	write(1, &off, 4);
@@ -143,8 +143,7 @@ int main (int argc, char** argv) {
 		
 		
 	const char rest8[] = { 0x28, 0xc6, 0x05, 0x00, 0x03, 0x00, 0x00, 0x00 };	
-	/* w*h + 130 * /82  a2
-d6a210  0xd6  00 */ 
+	/* w*h + 130 * /82  a2 d6a210  0xd6  00 */
 	write(1, rest8, sizeof(rest8));
 	off = 386 + (w*h);
 	write(1, &off, 4);
