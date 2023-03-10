@@ -47,6 +47,11 @@ function handleone(f) {
 		msg.innerHTML += "[" + f.name + "] Assuming 4608x3456 (MF 6x7)<br>";
 		typ = 1;
 	}
+	/*else if (f.size === 21233664) {
+		w = 4608; h = 4608;
+		msg.innerHTML += "[" + f.name + "] Assuming 4608x3456 (MF 6x7)<br>";
+		typ = 1;
+	}*/
 	else if (f.size === 12937632) {
 		w = 4152; h = 3116;
 		msg.innerHTML += "[" + f.name + "] Assuming 4152x3116 (MF 6x4.5)<br>";
@@ -162,7 +167,7 @@ function handleone(f) {
 	
 	
 		const rest7 = [ 0x1d, 0xc6,
-			0x04, 0x00, 0x01, 0x00, 0x00, 0x00, 0xff, 0xff, 0x00, 0x00, 0x21, 0xc6, 0x0a, 0x00, 0x09, 0x00,
+			0x04, 0x00, 0x01, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x21, 0xc6, 0x0a, 0x00, 0x09, 0x00,
 			0x00, 0x00
 		];
 		/* w*h + 256+58  3a  a2  d6  00 */ 
