@@ -1,4 +1,6 @@
 # imbraw2dng
-Convert RAW from I'm Back into DNG
+Convert RAW from I'm Back into DNG. They are not really "B&W RAW" but actually the RAW sensor data that also contains the colour filtering.
 
-imbraw2dng.html is the most useful choice and probably the only one that will be improved here.
+Currently known to work half-way for 35mm I'm Back.
+
+MF Formats are know to make problems.
