@@ -260,14 +260,13 @@ function prevdef(ev) {
 </script>
 </head>
 <body>
-<div id="droptarget" ondrop="drophandler(event);" ondragenter="prevdef(event);" ondragover="prevdef(event);" style="border: 5px solid blue;width:fit-content;">
-Drop Files here or select: <br>
-RAW File: <input type="file" id="infile" name="infile" onchange="showme()"><br>
+Drop Files here: <br>
+<div id="droptarget" ondrop="drophandler(event);" ondragenter="prevdef(event);" ondragover="prevdef(event);" style="border: 5px solid blue;width:200px; height:100px;background-color: rgba(0,0,255,0.2);"></div><br>
+<div  style="font-size:133%;">Or select RAW File: <input type="file" id="infile" name="infile" onchange="showme()"></div><br>
 <!--Width if not standard file: <input type="number" min="2000" max="5000" id="inwidth" name="inwidth" onchange="showme()"><br>-->
 &nbsp;<br>
 Message Log:<br>
 <div id="outmsg"></div>
-</div>
 <a style="display: none;" id="result">x</a>
 </body>
 </html>
