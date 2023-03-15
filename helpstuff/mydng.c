@@ -9,16 +9,12 @@
 #include <errno.h>
 
 
-#define LINELEN 256            // how long a string we need to hold the filename
-#define RAWBLOCKSIZE 14065920
-#define HEADERSIZE 0
-#define ROWSIZE 3456 // number of bytes per row of pixels, including 24 'other' bytes at end
-#define IDSIZE 4    // number of bytes in raw header ID string
-#define HPIXELS 4608   // number of horizontal pixels on OV5647 sensor
-#define VPIXELS 3456   // number of vertical pixels on OV5647 sensor
-
 int main (int argc, char **argv)
 {
+	unsigned int HPIXELS, VPIXELS, mode = 0;
+	char *modestr[] = { "unknown", "MF 6x7 ", "MF6x4.5", "MF 6x6 ", "ImB35mm" };
+	
+	
 	static const short CFARepeatPatternDim[] = { 2,2 };
 	// this color matrix is definitely inaccurate, TODO: calibrate
 	static const float cam_xyz[] = {
@@ -28,7 +24,7 @@ int main (int argc, char **argv)
 		0.000,	0.000,	1.000	// B
 	};
 	static const float neutral[] = { 1.0, 1.0, 1.0 }; // TODO calibrate
-	long sub_offset=0, white=0x03ff;
+	long sub_offset=0, white=0x0ff;
 
 	int status=1, i, j, row, col;
 	unsigned short curve[256];
@@ -40,10 +36,7 @@ int main (int argc, char **argv)
 
 	const char* fname = argv[1];
 	unsigned long fileLen;  // number of bytes in file
-	unsigned long offset;  // offset into file to start reading pixel data
 	unsigned char *buffer;
-	unsigned short pixel[HPIXELS];  // array holds 16 bits per pixel
-	unsigned char split;        // single byte with 4 pairs of low-order bits
 
 	if (argc != 3) {
 		fprintf (stderr, "Usage: %s infile outfile\n"
@@ -63,20 +56,41 @@ int main (int argc, char **argv)
 	//Get file length
 	fseek(ifp, 0, SEEK_END);
 	fileLen=ftell(ifp);
-	if (fileLen < RAWBLOCKSIZE) {
-		fprintf(stderr, "File %s too short to contain expected 6MB RAW data.\n", fname);
+	switch (fileLen) {
+	case 14065920: // historic
+		HPIXELS = 4320; VPIXELS = 3256;
+		break;
+	case 15925248:
+		HPIXELS = 4608; VPIXELS = 3456; mode=1;
+		break;
+	case 12937632:
+		HPIXELS = 4152; VPIXELS = 3116; mode=2;
+		break;
+	case 11943936:
+		HPIXELS = 3456; VPIXELS = 3456; mode=3;
+		break;
+	case 15335424:
+		HPIXELS = 4608; VPIXELS = 3328; mode=4;
+		break;
+	case 11618752:
+		HPIXELS = 4012; VPIXELS = 2896; mode=4;
+		break;
+	case 7667520:
+		HPIXELS = 3260; VPIXELS = 2352; mode=5;
+		break;
+	default:
+		fprintf(stderr, "File %s Unexpected length!\n", fname);
 		exit(1);
 	}
-	offset = (fileLen - RAWBLOCKSIZE) ;  // location in file the raw header starts
 	fseek(ifp, 0, SEEK_SET); 
  
 	//printf("File length = %d bytes.\n",fileLen);
 	//printf("offset = %d:",offset);
 
 	//Allocate memory for one line of pixel data
-	buffer=(unsigned char *)malloc(5760+1);
-	unsigned short *buffer2=(unsigned short *)malloc(2*4608+1);
-	if (!buffer || !buffer2)
+	buffer=(unsigned char *)malloc(HPIXELS+1);
+	//unsigned short *buffer2=(unsigned short *)malloc(2*4608+1);
+	if (!buffer /*|| !buffer2*/)
 	{
 		fprintf(stderr, "Memory error!");
 		status = ENOMEM;
@@ -89,11 +103,11 @@ int main (int argc, char **argv)
 	TIFFSetField (tif, TIFFTAG_SUBFILETYPE, 1);
 	TIFFSetField (tif, TIFFTAG_IMAGEWIDTH, HPIXELS );
 	TIFFSetField (tif, TIFFTAG_IMAGELENGTH, VPIXELS );
-	TIFFSetField (tif, TIFFTAG_BITSPERSAMPLE, 16);
-	TIFFSetField (tif, TIFFTAG_MAXSAMPLEVALUE, 1023);
+	TIFFSetField (tif, TIFFTAG_BITSPERSAMPLE, 8);
+	//TIFFSetField (tif, TIFFTAG_MAXSAMPLEVALUE, 255);
 	TIFFSetField (tif, TIFFTAG_COMPRESSION, COMPRESSION_NONE);
 	TIFFSetField (tif, TIFFTAG_MAKE, "ImBack");
-	TIFFSetField (tif, TIFFTAG_MODEL, "unknown");
+	TIFFSetField (tif, TIFFTAG_MODEL, modestr[mode]);
 	TIFFSetField (tif, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
 	TIFFSetField (tif, TIFFTAG_SAMPLESPERPIXEL, 1);
 	TIFFSetField (tif, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
@@ -108,6 +122,8 @@ int main (int argc, char **argv)
 	//TIFFSetField (tif, TIFFTAG_CAMERACALIBRATION1, 9, cam_xyz);
 	//TIFFSetField (tif, TIFFTAG_CAMERACALIBRATION2, 9, cam_xyz);
 	TIFFSetField (tif, TIFFTAG_ASSHOTNEUTRAL, 3, neutral);
+	TIFFSetField (tif, 306, "2022:12:31 18:29:13");
+	TIFFSetField (tif, EXIFTAG_DATETIMEORIGINAL /*36867*/, "2022:12:31 18:29:13");
 	//TIFFSetField (tif, TIFFTAG_CALIBRATIONILLUMINANT1, 21);
 	//TIFFSetField (tif, TIFFTAG_CALIBRATIONILLUMINANT2, 21);
 	//TIFFSetField (tif, TIFFTAG_ROWSPERSTRIP, 1);
@@ -131,10 +147,10 @@ int main (int argc, char **argv)
 	fprintf(stderr, "Processing RAW data...\n");
 
 	for (row=0; row < VPIXELS; row++) {  // iterate over pixel rows
-		fread(buffer, 5760, 1, ifp);  // read next line of pixel data
-		int inoff = 0;
+		fread(buffer, HPIXELS, 1, ifp);  // read next line of pixel data
+		/*int inoff = 0;
 		for (int outoff = 0; outoff < 4608; outoff+=4) {
-			/*buffer2[outoff] = buffer[inoff++];
+			/ *buffer2[outoff] = buffer[inoff++];
 			buffer2[outoff+1] = buffer[inoff++];
 			buffer2[outoff+2] = buffer[inoff++];
 			buffer2[outoff+3] = buffer[inoff++];
@@ -142,7 +158,7 @@ int main (int argc, char **argv)
 			buffer2[outoff] |= (split & 0xe0) << 2;
 			buffer2[outoff+1] |= (split & 0x30) << 4;
 			buffer2[outoff+2] |= (split & 0xe) << 6;
-			buffer2[outoff+3] |= (split & 0x3) << 8;*/
+			buffer2[outoff+3] |= (split & 0x3) << 8;* /
 			buffer2[outoff] = buffer[inoff++];
 			buffer2[outoff] |= (buffer[inoff] & 0x3) << 8;
 			buffer2[outoff+1] = buffer[inoff++] >> 2;
@@ -151,10 +167,10 @@ int main (int argc, char **argv)
 			buffer2[outoff+2] |= (buffer[inoff] & 0x3f) << 4;
 			buffer2[outoff+3] = buffer[inoff++] >> 6;
 			buffer2[outoff+3] |= (buffer[inoff] & 0xff) << 8;
-		}
+		}*/
 		//fprintf(stderr,"%d ", inoff);
-		if (TIFFWriteScanline (tif, buffer2, row, 0) != 1) {
-			//int rc;
+		int rc;
+		if ((rc = TIFFWriteScanline (tif, buffer, row, 0) != 1)) {
 			//if ((rc = TIFFWriteRawStrip (tif, row, buffer, HPIXELS)) != HPIXELS) {
 			fprintf(stderr, "Error writing TIFF scanline. %d\n", rc);
 			exit(1);
