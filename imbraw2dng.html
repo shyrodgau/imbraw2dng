@@ -39,6 +39,33 @@ function handleone(f) {
 		return;
 	}
 	msg.innerHTML += "Processing file: " + f.name + "<br>";
+	// date?
+	const yr = Number.parseInt(f.name.substring(0,4));
+	let datestr="";
+	if (yr > 2019 && yr < 3000 && JSON.stringify(yr) === f.name.substring(0,4)) {
+		let mon = Number.parseInt(f.name.substring(5,7));
+		if (mon > 0 && mon < 13 && (JSON.stringify(mon) === f.name.substring(5,7) ||
+			"0" + mon === f.name.substring(5,7))) {
+			let day = Number.parseInt(f.name.substring(7,9));
+			if (day > 0 && day < 32 && (JSON.stringify(day) === f.name.substring(7,9) ||
+				"0" + day === f.name.substring(7,9))) {
+				let hr = Number.parseInt(f.name.substring(10,12));
+				if (hr >= 0 && hr < 25 && (JSON.stringify(hr) === f.name.substring(10,12) ||
+					"0" + hr === f.name.substring(10,12))) {
+					let min = Number.parseInt(f.name.substring(12,14));
+					if (min >= 0 && min <= 60 && (JSON.stringify(min) === f.name.substring(12,14) ||
+						"0" + min === f.name.substring(12,14))) {
+						let sec = Number.parseInt(f.name.substring(14,16));
+						if (sec >= 0 && sec <= 60 && (JSON.stringify(sec) === f.name.substring(14,16) || // maybe leap second?
+							"0" + min === f.name.substring(14,16))) {
+							datestr = "" + yr + ":" + ((mon < 10) ? "0":"") + mon + ":" + ((day < 10) ? "0":"") + day + " "+
+								((hr < 10) ? "0":"") + hr + ":" + ((min < 10) ? "0":"") + min + ":" + ((sec < 10) ? "0":"") + sec;
+						}
+					}
+				}
+			}
+		}
+	}
 	xmsg.style["display"] = "";
 	let w, h;
 	if (f.size === 14065920) {
@@ -78,7 +105,7 @@ function handleone(f) {
 	}
 	else if (f.size === 11618752) {
 		w = 4012; h = 2896;
-		msg.innerHTML += "[" + f.name + "] Assuming 4012x2896 (35mm Angle Large)<br>";
+		msg.innerHTML += "[" + f.name + "] Assuming 4012x2896 (35mm Angle Medium)<br>";
 		xmsg.style["display"] = "";
 		typ = 4;
 	}
@@ -105,7 +132,7 @@ function handleone(f) {
 	else {
 		msg.innerHTML += "<b>[" + f.name + "] File Size " + f.size + " does not match known formats. SORRY! </b><br>&nbsp;<br>";
 		xmsg.style["display"] = "";
-		block--;
+		//block--;
 		return;
 	}
 	const reader = new FileReader();
@@ -125,8 +152,12 @@ function handleone(f) {
 		for (let j=0; j<contents.byteLength; j++) {
 			out[k++] = view.getUint8(j);
 		}
+		//if (datestr.length !== 0)
+		//	out[k++] = 0x18;
+		//else
+			out[k++] = 0x16;
 		const rest0 = [
-			0x16, 0x00, 0xfe, 0x00, 0x04, 0x00, 0x01, 0x00 
+			0x00, 0xfe, 0x00, 0x04, 0x00, 0x01, 0x00
 			, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00
 		]; /* followed by 4b width */
 		out.set(rest0, k);
@@ -141,7 +172,7 @@ function handleone(f) {
 		k += rest1.length;
 		writeinttoout(out, h, k);
 		k += 4;
-	
+
 		const rest2 = [ 0x02, 0x01,
 			0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x03, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x06, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x23, 0x80,
 			0x00, 0x00, 0x0f, 0x01, 0x02, 0x00, 0x07, 0x00, 0x00, 0x00
@@ -158,7 +189,7 @@ function handleone(f) {
 		out.set(rest3, k);
 		k += rest3.length;
 		writeinttoout(out, 286 + (w*h), k);
-		k += 4;		
+		k += 4;
 		/* w*h + 286  1e  a2  d6  00*/
 
 		const rest4 = [ 0x11, 0x01, 0x04, 0x00, 0x01, 0x00,
@@ -170,15 +201,15 @@ function handleone(f) {
 		k += rest4.length;
 		writeinttoout(out, w*h, k);
 		k += 4;
-		
+
 		const rest5 = [ 0x1c, 0x01, 0x03, 0x00, 0x01, 0x00,
 			0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x31, 0x01, 0x02, 0x00, 0x0b, 0x00, 0x00, 0x00
-		]; /* w*h + 38+256  26  a2 0xd6  00 */ 
+		]; /* w*h + 38+256  26  a2 0xd6  00 */
 		out.set(rest5, k);
 		k += rest5.length;
 		writeinttoout(out, 294 + (w*h), k);
 		k += 4;
-		
+
 		const rest6 = [ 0x8d, 0x82, 0x03, 0x00, 0x02, 0x00, 0x00, 0x00, 0x02, 0x00, 0x02, 0x00, 0x8e, 0x82,
 			0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00, 0x02, 0x01, 0x12, 0xc6, 0x01, 0x00, 0x04, 0x00,
 			0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x13, 0xc6, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00,
@@ -189,27 +220,25 @@ function handleone(f) {
 		k += rest6.length;
 		writeinttoout(out, 306 + (w*h), k);
 		k += 4;
-	
-	
+
 		const rest7 = [ 0x1d, 0xc6,
 			0x04, 0x00, 0x01, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x21, 0xc6, 0x0a, 0x00, 0x09, 0x00,
 			0x00, 0x00
 		];
-		/* w*h + 256+58  3a  a2  d6  00 */ 
+		/* w*h + 256+58  3a  a2  d6  00 */
 		out.set(rest7, k);
 		k += rest7.length;
 		writeinttoout(out, 314 + (w*h), k);
 		k += 4;
-			
-			
-		const rest8 = [ 0x28, 0xc6, 0x05, 0x00, 0x03, 0x00, 0x00, 0x00 ];	
-		/* w*h + 256+130  82  a2 d6a210  0xd6  00 */ 
+
+		const rest8 = [ 0x28, 0xc6, 0x05, 0x00, 0x03, 0x00, 0x00, 0x00 ];
+		/* w*h + 256+130  82  a2 d6a210  0xd6  00 */
 		out.set(rest8, k);
 		k += rest8.length;
 		off = 386 + (w*h);
 		writeinttoout(out, 386 + (w*h), k);
 		k += 4;
-	
+
 		const rest9 = [ 0x00, 0x00, 0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x00, 0x00 ];
 		out.set(rest9, k);
 		k += rest9.length;
@@ -257,12 +286,12 @@ function handleone(f) {
 		outel.click();
 		msg.innerHTML += "<b>[" + f.name + "] Finished! Wrote " + f.name + ".dng (Check Download Folder)</b> <a download=\"" + f.name + ".dng\" href=\"" + thisurl + "\">Manually download again</a>&nbsp;<br>&nbsp;<br>";
 		xmsg.style["display"] = "";
-		block--;
+		//block--;
 	}
 	reader.onerror = function(evt) {
 		msg.innerHTML += "<b>Error occured reading file " + f.name + ". SORRY! </b><br>&nbsp;<br>";
 		xmsg.style["display"] = "";
-		block--;
+		//block--;
 	}
 	reader.readAsArrayBuffer(f);
 }
@@ -292,7 +321,7 @@ Drop Files here: <br>
 <div  style="font-size:133%;">Or select RAW File: <input type="file" id="infile" name="infile" onchange="showme()"></div><br>
 <!--Width if not standard file: <input type="number" min="2000" max="5000" id="inwidth" name="inwidth" onchange="showme()"><br>-->
 &nbsp;<br>
-<div id="xmsg" style="display: none; width: fit-content; background-color: rgba(0,255,0,0.2);">Message Log:<br>
+<div id="xmsg" style="display: none; width: fit-content; background-color: rgba(0,255,0,0.2); white-space: pre;">Message Log:<br>
 <div id="outmsg"></div></div>
 <a style="display: none;" id="result">x</a>
 </body>

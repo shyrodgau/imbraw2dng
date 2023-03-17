@@ -13,8 +13,8 @@ int main (int argc, char **argv)
 {
 	unsigned int HPIXELS, VPIXELS, mode = 0;
 	char *modestr[] = { "unknown", "MF 6x7 ", "MF6x4.5", "MF 6x6 ", "ImB35mm" };
-	
-	
+
+
 	static const short CFARepeatPatternDim[] = { 2,2 };
 	// this color matrix is definitely inaccurate, TODO: calibrate
 	static const float cam_xyz[] = {
@@ -24,10 +24,10 @@ int main (int argc, char **argv)
 		0.000,	0.000,	1.000	// B
 	};
 	static const float neutral[] = { 1.0, 1.0, 1.0 }; // TODO calibrate
-	long sub_offset=0, white=0x0ff;
+	long white=0x0ff;
 
-	int status=1, i, j, row, col;
-	unsigned short curve[256];
+	int status=1, row;
+	// unsigned short curve[256];
 	struct stat st;
 	struct tm tm;
 	char datetime[64];
@@ -82,8 +82,8 @@ int main (int argc, char **argv)
 		fprintf(stderr, "File %s Unexpected length!\n", fname);
 		exit(1);
 	}
-	fseek(ifp, 0, SEEK_SET); 
- 
+	fseek(ifp, 0, SEEK_SET);
+
 	//printf("File length = %d bytes.\n",fileLen);
 	//printf("offset = %d:",offset);
 
@@ -96,10 +96,24 @@ int main (int argc, char **argv)
 		status = ENOMEM;
 		goto fail;
 	}
-		
+
+	// make datetimeoriginal accessible
+	TIFFFieldInfo ti[] = { {
+		.field_tag = EXIFTAG_DATETIMEORIGINAL,
+		.field_readcount = TIFF_VARIABLE,
+		.field_writecount = TIFF_VARIABLE,
+		.field_type = TIFF_ASCII,
+		.field_bit = FIELD_CUSTOM,
+		.field_oktochange = 0,
+		.field_passcount = 0,
+		.field_name = "datetimeorig"
+	} };
+
 	if (!(tif = TIFFOpen (argv[2], "w"))) goto fail;
 	//fprintf(stderr, "Writing TIFF header...\n");
-	
+
+	TIFFMergeFieldInfo(tif, ti, 1);
+
 	TIFFSetField (tif, TIFFTAG_SUBFILETYPE, 1);
 	TIFFSetField (tif, TIFFTAG_IMAGEWIDTH, HPIXELS );
 	TIFFSetField (tif, TIFFTAG_IMAGELENGTH, VPIXELS );
@@ -122,7 +136,7 @@ int main (int argc, char **argv)
 	//TIFFSetField (tif, TIFFTAG_CAMERACALIBRATION1, 9, cam_xyz);
 	//TIFFSetField (tif, TIFFTAG_CAMERACALIBRATION2, 9, cam_xyz);
 	TIFFSetField (tif, TIFFTAG_ASSHOTNEUTRAL, 3, neutral);
-	TIFFSetField (tif, 306, "2022:12:31 18:29:13");
+	TIFFSetField (tif, TIFFTAG_DATETIME, "2022:12:31 18:29:13");
 	TIFFSetField (tif, EXIFTAG_DATETIMEORIGINAL /*36867*/, "2022:12:31 18:29:13");
 	//TIFFSetField (tif, TIFFTAG_CALIBRATIONILLUMINANT1, 21);
 	//TIFFSetField (tif, TIFFTAG_CALIBRATIONILLUMINANT2, 21);
@@ -130,7 +144,7 @@ int main (int argc, char **argv)
 	//TIFFSetField (tif, TIFFTAG_ORIGINALRAWFILENAME, strlen(fname), fname);
 
 	// fprintf(stderr, "Writing TIFF thumbnail...\n");
-	//memset (pixel, 0, HPIXELS);	// all-black thumbnail 
+	//memset (pixel, 0, HPIXELS);	// all-black thumbnail
 	//for (row=0; row < VPIXELS >> 6; row++)
 	//	TIFFWriteScanline (tif, pixel, row, 0);
 	//TIFFWriteDirectory (tif);
@@ -140,7 +154,7 @@ int main (int argc, char **argv)
 	TIFFSetField (tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_CFA);
 	TIFFSetField (tif, TIFFTAG_CFAREPEATPATTERNDIM, CFARepeatPatternDim);
 	TIFFSetField (tif, TIFFTAG_SUBFILETYPE, 0);
-	TIFFSetField (tif, TIFFTAG_CFAPATTERN, /*, 4*/ cfapat); // 0 = Red, 1 = Green, 2 = Blue, 3 = Cyan, 4 = Magenta, 5 = Yellow, 6 = White 
+	TIFFSetField (tif, TIFFTAG_CFAPATTERN, /*, 4*/ cfapat); // 0 = Red, 1 = Green, 2 = Blue, 3 = Cyan, 4 = Magenta, 5 = Yellow, 6 = White
 	//TIFFSetField (tif, TIFFTAG_LINEARIZATIONTABLE, 256, curve);
 	TIFFSetField (tif, TIFFTAG_WHITELEVEL, 1, &white);
 
