@@ -4,3 +4,9 @@ Convert RAW from I'm Back into DNG. They are not really "B&W RAW" but actually t
 Currently known to work half-way for 35mm I'm Back and current MF Firmware.
 
 MF Formats are know to make problems with older firmware.
+
+**Installation:**
+
+Copy the html file to your PC and open in your favorite browser (any newer one should do).
+
+There is an online version at [imback.eu](https://imback.eu/home/im-back-raw-dng-converter-ib35/) but the image data will stay in your browser!
