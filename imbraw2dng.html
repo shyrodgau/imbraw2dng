@@ -41,25 +41,32 @@ function handleone(f) {
 	msg.innerHTML += "Processing file: " + f.name + "<br>";
 	// date?
 	const yr = Number.parseInt(f.name.substring(0,4));
+	let rawname = f.name;
+	while (rawname.indexOf("/") > -1) {
+		rawname = rawname.substring(rawname.indexOf("/") + 1);
+		console.log(rawname);
+	}
+	const rawarr = new TextEncoder().encode(rawname);
 	let datestr="";
-	if (yr > 2019 && yr < 3000 && JSON.stringify(yr) === f.name.substring(0,4)) {
-		let mon = Number.parseInt(f.name.substring(5,7));
-		if (mon > 0 && mon < 13 && (JSON.stringify(mon) === f.name.substring(5,7) ||
-			"0" + mon === f.name.substring(5,7))) {
-			let day = Number.parseInt(f.name.substring(7,9));
-			if (day > 0 && day < 32 && (JSON.stringify(day) === f.name.substring(7,9) ||
-				"0" + day === f.name.substring(7,9))) {
-				let hr = Number.parseInt(f.name.substring(10,12));
-				if (hr >= 0 && hr < 25 && (JSON.stringify(hr) === f.name.substring(10,12) ||
-					"0" + hr === f.name.substring(10,12))) {
-					let min = Number.parseInt(f.name.substring(12,14));
-					if (min >= 0 && min <= 60 && (JSON.stringify(min) === f.name.substring(12,14) ||
-						"0" + min === f.name.substring(12,14))) {
-						let sec = Number.parseInt(f.name.substring(14,16));
-						if (sec >= 0 && sec <= 60 && (JSON.stringify(sec) === f.name.substring(14,16) || // maybe leap second?
-							"0" + min === f.name.substring(14,16))) {
+	if (yr > 2019 && yr < 3000 && JSON.stringify(yr) === rawname.substring(0,4)) {
+		let mon = Number.parseInt(rawname.substring(5,7));
+		if (mon > 0 && mon < 13 && (JSON.stringify(mon) === rawname.substring(5,7) ||
+			"0" + mon === rawname.substring(5,7))) {
+			let day = Number.parseInt(rawname.substring(7,9));
+			if (day > 0 && day < 32 && (JSON.stringify(day) === rawname.substring(7,9) ||
+				"0" + day === rawname.substring(7,9))) {
+				let hr = Number.parseInt(rawname.substring(10,12));
+				if (hr >= 0 && hr < 25 && (JSON.stringify(hr) === rawname.substring(10,12) ||
+					"0" + hr === rawname.substring(10,12))) {
+					let min = Number.parseInt(rawname.substring(12,14));
+					if (min >= 0 && min <= 60 && (JSON.stringify(min) === rawname.substring(12,14) ||
+						"0" + min === rawname.substring(12,14))) {
+						let sec = Number.parseInt(rawname.substring(14,16));
+						if (sec >= 0 && sec <= 60 && (JSON.stringify(sec) === rawname.substring(14,16) || // maybe leap second?
+							"0" + min === rawname.substring(14,16))) {
 							datestr = "" + yr + ":" + ((mon < 10) ? "0":"") + mon + ":" + ((day < 10) ? "0":"") + day + " "+
 								((hr < 10) ? "0":"") + hr + ":" + ((min < 10) ? "0":"") + min + ":" + ((sec < 10) ? "0":"") + sec;
+							console.log('date ' + datestr);
 						}
 					}
 				}
@@ -142,7 +149,7 @@ function handleone(f) {
 		const contents = evt.target.result;
 		const view = new DataView(contents);
 		console.log(JSON.stringify(view.getUint8(0)));
-		const out = new Uint8Array(f.size + 410);
+		const out = new Uint8Array(f.size + rawarr.length + (datestr.length === 0 ? 422: 486));
 		out[0] = 0x49;
 		out[1] = 0x49;
 		out[2] = 0x2a;
@@ -152,10 +159,10 @@ function handleone(f) {
 		for (let j=0; j<contents.byteLength; j++) {
 			out[k++] = view.getUint8(j);
 		}
-		//if (datestr.length !== 0)
-		//	out[k++] = 0x18;
-		//else
-			out[k++] = 0x16;
+		if (datestr.length !== 0)
+			out[k++] = 0x19;
+		else
+			out[k++] = 0x17;
 		const rest0 = [
 			0x00, 0xfe, 0x00, 0x04, 0x00, 0x01, 0x00
 			, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00
@@ -179,7 +186,7 @@ function handleone(f) {
 		];
 		out.set(rest2, k);
 		k += rest2.length;
-		writeinttoout(out, 278 + (w*h), k);
+		writeinttoout(out, (w*h) + (datestr.length === 0 ? 290 : 314), k);
 		k += 4;
 		/* w*h + 278  16  a2  d6  00*/
 
@@ -188,7 +195,7 @@ function handleone(f) {
 		];
 		out.set(rest3, k);
 		k += rest3.length;
-		writeinttoout(out, 286 + (w*h), k);
+		writeinttoout(out, (w*h) + (datestr.length === 0 ? 298 : 322), k);
 		k += 4;
 		/* w*h + 286  1e  a2  d6  00*/
 
@@ -207,20 +214,38 @@ function handleone(f) {
 		]; /* w*h + 38+256  26  a2 0xd6  00 */
 		out.set(rest5, k);
 		k += rest5.length;
-		writeinttoout(out, 294 + (w*h), k);
+		writeinttoout(out, (w*h) + (datestr.length === 0 ? 306 : 330), k);
 		k += 4;
 
+		if (datestr.length > 0) {
+			const rest5a = [ 0x32, 0x01, 0x02, 0x00, 0x14, 0x00, 0x00, 0x00 ];
+			out.set(rest5a, k);
+			k += rest5a.length;
+			writeinttoout(out, (w*h) + 128+318, k);
+			k += 4;
+		}
+
 		const rest6 = [ 0x8d, 0x82, 0x03, 0x00, 0x02, 0x00, 0x00, 0x00, 0x02, 0x00, 0x02, 0x00, 0x8e, 0x82,
-			0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00, 0x02, 0x01, 0x12, 0xc6, 0x01, 0x00, 0x04, 0x00,
+			0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00, 0x02, 0x01, ];
+		out.set(rest6, k);
+		k += rest6.length;
+
+		if (datestr.length > 0) {
+			const rest6a = [ 0x03, 0x90, 0x02, 0x00, 0x14, 0x00, 0x00, 0x00 ];
+			out.set(rest6a, k);
+			k += rest6a.length;
+			writeinttoout(out, (w*h) + 148+318, k);
+			k += 4;
+		}
+		const rest6c = [0x12, 0xc6, 0x01, 0x00, 0x04, 0x00,
 			0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x13, 0xc6, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00,
 			0x00, 0x00, 0x14, 0xc6, 0x02, 0x00, 0x07, 0x00, 0x00, 0x00
 		];
 		/* w*h + 256+50  32  a2  d6  00 */
-		out.set(rest6, k);
-		k += rest6.length;
-		writeinttoout(out, 306 + (w*h), k);
+		out.set(rest6c, k);
+		k += rest6c.length;
+		writeinttoout(out, (datestr.length > 0 ? 342 : 318) + (w*h), k);
 		k += 4;
-
 		const rest7 = [ 0x1d, 0xc6,
 			0x04, 0x00, 0x01, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x21, 0xc6, 0x0a, 0x00, 0x09, 0x00,
 			0x00, 0x00
@@ -228,17 +253,24 @@ function handleone(f) {
 		/* w*h + 256+58  3a  a2  d6  00 */
 		out.set(rest7, k);
 		k += rest7.length;
-		writeinttoout(out, 314 + (w*h), k);
+		writeinttoout(out, (datestr.length > 0 ? 350 : 326) + (w*h), k);
 		k += 4;
 
 		const rest8 = [ 0x28, 0xc6, 0x05, 0x00, 0x03, 0x00, 0x00, 0x00 ];
 		/* w*h + 256+130  82  a2 d6a210  0xd6  00 */
 		out.set(rest8, k);
 		k += rest8.length;
-		off = 386 + (w*h);
-		writeinttoout(out, 386 + (w*h), k);
+		writeinttoout(out, (datestr.length > 0 ? 422 : 398) + (w*h), k);
 		k += 4;
 
+		const rest8b = [ 0x8b, 0xc6, 0x01, 0x00 ];
+		out.set(rest8b, k);
+		k += rest8b.length;
+		writeinttoout(out, rawarr.length, k);
+		k += 4;
+		writeinttoout(out, (datestr.length > 0 ? 486: 422) + (w*h), k);
+		k += 4;
+		
 		const rest9 = [ 0x00, 0x00, 0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x00, 0x00 ];
 		out.set(rest9, k);
 		k += rest9.length;
@@ -278,9 +310,15 @@ function handleone(f) {
 		];
 		out.set(rest10, k);
 		k += rest10.length;
+		if (datestr.length > 0) {
+			const datearr = new TextEncoder().encode(datestr);
+			out.set(datearr, w*h + 446);
+			out.set(datearr, w*h + 466);
+		}
+		out.set(new TextEncoder().encode(rawname), (w*h) + (datestr.length > 0 ? 486 : 422));
 		const b = new Blob([ out ], { type: "application/octet-stream"});
 		const outel = document.getElementById('result');
-		outel.download = f.name + '.dng';
+		outel.download = rawname + '.dng';
 		const thisurl = URL.createObjectURL(b);
 		outel.href = thisurl;
 		outel.click();
