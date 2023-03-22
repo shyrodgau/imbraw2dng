@@ -33,21 +33,51 @@ function handleone(f) {
 	let typ = 0;
 	const msg = document.getElementById('outmsg');
 	const xmsg = document.getElementById('xmsg');
+	xmsg.style["display"] = "";
 	if (undefined === f) {
 		msg.innerHTML += "Nothing selected...?<br>&nbsp;<br>";
-		xmsg.style["display"] = "";
 		return;
 	}
-	msg.innerHTML += "Processing file: " + f.name + "<br>";
-	// date?
-	const yr = Number.parseInt(f.name.substring(0,4));
 	let rawname = f.name;
 	while (rawname.indexOf("/") > -1) {
 		rawname = rawname.substring(rawname.indexOf("/") + 1);
 		console.log(rawname);
 	}
 	const rawarr = new TextEncoder().encode(rawname);
+	if (rawname.substring(rawname.length -4).toUpperCase() === '.JPG' || rawname.substring(rawname.length -5).toUpperCase() === '.JPEG')
+	{
+		msg.innerHTML += "Passing through as jpeg: " + f.name + "<br>";
+		const reader = new FileReader();
+		reader.onload = function(evt) {
+			const contents = evt.target.result;
+			const view = new DataView(contents);
+			console.log(JSON.stringify(view.getUint8(0)));
+			const out = new Uint8Array(f.size);
+			for (let j=0; j<contents.byteLength; j++) {
+				out[j] = view.getUint8(j);
+			}
+			const b = new Blob([ out ], { type: "application/octet-stream"});
+			const outel = document.getElementById('result');
+			outel.download = rawname;
+			const thisurl = URL.createObjectURL(b);
+			outel.href = thisurl;
+			outel.click();
+			msg.innerHTML += "<b style=\"background-color:#ddffdd;\">[" + f.name + "] Finished! Copied to " + f.name + " (Check Download Folder)</b><br>&nbsp;<br>";
+		}
+		reader.onerror = function(evt) {
+			msg.innerHTML += "<b style=\"background-color:#ffdddd;\">Error occured reading file " + f.name + ". SORRY! </b><br>&nbsp;<br>";
+		}
+		reader.readAsArrayBuffer(f);
+		return;
+	}
+	else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
+			msg.innerHTML += "<b style=\"background-color:#ffdddd;\">Refusing to handle files not RAW or JP[E]G: " + f.name + ". SORRY! </b><br>&nbsp;<br>";
+			return;
+	}
+	msg.innerHTML += "Processing file: " + f.name + "<br>";
 	let datestr="";
+	// date?
+	const yr = Number.parseInt(rawname.substring(0,4));
 	if (yr > 2019 && yr < 3000 && JSON.stringify(yr) === rawname.substring(0,4)) {
 		let mon = Number.parseInt(rawname.substring(5,7));
 		if (mon > 0 && mon < 13 && (JSON.stringify(mon) === rawname.substring(5,7) ||
@@ -73,53 +103,44 @@ function handleone(f) {
 			}
 		}
 	}
-	xmsg.style["display"] = "";
 	let w, h;
 	if (f.size === 14065920) {
 		w = 4320; h = 3256;
 		msg.innerHTML += "[" + f.name + "] Assuming 4320x3256 (historic)<br>";
-		xmsg.style["display"] = "";
 	}
 	else if (f.size === 15925248) {
 		w = 4608; h = 3456;
 		msg.innerHTML += "[" + f.name + "] Assuming 4608x3456 (MF 6x7)<br>";
-		xmsg.style["display"] = "";
 		typ = 1;
 	}
 	/*else if (f.size === 21233664) {
 		w = 4608; h = 4608;
 		msg.innerHTML += "[" + f.name + "] Assuming 4608x3456 (MF 6x7)<br>";
-		xmsg.style["display"] = "";
 		typ = 1;
 	}*/
 	else if (f.size === 12937632) {
 		w = 4152; h = 3116;
 		msg.innerHTML += "[" + f.name + "] Assuming 4152x3116 (MF 6x4.5)<br>";
-		xmsg.style["display"] = "";
 		typ = 2;
 	}
 	else if (f.size === 11943936) {
 		w = 3456; h = 3456;
 		msg.innerHTML += "[" + f.name + "] Assuming 3456x3456 (MF 6x6)<br>";
-		xmsg.style["display"] = "";
 		typ = 3;
 	}
 	else if (f.size === 15335424) {
 		w = 4608; h = 3328;
 		msg.innerHTML += "[" + f.name + "] Assuming 4608x3328 (35mm)<br>";
-		xmsg.style["display"] = "";
 		typ = 4;
 	}
 	else if (f.size === 11618752) {
 		w = 4012; h = 2896;
 		msg.innerHTML += "[" + f.name + "] Assuming 4012x2896 (35mm Angle Medium)<br>";
-		xmsg.style["display"] = "";
 		typ = 4;
 	}
 	else if (f.size === 7667520) {
 		w = 3260; h = 2352;
 		msg.innerHTML += "[" + f.name + "] Assuming 3260x2352 (35mm Angle Small)<br>";
-		xmsg.style["display"] = "";
 		typ = 4;
 	}
 	/*else if (document.getElementById('inwidth').value !== '') {
@@ -128,24 +149,20 @@ function handleone(f) {
 		if (calch * w === f.size) {
 			h = calch;
 			msg.innerHTML += "[" + f.name + "] Assuming " + w + "x" + h + " from your given width<br>";
-		xmsg.style["display"] = "";
 		}
 		else {
-			msg.innerHTML += "<b>[" + f.name + "] File Size " + f.size + " does not match integer number of rows for given width " + w + ", SORRY! </b><br>&nbsp;<br>";
-		xmsg.style["display"] = "";
+			msg.innerHTML += "<b style=\"background-color:#ffdddd;\">[" + f.name + "] File Size " + f.size + " does not match integer number of rows for given width " + w + ", SORRY! </b><br>&nbsp;<br>";
 			return;
 		}
 	}*/
 	else {
-		msg.innerHTML += "<b>[" + f.name + "] File Size " + f.size + " does not match known formats. SORRY! </b><br>&nbsp;<br>";
-		xmsg.style["display"] = "";
+		msg.innerHTML += "<b style=\"background-color:#ffdddd;\">[" + f.name + "] File Size " + f.size + " does not match known formats. SORRY! </b><br>&nbsp;<br>";
 		//block--;
 		return;
 	}
 	const reader = new FileReader();
 	reader.onload = function(evt) {
 		msg.innerHTML += "[" + f.name + "] Please wait...<br>";
-		xmsg.style["display"] = "";
 		const contents = evt.target.result;
 		const view = new DataView(contents);
 		console.log(JSON.stringify(view.getUint8(0)));
@@ -322,13 +339,11 @@ function handleone(f) {
 		const thisurl = URL.createObjectURL(b);
 		outel.href = thisurl;
 		outel.click();
-		msg.innerHTML += "<b>[" + f.name + "] Finished! Wrote " + f.name + ".dng (Check Download Folder)</b> <a download=\"" + f.name + ".dng\" href=\"" + thisurl + "\">Manually download again</a>&nbsp;<br>&nbsp;<br>";
-		xmsg.style["display"] = "";
+		msg.innerHTML += "<b style=\"background-color:#ddffdd;\">[" + f.name + "] Finished! Wrote " + f.name + ".dng (Check Download Folder)</b> <!--a download=\"" + f.name + ".dng\" href=\"" + thisurl + "\">Manually download again</a-->&nbsp;<br>&nbsp;<br>";
 		//block--;
 	}
 	reader.onerror = function(evt) {
-		msg.innerHTML += "<b>Error occured reading file " + f.name + ". SORRY! </b><br>&nbsp;<br>";
-		xmsg.style["display"] = "";
+		msg.innerHTML += "<b style=\"background-color:#ffdddd;\">Error occured reading file " + f.name + ". SORRY! </b><br>&nbsp;<br>";
 		//block--;
 	}
 	reader.readAsArrayBuffer(f);
@@ -354,12 +369,13 @@ function prevdef(ev) {
 </script>
 </head>
 <body>
-Drop Files here: <br>
+Drop RAW or jpeg Files here: <br>
+(Browser may ask you if you want to allow downloading multiple files. Jpeg Files simply will be copied.)<br>
 <div id="droptarget" ondrop="drophandler(event);" ondragenter="prevdef(event);" ondragover="prevdef(event);" style="border: 5px solid blue;width:200px; height:100px;background-color: rgba(0,0,255,0.2);"></div><br>
-<div  style="font-size:133%;">Or select RAW File: <input type="file" id="infile" name="infile" onchange="showme()"></div><br>
+<div  style="font-size:133%;">Or select RAW File: <input type="file" accept=".raw,.RAW" id="infile" name="infile" onchange="showme()"></div><br>
 <!--Width if not standard file: <input type="number" min="2000" max="5000" id="inwidth" name="inwidth" onchange="showme()"><br>-->
 &nbsp;<br>
-<div id="xmsg" style="display: none; width: fit-content; background-color: rgba(0,255,0,0.2); white-space: pre;">Message Log:<br>
+<div id="xmsg" style="display: none; width: fit-content;white-space: pre;">Message Log:<br>
 <div id="outmsg"></div></div>
 <a style="display: none;" id="result">x</a>
 </body>
