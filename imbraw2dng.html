@@ -7,16 +7,17 @@ Convert RAW from I'm back into DNG
 
 Stefan Hegny, 2023
 
+https://github.com/shyrodgau/imbraw2dng
+
 Free software, use at own risk for whatever you like
 
 Use: open in browser and select RAW
 
 Todo:
 optimize color matrix
-add metadata
 -->
 <head>
-<title>ImB RAW to DNG</title>
+<title>ImB RAW to DNG Converter</title>
 <script type="text/javascript" language="javascript">
 function writeinttoout(out, num, off) {
 	out[off] = (num % 256);
@@ -24,13 +25,12 @@ function writeinttoout(out, num, off) {
 	out[off + 2] = (num / 65536) % 256;
 	out[off + 3] = (num / 16777216) % 256;
 }
-function showme() {
+function fselected() {
 	const el = document.getElementById('infile');
 	const f = el.files[0];
 	handleone(f);
 }
 function handleone(f) {
-	let typ = 0;
 	const msg = document.getElementById('outmsg');
 	const xmsg = document.getElementById('xmsg');
 	xmsg.style["display"] = "";
@@ -41,17 +41,13 @@ function handleone(f) {
 	let rawname = f.name;
 	while (rawname.indexOf("/") > -1) {
 		rawname = rawname.substring(rawname.indexOf("/") + 1);
-		console.log(rawname);
 	}
-	const rawarr = new TextEncoder().encode(rawname);
-	if (rawname.substring(rawname.length -4).toUpperCase() === '.JPG' || rawname.substring(rawname.length -5).toUpperCase() === '.JPEG')
-	{
-		msg.innerHTML += "Passing through as jpeg: " + f.name + "<br>";
+	if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
 		const reader = new FileReader();
 		reader.onload = function(evt) {
+			msg.innerHTML += "Passing through as not raw: " + f.name + "<br>";
 			const contents = evt.target.result;
 			const view = new DataView(contents);
-			console.log(JSON.stringify(view.getUint8(0)));
 			const out = new Uint8Array(f.size);
 			for (let j=0; j<contents.byteLength; j++) {
 				out[j] = view.getUint8(j);
@@ -62,7 +58,7 @@ function handleone(f) {
 			const thisurl = URL.createObjectURL(b);
 			outel.href = thisurl;
 			outel.click();
-			msg.innerHTML += "<b style=\"background-color:#ddffdd;\">[" + f.name + "] Finished! Copied to " + f.name + " (Check Download Folder)</b><br>&nbsp;<br>";
+			msg.innerHTML += "<b style=\"background-color:#ddffdd;\">Finished! Copied to " + f.name + " (Check Download Folder)</b><br>&nbsp;<br>";
 		}
 		reader.onerror = function(evt) {
 			msg.innerHTML += "<b style=\"background-color:#ffdddd;\">Error occured reading file " + f.name + ". SORRY! </b><br>&nbsp;<br>";
@@ -70,15 +66,11 @@ function handleone(f) {
 		reader.readAsArrayBuffer(f);
 		return;
 	}
-	else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
-			msg.innerHTML += "<b style=\"background-color:#ffdddd;\">Refusing to handle files not RAW or JP[E]G: " + f.name + ". SORRY! </b><br>&nbsp;<br>";
-			return;
-	}
-	msg.innerHTML += "Processing file: " + f.name + "<br>";
+	const rawarr = new TextEncoder().encode(rawname);
 	let datestr="";
 	// date?
 	const yr = Number.parseInt(rawname.substring(0,4));
-	if (yr > 2019 && yr < 3000 && JSON.stringify(yr) === rawname.substring(0,4)) {
+	if (yr >= 2019 && yr < 3000 && JSON.stringify(yr) === rawname.substring(0,4)) {
 		let mon = Number.parseInt(rawname.substring(5,7));
 		if (mon > 0 && mon < 13 && (JSON.stringify(mon) === rawname.substring(5,7) ||
 			"0" + mon === rawname.substring(5,7))) {
@@ -93,79 +85,65 @@ function handleone(f) {
 						"0" + min === rawname.substring(12,14))) {
 						let sec = Number.parseInt(rawname.substring(14,16));
 						if (sec >= 0 && sec <= 60 && (JSON.stringify(sec) === rawname.substring(14,16) || // maybe leap second?
-							"0" + min === rawname.substring(14,16))) {
+							"0" + sec === rawname.substring(14,16))) {
 							datestr = "" + yr + ":" + ((mon < 10) ? "0":"") + mon + ":" + ((day < 10) ? "0":"") + day + " "+
 								((hr < 10) ? "0":"") + hr + ":" + ((min < 10) ? "0":"") + min + ":" + ((sec < 10) ? "0":"") + sec;
-							console.log('date ' + datestr);
 						}
 					}
 				}
 			}
 		}
 	}
-	let w, h;
+	let w, h, mode = "??";
+	let typ = 0;
+	const types = [ "unknown", "MF 6x7 ", "MF6x4.5", "MF 6x6 ", "ImB35mm" ];
 	if (f.size === 14065920) {
 		w = 4320; h = 3256;
-		msg.innerHTML += "[" + f.name + "] Assuming 4320x3256 (historic)<br>";
+		mode = "historic (4320x3256)";
 	}
 	else if (f.size === 15925248) {
 		w = 4608; h = 3456;
-		msg.innerHTML += "[" + f.name + "] Assuming 4608x3456 (MF 6x7)<br>";
 		typ = 1;
+		mode = "(4608x3456)";
 	}
-	/*else if (f.size === 21233664) {
-		w = 4608; h = 4608;
-		msg.innerHTML += "[" + f.name + "] Assuming 4608x3456 (MF 6x7)<br>";
-		typ = 1;
-	}*/
 	else if (f.size === 12937632) {
 		w = 4152; h = 3116;
-		msg.innerHTML += "[" + f.name + "] Assuming 4152x3116 (MF 6x4.5)<br>";
 		typ = 2;
+		mode = "(4152x3116)";
 	}
 	else if (f.size === 11943936) {
 		w = 3456; h = 3456;
-		msg.innerHTML += "[" + f.name + "] Assuming 3456x3456 (MF 6x6)<br>";
 		typ = 3;
+		mode = "(3456x3456)";
 	}
 	else if (f.size === 15335424) {
 		w = 4608; h = 3328;
-		msg.innerHTML += "[" + f.name + "] Assuming 4608x3328 (35mm)<br>";
 		typ = 4;
+		mode = "(4608x3328)";
 	}
 	else if (f.size === 11618752) {
 		w = 4012; h = 2896;
-		msg.innerHTML += "[" + f.name + "] Assuming 4012x2896 (35mm Angle Medium)<br>";
 		typ = 4;
+		mode = "Medium-angle (4012x2896)";
 	}
 	else if (f.size === 7667520) {
 		w = 3260; h = 2352;
-		msg.innerHTML += "[" + f.name + "] Assuming 3260x2352 (35mm Angle Small)<br>";
 		typ = 4;
+		mode = "Small-angle (3260x2352)";
 	}
-	/*else if (document.getElementById('inwidth').value !== '') {
-		w = document.getElementById('inwidth').value;
-		const calch = Math.floor(f.size / w);
-		if (calch * w === f.size) {
-			h = calch;
-			msg.innerHTML += "[" + f.name + "] Assuming " + w + "x" + h + " from your given width<br>";
-		}
-		else {
-			msg.innerHTML += "<b style=\"background-color:#ffdddd;\">[" + f.name + "] File Size " + f.size + " does not match integer number of rows for given width " + w + ", SORRY! </b><br>&nbsp;<br>";
-			return;
-		}
-	}*/
 	else {
 		msg.innerHTML += "<b style=\"background-color:#ffdddd;\">[" + f.name + "] File Size " + f.size + " does not match known formats. SORRY! </b><br>&nbsp;<br>";
-		//block--;
 		return;
 	}
 	const reader = new FileReader();
 	reader.onload = function(evt) {
-		msg.innerHTML += "[" + f.name + "] Please wait...<br>";
+		msg.innerHTML += "Processing file: " + f.name + "<br>";
+		msg.innerHTML += "Assuming " + types[typ] + " " + mode + "<br>";
+		if (datestr.length > 0) {
+			msg.innerHTML += "Date/Time: " + datestr + "<br>";
+		}
 		const contents = evt.target.result;
 		const view = new DataView(contents);
-		console.log(JSON.stringify(view.getUint8(0)));
 		const out = new Uint8Array(f.size + rawarr.length + (datestr.length === 0 ? 422: 486));
 		out[0] = 0x49;
 		out[1] = 0x49;
@@ -181,8 +159,7 @@ function handleone(f) {
 		else
 			out[k++] = 0x17;
 		const rest0 = [
-			0x00, 0xfe, 0x00, 0x04, 0x00, 0x01, 0x00
-			, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00
+			0x00, 0xfe, 0x00, 0x04, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00
 		]; /* followed by 4b width */
 		out.set(rest0, k);
 		k += rest0.length;
@@ -205,30 +182,26 @@ function handleone(f) {
 		k += rest2.length;
 		writeinttoout(out, (w*h) + (datestr.length === 0 ? 290 : 314), k);
 		k += 4;
-		/* w*h + 278  16  a2  d6  00*/
 
-		const rest3 = [ 0x10, 0x01,
-			0x02, 0x00, 0x08, 0x00, 0x00, 0x00
+		const rest3 = [ 0x10, 0x01, 0x02, 0x00, 0x08, 0x00, 0x00, 0x00
 		];
 		out.set(rest3, k);
 		k += rest3.length;
 		writeinttoout(out, (w*h) + (datestr.length === 0 ? 298 : 322), k);
 		k += 4;
-		/* w*h + 286  1e  a2  d6  00*/
 
 		const rest4 = [ 0x11, 0x01, 0x04, 0x00, 0x01, 0x00,
 			0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x12, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
 			0x00, 0x00, 0x15, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x17, 0x01,
 			0x04, 0x00, 0x01, 0x00, 0x00, 0x00
-		]; /* w*h  00  a1  d6  00*/
+		];
 		out.set(rest4, k);
 		k += rest4.length;
 		writeinttoout(out, w*h, k);
 		k += 4;
 
-		const rest5 = [ 0x1c, 0x01, 0x03, 0x00, 0x01, 0x00,
-			0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x31, 0x01, 0x02, 0x00, 0x0b, 0x00, 0x00, 0x00
-		]; /* w*h + 38+256  26  a2 0xd6  00 */
+		const rest5 = [ 0x1c, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x31, 0x01, 0x02, 0x00, 0x0b, 0x00, 0x00, 0x00
+		];
 		out.set(rest5, k);
 		k += rest5.length;
 		writeinttoout(out, (w*h) + (datestr.length === 0 ? 306 : 330), k);
@@ -242,8 +215,7 @@ function handleone(f) {
 			k += 4;
 		}
 
-		const rest6 = [ 0x8d, 0x82, 0x03, 0x00, 0x02, 0x00, 0x00, 0x00, 0x02, 0x00, 0x02, 0x00, 0x8e, 0x82,
-			0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00, 0x02, 0x01, ];
+		const rest6 = [ 0x8d, 0x82, 0x03, 0x00, 0x02, 0x00, 0x00, 0x00, 0x02, 0x00, 0x02, 0x00, 0x8e, 0x82, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00, 0x02, 0x01, ];
 		out.set(rest6, k);
 		k += rest6.length;
 
@@ -254,27 +226,21 @@ function handleone(f) {
 			writeinttoout(out, (w*h) + 148+318, k);
 			k += 4;
 		}
-		const rest6c = [0x12, 0xc6, 0x01, 0x00, 0x04, 0x00,
-			0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x13, 0xc6, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00,
+		const rest6c = [0x12, 0xc6, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x13, 0xc6, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00,
 			0x00, 0x00, 0x14, 0xc6, 0x02, 0x00, 0x07, 0x00, 0x00, 0x00
 		];
-		/* w*h + 256+50  32  a2  d6  00 */
 		out.set(rest6c, k);
 		k += rest6c.length;
 		writeinttoout(out, (datestr.length > 0 ? 342 : 318) + (w*h), k);
 		k += 4;
-		const rest7 = [ 0x1d, 0xc6,
-			0x04, 0x00, 0x01, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x21, 0xc6, 0x0a, 0x00, 0x09, 0x00,
-			0x00, 0x00
+		const rest7 = [ 0x1d, 0xc6, 0x04, 0x00, 0x01, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x21, 0xc6, 0x0a, 0x00, 0x09, 0x00, 0x00, 0x00
 		];
-		/* w*h + 256+58  3a  a2  d6  00 */
 		out.set(rest7, k);
 		k += rest7.length;
 		writeinttoout(out, (datestr.length > 0 ? 350 : 326) + (w*h), k);
 		k += 4;
 
 		const rest8 = [ 0x28, 0xc6, 0x05, 0x00, 0x03, 0x00, 0x00, 0x00 ];
-		/* w*h + 256+130  82  a2 d6a210  0xd6  00 */
 		out.set(rest8, k);
 		k += rest8.length;
 		writeinttoout(out, (datestr.length > 0 ? 422 : 398) + (w*h), k);
@@ -291,30 +257,7 @@ function handleone(f) {
 		const rest9 = [ 0x00, 0x00, 0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x00, 0x00 ];
 		out.set(rest9, k);
 		k += rest9.length;
-		//0x6b, 0x6e, 0x6f, 0x77, 0x6e,
-		// typ of length 7 (length of "unknown")
-		switch (typ) {
-		case 1:
-			// "MF 6x7 "
-			out.set([ 0x4d, 0x46, 0x20, 0x36, 0x78, 0x37, 0x20], k);
-			break;
-		case 2:
-			// "MF6x4.5"
-			out.set([ 0x4d, 0x46, 0x36, 0x78, 0x34, 0x2e, 0x35], k);
-			break;
-		case 3:
-			// "MF 6x6 "
-			out.set([ 0x4d, 0x46, 0x20, 0x36, 0x78, 0x36, 0x20], k);
-			break;
-		case 4:
-			// "ImB35mm"
-			out.set([ 0x49, 0x6d, 0x42, 0x33, 0x35, 0x6d, 0x6d], k);
-			break;
-		default:
-			// "unknown"
-			out.set([ 0x75, 0x6e, 0x6b, 0x6e, 0x6f, 0x77, 0x6e], k);
-			break;
-		}
+		out.set(new TextEncoder().encode(types[typ]), k);
 		k += 7;
 		const rest10 = [ 0x00, 0x69, 0x6d, 0x62, 0x72, 0x61, 0x77, 0x32, 0x64, 0x6e, 0x67,
 			0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
@@ -339,18 +282,20 @@ function handleone(f) {
 		const thisurl = URL.createObjectURL(b);
 		outel.href = thisurl;
 		outel.click();
-		msg.innerHTML += "<b style=\"background-color:#ddffdd;\">[" + f.name + "] Finished! Wrote " + f.name + ".dng (Check Download Folder)</b> <!--a download=\"" + f.name + ".dng\" href=\"" + thisurl + "\">Manually download again</a-->&nbsp;<br>&nbsp;<br>";
-		//block--;
+		msg.innerHTML += "<b style=\"background-color:#ddffdd;\">Finished! Converted to " + f.name + ".dng (Check Download Folder)</b> <!--a download=\"" + f.name + ".dng\" href=\"" + thisurl + "\">Manually download again</a-->&nbsp;<br>&nbsp;<br>";
 	}
 	reader.onerror = function(evt) {
 		msg.innerHTML += "<b style=\"background-color:#ffdddd;\">Error occured reading file " + f.name + ". SORRY! </b><br>&nbsp;<br>";
-		//block--;
 	}
 	reader.readAsArrayBuffer(f);
 }
 function drophandler(ev) {
+  const msg = document.getElementById('outmsg');
+  const xmsg = document.getElementById('xmsg');
+  xmsg.style["display"] = "";
   ev.preventDefault();
   if (ev.dataTransfer.items) {
+    msg.innerHTML += "Got " + [...ev.dataTransfer.items].length + " files dropped.<br>&nbsp;<br>";
     [...ev.dataTransfer.items].forEach((item, i) => {
       if (item.kind === "file") {
         const file = item.getAsFile();
@@ -358,6 +303,7 @@ function drophandler(ev) {
       }
     });
   } else {
+    msg.innerHTML += "Got " + [...ev.dataTransfer.files].length + " files dropped.<br>&nbsp;<br>";
     [...ev.dataTransfer.files].forEach((file, i) => {
       handleone(file);
     });
@@ -369,10 +315,10 @@ function prevdef(ev) {
 </script>
 </head>
 <body>
-Drop RAW or jpeg Files here: <br>
-(Browser may ask you if you want to allow downloading multiple files. Jpeg Files simply will be copied.)<br>
-<div id="droptarget" ondrop="drophandler(event);" ondragenter="prevdef(event);" ondragover="prevdef(event);" style="border: 5px solid blue;width:200px; height:100px;background-color: rgba(0,0,255,0.2);"></div><br>
-<div  style="font-size:133%;">Or select RAW File: <input type="file" accept=".raw,.RAW" id="infile" name="infile" onchange="showme()"></div><br>
+Drop Files from ImB here: <br>
+(Browser may ask you if you want to allow downloading multiple files. Not RAW Files simply will be copied.)<br>
+<div id="droptarget" ondrop="drophandler(event);" ondragenter="prevdef(event);" ondragover="prevdef(event);" style="border: 5px solid blue;width:300px; height:70px;background-color: rgba(0,0,255,0.2);"></div><br>
+<div  style="font-size:133%;">Or select <b>RAW</b> File: <input type="file" accept=".raw,.RAW" id="infile" name="infile" onchange="fselected()"></div><br>
 <!--Width if not standard file: <input type="number" min="2000" max="5000" id="inwidth" name="inwidth" onchange="showme()"><br>-->
 &nbsp;<br>
 <div id="xmsg" style="display: none; width: fit-content;white-space: pre;">Message Log:<br>
