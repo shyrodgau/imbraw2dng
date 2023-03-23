@@ -10,3 +10,5 @@ MF Formats are know to make problems with older firmware.
 Copy the html file to your PC and open in your favorite browser (any newer one should do).
 
 There is an online version at [imback.eu](https://imback.eu/home/im-back-raw-dng-converter-ib35/) but the image data will stay in your browser!
+
+Problems should be discussed in the [I'm Back Users Group on Facebook](https://www.facebook.com/groups/1212628099691211).
