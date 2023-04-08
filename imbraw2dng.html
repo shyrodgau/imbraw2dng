@@ -58,7 +58,7 @@ function handleone(f) {
 			const thisurl = URL.createObjectURL(b);
 			outel.href = thisurl;
 			outel.click();
-			msg.innerHTML += "<b style=\"background-color:#ddffdd;\">Finished! Copied to " + f.name + " (Check Download Folder)</b><br>&nbsp;<br>";
+			msg.innerHTML += "<b style=\"background-color:#ddffdd;\">Finished! Copied to " + f.name + " (Check Download Folder)</b> <a download=\"" + f.name + "\" href=\"" + thisurl + "\">Manually download again</a><br>&nbsp;<br>";
 		}
 		reader.onerror = function(evt) {
 			msg.innerHTML += "<b style=\"background-color:#ffdddd;\">Error occured reading file " + f.name + ". SORRY! </b><br>&nbsp;<br>";
@@ -148,12 +148,12 @@ function handleone(f) {
 		}
 		const contents = evt.target.result;
 		const view = new DataView(contents);
-		const out = new Uint8Array(f.size + rawarr.length + (dateok ? 466: 422));
+		const out = new Uint8Array(f.size + (dateok ? 466: 422));
 		out[0] = 0x49;
 		out[1] = 0x49;
 		out[2] = 0x2a;
 		out[3] = 0;
-		writeinttoout(out, 8 + (w*h), 4);
+		writeinttoout(out, 8 + f.size, 4);
 		let k = 8;
 		for (let j=0; j<contents.byteLength; j++) {
 			out[k++] = view.getUint8(j);
@@ -183,13 +183,13 @@ function handleone(f) {
 			0x00, 0x00, 0x0f, 0x01, 0x02, 0x00, 0x07, 0x00, 0x00, 0x00 ];
 		out.set(rest2, k);
 		k += rest2.length;
-		writeinttoout(out, (w*h) + (dateaddoff + 290), k);
+		writeinttoout(out, f.size + (dateaddoff + 290), k);
 		k += 4;
 
 		const rest3 = [ 0x10, 0x01, 0x02, 0x00, 0x08, 0x00, 0x00, 0x00 ];
 		out.set(rest3, k);
 		k += rest3.length;
-		writeinttoout(out, (w*h) + (dateaddoff + 298), k);
+		writeinttoout(out, f.size + (dateaddoff + 298), k);
 		k += 4;
 
 		const rest4 = [ 0x11, 0x01, 0x04, 0x00, 0x01, 0x00,
@@ -198,20 +198,20 @@ function handleone(f) {
 			0x04, 0x00, 0x01, 0x00, 0x00, 0x00 ];
 		out.set(rest4, k);
 		k += rest4.length;
-		writeinttoout(out, w*h, k);
+		writeinttoout(out, f.size, k);
 		k += 4;
 
 		const rest5 = [ 0x1c, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x31, 0x01, 0x02, 0x00, 0x0b, 0x00, 0x00, 0x00 ];
 		out.set(rest5, k);
 		k += rest5.length;
-		writeinttoout(out, (w*h) + (dateaddoff + 306), k);
+		writeinttoout(out, f.size + (dateaddoff + 306), k);
 		k += 4;
 
 		if (dateok) {
 			const rest5a = [ 0x32, 0x01, 0x02, 0x00, 0x14, 0x00, 0x00, 0x00 ];
 			out.set(rest5a, k);
 			k += rest5a.length;
-			writeinttoout(out, (w*h) + 446, k);
+			writeinttoout(out, f.size + 446, k);
 			k += 4;
 		}
 
@@ -223,26 +223,26 @@ function handleone(f) {
 			const rest6a = [ 0x03, 0x90, 0x02, 0x00, 0x14, 0x00, 0x00, 0x00 ];
 			out.set(rest6a, k);
 			k += rest6a.length;
-			writeinttoout(out, (w*h) + 446, k);
+			writeinttoout(out, f.size + 446, k);
 			k += 4;
 		}
 		const rest6c = [ 0x12, 0xc6, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x13, 0xc6, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00,
 			0x00, 0x00, 0x14, 0xc6, 0x02, 0x00, 0x07, 0x00, 0x00, 0x00 ];
 		out.set(rest6c, k);
 		k += rest6c.length;
-		writeinttoout(out, (dateaddoff + 318) + (w*h), k);
+		writeinttoout(out, (dateaddoff + 318) + f.size, k);
 		k += 4;
 		const rest7 = [ 0x1d, 0xc6, 0x04, 0x00, 0x01, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x21, 0xc6, 0x0a, 0x00, 0x09, 0x00, 0x00, 0x00
 		];
 		out.set(rest7, k);
 		k += rest7.length;
-		writeinttoout(out, (dateaddoff + 326) + (w*h), k);
+		writeinttoout(out, (dateaddoff + 326) + f.size, k);
 		k += 4;
 
 		const rest8 = [ 0x28, 0xc6, 0x05, 0x00, 0x03, 0x00, 0x00, 0x00 ];
 		out.set(rest8, k);
 		k += rest8.length;
-		writeinttoout(out, (dateaddoff + 398) + (w*h), k);
+		writeinttoout(out, (dateaddoff + 398) + f.size, k);
 		k += 4;
 
 		const rest8b = [ 0x8b, 0xc6, 0x01, 0x00 ];
@@ -250,7 +250,7 @@ function handleone(f) {
 		k += rest8b.length;
 		writeinttoout(out, rawarr.length, k);
 		k += 4;
-		writeinttoout(out, (dateok ? 466: 422) + (w*h), k);
+		writeinttoout(out, (dateok ? 466: 422) + f.size, k);
 		k += 4;
 		
 		const rest9 = [ 0x00, 0x00, 0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x00, 0x00 ];
@@ -270,17 +270,16 @@ function handleone(f) {
 		k += rest10.length;
 		if (dateok) {
 			const datearr = new TextEncoder().encode(datestr);
-			out.set(datearr, w*h + 446);
-			out[w*h + 465] = 0;
+			out.set(datearr, f.size + 446);
+			out[f.size + 465] = 0;
 		}
-		out.set(new TextEncoder().encode(rawname), (w*h) + (dateok ? 466 : 422));
-		const b = new Blob([ out ], { type: "application/octet-stream"});
+		const b = new Blob([ out, rawarr ], { type: "application/octet-stream"});
 		const outel = document.getElementById('result');
 		outel.download = rawname + '.dng';
 		const thisurl = URL.createObjectURL(b);
 		outel.href = thisurl;
 		outel.click();
-		msg.innerHTML += "<b style=\"background-color:#ddffdd;\">Finished! Converted to " + f.name + ".dng (Check Download Folder)</b> <!--a download=\"" + f.name + ".dng\" href=\"" + thisurl + "\">Manually download again</a-->&nbsp;<br>&nbsp;<br>";
+		msg.innerHTML += "<b style=\"background-color:#ddffdd;\">Finished! Converted to " + f.name + ".dng (Check Download Folder)</b> <a download=\"" + f.name + ".dng\" href=\"" + thisurl + "\">Manually download again</a>&nbsp;<br>&nbsp;<br>";
 	}
 	reader.onerror = function(evt) {
 		msg.innerHTML += "<b style=\"background-color:#ffdddd;\">Error occured reading file " + f.name + ". SORRY! </b><br>&nbsp;<br>";
