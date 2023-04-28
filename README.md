@@ -5,7 +5,7 @@ Currently known to work for current firmware on 35mm (also for "Angle medium" an
 
 **Installation:**
 
-Copy the html file to your PC and open in your favorite browser (any newer one should do).
+Copy the [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.html) file to your PC and open in your favorite browser (any newer one should do).
 
 There is an online version at [imback.eu](https://imback.eu/home/im-back-raw-dng-converter-ib35/) but the image data will stay in your browser!
 
