@@ -11,10 +11,18 @@ There is an online version at [imback.eu](https://imback.eu/home/im-back-raw-dng
 
 Problems should be discussed in the [I'm Back Users Group on Facebook](https://www.facebook.com/groups/1212628099691211).
 
+**Usage:**
+
+You can drop all files from the I'm back into the blue field. It will then copy all non-RAW files exactly and convert the RAW files to DNG, appending "`.dng`" to the name. When you use the Choose File button, you can select RAW files one-by-one. Your browser will download them according to its download settings, so it might pop up a dialog where to save it for each file if so configured, or throw all files into your Downloads directory if configured so, or, or, or
+
+Conversion to DNG currently sets the Timestamp Tags if the filename seems to be a reasonable I'm Back filename, and the OriginalRawFilename to the name of the RAW inputfile.
+
 **Processing the DNG:**
 
 Use your favourite software, e.g. darktable, lightroom, ufraw, rawtherapee etc.
 
 If the picture has a strong green or magenta tint all over, that usually can be levelled out by manual white-balancing. It is not the converter's fault but how the raw I'm Back samples are.
 
-If a red highlighted spot is in the center of the image, a manual retouche after the processing is required.
+If a red highlighted spot is in the center of the image, a manual retouche after the processing is required, or use the following darktable setting, placing and sizing a circle shape manually around the area.
+
+![darktable sample agains red circle](https://github.com/shyrodgau/imbraw2dng/assets/46995628/6df6719b-8699-49c9-a017-d7a633cb47b0 "darktable sample agains red circle")
