@@ -17,8 +17,9 @@ Todo:
 optimize color matrix
 -->
 <head>
-<title>ImB RAW to DNG Converter</title>
+<title>ImB RAW to DNG Converter V1.0</title>
 <script type="text/javascript" language="javascript">
+let totnum=0, actnum=0;
 function writeinttoout(out, num, off) {
 	out[off] = (num % 256);
 	out[off + 1] = (num / 256) % 256;
@@ -26,6 +27,7 @@ function writeinttoout(out, num, off) {
 	out[off + 3] = (num / 16777216) % 256;
 }
 function fselected() {
+	totnum = 0; actnum = 0;
 	const el = document.getElementById('infile');
 	const f = el.files[0];
 	handleone(f);
@@ -45,6 +47,9 @@ function handleone(f) {
 	if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
 		const reader = new FileReader();
 		reader.onload = function(evt) {
+			if (totnum !== 0) {
+				msg.innerHTML += ("[" + ++actnum + " / " + totnum + "] ");
+			}
 			msg.innerHTML += "Passing through as not raw: " + f.name + "<br>";
 			const contents = evt.target.result;
 			const view = new DataView(contents);
@@ -136,11 +141,17 @@ function handleone(f) {
 		mode = "Small-angle (3260x2352)";
 	}
 	else {
+		if (totnum !== 0) {
+			msg.innerHTML += ("[" + ++actnum + " / " + totnum + "] ");
+		}
 		msg.innerHTML += "<b style=\"background-color:#ffdddd;\">[" + f.name + "] File Size " + f.size + " does not match known formats. SORRY! </b><br>&nbsp;<br>";
 		return;
 	}
 	const reader = new FileReader();
 	reader.onload = function(evt) {
+		if (totnum !== 0) {
+			msg.innerHTML += ("[" + ++actnum + " / " + totnum + "] ");
+		}
 		msg.innerHTML += "Processing file: " + f.name + "<br>";
 		msg.innerHTML += "Assuming " + types[typ] + " " + mode + "<br>";
 		if (dateok) {
@@ -293,6 +304,8 @@ function drophandler(ev) {
   ev.preventDefault();
   if (ev.dataTransfer.items) {
     msg.innerHTML += "Got " + [...ev.dataTransfer.items].length + " files dropped.<br>&nbsp;<br>";
+    totnum = [...ev.dataTransfer.items].length;
+    actnum = 0;
     [...ev.dataTransfer.items].forEach((item, i) => {
       if (item.kind === "file") {
         const file = item.getAsFile();
@@ -301,6 +314,8 @@ function drophandler(ev) {
     });
   } else {
     msg.innerHTML += "Got " + [...ev.dataTransfer.files].length + " files dropped.<br>&nbsp;<br>";
+    totnum = [...ev.dataTransfer.files].length;
+    actnum = 0;
     [...ev.dataTransfer.files].forEach((file, i) => {
       handleone(file);
     });
@@ -312,6 +327,7 @@ function prevdef(ev) {
 </script>
 </head>
 <body>
+<div>ImB RAW to DNG Converter V1.0</div>
 Drop Files from ImB here: <br>
 (Browser may ask you if you want to allow downloading multiple files. Not RAW Files simply will be copied.)<br>
 <div id="droptarget" ondrop="drophandler(event);" ondragenter="prevdef(event);" ondragover="prevdef(event);" style="border: 5px solid blue;width:300px; height:70px;background-color: rgba(0,0,255,0.2);"></div><br>
