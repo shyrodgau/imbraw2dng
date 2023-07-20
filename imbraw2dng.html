@@ -105,39 +105,49 @@ function handleone(f) {
 	}
 	let w, h, mode = "??";
 	let typ = 0;
-	const types = [ "unknown", "MF 6x7 ", "MF6x4.5", "MF 6x6 ", "ImB35mm" ];
+	const types = [ "unknown", "ImB35mm", "MF 6x7 ", "MF6x4.5", "MF 6x6 " ];
 	if (f.size === 14065920) {
 		w = 4320; h = 3256;
 		mode = "historic (4320x3256)";
 	}
 	else if (f.size === 15925248) {
 		w = 4608; h = 3456;
-		typ = 1;
+		typ = 2;
 		mode = "(4608x3456)";
 	}
 	else if (f.size === 12937632) {
 		w = 4152; h = 3116;
-		typ = 2;
+		typ = 3;
 		mode = "(4152x3116)";
+	}
+	else if (f.size === 9806592) {
+		w = 3616; h = 2712;
+		typ = 3;
+		mode = "(2616x2717)";
+	}
+	else if (f.size === 6470944) {
+		w = 2936; h = 2204;
+		typ = 3;
+		mode = "(2936x2204)";
 	}
 	else if (f.size === 11943936) {
 		w = 3456; h = 3456;
-		typ = 3;
+		typ = 4;
 		mode = "(3456x3456)";
 	}
 	else if (f.size === 15335424) {
 		w = 4608; h = 3328;
-		typ = 4;
+		typ = 1;
 		mode = "(4608x3328)";
 	}
 	else if (f.size === 11618752) {
 		w = 4012; h = 2896;
-		typ = 4;
+		typ = 1;
 		mode = "Medium-angle (4012x2896)";
 	}
 	else if (f.size === 7667520) {
 		w = 3260; h = 2352;
-		typ = 4;
+		typ = 1;
 		mode = "Small-angle (3260x2352)";
 	}
 	else {
@@ -226,9 +236,16 @@ function handleone(f) {
 			k += 4;
 		}
 
-		const rest6 = [ 0x8d, 0x82, 0x03, 0x00, 0x02, 0x00, 0x00, 0x00, 0x02, 0x00, 0x02, 0x00, 0x8e, 0x82, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00, 0x02, 0x01, ];
+		const rest6 = [ 0x8d, 0x82, 0x03, 0x00, 0x02, 0x00, 0x00, 0x00, 0x02, 0x00, 0x02, 0x00, 0x8e, 0x82, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00 ];
 		out.set(rest6, k);
 		k += rest6.length;
+		const cfa35 = [ 0x01, 0x00, 0x02, 0x01 ];
+		const cfamf = [ 0x02, 0x01, 0x01, 0x00 ]
+		if (typ > 1)
+			out.set(cfamf, k);
+		else
+			out.set(cfa35, k);
+		k += cfa35.length; // both have same length
 
 		if (dateok) {
 			const rest6a = [ 0x03, 0x90, 0x02, 0x00, 0x14, 0x00, 0x00, 0x00 ];
@@ -327,7 +344,7 @@ function prevdef(ev) {
 </script>
 </head>
 <body>
-<div>ImB RAW to DNG Converter V1.0_a9fb72dc8c</div>
+<div>ImB RAW to DNG Converter V1.1_DEVEL</div>
 Drop Files from ImB here: <br>
 (Browser may ask you if you want to allow downloading multiple files. Not RAW Files simply will be copied.)<br>
 <div id="droptarget" ondrop="drophandler(event);" ondragenter="prevdef(event);" ondragover="prevdef(event);" style="border: 5px solid blue;width:300px; height:70px;background-color: rgba(0,0,255,0.2);"></div><br>

@@ -12,7 +12,7 @@
 int main (int argc, char **argv)
 {
 	unsigned int HPIXELS, VPIXELS, mode = 0;
-	char *modestr[] = { "unknown", "MF 6x7 ", "MF6x4.5", "MF 6x6 ", "ImB35mm" };
+	char *modestr[] = { "unknown", "ImB35mm", "MF 6x7 ", "MF6x4.5", "MF 6x6 " };
 
 
 	static const short CFARepeatPatternDim[] = { 2,2 };
@@ -61,22 +61,28 @@ int main (int argc, char **argv)
 		HPIXELS = 4320; VPIXELS = 3256;
 		break;
 	case 15925248:
-		HPIXELS = 4608; VPIXELS = 3456; mode=1;
+		HPIXELS = 4608; VPIXELS = 3456; mode=2;
 		break;
 	case 12937632:
-		HPIXELS = 4152; VPIXELS = 3116; mode=2;
+		HPIXELS = 4152; VPIXELS = 3116; mode=3;
+		break;
+	case 9806592:
+		HPIXELS = 3616; VPIXELS = 2712; mode=3;
+		break;
+	case 6470944:
+		HPIXELS = 2936; VPIXELS = 2204; mode=3;
 		break;
 	case 11943936:
-		HPIXELS = 3456; VPIXELS = 3456; mode=3;
+		HPIXELS = 3456; VPIXELS = 3456; mode=4;
 		break;
 	case 15335424:
-		HPIXELS = 4608; VPIXELS = 3328; mode=4;
+		HPIXELS = 4608; VPIXELS = 3328; mode=1;
 		break;
 	case 11618752:
-		HPIXELS = 4012; VPIXELS = 2896; mode=4;
+		HPIXELS = 4012; VPIXELS = 2896; mode=1;
 		break;
 	case 7667520:
-		HPIXELS = 3260; VPIXELS = 2352; mode=5;
+		HPIXELS = 3260; VPIXELS = 2352; mode=1;
 		break;
 	default:
 		fprintf(stderr, "File %s Unexpected length!\n", fname);
@@ -152,10 +158,15 @@ int main (int argc, char **argv)
 	// fprintf(stderr, "Writing TIFF header for main image...\n");
 
 	const unsigned char cfapat[4] = { 0x1, 0x0, 0x2, 0x1 };
+	const unsigned char cfapatmf[4] = { 0x2, 0x1, 0x1, 0x0 };
 	TIFFSetField (tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_CFA);
 	TIFFSetField (tif, TIFFTAG_CFAREPEATPATTERNDIM, CFARepeatPatternDim);
 	TIFFSetField (tif, TIFFTAG_SUBFILETYPE, 0);
-	TIFFSetField (tif, TIFFTAG_CFAPATTERN, /*, 4*/ cfapat); // 0 = Red, 1 = Green, 2 = Blue, 3 = Cyan, 4 = Magenta, 5 = Yellow, 6 = White
+	if (mode > 1) { 
+		TIFFSetField (tif, TIFFTAG_CFAPATTERN,  4, cfapatmf); // 0 = Red, 1 = Green, 2 = Blue, 3 = Cyan, 4 = Magenta, 5 = Yellow, 6 = White
+	} else {
+		TIFFSetField (tif, TIFFTAG_CFAPATTERN,  4, cfapat); // 0 = Red, 1 = Green, 2 = Blue, 3 = Cyan, 4 = Magenta, 5 = Yellow, 6 = White
+	}
 	//TIFFSetField (tif, TIFFTAG_LINEARIZATIONTABLE, 256, curve);
 	TIFFSetField (tif, TIFFTAG_WHITELEVEL, 1, &white);
 
