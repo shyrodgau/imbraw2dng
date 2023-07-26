@@ -23,7 +23,7 @@ Conversion to DNG currently sets the Timestamp Tags if the filename seems to be 
 
 Use your favourite software, e.g. darktable, lightroom, ufraw, rawtherapee etc.
 
-If the picture has a strong green or magenta tint all over, that usually can be levelled out by manual white-balancing. It is not the converter's fault but how the raw I'm Back samples are.
+A strong green or magenta tint all over the image should not happen any more! But if you have one and can not level it out using your software's white-balancing, a sample image might be interesing to fix it.
 
 If a red highlighted spot is in the center of the image, a manual retouche after the processing is required, or use the following darktable setting, placing and sizing a circle shape manually around the area.
 
