@@ -115,6 +115,16 @@ function handleone(f) {
 		typ = 2;
 		mode = "(4608x3456)";
 	}
+	else if (f.size === 12076120) {
+		w = 4012; h = 3010;
+		typ = 2;
+		mode = "Medium-angle (4012x3010)";
+	}
+	else if (f.size === 7967440) {
+		w = 3260; h = 2444;
+		typ = 2;
+		mode = "Small-angle (3260x2444)";
+	}
 	else if (f.size === 12937632) {
 		w = 4152; h = 3116;
 		typ = 3;
@@ -135,6 +145,16 @@ function handleone(f) {
 		typ = 4;
 		mode = "(3456x3456)";
 	}
+	else if (f.size === 9060100) {
+		w = 3010; h = 3010;
+		typ = 4;
+		mode = "Medium-angle (3010x3010)";
+	}
+	else if (f.size === 5973136) {
+		w = 2444; h = 2444;
+		typ = 4;
+		mode = "Small-angle (2444x2444)";
+	}
 	else if (f.size === 15335424) {
 		w = 4608; h = 3328;
 		typ = 1;
@@ -154,7 +174,7 @@ function handleone(f) {
 		if (totnum !== 0) {
 			msg.innerHTML += ("[" + ++actnum + " / " + totnum + "] ");
 		}
-		msg.innerHTML += "<b style=\"background-color:#ffdddd;\">[" + f.name + "] File Size " + f.size + " does not match known formats. SORRY! </b><br>&nbsp;<br>";
+	    	msg.innerHTML += "<b style=\"background-color:#ffdddd;\">[" + f.name + "] Sorry, file Size <b>" + f.size + "</b> does not match known formats. Contact developer.</b><br>&nbsp;<br>";
 		return;
 	}
 	const reader = new FileReader();
