@@ -57,7 +57,7 @@ function handleone(f) {
 			for (let j=0; j<contents.byteLength; j++) {
 				out[j] = view.getUint8(j);
 			}
-			const b = new Blob([ out ], { type: "application/octet-stream"});
+			const b = new Blob([ out ], { type: "image/x-adobe-dng"});
 			const outel = document.getElementById('result');
 			outel.download = rawname;
 			const thisurl = URL.createObjectURL(b);
@@ -321,7 +321,7 @@ function handleone(f) {
 			out.set(datearr, f.size + 446);
 			out[f.size + 465] = 0;
 		}
-		const b = new Blob([ out, rawarr ], { type: "application/octet-stream"});
+		const b = new Blob([ out, rawarr ], { type: "image/x-adobe-dng"});
 		const outel = document.getElementById('result');
 		outel.download = rawname + '.dng';
 		const thisurl = URL.createObjectURL(b);
