@@ -71,8 +71,6 @@ function handleone(f) {
 		reader.readAsArrayBuffer(f);
 		return;
 	}
-	// we know it ends with ".raw"
-	rawname = rawname.substring(0, rawname.length - 3);
 	const rawarr = new TextEncoder().encode(rawname);
 	let datestr="", dateaddoff = 0, dateok = false;
 	// date?
@@ -325,11 +323,11 @@ function handleone(f) {
 		}
 		const b = new Blob([ out, rawarr ], { type: "image/x-adobe-dng"});
 		const outel = document.getElementById('result');
-		outel.download = rawname + 'dng';
+		outel.download = rawname.substring(0, rawname.length - 3) + 'dng';
 		const thisurl = URL.createObjectURL(b);
 		outel.href = thisurl;
 		outel.click();
-		msg.innerHTML += "<b style=\"background-color:#ddffdd;\">Finished! Converted to " + rawname + "dng (Check Download Folder)</b> <a type=\"image/x-adobe-dng\" download=\"" + rawname + "dng\" href=\"" + thisurl + "\">Manually download again</a>&nbsp;<br>&nbsp;<br>";
+		msg.innerHTML += "<b style=\"background-color:#ddffdd;\">Finished! Converted to " + rawname.substring(0, rawname.length - 3) + "dng (Check Download Folder)</b> <a type=\"image/x-adobe-dng\" download=\"" + rawname.substring(0, rawname.length - 3) + "dng\" href=\"" + thisurl + "\">Manually download again</a>&nbsp;<br>&nbsp;<br>";
 	}
 	reader.onerror = function(evt) {
 		msg.innerHTML += "<b style=\"background-color:#ffdddd;\">Error occured reading file " + f.name + ". SORRY! </b><br>&nbsp;<br>";
