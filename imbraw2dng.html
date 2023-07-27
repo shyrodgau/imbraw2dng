@@ -17,7 +17,7 @@ Todo:
 optimize color matrix
 -->
 <head>
-<title>ImB RAW to DNG Converter V1.1.2_e24832e</title>
+<title>ImB RAW to DNG Converter V1.1.2_DEVEL</title>
 <script type="text/javascript" language="javascript">
 let totnum=0, actnum=0;
 function writeinttoout(out, num, off) {
@@ -57,13 +57,13 @@ function handleone(f) {
 			for (let j=0; j<contents.byteLength; j++) {
 				out[j] = view.getUint8(j);
 			}
-			const b = new Blob([ out ], { type: "image/x-adobe-dng"});
+			const b = new Blob([ out ], { type: "application/octet-stream"});
 			const outel = document.getElementById('result');
 			outel.download = rawname;
 			const thisurl = URL.createObjectURL(b);
 			outel.href = thisurl;
 			outel.click();
-			msg.innerHTML += "<b style=\"background-color:#ddffdd;\">Finished! Copied to " + f.name + " (Check Download Folder)</b> <a download=\"" + f.name + "\" href=\"" + thisurl + "\">Manually download again</a><br>&nbsp;<br>";
+			msg.innerHTML += "<b style=\"background-color:#ddffdd;\">Finished! Copied to " + rawname + " (Check Download Folder)</b> <a download=\"" + rawname + "\" href=\"" + thisurl + "\">Manually download again</a><br>&nbsp;<br>";
 		}
 		reader.onerror = function(evt) {
 			msg.innerHTML += "<b style=\"background-color:#ffdddd;\">Error occured reading file " + f.name + ". SORRY! </b><br>&nbsp;<br>";
@@ -71,6 +71,8 @@ function handleone(f) {
 		reader.readAsArrayBuffer(f);
 		return;
 	}
+	// we know it ends with ".raw"
+	rawname = rawname.substring(0, rawname.length - 3);
 	const rawarr = new TextEncoder().encode(rawname);
 	let datestr="", dateaddoff = 0, dateok = false;
 	// date?
@@ -323,11 +325,11 @@ function handleone(f) {
 		}
 		const b = new Blob([ out, rawarr ], { type: "image/x-adobe-dng"});
 		const outel = document.getElementById('result');
-		outel.download = rawname + '.dng';
+		outel.download = rawname + 'dng';
 		const thisurl = URL.createObjectURL(b);
 		outel.href = thisurl;
 		outel.click();
-		msg.innerHTML += "<b style=\"background-color:#ddffdd;\">Finished! Converted to " + f.name + ".dng (Check Download Folder)</b> <a download=\"" + f.name + ".dng\" href=\"" + thisurl + "\">Manually download again</a>&nbsp;<br>&nbsp;<br>";
+		msg.innerHTML += "<b style=\"background-color:#ddffdd;\">Finished! Converted to " + rawname + "dng (Check Download Folder)</b> <a type=\"image/x-adobe-dng\" download=\"" + rawname + "dng\" href=\"" + thisurl + "\">Manually download again</a>&nbsp;<br>&nbsp;<br>";
 	}
 	reader.onerror = function(evt) {
 		msg.innerHTML += "<b style=\"background-color:#ffdddd;\">Error occured reading file " + f.name + ". SORRY! </b><br>&nbsp;<br>";
@@ -364,7 +366,7 @@ function prevdef(ev) {
 </script>
 </head>
 <body>
-<div>ImB RAW to DNG Converter V1.1.2_e24832e</div>
+<div>ImB RAW to DNG Converter V1.1.2_DEVEL</div>
 Drop Files from ImB here: <br>
 (Browser may ask you if you want to allow downloading multiple files. Not RAW Files simply will be copied.)<br>
 <div id="droptarget" ondrop="drophandler(event);" ondragenter="prevdef(event);" ondragover="prevdef(event);" style="border: 5px solid blue;width:300px; height:70px;background-color: rgba(0,0,255,0.2);"></div><br>
