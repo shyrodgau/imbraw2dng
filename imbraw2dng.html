@@ -17,7 +17,7 @@ Todo:
 optimize color matrix
 -->
 <head>
-<title>ImB RAW to DNG Converter V1.1.3_bbd316b</title>
+<title>ImB RAW to DNG Converter V1.1.3_DEVEL</title>
 <script type="text/javascript" language="javascript">
 let totnum=0, actnum=0;
 function writeinttoout(out, num, off) {
@@ -27,10 +27,10 @@ function writeinttoout(out, num, off) {
 	out[off + 3] = (num / 16777216) % 256;
 }
 function fselected() {
-	totnum = 0; actnum = 0;
 	const el = document.getElementById('infile');
-	const f = el.files[0];
-	handleone(f);
+	totnum = el.files.length; actnum = 0;
+	for (const f of el.files) 
+		handleone(f);
 }
 function handleone(f) {
 	const msg = document.getElementById('outmsg');
@@ -47,7 +47,7 @@ function handleone(f) {
 	if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
 		const reader = new FileReader();
 		reader.onload = function(evt) {
-			if (totnum !== 0) {
+			if (totnum > 1) {
 				msg.innerHTML += ("[" + ++actnum + " / " + totnum + "] ");
 			}
 			msg.innerHTML += "Passing through as not raw: " + f.name + "<br>";
@@ -171,7 +171,7 @@ function handleone(f) {
 		mode = "Small-angle (3260x2352)";
 	}
 	else {
-		if (totnum !== 0) {
+		if (totnum > 1) {
 			msg.innerHTML += ("[" + ++actnum + " / " + totnum + "] ");
 		}
 	    	msg.innerHTML += "<b style=\"background-color:#ffdddd;\">[" + f.name + "] Sorry, file Size <b>" + f.size + "</b> does not match known formats. Contact developer.</b><br>&nbsp;<br>";
@@ -179,7 +179,7 @@ function handleone(f) {
 	}
 	const reader = new FileReader();
 	reader.onload = function(evt) {
-		if (totnum !== 0) {
+		if (totnum > 1) {
 			msg.innerHTML += ("[" + ++actnum + " / " + totnum + "] ");
 		}
 		msg.innerHTML += "Processing file: " + f.name + "<br>";
@@ -364,14 +364,15 @@ function prevdef(ev) {
 </script>
 </head>
 <body>
-<div>ImB RAW to DNG Converter V1.1.3_bbd316b</div>
+<div>ImB RAW to DNG Converter V1.1.3_DEVEL</div>
 Drop Files from ImB here: <br>
 (Browser may ask you if you want to allow downloading multiple files. Not RAW Files simply will be copied.)<br>
 <div id="droptarget" ondrop="drophandler(event);" ondragenter="prevdef(event);" ondragover="prevdef(event);" style="border: 5px solid blue;width:300px; height:70px;background-color: rgba(0,0,255,0.2);"></div><br>
-<div  style="font-size:133%;">Or select <b>RAW</b> File: <input type="file" accept=".raw,.RAW" id="infile" name="infile" onchange="fselected()"></div><br>
+<div  style="font-size:133%;">Or select <b>RAW</b> File(s): <input type="file" accept=".raw,.RAW" id="infile" name="infile" multiple onchange="fselected()"></div><br>
 <!--Width if not standard file: <input type="number" min="2000" max="5000" id="inwidth" name="inwidth" onchange="showme()"><br>-->
 &nbsp;<br>
-<div id="xmsg" style="display: none; width: fit-content;white-space: pre;">Message Log:<br>
+<div>Reload page from time to time to free memory.<br>&nbsp;</div>
+<div id="xmsg" style="display: none; width: fit-content;white-space: pre;"><span style="font-weight:bold;">Message Log:</span><br>
 <div id="outmsg"></div></div>
 <a style="display: none;" id="result">x</a>
 </body>
