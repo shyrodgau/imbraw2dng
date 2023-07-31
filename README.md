@@ -27,4 +27,6 @@ A strong green or magenta tint all over the image should not happen any more! Bu
 
 If a red highlighted spot is in the center of the image, a manual retouche after the processing is required, or use the following darktable setting, placing and sizing a circle shape manually around the area.
 
+To avoid the red spot from the start, use a bigger aperture (smaller number) or combine the standard PDLC matte with a Fresnel screen from I'm Back or a Canon EG-xxx screen.
+
 ![darktable sample agains red circle](https://github.com/shyrodgau/imbraw2dng/blob/master/helpstuff/darktable_redcircle.png?raw=true "darktable sample agains red circle")
