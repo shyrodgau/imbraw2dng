@@ -3,13 +3,13 @@ Convert RAW from I'm Back(R) into DNG. They are not really "B&W RAW" but actuall
 
 Currently known to work for current firmware on 35mm (also for "Angle medium" and "small") and MF I'm Back.
 
+Problems can also be discussed in the [I'm Back Users Group on Facebook](https://www.facebook.com/groups/1212628099691211).
+
 **Installation:**
 
 Copy the [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.html) file to your PC or extract it from the release "Source code".zip or .tar.gz and open in your favorite browser (any newer one should do).
 
 If you can not install it locally, you can use it from the network like [HTML Preview of the imbraw2dng.html](https://htmlpreview.github.io/?https://github.com/shyrodgau/imbraw2dng/blob/master/imbraw2dng.html) or at [imback.eu](https://imback.eu/home/im-back-raw-dng-converter-ib35/) but the image data will stay in your browser!
-
-Problems can also be discussed in the [I'm Back Users Group on Facebook](https://www.facebook.com/groups/1212628099691211).
 
 **Usage:**
 
@@ -30,3 +30,7 @@ If a red highlighted spot is in the center of the image, a manual retouche after
 To avoid the red spot from the start, use a bigger aperture (smaller number) or combine the standard PDLC matte with a Fresnel screen from I'm Back or a Canon EG-xxx screen.
 
 ![darktable sample agains red circle](https://github.com/shyrodgau/imbraw2dng/blob/master/helpstuff/darktable_redcircle.png?raw=true "darktable sample agains red circle")
+
+**How does it work?**
+
+DNG is a TIFF-like format and consists mainly of constant data around the original image scanlines. The data varies depending on width, height (they are noted explicitly and there are a lot of offsets depending on the data length) and filename (for the OriginalRawFilename tag) of the image. If the date from the ImB filename looks valid, tags (EXIFTAG_DATETIMEORIGINAL, TIFFTAG_DATETIME) are added for that. If it is from a MF ImB then the Color Filter Array is different.
