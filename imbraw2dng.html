@@ -17,7 +17,7 @@ Todo:
 optimize color matrix
 -->
 <head>
-<title>ImB RAW to DNG Converter V1.1.4_62beb45</title>
+<title>ImB RAW to DNG Converter V1.1.4_DEVEL</title>
 <script type="text/javascript" language="javascript">
 let totnum=0, actnum=0;
 function writeinttoout(out, num, off) {
@@ -364,11 +364,11 @@ function prevdef(ev) {
 </script>
 </head>
 <body>
-<div>ImB RAW to DNG Converter V1.1.4_62beb45</div>
+<div><span translate="no">ImB RAW</span> to <span translate="no">DNG</span> Converter V1.1.4_DEVEL</div>
 Drop Files from ImB here: <br>
 (Browser may ask you if you want to allow downloading multiple files. Not RAW Files simply will be copied.)<br>
 <div id="droptarget" ondrop="drophandler(event);" ondragenter="prevdef(event);" ondragover="prevdef(event);" style="border: 5px solid blue;width:300px; height:70px;background-color: rgba(0,0,255,0.2);"></div><br>
-<div  style="font-size:133%;">Or select <b>RAW</b> File(s): <input type="file" accept=".raw,.RAW" id="infile" name="infile" multiple onchange="fselected()"></div><br>
+<div  style="font-size:133%;">Or select <span style="font-weight:bold;" translate="no">RAW</span> File(s): <input type="file" accept=".raw,.RAW" id="infile" name="infile" multiple onchange="fselected()"></div><br>
 <!--Width if not standard file: <input type="number" min="2000" max="5000" id="inwidth" name="inwidth" onchange="showme()"><br>-->
 &nbsp;<br>
 <div>Reload page from time to time to free memory.<br>&nbsp;</div>
