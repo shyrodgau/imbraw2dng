@@ -15,7 +15,7 @@ If you can not install it locally, you can use it from the network like [HTML Pr
 
 You can drop all files from the I'm back into the blue field. It will then copy all non-RAW files exactly and convert the RAW files to DNG, replacing the `.raw`/`.RAW` file extension with `.dng` to the name. When you use the `Choose Files` button, you can select RAW files directly. 
 
-Your browser will download them according to its download settings, so it might pop up a dialog where to save it for each file if so configured, or throw all files into your Downloads directory if so configured , or, or, or ...
+Your browser will download them according to its download settings, so it might pop up a dialog where to save it for each file if so configured, or throw all files into your Downloads directory if so configured , or, or, or...
 
 Conversion to DNG currently sets the Timestamp Tags if the filename seems to be a reasonable I'm Back filename, and the OriginalRawFilename to the name of the RAW inputfile. That way you can name the DNG file whatever you like without losing any of the original information.
 
