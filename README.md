@@ -19,6 +19,8 @@ Your browser will download them according to its download settings, so it might 
 
 Conversion to DNG currently sets the Timestamp Tags if the filename seems to be a reasonable I'm Back filename, and the OriginalRawFilename to the name of the RAW inputfile. That way you can name the DNG file whatever you like without losing any of the original information.
 
+New: you can do a step-by-step walk with a preview of the raw file. For that, check the "Single Step with preview" checkbox. On each file, you can select if you want to process or skip it and also if this same action should be applied to the rest of your currently selected files. When you check the "Add separate download link for each file" checkbox, then the files can be downloaded again (after the download that will be done automatically in the processing). It may cost memory to keep all these so I do not do it any more by default - you can always select the file(s) simply again.
+
 **Processing the DNG:**
 
 Use your favourite software, e.g. darktable, lightroom, ufraw, rawtherapee etc.
