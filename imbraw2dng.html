@@ -696,7 +696,7 @@ function procthis() {
 </head>
 <!-- here comes the html itself -->
 <body>
-<div style="font-weight:bold;"><span translate="no">ImB RAW</span> to <span translate="no">DNG</span> Converter <span translate="no">V2.0.0_2ad0619</span></div>
+<div style="font-weight:bold;"><span translate="no">ImB RAW</span> to <span translate="no">DNG</span> Converter <span translate="no">V2.0.0_2ad0619</span> - <a target="_new" href="https://github.com/shyrodgau/imbraw2dng#readme">? help</a></div>
 <br>&nbsp;<br><div id="normal">
 <!-- the normal display -->
 <div><input type="checkbox" id="steppreview"><label for="steppreview">Single Step with preview</label></div>
@@ -705,7 +705,7 @@ function procthis() {
 <br>&nbsp;<br>
 Drop Files from <span translate="no">ImB</span> here: <br>
 (Browser may ask you if you want to allow downloading multiple files. Not <span translate="no">RAW</span> Files simply will be copied.)<br>
-<div id="droptarget" ondrop="drophandler(event);" ondragenter="prevdef(event);" ondragover="prevdef(event);" style="border: 5px solid blue;border-radius: 5px;width:300px; height:70px;background-color: rgba(0,0,255,0.2);"></div><br>
+<div id="droptarget" ondrop="drophandler(event);" ondragenter="prevdef(event);" ondragover="prevdef(event);" style="border: 5px solid blue;border-radius: 10px;width:300px; height:70px;background-color: rgba(0,0,255,0.2);"></div><br>
 <div  style="font-size:133%;">Or select <span style="font-weight:bold;" translate="no">.raw</span> File(s): <input type="file" accept=".raw,.RAW" id="infile" name="infile" multiple onchange="fselected()"></div><br>
 &nbsp;<br>
 <div id="reloadhint" style="display:none;">Reload page from time to time to free memory.<br>&nbsp;</div>
@@ -713,7 +713,7 @@ Drop Files from <span translate="no">ImB</span> here: <br>
 <div id="outmsg"></div></div>
 <div id="reloadhint2" style="display:none;">Reload page from time to time to free memory.<br>&nbsp;</div>
 </div>
-<div id="question" style="display:none;background-color:#ddffaa;border: 5px solid #33ff33; border-radius: 5px;width: fit-content;padding:2em;">
+<div id="question" style="display:none;background-color:#ddffaa;border: 5px solid #33ff33; border-radius: 10px;width: fit-content;padding:2em;">
 <!-- this is only shown on step with preview -->
 <div style="font-weight:bold;" id="qhdr">&nbsp;</div>
 <canvas id="preview"></canvas><br>
