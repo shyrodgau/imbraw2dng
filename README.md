@@ -11,6 +11,8 @@ Copy the [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/im
 
 If you can not install it locally, you can use it from the network like [my github pages](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) or at [imback.eu](https://imback.eu/home/im-back-raw-dng-converter-ib35/) but the image data will stay in your browser!
 
+The github repository itself can be found [here](https://github.com/shyrodgau/imbraw2dng).
+
 **Usage:**
 
 You can drop all files from the I'm back into the blue field. It will then copy all non-RAW files exactly and convert the RAW files to DNG, replacing the `.raw`/`.RAW` file extension with `.dng` to the name. When you use the `Choose Files` button, you can select RAW files directly. 
