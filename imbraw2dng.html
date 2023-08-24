@@ -738,16 +738,24 @@ function procthis() {
 	handleone(currentrot);
 }
 function rotcw() {
+	if (6 === currentrot) return;
 	currentrot = 6;
 	buildpreview(allfiles[actnum], 6);
 }
 function rotccw() {
+	if (8 === currentrot) return;
 	currentrot = 8;
 	buildpreview(allfiles[actnum], 8);
 }
 function rot180() {
+	if (3 === currentrot) return;
 	currentrot = 3;
 	buildpreview(allfiles[actnum], 3);
+}
+function rot0() {
+	if (1 === currentrot) return;
+	currentrot = 1;
+	buildpreview(allfiles[actnum], 1);
 }
 </script>
 </head>
@@ -776,7 +784,8 @@ Browser may ask you if you want to allow downloading multiple files.<br>Not <spa
 <canvas id="preview"></canvas><br>
 <input type="button" id="procthis" value="Rot Clockwise" onclick="rotcw()" style="padding:0.5em; margin:0.5em;margin-left:2.5em;">
 <input type="button" id="procthis" value="Rot Couterclockwise" onclick="rotccw()" style="padding:0.5em; margin:0.5em;">
-<input type="button" id="procthis" value="Rotate 180" onclick="rot180()" style="padding:0.5em; margin:0.5em;"><br>
+<input type="button" id="procthis" value="Rotate 180" onclick="rot180()" style="padding:0.5em; margin:0.5em;">
+<input type="button" id="procthis" value="Reset" onclick="rot0()" style="padding:0.5em; margin:0.5em;"><br>
 <input type="button" id="procthis" value="Process" onclick="procthis()" style="padding:0.5em; margin:0.5em;">
 <input type="button" id="skipthis" value="Skip" onclick="skipthis()" style="padding:0.5em; margin:0.5em;">&nbsp;
 <span id="forrest"><input type="checkbox" id="doforall" style="padding-left:0.5em; margin-left:0.5em;"><label for="doforall">Do this for all following</label></span>
