@@ -161,11 +161,11 @@ function handleonex() {
 	const xmsg = document.getElementById('xmsg');
 	xmsg.style["display"] = "";
 	if (mode === 2) {
-			if (totnum > 1) {
-				msg.innerHTML += ("[" + (1+actnum) + " / " + totnum + "] ");
-			}
-			msg.innerHTML += "Skipped at your request: " + f.name + "<br>&nbsp;<br>";
-			return handlenext();
+		if (totnum > 1) {
+			msg.innerHTML += ("[" + (1+actnum) + " / " + totnum + "] ");
+		}
+		msg.innerHTML += "Skipped at your request: " + f.name + "<br>&nbsp;<br>";
+		return handlenext();
 	}
 	else if (mode === 1) {
 		// show preview and ask for rotation, skip, save
@@ -179,7 +179,7 @@ function handleonex() {
 			document.getElementById('qhdr').innerHTML = '[' + (1+actnum) + ' / ' + totnum + '] ';
 		} else document.getElementById('qhdr').innerHTML = '';
 		if (rawname.substring(rawname.length -4).toUpperCase() === '.JPG' ||
-				rawname.substring(rawname.length -5).toUpperCase() === '.JPEG') {
+			rawname.substring(rawname.length -5).toUpperCase() === '.JPEG') {
 			/* jpeg preview soon */
 			document.getElementById('qhdr').innerHTML += 'File ' + f.name + ' JPEG preview work in progress';
 			document.getElementById('preview').style['display'] = 'none';
@@ -189,18 +189,20 @@ function handleonex() {
 			document.getElementById('qhdr').innerHTML += 'File ' + f.name + '<br>Not raw or jpeg, no preview...';
 			document.getElementById('preview').style['display'] = 'none';
 		}
-		let w, h, mode = "??";
-		let typ = 0;
-		const zz = infos.findIndex((v, i, o) => v.size === f.size);
-		if (zz === -1) {
-			/* no preview */
-			document.getElementById('preview').style['display'] = 'none';
-			document.getElementById('qhdr').innerHTML += 'File ' + f.name + '<br>Unknown raw size ' + f.size + ', please contact developer! No preview...';
-		} else {
-			document.getElementById('preview').style['display'] = '';
-			document.getElementById('qhdr').innerHTML += 'File ' + f.name;
-			buildpreview(f);
-			// rotation coming soon
+		else {
+			let w, h, mode = "??";
+			let typ = 0;
+			const zz = infos.findIndex((v, i, o) => v.size === f.size);
+			if (zz === -1) {
+				/* no preview */
+				document.getElementById('preview').style['display'] = 'none';
+				document.getElementById('qhdr').innerHTML += 'File ' + f.name + '<br>Unknown raw size ' + f.size + ', please contact developer! No preview...';
+			} else {
+				document.getElementById('preview').style['display'] = '';
+				document.getElementById('qhdr').innerHTML += 'File ' + f.name;
+				buildpreview(f);
+				// rotation coming soon
+			}
 		}
 		const norm = document.getElementById('normal');
 		const quest = document.getElementById('question');
@@ -268,17 +270,17 @@ function handleone(orientation) {
 	const yr = Number.parseInt(rawname.substring(0,4));
 	if (yr >= 2019 && yr < 3000 && JSON.stringify(yr) === rawname.substring(0,4)) {
 		let mon = Number.parseInt(rawname.substring(5,7));
-	    	if (mon > 0 && mon < 13 && (JSON.stringify(mon) === ((mon < 10) ? rawname.substring(6,7) : rawname.substring(5,7)))) {
+		if (mon > 0 && mon < 13 && (JSON.stringify(mon) === ((mon < 10) ? rawname.substring(6,7) : rawname.substring(5,7)))) {
 			let day = Number.parseInt(rawname.substring(7,9));
-	    		if (day > 0 && day < 32 && (JSON.stringify(day) === ((day < 10) ? rawname.substring(8,9) : rawname.substring(7,9)))) {
+			if (day > 0 && day < 32 && (JSON.stringify(day) === ((day < 10) ? rawname.substring(8,9) : rawname.substring(7,9)))) {
 				let hr = Number.parseInt(rawname.substring(10,12));
-			        if (hr >= 0 && hr < 25 && (JSON.stringify(hr) === ((hr < 10) ? rawname.substring(11,12) : rawname.substring(10,12)))) {
+				if (hr >= 0 && hr < 25 && (JSON.stringify(hr) === ((hr < 10) ? rawname.substring(11,12) : rawname.substring(10,12)))) {
 					let min = Number.parseInt(rawname.substring(12,14));
-	    				if (min >= 0 && min <= 60 && (JSON.stringify(min) === ((min < 10) ? rawname.substring(13,14) : rawname.substring(12,14)))) {
+					if (min >= 0 && min <= 60 && (JSON.stringify(min) === ((min < 10) ? rawname.substring(13,14) : rawname.substring(12,14)))) {
 						let sec = Number.parseInt(rawname.substring(14,16));
-	    					if (sec >= 0 && sec <= 60 && (JSON.stringify(sec) === ((sec < 10) ? rawname.substring(15,16) : rawname.substring(14,16)))) { // maybe leap second?
+						if (sec >= 0 && sec <= 60 && (JSON.stringify(sec) === ((sec < 10) ? rawname.substring(15,16) : rawname.substring(14,16)))) { // maybe leap second?
 							datestr = "" + yr + ":" + ((mon < 10) ? "0":"") + mon + ":" + ((day < 10) ? "0":"") + day + " "+
-								((hr < 10) ? "0":"") + hr + ":" + ((min < 10) ? "0":"") + min + ":" + ((sec < 10) ? "0":"") + sec;
+							((hr < 10) ? "0":"") + hr + ":" + ((min < 10) ? "0":"") + min + ":" + ((sec < 10) ? "0":"") + sec;
 							if (datestr.length === 19) {
 								dateaddoff = 24;
 								dateok = true;
@@ -464,7 +466,7 @@ function handleone(orientation) {
 		k += 4;
 		writeinttoout(out, (dateok ? 466: 422) + f.size, k);
 		k += 4;
-		
+
 		const rest9 = [ 0x00, 0x00, 0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x00, 0x00 ];
 		out.set(rest9, k);
 		k += rest9.length;
@@ -507,34 +509,34 @@ function handleone(orientation) {
 }
 /* handler function for dropping OS files into the rect */
 function drophandler(ev) {
-  if (actnum !== allfiles.length) return;
-  const addlinkel = document.getElementById('addlink');
-  if (addlinkel !== null) addlinkbool = addlinkel.checked;
+	if (actnum !== allfiles.length) return;
+	const addlinkel = document.getElementById('addlink');
+	if (addlinkel !== null) addlinkbool = addlinkel.checked;
     const stepprev = document.getElementById('steppreview');
 	if (stepprev !== null && stepprev.checked) mode = 1;
-  const msg = document.getElementById('outmsg');
-  const xmsg = document.getElementById('xmsg');
-  xmsg.style["display"] = "";
-  ev.preventDefault();
-  allfiles = [];
-  actnum = 0;
-  if (ev.dataTransfer.items) {
-    msg.innerHTML += "Got " + [...ev.dataTransfer.items].length + " files dropped.<br>&nbsp;<br>";
-    totnum = [...ev.dataTransfer.items].length;
-    [...ev.dataTransfer.items].forEach((item, i) => {
-      if (item.kind === "file") {
-        const file = item.getAsFile();
-        allfiles.push(item.getAsFile());
-      }
-    });
-  } else {
-    msg.innerHTML += "Got " + [...ev.dataTransfer.files].length + " files dropped.<br>&nbsp;<br>";
-    totnum = [...ev.dataTransfer.files].length;
-    [...ev.dataTransfer.files].forEach((file, i) => {
-      allfiles.push(file);
-    });
-  }
-  handleonex();
+	const msg = document.getElementById('outmsg');
+	const xmsg = document.getElementById('xmsg');
+	xmsg.style["display"] = "";
+	ev.preventDefault();
+	allfiles = [];
+	actnum = 0;
+	if (ev.dataTransfer.items) {
+		msg.innerHTML += "Got " + [...ev.dataTransfer.items].length + " files dropped.<br>&nbsp;<br>";
+		totnum = [...ev.dataTransfer.items].length;
+		[...ev.dataTransfer.items].forEach((item, i) => {
+			if (item.kind === "file") {
+				const file = item.getAsFile();
+				allfiles.push(item.getAsFile());
+			}
+		});
+	} else {
+		msg.innerHTML += "Got " + [...ev.dataTransfer.files].length + " files dropped.<br>&nbsp;<br>";
+		totnum = [...ev.dataTransfer.files].length;
+		[...ev.dataTransfer.files].forEach((file, i) => {
+			allfiles.push(file);
+		});
+	}
+	handleonex();
 }
 /* some handler on the drop rectangle */
 function prevdef(ev) {
@@ -679,8 +681,9 @@ function buildpreview(f, orientation) {
 		for (let i = 0; i < h8; i++) {
 			for (let j=0; j< w8; j++) {
 				if ((outpix[4*((i * w8) + j)] > 250) &&
-						(outpix[4*((i * w8) + j) + 2] > 250) &&
-						(outpix[4*((i * w8) + j) + 1] > 0.6 * 250)) {
+					(outpix[4*((i * w8) + j) + 2] > 250) &&
+					(outpix[4*((i * w8) + j) + 1] > 0.6 * 250))
+				{
 					outpix[4*((i*w8) + j) + 1] = 255;
 				} else {
 					outpix[4 * ((i*w8) + j)] = Math.round(fact * (outpix[4 * ((i*w8) + j)] - allmin));
@@ -724,7 +727,6 @@ function skipthis() {
 	}
 	msg.innerHTML += "Skipped at your request: " + allfiles[actnum].name + "<br>&nbsp;<br>";
 	handlenext();
-	const canv = document.getElementById('preview');
 }
 /* process handler in the step preview */
 function procthis() {
@@ -734,7 +736,6 @@ function procthis() {
 	norm.style['display'] = '';
 	if (document.getElementById('doforall').checked) mode = 0;
 	handleone(currentrot);
-	const canv = document.getElementById('preview');
 }
 function rotcw() {
 	currentrot = 6;
@@ -773,10 +774,10 @@ Browser may ask you if you want to allow downloading multiple files.<br>Not <spa
 <!-- this is only shown on step with preview -->
 <div style="font-weight:bold;" id="qhdr">&nbsp;</div>
 <canvas id="preview"></canvas><br>
-<input type="button" id="procthis" value="Rot Clockwise" onclick="rotcw()" style="padding:0.5em; margin:0.5em;margin-left:2.5em;"> 
-<input type="button" id="procthis" value="Rot Couterclockwise" onclick="rotccw()" style="padding:0.5em; margin:0.5em;"> 
+<input type="button" id="procthis" value="Rot Clockwise" onclick="rotcw()" style="padding:0.5em; margin:0.5em;margin-left:2.5em;">
+<input type="button" id="procthis" value="Rot Couterclockwise" onclick="rotccw()" style="padding:0.5em; margin:0.5em;">
 <input type="button" id="procthis" value="Rotate 180" onclick="rot180()" style="padding:0.5em; margin:0.5em;"><br>
-<input type="button" id="procthis" value="Process" onclick="procthis()" style="padding:0.5em; margin:0.5em;"> 
+<input type="button" id="procthis" value="Process" onclick="procthis()" style="padding:0.5em; margin:0.5em;">
 <input type="button" id="skipthis" value="Skip" onclick="skipthis()" style="padding:0.5em; margin:0.5em;">&nbsp;
 <span id="forrest"><input type="checkbox" id="doforall" style="padding-left:0.5em; margin-left:0.5em;"><label for="doforall">Do this for all following</label></span>
 </div>
