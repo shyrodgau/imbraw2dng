@@ -1,0 +1,795 @@
+<html>
+<!--
+
+imbraw2dng.html
+
+Convert RAW from I'm back(R)(https://imback.eu) into DNG
+
+Stefan Hegny, 2023
+
+https://github.com/shyrodgau/imbraw2dng
+
+Free software, use at own risk for whatever you like
+
+Use: open in browser and select RAW
+
+-->
+<head>
+<title>ImB RAW to DNG Converter V2.0.1_238c084</title>
+<script type="text/javascript" language="javascript">
+/* Data for the Imback variants and exif stuff */
+const orients = [ '', 'none', '', '180&deg;', '', '', 'clockwise', '', 'couterclockwise' ];
+const types = [ "unknown", "ImB35mm", "MF 6x7 ", "MF6x4.5", "MF 6x6 " ];
+const infos = [
+	{
+		size: 14065920,
+		w: 4320,
+		h: 3256,
+		typ: 0,
+		mode: "historic (4320x3256)"
+	},
+	{
+		size: 15925248,
+		w: 4608,
+		h: 3456,
+		typ: 2,
+		mode: "(4608x3456)"
+	},
+	{
+		size: 12076120, // guessed
+		w: 4012,
+		h: 3010,
+		typ: 2,
+		mode: "Medium-angle (4012x3010)"
+	},
+	{
+		size: 7967440, // guessed
+		w: 3260,
+		h: 2444,
+		typ: 2,
+		mode: "Small-angle (3260x2444)"
+	},
+	{
+		size: 12937632,
+		w: 4152, h: 3116,
+		typ: 3,
+		mode: "(4152x3116)"
+	},
+	{
+		size: 9806592,
+		w: 3616, h: 2712,
+		typ: 3,
+		mode: "Medium-angle (2616x2717)"
+	},
+	{
+		size: 6470944,
+		w: 2936, h: 2204,
+		typ: 3,
+		mode: "Small-angle (2936x2204)"
+	},
+	{
+		size: 11943936,
+		w: 3456, h: 3456,
+		typ: 4,
+		mode: "(3456x3456)"
+	},
+	{
+		size: 9060100,
+		w: 3010, h: 3010,
+		typ: 4,
+		mode: "Medium-angle (3010x3010)"
+	},
+	{
+		size: 5973136, // guessed
+		w: 2444, h: 2444,
+		typ: 4,
+		mode: "Small-angle (2444x2444)"
+	},
+	{
+		size: 15335424, // guessed
+		w: 4608, h: 3328,
+		typ: 1,
+		mode: "(4608x3328)"
+	},
+	{
+		size: 11618752,
+		w: 4012, h: 2896,
+		typ: 1,
+		mode: "Medium-angle (4012x2896)"
+	},
+	{
+		size: 7667520,
+		w: 3260, h: 2352,
+		typ: 1,
+		mode: "Small-angle (3260x2352)"
+	}
+];
+/* For processing several files */
+let totnum=0, actnum=0;
+let allfiles = [];
+let addlinkbool = false;
+let mode = 0; // 0 always save (if not checkbox or "save all" in dialog), 1 always ask (set on checkbox), 2 skip all (if selected in dialog)
+// current preview image
+let currentrot = 1;
+/* helper function to put integer into dng */
+function writeinttoout(out, num, off) {
+	out[off] = (num % 256);
+	out[off + 1] = (num / 256) % 256;
+	out[off + 2] = (num / 65536) % 256;
+	out[off + 3] = (num / 16777216) % 256;
+}
+/* handler for file selection input */
+function fselected() {
+	if (actnum !== allfiles.length) return;
+    const addlinkel = document.getElementById('addlink');
+	if (addlinkel !== null) addlinkbool = addlinkel.checked;
+    const stepprev = document.getElementById('steppreview');
+	if (stepprev !== null && stepprev.checked) mode = 1;
+	const el = document.getElementById('infile');
+	totnum = el.files.length;
+	actnum = 0;
+	allfiles = el.files;
+	if (totnum > 1) {
+		const msg = document.getElementById('outmsg');
+		const xmsg = document.getElementById('xmsg');
+		xmsg.style["display"] = "";
+		msg.innerHTML += "Got " + totnum + " files selected.<br>&nbsp;<br>";
+	}
+	handleonex();
+}
+/* continue with the next file */
+function handlenext() {
+	if (actnum < allfiles.length - 1) {
+		actnum++;
+		handleonex();
+	} else {
+		actnum = 0;
+		allfiles = [];
+	}
+}
+/* as it says */
+function showreloadhints() {
+	const rl1 = document.getElementById('reloadhint');
+	if (null !== rl1) rl1.style['display'] = '';
+	const rl2 = document.getElementById('reloadhint2');
+	if (null !== rl2) rl2.style['display'] = '';
+}
+/* main handler function for one file */
+function handleonex() {
+	const f = allfiles[actnum];
+	const msg = document.getElementById('outmsg');
+	const xmsg = document.getElementById('xmsg');
+	xmsg.style["display"] = "";
+	if (mode === 2) {
+		if (totnum > 1) {
+			msg.innerHTML += ("[" + (1+actnum) + " / " + totnum + "] ");
+		}
+		msg.innerHTML += "Skipped at your request: " + f.name + "<br>&nbsp;<br>";
+		return handlenext();
+	}
+	else if (mode === 1) {
+		// show preview and ask for rotation, skip, save
+		// then (in handler) set mode, call handleone (if save) or handlenext (if skip)
+		const f = allfiles[actnum];
+		if (undefined === f) {
+			return;
+		}
+		let rawname = f.name;
+		if (totnum > 1) {
+			document.getElementById('qhdr').innerHTML = '[' + (1+actnum) + ' / ' + totnum + '] ';
+		} else document.getElementById('qhdr').innerHTML = '';
+		if (rawname.substring(rawname.length -4).toUpperCase() === '.JPG' ||
+			rawname.substring(rawname.length -5).toUpperCase() === '.JPEG') {
+			/* jpeg preview soon */
+			document.getElementById('qhdr').innerHTML += 'File ' + f.name + ' JPEG preview work in progress';
+			document.getElementById('preview').style['display'] = 'none';
+		}
+		else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
+			/* no preview */
+			document.getElementById('qhdr').innerHTML += 'File ' + f.name + '<br>Not raw or jpeg, no preview...';
+			document.getElementById('preview').style['display'] = 'none';
+		}
+		else {
+			let w, h, mode = "??";
+			let typ = 0;
+			const zz = infos.findIndex((v, i, o) => v.size === f.size);
+			if (zz === -1) {
+				/* no preview */
+				document.getElementById('preview').style['display'] = 'none';
+				document.getElementById('qhdr').innerHTML += 'File ' + f.name + '<br>Unknown raw size ' + f.size + ', please contact developer! No preview...';
+			} else {
+				document.getElementById('preview').style['display'] = '';
+				document.getElementById('qhdr').innerHTML += 'File ' + f.name;
+				buildpreview(f);
+				// rotation coming soon
+			}
+		}
+		const norm = document.getElementById('normal');
+		const quest = document.getElementById('question');
+		document.getElementById('doforall').checked = false;
+		currentrot = 1;
+		if (actnum < totnum-1) {
+			document.getElementById('forrest').style['display'] = '';
+		} else document.getElementById('forrest').style['display'] = 'none';
+		norm.style['display'] = 'none';
+		quest.style['display'] = '';
+	}
+	else handleone();
+}
+/* actual processing function for one file */
+function handleone(orientation) {
+	const f = allfiles[actnum];
+	const msg = document.getElementById('outmsg');
+	const xmsg = document.getElementById('xmsg');
+	xmsg.style["display"] = "";
+	if (undefined === f) {
+		msg.innerHTML += "Nothing selected...?<br>&nbsp;<br>";
+		return handlenext();
+	}
+	let rawname = f.name;
+	while (rawname.indexOf("/") > -1) {
+		rawname = rawname.substring(rawname.indexOf("/") + 1);
+	}
+	if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
+		const reader = new FileReader();
+		reader.onload = function(evt) {
+			if (totnum > 1) {
+				msg.innerHTML += ("[" + (1+actnum) + " / " + totnum + "] ");
+			}
+			msg.innerHTML += "Passing through as not <span translate=\"no\">raw</span>: " + f.name + "<br>";
+			const contents = evt.target.result;
+			const view = new DataView(contents);
+			const out = new Uint8Array(f.size);
+			for (let j=0; j<contents.byteLength; j++) {
+				out[j] = view.getUint8(j);
+			}
+			const b = new Blob([ out ], { type: "application/octet-stream"});
+			const outel = document.getElementById('result');
+			outel.download = rawname;
+			const thisurl = URL.createObjectURL(b);
+			outel.href = thisurl;
+			outel.click();
+			msg.innerHTML += "<b style=\"background-color:#ddffdd;\">Finished! Copied to " + rawname + " (Check Downloads Folder)</b>&nbsp;";
+			if (addlinkbool) {
+				msg.innerHTML += "<a download=\"" + rawname + "\" href=\"" + thisurl + "\">Manually download again</a>";
+				showreloadhints();
+			}
+			msg.innerHTML += "<br>&nbsp;<br>";
+			handlenext();
+		}
+		reader.onerror = function(evt) {
+			msg.innerHTML += "<b style=\"background-color:#ffdddd;\">Error occured reading file " + f.name + ". SORRY! </b><br>&nbsp;<br>";
+			handlenext();
+		}
+		reader.readAsArrayBuffer(f);
+		return;
+	}
+	const rawnamearr = new TextEncoder().encode(rawname);
+	let datestr="", dateaddoff = 0, dateok = false;
+	// date?
+	const yr = Number.parseInt(rawname.substring(0,4));
+	if (yr >= 2019 && yr < 3000 && JSON.stringify(yr) === rawname.substring(0,4)) {
+		let mon = Number.parseInt(rawname.substring(5,7));
+		if (mon > 0 && mon < 13 && (JSON.stringify(mon) === ((mon < 10) ? rawname.substring(6,7) : rawname.substring(5,7)))) {
+			let day = Number.parseInt(rawname.substring(7,9));
+			if (day > 0 && day < 32 && (JSON.stringify(day) === ((day < 10) ? rawname.substring(8,9) : rawname.substring(7,9)))) {
+				let hr = Number.parseInt(rawname.substring(10,12));
+				if (hr >= 0 && hr < 25 && (JSON.stringify(hr) === ((hr < 10) ? rawname.substring(11,12) : rawname.substring(10,12)))) {
+					let min = Number.parseInt(rawname.substring(12,14));
+					if (min >= 0 && min <= 60 && (JSON.stringify(min) === ((min < 10) ? rawname.substring(13,14) : rawname.substring(12,14)))) {
+						let sec = Number.parseInt(rawname.substring(14,16));
+						if (sec >= 0 && sec <= 60 && (JSON.stringify(sec) === ((sec < 10) ? rawname.substring(15,16) : rawname.substring(14,16)))) { // maybe leap second?
+							datestr = "" + yr + ":" + ((mon < 10) ? "0":"") + mon + ":" + ((day < 10) ? "0":"") + day + " "+
+							((hr < 10) ? "0":"") + hr + ":" + ((min < 10) ? "0":"") + min + ":" + ((sec < 10) ? "0":"") + sec;
+							if (datestr.length === 19) {
+								dateaddoff = 24;
+								dateok = true;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	let w, h, mode = "??";
+	let typ = 0;
+	const zz = infos.findIndex((v, i, o) => v.size === f.size);
+	if (zz === -1) {
+		if (totnum > 1) {
+			msg.innerHTML += ("[" + (1+actnum) + " / " + totnum + "] ");
+		}
+    	msg.innerHTML += "<b style=\"background-color:#ffdddd;\">[" + f.name + "] Sorry, file Size <b>" + f.size + "</b> does not match known formats. Please contact developer!</b><br>";
+		const reader = new FileReader();
+		reader.onload = function(evt) {
+			const contents = evt.target.result;
+			const view = new DataView(contents);
+			const out = new Uint8Array(f.size);
+			for (let j=0; j<contents.byteLength; j++) {
+				out[j] = view.getUint8(j);
+			}
+			const b = new Blob([ out ], { type: "application/octet-stream"});
+			const outel = document.getElementById('result');
+			outel.download = rawname;
+			const thisurl = URL.createObjectURL(b);
+			outel.href = thisurl;
+			outel.click();
+			msg.innerHTML += "<b>Finished! Copied to " + rawname + " (Check Downloads Folder)</b>&nbsp;";
+			if (addlinkbool) {
+				msg.innerHTML += "<a download=\"" + rawname + "\" href=\"" + thisurl + "\">Manually download again</a>";
+				showreloadhints();
+			}
+			msg.innerHTML += "<br>&nbsp;<br>";
+			handlenext();
+		}
+		reader.onerror = function(evt) {
+			msg.innerHTML += "<b>Error occured reading file " + f.name + ". SORRY! </b><br>&nbsp;<br>";
+			handlenext();
+		}
+		reader.readAsArrayBuffer(f);
+		return;
+	} else {
+		w = infos[zz].w;
+		h = infos[zz].h;
+		mode = infos[zz].mode;
+		typ = infos[zz].typ;
+	}
+	const reader = new FileReader();
+	reader.onload = function(evt) {
+		if (totnum > 1) {
+			msg.innerHTML += ("[" + (1+actnum) + " / " + totnum + "] ");
+		}
+		msg.innerHTML += "Processing file: " + f.name + "<br>";
+		msg.innerHTML += "Assuming " + types[typ] + " " + mode + "<br>";
+		if (dateok) {
+			msg.innerHTML += "Date/Time: " + datestr + "<br>";
+		}
+		if (orientation !== undefined && orientation !== 1) {
+			msg.innerHTML += "Orientation: " + orients[orientation] + "<br>";
+		}
+		/* Here comes the actual building of the DNG */
+		const contents = evt.target.result;
+		const view = new DataView(contents);
+		const out = new Uint8Array(f.size + (dateok ? 466: 422));
+		out[0] = 0x49;
+		out[1] = 0x49;
+		out[2] = 0x2a;
+		out[3] = 0;
+		writeinttoout(out, 8 + f.size, 4);
+		let k = 8;
+		for (let j=0; j<contents.byteLength; j++) {
+			out[k++] = view.getUint8(j);
+		}
+		if (dateok)
+			out[k++] = 0x19;
+		else
+			out[k++] = 0x17;
+		const rest0 = [
+			0x00, 0xfe, 0x00, 0x04, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00
+		]; /* followed by 4b width */
+		out.set(rest0, k);
+		k += rest0.length;
+		writeinttoout(out, w, k);
+		k += 4;
+
+		const rest1 = [
+			0x01, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00
+		]; /* followed by 4b height */
+		out.set(rest1, k);
+		k += rest1.length;
+		writeinttoout(out, h, k);
+		k += 4;
+
+		const rest2 = [ 0x02, 0x01,
+			0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x03, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x06, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x23, 0x80,
+			0x00, 0x00, 0x0f, 0x01, 0x02, 0x00, 0x07, 0x00, 0x00, 0x00 ];
+		out.set(rest2, k);
+		k += rest2.length;
+		writeinttoout(out, f.size + (dateaddoff + 290), k);
+		k += 4;
+
+		const rest3 = [ 0x10, 0x01, 0x02, 0x00, 0x08, 0x00, 0x00, 0x00 ];
+		out.set(rest3, k);
+		k += rest3.length;
+		writeinttoout(out, f.size + (dateaddoff + 298), k);
+		k += 4;
+
+		const rest4 = [ 0x11, 0x01, 0x04, 0x00, 0x01, 0x00,
+			0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x12, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00 ];
+		out.set(rest4, k);
+		k += rest4.length;
+		if (undefined === orientation) {
+			writeinttoout(out, 1, k);
+		} else writeinttoout(out, orientation, k);
+		k += 4;
+		const rest4b = [ 0x15, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x17, 0x01,
+			0x04, 0x00, 0x01, 0x00, 0x00, 0x00 ];
+		out.set(rest4b, k);
+		k += rest4b.length;
+		writeinttoout(out, f.size, k);
+		k += 4;
+
+		const rest5 = [ 0x1c, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x31, 0x01, 0x02, 0x00, 0x0b, 0x00, 0x00, 0x00 ];
+		out.set(rest5, k);
+		k += rest5.length;
+		writeinttoout(out, f.size + (dateaddoff + 306), k);
+		k += 4;
+
+		if (dateok) { // one datetime tag
+			const rest5a = [ 0x32, 0x01, 0x02, 0x00, 0x14, 0x00, 0x00, 0x00 ];
+			out.set(rest5a, k);
+			k += rest5a.length;
+			writeinttoout(out, f.size + 446, k);
+			k += 4;
+		}
+
+		const rest6 = [ 0x8d, 0x82, 0x03, 0x00, 0x02, 0x00, 0x00, 0x00, 0x02, 0x00, 0x02, 0x00, 0x8e, 0x82, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00 ];
+		out.set(rest6, k);
+		k += rest6.length;
+		const cfa35 = [ 0x01, 0x00, 0x02, 0x01 ];
+		const cfamf = [ 0x02, 0x01, 0x01, 0x00 ]
+		if (typ > 1) // color filter array depends on type
+			out.set(cfamf, k);
+		else
+			out.set(cfa35, k);
+		k += cfa35.length; // both have same length
+
+		if (dateok) { // other datetime tag
+			const rest6a = [ 0x03, 0x90, 0x02, 0x00, 0x14, 0x00, 0x00, 0x00 ];
+			out.set(rest6a, k);
+			k += rest6a.length;
+			writeinttoout(out, f.size + 446, k);
+			k += 4;
+		}
+		const rest6c = [ 0x12, 0xc6, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x13, 0xc6, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00,
+			0x00, 0x00, 0x14, 0xc6, 0x02, 0x00, 0x07, 0x00, 0x00, 0x00 ];
+		out.set(rest6c, k);
+		k += rest6c.length;
+		writeinttoout(out, (dateaddoff + 318) + f.size, k);
+		k += 4;
+		const rest7 = [ 0x1d, 0xc6, 0x04, 0x00, 0x01, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x21, 0xc6, 0x0a, 0x00, 0x09, 0x00, 0x00, 0x00
+		];
+		out.set(rest7, k);
+		k += rest7.length;
+		writeinttoout(out, (dateaddoff + 326) + f.size, k);
+		k += 4;
+
+		const rest8 = [ 0x28, 0xc6, 0x05, 0x00, 0x03, 0x00, 0x00, 0x00 ];
+		out.set(rest8, k);
+		k += rest8.length;
+		writeinttoout(out, (dateaddoff + 398) + f.size, k);
+		k += 4;
+
+		const rest8b = [ 0x8b, 0xc6, 0x01, 0x00 ];
+		out.set(rest8b, k);
+		k += rest8b.length;
+		writeinttoout(out, rawnamearr.length, k);
+		k += 4;
+		writeinttoout(out, (dateok ? 466: 422) + f.size, k);
+		k += 4;
+
+		const rest9 = [ 0x00, 0x00, 0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x00, 0x00 ];
+		out.set(rest9, k);
+		k += rest9.length;
+		out.set(new TextEncoder().encode(types[typ]), k);
+		k += 7;
+		const rest10 = [ 0x00, 0x69, 0x6d, 0x62, 0x72, 0x61, 0x77, 0x32, 0x64, 0x6e, 0x67,
+			0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00,
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00,
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00,
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0x7f, 0xf4, 0xb6,
+			0x6d, 0x5b, 0xff, 0x99, 0x99, 0x99, 0xff, 0xff, 0xff, 0xff, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
+			0x00, 0x00, 0xff, 0x99, 0x99, 0x99, 0xff, 0xff, 0xff, 0xff ];
+		out.set(rest10, k);
+		k += rest10.length;
+		if (dateok) { // datetime value
+			const datearr = new TextEncoder().encode(datestr);
+			out.set(datearr, f.size + 446);
+			out[f.size + 465] = 0;
+		}
+		const b = new Blob([ out, rawnamearr ], { type: "image/x-adobe-dng"});
+		const outel = document.getElementById('result');
+		outel.download = rawname.substring(0, rawname.length - 3) + 'dng';
+		const thisurl = URL.createObjectURL(b);
+		outel.href = thisurl;
+		outel.click();
+		msg.innerHTML += "<b style=\"background-color:#ddffdd;\">Finished! Converted to " + rawname.substring(0, rawname.length - 3) + "dng (Check Downloads Folder)</b>&nbsp;";
+		if (addlinkbool) {
+			msg.innerHTML += "<a type=\"image/x-adobe-dng\" download=\"" + rawname.substring(0, rawname.length - 3) + "dng\" href=\"" + thisurl + "\">Manually download again</a>&nbsp;";
+			showreloadhints();
+		}
+		msg.innerHTML += "<br>&nbsp;<br>";
+		handlenext();
+	};
+	reader.onerror = function(evt) {
+		msg.innerHTML += "<b style=\"background-color:#ffdddd;\">Error occured reading file " + f.name + ". SORRY! </b><br>&nbsp;<br>";
+		handlenext();
+	};
+	reader.readAsArrayBuffer(f);
+}
+/* handler function for dropping OS files into the rect */
+function drophandler(ev) {
+	if (actnum !== allfiles.length) return;
+	const addlinkel = document.getElementById('addlink');
+	if (addlinkel !== null) addlinkbool = addlinkel.checked;
+    const stepprev = document.getElementById('steppreview');
+	if (stepprev !== null && stepprev.checked) mode = 1;
+	const msg = document.getElementById('outmsg');
+	const xmsg = document.getElementById('xmsg');
+	xmsg.style["display"] = "";
+	ev.preventDefault();
+	allfiles = [];
+	actnum = 0;
+	if (ev.dataTransfer.items) {
+		msg.innerHTML += "Got " + [...ev.dataTransfer.items].length + " files dropped.<br>&nbsp;<br>";
+		totnum = [...ev.dataTransfer.items].length;
+		[...ev.dataTransfer.items].forEach((item, i) => {
+			if (item.kind === "file") {
+				const file = item.getAsFile();
+				allfiles.push(item.getAsFile());
+			}
+		});
+	} else {
+		msg.innerHTML += "Got " + [...ev.dataTransfer.files].length + " files dropped.<br>&nbsp;<br>";
+		totnum = [...ev.dataTransfer.files].length;
+		[...ev.dataTransfer.files].forEach((file, i) => {
+			allfiles.push(file);
+		});
+	}
+	handleonex();
+}
+/* some handler on the drop rectangle */
+function prevdef(ev) {
+	ev.preventDefault();
+}
+/* get one downsampled median image value [ r g b ] */
+function getPix(x, y, w, view, typ) {
+	let outrgb = [];
+	let reds = [];
+	if (typ > 1) {
+		reds.push(view.getUint8((y+1)*w + x + 1));
+		reds.push(view.getUint8((y+1)*w + x + 3));
+		reds.push(view.getUint8((y+1)*w + x + 2*w + 1));
+		reds.push(view.getUint8((y+1)*w + x + 2*w + 3));
+	} else {
+		reds.push(view.getUint8(y*w + x + 1));
+		reds.push(view.getUint8(y*w + x + 3));
+		reds.push(view.getUint8(y*w + x + 2*w + 1));
+		reds.push(view.getUint8(y*w + x + 2*w + 3));
+	}
+	reds.sort(function(a,b) { return a - b; });
+	// median of red pixels
+	outrgb.push((reds[1] + reds[2]) / 2.0);
+	let greens = [];
+	if (typ > 1) {
+		greens.push(view.getUint8(y*w + x + 1));
+		greens.push(view.getUint8(y*w + x + w));
+		greens.push(view.getUint8(y*w + x + 3));
+		greens.push(view.getUint8(y*w + x + 2 + w));
+		greens.push(view.getUint8(y*w + x + 2*w + 1));
+		greens.push(view.getUint8(y*w + x + 3*w));
+		greens.push(view.getUint8(y*w + x + 2*w + 3));
+		greens.push(view.getUint8(y*w + x + 3*w + 2));
+	} else {
+		greens.push(view.getUint8(y*w + x));
+		greens.push(view.getUint8(y*w + x + w + 1));
+		greens.push(view.getUint8(y*w + x + 2));
+		greens.push(view.getUint8(y*w + x + 3 + w));
+		greens.push(view.getUint8(y*w + x + 2*w));
+		greens.push(view.getUint8(y*w + x + 3*w +1));
+		greens.push(view.getUint8(y*w + x + 2*w + 2));
+		greens.push(view.getUint8(y*w + x + 3*w + 3));
+	}
+	greens.sort(function(a,b) { return a - b; });
+	outrgb.push((greens[3] + greens[4]) / 2.0);
+	let blues = [];
+	if (typ > 1) {
+		blues.push(view.getUint8(y*w + x));
+		blues.push(view.getUint8(y*w + x + 2));
+		blues.push(view.getUint8(y*w + x + 2*w));
+		blues.push(view.getUint8(y*w + x + 2*w + 2));
+	} else {
+		blues.push(view.getUint8((y+1)*w + x));
+		blues.push(view.getUint8((y+1)*w + x + 2));
+		blues.push(view.getUint8((y+1)*w + x + 2*w));
+		blues.push(view.getUint8((y+1)*w + x + 2*w + 2));
+	}
+	blues.sort(function(a,b) { return a - b; });
+	outrgb.push((blues[1] + blues[2]) / 2.0);
+	return outrgb;
+}
+/* put preview into canvas */
+// orientation: 1: norm, 3: rot 180, 6 rot 90 CW, 8: rot 270 CCW
+function buildpreview(f, orientation) {
+	let w, h, mode = "??";
+	let typ = 0;
+	const zz = infos.findIndex((v, i, o) => v.size === f.size);
+	if (zz === -1) {
+		console.log('preview: unsupported size ' + f.size + ' of ' + f.name);
+		return;
+	} else {
+		w = infos[zz].w;
+		h = infos[zz].h;
+		mode = infos[zz].mode;
+		typ = infos[zz].typ;
+	}
+	const canv = document.getElementById('preview');
+	const w8 = Math.floor((w+7)/8) - 1;
+	const h8 = Math.floor((h+7)/8) - 1;
+	canv.width = w8;
+	canv.height = h8;
+	if (orientation === 6 || orientation === 8) {
+		canv.width = h8;
+		canv.height = w8;
+	}
+	const ctx = canv.getContext('2d', { alpha: false });
+	const reader = new FileReader();
+	reader.onload = function(evt) {
+		const contents = evt.target.result;
+		const view = new DataView(contents);
+		let minred=255, minblue = 255, mingreen = 255, maxred = 0, maxblue = 0, maxgreen = 0, allmin = 255, allmax = 0;
+		let outpix = [];
+		let rowiterstart, rowiterend;
+		let coliterstart, coliterend;
+		let transpose = false;
+		if (orientation === 3) {
+			rowiterstart = -1*(h8 -1);
+			rowiterend = 1;
+			coliterstart = -1*(w8 - 1);
+			coliterend = 1;
+		} else if (orientation === 6) {
+			transpose = true;
+			rowiterstart = 0;
+			rowiterend = w8;
+			coliterstart = -1*(h8 - 1);
+			coliterend = 1;
+		} else if (orientation === 8) {
+			transpose = true;
+			rowiterstart = -1*(w8 -1);
+			rowiterend = 1;
+			coliterstart = 0;
+			coliterend = h8;
+		} else {
+			rowiterstart = 0;
+			rowiterend = h8;
+			coliterstart = 0;
+			coliterend = w8;
+		}
+		for (let i = rowiterstart; i < rowiterend; i +=1) {
+			for (let j = coliterstart; j < coliterend; j+=1) {
+				let a = getPix(Math.abs(transpose ? i :j)*8, Math.abs(transpose ? j :i)*8, w, view, typ);
+				outpix.push(a[0]);
+				if (a[0] > maxred) maxred = a[0];
+				if (a[0] < minred) minred = a[0];
+				if (a[0] > allmax) allmax = a[0];
+				if (a[0] < allmin) allmin = a[0];
+				outpix.push(a[1]);
+				if (a[1] > maxgreen) maxgreen = a[1];
+				if (a[1] < mingreen) mingreen = a[1];
+				if (0.6*a[1] > allmax) allmax = a[1] * 0.6;
+				if (0.6*a[1] < allmin) allmin = a[1] * 0.6;
+				outpix.push(a[2]);
+				if (a[2] > maxblue) maxblue = a[2];
+				if (a[2] < minblue) minblue = a[2];
+				if (a[2] > allmax) allmax = a[2];
+				if (a[2] < allmin) allmin = a[2];
+				outpix.push(255);
+			}
+		}
+		const fact = 255 / (allmax - allmin);
+		//console.log('IR:' + minred + ' AR:' + maxred + ' IG:' + mingreen + ' AG:' + maxgreen + ' IB:' + minblue + ' AB:' + maxblue + ' II:' + allmin + ' AA:' + allmax);
+		for (let i = 0; i < h8; i++) {
+			for (let j=0; j< w8; j++) {
+				if ((outpix[4*((i * w8) + j)] > 250) &&
+					(outpix[4*((i * w8) + j) + 2] > 250) &&
+					(outpix[4*((i * w8) + j) + 1] > 0.6 * 250))
+				{
+					outpix[4*((i*w8) + j) + 1] = 255;
+				} else {
+					outpix[4 * ((i*w8) + j)] = Math.round(fact * (outpix[4 * ((i*w8) + j)] - allmin));
+					outpix[4 * ((i*w8) + j) + 1] = Math.round(fact * 0.6 * (outpix[4 * ((i*w8) + j) + 1] - allmin* 0.6));
+					outpix[4 * ((i*w8) + j) + 2] = Math.round(fact * (outpix[4 * ((i*w8) + j) + 2] - allmin));
+				}
+			}
+		}
+		/* debug * /
+		let air = 255, aar = 0, aib = 255, aab = 0, aig = 255, aag = 0;
+		for (let i = 0; i < h8; i++) {
+			for (let j=0; j< w8; j++) {
+				if (outpix[4*((i * w8) + j)] < air) air = outpix[4*((i * w8) + j)];
+				if (outpix[4*((i * w8) + j)] > aar) aar = outpix[4*((i * w8) + j)];
+				if (outpix[4*((i * w8) + j) + 1] < aig) aig = outpix[4*((i * w8) + j) + 1];
+				if (outpix[4*((i * w8) + j) + 1] > aag) aag = outpix[4*((i * w8) + j) + 1];
+				if (outpix[4*((i * w8) + j) + 2] < aib) aib = outpix[4*((i * w8) + j) + 2];
+				if (outpix[4*((i * w8) + j) + 2] > aab) aab = outpix[4*((i * w8) + j) + 2];
+			}
+		}
+		console.log('AFTER IR:' + air + ' AR:' + aar + ' IG:' + aig + ' AG:' + aag + ' IB:' + aib + ' AB:' + aab);*/
+		ctx.putImageData(new ImageData(new Uint8ClampedArray(outpix), transpose ? h8: w8, transpose? w8 :h8), 0, 0);
+	};
+	reader.onerror = function(evt) {
+		console.log('preview: error reading ' + f.name);
+	};
+	reader.readAsArrayBuffer(f);
+}
+/* skip handler in the step preview */
+function skipthis() {
+	const norm = document.getElementById('normal');
+	const quest = document.getElementById('question');
+	quest.style['display'] = 'none';
+	norm.style['display'] = '';
+	if (document.getElementById('doforall').checked) mode = 2;
+	const msg = document.getElementById('outmsg');
+	const xmsg = document.getElementById('xmsg');
+	xmsg.style["display"] = "";
+	if (totnum > 1) {
+		msg.innerHTML += ("[" + (1+actnum) + " / " + totnum + "] ");
+	}
+	msg.innerHTML += "Skipped at your request: " + allfiles[actnum].name + "<br>&nbsp;<br>";
+	handlenext();
+}
+/* process handler in the step preview */
+function procthis() {
+	const norm = document.getElementById('normal');
+	const quest = document.getElementById('question');
+	quest.style['display'] = 'none';
+	norm.style['display'] = '';
+	if (document.getElementById('doforall').checked) mode = 0;
+	handleone(currentrot);
+}
+function rotcw() {
+	if (6 === currentrot) return;
+	currentrot = 6;
+	buildpreview(allfiles[actnum], 6);
+}
+function rotccw() {
+	if (8 === currentrot) return;
+	currentrot = 8;
+	buildpreview(allfiles[actnum], 8);
+}
+function rot180() {
+	if (3 === currentrot) return;
+	currentrot = 3;
+	buildpreview(allfiles[actnum], 3);
+}
+function rot0() {
+	if (1 === currentrot) return;
+	currentrot = 1;
+	buildpreview(allfiles[actnum], 1);
+}
+</script>
+</head>
+<!-- here comes the html itself -->
+<body>
+<div style="font-weight:bold;"><span translate="no">ImB RAW</span> to <span translate="no">DNG</span> Converter <span translate="no">V2.0.1_238c084</span> - <a target="_new" href="https://shyrodgau.github.io/imbraw2dng/">? Help Doc</a></div>
+<!--br>&nbsp;<br--><div id="normal" style="margin-top: 0.5em;">
+<!-- the normal display -->
+<div><input type="checkbox" id="steppreview" checked><label for="steppreview">Single Step with preview</label></div>
+<!--div><input type="checkbox" id="acdscompat"><label for="acdscompat">Compatibility mode for e.g. ACDsee</label></div-->
+<div><input type="checkbox" id="addlink"><label for="addlink">Add separate download link for each file</label></div>
+<div  style="margin-top: 0.5em;">
+Browser may ask you if you want to allow downloading multiple files.<br>Not <span translate="no">RAW</span> Files simply will be copied.</div>
+<div style="font-size:133%;margin-top: 0.5em;">Drop Files from <span translate="no">ImB</span> here: <br></div>
+<div id="droptarget" ondrop="drophandler(event);" ondragenter="prevdef(event);" ondragover="prevdef(event);" style="border: 5px solid blue;border-radius: 10px;width:300px; height:70px;background-color: rgba(0,0,255,0.2);"></div><br>
+<div  style="font-size:133%;margin-top: 0.5em;">Or select <span style="font-weight:bold;" translate="no">.raw</span> File(s): <input type="file" accept=".raw,.RAW" id="infile" name="infile" multiple onchange="fselected()"></div><br>
+&nbsp;<br>
+<div id="reloadhint" style="display:none;">Reload page from time to time to free memory.<br>&nbsp;</div>
+<div id="xmsg" style="display: none; width: fit-content;white-space: pre;"><span style="font-weight:bold;">Message Log:</span><br>
+<div id="outmsg"></div></div>
+<div id="reloadhint2" style="display:none;">Reload page from time to time to free memory.<br>&nbsp;</div>
+</div>
+<div id="question" style="display:none;background-color:#ddffaa;border: 5px solid #33ff33; border-radius: 10px;width: fit-content;padding:2em;">
+<!-- this is only shown on step with preview -->
+<div style="font-weight:bold;" id="qhdr">&nbsp;</div>
+<canvas id="preview"></canvas><br>
+<input type="button" id="procthis" value="Rot Clockwise" onclick="rotcw()" style="padding:0.5em; margin:0.5em;margin-left:2.5em;">
+<input type="button" id="procthis" value="Rot Couterclockwise" onclick="rotccw()" style="padding:0.5em; margin:0.5em;">
+<input type="button" id="procthis" value="Rotate 180" onclick="rot180()" style="padding:0.5em; margin:0.5em;">
+<input type="button" id="procthis" value="Reset" onclick="rot0()" style="padding:0.5em; margin:0.5em;"><br>
+<input type="button" id="procthis" value="Process" onclick="procthis()" style="padding:0.5em; margin:0.5em;">
+<input type="button" id="skipthis" value="Skip" onclick="skipthis()" style="padding:0.5em; margin:0.5em;">&nbsp;
+<span id="forrest"><input type="checkbox" id="doforall" style="padding-left:0.5em; margin-left:0.5em;"><label for="doforall">Do this for all following</label></span>
+</div>
+<a style="display: none;" id="result">x</a>
+</body>
+</html>
