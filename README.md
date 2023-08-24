@@ -1,21 +1,23 @@
-# imbraw2dng
-Convert RAW from [I'm Back(R)](https://imback.eu) into DNG. They are not really "B&W RAW" but actually the RAW sensor data that also contains the colour filtering.
+# imbraw2dng - Convert RAW from [I'm Back(R)](https://imback.eu) into DNG
+They are not really "B&W RAW" but actually the RAW sensor data that also contains the colour filtering. You can see it when you import them as RAW into photoshop as Samuel described - zoom in and you see the gray values rastered in 2x2 squares. So even for B&W it is better to go the DNG way.
 
-Currently known to work for current firmware on 35mm (also for "Angle medium" and "small") and MF I'm Back.
+Currently known to work for current firmware on 35mm (also for "Angle medium" and "small") and MF I'm Back. Not all angle variants are covered for MF, if you need it and can help contact me.
 
-Problems can also be discussed in the [I'm Back Users Group on Facebook](https://www.facebook.com/groups/1212628099691211).
+Problems and ideas can also be discussed in the [I'm Back Users Group on Facebook](https://www.facebook.com/groups/1212628099691211).
 
 **Installation:**
 
+The current release is [V2.0.1_804bfd8](https://github.com/shyrodgau/imbraw2dng/releases/tag/V2.0.1_804bfd8).
+
 Copy the [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.html) file to your PC or extract it from the release "Source code".zip or .tar.gz and open in your favorite browser (any newer one should do).
 
-If you can not install it locally, you can use it from the network like [my github pages](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) or at [imback.eu](https://imback.eu/home/im-back-raw-dng-converter-ib35/) but the image data will stay in your browser!
+If you can not install it locally, you can use it from the network like on [my github page](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) (should always be current version) or at [imback.eu](https://imback.eu/home/im-back-raw-dng-converter-ib35/) (with automated translation to different languages, but might not be current). The image data will stay in your browser in any case.
 
 The github repository itself can be found [here](https://github.com/shyrodgau/imbraw2dng).
 
 **Usage:**
 
-You can drop all files from the I'm back into the blue field. It will then copy all non-RAW files exactly and convert the RAW files to DNG, replacing the `.raw`/`.RAW` file extension with `.dng` to the name. When you use the `Choose Files` button, you can select RAW files directly. 
+You can drop all files from the I'm back into the blue field. It will then copy all non-RAW files exactly and convert the RAW files to DNG, replacing the `.raw`/`.RAW` file extension with `.dng`. When you use the `Choose Files` button, you can select RAW files directly. 
 
 Your browser will download them according to its download settings, so it might pop up a dialog where to save it for each file if so configured, or throw all files into your Downloads directory if so configured , or, or, or...
 
