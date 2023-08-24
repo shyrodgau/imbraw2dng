@@ -19,9 +19,9 @@ int main (int argc, char **argv)
 	// this color matrix is definitely inaccurate, TODO: calibrate
 	static const float cam_xyz[] = {
 		// R 	G     	B
-		1.400,	0.000,	0.000,	// R
+		1.000,	0.000,	0.000,	// R
 		0.000,	1.000,	0.000,	// G
-		0.000,	0.000,	1.400	// B
+		0.000,	0.000,	1.000	// B
 	};
 	static const float neutral[] = { 0.6, 1.0, 0.6 }; // TODO calibrate
 	long white=0x0ff;
