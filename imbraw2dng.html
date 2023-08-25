@@ -15,7 +15,7 @@ Use: open in browser and select RAW
 
 -->
 <head>
-<title>ImB RAW to DNG Converter V2.1.0_04ed8ae</title>
+<title>ImB RAW to DNG Converter V2.1.0_DEVEL</title>
 <script type="text/javascript" language="javascript">
 /* Data for the Imback variants and exif stuff */
 const orients = [ '', 'none', '', '180&deg;', '', '', 'clockwise', '', 'couterclockwise' ];
@@ -111,6 +111,13 @@ let addlinkbool = false;
 let stepmode = 0; // 0 always save (if not checkbox or "save all" in dialog), 1 always ask (set on checkbox), 2 skip all (if selected in dialog)
 // current preview image
 let currentrot = 1;
+/* helper to append message */
+function appendmsg(msg) {
+	const msgel = document.getElementById('outmsg');
+	const xmsg = document.getElementById('xmsg');
+	xmsg.style["display"] = "";
+	msgel.innerHTML += msg;
+}
 /* helper function to put integer into dng */
 function writeinttoout(out, num, off) {
 	out[off] = (num % 256);
@@ -131,10 +138,7 @@ function fselected() {
 	actnum = 0;
 	allfiles = el.files;
 	if (totnum > 1) {
-		const msg = document.getElementById('outmsg');
-		const xmsg = document.getElementById('xmsg');
-		xmsg.style["display"] = "";
-		msg.innerHTML += "Got " + totnum + " files selected.<br>&nbsp;<br>";
+		appendmsg("Got " + totnum + " files selected.<br>&nbsp;<br>");
 	}
 	handleonex();
 }
@@ -158,14 +162,11 @@ function showreloadhints() {
 /* main handler function for one file */
 function handleonex() {
 	const f = allfiles[actnum];
-	const msg = document.getElementById('outmsg');
-	const xmsg = document.getElementById('xmsg');
-	xmsg.style["display"] = "";
 	if (stepmode === 2) {
 		if (totnum > 1) {
-			msg.innerHTML += ("[" + (1+actnum) + " / " + totnum + "] ");
+			appendmsg("[" + (1+actnum) + " / " + totnum + "] ");
 		}
-		msg.innerHTML += "Skipped at your request: " + f.name + "<br>&nbsp;<br>";
+		appendmsg("Skipped at your request: " + f.name + "<br>&nbsp;<br>");
 		return handlenext();
 	}
 	else if (stepmode === 1) {
@@ -221,11 +222,8 @@ function handleonex() {
 /* actual processing function for one file */
 function handleone(orientation) {
 	const f = allfiles[actnum];
-	const msg = document.getElementById('outmsg');
-	const xmsg = document.getElementById('xmsg');
-	xmsg.style["display"] = "";
 	if (undefined === f) {
-		msg.innerHTML += "Nothing selected...?<br>&nbsp;<br>";
+		appendmsg("Nothing selected...?<br>&nbsp;<br>");
 		return handlenext();
 	}
 	let rawname = f.name;
@@ -236,9 +234,9 @@ function handleone(orientation) {
 		const reader = new FileReader();
 		reader.onload = function(evt) {
 			if (totnum > 1) {
-				msg.innerHTML += ("[" + (1+actnum) + " / " + totnum + "] ");
+				appendmsg("[" + (1+actnum) + " / " + totnum + "] ");
 			}
-			msg.innerHTML += "Passing through as not <span translate=\"no\">raw</span>: " + f.name + "<br>";
+			appendmsg("Passing through as not <span translate=\"no\">raw</span>: " + f.name + "<br>");
 			const contents = evt.target.result;
 			const view = new DataView(contents);
 			const out = new Uint8Array(f.size);
@@ -251,16 +249,16 @@ function handleone(orientation) {
 			const thisurl = URL.createObjectURL(b);
 			outel.href = thisurl;
 			outel.click();
-			msg.innerHTML += "<b style=\"background-color:#ddffdd;\">Finished! Copied to " + rawname + " (Check Downloads Folder)</b>&nbsp;";
+			appendmsg("<b style=\"background-color:#ddffdd;\">Finished! Copied to " + rawname + " (Check Downloads Folder)</b>&nbsp;");
 			if (addlinkbool) {
-				msg.innerHTML += "<a download=\"" + rawname + "\" href=\"" + thisurl + "\">Manually download again</a>";
+				appendmsg("<a download=\"" + rawname + "\" href=\"" + thisurl + "\">Manually download again</a>");
 				showreloadhints();
 			}
-			msg.innerHTML += "<br>&nbsp;<br>";
+			appendmsg("<br>&nbsp;<br>");
 			handlenext();
 		}
 		reader.onerror = function(evt) {
-			msg.innerHTML += "<b style=\"background-color:#ffdddd;\">Error occured reading file " + f.name + ". SORRY! </b><br>&nbsp;<br>";
+			appendmsg("<b style=\"background-color:#ffdddd;\">Error occured reading file " + f.name + ". SORRY! </b><br>&nbsp;<br>");
 			handlenext();
 		}
 		reader.readAsArrayBuffer(f);
@@ -298,9 +296,9 @@ function handleone(orientation) {
 	const zz = infos.findIndex((v, i, o) => v.size === f.size);
 	if (zz === -1) {
 		if (totnum > 1) {
-			msg.innerHTML += ("[" + (1+actnum) + " / " + totnum + "] ");
+			appendmsg("[" + (1+actnum) + " / " + totnum + "] ");
 		}
-    	msg.innerHTML += "<b style=\"background-color:#ffdddd;\">[" + f.name + "] Sorry, file Size <b>" + f.size + "</b> does not match known formats. Please contact developer!</b><br>";
+    	appendmsg("<b style=\"background-color:#ffdddd;\">[" + f.name + "] Sorry, file Size <b>" + f.size + "</b> does not match known formats. Please contact developer!</b><br>");
 		const reader = new FileReader();
 		reader.onload = function(evt) {
 			const contents = evt.target.result;
@@ -315,16 +313,16 @@ function handleone(orientation) {
 			const thisurl = URL.createObjectURL(b);
 			outel.href = thisurl;
 			outel.click();
-			msg.innerHTML += "<b>Finished! Copied to " + rawname + " (Check Downloads Folder)</b>&nbsp;";
+			appendmsg("<b>Finished! Copied to " + rawname + " (Check Downloads Folder)</b>&nbsp;");
 			if (addlinkbool) {
-				msg.innerHTML += "<a download=\"" + rawname + "\" href=\"" + thisurl + "\">Manually download again</a>";
+				appendmsg("<a download=\"" + rawname + "\" href=\"" + thisurl + "\">Manually download again</a>");
 				showreloadhints();
 			}
-			msg.innerHTML += "<br>&nbsp;<br>";
+			appendmsg("<br>&nbsp;<br>");
 			handlenext();
 		}
 		reader.onerror = function(evt) {
-			msg.innerHTML += "<b>Error occured reading file " + f.name + ". SORRY! </b><br>&nbsp;<br>";
+			appendmsg("<b>Error occured reading file " + f.name + ". SORRY! </b><br>&nbsp;<br>");
 			handlenext();
 		}
 		reader.readAsArrayBuffer(f);
@@ -338,18 +336,18 @@ function handleone(orientation) {
 	const reader = new FileReader();
 	reader.onload = function(evt) {
 		if (totnum > 1) {
-			msg.innerHTML += ("[" + (1+actnum) + " / " + totnum + "] ");
+			appendmsg("[" + (1+actnum) + " / " + totnum + "] ");
 		}
-		msg.innerHTML += "Processing file: " + f.name + "<br>";
-		msg.innerHTML += "Assuming " + types[typ] + " " + mode + "<br>";
+		appendmsg("Processing file: " + f.name + "<br>");
+		appendmsg("Assuming " + types[typ] + " " + mode + "<br>");
 		if (dateok) {
-			msg.innerHTML += "Date/Time: " + datestr + "<br>";
+			appendmsg("Date/Time: " + datestr + "<br>");
 		}
 		if (orientation !== undefined && orientation !== 1) {
-			msg.innerHTML += "Orientation: " + orients[orientation] + "<br>";
+			appendmsg("Orientation: " + orients[orientation] + "<br>");
 		}
 		if (document.getElementById('acdscompat').checked) {
-			msg.innerHTML += "Setting neutral colour matrix for compatibility.<br>";
+			appendmsg("Setting neutral colour matrix for compatibility.<br>");
 		}
 		/* Here comes the actual building of the DNG */
 		const contents = evt.target.result;
@@ -445,14 +443,14 @@ function handleone(orientation) {
 			writeinttoout(out, f.size + 446, k);
 			k += 4;
 		}
-		const rest6c = [ 0x12, 0xc6, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x13, 0xc6, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00,
+		const rest6b = [ 0x12, 0xc6, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x13, 0xc6, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00,
 			0x00, 0x00, 0x14, 0xc6, 0x02, 0x00, 0x07, 0x00, 0x00, 0x00 ];
 		out.set(rest6c, k);
-		k += rest6c.length;
+		k += rest6b.length;
 		writeinttoout(out, (dateaddoff + 318) + f.size, k);
 		k += 4;
-		const rest7 = [ 0x1d, 0xc6, 0x04, 0x00, 0x01, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x21, 0xc6, 0x0a, 0x00, 0x09, 0x00, 0x00, 0x00
-		];
+
+		const rest7 = [ 0x1d, 0xc6, 0x04, 0x00, 0x01, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x21, 0xc6, 0x0a, 0x00, 0x09, 0x00, 0x00, 0x00 ];
 		out.set(rest7, k);
 		k += rest7.length;
 		writeinttoout(out, (dateaddoff + 326) + f.size, k);
@@ -477,27 +475,35 @@ function handleone(orientation) {
 		k += rest9.length;
 		out.set(new TextEncoder().encode(types[typ]), k);
 		k += 7;
-		const rest10 = [ 0x00, 0x69, 0x6d, 0x62, 0x72, 0x61, 0x77, 0x32, 0x64, 0x6e, 0x67,
-			0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x00, 0x00, 0xff, 0xff, 0xff, 0x7f, 0xf4, 0xb6,
+
+		const rest10a = [ 0x00, 0x69, 0x6d, 0x62, 0x72, 0x61, 0x77, 0x32, 0x64, 0x6e, 0x67,
+			0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x00, 0x00 ];
+		out.set(rest10a, k);
+		k += rest10a.length;
+
+		const rest10bnorm = [ 0xff, 0xff, 0xff, 0x7f, 0xf4, 0xb6,
 			0x6d, 0x5b, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0x7f, 0xf4, 0xb6,
-			0x6d, 0x5b, 0xff, 0x99, 0x99, 0x99, 0xff, 0xff, 0xff, 0xff, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
-			0x00, 0x00, 0xff, 0x99, 0x99, 0x99, 0xff, 0xff, 0xff, 0xff ];
-		const rest10neutral = [ 0x00, 0x69, 0x6d, 0x62, 0x72, 0x61, 0x77, 0x32, 0x64, 0x6e, 0x67,
-			0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
+			0x6d, 0x5b ];
+		const rest10bneutral = [ 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
-			0x00, 0x00, 0xff, 0x99, 0x99, 0x99, 0xff, 0xff, 0xff, 0xff, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
-			0x00, 0x00, 0xff, 0x99, 0x99, 0x99, 0xff, 0xff, 0xff, 0xff ];
+			0x00, 0x00 ];
 		if (document.getElementById('acdscompat').checked)
-			out.set(rest10neutral, k);
+			out.set(rest10bneutral, k);
 		else
-			out.set(rest10, k);
-		k += rest10.length; // length is the same
+			out.set(rest10b, k);
+		k += rest10b.length; // both have the same length
+
+		const rest10c = [ 0xff, 0x99, 0x99, 0x99, 0xff, 0xff, 0xff, 0xff, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
+			0x00, 0x00, 0xff, 0x99, 0x99, 0x99, 0xff, 0xff, 0xff, 0xff ];
+		out.set(rest10c, k);
+		k += rest10c.length;
+
 		if (dateok) { // datetime value
 			const datearr = new TextEncoder().encode(datestr);
 			out.set(datearr, f.size + 446);
@@ -509,16 +515,16 @@ function handleone(orientation) {
 		const thisurl = URL.createObjectURL(b);
 		outel.href = thisurl;
 		outel.click();
-		msg.innerHTML += "<b style=\"background-color:#ddffdd;\">Finished! Converted to " + rawname.substring(0, rawname.length - 3) + "dng (Check Downloads Folder)</b>&nbsp;";
+		appendmsg("<b style=\"background-color:#ddffdd;\">Finished! Converted to " + rawname.substring(0, rawname.length - 3) + "dng (Check Downloads Folder)</b>&nbsp;");
 		if (addlinkbool) {
-			msg.innerHTML += "<a type=\"image/x-adobe-dng\" download=\"" + rawname.substring(0, rawname.length - 3) + "dng\" href=\"" + thisurl + "\">Manually download again</a>&nbsp;";
+			appendmsg("<a type=\"image/x-adobe-dng\" download=\"" + rawname.substring(0, rawname.length - 3) + "dng\" href=\"" + thisurl + "\">Manually download again</a>&nbsp;");
 			showreloadhints();
 		}
-		msg.innerHTML += "<br>&nbsp;<br>";
+		appendmsg("<br>&nbsp;<br>");
 		handlenext();
 	};
 	reader.onerror = function(evt) {
-		msg.innerHTML += "<b style=\"background-color:#ffdddd;\">Error occured reading file " + f.name + ". SORRY! </b><br>&nbsp;<br>";
+		appendmsg("<b style=\"background-color:#ffdddd;\">Error occured reading file " + f.name + ". SORRY! </b><br>&nbsp;<br>");
 		handlenext();
 	};
 	reader.readAsArrayBuffer(f);
@@ -531,14 +537,11 @@ function drophandler(ev) {
     const stepprev = document.getElementById('steppreview');
     stepmode = 0;
 	if (stepprev !== null && stepprev.checked) stepmode = 1;
-	const msg = document.getElementById('outmsg');
-	const xmsg = document.getElementById('xmsg');
-	xmsg.style["display"] = "";
 	ev.preventDefault();
 	allfiles = [];
 	actnum = 0;
 	if (ev.dataTransfer.items) {
-		msg.innerHTML += "Got " + [...ev.dataTransfer.items].length + " files dropped.<br>&nbsp;<br>";
+		appendmsg("Got " + [...ev.dataTransfer.items].length + " files dropped.<br>&nbsp;<br>");
 		totnum = [...ev.dataTransfer.items].length;
 		[...ev.dataTransfer.items].forEach((item, i) => {
 			if (item.kind === "file") {
@@ -547,7 +550,7 @@ function drophandler(ev) {
 			}
 		});
 	} else {
-		msg.innerHTML += "Got " + [...ev.dataTransfer.files].length + " files dropped.<br>&nbsp;<br>";
+		appendmsg("Got " + [...ev.dataTransfer.files].length + " files dropped.<br>&nbsp;<br>");
 		totnum = [...ev.dataTransfer.files].length;
 		[...ev.dataTransfer.files].forEach((file, i) => {
 			allfiles.push(file);
@@ -692,7 +695,6 @@ function buildpreview(f, orientation) {
 			}
 		}
 		const fact = 255 / (allmax - allmin);
-		//console.log('IR:' + minred + ' AR:' + maxred + ' IG:' + mingreen + ' AG:' + maxgreen + ' IB:' + minblue + ' AB:' + maxblue + ' II:' + allmin + ' AA:' + allmax);
 		for (let i = 0; i < h8; i++) {
 			for (let j=0; j< w8; j++) {
 				if ((outpix[4*((i * w8) + j)] > 250) &&
@@ -701,25 +703,13 @@ function buildpreview(f, orientation) {
 				{
 					outpix[4*((i*w8) + j) + 1] = 255;
 				} else {
+					// maybe some brightening gamma?
 					outpix[4 * ((i*w8) + j)] = Math.round(fact * (outpix[4 * ((i*w8) + j)] - allmin));
 					outpix[4 * ((i*w8) + j) + 1] = Math.round(fact * 0.6 * (outpix[4 * ((i*w8) + j) + 1] - allmin* 0.6));
 					outpix[4 * ((i*w8) + j) + 2] = Math.round(fact * (outpix[4 * ((i*w8) + j) + 2] - allmin));
 				}
 			}
 		}
-		/* debug * /
-		let air = 255, aar = 0, aib = 255, aab = 0, aig = 255, aag = 0;
-		for (let i = 0; i < h8; i++) {
-			for (let j=0; j< w8; j++) {
-				if (outpix[4*((i * w8) + j)] < air) air = outpix[4*((i * w8) + j)];
-				if (outpix[4*((i * w8) + j)] > aar) aar = outpix[4*((i * w8) + j)];
-				if (outpix[4*((i * w8) + j) + 1] < aig) aig = outpix[4*((i * w8) + j) + 1];
-				if (outpix[4*((i * w8) + j) + 1] > aag) aag = outpix[4*((i * w8) + j) + 1];
-				if (outpix[4*((i * w8) + j) + 2] < aib) aib = outpix[4*((i * w8) + j) + 2];
-				if (outpix[4*((i * w8) + j) + 2] > aab) aab = outpix[4*((i * w8) + j) + 2];
-			}
-		}
-		console.log('AFTER IR:' + air + ' AR:' + aar + ' IG:' + aig + ' AG:' + aag + ' IB:' + aib + ' AB:' + aab);*/
 		ctx.putImageData(new ImageData(new Uint8ClampedArray(outpix), transpose ? h8: w8, transpose? w8 :h8), 0, 0);
 	};
 	reader.onerror = function(evt) {
@@ -727,46 +717,48 @@ function buildpreview(f, orientation) {
 	};
 	reader.readAsArrayBuffer(f);
 }
-/* skip handler in the step preview */
-function skipthis() {
+/* as it says */
+function shownormal() {
 	const norm = document.getElementById('normal');
 	const quest = document.getElementById('question');
 	quest.style['display'] = 'none';
 	norm.style['display'] = '';
+}
+/* skip handler in the step preview */
+function skipthis() {
 	if (document.getElementById('doforall').checked) stepmode = 2;
-	const msg = document.getElementById('outmsg');
-	const xmsg = document.getElementById('xmsg');
-	xmsg.style["display"] = "";
 	if (totnum > 1) {
-		msg.innerHTML += ("[" + (1+actnum) + " / " + totnum + "] ");
+		appendmsg("[" + (1+actnum) + " / " + totnum + "] ");
 	}
-	msg.innerHTML += "Skipped at your request: " + allfiles[actnum].name + "<br>&nbsp;<br>";
+	appendmsg("Skipped at your request: " + allfiles[actnum].name + "<br>&nbsp;<br>");
+	shownormal();
 	handlenext();
 }
 /* process handler in the step preview */
 function procthis() {
-	const norm = document.getElementById('normal');
-	const quest = document.getElementById('question');
-	quest.style['display'] = 'none';
-	norm.style['display'] = '';
 	if (document.getElementById('doforall').checked) stepmode = 0;
+	shownormal();
 	handleone(currentrot);
 }
+/* handler for clockwise rotation */
 function rotcw() {
 	if (6 === currentrot) return;
 	currentrot = 6;
 	buildpreview(allfiles[actnum], 6);
 }
+/* handler for counterclockwise rotation */
 function rotccw() {
 	if (8 === currentrot) return;
 	currentrot = 8;
 	buildpreview(allfiles[actnum], 8);
 }
+/* handler for upside down rotation */
 function rot180() {
 	if (3 === currentrot) return;
 	currentrot = 3;
 	buildpreview(allfiles[actnum], 3);
 }
+/* handler for reset rotation */
 function rot0() {
 	if (1 === currentrot) return;
 	currentrot = 1;
@@ -776,8 +768,8 @@ function rot0() {
 </head>
 <!-- here comes the html itself -->
 <body style="font-family: Helvetica, Arial, sans-serif;">
-<div style="font-weight:bold;"><span translate="no">ImB RAW</span> to <span translate="no">DNG</span> Converter <span translate="no">V2.1.0_04ed8ae</span> - <a target="_new" href="https://shyrodgau.github.io/imbraw2dng/">? Help Doc</a></div>
-<!--br>&nbsp;<br--><div id="normal" style="margin-top: 0.5em;">
+<div style="font-weight:bold;"><span translate="no">ImB RAW</span> to <span translate="no">DNG</span> Converter <span translate="no">V2.1.0_DEVEL</span> - <a target="_new" href="https://shyrodgau.github.io/imbraw2dng/">? Help Doc</a></div>
+<div id="normal" style="margin-top: 0.5em;">
 <!-- the normal display -->
 <div><input type="checkbox" id="steppreview" checked><label for="steppreview">Single Step with preview</label></div>
 <div><input type="checkbox" id="acdscompat"><label for="acdscompat" title="For software that gets irritated by some colour matrix change">Compatibility neutral colour matrix</label></div>
