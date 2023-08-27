@@ -20,7 +20,7 @@ int main (int argc, char **argv)
 	static const float cam_xyz[] = {
 		// R 	G     	B
 		1.000,	0.000,	0.000,	// R
-		0.000,	1.000,	0.000,	// G
+		0.000,	0.625,	0.000,	// G
 		0.000,	0.000,	1.000	// B
 	};
 	static const float neutral[] = { 0.6, 1.0, 0.6 }; // TODO calibrate

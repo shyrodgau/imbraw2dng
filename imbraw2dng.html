@@ -111,6 +111,8 @@ let addlinkbool = false;
 let stepmode = 0; // 0 always save (if not checkbox or "save all" in dialog), 1 always ask (set on checkbox), 2 skip all (if selected in dialog)
 // current preview image
 let currentrot = 1;
+// from the back itself
+let imbpics = [], rimbpics = [], imbmovies = [];
 /* helper to append message */
 function appendmsg(msg) {
 	const msgel = document.getElementById('outmsg');
@@ -489,7 +491,7 @@ function handleone(orientation) {
 			0x6d, 0x5b ];
 		const rest10bneutral = [ 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00,
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x08, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
 			0x00, 0x00 ];
@@ -764,10 +766,63 @@ function rot0() {
 	currentrot = 1;
 	buildpreview(allfiles[actnum], 1);
 }
+/* check if we are directly on a back */
+function checkimb() {
+	if (window.location.origin !== 'http://192.168.1.254') return;
+	const xhr0 = new XMLHttpRequest();
+	xhr0.onloadend = (event) => {
+		if (xhr.status === 200) {
+			let foundph = false, foundmov = false;
+			for (const r of xhr.responseXML.body.children.body.childNodes[1].childNodes[1].childNodes) {
+				if (r.childNodes[0] && r.childNodes[0].childNodes && r.childNodes[0].childNodes[0].href == '/IMBACK/PHOTO') 
+					foundph = true;
+				if (r.childNodes[0] && r.childNodes[0].childNodes && r.childNodes[0].childNodes[0].href == '/IMBACK/MOVIE') 
+					foundmov = true;
+			}
+			if (!foundph || !foundmov) return;
+			document.getElementById('onimback').style['display'] = '';
+			const xhr = new XMLHttpRequest();
+			xhr.onloadend = (event) => {
+				console.log('OLE ' + JSON.stringify(event) + ' XHR ' + JSON.stringify(xhr));
+				if (xhr.status === 200) {
+					for (const r of xhr.responseXML.body.children.body.childNodes[1].childNodes[1].childNodes) {
+						if (r.childNodes[0] && r.childNodes[0].childNodes && r.childNodes[0].childNodes[0].href)
+							if (r.childNodes[0].childNodes[0].href.substring(rawname.length -4).toUpperCase() === '.RAW') 
+								rimbpics.push(r.childNodes[0].childNodes[0].href)
+							else
+								imbpics.push(r.childNodes[0].childNodes[0].href)
+					}
+					const xhrm = new XMLHttpRequest();
+					xhrm.onloadend = (event) => {
+						console.log('OLE ' + JSON.stringify(event) + ' XHR ' + JSON.stringify(xhr));
+						if (xhrm.status === 200) {
+							for (const r of xhrm.responseXML.body.children.body.childNodes[1].childNodes[1].childNodes) {
+								if (r.childNodes[0] && r.childNodes[0].childNodes && r.childNodes[0].childNodes[0].href) 
+									imbmovies.push(r.childNodes[0].childNodes[0].href)
+							}
+							document.getElementById('movcnt').innerHTML = '' + imbmovies.length;
+							document.getElementById('piccnt').innerHTML = '' + imbpics.length;
+							document.getElementById('rpiccnt').innerHTML = '' + rimbpics.length;
+						}
+					};
+					xhrm.open('GET', '/IMBACK/MOVIE/');
+					xhrm.responseType = 'document';
+					xhrm.send();
+				}
+			};
+			xhr.open('GET', '/IMBACK/PHOTO/');
+			xhr.responseType = 'document';
+			xhr.send();
+		}
+	};
+	xhr0.open('GET', '/IMBACK/');
+	xhr0.responseType = 'document';
+	xhr0.send();
+}
 </script>
 </head>
 <!-- here comes the html itself -->
-<body style="font-family: Helvetica, Arial, sans-serif;">
+<body style="font-family: Helvetica, Arial, sans-serif;" onload="checkimb();">
 <div style="font-weight:bold;"><span translate="no">ImB RAW</span> to <span translate="no">DNG</span> Converter <span translate="no">V2.1.0_DEVEL</span> - <a target="_new" href="https://shyrodgau.github.io/imbraw2dng/">? Help Doc</a></div>
 <div id="normal" style="margin-top: 0.5em;">
 <!-- the normal display -->
@@ -776,6 +831,14 @@ function rot0() {
 <div><input type="checkbox" id="addlink"><label for="addlink" title="This may cost memory and is thus no longer by default. Simply select the files again.">Add separate download link for each file</label></div>
 <div  style="margin-top: 0.5em;">
 Browser may ask you if you want to allow downloading multiple files.<br>Not or unrecognized <span translate="no">RAW</span> Files simply will be copied.</div>
+<div id="onimback" style="background-color:#ffffaa;width:fit-content;padding:1em;display:none;"><div style="font-size:133%;"><span translate="no">ImB</span> Connected! <br></div>
+Download/Convert <br>
+<input type="checkbox" id="movfromimb"><label for="movfromimb">Movies</label> (total: <span id="movcnt">counting</span>)
+<br><input checked type="checkbox" id="picfromimb"><label for="picfromimb">JPEG Pictures</label> (total: <span id="piccnt">counting</span>) 
+<br><input checked type="checkbox" id="rpicfromimb"><label for="rpicfromimb">RAW Pictures</label> (total: <span id="rpiccnt">counting</span>)<br>
+younger than <input type="text" maxlength="16" minlength="0" placeholder="YYYY_MMDD_hhmmss" pattern="[0-9][0-9][0-9][0-9]_[0-9][0-9]_[0-9][0-9][0-9][0-9][0-9][0-9]"> (blank for all) <br><input type="button" value="Do it" id="imbdoit" disabled><br>
+Or <input type="button" value="Use visual Picture Browser" id="imbvisbrows" disabled>
+</div>
 <div style="font-size:133%;margin-top: 0.5em;">Drop Files from <span translate="no">ImB</span> here: <br></div>
 <div id="droptarget" ondrop="drophandler(event);" ondragenter="prevdef(event);" ondragover="prevdef(event);" style="border: 5px solid blue;border-radius: 10px;width:300px; height:70px;background-color: rgba(0,0,255,0.2);"></div><br>
 <div  style="font-size:133%;margin-top: 0.5em;">Or select <span style="font-weight:bold;" translate="no">.raw</span> File(s): <input type="file" accept=".raw,.RAW" id="infile" name="infile" multiple onchange="fselected()"></div><br>
