@@ -29,7 +29,12 @@ New: you can do a step-by-step walk with a preview of the raw file. For that, ch
 
 Use your favourite software, e.g. darktable, lightroom, ufraw, rawtherapee etc.
 
-A strong green or magenta tint all over the image should not happen any more! But if you have one and **can not** level it out using your software's white-balancing, a sample image might be interesing to fix it.
+A strong green or magenta tint all over the image should not happen any more! But if you have one and **can not** level it out using your software's color matrix/color calibration or white-balancing, a sample image might be interesing to fix it.
+
+*Word on colours:* The right way to get the colours correct is to adjust the color calibration or color matrix. I am trying to get this right somehow inside the DNG but I am far from it. Do *NOT* use the default identity matrix but change the green/green value to something around 0.6..0.7. This will at first make the image look reddish. But then you can use the white balance to adjust it correctly. Do not start with the white balance where the red and blue are much higher than the green. When you leave the color matrix on identity, it is much harder or impossible to get the white balance sorted out! Sample pictures of how the matrix and the white balance on neutral light should look:
+
+![darktable sample color matrix green](https://github.com/shyrodgau/imbraw2dng/blob/master/helpstuff/darktable_color_calib_ok.png?raw=true "darktable sample color matrix green") 
+![darktable sample neutral white balance](https://github.com/shyrodgau/imbraw2dng/blob/master/helpstuff/darktable_neutral_white_balance.png?raw=true "darktable sample neutral white balance")
 
 If a red highlighted spot is in the center of the image, a manual retouche after the processing is required, or use the following darktable setting, placing and sizing a circle shape manually around the area.
 
