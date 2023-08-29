@@ -36,14 +36,14 @@ A strong green or magenta tint all over the image should not happen any more! Bu
 
 **Word on colours:** The right way to get the colours correct is to adjust the color calibration or color matrix. I am trying to get this right somehow inside the DNG but I am far from it (in darktable, I can tell it to automatically set it for DNGs from maker "ImBack"). Do **NOT** use the default identity matrix but change the green/green value to something around 0.6..0.7. This will at first make the image look reddish with the (wrong) default white balance. But then you can use the white balance to adjust it correctly. Do not start with the white balance where the red and blue are much higher than the green. When you leave the color matrix on identity, it is much harder or impossible to get the white balance sorted out! Sample pictures of how the matrix and the white balance on near neutral light should look:
 
-![darktable sample color matrix green](https://github.com/shyrodgau/imbraw2dng/blob/master/helpstuff/darktable_color_calib_ok.png?raw=true "darktable sample color matrix green") 
-![darktable sample neutral white balance](https://github.com/shyrodgau/imbraw2dng/blob/master/helpstuff/darktable_neutral_white_balance.png?raw=true "darktable sample neutral white balance")
+![darktable sample color matrix green](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_color_calib_ok.png "darktable sample color matrix green") 
+![darktable sample neutral white balance](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_neutral_white_balance.png "darktable sample neutral white balance")
 
 If a red highlighted spot is in the center of the image, a manual retouche after the processing is required, or use the following darktable setting, placing and sizing a circle shape manually around the area.
 
 To avoid the red spot from the start, use a bigger aperture (smaller number) or combine the standard PDLC matte with a Fresnel screen from I'm Back or a Canon EG-xxx screen.
 
-![darktable sample agains red circle](https://github.com/shyrodgau/imbraw2dng/blob/master/helpstuff/darktable_redcircle.png?raw=true "darktable sample agains red circle")
+![darktable sample agains red circle](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_redcircle.png "darktable sample agains red circle")
 
 ## How does it work?
 
