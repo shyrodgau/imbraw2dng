@@ -1,5 +1,7 @@
 # imbraw2dng - Convert RAW from [I'm Back(R)](https://imback.eu) into DNG
 
+This is free software and not commercially supported.
+
 In here: [Installation](#installation) - [Usage](#usage) - [Processing the DNG](#processing-the-dng) - [How does it work](#how-does-it-work)
 
 They are not really "B&W RAW" but actually the RAW sensor data that also contains the colour filtering. You can see it when you import them as RAW into photoshop as Samuel described - zoom in and you see the gray values rastered in 2x2 squares. So even for B&W it is better to go the DNG way.
@@ -31,6 +33,8 @@ New: you can do a step-by-step walk with a preview of the raw file. For that, ch
 ## Processing the DNG
 
 Use your favourite software, e.g. darktable, lightroom, ufraw, rawtherapee etc.
+
+Do **not** expect the image to be okay out-of-the-box. I will probably not be able to provide all tags in the DNG to satisfy all possible programmes. Take your time to adjust the colours and then the rest. *If anyone is experienced around DNGs or knows someone who would be willing to help - please get in contact*
 
 A strong green or magenta tint all over the image should not happen any more! But if you have one and **can not** level it out using your software's color matrix/color calibration or white-balancing, a sample image might be interesing to fix it.
 
