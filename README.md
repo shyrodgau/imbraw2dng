@@ -34,7 +34,7 @@ New: you can do a step-by-step walk with a preview of the raw file. For that, ch
 
 Use your favourite software, e.g. darktable, lightroom, ufraw, rawtherapee etc.
 
-Do **not** expect the image to be okay out-of-the-box. I will probably not be able to provide all tags in the DNG to satisfy all possible programmes. Take your time to adjust the colours and then the rest. *If anyone is experienced around DNGs or knows someone who would be willing to help - please get in contact*
+Do **not** expect the image to be okay out-of-the-box. I will probably not be able to provide all tags in the DNG to satisfy all possible programmes. Take your time to adjust the colours and then the rest. *If anyone is experienced around DNGs or knows someone who would be willing to help - please get in contact* e.g. on [Discussion on pixls.us](https://discuss.pixls.us/t/converting-plain-raw-from-imback-to-dng/) for Darktable/RawSpeed or I'm Back digital back [Developers Group on Facebook](https://www.facebook.com/groups/2812057398929350).
 
 A strong green or magenta tint all over the image should not happen any more! But if you have one and **can not** level it out using your software's color matrix/color calibration or white-balancing, a sample image might be interesing to fix it.
 
