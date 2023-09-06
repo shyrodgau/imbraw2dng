@@ -1,8 +1,8 @@
-# imbraw2dng - Konvertieren von RAW-Dateien von [I'm Back(R)](https://imback.eu) nach DNG
+# imbraw2dng - Konvertierung von RAW-Dateien von [I'm Back(R)](https://imback.eu) nach DNG
 
 Dies ist freie Software ohne kommerzielle Unterstützung.
 
-Hier gibts: [Installation](#installation) - [Benutzung](#benutzung) - [Verarbeitung des DNG](#verarbeitung-des-dng) - [Wie funktioniert es](#wie-funktioniert-es) - [ENGLISCH](https://shyrodgau.github.io/imbraw2dng/)
+Hier gibts: [Installation](#installation) - [Benutzung](#benutzung) - [Verarbeitung des DNG](#verarbeitung-des-dng) - [Wie funktioniert es](#wie-funktioniert-es) - [IN ENGLISH](https://shyrodgau.github.io/imbraw2dng/)
 
 Es sind keine "Schwarz-Weiß RAW"-Dateien, sondern die echten Roh-Sensordaten mit der Farbfilterung darauf. Wenn man sie wie nach Samuels Beschreibung in Photoshop importiert und hineinzoomt, kann man die Rasterung der Grauwerte in 2x2 Quadraten erkennen. Somit ist es auch für Schwarz-Weiß besser, über DNG zu gehen.
 
@@ -12,7 +12,7 @@ Probleme und Ideen können auch in der [I'm Back Users Gruppe auf Facebook](http
 
 ## Installation
 
-Die aktuelle Version ist [V2.1.0_04ed8ae - Add Compatibility neutral colour matrix option](https://github.com/shyrodgau/imbraw2dng/releases/tag/V2.1.0_04ed8ae).
+Die aktuelle Version ist [V2.1.2_5eb7aa1 - Remove Compatibility neutral colour matrix option](https://github.com/shyrodgau/imbraw2dng/releases/tag/V2.1.2_5eb7aa1).
 
 Die Datei [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.html) auf den PC kopieren oder aus der Version "Source code".zip oder .tar.gz auspacken und im Lieblingsbrowser öffnen (alles halbwegs aktuellen sollten gehen).
 

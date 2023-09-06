@@ -2,7 +2,7 @@
 
 This is free software and not commercially supported.
 
-In here: [Installation](#installation) - [Usage](#usage) - [Processing the DNG](#processing-the-dng) - [How does it work](#how-does-it-work) - [GERMAN](https://shyrodgau.github.io/imbraw2dng/README_de)
+In here: [Installation](#installation) - [Usage](#usage) - [Processing the DNG](#processing-the-dng) - [How does it work](#how-does-it-work) - [AUF DEUTSCH](https://shyrodgau.github.io/imbraw2dng/README_de)
 
 They are not really "B&W RAW" but actually the RAW sensor data that also contains the colour filtering. You can see it when you import them as RAW into photoshop as Samuel described - zoom in and you see the gray values rastered in 2x2 squares. So even for B&W it is better to go the DNG way.
 
@@ -12,7 +12,7 @@ Problems and ideas can also be discussed in the [I'm Back Users Group on Faceboo
 
 ## Installation
 
-The current release is [V2.1.0_04ed8ae - Add Compatibility neutral colour matrix option](https://github.com/shyrodgau/imbraw2dng/releases/tag/V2.1.0_04ed8ae).
+The current release is [V2.1.2_5eb7aa1 - Remove Compatibility neutral colour matrix option](https://github.com/shyrodgau/imbraw2dng/releases/tag/V2.1.2_5eb7aa1).
 
 Copy the [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.html) file to your PC or extract it from the release "Source code".zip or .tar.gz and open in your favorite browser (any newer one should do).
 
