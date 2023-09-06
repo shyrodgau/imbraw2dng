@@ -15,7 +15,7 @@ Use: open in browser and select RAW
 
 -->
 <head>
-<title>ImB RAW to DNG Converter V2.1.1_907657d</title>
+<title>ImB RAW to DNG Converter V2.1.1_DEVEL</title>
 <script type="text/javascript" language="javascript">
 /* Data for the Imback variants and exif stuff */
 const orients = [ '', 'none', '', '180&deg;', '', '', 'clockwise', '', 'couterclockwise' ];
@@ -169,6 +169,10 @@ function handleonex() {
 			appendmsg("[" + (1+actnum) + " / " + totnum + "] ");
 		}
 		appendmsg("Skipped at your request: " + f.name + "<br>&nbsp;<br>");
+		document.getElementById('question').style['display']='none';
+		document.getElementById('continues').style['display']='none';
+		document.getElementById('previewerr').style['display']='none';
+		document.getElementById('norm').style['display']='';
 		return handlenext();
 	}
 	else if (stepmode === 1) {
@@ -182,30 +186,35 @@ function handleonex() {
 		if (totnum > 1) {
 			document.getElementById('qhdr').innerHTML = '[' + (1+actnum) + ' / ' + totnum + '] ';
 		} else document.getElementById('qhdr').innerHTML = '';
-		if (rawname.substring(rawname.length -4).toUpperCase() === '.JPG' ||
+		/*if (rawname.substring(rawname.length -4).toUpperCase() === '.JPG' ||
 			rawname.substring(rawname.length -5).toUpperCase() === '.JPEG') {
-			/* jpeg preview soon */
+			/* jpeg preview soon * /
 			document.getElementById('qhdr').innerHTML += 'File ' + f.name + ' JPEG preview work in progress';
 			document.getElementById('rotations').style['display'] = 'none';
 			document.getElementById('preview').style['display'] = 'none';
+			document.getElementById('previewerr').style['display'] = 'none';
+			document.getElementById('continues').style['display']='';
 		}
-		else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
+		else */ if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
 			/* no preview */
-			document.getElementById('qhdr').innerHTML += 'File ' + f.name + '<br>Not raw or jpeg, no preview...';
+			document.getElementById('qhdr').innerHTML += 'File ' + f.name + '<br>Not raw, no preview...';
 			document.getElementById('rotations').style['display'] = 'none';
 			document.getElementById('preview').style['display'] = 'none';
+			document.getElementById('previewerr').style['display'] = 'none';
+			document.getElementById('continues').style['display']='';
 		}
 		else {
 			const zz = infos.findIndex((v, i, o) => v.size === f.size);
+			document.getElementById('preview').style['display'] = 'none';
+			document.getElementById('previewerr').style['display'] = 'none';
+			document.getElementById('rotations').style['display'] = 'none';
 			if (zz === -1) {
 				/* no preview */
-				document.getElementById('preview').style['display'] = 'none';
-				document.getElementById('rotations').style['display'] = 'none';
 				document.getElementById('qhdr').innerHTML += 'File ' + f.name + '<br>Unknown raw size ' + f.size + ', please contact developer! No preview...';
+				document.getElementById('continues').style['display']='';
 			} else {
-				document.getElementById('preview').style['display'] = '';
-				document.getElementById('rotations').style['display'] = '';
 				document.getElementById('qhdr').innerHTML += 'File ' + f.name;
+				document.getElementById('continues').style['display']='none';
 				buildpreview(f);
 			}
 		}
@@ -219,7 +228,12 @@ function handleonex() {
 		norm.style['display'] = 'none';
 		quest.style['display'] = '';
 	}
-	else handleone();
+	else { // normal processing without question
+		document.getElementById('question').style['display']='none';
+		document.getElementById('norm').style['display']='';
+		document.getElementById('previewerr').style['display'] = '';
+		handleone();
+	}
 }
 /* actual processing function for one file */
 function handleone(orientation) {
@@ -347,9 +361,6 @@ function handleone(orientation) {
 		}
 		if (orientation !== undefined && orientation !== 1) {
 			appendmsg("Orientation: " + orients[orientation] + "<br>");
-		}
-		if (document.getElementById('acdscompat').checked) {
-			appendmsg("Setting neutral colour matrix for compatibility.<br>");
 		}
 		/* Here comes the actual building of the DNG */
 		const contents = evt.target.result;
@@ -489,17 +500,8 @@ function handleone(orientation) {
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0x7f, 0xf4, 0xb6,
 			0x6d, 0x5b ];
-		const rest10bneutral = [ 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00,
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x08, 0x00,
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00,
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
-			0x00, 0x00 ];
-		if (document.getElementById('acdscompat').checked)
-			out.set(rest10bneutral, k);
-		else
-			out.set(rest10b, k);
-		k += rest10b.length; // both have the same length
+		out.set(rest10b, k);
+		k += rest10b.length;
 
 		const rest10c = [ 0xff, 0x99, 0x99, 0x99, 0xff, 0xff, 0xff, 0xff, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
 			0x00, 0x00, 0xff, 0x99, 0x99, 0x99, 0xff, 0xff, 0xff, 0xff ];
@@ -713,9 +715,15 @@ function buildpreview(f, orientation) {
 			}
 		}
 		ctx.putImageData(new ImageData(new Uint8ClampedArray(outpix), transpose ? h8: w8, transpose? w8 :h8), 0, 0);
+		document.getElementById('preview').style['display'] = '';
+		document.getElementById('rotations').style['display'] = '';
+		document.getElementById('continues').style['display']='';
 	};
 	reader.onerror = function(evt) {
 		console.log('preview: error reading ' + f.name);
+		document.getElementById('preview').style['display'] = 'none';
+		document.getElementById('rotations').style['display'] = 'none';
+		document.getElementById('continues').style['display']='';
 	};
 	reader.readAsArrayBuffer(f);
 }
@@ -823,11 +831,10 @@ function checkimb() {
 </head>
 <!-- here comes the html itself -->
 <body style="font-family: Helvetica, Arial, sans-serif;" onload="checkimb();">
-<div style="font-weight:bold;"><span translate="no">ImB RAW</span> to <span translate="no">DNG</span> Converter <span translate="no">V2.1.1_907657d</span> - <a target="_new" href="https://shyrodgau.github.io/imbraw2dng/">? Help Doc</a></div>
+<div style="font-weight:bold;"><span translate="no">ImB RAW</span> to <span translate="no">DNG</span> Converter <span translate="no">V2.1.1_DEVEL</span> - <a target="_new" href="https://shyrodgau.github.io/imbraw2dng/">? Help Doc</a></div>
 <div id="normal" style="margin-top: 0.5em;">
 <!-- the normal display -->
 <div><input type="checkbox" id="steppreview" checked><label for="steppreview">Single Step with preview</label></div>
-<div><input type="checkbox" id="acdscompat"><label for="acdscompat" title="For software that gets irritated by some colour matrix change">Compatibility neutral colour matrix</label></div>
 <div><input type="checkbox" id="addlink"><label for="addlink" title="This may cost memory and is thus no longer by default. Simply select the files again.">Add separate download link for each file</label></div>
 <div  style="margin-top: 0.5em;">
 Browser may ask you if you want to allow downloading multiple files.<br>Not or unrecognized <span translate="no">RAW</span> Files simply will be copied.</div>
@@ -851,14 +858,14 @@ Or <input type="button" value="Use visual Picture Browser" id="imbvisbrows" disa
 <div id="question" style="display:none;background-color:#ddffaa;border: 5px solid #33ff33; border-radius: 10px;width: fit-content;padding:2em;">
 <!-- this is only shown on step with preview -->
 <div style="font-weight:bold;" id="qhdr">&nbsp;</div>
-<canvas id="preview"></canvas><br>
+<canvas id="preview"></canvas><div id="previewerr">Error with Preview :-(</div><br>
 <div id="rotations"><input type="button" id="procthis" value="Rot Clockwise" onclick="rotcw()" style="padding:0.5em; margin:0.5em;margin-left:2.5em;" title="Rotate original image by 90&deg; clockwise">
 <input type="button" id="procthis" value="Rot Couterclockwise" onclick="rotccw()" style="padding:0.5em; margin:0.5em;" title="Rotate original image by 90&deg; counterclockwise">
 <input type="button" id="procthis" value="Rotate 180" onclick="rot180()" style="padding:0.5em; margin:0.5em;" title="Rotate original image by 180&deg; upside down">
 <input type="button" id="procthis" value="Reset" onclick="rot0()" style="padding:0.5em; margin:0.5em;" title="Reset original image orientation"></div>
-<input type="button" id="procthis" value="Process" onclick="procthis()" style="padding:0.5em; margin:0.5em;">
+<div id="continues"><input type="button" id="procthis" value="Process" onclick="procthis()" style="padding:0.5em; margin:0.5em;">
 <input type="button" id="skipthis" value="Skip" onclick="skipthis()" style="padding:0.5em; margin:0.5em;">&nbsp;
-<span id="forrest"><input type="checkbox" id="doforall" style="padding-left:0.5em; margin-left:0.5em;"><label for="doforall">Do this for all following</label></span>
+<span id="forrest"><input type="checkbox" id="doforall" style="padding-left:0.5em; margin-left:0.5em;"><label for="doforall">Do this for all following</label></span></div>
 </div>
 <a style="display: none;" id="result">x</a>
 </body>
