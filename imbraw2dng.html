@@ -186,35 +186,57 @@ function handleonex() {
 		if (totnum > 1) {
 			document.getElementById('qhdr').innerHTML = '[' + (1+actnum) + ' / ' + totnum + '] ';
 		} else document.getElementById('qhdr').innerHTML = '';
-		/*if (rawname.substring(rawname.length -4).toUpperCase() === '.JPG' ||
+		if (rawname.substring(rawname.length -4).toUpperCase() === '.JPG' ||
 			rawname.substring(rawname.length -5).toUpperCase() === '.JPEG') {
-			/* jpeg preview soon * /
-			document.getElementById('qhdr').innerHTML += 'File ' + f.name + ' JPEG preview work in progress';
+			/* jpeg preview */
+			document.getElementById('qhdr').innerHTML += 'File ' + f.name + ' (JPEG)';
 			document.getElementById('rotations').style['display'] = 'none';
 			document.getElementById('preview').style['display'] = 'none';
 			document.getElementById('previewerr').style['display'] = 'none';
-			document.getElementById('continues').style['display']='';
+			document.getElementById('continues').style['display']='none';
+			document.getElementById('jpegpreview').style['display'] = 'none';
+			document.getElementById('previewwait').style['display'] = '';
+			const fr = new FileReader();
+			fr.onload = function(evt) {
+				let contents = evt.target.result;
+				contents = 'data:image/jpeg;' + contents.substring(8);
+				document.getElementById('jpegpreview').style['display'] = '';
+				document.getElementById('jpegpreview').src = contents;
+				document.getElementById('continues').style['display']='';
+				document.getElementById('previewwait').style['display'] = 'none';
+			}
+			fr.onerror = function(evt) {
+				document.getElementById('previewerr').style['display'] = '';
+				document.getElementById('continues').style['display']='';
+				document.getElementById('previewwait').style['display'] = 'none';
+			}
+			fr.readAsDataURL(f);
 		}
-		else */ if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
+		else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
 			/* no preview */
 			document.getElementById('qhdr').innerHTML += 'File ' + f.name + '<br>Not raw, no preview...';
 			document.getElementById('rotations').style['display'] = 'none';
 			document.getElementById('preview').style['display'] = 'none';
 			document.getElementById('previewerr').style['display'] = 'none';
 			document.getElementById('continues').style['display']='';
+			document.getElementById('jpegpreview').style['display'] = 'none';
+			document.getElementById('previewwait').style['display'] = 'none';
 		}
 		else {
 			const zz = infos.findIndex((v, i, o) => v.size === f.size);
 			document.getElementById('preview').style['display'] = 'none';
+			document.getElementById('jpegpreview').style['display'] = 'none';
 			document.getElementById('previewerr').style['display'] = 'none';
 			document.getElementById('rotations').style['display'] = 'none';
 			if (zz === -1) {
 				/* no preview */
 				document.getElementById('qhdr').innerHTML += 'File ' + f.name + '<br>Unknown raw size ' + f.size + ', please contact developer! No preview...';
 				document.getElementById('continues').style['display']='';
+				document.getElementById('previewwait').style['display'] = 'none';
 			} else {
 				document.getElementById('qhdr').innerHTML += 'File ' + f.name;
 				document.getElementById('continues').style['display']='none';
+				document.getElementById('previewwait').style['display'] = '';
 				buildpreview(f);
 			}
 		}
@@ -222,6 +244,10 @@ function handleonex() {
 		const quest = document.getElementById('question');
 		document.getElementById('doforall').checked = false;
 		currentrot = 1;
+		document.getElementById('procthiscw').disabled = false;
+		document.getElementById('procthisccw').disabled = false;
+		document.getElementById('procthisud').disabled = false;
+		document.getElementById('procthisrs').disabled = true;
 		if (actnum < totnum-1) {
 			document.getElementById('forrest').style['display'] = '';
 		} else document.getElementById('forrest').style['display'] = 'none';
@@ -708,9 +734,12 @@ function buildpreview(f, orientation) {
 					outpix[4*((i*w8) + j) + 1] = 255;
 				} else {
 					// maybe some brightening gamma?
-					outpix[4 * ((i*w8) + j)] = Math.round(fact * (outpix[4 * ((i*w8) + j)] - allmin));
-					outpix[4 * ((i*w8) + j) + 1] = Math.round(fact * 0.6 * (outpix[4 * ((i*w8) + j) + 1] - allmin* 0.6));
-					outpix[4 * ((i*w8) + j) + 2] = Math.round(fact * (outpix[4 * ((i*w8) + j) + 2] - allmin));
+					const r = (fact * (outpix[4 * ((i*w8) + j)] - allmin));
+					outpix[4 * ((i*w8) + j)] = 255-Math.round(255*((255-r)/255)*((255-r)/255));
+					const g = (fact * 0.6 * (outpix[4 * ((i*w8) + j) + 1] - allmin* 0.6));
+					outpix[4 * ((i*w8) + j) + 1] = 255-Math.round(255*((255-g)/255)*((255-g)/255));
+					const b = (fact * (outpix[4 * ((i*w8) + j) + 2] - allmin));
+					outpix[4 * ((i*w8) + j) + 2] = 255-Math.round(255*((255-b)/255)*((255-b)/255));
 				}
 			}
 		}
@@ -718,12 +747,16 @@ function buildpreview(f, orientation) {
 		document.getElementById('preview').style['display'] = '';
 		document.getElementById('rotations').style['display'] = '';
 		document.getElementById('continues').style['display']='';
+		document.getElementById('previewwait').style['display'] = 'none';
+		document.getElementById('previewerr').style['display'] = 'none';
 	};
 	reader.onerror = function(evt) {
 		console.log('preview: error reading ' + f.name);
 		document.getElementById('preview').style['display'] = 'none';
 		document.getElementById('rotations').style['display'] = 'none';
 		document.getElementById('continues').style['display']='';
+		document.getElementById('previewerr').style['display'] = '';
+		document.getElementById('previewwait').style['display'] = 'none';
 	};
 	reader.readAsArrayBuffer(f);
 }
@@ -753,24 +786,44 @@ function procthis() {
 /* handler for clockwise rotation */
 function rotcw() {
 	if (6 === currentrot) return;
+	document.getElementById('procthiscw').disabled = true;
+	document.getElementById('procthisccw').disabled = false;
+	document.getElementById('procthisud').disabled = false;
+	document.getElementById('procthisrs').disabled = false;
+	document.getElementById('previewwait').style['display'] = '';
 	currentrot = 6;
 	buildpreview(allfiles[actnum], 6);
 }
 /* handler for counterclockwise rotation */
 function rotccw() {
 	if (8 === currentrot) return;
+	document.getElementById('procthiscw').disabled = false;
+	document.getElementById('procthisccw').disabled = true;
+	document.getElementById('procthisud').disabled = false;
+	document.getElementById('procthisrs').disabled = false;
+	document.getElementById('previewwait').style['display'] = '';
 	currentrot = 8;
 	buildpreview(allfiles[actnum], 8);
 }
 /* handler for upside down rotation */
 function rot180() {
 	if (3 === currentrot) return;
+	document.getElementById('procthiscw').disabled = false;
+	document.getElementById('procthisccw').disabled = false;
+	document.getElementById('procthisud').disabled = true;
+	document.getElementById('procthisrs').disabled = false;
+	document.getElementById('previewwait').style['display'] = '';
 	currentrot = 3;
 	buildpreview(allfiles[actnum], 3);
 }
 /* handler for reset rotation */
 function rot0() {
 	if (1 === currentrot) return;
+	document.getElementById('procthiscw').disabled = false;
+	document.getElementById('procthisccw').disabled = false;
+	document.getElementById('procthisud').disabled = false;
+	document.getElementById('procthisrs').disabled = true;
+	document.getElementById('previewwait').style['display'] = '';
 	currentrot = 1;
 	buildpreview(allfiles[actnum], 1);
 }
@@ -858,11 +911,11 @@ Or <input type="button" value="Use visual Picture Browser" id="imbvisbrows" disa
 <div id="question" style="display:none;background-color:#ddffaa;border: 5px solid #33ff33; border-radius: 10px;width: fit-content;padding:2em;">
 <!-- this is only shown on step with preview -->
 <div style="font-weight:bold;" id="qhdr">&nbsp;</div>
-<canvas id="preview"></canvas><div id="previewerr">Error with Preview :-(</div><br>
-<div id="rotations"><input type="button" id="procthis" value="Rot Clockwise" onclick="rotcw()" style="padding:0.5em; margin:0.5em;margin-left:2.5em;" title="Rotate original image by 90&deg; clockwise">
-<input type="button" id="procthis" value="Rot Couterclockwise" onclick="rotccw()" style="padding:0.5em; margin:0.5em;" title="Rotate original image by 90&deg; counterclockwise">
-<input type="button" id="procthis" value="Rotate 180" onclick="rot180()" style="padding:0.5em; margin:0.5em;" title="Rotate original image by 180&deg; upside down">
-<input type="button" id="procthis" value="Reset" onclick="rot0()" style="padding:0.5em; margin:0.5em;" title="Reset original image orientation"></div>
+<canvas id="preview"></canvas><img style="display:none;max-width:550px; max-height:550px;" id="jpegpreview"><div id="previewerr">Error with Preview :-(</div><div id="previewwait">w a i t ...</div><br>
+<div id="rotations"><input type="button" id="procthiscw" value="Rot Clockwise" onclick="rotcw()" style="padding:0.5em; margin:0.5em;margin-left:2.5em;" title="Rotate original image by 90&deg; clockwise">
+<input type="button" id="procthisccw" value="Rot Couterclockwise" onclick="rotccw()" style="padding:0.5em; margin:0.5em;" title="Rotate original image by 90&deg; counterclockwise">
+<input type="button" id="procthisud" value="Rotate 180" onclick="rot180()" style="padding:0.5em; margin:0.5em;" title="Rotate original image by 180&deg; upside down">
+<input type="button" id="procthisrs" value="Reset" onclick="rot0()" style="padding:0.5em; margin:0.5em;" title="Reset original image orientation"></div>
 <div id="continues"><input type="button" id="procthis" value="Process" onclick="procthis()" style="padding:0.5em; margin:0.5em;">
 <input type="button" id="skipthis" value="Skip" onclick="skipthis()" style="padding:0.5em; margin:0.5em;">&nbsp;
 <span id="forrest"><input type="checkbox" id="doforall" style="padding-left:0.5em; margin-left:0.5em;"><label for="doforall">Do this for all following</label></span></div>
