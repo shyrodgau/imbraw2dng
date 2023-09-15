@@ -15,7 +15,7 @@ Use: open in browser and select RAW
 
 -->
 <head>
-<title>ImB RAW to DNG Converter V2.1.3_9604bc8</title>
+<title>ImB RAW to DNG Converter V2.1.4_DEVEL</title>
 <script type="text/javascript" language="javascript">
 /* Data for the Imback variants and exif stuff */
 const orients = [ '', 'none', '', '180&deg;', '', '', 'clockwise', '', 'couterclockwise' ];
@@ -74,7 +74,7 @@ const infos = [
 		mode: "(3456x3456)"
 	},
 	{
-		size: 9060100,
+		size: 9060100, // guessed
 		w: 3010, h: 3010,
 		typ: 4,
 		mode: "Medium-angle (3010x3010)"
@@ -86,7 +86,7 @@ const infos = [
 		mode: "Small-angle (2444x2444)"
 	},
 	{
-		size: 15335424, // guessed
+		size: 15335424,
 		w: 4608, h: 3328,
 		typ: 1,
 		mode: "(4608x3328)"
@@ -113,6 +113,7 @@ let stepmode = 0; // 0 always save (if not checkbox or "save all" in dialog), 1 
 let currentrot = 1;
 // from the back itself
 let imbpics = [], rimbpics = [], imbmovies = [];
+let earliestmov = '9999', latestmov='0000', earliestjpg='9999', latestjpg='0000',earliestraw='9999',latestraw='0000';
 /* helper to append message */
 function appendmsg(msg) {
 	const msgel = document.getElementById('outmsg');
@@ -152,6 +153,7 @@ function handlenext() {
 	} else {
 		actnum = 0;
 		allfiles = [];
+		shownormal();
 	}
 }
 /* as it says */
@@ -161,103 +163,139 @@ function showreloadhints() {
 	const rl2 = document.getElementById('reloadhint2');
 	if (null !== rl2) rl2.style['display'] = '';
 }
+/* switch preview config to jpeg img */
+function setjpegpv() {
+	document.getElementById('jpegpreview').style['display'] = '';
+	document.getElementById('rotations').style['display'] = 'none';
+	document.getElementById('continues').style['display']='';
+	document.getElementById('previewwait').style['display'] = 'none';
+	document.getElementById('previewerr').style['display'] = 'none';
+	document.getElementById('preview').style['display'] = 'none';
+}
+/* switch preview config to err */
+function setpverr() {
+	document.getElementById('jpegpreview').style['display'] = 'none';
+	document.getElementById('rotations').style['display'] = 'none';
+	document.getElementById('continues').style['display']='';
+	document.getElementById('previewwait').style['display'] = 'none';
+	document.getElementById('previewerr').style['display'] = '';
+	document.getElementById('preview').style['display'] = 'none';
+}
+/* switch preview config to wait */
+function setpvwait() {
+	document.getElementById('jpegpreview').style['display'] = 'none';
+	document.getElementById('rotations').style['display'] = 'none';
+	document.getElementById('continues').style['display']='none';
+	document.getElementById('previewwait').style['display'] = '';
+	document.getElementById('previewerr').style['display'] = 'none';
+	document.getElementById('preview').style['display'] = 'none';
+}
+/* file/filereader like interface for imback http */
+function createFx(url, onok, onerr) {
+	let fx = {
+		imbackextension: true,
+		name: url
+	};
+	xhr = new XMLHttpRequest();
+	xhr.responseType = 'arraybuffer';
+	xhr.onload = function(evt) {
+		fx.data = xhr.response;
+		fx.size = xhr.response.byteLength;
+		fx.readAsArrayBuffer = function(fy) {
+			fy.onload({
+				target: {
+					result: fy.data
+				}
+			});
+		};
+		onok(url, fx);
+	};
+	xhr.onerror = function(evt) {
+		onerr(url);
+	}
+	xhr.open('GET', url);
+	xhr.send();
+}
+function enablerots(which) {
+	for (const rots in [ 'procthiscw', 'procthisccw', 'procthisud', 'procthisrs' ]) {
+		if (which === rots)
+			document.getElementById(which).disabled = true;
+		else
+			document.getElementById(which).disabled = false;
+	}
+}
 /* main handler function for one file */
 function handleonex() {
 	const f = allfiles[actnum];
+	document.getElementById('doforall').checked = false;
+	currentrot = 1;
+	enablerots('procthisrs');
+	if (actnum < totnum-1) {
+		document.getElementById('forrest').style['display'] = '';
+	} else document.getElementById('forrest').style['display'] = 'none';
+	let rawname = f.name ? f.name : f;
+	while (rawname.indexOf("/") > -1) {
+		rawname = rawname.substring(rawname.indexOf("/") + 1);
+	}
 	if (stepmode === 2) {
 		if (totnum > 1) {
 			appendmsg("[" + (1+actnum) + " / " + totnum + "] ");
 		}
-		appendmsg("Skipped at your request: " + f.name + "<br>&nbsp;<br>");
-		document.getElementById('question').style['display']='none';
-		document.getElementById('continues').style['display']='none';
-		document.getElementById('previewerr').style['display']='none';
-		document.getElementById('normal').style['display']='';
+		appendmsg("Skipped at your request: " + rawname + "<br>&nbsp;<br>");
+		shownormal();
 		return handlenext();
 	}
 	else if (stepmode === 1) {
 		// show preview and ask for rotation, skip, save
 		// then (in handler) set mode, call handleone (if save) or handlenext (if skip)
+		showquestion();
 		const f = allfiles[actnum];
 		if (undefined === f) {
 			return;
 		}
-		let rawname = f.name;
 		if (totnum > 1) {
 			document.getElementById('qhdr').innerHTML = '[' + (1+actnum) + ' / ' + totnum + '] ';
 		} else document.getElementById('qhdr').innerHTML = '';
 		if (rawname.substring(rawname.length -4).toUpperCase() === '.JPG' ||
 			rawname.substring(rawname.length -5).toUpperCase() === '.JPEG') {
 			/* jpeg preview */
-			document.getElementById('qhdr').innerHTML += 'File ' + f.name + ' (JPEG)';
-			document.getElementById('rotations').style['display'] = 'none';
-			document.getElementById('preview').style['display'] = 'none';
-			document.getElementById('previewerr').style['display'] = 'none';
-			document.getElementById('continues').style['display']='none';
-			document.getElementById('jpegpreview').style['display'] = 'none';
-			document.getElementById('previewwait').style['display'] = '';
-			const fr = new FileReader();
-			fr.onload = function(evt) {
-				let contents = evt.target.result;
-				contents = 'data:image/jpeg;' + contents.substring(8);
-				document.getElementById('jpegpreview').style['display'] = '';
-				document.getElementById('jpegpreview').src = contents;
-				document.getElementById('continues').style['display']='';
-				document.getElementById('previewwait').style['display'] = 'none';
+			document.getElementById('qhdr').innerHTML += 'File ' + rawname + ' (JPEG)';
+			if (f.name) {
+				const fr = new FileReader();
+				fr.onload = function(evt) {
+					let contents = evt.target.result;
+					contents = 'data:image/jpeg;' + contents.substring(8);
+					document.getElementById('jpegpreview').src = contents;
+					/* shown in onload of img */
+				}
+				fr.onerror = function(evt) {
+					setpverr();
+				}
+				fr.readAsDataURL(f);
 			}
-			fr.onerror = function(evt) {
-				document.getElementById('previewerr').style['display'] = '';
-				document.getElementById('continues').style['display']='';
-				document.getElementById('previewwait').style['display'] = 'none';
+			else {
+				document.getElementById('jpegpreview').src = f;
 			}
-			fr.readAsDataURL(f);
 		}
 		else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
 			/* no preview */
-			document.getElementById('qhdr').innerHTML += 'File ' + f.name + '<br>Not raw, no preview...';
-			document.getElementById('rotations').style['display'] = 'none';
-			document.getElementById('preview').style['display'] = 'none';
-			document.getElementById('previewerr').style['display'] = 'none';
-			document.getElementById('continues').style['display']='';
-			document.getElementById('jpegpreview').style['display'] = 'none';
-			document.getElementById('previewwait').style['display'] = 'none';
+			document.getElementById('qhdr').innerHTML += 'File ' + rawname + '<br>Not raw, no preview...';
+			setnopv();
 		}
 		else {
 			const zz = infos.findIndex((v, i, o) => v.size === f.size);
-			document.getElementById('preview').style['display'] = 'none';
-			document.getElementById('jpegpreview').style['display'] = 'none';
-			document.getElementById('previewerr').style['display'] = 'none';
-			document.getElementById('rotations').style['display'] = 'none';
-			if (zz === -1) {
+			if (zz === -1 && undefined !== f.size) {
 				/* no preview */
-				document.getElementById('qhdr').innerHTML += 'File ' + f.name + '<br>Unknown raw size ' + f.size + ', please contact developer! No preview...';
-				document.getElementById('continues').style['display']='';
-				document.getElementById('previewwait').style['display'] = 'none';
+				document.getElementById('qhdr').innerHTML += 'File ' + rawname + '<br>Unknown raw size ' + f.size + ', please contact developer! No preview...';
+				setnopv();
 			} else {
-				document.getElementById('qhdr').innerHTML += 'File ' + f.name;
-				document.getElementById('continues').style['display']='none';
-				document.getElementById('previewwait').style['display'] = '';
-				buildpreview(f);
+				document.getElementById('qhdr').innerHTML += 'File ' + rawname;
+				buildpreview(f, () => { setrawpv(); }, () => { setpverr(); });
 			}
 		}
-		const norm = document.getElementById('normal');
-		const quest = document.getElementById('question');
-		document.getElementById('doforall').checked = false;
-		currentrot = 1;
-		document.getElementById('procthiscw').disabled = false;
-		document.getElementById('procthisccw').disabled = false;
-		document.getElementById('procthisud').disabled = false;
-		document.getElementById('procthisrs').disabled = true;
-		if (actnum < totnum-1) {
-			document.getElementById('forrest').style['display'] = '';
-		} else document.getElementById('forrest').style['display'] = 'none';
-		norm.style['display'] = 'none';
-		quest.style['display'] = '';
 	}
 	else { // normal processing without question
-		document.getElementById('question').style['display']='none';
-		document.getElementById('normal').style['display']='';
-		document.getElementById('previewerr').style['display'] = '';
+		shownormal();
 		handleone();
 	}
 }
@@ -268,17 +306,27 @@ function handleone(orientation) {
 		appendmsg("Nothing selected...?<br>&nbsp;<br>");
 		return handlenext();
 	}
+	if (undefined === f.size) {
+		createFx(f, (url, fx) => {
+				allfiles[actnum] = fx;
+				handleone(orientation);
+			}, (url) => {
+				appendmsg("<b>Error occured accessing " + f + ". SORRY! </b><br>&nbsp;<br>");
+				handlenext();
+		});
+		return;
+	}
 	let rawname = f.name;
 	while (rawname.indexOf("/") > -1) {
 		rawname = rawname.substring(rawname.indexOf("/") + 1);
 	}
 	if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
-		const reader = new FileReader();
+		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = function(evt) {
 			if (totnum > 1) {
 				appendmsg("[" + (1+actnum) + " / " + totnum + "] ");
 			}
-			appendmsg("Passing through as not <span translate=\"no\">raw</span>: " + f.name + "<br>");
+			appendmsg("Passing through as not <span translate=\"no\">raw</span>: " + rawname + "<br>");
 			const contents = evt.target.result;
 			const view = new DataView(contents);
 			const out = new Uint8Array(f.size);
@@ -306,33 +354,6 @@ function handleone(orientation) {
 		reader.readAsArrayBuffer(f);
 		return;
 	}
-	const rawnamearr = new TextEncoder().encode(rawname);
-	let datestr="", dateaddoff = 0, dateok = false;
-	// date?
-	const yr = Number.parseInt(rawname.substring(0,4));
-	if (yr >= 2019 && yr < 3000 && JSON.stringify(yr) === rawname.substring(0,4)) {
-		let mon = Number.parseInt(rawname.substring(5,7));
-		if (mon > 0 && mon < 13 && (JSON.stringify(mon) === ((mon < 10) ? rawname.substring(6,7) : rawname.substring(5,7)))) {
-			let day = Number.parseInt(rawname.substring(7,9));
-			if (day > 0 && day < 32 && (JSON.stringify(day) === ((day < 10) ? rawname.substring(8,9) : rawname.substring(7,9)))) {
-				let hr = Number.parseInt(rawname.substring(10,12));
-				if (hr >= 0 && hr < 25 && (JSON.stringify(hr) === ((hr < 10) ? rawname.substring(11,12) : rawname.substring(10,12)))) {
-					let min = Number.parseInt(rawname.substring(12,14));
-					if (min >= 0 && min <= 60 && (JSON.stringify(min) === ((min < 10) ? rawname.substring(13,14) : rawname.substring(12,14)))) {
-						let sec = Number.parseInt(rawname.substring(14,16));
-						if (sec >= 0 && sec <= 60 && (JSON.stringify(sec) === ((sec < 10) ? rawname.substring(15,16) : rawname.substring(14,16)))) { // maybe leap second?
-							datestr = "" + yr + ":" + ((mon < 10) ? "0":"") + mon + ":" + ((day < 10) ? "0":"") + day + " "+
-							((hr < 10) ? "0":"") + hr + ":" + ((min < 10) ? "0":"") + min + ":" + ((sec < 10) ? "0":"") + sec;
-							if (datestr.length === 19) {
-								dateaddoff = 24;
-								dateok = true;
-							}
-						}
-					}
-				}
-			}
-		}
-	}
 	let w, h, mode = "??";
 	let typ = 0;
 	const zz = infos.findIndex((v, i, o) => v.size === f.size);
@@ -341,7 +362,7 @@ function handleone(orientation) {
 			appendmsg("[" + (1+actnum) + " / " + totnum + "] ");
 		}
     	appendmsg("<b style=\"background-color:#ffdddd;\">[" + f.name + "] Sorry, file Size <b>" + f.size + "</b> does not match known formats. Please contact developer!</b><br>");
-		const reader = new FileReader();
+		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = function(evt) {
 			const contents = evt.target.result;
 			const view = new DataView(contents);
@@ -375,12 +396,39 @@ function handleone(orientation) {
 		mode = infos[zz].mode;
 		typ = infos[zz].typ;
 	}
-	const reader = new FileReader();
+	const rawnamearr = new TextEncoder().encode(rawname);
+	let datestr="", dateaddoff = 0, dateok = false;
+	// date?
+	const yr = Number.parseInt(rawname.substring(0,4));
+	if (yr >= 2019 && yr < 3000 && JSON.stringify(yr) === rawname.substring(0,4)) {
+		let mon = Number.parseInt(rawname.substring(5,7));
+		if (mon > 0 && mon < 13 && (JSON.stringify(mon) === ((mon < 10) ? rawname.substring(6,7) : rawname.substring(5,7)))) {
+			let day = Number.parseInt(rawname.substring(7,9));
+			if (day > 0 && day < 32 && (JSON.stringify(day) === ((day < 10) ? rawname.substring(8,9) : rawname.substring(7,9)))) {
+				let hr = Number.parseInt(rawname.substring(10,12));
+				if (hr >= 0 && hr < 25 && (JSON.stringify(hr) === ((hr < 10) ? rawname.substring(11,12) : rawname.substring(10,12)))) {
+					let min = Number.parseInt(rawname.substring(12,14));
+					if (min >= 0 && min <= 60 && (JSON.stringify(min) === ((min < 10) ? rawname.substring(13,14) : rawname.substring(12,14)))) {
+						let sec = Number.parseInt(rawname.substring(14,16));
+						if (sec >= 0 && sec <= 60 && (JSON.stringify(sec) === ((sec < 10) ? rawname.substring(15,16) : rawname.substring(14,16)))) { // maybe leap second?
+							datestr = "" + yr + ":" + ((mon < 10) ? "0":"") + mon + ":" + ((day < 10) ? "0":"") + day + " "+
+							((hr < 10) ? "0":"") + hr + ":" + ((min < 10) ? "0":"") + min + ":" + ((sec < 10) ? "0":"") + sec;
+							if (datestr.length === 19) {
+								dateaddoff = 24;
+								dateok = true;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	const reader = f.imbackextension ? f : new FileReader();
 	reader.onload = function(evt) {
 		if (totnum > 1) {
 			appendmsg("[" + (1+actnum) + " / " + totnum + "] ");
 		}
-		appendmsg("Processing file: " + f.name + "<br>");
+		appendmsg("Processing file: " + rawname + "<br>");
 		appendmsg("Assuming " + types[typ] + " " + mode + "<br>");
 		if (dateok) {
 			appendmsg("Date/Time: " + datestr + "<br>");
@@ -650,11 +698,20 @@ function getPix(x, y, w, view, typ) {
 }
 /* put preview into canvas */
 // orientation: 1: norm, 3: rot 180, 6 rot 90 CW, 8: rot 270 CCW
-function buildpreview(f, orientation) {
+function buildpreview(f, onok, onerr, orientation) {
 	let w, h, typ;
+	if (undefined === f.size) {
+		createFx(f, (url, fx) => {
+				buildpreview(fx, onok, onerr, orientation);
+			}, (url) => {
+				onerr(f);
+		});
+		return;
+	}
 	const zz = infos.findIndex((v, i, o) => v.size === f.size);
 	if (zz === -1) {
 		console.log('preview: unsupported size ' + f.size + ' of ' + f.name);
+		onerr(f);
 		return;
 	} else {
 		w = infos[zz].w;
@@ -671,7 +728,7 @@ function buildpreview(f, orientation) {
 		canv.height = w8;
 	}
 	const ctx = canv.getContext('2d', { alpha: false });
-	const reader = new FileReader();
+	const reader = f.imbackextension ? f : new FileReader();
 	reader.onload = function(evt) {
 		const contents = evt.target.result;
 		const view = new DataView(contents);
@@ -744,21 +801,40 @@ function buildpreview(f, orientation) {
 			}
 		}
 		ctx.putImageData(new ImageData(new Uint8ClampedArray(outpix), transpose ? h8: w8, transpose? w8 :h8), 0, 0);
-		document.getElementById('preview').style['display'] = '';
-		document.getElementById('rotations').style['display'] = '';
-		document.getElementById('continues').style['display']='';
-		document.getElementById('previewwait').style['display'] = 'none';
-		document.getElementById('previewerr').style['display'] = 'none';
+		onok(f);
 	};
 	reader.onerror = function(evt) {
 		console.log('preview: error reading ' + f.name);
-		document.getElementById('preview').style['display'] = 'none';
-		document.getElementById('rotations').style['display'] = 'none';
-		document.getElementById('continues').style['display']='';
-		document.getElementById('previewerr').style['display'] = '';
-		document.getElementById('previewwait').style['display'] = 'none';
+		onerr();
 	};
 	reader.readAsArrayBuffer(f);
+}
+/* raw preview okay */
+function setrawpv() {
+	document.getElementById('preview').style['display'] = '';
+	document.getElementById('rotations').style['display'] = '';
+	document.getElementById('continues').style['display']='';
+	document.getElementById('previewwait').style['display'] = 'none';
+	document.getElementById('previewerr').style['display'] = 'none';
+	document.getElementById('jpegpreview').style['display'] = 'none';
+}
+/* no preview in question */
+function setnopv() {
+	document.getElementById('preview').style['display'] = 'none';
+	document.getElementById('rotations').style['display'] = 'none';
+	document.getElementById('continues').style['display']='';
+	document.getElementById('previewwait').style['display'] = 'none';
+	document.getElementById('previewerr').style['display'] = 'none';
+	document.getElementById('jpegpreview').style['display'] = 'none';
+}
+/* as it says */
+function showquestion() {
+	const norm = document.getElementById('normal');
+	const quest = document.getElementById('question');
+	quest.style['display'] = '';
+	norm.style['display'] = 'none';
+	setpvwait();
+	document.getElementById('qhdr').innerHTML = '';
 }
 /* as it says */
 function shownormal() {
@@ -773,103 +849,169 @@ function skipthis() {
 	if (totnum > 1) {
 		appendmsg("[" + (1+actnum) + " / " + totnum + "] ");
 	}
-	appendmsg("Skipped at your request: " + allfiles[actnum].name + "<br>&nbsp;<br>");
+	let rawname = allfiles[actnum].name ? allfiles[actnum].name : allfiles[actnum];
+	while (rawname.indexOf("/") > -1) 
+		rawname = rawname.substring(rawname.indexOf("/") + 1);
+	appendmsg("Skipped at your request: " + rawname + "<br>&nbsp;<br>");
 	shownormal();
 	handlenext();
 }
 /* process handler in the step preview */
 function procthis() {
-	if (document.getElementById('doforall').checked) stepmode = 0;
-	shownormal();
+	if (document.getElementById('doforall').checked) {
+		stepmode = 0;
+		shownormal();
+	}
 	handleone(currentrot);
 }
 /* handler for clockwise rotation */
 function rotcw() {
 	if (6 === currentrot) return;
-	document.getElementById('procthiscw').disabled = true;
-	document.getElementById('procthisccw').disabled = false;
-	document.getElementById('procthisud').disabled = false;
-	document.getElementById('procthisrs').disabled = false;
-	document.getElementById('previewwait').style['display'] = '';
+	enablerots('procthiscw');
+	setpvwait();
 	currentrot = 6;
-	buildpreview(allfiles[actnum], 6);
+	buildpreview(allfiles[actnum], () => { setrawpv(); }, () => { setpverr(); }, 6);
 }
 /* handler for counterclockwise rotation */
 function rotccw() {
 	if (8 === currentrot) return;
-	document.getElementById('procthiscw').disabled = false;
-	document.getElementById('procthisccw').disabled = true;
-	document.getElementById('procthisud').disabled = false;
-	document.getElementById('procthisrs').disabled = false;
-	document.getElementById('previewwait').style['display'] = '';
+	enablerots('procthisccw');
+	setpvwait();
 	currentrot = 8;
-	buildpreview(allfiles[actnum], 8);
+	buildpreview(allfiles[actnum], () => { setrawpv(); }, () => { setpverr(); }, 8);
 }
 /* handler for upside down rotation */
 function rot180() {
 	if (3 === currentrot) return;
-	document.getElementById('procthiscw').disabled = false;
-	document.getElementById('procthisccw').disabled = false;
-	document.getElementById('procthisud').disabled = true;
-	document.getElementById('procthisrs').disabled = false;
-	document.getElementById('previewwait').style['display'] = '';
+	enablerots('procthisud');
+	setpvwait();
 	currentrot = 3;
-	buildpreview(allfiles[actnum], 3);
+	buildpreview(allfiles[actnum], () => { setrawpv(); }, () => { setpverr(); }, 3);
 }
 /* handler for reset rotation */
 function rot0() {
 	if (1 === currentrot) return;
-	document.getElementById('procthiscw').disabled = false;
-	document.getElementById('procthisccw').disabled = false;
-	document.getElementById('procthisud').disabled = false;
-	document.getElementById('procthisrs').disabled = true;
-	document.getElementById('previewwait').style['display'] = '';
+	enablerots('procthisrs');
+	setpvwait();
 	currentrot = 1;
-	buildpreview(allfiles[actnum], 1);
+	buildpreview(allfiles[actnum], () => { setrawpv(); }, () => { setpverr(); }, 1);
 }
 /* check if we are directly on a back */
 function checkimb() {
 	if (window.location.origin !== 'http://192.168.1.254') return;
 	const xhr0 = new XMLHttpRequest();
 	xhr0.onloadend = (event) => {
-		if (xhr.status === 200) {
+		if (xhr0.status === 200) {
 			let foundph = false, foundmov = false;
-			for (const r of xhr.responseXML.body.children.body.childNodes[1].childNodes[1].childNodes) {
-				if (r.childNodes[0] && r.childNodes[0].childNodes && r.childNodes[0].childNodes[0].href == '/IMBACK/PHOTO') 
+			const sel = xhr0.responseXML.querySelectorAll('a');
+			for (const r of sel) {
+				if (r.href.indexOf('/IMBACK/PHOTO') != -1)
 					foundph = true;
-				if (r.childNodes[0] && r.childNodes[0].childNodes && r.childNodes[0].childNodes[0].href == '/IMBACK/MOVIE') 
+				if (r.href.indexOf('/IMBACK/MOVIE') != -1)
 					foundmov = true;
 			}
-			if (!foundph || !foundmov) return;
+			if (!foundph && !foundmov) return;
 			document.getElementById('onimback').style['display'] = '';
 			const xhr = new XMLHttpRequest();
 			xhr.onloadend = (event) => {
-				console.log('OLE ' + JSON.stringify(event) + ' XHR ' + JSON.stringify(xhr));
+				//console.log('OLE ' + JSON.stringify(event) + ' XHR ' + JSON.stringify(xhr));
 				if (xhr.status === 200) {
-					for (const r of xhr.responseXML.body.children.body.childNodes[1].childNodes[1].childNodes) {
-						if (r.childNodes[0] && r.childNodes[0].childNodes && r.childNodes[0].childNodes[0].href)
-							if (r.childNodes[0].childNodes[0].href.substring(rawname.length -4).toUpperCase() === '.RAW') 
-								rimbpics.push(r.childNodes[0].childNodes[0].href)
-							else
-								imbpics.push(r.childNodes[0].childNodes[0].href)
+					const sel2 = xhr.responseXML.querySelectorAll('a');
+					for (const r of sel2) {
+						if (r) {
+							let rawname = r.href;
+							if (rawname.indexOf('del=') != -1) continue;
+							while (rawname.indexOf("/") > -1)
+								rawname = rawname.substring(rawname.indexOf("/") + 1);
+							if (rawname.substring(rawname.length -4).toUpperCase() === '.RAW') {
+								if (rawname < earliestraw) earliestraw = rawname;
+								if (rawname > latestraw) latestraw = rawname;
+								rimbpics.push('http://192.168.1.254/IMBACK/PHOTO/' + rawname);
+							}
+							else {
+								if (rawname < earliestjpg) earliestjpg = rawname;
+								if (rawname > latestjpg) latestjpg = rawname;
+								imbpics.push('http://192.168.1.254/IMBACK/PHOTO/' + rawname);
+							}
+						}
 					}
+					document.getElementById('piccnt').innerHTML = '' + imbpics.length + ' (';
+					if (earliestjpg.length > 4) document.getElementById('piccnt').innerHTML += earliestjpg.substring(0,16);
+					document.getElementById('piccnt').innerHTML += ' - ';
+					if (latestjpg.length > 4) document.getElementById('piccnt').innerHTML += latestjpg.substring(0,16);
+					document.getElementById('piccnt').innerHTML += ')';
+					document.getElementById('rpiccnt').innerHTML = '' + rimbpics.length + ' (';
+					if (earliestraw.length > 4) document.getElementById('rpiccnt').innerHTML += earliestraw.substring(0,16);
+					document.getElementById('rpiccnt').innerHTML += ' - ';
+					if (latestraw.length > 4) document.getElementById('rpiccnt').innerHTML += latestraw.substring(0,16);
+					document.getElementById('rpiccnt').innerHTML += ')';
 					const xhrm = new XMLHttpRequest();
 					xhrm.onloadend = (event) => {
-						console.log('OLE ' + JSON.stringify(event) + ' XHR ' + JSON.stringify(xhr));
+						//console.log('OLE ' + JSON.stringify(event) + ' XHR ' + JSON.stringify(xhr));
 						if (xhrm.status === 200) {
-							for (const r of xhrm.responseXML.body.children.body.childNodes[1].childNodes[1].childNodes) {
-								if (r.childNodes[0] && r.childNodes[0].childNodes && r.childNodes[0].childNodes[0].href) 
-									imbmovies.push(r.childNodes[0].childNodes[0].href)
+							const sel3 = xhrm.responseXML.querySelectorAll('a');
+							for (const r of sel3) {
+								if (r) {
+									let rawname = r.href;
+									while (rawname.indexOf("/") > -1)
+										rawname = rawname.substring(rawname.indexOf("/") + 1);
+									if (rawname.indexOf('del=') != -1) continue;
+									if (rawname < earliestmov) earliestmov = rawname;
+									if (rawname > latestmov) latestmov = rawname;
+									imbmovies.push('http://192.168.1.254/IMBACK/MOVIE/' + rawname);
+								}
 							}
-							document.getElementById('movcnt').innerHTML = '' + imbmovies.length;
-							document.getElementById('piccnt').innerHTML = '' + imbpics.length;
-							document.getElementById('rpiccnt').innerHTML = '' + rimbpics.length;
+							document.getElementById('movcnt').innerHTML = '' + imbmovies.length + ' (';
+							if (earliestmov.length > 4) document.getElementById('movcnt').innerHTML += earliestmov.substring(0,16);
+							document.getElementById('movcnt').innerHTML += ' - ';
+							if (latestmov.length > 4) document.getElementById('movcnt').innerHTML += latestmov.substring(0,16);
+							document.getElementById('movcnt').innerHTML += ')';
+							document.getElementById('imbdoit').disabled = false;
 						}
+					};
+					xhrm.onerror = (event) => {
+						document.getElementById('movcnt').innerHTML = '0';
+						document.getElementById('imbdoit').disabled = false;
 					};
 					xhrm.open('GET', '/IMBACK/MOVIE/');
 					xhrm.responseType = 'document';
 					xhrm.send();
 				}
+			};
+			xhr.onerror = (event) => {
+				document.getElementById('piccnt').innerHTML = '0';
+				document.getElementById('rpiccnt').innerHTML = '0';
+				const xhrm = new XMLHttpRequest();
+				xhrm.onloadend = (event) => {
+					//console.log('OLE ' + JSON.stringify(event) + ' XHR ' + JSON.stringify(xhr));
+					if (xhrm.status === 200) {
+						const sel3 = xhrm.responseXML.querySelectorAll('a');
+						for (const r of sel3) {
+							if (r) {
+								let rawname = r.href;
+								while (rawname.indexOf("/") > -1)
+									rawname = rawname.substring(rawname.indexOf("/") + 1);
+								if (rawname.indexOf('del=') != -1) continue;
+								if (rawname < earliestmov) earliestmov = rawname;
+								if (rawname > latestmov) latestmov = rawname;
+								imbmovies.push('http://192.168.1.254/IMBACK/MOVIE/' + rawname);
+							}
+						}
+						document.getElementById('movcnt').innerHTML = '' + imbmovies.length + ' (';
+						if (earliestmov.length > 4) document.getElementById('movcnt').innerHTML += earliestmov.substring(0,16);
+						document.getElementById('movcnt').innerHTML += ' - ';
+						if (latestmov.length > 4) document.getElementById('movcnt').innerHTML += latestmov.substring(0,16);
+						document.getElementById('movcnt').innerHTML += ')';
+						document.getElementById('imbdoit').disabled = false;
+					}
+				};
+				xhrm.onerror = (event) => {
+					document.getElementById('movcnt').innerHTML = '0';
+					document.getElementById('imbdoit').disabled = false;
+				};
+				xhrm.open('GET', '/IMBACK/MOVIE/');
+				xhrm.responseType = 'document';
+				xhrm.send();
 			};
 			xhr.open('GET', '/IMBACK/PHOTO/');
 			xhr.responseType = 'document';
@@ -880,11 +1022,69 @@ function checkimb() {
 	xhr0.responseType = 'document';
 	xhr0.send();
 }
+function imbdoit() {
+	if (actnum !== allfiles.length) return;
+	let selecteds = [];
+	let compval = '0000';
+	if (document.getElementById('imbstartts').value != undefined && document.getElementById('imbstartts').value.length > 0) {
+		compval = document.getElementById('imbstartts').value;
+	}
+	if (document.getElementById('picfromimb').checked) {
+		for (const e of imbpics) {
+		let rawname = e;
+			while (rawname.indexOf("/") > -1)
+				rawname = rawname.substring(rawname.indexOf("/") + 1);
+			if (rawname.substring(0, compval.length) >= compval)
+				selecteds.push(e);
+		}
+	}
+	if (document.getElementById('rpicfromimb').checked) {
+		for (const e of rimbpics) {
+		let rawname = e;
+			while (rawname.indexOf("/") > -1)
+				rawname = rawname.substring(rawname.indexOf("/") + 1);
+			if (rawname.substring(0, compval.length) >= compval)
+				selecteds.push(e);
+		}
+	}
+	if (document.getElementById('movfromimb').checked) {
+		for (const e of imbmovies) {
+		let rawname = e;
+			while (rawname.indexOf("/") > -1)
+				rawname = rawname.substring(rawname.indexOf("/") + 1);
+			if (rawname.substring(0, compval.length) >= compval)
+				selecteds.push(e);
+		}
+	}
+	selecteds.sort((a, b) => {
+		let ra = a;
+		let rb = b;
+		while (ra.indexOf("/") > -1)
+			ra = ra.substring(ra.indexOf("/") + 1);
+		while (rb.indexOf("/") > -1)
+			rb = rb.substring(rb.indexOf("/") + 1);
+		if (ra < rb) return -1;
+		else if (ra === rb) return 0;
+		else return 1;
+	});
+    const addlinkel = document.getElementById('addlink');
+	if (addlinkel !== null) addlinkbool = addlinkel.checked;
+    const stepprev = document.getElementById('steppreview');
+    stepmode = 0;
+	if (stepprev !== null && stepprev.checked) stepmode = 1;
+	totnum = selecteds.length;
+	actnum = 0;
+	allfiles = selecteds;
+	if (totnum > 1) {
+		appendmsg("Got " + totnum + " files from Imback.<br>&nbsp;<br>");
+	}
+	handleonex();
+}
 </script>
 </head>
 <!-- here comes the html itself -->
 <body style="font-family: Helvetica, Arial, sans-serif;" onload="checkimb();">
-<div style="font-weight:bold;"><span translate="no">ImB RAW</span> to <span translate="no">DNG</span> Converter <span translate="no">V2.1.3_9604bc8</span> - <a target="_new" href="https://shyrodgau.github.io/imbraw2dng/">? Help Doc</a></div>
+<div style="font-weight:bold;"><span translate="no">ImB RAW</span> to <span translate="no">DNG</span> Converter <span translate="no">V2.1.4_DEVEL</span> - <a target="_new" href="https://shyrodgau.github.io/imbraw2dng/">? Help Doc</a></div>
 <div id="normal" style="margin-top: 0.5em;">
 <!-- the normal display -->
 <div><input type="checkbox" id="steppreview" checked><label for="steppreview">Single Step with preview</label></div>
@@ -893,10 +1093,11 @@ function checkimb() {
 Browser may ask you if you want to allow downloading multiple files.<br>Not or unrecognized <span translate="no">RAW</span> Files simply will be copied.</div>
 <div id="onimback" style="background-color:#ffffaa;width:fit-content;padding:1em;display:none;"><div style="font-size:133%;"><span translate="no">ImB</span> Connected! <br></div>
 Download/Convert <br>
-<input type="checkbox" id="movfromimb"><label for="movfromimb">Movies</label> (total: <span id="movcnt">counting</span>)
-<br><input checked type="checkbox" id="picfromimb"><label for="picfromimb">JPEG Pictures</label> (total: <span id="piccnt">counting</span>) 
-<br><input checked type="checkbox" id="rpicfromimb"><label for="rpicfromimb">RAW Pictures</label> (total: <span id="rpiccnt">counting</span>)<br>
-younger than <input type="text" maxlength="16" minlength="0" placeholder="YYYY_MMDD_hhmmss" pattern="[0-9][0-9][0-9][0-9]_[0-9][0-9]_[0-9][0-9][0-9][0-9][0-9][0-9]"> (blank for all) <br><input type="button" value="Do it" id="imbdoit" disabled><br>
+<input checked type="checkbox" id="movfromimb"><label for="movfromimb">Movies</label>, total: <span id="movcnt">...counting...</span>
+<br><input checked type="checkbox" id="picfromimb"><label for="picfromimb">JPEG Pictures</label>, total: <span id="piccnt">...counting...</span> 
+<br><input checked type="checkbox" id="rpicfromimb"><label for="rpicfromimb">RAW Pictures</label>, total: <span id="rpiccnt">...counting...</span><br>
+from timestamp or younger than <input type="text" maxlength="16" id="imbstartts" inlength="0" placeholder="YYYY_MMDD_hhmmss" pattern="[0-9][0-9][0-9][0-9](_[0-9][0-9][0-9][0-9]_([0-9][0-9]([0-9]([0-9][0-9][0-9])*)*)*)*"> (blank or 0000 for all) <br>
+<input onclick="imbdoit()" type="button" value="Do it" id="imbdoit" disabled><br>
 Or <input type="button" value="Use visual Picture Browser" id="imbvisbrows" disabled>
 </div>
 <div style="font-size:133%;margin-top: 0.5em;">Drop Files from <span translate="no">ImB</span> here: <br></div>
@@ -911,7 +1112,7 @@ Or <input type="button" value="Use visual Picture Browser" id="imbvisbrows" disa
 <div id="question" style="display:none;background-color:#ddffaa;border: 5px solid #33ff33; border-radius: 10px;width: fit-content;padding:2em;">
 <!-- this is only shown on step with preview -->
 <div style="font-weight:bold;" id="qhdr">&nbsp;</div>
-<canvas id="preview"></canvas><img style="display:none;max-width:550px; max-height:550px;" id="jpegpreview"><div id="previewerr">Error with Preview :-(</div><div id="previewwait">w a i t ...</div><br>
+<canvas id="preview"></canvas><img style="display:none;max-width:550px; max-height:550px;" id="jpegpreview" onload="setjpegpv()" onerror="setpverr()"><div id="previewerr">Error with Preview :-(</div><div id="previewwait">w a i t ...</div><br>
 <div id="rotations"><input type="button" id="procthiscw" value="Rot Clockwise" onclick="rotcw()" style="padding:0.5em; margin:0.5em;margin-left:2.5em;" title="Rotate original image by 90&deg; clockwise">
 <input type="button" id="procthisccw" value="Rot Couterclockwise" onclick="rotccw()" style="padding:0.5em; margin:0.5em;" title="Rotate original image by 90&deg; counterclockwise">
 <input type="button" id="procthisud" value="Rotate 180" onclick="rot180()" style="padding:0.5em; margin:0.5em;" title="Rotate original image by 180&deg; upside down">
