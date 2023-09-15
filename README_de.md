@@ -2,7 +2,7 @@
 
 Dies ist freie Software ohne kommerzielle Unterstützung.
 
-Hier gibts: [Installation](#installation) - [Benutzung](#benutzung) - [Verarbeitung des DNG](#verarbeitung-des-dng) - [Wie funktioniert es](#wie-funktioniert-es) - [IN ENGLISH](https://shyrodgau.github.io/imbraw2dng/)
+Hier gibts: [Installation](#installation) - [Benutzung](#benutzung) - [Verarbeitung des DNG](#verarbeitung-des-dng) - [Wie funktioniert es](#wie-funktioniert-es) [Experimentelles](#experimentelles) - [IN ENGLISH](https://shyrodgau.github.io/imbraw2dng/)
 
 Es sind keine "Schwarz-Weiß RAW"-Dateien, sondern die echten Roh-Sensordaten mit der Farbfilterung darauf. Wenn man sie wie nach Samuels Beschreibung in Photoshop importiert und hineinzoomt, kann man die Rasterung der Grauwerte in 2x2 Quadraten erkennen. Somit ist es auch für Schwarz-Weiß besser, über DNG zu gehen.
 
@@ -12,7 +12,7 @@ Probleme und Ideen können auch in der [I'm Back Users Gruppe auf Facebook](http
 
 ## Installation
 
-Die aktuelle Version ist [V2.1.2_5eb7aa1 - Remove Compatibility neutral colour matrix option](https://github.com/shyrodgau/imbraw2dng/releases/tag/V2.1.2_5eb7aa1).
+Die aktuelle Version ist [V2.1.4_55ef8c612 - Experimental for Imback Wifi option](https://github.com/shyrodgau/imbraw2dng/releases/tag/V2.1.4_55ef8c612).
 
 Die Datei [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.html) auf den PC kopieren oder aus der Version "Source code".zip oder .tar.gz auspacken und im Lieblingsbrowser öffnen (alles halbwegs aktuellen sollten gehen).
 
@@ -28,7 +28,7 @@ Der Browser wird das Herunterladen gemäß seiner Download-Einstellungen machen,
 
 Bei der Konvertierung nach DNG werden die Zeitstempel-Metadatan gesetzt, wenn der Dateiname wie ein normaler I'm Back Dateiname aussieht, und OriginalRawFilename auf den Namen der RAW Eingabedatei. Somit können die DNG Dateien nach belieben benannt werden, ohne irgendwelche ursprünglichen Daten zu verlieren.
 
-Neu: man kann Schritt-für-Schritt durchgehen und eine Vorschau der RAW-Datei dabei sehen. Hierzu das Häkchen bei "Single Step with preview" einschalten. Bei jeder Datei kann entschieden werden, ob sie verarbeitet oder übersprungen werden soll und ob diese Aktion auch für alle folgenden Dateien der Auswahl durchgeführt werden soll. Durch Einschalten des Häkchens "Add separate download link for each file" können die Dateien danach auch noch(mal) heruntergeladen werden (zusätzlich zu dem Download, der bei der Bearbeitung der Datei passiert). Das könnte eher viel Speicherplatz benötigen, daher gibt es diese Möglichkeit nur noch nach Auswahl - die Dateien können ja auch einfach nochmal ausgewählt und verarbeitet werden.
+Neu: man kann Schritt-für-Schritt durchgehen und eine Vorschau der RAW-Datei dabei sehen. Hierzu das Häkchen bei `Single Step with preview` einschalten. Bei jeder Datei kann entschieden werden, ob sie verarbeitet oder übersprungen werden soll und ob diese Aktion auch für alle folgenden Dateien der Auswahl durchgeführt werden soll. Durch Einschalten des Häkchens `Add separate download link for each file` können die Dateien danach auch noch(mal) heruntergeladen werden (zusätzlich zu dem Download, der bei der Bearbeitung der Datei passiert). Das könnte eher viel Speicherplatz benötigen, daher gibt es diese Möglichkeit nur noch nach Auswahl - die Dateien können ja auch einfach nochmal ausgewählt und verarbeitet werden.
 
 
 ## Verarbeitung des DNG
@@ -39,18 +39,23 @@ Bitte **nicht** erwarten, dass die Bilder direkt okay sind. Ich werde es kaum  s
 
 Eine starke grüne oder magentafarbige Tönung der Bilder sollte nicht mehr vorkommen! Wenn aber eine da ist, die sich **nicht** durch Farbkalibrierung/Farbmatrix/Weißabgleich entfernen lässt, könnte ein Beispielbild interessant sein.
 
-**Ein Wort zu den Farben:** Der für mich richtige Weg, zu guten Farben zu kommen, besteht darin, mit der Farbkalibrierung/Farbmatrix anzufangen. Ich versuche, entsprechende Werte in die DNG-Datei hinenzubekommen, bin da aber nicht weit (im Darktable könnte ich eine Vorgabe erstellen, die so etwas automatisch auf Dateien mit maker "ImBack" anwendet). Bitte **nicht** die vorgegebene Identität-Farbmatrix verwenden, sondern den Faktor grün/grün auf etwa 0,6..0,7 setzen. Damit sieht das Bild zunächst rötlich aus, weil der vorgegebene Weißabgleich da nicht dazu passt. Aber dann kann man mit dem Weißabgleich die Farben ordentlich hinzutzeln. Nicht mit dem vorgegebenen Weißabgleich anfangen, wo rot und blau weit gegenüber grün hochgezogen sind. Mit der Identität-Farbmatrix ist es viel schwieriger bis unmöglich, den Weißabgleich ordentlich hinzubekommen. Beispielkonfigurationen wie die Änderung an der Matrix und ein halbwegs neutraler Weißabgleich in darktable aussehen sollten:
+**Ein Wort zu den Farben:** Der für mich richtige Weg, zu guten Farben zu kommen, besteht darin, mit der Farbkalibrierung/Farbmatrix anzufangen. Ich versuche, entsprechende Werte in die DNG-Datei hinenzubekommen, bin da aber nicht weit (im Darktable könnte ich eine Vorgabe erstellen, die so etwas automatisch auf Dateien mit maker `ImBack`anwendet). Bitte **nicht** die vorgegebene Identität-Farbmatrix verwenden, sondern den Faktor grün/grün auf etwa 0,6..0,7 setzen. Damit sieht das Bild zunächst rötlich aus, weil der vorgegebene Weißabgleich da nicht dazu passt. Aber dann kann man mit dem Weißabgleich die Farben ordentlich hinzutzeln. Mit der Identität-Farbmatrix ist es viel schwieriger bis unmöglich, den Weißabgleich ordentlich hinzubekommen. Beispielkonfigurationen wie die Änderung an der Matrix und ein halbwegs neutraler Weißabgleich in darktable aussehen sollten:
 
-![darktable sample color matrix green](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_color_calib_ok.png "darktable sample color matrix green") 
-![darktable sample neutral white balance](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_neutral_white_balance.png "darktable sample neutral white balance")
+![darktable Beispiel grüne Farbmatrix](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_color_calib_ok.png "darktable Beispiel grüne Farbmatrix") 
+![darktable Beispiel neutraler Weißabgleich ](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_neutral_white_balance.png "darktable Beispiel neutraler Weißabgleich")
 
 Wenn in der Bildmitte ein rot hervorstechender Punkt ist, muss eine manuelle Retusche erfolgen, oder im darktable die folgende Einstellung verwenden und dann einen Kreis manuell darumherum platziern.
 
 Um den roten Punkt von vornherein zu vermeiden, eine größere Blende (kleine Blendenzahl) nehmen oder die normale PDLC Mattscheibe mit einer Fresnel-Scheibe von I'm Back oder einer Canon EG-xxx Mattscheibe verbinden.
 
-![darktable sample agains red circle](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_redcircle.png "darktable sample agains red circle")
+![darktable Beispiel gegen roten Kreis](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_redcircle.png "darktable Beispiel gegen roten Kreis")
 
 ## Wie funktioniert es?
 
 DNG ist ein auf TIFF basierendes Dateiformat, das hauptsächlich konstante Daten um die ursprünglichen Bilddaten herum hat. Die Unterschiede hängen ab von Breite und Höhe (die explizit drinstehen, sowie sich auf viele Offsets auswirken, die von der Gesamtlänge abhängen) sowie der Dateiename (OriginalRawFilename Tag). Falls das Datum von ImB Dateinamen gültig aussieht, werden die Tags dafür (EXIFTAG_DATETIMEORIGINAL, TIFFTAG_DATETIME) eingebaut. Bei Dateien von MF ist die Farbfilter-Matrix (Color Filter Array) anders.
+
+
+## Experimentelles
+
+Man kan die html-Datei ins `IMBACK` Verzeichnis auf der micro-SD-Karte kopieren, die ins ImBack gesteckt wird und dann den PC oder das Handy per Wifi mit Imback verbinden und im Browser auf [die Imback](http://192.168.1.254/IMBACK/imbraw2dng.html) navigieren. Dann kann man die Dateien (inkl. Vorschau) direkt vom ImBack kopieren/konvertieren, ab einem gewissen Zeitstempel oder alle.
 

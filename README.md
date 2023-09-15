@@ -2,7 +2,7 @@
 
 This is free software and not commercially supported.
 
-In here: [Installation](#installation) - [Usage](#usage) - [Processing the DNG](#processing-the-dng) - [How does it work](#how-does-it-work) - [AUF DEUTSCH](https://shyrodgau.github.io/imbraw2dng/README_de)
+In here: [Installation](#installation) - [Usage](#usage) - [Processing the DNG](#processing-the-dng) - [How does it work](#how-does-it-work) [Experimental Features](#experimental-features) - [AUF DEUTSCH](https://shyrodgau.github.io/imbraw2dng/README_de)
 
 They are not really "B&W RAW" but actually the RAW sensor data that also contains the colour filtering. You can see it when you import them as RAW into photoshop as Samuel described - zoom in and you see the gray values rastered in 2x2 squares. So even for B&W it is better to go the DNG way.
 
@@ -12,7 +12,7 @@ Problems and ideas can also be discussed in the [I'm Back Users Group on Faceboo
 
 ## Installation
 
-The current release is [V2.1.2_5eb7aa1 - Remove Compatibility neutral colour matrix option](https://github.com/shyrodgau/imbraw2dng/releases/tag/V2.1.2_5eb7aa1).
+The current release is [V2.1.4_55ef8c612 - Experimental for Imback Wifi option](https://github.com/shyrodgau/imbraw2dng/releases/tag/V2.1.4_55ef8c612).
 
 Copy the [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.html) file to your PC or extract it from the release "Source code".zip or .tar.gz and open in your favorite browser (any newer one should do).
 
@@ -28,7 +28,7 @@ Your browser will download them according to its download settings, so it might 
 
 Conversion to DNG currently sets the Timestamp Tags if the filename seems to be a reasonable I'm Back filename, and the OriginalRawFilename to the name of the RAW inputfile. That way you can name the DNG file whatever you like without losing any of the original information.
 
-New: you can do a step-by-step walk with a preview of the raw file. For that, check the "Single Step with preview" checkbox. On each file, you can select if you want to process or skip it and also if this same action should be applied to the rest of your currently selected files. When you check the "Add separate download link for each file" checkbox, then the files can be downloaded again (after the download that will be done automatically in the processing). It may cost memory to keep all these so I do not do it any more by default - you can always select the file(s) simply again.
+New: you can do a step-by-step walk with a preview of the raw file. For that, check the `Single Step with preview` checkbox. On each file, you can select if you want to process or skip it and also if this same action should be applied to the rest of your currently selected files. When you check the `Add separate download link for each file` checkbox, then the files can be downloaded again (after the download that will be done automatically in the processing). It may cost memory to keep all these so I do not do it any more by default - you can always select the file(s) simply again.
 
 ## Processing the DNG
 
@@ -38,10 +38,10 @@ Do **not** expect the image to be okay out-of-the-box. I will probably not be ab
 
 A strong green or magenta tint all over the image should not happen any more! But if you have one and **can not** level it out using your software's color matrix/color calibration or white-balancing, a sample image might be interesing to fix it.
 
-**Word on colours:** The right way to get the colours correct is to adjust the color calibration or color matrix. I am trying to get this right somehow inside the DNG but I am far from it (in darktable, I can tell it to automatically set it for DNGs from maker "ImBack"). Do **NOT** use the default identity matrix but change the green/green value to something around 0.6..0.7. This will at first make the image look reddish with the (wrong) default white balance. But then you can use the white balance to adjust it correctly. Do not start with the white balance where the red and blue are much higher than the green. When you leave the color matrix on identity, it is much harder or impossible to get the white balance sorted out! Sample darktable pictures of how the matrix and the white balance on near neutral light should look:
+**Word on colours:** The right way to get the colours correct is to adjust the color calibration or color matrix. I am trying to get this right somehow inside the DNG but I am far from it (in darktable, I can tell it to automatically set it for DNGs from maker `ImBack`). Do **NOT** use the default identity matrix but change the green/green value to something around 0.6..0.7. This will at first make the image look reddish with the (wrong) default white balance. But then you can use the white balance to adjust it correctly. It is much harder or impossible to get the white balance sorted out with identity color matrix! Sample darktable pictures of how the matrix and the white balance on near neutral light should look:
 
 ![darktable sample color matrix green](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_color_calib_ok.png "darktable sample color matrix green") 
-![darktable sample neutral white balance](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_neutral_white_balance.png "darktable sample neutral white balance")
+![darktable sample neutral white balance  ](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_neutral_white_balance.png "darktable sample neutral white balance")
 
 If a red highlighted spot is in the center of the image, a manual retouche after the processing is required, or use the following darktable setting, placing and sizing a circle shape manually around the area.
 
@@ -52,3 +52,7 @@ To avoid the red spot from the start, use a bigger aperture (smaller f-number) o
 ## How does it work?
 
 DNG is a TIFF-like format and consists mainly of constant data around the original image scanlines. The data varies depending on width, height (they are noted explicitly and there are a lot of offsets depending on the data length) and filename (for the OriginalRawFilename tag) of the image. If the date from the ImB filename looks valid, tags (EXIFTAG_DATETIMEORIGINAL, TIFFTAG_DATETIME) are added for that. If it is from a MF ImB then the Color Filter Array is different.
+
+## Experimental Features
+
+You can copy the html file onto the micro SD card that you insert into the Imback into the `IMBACK` directory and then connect you PC or mobile phone to the ImBack Wifi and navigate your browser to [your Imback](http://192.168.1.254/IMBACK/imbraw2dng.html). Then you can copy/convert the files (incl. preview) directly from the device, starting from a given timestamp or all.
