@@ -2,7 +2,7 @@
 
 This is free software and not commercially supported.
 
-In here: [Installation](#installation) - [Usage](#usage) - [Processing the DNG](#processing-the-dng) - [How does it work](#how-does-it-work) [Experimental Features](#experimental-features) - [AUF DEUTSCH](https://shyrodgau.github.io/imbraw2dng/README_de)
+In here: [Installation](#installation) - [Usage](#usage) - [Processing the DNG](#processing-the-dng) - [How does it work](#how-does-it-work) - [Experimental Features](#experimental-features) - [AUF DEUTSCH](https://shyrodgau.github.io/imbraw2dng/README_de)
 
 They are not really "B&W RAW" but actually the RAW sensor data that also contains the colour filtering. You can see it when you import them as RAW into photoshop as Samuel described - zoom in and you see the gray values rastered in 2x2 squares. So even for B&W it is better to go the DNG way.
 
