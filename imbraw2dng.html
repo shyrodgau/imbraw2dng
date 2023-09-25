@@ -2082,7 +2082,7 @@ function displaydiv(e) {
 /* image loader call */
 function loadimg(url, type, to) {
 	if (to.entry.querySelector('.eepvw').style['display'] === 'none') {
-		if (todolist[0] && todolist[0].url === url) {
+		if (todolist[0] && todolist[0].url === url)
 			todolist.splice(0,1);
 		loadnextimg();
 		return;
