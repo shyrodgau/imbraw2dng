@@ -12,7 +12,7 @@ Probleme und Ideen können auch in der [I'm Back Users Gruppe auf Facebook](http
 
 ## Installation
 
-Die aktuelle Version ist [V2.1.4_55ef8c612 - Experimental for Imback Wifi  ](https://github.com/shyrodgau/imbraw2dng/releases/tag/V2.1.4_55ef8c612).
+Die aktuelle Version ist [V2.9.9_96d429d - Experimental for Imback Wifi  ](https://github.com/shyrodgau/imbraw2dng/releases/tag/V2.9.9_96d429d).
 
 Die Datei [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.html) auf den PC kopieren oder aus der Version "Source code".zip oder .tar.gz auspacken und im Lieblingsbrowser öffnen (alles halbwegs aktuellen sollten gehen).
 
