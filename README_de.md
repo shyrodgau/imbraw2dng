@@ -16,7 +16,7 @@ Die aktuelle Version ist [V2.9.9_c82b5e1 - Experimental for Imback Wifi  ](https
 
 Die Datei [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.html) auf den PC kopieren oder aus der Version "Source code".zip oder .tar.gz auspacken und im Lieblingsbrowser öffnen (alles halbwegs aktuellen sollten gehen).
 
-Wenn eine lokale Installation nicht möglich ist, kann es vom Netzwerk wie von [meiner github Seite](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) (sollte immer die neueste Version sein) oder von [imback.eu](https://imback.eu/home/im-back-raw-dng-converter-ib35/) (mit automatisierter Übersetzung in andere Sprachen, aber vielleicht nicht immer aktuell) genommen werden. Die Bilddaten bleiben auf jeden Fall im Browser.
+Wenn eine lokale Installation nicht möglich ist, kann es vom Netzwerk wie von [meiner github Seite](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html) (sollte immer die neueste Version sein) oder von [imback.eu](https://imback.eu/home/im-back-raw-dng-converter-ib35/) (mit automatisierter Übersetzung in andere Sprachen, aber vielleicht nicht immer aktuell) genommen werden. Die Bilddaten bleiben auf jeden Fall im Browser.
 
 Das github Repository ist [hier](https://github.com/shyrodgau/imbraw2dng).
 
