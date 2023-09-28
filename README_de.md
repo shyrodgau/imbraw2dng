@@ -2,9 +2,11 @@
 
 Dies ist freie Software ohne kommerzielle Unterstützung.
 
-Hier gibts: [Installation](#installation) - [Benutzung](#benutzung) - [Verarbeitung des DNG](#verarbeitung-des-dng) - [Wie funktioniert es](#wie-funktioniert-es) - [Experimentelles](#experimentelles) - [IN ENGLISH](https://shyrodgau.github.io/imbraw2dng/)
+Hier gibts: [Installation](#installation) - [Internationalisierung}(#internationalisierung) - [Benutzung](#benutzung) - [Verarbeitung des DNG](#verarbeitung-des-dng) - [Wie funktioniert es](#wie-funktioniert-es) - [Gucken auf ImBack selbst](#gucken-auf-imback-selbst)
 
-Es sind keine "Schwarz-Weiß RAW"-Dateien, sondern die echten Roh-Sensordaten mit der Farbfilterung darauf. Wenn man sie wie nach Samuels Beschreibung in Photoshop importiert und hineinzoomt, kann man die Rasterung der Grauwerte in 2x2 Quadraten erkennen. Somit ist es auch für Schwarz-Weiß besser, über DNG zu gehen.
+or [IN ENGLISH](https://shyrodgau.github.io/imbraw2dng/)
+
+Es sind keine "Schwarz-Weiß RAW"-Dateien, sondern die echten Roh-Sensordaten mit der Farbfilterung darauf. Wenn man sie wie nach Samuels Beschreibung in Photoshop importiert und hineinzoomt, kann man die Rasterung der Grauwerte in 2x2 Quadraten erkennen. Somit ist es auch für Schwarz-Weiß besser, über DNG zu gehen. Die Seite kann inzwischen auch Teilfunktionen (teils auch mehr) der Mobiltelefon App.
 
 Aktuell scheint es für die aktuellen Firmwares auf 35mm (auch für "Winkel Mittel" und "klein") und auf MF I'm Back zu funktionieren. Für MF sind nicht alle Winkel-Einstellungen abgedeckt. Wenn du sie brauchst und ein bisschen mithelfen magst, nimm Kontakt auf.
 
@@ -12,13 +14,17 @@ Probleme und Ideen können auch in der [I'm Back Users Gruppe auf Facebook](http
 
 ## Installation
 
-Die aktuelle Version ist [V2.9.9_c82b5e1 - Experimental for Imback Wifi  ](https://github.com/shyrodgau/imbraw2dng/releases/tag/V2.9.9_96d429d).
+Die aktuelle Version ist [V2.9.9_c82b5e1 - Experimental for Imback Wifi ](https://github.com/shyrodgau/imbraw2dng/releases/tag/V2.9.9_96d429d).
 
 Die Datei [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.html) auf den PC kopieren oder aus der Version "Source code".zip oder .tar.gz auspacken und im Lieblingsbrowser öffnen (alles halbwegs aktuellen sollten gehen).
 
 Wenn eine lokale Installation nicht möglich ist, kann es vom Netzwerk wie von [meiner github Seite](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html) (sollte immer die neueste Version sein) oder von [imback.eu](https://imback.eu/home/im-back-raw-dng-converter-ib35/) (mit automatisierter Übersetzung in andere Sprachen, aber vielleicht nicht immer aktuell) genommen werden. Die Bilddaten bleiben auf jeden Fall im Browser.
 
 Das github Repository ist [hier](https://github.com/shyrodgau/imbraw2dng).
+
+### Internationalisierung
+
+Im Moment werden die Sprachen Englisch (EN) und Deutsch (DE) unterstützt. Wenn man die HTML-Datei mit geändertem Namen als imbraw2html_XX.html abspeichert, wobei XX das Sprachkürzel ist, öffnet sich die Seite direkt in dieser Sprache.
 
 ## Benutzung
 
@@ -30,6 +36,12 @@ Bei der Konvertierung nach DNG werden die Zeitstempel-Metadatan gesetzt, wenn de
 
 Neu: man kann Schritt-für-Schritt durchgehen und eine Vorschau der RAW-Datei dabei sehen. Hierzu das Häkchen bei `Single Step with preview` einschalten. Bei jeder Datei kann entschieden werden, ob sie verarbeitet oder übersprungen werden soll und ob diese Aktion auch für alle folgenden Dateien der Auswahl durchgeführt werden soll. Durch Einschalten des Häkchens `Add separate download link for each file` können die Dateien danach auch noch(mal) heruntergeladen werden (zusätzlich zu dem Download, der bei der Bearbeitung der Datei passiert). Das könnte eher viel Speicherplatz benötigen, daher gibt es diese Möglichkeit nur noch nach Auswahl - die Dateien können ja auch einfach nochmal ausgewählt und verarbeitet werden.
 
+
+### Gucken auf ImBack selbst
+
+Man kann die html-Datei (auch wegen Internationalisierung umbenannt) auf die micro-SD-Karte im ImBack kopieren, sagen wir mal in das `IMBACK` Verzeichnis. Dann den PC mit dem WLAN des ImBack verbinden und mit dem Browser auf [die Seite im Imback](http://192.168.1.254/IMBACK/imbraw2dng.html) (ggf. mit geändertem Namen) gehen.
+
+Dann kann man direkt alle Dateien, die neuer als ein angegebener Zeitstempel sind, verarbeiten/kopieren, oder mit dem Bildbrowser alle Dateien auf dem ImBack nach Typ und/oder Zeitstempel ansehen. RAW- und JPEG-Bilder werden dabei angezeigt. Man kann Dateien auswählen, die man verarbeiten/kopieren oder auch löschen möchte.
 
 ## Verarbeitung des DNG
 
@@ -53,9 +65,3 @@ Um den roten Punkt von vornherein zu vermeiden, eine größere Blende (kleine Bl
 ## Wie funktioniert es?
 
 DNG ist ein auf TIFF basierendes Dateiformat, das hauptsächlich konstante Daten um die ursprünglichen Bilddaten herum hat. Die Unterschiede hängen ab von Breite und Höhe (die explizit drinstehen, sowie sich auf viele Offsets auswirken, die von der Gesamtlänge abhängen) sowie der Dateiename (OriginalRawFilename Tag). Falls das Datum von ImB Dateinamen gültig aussieht, werden die Tags dafür (EXIFTAG_DATETIMEORIGINAL, TIFFTAG_DATETIME) eingebaut. Bei Dateien von MF ist die Farbfilter-Matrix (Color Filter Array) anders.
-
-
-## Experimentelles
-
-Man kan die html-Datei ins `IMBACK` Verzeichnis auf der micro-SD-Karte kopieren, die ins ImBack gesteckt wird und dann den PC oder das Handy per Wifi mit Imback verbinden und im Browser auf [die Imback](http://192.168.1.254/IMBACK/imbraw2dng.html) navigieren. Dann kann man die Dateien (inkl. Vorschau) direkt vom ImBack kopieren/konvertieren, ab einem gewissen Zeitstempel oder alle.
-
