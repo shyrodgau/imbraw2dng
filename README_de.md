@@ -2,7 +2,7 @@
 
 Dies ist freie Software ohne kommerzielle Unterstützung.
 
-Hier gibts: [Installation](#installation) - [Internationalisierung}(#internationalisierung) - [Benutzung](#benutzung) - [Verarbeitung des DNG](#verarbeitung-des-dng) - [Wie funktioniert es](#wie-funktioniert-es) - [Gucken auf ImBack selbst](#gucken-auf-imback-selbst)
+Hier gibts: [Installation](#installation) - [Internationalisierung](#internationalisierung) - [Benutzung](#benutzung) - [Verarbeitung des DNG](#verarbeitung-des-dng) - [Wie funktioniert es](#wie-funktioniert-es) - [Gucken auf ImBack selbst](#gucken-auf-imback-selbst)
 
 or [IN ENGLISH](https://shyrodgau.github.io/imbraw2dng/)
 
