@@ -16,10 +16,10 @@ Use: open in browser and select RAW
 -->
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>ImB RAW to DNG Converter V2.9.9_c82b5e1</title>
+<title>ImB RAW to DNG Converter V2.9.9_DEVEL_</title>
 <script type="text/javascript" language="javascript">
 /* i18 */
-const alllangs = [ 'de' , 'en', 'nn' ];
+const alllangs = [ 'de' , 'en', '00' ];
 let mylang = 'en';
 let xlargs = [];
 const texts = {
@@ -461,9 +461,9 @@ let currentrot = 1;
 // from the back itself
 let imbpics = [], rimbpics = [], imbmovies = [], imbeles = [], typedclasses = [], untypedclasses = [];
 let earliestmov = '9999', latestmov='0000', earliestjpg='9999', latestjpg='0000',earliestraw='9999',latestraw='0000';
-let todolist = [];
+let loaderrunning;
 /* debug */
-const debugflag = false;
+let debugflag = false;
 let firstflag = true;
 /* helper to append message */
 function appendmsg(msg) {
@@ -500,7 +500,6 @@ function fselected() {
 	allfiles = el.files;
 	//if (totnum > 0) {
 		mappx('process.selectedn', totnum);
-		//appendmsg("Got " + totnum + " files selected.<br>&nbsp;<br>");
 	//}
 	handleonex();
 }
@@ -1020,7 +1019,6 @@ function drophandler(ev) {
 	allfiles = [];
 	actnum = 0;
 	if (ev.dataTransfer.items) {
-		//appendmsg("Got " + [...ev.dataTransfer.items].length + " files dropped.<br>&nbsp;<br>");
 		totnum = [...ev.dataTransfer.items].length;
 		mappx('process.droppedn', totnum);
 		[...ev.dataTransfer.items].forEach((item, i) => {
@@ -1030,7 +1028,6 @@ function drophandler(ev) {
 			}
 		});
 	} else {
-		//appendmsg("Got " + [...ev.dataTransfer.files].length + " files dropped.<br>&nbsp;<br>");
 		totnum = [...ev.dataTransfer.files].length;
 		mappx('process.droppedn', totnum);
 		[...ev.dataTransfer.files].forEach((file, i) => {
@@ -1342,7 +1339,6 @@ function aftercheck() {
 		cl.entry.classList.add('gg');
 		cl.entry.classList.add('ggclosed');
 		cl.entry.classList.add('gl5');
-		//buildtitle(cl);
 		for (const y of imbeles) {
 			if (x === y.raw.substring(0,12))
 			{
@@ -1364,7 +1360,6 @@ function aftercheck() {
 		cl.entry.classList.add('gg');
 		cl.entry.classList.add('ggclosed');
 		cl.entry.classList.add('gl5');
-		//buildtitle(cl);
 		for (const y of imbeles) {
 			if (x === y.type + y.raw.substring(0,12))
 			{
@@ -1395,14 +1390,12 @@ function aftercheck() {
 			cl.entry.classList.add('gg');
 			cl.entry.classList.add('ggclosed');
 			cl.entry.classList.add('gl1');
-			//buildtitle(cl);
 			for (const x of typedclasses.filter((o) => u.title.substring(0,3) === o.title.substring(0,3))) {
 				x.ischild = true;
-				// todo: sort
+				// todo: sort when display
 				cl.smembers.push(x);
 				cl.haschildren = true;
 				typedclasses.splice(typedclasses.findIndex((o) => o.title === x.title),1);
-				//cl.entry.append(x.entry);
 			}
 			typedclasses.push(cl);
 		}
@@ -1423,11 +1416,11 @@ function aftercheck() {
 	for (const s of typedclasses) buildtitlerec(s);
 	document.getElementById('brnsel').innerHTML = '0';
 	document.getElementById('brntot').innerHTML = '' + imbeles.length;
-				/* debug */
-				if (debugflag) {
-				for (const s of untypedclasses.filter((o) => o.level === 2)) prgr(s,1);
-				for (const s of typedclasses.filter((o) => o.level === 1)) prgr(s,1);
-				}
+	/* debug * /
+	if (debugflag) {
+		for (const s of untypedclasses.filter((o) => o.level === 2)) prgr(s,1);
+		for (const s of typedclasses.filter((o) => o.level === 1)) prgr(s,1);
+	} */
 }
 /* build ordered lists */
 function buildtree() {
@@ -1461,6 +1454,69 @@ function buildtree() {
 		addsorted(e);
 	}
 	xlateall();
+}
+/* visibility checker * /
+function testallvisi() {
+	let list='';
+	for (const e of imbeles) {
+		// display: none somewhere?
+		if (!e.entry) continue;
+		const p = e.entry;
+		if (!p.parentElement) continue;
+		// not waiting at all
+		if (!p.querySelector('.eepvw') || p.querySelector('.eepvw').style['display'] === 'none') continue;
+		let dispno = false;
+		let f=p.parentElement;
+		while (f) {
+			if (f.style['display'] === 'none') {
+				dispno = true;
+				break;
+			}
+			let y = f.classList;
+			if (f.classList.contains('ggclosed')) {
+				dispno = true;
+				break;
+			}
+			f=f.parentElement;
+		}
+		if (dispno) continue;
+		// display not none, check pos
+		rect = p.getBoundingClientRect();
+		if (rect.top < window.innerHeight && rect.bottom > 0 && rect.width > 0)
+			list = list + ' ' + e.raw;
+	}
+	console.log('XX: ' + list);
+}*/
+// find next to load
+function findnexttoload() {
+	for (const e of imbeles) {
+		// display: none somewhere?
+		if (!e.entry) continue;
+		const p = e.entry;
+		if (!p.parentElement) continue;
+		// not waiting at all
+		if (!p.querySelector('.eepvw') || p.querySelector('.eepvw').style['display'] === 'none') continue;
+		let dispno = false;
+		let f = p.parentElement;
+		while (f) {
+			if (f.style['display'] === 'none') {
+				dispno = true;
+				break;
+			}
+			let y = f.classList;
+			if (f.classList.contains('ggclosed')) {
+				dispno = true;
+				break;
+			}
+			f = f.parentElement;
+		}
+		if (dispno) continue;
+		// display not none, check pos
+		rect = p.getBoundingClientRect();
+		if (rect.top < window.innerHeight && rect.bottom > 0 && rect.width > 0)
+			return e;
+	}
+	return undefined;
 }
 /* sort helper */
 function mysort(a, b) {
@@ -1513,6 +1569,7 @@ function doopen(gr, recurse) {
 		for (const e of gr.smembers) doopen(e, recurse);
 	if (gr.fmembers && !gr.entry.querySelector('.ee'))
 		addimgsorted(gr);
+	startloadimg();
 }
 /* select all from top */
 function topreccheck() {
@@ -1569,6 +1626,7 @@ function buildtitle(gr) {
 		d.classList.add('ggttclosed');
 		d.parentElement.classList.remove('ggopen');
 		d.parentElement.classList.add('ggclosed');
+		startloadimg();
 	};
 	d.append(minuss);
 	const nixs = document.createElement('span');
@@ -1619,7 +1677,6 @@ function buildtitle(gr) {
 	texttit.htmlFor = cb.id;
 	texttit.append(cb);
 	texttit.append(genspan('browser.selall'));
-	//texttit.append(' Select all');
 	cb.onclick = (ev) => {
 		if (cb.checked) reccheck(true, gr);
 		else reccheck(false, gr);
@@ -1652,14 +1709,12 @@ function higherclasses(arr, len, curlevel) {
 			cl.entry.classList.add('gg');
 			cl.entry.classList.add('ggclosed');
 			cl.entry.classList.add('gl' + (curlevel - 1));
-			//buildtitle(cl);
 			for (const x of arr.filter((o) => u.title.substring(0,len) === o.title.substring(0,len))) {
 				x.ischild = true;
-				// todo: sort
+				// todo: sort when open
 				cl.smembers.push(x);
 				cl.haschildren = true;
 				arr.splice(arr.findIndex((o) => o.title === x.title),1);
-				//cl.entry.append(x.entry);
 			}
 			arr.push(cl);
 		}
@@ -1668,16 +1723,6 @@ function higherclasses(arr, len, curlevel) {
 		higherclasses(arr, len - 2, 4);
 	else if (curlevel === 4)
 		higherclasses(arr, len - 3, 3);
-}
-/* debug */
-function prgr(gr, indent) {
-	const str = '                ';
-	if (undefined === gr.title) return;
-	console.log(str.substring(0,2*indent), gr.title, '   ', countfiles(gr));
-	if (undefined === gr.smembers) return;
-	for (const s of gr.smembers) {
-		prgr(s, indent + 1);
-	}
 }
 /* return count of files in class */
 function countfiles(cla) {
@@ -1972,7 +2017,6 @@ function imbdoit() {
 	allfiles = selecteds;
 	if (totnum > 0) {
 		mappx('process.frombackn', totnum);
-		//appendmsg("Got " + totnum + " files from Imback.<br>&nbsp;<br>");
 	}
 	handleonex();
 }
@@ -2020,6 +2064,7 @@ function updateselections() {
 	}
 	document.getElementById('brnsel').innerHTML = '' + res;
 	document.getElementById('selall').checked = (res === sum);
+	document.getElementById('delselbut').disabled = (res === 0);
 }
 /* fill a html div into an imbele */
 function displaydiv(e) {
@@ -2062,7 +2107,6 @@ function displaydiv(e) {
 		e.preview.style['height'] = '120px';
 		e.entry.append(e.preview);
 		createwait(e);
-		startloadurl(e.url, e.type, e);
 	} else if (e.type === 'JPG') {
 		e.preview = document.createElement('img');
 		e.preview.classList.add('eeimg');
@@ -2071,7 +2115,6 @@ function displaydiv(e) {
 		e.preview.style['height'] = '120px';
 		e.entry.append(e.preview);
 		createwait(e);
-		startloadurl(e.url, e.type, e);
 	} else {
 		e.preview = document.createElement('div');
 		e.preview.classList.add('eepvx');
@@ -2082,8 +2125,6 @@ function displaydiv(e) {
 /* image loader call */
 function loadimg(url, type, to) {
 	if (to.entry.querySelector('.eepvw').style['display'] === 'none') {
-		if (todolist[0] && todolist[0].url === url)
-			todolist.splice(0,1);
 		loadnextimg();
 		return;
 	}
@@ -2092,56 +2133,53 @@ function loadimg(url, type, to) {
 			to.entry.querySelector('.eepvw').style['display'] = 'none';
 			to.preview.style['display'] = '';
 			to.preview.style['width'] = to.preview.woidth * (120 / to.preview.height);
-			if (todolist[0] && todolist[0].url === url) {
-				todolist.splice(0,1);
-				loadnextimg();
-			}
+			loadnextimg();
 		};
 		to.preview.onerror = (ev) => {
 			to.entry.querySelector('.eepvw').style['display'] = 'none';
 			to.entry.querySelector('.errimg').style['display'] = '';
-			if (todolist[0] && todolist[0].url === url) {
-				todolist.splice(0,1);
-				loadnextimg();
-			}
+			loadnextimg();
 		};
 		to.preview.src = url;
 	}
 	else if (type === 'RAW') {
 		buildpreview(url, () => {
-				to.entry.querySelector('.eepvw').style['display'] = 'none';
-				to.preview.style['display'] = '';
-			}, () => {
-				to.entry.querySelector('.eepvw').style['display'] = 'none';
-				to.entry.querySelector('.errimg').style['display'] = '';
-				if (todolist[0] && todolist[0].url === url) {
-					todolist.splice(0,1);
-					loadnextimg();
-				} // else the afterload had already been called
-			}, 1, to.preview, () => {
-				if (todolist[0] && todolist[0].url === url) {
-					todolist.splice(0,1);
-					loadnextimg();
-				}
+			to.entry.querySelector('.eepvw').style['display'] = 'none';
+			to.preview.style['display'] = '';
+		}, () => {
+			to.entry.querySelector('.eepvw').style['display'] = 'none';
+			to.entry.querySelector('.errimg').style['display'] = '';
+			if (loaderrunning === url) {
+				loadnextimg();
+			} // else the afterload had already been called
+		}, 1, to.preview, () => {
+			loadnextimg();
+			loaderrunning = '1';
 		});
 	}
 }
 /* next from todo list */
 function loadnextimg() {
-	if (todolist.length === 0) return;
-	setTimeout(() => {
-		if (todolist.length === 0) return;
-		const next = todolist[0];
-		loadimg(next.url, next.type, next.to);
-	});
+	const e = findnexttoload();
+	if (!e) {
+		loaderrunning = false;
+		//console.log('TERM loader');
+		return;
+	}
+	else {
+		loaderrunning = e.url;
+		setTimeout(() => {
+			//console.log('L ' + e.raw);
+			loadimg(e.url, e.type, e)
+		}, 33);
+	}
 }
 /* start loading */
-function startloadurl(url, type, to) {
-	todolist.push({
-			url: url, type: type, to: to
-	});
-	if (todolist.length === 1)
+function startloadimg() {
+	if (!loaderrunning) {
+		//console.log('start loader');
 		loadnextimg();
+	}
 }
 /* deleete browser selected */
 function browserdelete() {
@@ -2180,6 +2218,7 @@ function dodelete(list) {
 		delcancel();
 	}
 }
+/* cancel the delete */
 function delcancel() {
 	document.getElementById('delq').style['display'] = 'none';
 	document.getElementById('browser').style['display'] = '';
@@ -2210,7 +2249,6 @@ function browserprocess() {
 	allfiles = selecteds;
 	if (totnum > 0) {
 		mappx('process.frombrowsern', totnum);
-		//appendmsg("Got " + totnum + " files from Visual browser.<br>&nbsp;<br>");
 		handleonex();
 	} else {
 		shownormal();
@@ -2219,7 +2257,7 @@ function browserprocess() {
 /* translate one string with parameters */
 function xl(str, base, arg0, arg1, arg2, arg3) {
 	if (undefined === base) base = texts;
-	if (mylang === 'nn') {
+	if (mylang === '00') {
 		let res = '[' + str;
 		if (undefined !== arg0) {
 			res += ',' + arg0;
@@ -2257,18 +2295,6 @@ function xl(str, base, arg0, arg1, arg2, arg3) {
 		return xl(str.substring(i+1),e, arg0, arg1, arg2, arg3);
 	}
 }
-/* print translations */
-function prxl(key, el) {
-	if (el['de'] && el['en']) {
-		let out = key + ';';
-		out += '\'' + el['de']  + '\';';
-		out += '\'' + el['en']  + '\';';
-		console.log(out);
-	}
-	for (const ne of Object.keys(el).filter((k) => ((k !== 'en') && (k !== 'de')))) {
-		prxl(key + '.' + ne, el[ne]);
-	}
-}
 /* translate everything */
 function xlateall() {
 	const k = document.querySelectorAll('*[data-myxlkey]');
@@ -2300,6 +2326,7 @@ function xlateall() {
 function setlang() {
 	mylang = document.getElementById('langsel').value;
 	xlateall();
+	document.documentElement.lang = mylang;
 }
 /* find language from filename */
 function querylang() {
@@ -2315,7 +2342,35 @@ function querylang() {
 		mylang = 'en';
 		document.getElementById('langsel').value = 'en';
 	}
+	if ('00' === mylang)
+		debugflag = true;
+	else
+		document.documentElement.lang = mylang;
 	// followed by xlall anyway
+	window.onscroll = () => startloadimg();
+	window.onresize = () => startloadimg();
+}
+/* debug */
+function prgr(gr, indent) {
+	const str = '                ';
+	if (undefined === gr.title) return;
+	console.log(str.substring(0,2*indent), gr.title, '   ', countfiles(gr));
+	if (undefined === gr.smembers) return;
+	for (const s of gr.smembers) {
+		prgr(s, indent + 1);
+	}
+}
+/* print translations */
+function prxl(key, el) {
+	if (el['de'] && el['en']) {
+		let out = key + ';';
+		out += '\'' + el['de']  + '\';';
+		out += '\'' + el['en']  + '\';';
+		console.log(out);
+	}
+	for (const ne of Object.keys(el).filter((k) => ((k !== 'en') && (k !== 'de')))) {
+		prxl(key + '.' + ne, el[ne]);
+	}
 }
 /* only debug */
 function dodebug() {
@@ -2433,10 +2488,10 @@ function dodebug() {
   animation-delay: 0.66s;
 }
 .blink, .blink2, .blink3 {
-	font-size: 600%;
+	font-size: 200%;
 	font-weight: bold;
 	line-height: 5px;
-	height: 250px;
+	height: 100px;
 	display: inline-block;
 }
 
@@ -2469,11 +2524,18 @@ function dodebug() {
 .errimg { color: red; font-size: 100px; align-self: center; font-weight: bold; }
 .eepvw { color: #444444; font-size: 100px; align-self: center; font-weight: bold; }
 .eeraw, .eeimg { align-self: center; }
+#previewwait {
+	scale: 500%;
+	margin-left: 250px;
+	margin-top: 200px;
+	line-height: 5px;
+	height: 50px;
+}
 </style>
 </head>
 <!-- here comes the html itself -->
 <body style="font-family: Helvetica, Arial, sans-serif;" onload="querylang();xlateall(); checkimb();">
-<div style="font-weight:bold;"><span data-myxlkey='main.title'> </span> <span translate="no">V2.9.9_c82b5e1</span> - <a target="_new" id="helplink" href="https://shyrodgau.github.io/imbraw2dng/" data-myxlkey='main.help'></a> <select id="langsel" onchange="setlang()"><option value="de" onclick="setlang()">DE</option><option value="en" onclick="setlang()">EN</option></select></div>
+<div style="font-weight:bold;"><span data-myxlkey='main.title'> </span> <span translate="no">V2.9.9_DEVEL</span> - <a target="_new" id="helplink" href="https://shyrodgau.github.io/imbraw2dng/" data-myxlkey='main.help'></a> <select id="langsel" onchange="setlang()"><option value="de" onclick="setlang()">DE</option><option value="en" onclick="setlang()">EN</option></select></div>
 <div id="normal" style="margin-top: 0.5em;">
 <!-- the normal display -->
 <div><input type="checkbox" id="steppreview" checked><label for="steppreview" data-myxlkey="process.singlestep"></label></div>
@@ -2514,7 +2576,7 @@ function dodebug() {
 <!-- this is the picture browser -->
 <div id="browser" style="background-color:#ffccbb;border: 5px solid #ff8833; border-radius: 10px;width: 90%;padding-left:2em;padding-right:2em;padding-top:1em; padding-bottom:1em;display:none;flex-direction:column;">
 <div style="margin-bottom:1em;"><span data-myxlkey="main.sort"></span>: <label for="sbytype"><input type="checkbox" id="sbytype" onclick="buildtree()"><span data-myxlkey="browser.bytype"></span></label> - <label for="solder"><input type="checkbox" id="solder" onclick="buildtree()"><span data-myxlkey="browser.olderfirst"></span></label>
- - <span data-myxlkey="main.selected"></span>: <span id="brnsel">?</span> / <span id="brntot">?</span> - <label for="selall" data-mytitlexlkey="browser.selall.tooltip"><input onclick="topreccheck()" type="checkbox" id="selall"><span data-myxlkey="browser.selall"></span></label> - <input type="button" data-myvalxlkey="browser.procall" onclick="browserprocess()"> - <input type="button" data-myvalxlkey="browser.delall" onclick="browserdelete()"></div>
+ - <span data-myxlkey="main.selected"></span>: <span id="brnsel">?</span> / <span id="brntot">?</span> - <label for="selall" data-mytitlexlkey="browser.selall.tooltip"><input onclick="topreccheck()" type="checkbox" id="selall"><span data-myxlkey="browser.selall"></span></label> - <input type="button" data-myvalxlkey="browser.procall" onclick="browserprocess()" id="doselbut"> - <input type="button" data-myvalxlkey="browser.delall" onclick="browserdelete()" id="delselbut" disabled></div>
 </div>
 <!-- this is the delete question/progress -->
 <div id="delq" style="border: 2px solid red; border-radius: 20px; padding: 20px;display:none;width:fit-content;">
@@ -2523,46 +2585,6 @@ function dodebug() {
 <span data-myxlkey="delete.nostatus"></span><br>
 <div id="delprogmsg"></div>
 </div>
-<!--
-
-TTT   YYYY   MM    DD    hh
-
-TTT   YYYY++     DD+  hh+
-
-TTT   YYYY+   MM++   hh+
-
-TTT   YYYY+   MM+  DD++
-
-Sort   [ ] by Type   [ ] older first   (n/nn)  [ Process all->selected ] [ Delete all->selected ]
-----
-  XXXX_mmdd_hh      [+] (n)  [++] (n/nn)        [ Select All ]
-  ----
-     XXXX_MMdd_hh   [+] (n)  [++] (n/nn)        [ Select All ]
-     
-     
-     
-
-ele: {
-		typ: 'JPG' | 'RAW' | 'oth',
-		url: string,
-		selected: boolean,
-		preview: canvas | img | null, // oth: n,n,f,f => n,d,f,f // jpg: n,n,f,f => i,d,t,f => i,d,f,f or i,d,f,t // raw: n,n,f,f => c,d,t,f => c,d,f,f or c,d,f,t
-		entry: div | null,
-		waiting: boolean,
-		error: boolean,
-		processed: boolean
-}
-		
-group: {
-			title: string,
-			level: number, // 5 hr, 4 d, 3 mo, 2 yr, 1 typ
-			subgroups: group[],
-			eles: ele[],
-			openentry: div,
-			closedentry: div
-}
-
--->
 <!-- this is invisible -->
 <input type="file" onchange="dodebug()" accept=".html,.htm" id="dbgfsel" style="display:none;">
 <a style="display: none;" id="result">x</a>
