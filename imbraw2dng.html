@@ -1489,13 +1489,18 @@ function testallvisi() {
 }*/
 // find next to load
 function findnexttoload() {
-	for (const e of imbeles) {
+	for (const e of imbeles.sort((a,b) => myisort(a,b))) {
 		// display: none somewhere?
 		if (!e.entry) continue;
 		const p = e.entry;
 		if (!p.parentElement) continue;
-		// not waiting at all
-		if (!p.querySelector('.eepvw') || p.querySelector('.eepvw').style['display'] === 'none') continue;
+		// not waiting or error at all?
+		if (p.querySelector('.eepvx')) continue;
+		if (e.nonewerr) continue;
+		let nwaitandnerr = true;
+		if (p.querySelector('.eepvw') && p.querySelector('.eepvw').style['display'] !== 'none') nwaitandnerr = false;
+		if (p.querySelector('.errimg') && p.querySelector('.errimg').style['display'] !== 'none') nwaitandnerr = false;
+		if (nwaitandnerr) continue;
 		let dispno = false;
 		let f = p.parentElement;
 		while (f) {
@@ -1521,21 +1526,24 @@ function findnexttoload() {
 /* sort helper */
 function mysort(a, b) {
 	const fact = document.getElementById('solder').checked ? 1 : -1
-	if (a.raw !== undefined && b.raw !== undefined) {
-		if (a.raw > b.raw) return fact;
-		else if (a.raw < b.raw) return -1 * fact;
-		else return 0;
-	}
 	if (a.title > b.title) return fact;
 	else if (a.title < b.title) return -1 * fact;
+	else return 0;
+}
+/* sort helper */
+function myisort(a, b) {
+	const fact = document.getElementById('solder').checked ? 1 : -1
+	if (a.raw > b.raw) return fact;
+	else if (a.raw < b.raw) return -1 * fact;
 	else return 0;
 }
 /* add images sorted  */
 function addimgsorted(el) {
 	if (el.fmembers !== null && el.fmembers !== undefined) {
-		for (const e of el.fmembers.sort((a,b) => mysort(a, b))) {
+		for (const e of el.fmembers.sort((a,b) => myisort(a, b))) {
 			if (null === e.entry || undefined === e.entry) displaydiv(e);
 			el.entry.querySelector('.igtype').append(e.entry);
+			e.nonewerr = false; // retry again if was error
 		}
 	}
 }
@@ -1572,6 +1580,11 @@ function doopen(gr, recurse) {
 	gr.entry.classList.add('ggopen');
 	if (recurse && gr.smembers)
 		for (const e of gr.smembers) doopen(e, recurse);
+	if (gr.fmembers) {
+		for (const e of gr.fmembers) {
+			if (e.entry) e.entry.remove();
+		}
+	}
 	if (gr.fmembers && !gr.entry.querySelector('.ee'))
 		addimgsorted(gr);
 	startloadimg();
@@ -2129,20 +2142,26 @@ function displaydiv(e) {
 }
 /* image loader call */
 function loadimg(url, type, to) {
-	if (to.entry.querySelector('.eepvw').style['display'] === 'none') {
+	if (to.entry.querySelector('.eepvx') || (to.entry.querySelector('.eepvw').style['display'] === 'none' && to.entry.querySelector('.errimg').style['display'] === 'none')) {
+		if (debugflag) console.log('ldr aa lnx ' + to.raw);
 		loadnextimg();
 		return;
 	}
+	to.entry.querySelector('.errimg').style['display'] = 'none';
+	to.entry.querySelector('.eepvw').style['display'] = '';
 	if (type === 'JPG') {
 		to.preview.onload = (ev) => {
 			to.entry.querySelector('.eepvw').style['display'] = 'none';
 			to.preview.style['display'] = '';
 			to.preview.style['width'] = to.preview.woidth * (120 / to.preview.height);
+			if (debugflag) console.log('ldr j f lnx ' + to.raw);
 			loadnextimg();
 		};
 		to.preview.onerror = (ev) => {
 			to.entry.querySelector('.eepvw').style['display'] = 'none';
 			to.entry.querySelector('.errimg').style['display'] = '';
+			if (debugflag) console.log('ldr j e lnx ' + to.raw);
+			to.nonewerr = true;
 			loadnextimg();
 		};
 		to.preview.src = url;
@@ -2151,15 +2170,21 @@ function loadimg(url, type, to) {
 		buildpreview(url, () => {
 			to.entry.querySelector('.eepvw').style['display'] = 'none';
 			to.preview.style['display'] = '';
+			if (debugflag) console.log('ldr r f ' + to.raw);
 		}, () => {
 			to.entry.querySelector('.eepvw').style['display'] = 'none';
 			to.entry.querySelector('.errimg').style['display'] = '';
+			to.nonewerr = true;
+			if (debugflag) console.log('ldr r e ' + to.raw);
 			if (loaderrunning === url) {
+				if (debugflag) console.log('ldr r e lnx ' + to.raw);
 				loadnextimg();
 			} // else the afterload had already been called
 		}, 1, to.preview, () => {
-			loadnextimg();
+			if (debugflag) console.log('ldr r l lnx ' + to.raw);
 			loaderrunning = '1';
+			loadnextimg();
+			// invalidate url for err callback
 		});
 	}
 }
@@ -2168,13 +2193,13 @@ function loadnextimg() {
 	const e = findnexttoload();
 	if (!e) {
 		loaderrunning = false;
-		//console.log('TERM loader');
+		if (debugflag) console.log('TERM loader');
 		return;
 	}
 	else {
 		loaderrunning = e.url;
 		setTimeout(() => {
-			//console.log('L ' + e.raw);
+			if (debugflag) console.log('L ' + e.raw);
 			loadimg(e.url, e.type, e)
 		}, 33);
 	}
@@ -2182,8 +2207,11 @@ function loadnextimg() {
 /* start loading */
 function startloadimg() {
 	if (!loaderrunning) {
-		//console.log('start loader');
+		if (debugflag) console.log('start loader');
 		loadnextimg();
+	}
+	else if (debugflag) {
+		console.log('load already on ' + loaderrunning);
 	}
 }
 /* deleete browser selected */
