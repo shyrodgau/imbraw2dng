@@ -1521,6 +1521,11 @@ function findnexttoload() {
 /* sort helper */
 function mysort(a, b) {
 	const fact = document.getElementById('solder').checked ? 1 : -1
+	if (a.raw !== undefined && b.raw !== undefined) {
+		if (a.raw > b.raw) return fact;
+		else if (a.raw < b.raw) return -1 * fact;
+		else return 0;
+	}
 	if (a.title > b.title) return fact;
 	else if (a.title < b.title) return -1 * fact;
 	else return 0;
