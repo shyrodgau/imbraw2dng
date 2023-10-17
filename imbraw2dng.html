@@ -1,5 +1,7 @@
 <html>
 <head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>ImB RAW to DNG Converter V2.9.9_DEVEL_</title>
 <style type="text/css">
 .blink {
   animation: blinker 1s linear infinite;
@@ -962,7 +964,7 @@ this.handleone = (orientation) => {
 		}
 		if (orientation !== undefined && orientation !== 1) {
 			imbc.mappx('process.orientation');
-			imbc.appendmsgx(imbc.genspan('preview.orients.' + imbc.orients[imbc.orientation]));
+			imbc.appendmsgx(imbc.genspan('preview.orients.' + imbc.orients[orientation]));
 			imbc.appendmsg('<br>');
 		}
 		/* Here comes the actual building of the DNG */
@@ -2240,13 +2242,13 @@ this.displaydiv = (e) => {
 		rotbtn.classList.add('rotbtn');
 		rotbtn.classList.add('disabled');
 		rotbtn.append('\u21ba');
-		rotbtn.onclick = (e) => {
+		rotbtn.onclick = () => {
 			if (rotbtn.classList.contains('disabled')) return;
 			let j = this.oriecw.indexOf(e.rot);
 			j = ((j + 3) % 4);
 			e.rot = this.oriecw[j];
 			e.preview.style['display'] = 'none';
-			e.preview.querySelector('.eepvw').style['display'] = '';
+			e.entry.querySelector('.eepvw').style['display'] = '';
 			this.startloadimg();
 		};
 		topline.append(rotbtn);
@@ -2274,7 +2276,7 @@ this.displaydiv = (e) => {
 			document.getElementById('infile').disabled = true
 			fromvisbrows = true;
 			this.shownormal();
-			this.handleone();
+			this.handleone(e.rot);
 		};
 	} else {
 		dlbtn.onclick = (ev) => {
@@ -2347,14 +2349,14 @@ this.loadimg = (url, type, to) => {
 			to.entry.querySelector('.eepvw').style['display'] = 'none';
 			to.preview.style['display'] = '';
 			to.preview.style['width'] = to.preview.woidth * (120 / to.preview.height);
-			to.entry.querySelector('.dlbtn').classList.remove['disabled'];
+			to.entry.querySelector('.dlbtn').classList.remove('disabled');
 			if (this.debugflag) console.log('ldr j f lnx ' + to.raw);
 			this.loadnextimg();
 		};
 		to.preview.onerror = (ev) => {
 			to.entry.querySelector('.eepvw').style['display'] = 'none';
 			to.entry.querySelector('.errimg').style['display'] = '';
-			to.entry.querySelector('.dlbtn').classList.add['disabled'];
+			to.entry.querySelector('.dlbtn').classList.add('disabled');
 			if (this.debugflag) console.log('ldr j e lnx ' + to.raw);
 			to.nonewerr = true;
 			this.loadnextimg();
@@ -2364,8 +2366,8 @@ this.loadimg = (url, type, to) => {
 	else if (type === 'RAW') {
 		this.buildpreview(url, () => { /* on ok: */
 			to.entry.querySelector('.eepvw').style['display'] = 'none';
-			to.entry.querySelector('.rotbtn').classList.remove['disabled'];
-			to.entry.querySelector('.dlbtn').classList.remove['disabled'];
+			to.entry.querySelector('.rotbtn').classList.remove('disabled');
+			to.entry.querySelector('.dlbtn').classList.remove('disabled');
 			to.preview.style['display'] = '';
 			if (this.debugflag) console.log('ldr r f ' + to.raw);
 			if (this.loaderrunning === url) {
