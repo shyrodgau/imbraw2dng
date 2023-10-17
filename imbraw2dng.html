@@ -1,7 +1,6 @@
 <html>
 <head>
 <style type="text/css">
-"use strict;"
 .blink {
   animation: blinker 1s linear infinite;
 }
@@ -46,6 +45,7 @@
 .ggclosed > .gg, .ggclosed .igtype { display: none !important; }
 .ggttminus, .ggttplus { cursor: pointer; display: inline-block; width: 1.9em; font-weight:normal !important; }
 .rotbtn:not(.disabled), .dlbtn:not(.disabled) { cursor: pointer; }
+.rotbtn.disabled, .dlbtn.disabled { opacity: 0.5; }
 .dlbtn { vertical-align: bottom; font-size: 150%; font-weight: bold; }
 .igtype { border: 2px solid yellow; border-radius: 5px; display: flex; flex-flow: wrap; }
 .ee { border: 2px solid gray; border-radius: 5px; margin: 2px; width: fit-content; display: flex; flex-direction: column; padding: 0.3em;}
@@ -86,6 +86,7 @@
 }
 </style>
 <script type="text/javascript" language="javascript">
+"use strict;"
 function ImBC() {
 /* Indentation out */
 this.alllangs = [ 'de' , 'en', '00' ]; // actually const
@@ -94,76 +95,94 @@ this.texts = { // actually const
 		title: {
 			de: 'ImB RAW nach DNG Konverter',
 			en: 'ImB RAW to DNG converter',
+			fr: 'Convertisseur ImB RAW a DNG',
 		},
 		file: {
 			de: 'Datei',
 			en: 'File',
+			fr: 'Fiche',
 		},
 		help: {
 			de: '? Hilfe Doku',
 			en: '? Help Doc',
+			fr: '? Aide Doc',
 		},
 		helplink: {
 			de: 'https://shyrodgau.github.io/imbraw2dng/README_de',
 			en: 'https://shyrodgau.github.io/imbraw2dng/',
+			fr: 'https://shyrodgau.github.io/imbraw2dng/',
 		},
 		generaladvice: {
 			de: 'Kann sein, dass der Browser fragt, ob Sie zulassen wollen, dass mehrere Dateien heruntergeladen werden.<br>Dateien, die nicht oder unbekannte RAW-Dateien sind, werden 1:1 kopiert.',
 			en: 'Browser may ask you if you want to allow downloading multiple files.<br>Not or unrecognized RAW Files simply will be copied.',
+			fr: 'Le navigateur peux questionner que vous acceptez le téléchargement de beaucoup de fiches.'
 		},
 		drophere: {
 			de: 'Datein von ImB hier ablegen: ',
 			en: 'Drop Files from ImB here: ',
+			fr: 'Posez fiches de ImB ici:'
 		},
 		selectraw: {
-			de: 'Oder diese Datei per WLAN von ImB direkt verwenden<br>Oder <b>.raw</b> Datei(en) auswählen:',
-			en: 'Or use this file via Wifi directly from ImB.<br> Or select <b>.raw</b> File(s):',
+			de: 'Oder diese Seite per WLAN von ImB direkt verwenden<br>Oder <b>.raw</b> Datei(en) auswählen:',
+			en: 'Or use this page via Wifi directly from ImB.<br> Or select <b>.raw</b> File(s):',
+			fr: 'Ou utiliez cette page via Wifi sur ImB.<br> Ou selectez <b>.raw</b> fiche(s):'
 		},
 		stillcounting: {
 			de: '... zähle ... ',
 			en: '... counting ... ',
+			fr: '... compter ...'
 		},
 		types: {
 			rawpics: {
 				de: 'RAW Bilder',
 				en: 'RAW Pictures',
+				fr: 'RAW images',
 			},
 			jpgpics: {
 				de: 'JPEG-Bilder',
 				en: 'JPEG Pictures',
+				fr: 'JPEG images'
 			},
 			other: {
 				de: 'Andere',
 				en: 'Other',
+				fr: 'Autre',
 			},
 			notpic: {
 				de: 'Keine Bilder',
 				en: 'Not pictures',
+				fr: 'Pas images'
 			}
 		},
 		file: {
 			jpeg: {
 				de: 'Datei $$0 (JPEG)',
 				en: 'File $$0 (JPEG)',
+				fr: 'Fiche $$0 (JPEG)'
 			},
 			nopreview: {
 				de: 'Datei $$0<br>Nicht jpeg oder raw, keine Vorschau...',
 				en: 'File $$0<br>Not jpeg or raw, no preview...',
+				fr: 'Fiche $$0<br>Pas jpeg e pas raw, pas de aperçu...'
 			},
 			rawunknown: {
 				de: 'Datei $$0<br>Unerkannte RAW Dateigröße $$1, bitte Entwickler kontaktieren! Keine Vorschau...',
-				en: 'File $$0<br>Unknown raw size $$1, please contact developer! No preview...'
+				en: 'File $$0<br>Unknown raw size $$1, please contact developer! No preview...',
+				fr: 'Fiche $$0<br>Pas reconnaîsse taille de fiche raw $$1, pas de aperçu...' 
 			},
 			de: 'Datei $$0',
 			en: 'File $$0',
+			fr: 'Fiche $$0'
 		},
 		sort: {
 			de: 'Sortiere',
-			en: 'Sort:'
+			en: 'Sort:',
+			fr: 'Fanger:'
 		},
 		or: {
 			de: 'Oder ',
-			en: 'Or '
+			en: 'Or ',
+			fr: 'Ou '
 		},
 		reload: {
 			de: 'Seite ab und zu neu laden, um Speicher freizugeben.',
@@ -332,26 +351,14 @@ this.texts = { // actually const
 		rotcw: {
 			de: 'im Uhrzeigersinn drehen',
 			en: 'Rotate clockwise',
-			tooltip: {
-				de: 'Originalbild um 90° im Uhrzeigersinn drehen',
-				en: 'Rotate original image by 90&deg; clockwise'
-			}
 		},
 		rotccw: {
 			de: 'gegen den Uhrzeigersinn drehen',
 			en: 'rotate counterclockwise',
-			tooltip: {
-				de: 'Originalbild um 90° gegen den Uhrzeigersinn drehen',
-				en: 'Rotate original image by 90&deg; counterlockwise'
-			}
 		},
 		rot180: {
 			de: 'auf den Kopf',
 			en: 'Rotate 180&deg;',
-			tooltip: {
-				de: 'Originalbild auf den Kopf stellen',
-				en: 'Rotate original image by 180&deg; upside down'
-			}
 		},
 		rotreset: {
 			de: 'Drehung zurücksetzen',
@@ -693,11 +700,12 @@ this.createFx = (url, onok, onerr) => {
 	}
 }
 this.enablerots = (which) => {
-	for (const rots in [ 'procthiscw', 'procthisccw', 'procthisud', 'procthisrs' ]) {
-		if (which === rots)
-			document.getElementById(which).disabled = true;
+	const rots = [ 'procthiscw', 'procthisccw', 'procthisud', 'procthisrs' ];
+	for (const r in rots) {
+		if (which === rots[r])
+			document.getElementById(rots[r]).disabled = true;
 		else
-			document.getElementById(which).disabled = false;
+			document.getElementById(rots[r]).disabled = false;
 	}
 }
 /* main handler function for one file */
@@ -705,7 +713,7 @@ this.handleonex = () => {
 	const f = this.allfiles[this.actnum];
 	document.getElementById('doforall').checked = false;
 	this.currentrot = 1;
-	this.enablerots('procthisrs');
+	//this.enablerots('procthisrs');
 	if (this.actnum < this.totnum-1) {
 		document.getElementById('forrest').style['display'] = '';
 	} else document.getElementById('forrest').style['display'] = 'none';
@@ -1421,32 +1429,35 @@ this.procthis = () => {
 }
 /* previewquestion: handler for clockwise rotation */
 this.rotcw = () => {
-	if (6 === this.currentrot) return;
-	this.enablerots('procthiscw');
+	//this.enablerots('procthiscw');
 	this.setpvwait();
-	this.currentrot = 6;
-	this.buildpreview(this.allfiles[this.actnum], () => { this.setrawpv(); }, () => { this.setpverr(); }, 6);
+	let j = this.oriecw.indexOf(this.currentrot);
+	j = ((j + 1) % 4);
+	this.currentrot = this.oriecw[j];
+	this.buildpreview(this.allfiles[this.actnum], () => { this.setrawpv(); }, () => { this.setpverr(); }, this.currentrot);
 }
 /* previewquestion: handler for counterclockwise rotation */
 this.rotccw = () => {
-	if (8 === this.currentrot) return;
-	this.enablerots('procthisccw');
+	//this.enablerots('procthisccw');
 	this.setpvwait();
-	this.currentrot = 8;
-	this.buildpreview(this.allfiles[this.actnum], () => { this.setrawpv(); }, () => { this.setpverr(); }, 8);
+	let j = this.oriecw.indexOf(this.currentrot);
+	j = ((j + 3) % 4);
+	this.currentrot = this.oriecw[j];
+	this.buildpreview(this.allfiles[this.actnum], () => { this.setrawpv(); }, () => { this.setpverr(); }, this.currentrot);
 }
 /* previewquestion: handler for upside down rotation */
 this.rot180 = () => {
-	if (3 === this.currentrot) return;
-	this.enablerots('procthisud');
+	//this.enablerots('procthisud');
 	this.setpvwait();
-	this.currentrot = 3;
-	this.buildpreview(this.allfiles[this.actnum], () => { this.setrawpv(); }, () => { this.setpverr(); }, 3);
+	let j = this.oriecw.indexOf(this.currentrot);
+	j = ((j + 2) % 4);
+	this.currentrot = this.oriecw[j];
+	this.buildpreview(this.allfiles[this.actnum], () => { this.setrawpv(); }, () => { this.setpverr(); }, this.currentrot);
 }
 /* previewquestion: handler for reset rotation */
 this.rot0 = () => {
 	if (1 === this.currentrot) return;
-	this.enablerots('procthisrs');
+	//this.enablerots('procthisrs');
 	this.setpvwait();
 	this.currentrot = 1;
 	this.buildpreview(this.allfiles[this.actnum], () => { this.setrawpv(); }, () => { this.setpverr(); }, 1);
@@ -1482,8 +1493,8 @@ this.checkimb  = () => {
 							if (rawname.substring(rawname.length -4).toUpperCase() === '.RAW') {
 								if (rawname < this.earliestraw) this.earliestraw = rawname;
 								if (rawname > this.latestraw) this.latestraw = rawname;
-								rimbpics.push('http://192.168.1.254/IMBACK/PHOTO/' + rawname);
-								imbeles.push({
+								this.rimbpics.push('http://192.168.1.254/IMBACK/PHOTO/' + rawname);
+								this.imbeles.push({
 										type: 'RAW',
 										url: 'http://192.168.1.254/IMBACK/PHOTO/' + rawname,
 										raw: rawname,
@@ -1545,15 +1556,15 @@ this.checkimb  = () => {
 						}
 					}
 					document.getElementById('piccnt').innerHTML = '' + this.imbpics.length + ' (';
-					if (earliestjpg.length > 4) document.getElementById('piccnt').innerHTML += this.earliestjpg.substring(0,16);
+					if (this.earliestjpg.length > 4) document.getElementById('piccnt').innerHTML += this.earliestjpg.substring(0,16);
 					document.getElementById('piccnt').innerHTML += ' - ';
-					if (latestjpg.length > 4) document.getElementById('piccnt').innerHTML += this.latestjpg.substring(0,16);
+					if (this.latestjpg.length > 4) document.getElementById('piccnt').innerHTML += this.latestjpg.substring(0,16);
 					document.getElementById('piccnt').innerHTML += ')';
 					document.getElementById('piccnt').removeAttribute('data-myxlkey');
 					document.getElementById('rpiccnt').innerHTML = '' + this.rimbpics.length + ' (';
-					if (earliestraw.length > 4) document.getElementById('rpiccnt').innerHTML += this.earliestraw.substring(0,16);
+					if (this.earliestraw.length > 4) document.getElementById('rpiccnt').innerHTML += this.earliestraw.substring(0,16);
 					document.getElementById('rpiccnt').innerHTML += ' - ';
-					if (latestraw.length > 4) document.getElementById('rpiccnt').innerHTML += this.latestraw.substring(0,16);
+					if (this.latestraw.length > 4) document.getElementById('rpiccnt').innerHTML += this.latestraw.substring(0,16);
 					document.getElementById('rpiccnt').innerHTML += ')';
 					document.getElementById('rpiccnt').removeAttribute('data-myxlkey');
 					const xhrm = new XMLHttpRequest();
@@ -1589,9 +1600,9 @@ this.checkimb  = () => {
 								}
 							}
 							document.getElementById('movcnt').innerHTML = '' + this.imbmovies.length + ' (';
-							if (earliestmov.length > 4) document.getElementById('movcnt').innerHTML += this.earliestmov.substring(0,16);
+							if (this.earliestmov.length > 4) document.getElementById('movcnt').innerHTML += this.earliestmov.substring(0,16);
 							document.getElementById('movcnt').innerHTML += ' - ';
-							if (latestmov.length > 4) document.getElementById('movcnt').innerHTML += this.latestmov.substring(0,16);
+							if (this.latestmov.length > 4) document.getElementById('movcnt').innerHTML += this.latestmov.substring(0,16);
 							document.getElementById('movcnt').innerHTML += ')';
 							document.getElementById('movcnt').removeAttribute('data-myxlkey');
 							document.getElementById('imbdoit').disabled = false;
@@ -2231,38 +2242,49 @@ this.displaydiv = (e) => {
 		rotbtn.append('\u21ba');
 		rotbtn.onclick = (e) => {
 			if (rotbtn.classList.contains('disabled')) return;
-			let j = oriecw.findIndex((v) => { v === e.rot });
-			j = ((j + 1) % 4);
-			e.rot = oriecw[j];
+			let j = this.oriecw.indexOf(e.rot);
+			j = ((j + 3) % 4);
+			e.rot = this.oriecw[j];
 			e.preview.style['display'] = 'none';
 			e.preview.querySelector('.eepvw').style['display'] = '';
 			this.startloadimg();
 		};
 		topline.append(rotbtn);
 	}
-	const dlbtn = document.createElement('uutt');
+	const dlbtn = document.createElement('span');
 	dlbtn.id = 'dl_b_' + e.raw;
 	dlbtn.classList.add('dlbtn');
+	if (e.type !== 'oth') dlbtn.classList.add('disabled');
 	//dlbtn.classList.add('disabled');
 	dlbtn.append('\u2193');
-	dlbtn.onclick = (ev) => {
-		if (dlbtn.classList.contains('disabled')) return;
-		if (this.actnum !== this.allfiles.length) return;
-		let selecteds = [ e.url ];
-		const addlinkel = document.getElementById('addlink');
-		if (addlinkel !== null) addlinkbool = addlinkel.checked;
-		this.stepmode = 0;
-		this.totnum = 1;
-		this.actnum = 0;
-		this.allfiles = selecteds;
-		document.getElementById('imbdoit').disabled = true;
-		document.getElementById('imbvisbrows').disabled = true;
-		document.getElementById('droptarget').style['display'] = 'none';
-		document.getElementById('infile').disabled = true
-		this.shownormal();
-		fromvisbrows = true;
-		this.handleone();
-	};
+	if (e.type === 'RAW') {
+		dlbtn.onclick = (ev) => {
+			if (dlbtn.classList.contains('disabled')) return;
+			if (this.actnum !== this.allfiles.length) return;
+			let selecteds = [ e.url ];
+			const addlinkel = document.getElementById('addlink');
+			if (addlinkel !== null) addlinkbool = addlinkel.checked;
+			this.stepmode = 0;
+			this.totnum = 1;
+			this.actnum = 0;
+			this.allfiles = selecteds;
+			document.getElementById('imbdoit').disabled = true;
+			document.getElementById('imbvisbrows').disabled = true;
+			document.getElementById('droptarget').style['display'] = 'none';
+			document.getElementById('infile').disabled = true
+			fromvisbrows = true;
+			this.shownormal();
+			this.handleone();
+		};
+	} else {
+		dlbtn.onclick = (ev) => {
+			if (dlbtn.classList.contains('disabled')) return;
+			const outel = document.getElementById('result');
+			outel.download = rawname;
+			outel.href = e.url;
+			outel.click();
+		};
+	}
 	topline.append(dlbtn);
 	
 	e.entry.append(topline);
@@ -2310,24 +2332,29 @@ this.displaydiv = (e) => {
 }
 /* visual browser: image loader call */
 this.loadimg = (url, type, to) => {
-	if (to.entry.querySelector('.eepvx') || (to.entry.querySelector('.eepvw').style['display'] === 'none' && to.entry.querySelector('.errimg').style['display'] === 'none')) {
+	if (to.entry.querySelector('.eepvx')
+			|| (to.entry.querySelector('.eepvw').style['display'] === 'none' && to.entry.querySelector('.errimg').style['display'] === 'none')
+			|| (type === 'oth')) {
 		if (this.debugflag) console.log('ldr aa lnx ' + to.raw);
 		this.loadnextimg();
 		return;
 	}
 	to.entry.querySelector('.errimg').style['display'] = 'none';
 	to.entry.querySelector('.eepvw').style['display'] = '';
+	to.preview.style['display'] = 'none';
 	if (type === 'JPG') {
 		to.preview.onload = (ev) => {
 			to.entry.querySelector('.eepvw').style['display'] = 'none';
 			to.preview.style['display'] = '';
 			to.preview.style['width'] = to.preview.woidth * (120 / to.preview.height);
+			to.entry.querySelector('.dlbtn').classList.remove['disabled'];
 			if (this.debugflag) console.log('ldr j f lnx ' + to.raw);
 			this.loadnextimg();
 		};
 		to.preview.onerror = (ev) => {
 			to.entry.querySelector('.eepvw').style['display'] = 'none';
 			to.entry.querySelector('.errimg').style['display'] = '';
+			to.entry.querySelector('.dlbtn').classList.add['disabled'];
 			if (this.debugflag) console.log('ldr j e lnx ' + to.raw);
 			to.nonewerr = true;
 			this.loadnextimg();
@@ -2335,13 +2362,20 @@ this.loadimg = (url, type, to) => {
 		to.preview.src = url;
 	}
 	else if (type === 'RAW') {
-		this.buildpreview(url, () => {
+		this.buildpreview(url, () => { /* on ok: */
 			to.entry.querySelector('.eepvw').style['display'] = 'none';
 			to.entry.querySelector('.rotbtn').classList.remove['disabled'];
 			to.entry.querySelector('.dlbtn').classList.remove['disabled'];
 			to.preview.style['display'] = '';
 			if (this.debugflag) console.log('ldr r f ' + to.raw);
-		}, () => {
+			if (this.loaderrunning === url) {
+				if (this.debugflag) console.log('ldr r e lnx ' + to.raw);
+				this.loadnextimg();
+			} // else the afterload had already been called
+			else if (this.debugflag) {
+				console.log('ldr r ff lnyy ' + to.raw);
+			}
+		}, () => { /* on err: */
 			to.entry.querySelector('.eepvw').style['display'] = 'none';
 			to.entry.querySelector('.errimg').style['display'] = '';
 			to.entry.querySelector('.rotbtn').classList.add['disabled'];
@@ -2352,7 +2386,10 @@ this.loadimg = (url, type, to) => {
 				if (this.debugflag) console.log('ldr r e lnx ' + to.raw);
 				this.loadnextimg();
 			} // else the afterload had already been called
-		}, 1, to.preview, () => { /* afterload: */
+			else if (this.debugflag) {
+				console.log('ldr r ee lnyy ' + to.raw);
+			}
+		}, to.rot, to.preview, () => { /* afterload: */
 			if (this.debugflag) console.log('ldr r l lnx ' + to.raw);
 			// invalidate url for err callback
 			this.loaderrunning = '1';
@@ -2436,7 +2473,7 @@ this.delcancel = () => {
 }
 /* visual browser: process browser selected */
 this.browserprocess = () => {
-	if (actnum !== this.allfiles.length) return;
+	if (this.actnum !== this.allfiles.length) return;
 	let selecteds = [];
 	for (const i of this.imbeles) {
 		if (i.selected) selecteds.push(i.url);
@@ -2461,7 +2498,7 @@ this.browserprocess = () => {
 	this.actnum = 0;
 	this.allfiles = selecteds;
 	if (this.totnum > 0) {
-		this.mappx('process.frombrowsern', totnum);
+		this.mappx('process.frombrowsern', this.totnum);
 		document.getElementById('imbdoit').disabled = true;
 		document.getElementById('imbvisbrows').disabled = true;
 		document.getElementById('droptarget').style['display'] = 'none';
@@ -2585,7 +2622,7 @@ this.prxl = (key, el) => {
 		out += '\'' + el['en']  + '\';';
 		console.log(out);
 	}
-	for (const ne of Object.keys(el).filter((k) => ((k !== 'en') && (k !== 'de')))) {
+	for (const ne of Object.keys(el).filter((k) => ((k !== 'en') && (k !== 'de') && (typeof(el[k]) !== 'string')))) {
 		this.prxl(key + '.' + ne, el[ne]);
 	}
 }
@@ -2693,6 +2730,7 @@ this.dodebug = () => {
 }
 /* indentation in */
 };
+let imbc;
 function init() {
 	imbc = new ImBC();
 	imbc.querylang(); imbc.xlateall(); imbc.checkimb();
@@ -2701,10 +2739,9 @@ function init() {
 </head>
 <!-- here comes the html itself -->
 <body style="font-family: Helvetica, Arial, sans-serif;" onload="init();">
-
 <div style="font-weight:bold;"><span data-myxlkey='main.title'> </span> <span translate="no">V2.9.9_DEVEL</span> - <a target="_new" id="helplink" href="https://shyrodgau.github.io/imbraw2dng/" data-myxlkey='main.help'></a> <select id="langsel" onchange="imbc.setlang()"><option value="de" onclick="imbc.setlang()">DE</option><option value="en" onclick="imbc.setlang()">EN</option></select></div>
-<div id="normal" style="margin-top: 0.5em;">
 <!-- the normal display -->
+<div id="normal" style="margin-top: 0.5em;">
 <div><input type="checkbox" id="steppreview" checked><label for="steppreview" data-myxlkey="process.singlestep"></label></div>
 <div><input type="checkbox" id="addlink"><label for="addlink" data-mytitlexlkey="process.maycostmem" title="T" data-myxlkey="process.addlink"></label></div>
 <div  style="margin-top: 0.5em;" data-myxlkey="main.generaladvice"></div>
@@ -2728,23 +2765,26 @@ function init() {
 <div id="outmsg"></div></div>
 <div id="reloadhint2" style="display:none;" data-myxlkey="main.reload"><br>&nbsp;</div>
 </div>
+<!-- end of the normal display -->
 <!-- normal preview with question -->
 <div id="question" style="display:none;background-color:#ddffaa;border: 5px solid #33ff33; border-radius: 10px;width: fit-content;padding:2em;">
 <div style="font-weight:bold;" id="qhdr">&nbsp;</div>
 <canvas id="preview"></canvas><img style="display:none;max-width:550px; max-height:550px;" id="jpegpreview" onload="imbc.setjpegpv()" onerror="imbc.setpverr()"><div id="previewerr" data-myxlkey="preview.err"></div><div id="previewwait"><span class="blink">.</span><span class="blink2">.</span><span class="blink3">.</span></div><br>
-<div id="rotations"><input type="button" id="procthiscw" data-myvalxlkey="preview.rotcw" data-mytitlexlkey="preview.rotcw.tooltip" onclick="imbc.rotcw()" style="padding:0.5em; margin:0.5em;margin-left:2.5em;">
-<input type="button" id="procthisccw" data-mytitlexlkey="preview.rotccw.tooltip" data-myvalxlkey="preview.rotccw" onclick="imbc.rotccw()" style="padding:0.5em; margin:0.5em;">
-<input type="button" id="procthisud" data-myvalxlkey="preview.rot180" data-mytitlexlkey="preview.rot180.tooltip" onclick="imbc.rot180()" style="padding:0.5em; margin:0.5em;" >
+<div id="rotations"><input type="button" id="procthiscw" data-myvalxlkey="preview.rotcw" onclick="imbc.rotcw()" style="padding:0.5em; margin:0.5em;margin-left:2.5em;">
+<input type="button" id="procthisccw" data-myvalxlkey="preview.rotccw" onclick="imbc.rotccw()" style="padding:0.5em; margin:0.5em;">
+<input type="button" id="procthisud" data-myvalxlkey="preview.rot180" onclick="imbc.rot180()" style="padding:0.5em; margin:0.5em;" >
 <input type="button" id="procthisrs"data-myvalxlkey="preview.rotreset" data-mytitlexlkey="preview.rotreset.tooltip" value="Reset" onclick="imbc.rot0()" style="padding:0.5em; margin:0.5em;"></div>
 <div id="continues"><input type="button" id="procthis" data-myvalxlkey="preview.process" onclick="imbc.procthis()" style="padding:0.5em; margin:0.5em;">
 <input type="button" id="skipthis" data-myvalxlkey="preview.skip" value="Skip" onclick="imbc.skipthis()" style="padding:0.5em; margin:0.5em;">&nbsp;
 <span id="forrest"><input type="checkbox" id="doforall" style="padding-left:0.5em; margin-left:0.5em;"><label for="doforall" data-myxlkey="preview.forall"></label></span></div>
 </div>
+<!-- end of normal preview with question -->
 <!-- this is the picture browser, generated content appended -->
 <div id="browser" style="background-color:#ffccbb;border: 5px solid #ff8833; border-radius: 10px;width: 90%;padding-left:2em;padding-right:2em;padding-top:1em; padding-bottom:1em;display:none;flex-direction:column;">
 <div style="margin-bottom:1em;"><span data-myxlkey="main.sort"></span>: <label for="sbytype"><input type="checkbox" id="sbytype" onclick="imbc.buildtree()"><span data-myxlkey="browser.bytype"></span></label> - <label for="solder"><input type="checkbox" id="solder" onclick="imbc.buildtree()"><span data-myxlkey="browser.olderfirst"></span></label>
  - <span data-myxlkey="main.selected"></span>: <span id="brnsel" class="selnumber">?</span> / <span id="brntot">?</span> - <label for="selall" data-mytitlexlkey="browser.selall.tooltip"><input onclick="imbc.topreccheck()" type="checkbox" id="selall"><span data-myxlkey="browser.selall"></span></label> - <input type="button" data-myvalxlkey="browser.procall" onclick="imbc.browserprocess()" id="doselbut"> - <input type="button" data-myvalxlkey="browser.delall" onclick="imbc.browserdelete()" id="delselbut" disabled></div>
 </div>
+<!-- end of the picture browser, generated content appended -->
 <!-- this is the delete question/progress -->
 <div id="delq" style="border: 2px solid red; border-radius: 20px; padding: 20px;display:none;width:fit-content;">
 <span data-myxlkey="del.question"></span><br>
@@ -2752,6 +2792,7 @@ function init() {
 <span data-myxlkey="del.nostatus"></span><br>
 <div id="delprogmsg"></div>
 </div>
+<!-- end of the delete question/progress -->
 <!-- debug -->
 <input type="file" onchange="imbc.dodebug()" accept=".html,.htm" id="dbgfsel" style="display:none;">
 <!-- this is invisible -->
