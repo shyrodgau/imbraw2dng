@@ -3,6 +3,10 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>ImB RAW to DNG Converter V2.9.9_DEVEL_</title>
 <style type="text/css">
+#imbvisbrows {
+	padding: 0.4em;
+	margin: 0.4em;
+}
 .blink {
   animation: blinker 1s linear infinite;
 }
@@ -41,6 +45,8 @@
 	margin:0.2em;
 }
 .gl1 > .ggtt span.gtype { display: inline !important; }
+.ggttopen { border-bottom: 0 !important; }
+.ggopen {  border: 2px solid white; border-radius: 5px; border-top: 0;border-left: 0; border-right:0;}
 .ggttopen > .ggttplus { display: none; }
 .ggttclosed > .ggttminus { display: none; }
 .ggttclosed > div > .ggtt { display: none; }
@@ -49,7 +55,7 @@
 .rotbtn:not(.disabled), .dlbtn:not(.disabled) { cursor: pointer; }
 .rotbtn.disabled, .dlbtn.disabled { opacity: 0.5; }
 .dlbtn { vertical-align: bottom; font-size: 150%; font-weight: bold; }
-.igtype { border: 2px solid yellow; border-radius: 5px; display: flex; flex-flow: wrap; }
+.igtype { border: 2px solid yellow; border-radius: 5px; display: flex; flex-flow: wrap;background-color: #ffe6da;border-top: 0; padding:0.5em;}
 .ee { border: 2px solid gray; border-radius: 5px; margin: 2px; width: fit-content; display: flex; flex-direction: column; padding: 0.3em;}
 .eepvx { color: #777777; font-size: 100px; align-self: center; font-weight: bold; }
 .errimg { color: red; font-size: 100px; align-self: center; font-weight: bold; }
@@ -68,23 +74,27 @@
 	width: 2em;
 	text-align: end;
 }
-.biggie { scale: 3; position: absolute; }
+.biggie { scale: 3; position: absolute; z-index: 999; }
 .etit { z-index: 90; }
 .picdeleted:before {
-	content: '&#x1f6c7;';
-	position: absolute;
+	content: '\1f6c7';
+	position: relative;
 	font-size: 50px;
-	left: 1em;
+	z-index: 99;
 	color: rgba(255,0,0,0.6);
 	text-shadow: 6px 4px white;
+	padding-left: 0.1em;
+	padding-top: 0.1em;
 }
 .picprocd:before {
-	content: '&#x2713;';
+	content: '\2713';
 	position: absolute;
 	font-size: 50px;
-	left: 1em;
+	z-index: 99;
 	color: rgba(0,255,0,0.6);
 	text-shadow: 6px 4px white;
+	padding-left: 0.1em;
+	padding-top: 0.1em;
 }
 </style>
 <script type="text/javascript" language="javascript">
@@ -102,7 +112,7 @@ this.texts = { // actually const
 		file: {
 			de: 'Datei',
 			en: 'File',
-			fr: 'Fiche',
+			fr: 'Fichier',
 		},
 		help: {
 			de: '? Hilfe Doku',
@@ -117,17 +127,17 @@ this.texts = { // actually const
 		generaladvice: {
 			de: 'Kann sein, dass der Browser fragt, ob Sie zulassen wollen, dass mehrere Dateien heruntergeladen werden.<br>Dateien, die nicht oder unbekannte RAW-Dateien sind, werden 1:1 kopiert.',
 			en: 'Browser may ask you if you want to allow downloading multiple files.<br>Not or unrecognized RAW Files simply will be copied.',
-			fr: 'Le navigateur peux questionner que vous acceptez le téléchargement de beaucoup de fiches.'
+			fr: 'Le navigateur peux questionner que vous acceptez le téléchargement de beaucoup de fichers.'
 		},
 		drophere: {
 			de: 'Datein von ImB hier ablegen: ',
 			en: 'Drop Files from ImB here: ',
-			fr: 'Posez fiches de ImB ici:'
+			fr: 'Posez fichers de ImB ici:'
 		},
 		selectraw: {
 			de: 'Oder diese Seite per WLAN von ImB direkt verwenden<br>Oder <b>.raw</b> Datei(en) auswählen:',
 			en: 'Or use this page via Wifi directly from ImB.<br> Or select <b>.raw</b> File(s):',
-			fr: 'Ou utiliez cette page via Wifi sur ImB.<br> Ou selectez <b>.raw</b> fiche(s):'
+			fr: 'Ou utiliez cette page via Wifi sur ImB.<br> Ou selectez <b>.raw</b> fichier(s):'
 		},
 		stillcounting: {
 			de: '... zähle ... ',
@@ -165,21 +175,21 @@ this.texts = { // actually const
 			nopreview: {
 				de: 'Datei $$0<br>Nicht jpeg oder raw, keine Vorschau...',
 				en: 'File $$0<br>Not jpeg or raw, no preview...',
-				fr: 'Fiche $$0<br>Pas jpeg e pas raw, pas de aperçu...'
+				fr: 'Fiche $$0<br>Ni jpeg ni raw, pas de aperçu...'
 			},
 			rawunknown: {
 				de: 'Datei $$0<br>Unerkannte RAW Dateigröße $$1, bitte Entwickler kontaktieren! Keine Vorschau...',
 				en: 'File $$0<br>Unknown raw size $$1, please contact developer! No preview...',
-				fr: 'Fiche $$0<br>Pas reconnaîsse taille de fiche raw $$1, pas de aperçu...' 
+				fr: 'Fiche $$0<br>taille de fichier $$1 non reconnue, contacter le développeur, pas de aperçu...' 
 			},
 			de: 'Datei $$0',
 			en: 'File $$0',
-			fr: 'Fiche $$0'
+			fr: 'Fichier $$0'
 		},
 		sort: {
 			de: 'Sortiere',
 			en: 'Sort:',
-			fr: 'Fanger:'
+			fr: 'Trier:'
 		},
 		or: {
 			de: 'Oder ',
@@ -188,89 +198,109 @@ this.texts = { // actually const
 		},
 		reload: {
 			de: 'Seite ab und zu neu laden, um Speicher freizugeben.',
-			en: 'Reload page from time to time to free memory.'
+			en: 'Reload page from time to time to free memory.',
+			fr: 'Rechargez la page de temps en temps pour libérer de la mémoire'
 		},
 		log: {
 			de: 'Protokoll-Ausgabe:',
-			en: 'Message Log:'
+			en: 'Message Log:',
+			fr: 'Journal des messages'
 		},
 		selected: {
 			de: 'Ausgewählt',
-			en: 'Selected'
+			en: 'Selected',
+			fr: 'Sélectionné(s)'
 		}
 	},
 	browser: {
 		bytype: {
 			de: 'nach Typ',
-			en: 'by type'
+			en: 'by type',
+			fr: 'par type'
 		},
 		olderfirst: {
 			de: 'Ältere nach oben',
-			en: 'Older first'
+			en: 'Older first',
+			fr: 'plus anciens ci-dessus'
 		},
 		selall: {
 			tooltip: {
 				de: 'Wenn Haken nicht gesetzt, wähle alles aus. Bei Klick wenn angehakt setze Auswahl auf Nichts.',
-				en: 'If not selected then select all. If it is selected and clicked then unselect all.'
+				en: 'If not selected then select all. If it is selected and clicked then unselect all.',
+				fr: 'S’il n’est pas sélectionner, sélectionner tout. Au clic si sélectionné, vider la sélection'
 			},
 			de: 'Alle de-/ oder selektieren',
-			en: 'De-/select all'
+			en: 'De-/select all',
+			fr: 'De-/sélectionner tout'
 		},
 		procall: {
 			de: 'Alle ausgewählte kopieren/verarbeiten',
-			en: 'Copy/process all selected'
+			en: 'Copy/process all selected',
+			fr: 'Traiter les sélectionnés'
 		},
 		delall: {
 			de: 'Alle ausgewählte löschen',
-			en: 'Delete all selected'
+			en: 'Delete all selected',
+			fr: 'Supprimer les sélectionnés'
 		}
 	},
 	onimback: {
 		connected: {
 			de: 'ImB Verbunden!! <br>',
-			en: 'ImB Connected! <br>'
+			en: 'ImB Connected! <br>',
+			fr: 'ImB Connecté! <br>'
 		},
 		dlconvert: {
 			de: 'Konvertiere / Lade herunter: ',
-			en: 'Download / convert: '
+			en: 'Download / convert: ',
+			fr: 'Telecharger / convertir'
 		},
 		totalnum: {
 			de: 'gesamt:',
-			en: 'total:'
+			en: 'total:',
+			fr: 'total:'
 		},
 		fromtime: {
 			de: 'ab Zeitstempel bzw. jünger als ',
-			en: 'from timestamp or younger than '
+			en: 'from timestamp or younger than ',
+			fr: 'à partir de l\'horodatage ou plus jeune que '
 		},
 		nullforall: {
 			de: '0000 oder leer für "alle"',
-			en: '0000 or empty for "all"'
+			en: '0000 or empty for "all"',
+			fr: '0000 ou déposer pour tout'
 		},
 		doit: {
 			de: 'Mach es',
-			en: 'Do it'
+			en: 'Do it',
+			fr: 'Fais-le'
 		},
 		visual: {
 			de: 'Bild-Browser benutzen',
-			en: 'Use visual Picture Browser'
+			en: 'Use visual Picture Browser',
+			fr: 'Ou outilizer navigateur visuel des images'
 		}
 	},
 	process: {
 		singlestep: {
 			de: 'Einzelschritt mit Vorschau',
-			en: 'Single Step with preview'
+			en: 'Single Step with preview',
+			fr: 'Seule étape avec aperçu'
 		},
 		addlink: {
 			de: 'Extra Download-Link an jeder Datei',
-			en: 'Add separate download link for each file'
+			en: 'Add separate download link for each file',
+			fr: 'Ajoutez un lien telechargement vers chaque ficher'
 		},
 		maycostmem: {
 			de: 'Dies könnte Speicher kosten und wird daher von Hause aus nicht mehr angeboten. Man kann einfach nochmal die gleiche(n) Datei(en) auswählen.',
-			en: 'This may cost memory and is thus no longer by default. Simply select the file(s) again.'
+			en: 'This may cost memory and is thus no longer by default. Simply select the file(s) again.',
+			fr: 'Cela coûte du stockage.'
 		},
 		nothing: {
 			de: 'Nichts ausgewählt.. ?',
-			en: 'Nothing selected...?'
+			en: 'Nothing selected...?',
+			fr: 'Rien de sélectionné'
 		},
 		erraccess: {
 			de: '<b>Fehler beim Zugriff auf $$0. ENTSCHLDIGUNG! </b>',
@@ -360,7 +390,7 @@ this.texts = { // actually const
 		},
 		rot180: {
 			de: 'auf den Kopf',
-			en: 'Rotate 180&deg;',
+			en: 'Rotate 180°',
 		},
 		rotreset: {
 			de: 'Drehung zurücksetzen',
@@ -419,8 +449,8 @@ this.texts = { // actually const
 	},
 	del: {
 		question: {
-			en: 'Deleting can not be undone! Are you sure you want to continue?',
-			de: 'Löschen kann nicht rückgängig gemacht werden. Sicher damit weitermachen?',
+			en: 'Deleting $$0 files can not be undone! Are you sure you want to continue?',
+			de: 'Löschen von $$0 Dateien kann nicht rückgängig gemacht werden. Sicher damit weitermachen?',
 			ok: {
 				de: 'Ok',
 				en: 'Ok'
@@ -440,6 +470,7 @@ this.texts = { // actually const
 		}
 	}
 };
+this.mylang = 'en';
 /* Data for the Imback variants and exif stuff */
 this.orients = [ '', 'none', '', 'upsidedown', '', '', 'clockwise', '', 'counterclockwise' ]; // actually const
 this.oriecw = [ 1, 6, 3, 8 ]; // clockwise indices // actually const
@@ -452,7 +483,7 @@ this.infos = [
 		typ: 0,
 		mode: "historic (4320x3256)"
 	},
-	{
+	{ /* MF 6x7 */
 		size: 15925248,
 		w: 4608,
 		h: 3456,
@@ -473,7 +504,7 @@ this.infos = [
 		typ: 2,
 		mode: "Small-angle (3260x2444)"
 	},
-	{
+	{ /* MF 6x4.5 */
 		size: 12937632,
 		w: 4152, h: 3116,
 		typ: 3,
@@ -491,7 +522,7 @@ this.infos = [
 		typ: 3,
 		mode: "Small-angle (2936x2204)"
 	},
-	{
+	{ /* MF 6x6 */
 		size: 11943936,
 		w: 3456, h: 3456,
 		typ: 4,
@@ -509,7 +540,7 @@ this.infos = [
 		typ: 4,
 		mode: "Small-angle (2444x2444)"
 	},
-	{
+	{ /* 35mm */
 		size: 15335424,
 		w: 4608, h: 3328,
 		typ: 1,
@@ -527,37 +558,36 @@ this.infos = [
 		typ: 1,
 		mode: "Small-angle (3260x2352)"
 	}
+	/* Film ? */
 ];
 
-this.mylang = 'en';
-this.xlargs = [];
 /* For processing several files */
 this.totnum=0;
 this.actnum=0;
 this.allfiles = [];
 this.addlinkbool = false;
 this.dispcnt = 1;
-this.stepmode = 0; // 0 always save (if not checkbox or "save all" in dialog), 1 always ask (set on checkbox), 2 skip all (if selected in dialog)
+this.stepmode = 0; // 0: always save (when no preview checkbox or "save all" in dialog), 1: always ask (set on preview checkbox), 2: skip all (after selected in dialog)
 // current preview image
 this.currentrot = 1;
 // from the back itself
-this.imbpics = [];
-this.rimbpics = [];
-this.imbmovies = [];
-this.imbeles = [];
-this.typedclasses = [];
-this.untypedclasses = [];
-this.earliestmov = '9999';
+this.maxcache = 30; // max. length of cache for already downloaded raw data - you may increase this
+this.cache = []; // actual cache buffer
+this.imbpics = [];  // found jpegs
+this.rimbpics = []; // found raws
+this.imbmovies = []; // found other
+this.imbeles = [];  // elements for files
+this.typedclasses = [];  // elements for groups w/o type
+this.untypedclasses = []; // elements for groups with type
+this.earliestmov = '9999';  // bounds of dates
 this.latestmov='0000';
 this.earliestjpg='9999';
 this.latestjpg='0000';
 this.earliestraw='9999';
 this.latestraw='0000';
-this.loaderrunning;
-this.fromvisbrows;
+this.loaderrunning; // currently handled browser raw preview download
 /* deleting */
 this.deletephase = 0;
-this.deletephs = [ '|' , '/', '-', '\\' ]; // actually const
 /* debug */
 this.debugflag = false;
 this.firstflag = true;
@@ -595,7 +625,7 @@ this.fselected = () => {
 	this.actnum = 0;
 	this.allfiles = el.files;
 	if (this.totnum > 0) {
-		this.mappx('process.selectedn', imbc.totnum);
+		this.mappx('process.selectedn', this.totnum);
 		document.getElementById('imbdoit').disabled = true;
 		document.getElementById('imbvisbrows').disabled = true;
 		document.getElementById('droptarget').style['display'] = 'none';
@@ -605,17 +635,17 @@ this.fselected = () => {
 }
 /* continue with the next file */
 this.handlenext = () => {
-	// if (undefined !== allfiles[actnum]) allfiles[actnum] = undefined;
 	if (this.actnum < this.allfiles.length - 1) {
 		this.actnum++;
 		this.handleonex();
 	} else {
 		this.actnum = 0;
 		this.allfiles = [];
-		if (this.fromvisbrows) {
+		/*if (this.fromvisbrows) {
 			this.fromvisbrows = false;
 			this.showbrowser();
-		} else this.shownormal();
+		} else*/ 
+			this.shownormal();
 		document.getElementById('imbdoit').disabled = false;
 		document.getElementById('imbvisbrows').disabled = false;
 		document.getElementById('droptarget').style['display'] = '';
@@ -626,7 +656,7 @@ this.handlenext = () => {
 this.showreloadhints = () => {
 	const rl1 = document.getElementById('reloadhint');
 	if (null !== rl1) rl1.style['display'] = '';
-	const rl2 = document.getElementById('reloadhint2');
+	const rl2 = document.getElementById('reloadhint2');                                          
 	if (null !== rl2) rl2.style['display'] = '';
 }
 /* switch preview config to jpeg img */
@@ -657,36 +687,67 @@ this.setpvwait = () => {
 	document.getElementById('preview').style['display'] = 'none';
 }
 /* file/filereader like interface for imback http */
+// url can also be an imbele member
 this.createFx = (url, onok, onerr) => {
+	let rot;
+	if (url.url) {
+		let e = url;
+		url = e.url;
+		rot = e.rot;
+	}
 	let fx = {
 		imbackextension: true,
 		name: url
 	};
-	xhr = new XMLHttpRequest();
-	xhr.onload = function(evt) {
+	const ii = this.cache.findIndex((v) => (v.url === url));
+	if (ii !== -1) {
+		fx.data = this.cache[ii].d;
+		fx.size = this.cache[ii].l;
+		fx.readAsArrayBuffer = function(fy) {
+			fy.onload({
+				target: {
+					result: fy.data				}
+			});
+		};
+		window.setTimeout(() => {
+			onok(url, fx, rot);
+		});
+		return;
+	}
+	let xhr = new XMLHttpRequest();
+	xhr.onload = (evt) => {
+		if (url.substring(url.length -4).toUpperCase() === '.RAW') {
+			this.cache.push({ url: url, d: xhr.response, l: xhr.response.byteLength });
+			if (this.cache.length > this.maxcache) this.cache.splice(0,1);
+		}
 		fx.data = xhr.response;
 		fx.size = xhr.response.byteLength;
 		fx.readAsArrayBuffer = function(fy) {
 			fy.onload({
 				target: {
-					result: fy.data
-				}
+					result: fy.data				}
 			});
 		};
-		onok(url, fx);
 		xhr.onerror = undefined;
 		xhr.ontimeout = undefined;
 		xhr.onabort = undefined;
+		window.setTimeout(() => {
+				onok(url, fx, rot);
+		});
 	};
-	xhr.onerror = function(evt) {
+	xhr.onerror = (evt, typ) => {
+		if (undefined === typ) typ = 'err';
+		console.log('XHR err (createfx, ' + typ + ') for ' + url + ' readyState:' + xhr.readyState + ' http status:' + xhr.status + ' text: ' + xhr.statusText); 
 		xhr.onerror = undefined;
 		xhr.onload = undefined;
 		xhr.ontimeout = undefined;
 		xhr.onabort = undefined;
-		onerr(url);
+		window.setTimeout(() => {
+				onerr(url, fx, rot);
+		});
 	};
-	xhr.onabort = xhr.onerror;
-	xhr.ontimeout = xhr.onerror;
+	xhr.onabort = (evt) => { xhr.onerror(evt, 'abort'); };
+	xhr.ontimeout = (evt) => { xhr.onerror(evt, 'timeout'); };
 	xhr.open('GET', url);
 	xhr.setRequestHeader('Cache-control','max-stale');
 	xhr.responseType = 'arraybuffer';
@@ -694,20 +755,14 @@ this.createFx = (url, onok, onerr) => {
 	try {
 		xhr.send();
 	} catch (e) {
+		console.log('XHR send exception (createfx) for ' + url + ' ' + e.toString());
 		xhr.onerror = undefined;
 		xhr.onload = undefined;
 		xhr.ontimeout = undefined;
 		xhr.onabort = undefined;
-		onerr(url);
-	}
-}
-this.enablerots = (which) => {
-	const rots = [ 'procthiscw', 'procthisccw', 'procthisud', 'procthisrs' ];
-	for (const r in rots) {
-		if (which === rots[r])
-			document.getElementById(rots[r]).disabled = true;
-		else
-			document.getElementById(rots[r]).disabled = false;
+		window.setTimeout(() => {
+				onerr(url, fx, rot);
+		});
 	}
 }
 /* main handler function for one file */
@@ -715,11 +770,10 @@ this.handleonex = () => {
 	const f = this.allfiles[this.actnum];
 	document.getElementById('doforall').checked = false;
 	this.currentrot = 1;
-	//this.enablerots('procthisrs');
 	if (this.actnum < this.totnum-1) {
 		document.getElementById('forrest').style['display'] = '';
 	} else document.getElementById('forrest').style['display'] = 'none';
-	let rawname = f.name ? f.name : f;
+	let rawname = f.url ? f.url : (f.name ? f.name : f);
 	while (rawname.indexOf("/") > -1) {
 		rawname = rawname.substring(rawname.indexOf("/") + 1);
 	}
@@ -744,13 +798,14 @@ this.handleonex = () => {
 			this.qappx('main.file.jpeg', rawname);
 			if (f.name) {
 				const fr = new FileReader();
-				fr.onload = function(evt) {
+				fr.onload = (evt) => {
 					let contents = evt.target.result;
 					contents = 'data:image/jpeg;' + contents.substring(8);
 					document.getElementById('jpegpreview').src = contents;
 					/* shown in onload of img */
 				}
-				fr.onerror = function(evt) {
+				fr.onerror = (evt) => {
+					console.log('JPEG preview reader error for ' + f.name + ' ' + JSON.stringify(evt));
 					this.setpverr();
 				}
 				fr.readAsDataURL(f);
@@ -765,53 +820,45 @@ this.handleonex = () => {
 			this.setnopv();
 		}
 		else {
-			const zz = imbc.infos.findIndex((v, i, o) => v.size === f.size);
+			const zz = this.infos.findIndex((v, i, o) => v.size === f.size);
 			if (zz === -1 && undefined !== f.size) {
 				/* no preview */
 				this.qappx('main.file.rawunknown', rawname, f.size);
 				this.setnopv();
 			} else {
 				this.qappx('main.file',rawname);
-				this.buildpreview(f, () => { imbc.setrawpv(); }, () => { imbc.setpverr(); });
+				this.buildpreview(f, () => { this.setrawpv(); }, () => { this.setpverr(); });
 			}
 		}
 	}
 	else { // normal processing without question
 		this.shownormal();
-		this.handleone();
+		this.handleone(f.rot);
 	}
 }
 /* xl helper */
 this.genspan = (key, arg0, arg1, arg2, arg3) => {
 	const s = document.createElement('span');
 	s.setAttribute('data-myxlkey', key);
-	s.setAttribute('data-myxloff', '' + this.xlargs.length);
-	let n=0;
 	if (undefined !== arg0) {
-		this.xlargs.push(arg0);
-		n++;
+		s.setAttribute('data-myxlarg0', arg0);
 		if (undefined !== arg1) {
-			this.xlargs.push(arg1);
-			n++;
+			s.setAttribute('data-myxlarg1', arg1);
 			if (undefined !== arg2) {
-				this.xlargs.push(arg2);
-				n++;
+				s.setAttribute('data-myxlarg2', arg2);
 				if (undefined !== arg3) {
-					n++;
-					this.xlargs.push(arg3);
+					s.setAttribute('data-myxlarg3', arg3);
 				}
 			}
 		}
 	}
-	s.setAttribute('data-myxlnnn', '' + n);
-	return s;
+	return this.xl1(s);
 }
 
 /* translated append to preview header */
 this.qappx = (key, arg0, arg1, arg2, arg3) => {
 	const s = this.genspan(key, arg0, arg1, arg2, arg3);
 	document.getElementById('qhdr').append(s);
-	this.xlateall();
 }
 /* translated append to main log */
 this.mappx = (key, arg0, arg1, arg2, arg3) => {
@@ -822,7 +869,6 @@ this.mappx = (key, arg0, arg1, arg2, arg3) => {
 	this.dispcnt++;
 	s.id = 'mappx_' + this.dispcnt;
 	msgel.append(s);
-	this.xlateall();
 }
 /* actual processing function for one file */
 this.handleone = (orientation) => {
@@ -834,9 +880,9 @@ this.handleone = (orientation) => {
 	}
 	if (undefined === f.size) {
 		window.setTimeout(() => {
-		  this.createFx(f, (url, fx) => {
+		  this.createFx(f, (url, fx, rot) => {
 				this.allfiles[this.actnum] = fx;
-				this.handleone(orientation);
+				this.handleone(rot ? rot: orientation);
 			}, (url) => {
 				this.mappx('process.erraccess', url);
 				this.appendmsg("<br>&nbsp;<br>");
@@ -851,11 +897,11 @@ this.handleone = (orientation) => {
 	}
 	if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
 		const reader = f.imbackextension ? f : new FileReader();
-		reader.onload = function(evt) {
-			if (imbc.totnum > 1) {
-				imbc.appendmsg("[" + (1 + imbc.actnum) + " / " + imbc.totnum + "] ");
+		reader.onload = (evt) => {
+			if (this.totnum > 1) {
+				this.appendmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ");
 			}
-			imbc.mappx('process.notraw',rawname);
+			this.mappx('process.notraw',rawname);
 			const contents = evt.target.result;
 			const view = new DataView(contents);
 			const out = new Uint8Array(f.size);
@@ -868,17 +914,18 @@ this.handleone = (orientation) => {
 			const thisurl = URL.createObjectURL(b);
 			outel.href = thisurl;
 			outel.click();
-			imbc.mappx('process.copyok', rawname);
-			if (imbc.addlinkbool) {
-				imbc.mappx('process.dlagain', rawname, thisurl);
-				imbc.showreloadhints();
+			this.mappx('process.copyok', rawname);
+			if (this.addlinkbool) {
+				this.mappx('process.dlagain', rawname, thisurl);
+				this.showreloadhints();
 			}
-			imbc.appendmsg("<br>&nbsp;<br>");
-			imbc.handlenext();
+			this.appendmsg("<br>&nbsp;<br>");
+			this.handlenext();
 		}
-		reader.onerror = function(evt) {
-			imbc.mappend('process.errorreadingfile', f.name);
-			imbc.handlenext();
+		reader.onerror = (evt) => {
+			console.log('Non-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
+			this.mappend('process.errorreadingfile', f.name);
+			this.handlenext();
 		}
 		reader.readAsArrayBuffer(f);
 		return;
@@ -892,7 +939,7 @@ this.handleone = (orientation) => {
 		}
 		this.mappx('process.unknownsize', f.name, f.size);
 		const reader = f.imbackextension ? f : new FileReader();
-		reader.onload = function(evt) {
+		reader.onload = (evt) => {
 			const contents = evt.target.result;
 			const view = new DataView(contents);
 			const out = new Uint8Array(f.size);
@@ -913,7 +960,8 @@ this.handleone = (orientation) => {
 			this.appendmsg("<br>&nbsp;<br>");
 			this.handlenext();
 		}
-		reader.onerror = function(evt) {
+		reader.onerror = (evt) => {
+			console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
 			this.mappend('process.errorreadingfile', f.name);
 			this.handlenext();
 		}
@@ -953,19 +1001,19 @@ this.handleone = (orientation) => {
 		}
 	}
 	const reader = f.imbackextension ? f : new FileReader();
-	reader.onload = function(evt) {
-		if (imbc.totnum > 1) {
-			imbc.appendmsg("[" + (1 + imbc.actnum) + " / " + imbc.totnum + "] ");
+	reader.onload = (evt) => {
+		if (this.totnum > 1) {
+			this.appendmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ");
 		}
-		imbc.mappx('process.processing', rawname);
-		imbc.mappx('process.assuming', imbc.types[typ], mode);
+		this.mappx('process.processing', rawname);
+		this.mappx('process.assuming', this.types[typ], mode);
 		if (dateok) {
-			imbc.mappx('process.datetime', datestr);
+			this.mappx('process.datetime', datestr);
 		}
 		if (orientation !== undefined && orientation !== 1) {
-			imbc.mappx('process.orientation');
-			imbc.appendmsgx(imbc.genspan('preview.orients.' + imbc.orients[orientation]));
-			imbc.appendmsg('<br>');
+			this.mappx('process.orientation');
+			this.appendmsgx(this.genspan('preview.orients.' + this.orients[orientation]));
+			this.appendmsg('<br>');
 		}
 		/* Here comes the actual building of the DNG */
 		const contents = evt.target.result;
@@ -975,7 +1023,7 @@ this.handleone = (orientation) => {
 		out[1] = 0x49;
 		out[2] = 0x2a;
 		out[3] = 0;
-		imbc.writeinttoout(out, 8 + f.size, 4);
+		this.writeinttoout(out, 8 + f.size, 4);
 		let k = 8;
 		for (let j=0; j<contents.byteLength; j++) {
 			out[k++] = view.getUint8(j);
@@ -989,7 +1037,7 @@ this.handleone = (orientation) => {
 		]; /* followed by 4b width */
 		out.set(rest0, k);
 		k += rest0.length;
-		imbc.writeinttoout(out, w, k);
+		this.writeinttoout(out, w, k);
 		k += 4;
 
 		const rest1 = [
@@ -997,7 +1045,7 @@ this.handleone = (orientation) => {
 		]; /* followed by 4b height */
 		out.set(rest1, k);
 		k += rest1.length;
-		imbc.writeinttoout(out, h, k);
+		this.writeinttoout(out, h, k);
 		k += 4;
 
 		const rest2 = [ 0x02, 0x01,
@@ -1005,13 +1053,13 @@ this.handleone = (orientation) => {
 			0x00, 0x00, 0x0f, 0x01, 0x02, 0x00, 0x07, 0x00, 0x00, 0x00 ];
 		out.set(rest2, k);
 		k += rest2.length;
-		imbc.writeinttoout(out, f.size + (dateaddoff + 290), k);
+		this.writeinttoout(out, f.size + (dateaddoff + 290), k);
 		k += 4;
 
 		const rest3 = [ 0x10, 0x01, 0x02, 0x00, 0x08, 0x00, 0x00, 0x00 ];
 		out.set(rest3, k);
 		k += rest3.length;
-		imbc.writeinttoout(out, f.size + (dateaddoff + 298), k);
+		this.writeinttoout(out, f.size + (dateaddoff + 298), k);
 		k += 4;
 
 		const rest4 = [ 0x11, 0x01, 0x04, 0x00, 0x01, 0x00,
@@ -1019,27 +1067,27 @@ this.handleone = (orientation) => {
 		out.set(rest4, k);
 		k += rest4.length;
 		if (undefined === orientation) {
-			imbc.writeinttoout(out, 1, k);
-		} else imbc.writeinttoout(out, orientation, k);
+			this.writeinttoout(out, 1, k);
+		} else this.writeinttoout(out, orientation, k);
 		k += 4;
 		const rest4b = [ 0x15, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x17, 0x01,
 			0x04, 0x00, 0x01, 0x00, 0x00, 0x00 ];
 		out.set(rest4b, k);
 		k += rest4b.length;
-		imbc.writeinttoout(out, f.size, k);
+		this.writeinttoout(out, f.size, k);
 		k += 4;
 
 		const rest5 = [ 0x1c, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x31, 0x01, 0x02, 0x00, 0x0b, 0x00, 0x00, 0x00 ];
 		out.set(rest5, k);
 		k += rest5.length;
-		imbc.writeinttoout(out, f.size + (dateaddoff + 306), k);
+		this.writeinttoout(out, f.size + (dateaddoff + 306), k);
 		k += 4;
 
 		if (dateok) { // one datetime tag
 			const rest5a = [ 0x32, 0x01, 0x02, 0x00, 0x14, 0x00, 0x00, 0x00 ];
 			out.set(rest5a, k);
 			k += rest5a.length;
-			imbc.writeinttoout(out, f.size + 446, k);
+			this.writeinttoout(out, f.size + 446, k);
 			k += 4;
 		}
 
@@ -1058,40 +1106,40 @@ this.handleone = (orientation) => {
 			const rest6a = [ 0x03, 0x90, 0x02, 0x00, 0x14, 0x00, 0x00, 0x00 ];
 			out.set(rest6a, k);
 			k += rest6a.length;
-			imbc.writeinttoout(out, f.size + 446, k);
+			this.writeinttoout(out, f.size + 446, k);
 			k += 4;
 		}
 		const rest6b = [ 0x12, 0xc6, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x13, 0xc6, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00,
 			0x00, 0x00, 0x14, 0xc6, 0x02, 0x00, 0x07, 0x00, 0x00, 0x00 ];
 		out.set(rest6b, k);
 		k += rest6b.length;
-		imbc.writeinttoout(out, (dateaddoff + 318) + f.size, k);
+		this.writeinttoout(out, (dateaddoff + 318) + f.size, k);
 		k += 4;
 
 		const rest7 = [ 0x1d, 0xc6, 0x04, 0x00, 0x01, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x21, 0xc6, 0x0a, 0x00, 0x09, 0x00, 0x00, 0x00 ];
 		out.set(rest7, k);
 		k += rest7.length;
-		imbc.writeinttoout(out, (dateaddoff + 326) + f.size, k);
+		this.writeinttoout(out, (dateaddoff + 326) + f.size, k);
 		k += 4;
 
 		const rest8 = [ 0x28, 0xc6, 0x05, 0x00, 0x03, 0x00, 0x00, 0x00 ];
 		out.set(rest8, k);
 		k += rest8.length;
-		imbc.writeinttoout(out, (dateaddoff + 398) + f.size, k);
+		this.writeinttoout(out, (dateaddoff + 398) + f.size, k);
 		k += 4;
 
 		const rest8b = [ 0x8b, 0xc6, 0x01, 0x00 ];
 		out.set(rest8b, k);
 		k += rest8b.length;
-		imbc.writeinttoout(out, rawnamearr.length, k);
+		this.writeinttoout(out, rawnamearr.length, k);
 		k += 4;
-		imbc.writeinttoout(out, (dateok ? 466: 422) + f.size, k);
+		this.writeinttoout(out, (dateok ? 466: 422) + f.size, k);
 		k += 4;
 
 		const rest9 = [ 0x00, 0x00, 0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x00, 0x00 ];
 		out.set(rest9, k);
 		k += rest9.length;
-		out.set(new TextEncoder().encode(imbc.types[typ]), k);
+		out.set(new TextEncoder().encode(this.types[typ]), k);
 		k += 7;
 
 		const rest10a = [ 0x00, 0x69, 0x6d, 0x62, 0x72, 0x61, 0x77, 0x32, 0x64, 0x6e, 0x67,
@@ -1124,17 +1172,18 @@ this.handleone = (orientation) => {
 		const thisurl = URL.createObjectURL(b);
 		outel.href = thisurl;
 		outel.click();
-		imbc.mappx('process.converted', rawname.substring(0, rawname.length - 3));
-		if (imbc.addlinkbool) {
-			imbc.mappx('process.dlagaindng', rawname.substring(0, rawname.length - 3), thisurl);
-			imbc.showreloadhints();
+		this.mappx('process.converted', rawname.substring(0, rawname.length - 3));
+		if (this.addlinkbool) {
+			this.mappx('process.dlagaindng', rawname.substring(0, rawname.length - 3), thisurl);
+			this.showreloadhints();
 		}
-		imbc.appendmsg("<br>&nbsp;<br>");
-		imbc.handlenext();
+		this.appendmsg("<br>&nbsp;<br>");
+		this.handlenext();
 	};
-	reader.onerror = function(evt) {
-		imbc.mappend('process.errorreadingfile', f.name);
-		imbc.handlenext();
+	reader.onerror = (evt) => {
+		console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
+		this.mappend('process.errorreadingfile', f.name);
+		this.handlenext();
 	};
 	reader.readAsArrayBuffer(f);
 }
@@ -1277,7 +1326,7 @@ this.buildpreview = (f, onok, onerr, orientation, targ, afterload) => {
 		canv.style['width'] = '' + (sc*canv.width) + 'px';
 	}
 	const reader = f.imbackextension ? f : new FileReader();
-	reader.onload = function(evt) {
+	reader.onload = (evt) => {
 		if (undefined !== afterload) afterload();
 		const contents = evt.target.result;
 		const view = new DataView(contents);
@@ -1311,7 +1360,7 @@ this.buildpreview = (f, onok, onerr, orientation, targ, afterload) => {
 		}
 		for (let i = rowiterstart; i < rowiterend; i +=1) {
 			for (let j = coliterstart; j < coliterend; j+=1) {
-				let a = imbc.getPix(Math.abs(transpose ? i :j)*8, Math.abs(transpose ? j :i)*8, w, view, typ);
+				let a = this.getPix(Math.abs(transpose ? i :j)*8, Math.abs(transpose ? j :i)*8, w, view, typ);
 				outpix.push(a[0]);
 				if (a[0] > maxred) maxred = a[0];
 				if (a[0] < minred) minred = a[0];
@@ -1352,7 +1401,7 @@ this.buildpreview = (f, onok, onerr, orientation, targ, afterload) => {
 		ctx.putImageData(new ImageData(new Uint8ClampedArray(outpix), transpose ? h8: w8, transpose? w8 :h8), 0, 0);
 		onok(f);
 	};
-	reader.onerror = function(evt) {
+	reader.onerror = (evt) => {
 		console.log('preview: error reading ' + f.name);
 		onerr();
 	};
@@ -1395,8 +1444,11 @@ this.showlastmsg = () => {
 }
 /* as it says */
 this.shownormal = () => {
+	window.onscroll = () => undefined;
+	window.onresize = () => undefined;
 	const norm = document.getElementById('normal');
 	const quest = document.getElementById('question');
+	document.getElementById('browser').style['display'] = 'none';
 	document.getElementById('browser').style['display'] = 'none';
 	quest.style['display'] = 'none';
 	norm.style['display'] = '';
@@ -1427,39 +1479,31 @@ this.procthis = () => {
 		this.shownormal();
 	}
 	this.setpvwait();
-	this.handleone(imbc.currentrot);
+	this.handleone(this.currentrot);
+}
+/* previewquestion, rotation hepler */
+this.rotxx = (r) => {
+	this.setpvwait();
+	let j = this.oriecw.indexOf(this.currentrot);
+	j = ((j + r) % 4);
+	this.currentrot = this.oriecw[j];
+	this.buildpreview(this.allfiles[this.actnum], () => { this.setrawpv(); }, () => { this.setpverr(); }, this.currentrot);
 }
 /* previewquestion: handler for clockwise rotation */
 this.rotcw = () => {
-	//this.enablerots('procthiscw');
-	this.setpvwait();
-	let j = this.oriecw.indexOf(this.currentrot);
-	j = ((j + 1) % 4);
-	this.currentrot = this.oriecw[j];
-	this.buildpreview(this.allfiles[this.actnum], () => { this.setrawpv(); }, () => { this.setpverr(); }, this.currentrot);
+	this.rotxx(1);
 }
 /* previewquestion: handler for counterclockwise rotation */
 this.rotccw = () => {
-	//this.enablerots('procthisccw');
-	this.setpvwait();
-	let j = this.oriecw.indexOf(this.currentrot);
-	j = ((j + 3) % 4);
-	this.currentrot = this.oriecw[j];
-	this.buildpreview(this.allfiles[this.actnum], () => { this.setrawpv(); }, () => { this.setpverr(); }, this.currentrot);
+	this.rotxx(3);
 }
 /* previewquestion: handler for upside down rotation */
 this.rot180 = () => {
-	//this.enablerots('procthisud');
-	this.setpvwait();
-	let j = this.oriecw.indexOf(this.currentrot);
-	j = ((j + 2) % 4);
-	this.currentrot = this.oriecw[j];
-	this.buildpreview(this.allfiles[this.actnum], () => { this.setrawpv(); }, () => { this.setpverr(); }, this.currentrot);
+	this.rotxx(2);
 }
 /* previewquestion: handler for reset rotation */
 this.rot0 = () => {
 	if (1 === this.currentrot) return;
-	//this.enablerots('procthisrs');
 	this.setpvwait();
 	this.currentrot = 1;
 	this.buildpreview(this.allfiles[this.actnum], () => { this.setrawpv(); }, () => { this.setpverr(); }, 1);
@@ -1483,7 +1527,6 @@ this.checkimb  = () => {
 			document.getElementById('onimback').style['display'] = '';
 			const xhr = new XMLHttpRequest();
 			xhr.onloadend = (event) => {
-				//console.log('OLE ' + JSON.stringify(event) + ' XHR ' + JSON.stringify(xhr));
 				if (xhr.status === 200) {
 					const sel2 = xhr.responseXML.querySelectorAll('a');
 					for (const r of sel2) {
@@ -1571,7 +1614,6 @@ this.checkimb  = () => {
 					document.getElementById('rpiccnt').removeAttribute('data-myxlkey');
 					const xhrm = new XMLHttpRequest();
 					xhrm.onloadend = (event) => {
-						//console.log('OLE ' + JSON.stringify(event) + ' XHR ' + JSON.stringify(xhr));
 						if (xhrm.status === 200) {
 							const sel3 = xhrm.responseXML.querySelectorAll('a');
 							for (const r of sel3) {
@@ -1609,6 +1651,8 @@ this.checkimb  = () => {
 							document.getElementById('movcnt').removeAttribute('data-myxlkey');
 							document.getElementById('imbdoit').disabled = false;
 							document.getElementById('imbvisbrows').disabled = false;
+							document.getElementById('notimback').style['display'] = 'none';
+							this.aftercheck();
 						}
 					};
 					xhrm.onerror = (event) => {
@@ -1627,7 +1671,6 @@ this.checkimb  = () => {
 				document.getElementById('rpiccnt').innerHTML = '0';
 				const xhrm = new XMLHttpRequest();
 				xhrm.onloadend = (event) => {
-					//console.log('OLE ' + JSON.stringify(event) + ' XHR ' + JSON.stringify(xhr));
 					if (xhrm.status === 200) {
 						const sel3 = xhrm.responseXML.querySelectorAll('a');
 						for (const r of sel3) {
@@ -1665,6 +1708,8 @@ this.checkimb  = () => {
 						document.getElementById('movcnt').removeAttribute('data-myxlkey');
 						document.getElementById('imbdoit').disabled = false;
 						document.getElementById('imbvisbrows').disabled = false;
+						document.getElementById('notimback').style['display'] = 'none';
+						this.aftercheck();
 					}
 				};
 				xhrm.onerror = (event) => {
@@ -1751,11 +1796,7 @@ this.imbdoit = () => {
 }
 /* open visual browser */
 this.visbrows = () => {
-	this.aftercheck();
-	window.onscroll = () => this.startloadimg();
-	window.onresize = () => this.startloadimg();
 	this.showbrowser();
-	this.buildtree();
 }
 /* as it says */
 this.showbrowser = () => {
@@ -1764,6 +1805,8 @@ this.showbrowser = () => {
 	document.getElementById('browser').style['display'] = '';
 	quest.style['display'] = 'none';
 	norm.style['display'] = 'none';
+	window.onscroll = () => this.startloadimg();
+	window.onresize = () => this.startloadimg();
 }
 /* visual browser: create the wait dots */
 this.createwait = (el) => {
@@ -1879,6 +1922,7 @@ this.aftercheck = () => {
 		for (const s of untypedclasses.filter((o) => o.level === 2)) prgr(s,1);
 		for (const s of typedclasses.filter((o) => o.level === 1)) prgr(s,1);
 	} */
+	this.buildtree();
 }
 /* visual browser: build ordered lists */
 this.buildtree = () => {
@@ -1911,10 +1955,10 @@ this.buildtree = () => {
 		document.getElementById('browser').append(e.entry);
 		this.addsorted(e);
 	}
-	this.xlateall();
+	//this.xlateall();
 }
 // visual browser: find next to load
-this.findnexttoload = () => {
+this.findnexttoload = (alsooutside) => {
 	for (const e of this.imbeles.sort((a,b) => this.myisort(a,b))) {
 		// display: none somewhere?
 		if (!e.entry) continue;
@@ -1945,6 +1989,10 @@ this.findnexttoload = () => {
 		// display not none, check pos
 		rect = p.getBoundingClientRect();
 		if (rect.top < window.innerHeight && rect.bottom > 0 && rect.width > 0)
+			return e;
+		if (alsooutside && rect.bottom > 0 && rect.width > 0)
+			if ((p.querySelector('.eepvw') && p.querySelector('.eepvw').style['display'] !== 'none') ||
+				(p.querySelector('.errimg') && p.querySelector('.errimg').style['display'] !== 'none'))
 			return e;
 	}
 	return undefined;
@@ -2210,6 +2258,7 @@ this.updateselections = () => {
 /* visual browser: fill a html div into an imbele */
 this.displaydiv = (e) => {
 	e.entry = document.createElement('div');
+	if (e.wasselected) e.entry.classList.add('picprocd');
 	e.entry.id = 'div_' + e.raw + '_X';
 	e.entry.classList.add('ee');
 	e.entry.classList.add(e.type);
@@ -2241,11 +2290,11 @@ this.displaydiv = (e) => {
 		rotbtn.id = 'rot_b_' + e.raw + '_Y';
 		rotbtn.classList.add('rotbtn');
 		rotbtn.classList.add('disabled');
-		rotbtn.append('\u21ba');
+		rotbtn.append('\u21b7');
 		rotbtn.onclick = () => {
-			if (rotbtn.classList.contains('disabled')) return;
+			if (!this.debugflag && rotbtn.classList.contains('disabled')) return;
 			let j = this.oriecw.indexOf(e.rot);
-			j = ((j + 3) % 4);
+			j = ((j + 1) % 4);
 			e.rot = this.oriecw[j];
 			e.preview.style['display'] = 'none';
 			e.entry.querySelector('.eepvw').style['display'] = '';
@@ -2257,11 +2306,10 @@ this.displaydiv = (e) => {
 	dlbtn.id = 'dl_b_' + e.raw;
 	dlbtn.classList.add('dlbtn');
 	if (e.type !== 'oth') dlbtn.classList.add('disabled');
-	//dlbtn.classList.add('disabled');
 	dlbtn.append('\u2193');
 	if (e.type === 'RAW') {
 		dlbtn.onclick = (ev) => {
-			if (dlbtn.classList.contains('disabled')) return;
+			if (!this.debugflag && dlbtn.classList.contains('disabled')) return;
 			if (this.actnum !== this.allfiles.length) return;
 			let selecteds = [ e.url ];
 			const addlinkel = document.getElementById('addlink');
@@ -2274,17 +2322,19 @@ this.displaydiv = (e) => {
 			document.getElementById('imbvisbrows').disabled = true;
 			document.getElementById('droptarget').style['display'] = 'none';
 			document.getElementById('infile').disabled = true
-			fromvisbrows = true;
+			//this.fromvisbrows = true;
 			this.shownormal();
 			this.handleone(e.rot);
+			e.entry.classList.add('picprocd');
 		};
 	} else {
 		dlbtn.onclick = (ev) => {
-			if (dlbtn.classList.contains('disabled')) return;
+			if (!this.debugflag && dlbtn.classList.contains('disabled')) return;
 			const outel = document.getElementById('result');
 			outel.download = rawname;
 			outel.href = e.url;
 			outel.click();
+			e.entry.classList.add('picprocd');
 		};
 	}
 	topline.append(dlbtn);
@@ -2335,7 +2385,7 @@ this.displaydiv = (e) => {
 /* visual browser: image loader call */
 this.loadimg = (url, type, to) => {
 	if (to.entry.querySelector('.eepvx')
-			|| (to.entry.querySelector('.eepvw').style['display'] === 'none' && to.entry.querySelector('.errimg').style['display'] === 'none')
+			|| (to.entry.querySelector('.eepvw')?.style['display'] === 'none' && to.entry.querySelector('.errimg')?.style['display'] === 'none')
 			|| (type === 'oth')) {
 		if (this.debugflag) console.log('ldr aa lnx ' + to.raw);
 		this.loadnextimg();
@@ -2354,6 +2404,7 @@ this.loadimg = (url, type, to) => {
 			this.loadnextimg();
 		};
 		to.preview.onerror = (ev) => {
+			console.log('JPEG preview load error for ' + url + ' ' + JSON.stringify(ev));
 			to.entry.querySelector('.eepvw').style['display'] = 'none';
 			to.entry.querySelector('.errimg').style['display'] = '';
 			to.entry.querySelector('.dlbtn').classList.add('disabled');
@@ -2401,7 +2452,8 @@ this.loadimg = (url, type, to) => {
 }
 /* visual browser: load next from todo list */
 this.loadnextimg = () => {
-	const e = this.findnexttoload();
+	let e = this.findnexttoload();
+	if (!e) e = this.findnexttoload(true);
 	if (!e) {
 		this.loaderrunning = false;
 		if (this.debugflag) console.log('TERM loader');
@@ -2427,6 +2479,8 @@ this.startloadimg = () => {
 }
 /* visual browser: delete browser selected */
 this.browserdelete = () => {
+	document.getElementById('del_text').setAttribute('data-myxlarg0', this.imbeles.filter((o) => o.selected).length);
+	this.xl1(document.getElementById('del_text'));
 	document.getElementById('delq').style['display'] = '';
 	document.getElementById('browser').style['display'] = 'none';
 	document.getElementById('delokbut').disabled = false;
@@ -2434,6 +2488,7 @@ this.browserdelete = () => {
 }
 /* visual browser: do delete */
 this.dodelete = (list) => {
+	const deletephs = [ '|' , '/', '-', '\\' ]; 
 	if (list === undefined && this.imbeles.filter((o) => o.selected).length === 0) {
 		delcancel();
 		return;
@@ -2443,16 +2498,16 @@ this.dodelete = (list) => {
 		document.getElementById('delcancelbut').disabled = true;
 		this.dodelete(this.imbeles.filter((o) => o.selected));
 		this.deletephase=0;
-		document.getElementById('delprogmsg').innerHTML = this.deletephs[this.deletephase];
+		document.getElementById('delprogmsg').innerHTML = deletephs[this.deletephase];
 		return;
 	} else if (list.length > 0) {
 		let xhr = new XMLHttpRequest();
 		xhr.onload = () => {
 			this.deletephase ++;
-			document.getElementById('delprogmsg').innerHTML = this.deletephs[this.deletephase % this.deletephs.length];
+			document.getElementById('delprogmsg').innerHTML = deletephs[this.deletephase % deletephs.length];
 			const pv = list[0].preview;
-			if (pv)
-				pv.classList.add('picdeleted');
+			//if (pv)
+			//	pv.classList.add('picdeleted');
 			list.splice(0,1);
 			this.dodelete(list);
 			xhr.onerror = undefined;
@@ -2464,7 +2519,7 @@ this.dodelete = (list) => {
 		xhr.open('GET',list[0].url + '?del=1');
 		xhr.send();
 	} else {
-		alert(xl('del.reload'));
+		alert(this.xl('del.reload'));
 		this.delcancel();
 	}
 }
@@ -2478,13 +2533,16 @@ this.browserprocess = () => {
 	if (this.actnum !== this.allfiles.length) return;
 	let selecteds = [];
 	for (const i of this.imbeles) {
-		if (i.selected) selecteds.push(i.url);
-		if (i.preview)
-			i.preview.classList.add('picprocd');
+		if (i.selected) {
+			selecteds.push(i);
+			i.wasselected = true;
+			if (i.entry)
+				i.entry.classList.add('picprocd');
+		}
 	}
 	selecteds.sort((a, b) => {
-		let ra = a;
-		let rb = b;
+		let ra = a.url;
+		let rb = b.url;
 		while (ra.indexOf("/") > -1)
 			ra = ra.substring(ra.indexOf("/") + 1);
 		while (rb.indexOf("/") > -1)
@@ -2511,6 +2569,19 @@ this.browserprocess = () => {
 		this.shownormal();
 	}
 }
+/* translate one element */
+this.xl1 = (el) => {
+	if (el.attributes.getNamedItem('data-myxlkey')) {
+		el.innerHTML = this.xl(el.attributes.getNamedItem('data-myxlkey').value, undefined,  el.attributes.getNamedItem('data-myxlarg0')?.value, el.attributes.getNamedItem('data-myxlarg1')?.value, el.attributes.getNamedItem('data-myxlarg2')?.value, el.attributes.getNamedItem('data-myxlarg3')?.value );
+	}
+	if (el.attributes.getNamedItem('data-myvalxlkey')) {
+		el.value = this.xl(el.attributes.getNamedItem('data-myvalxlkey').value);
+	}
+	if (el.attributes.getNamedItem('data-mytitlexlkey')) {
+		el.title = this.xl(el.attributes.getNamedItem('data-mytitlexlkey').value);
+	}
+	return el;
+}
 /* translate one string with parameters */
 this.xl = (str, base, arg0, arg1, arg2, arg3) => {
 	if (undefined === base) base = this.texts;
@@ -2533,6 +2604,7 @@ this.xl = (str, base, arg0, arg1, arg2, arg3) => {
 	const i = str.indexOf('.');
 	if (i === -1) {
 		let r = base[str][this.mylang];
+		if (undefined === r) r = base[str]['en'];
 		if (r.indexOf('$$0') !== -1 && arg0 !== undefined) {
 			r = r.substring(0, r.indexOf('$$0')) + arg0 + r.substring(r.indexOf('$$0') + 3);
 			if (r.indexOf('$$1') !== -1 && arg1 !== undefined) {
@@ -2556,13 +2628,7 @@ this.xl = (str, base, arg0, arg1, arg2, arg3) => {
 this.xlateall = () => {
 	const k = document.querySelectorAll('*[data-myxlkey]');
 	for (const e of k) {
-		const o = e.attributes.getNamedItem('data-myxloff')?.value;
-		const nn = e.attributes.getNamedItem('data-myxlnnn')?.value;
-		if (o !== undefined && o !== null && o !== '' && nn !== undefined) {
-			e.innerHTML = this.xl(e.attributes.getNamedItem('data-myxlkey').value, undefined,  (nn > 0) ? this.xlargs[Number.parseInt(o,10)]:undefined, (nn > 1) ? this.xlargs[Number.parseInt(o,10)+1]:undefined, (nn > 2) ? this.xlargs[Number.parseInt(o,10)+2]:undefined, (nn > 3) ? this.xlargs[Number.parseInt(o,10)+3]:undefined );
-		} else {
-			e.innerHTML = this.xl(e.attributes.getNamedItem('data-myxlkey').value);
-		}
+		e.innerHTML = this.xl(e.attributes.getNamedItem('data-myxlkey').value, undefined,  e.attributes.getNamedItem('data-myxlarg0')?.value, e.attributes.getNamedItem('data-myxlarg1')?.value, e.attributes.getNamedItem('data-myxlarg2')?.value, e.attributes.getNamedItem('data-myxlarg3')?.value );
 	}
 	const l = document.querySelectorAll('*[data-myvalxlkey]');
 	for (const e of l) {
@@ -2727,6 +2793,8 @@ this.dodebug = () => {
 		document.getElementById('imbdoit').disabled = false;
 		document.getElementById('imbvisbrows').disabled = false;
 		document.getElementById('onimback').style['display'] = '';
+		document.getElementById('notimback').style['display'] = 'none';
+		this.aftercheck();
 	};
 	fr.readAsText(document.getElementById('dbgfsel').files[0]);
 }
@@ -2758,9 +2826,11 @@ function init() {
 <span data-myxlkey="main.or"></span> <input type="button" data-myvalxlkey="onimback.visual" id="imbvisbrows" onclick="imbc.visbrows()" disabled>.
 </div>
 <!-- end of connected -->
+<div id="notimback">
 <div style="font-size:133%;margin-top: 0.5em;" data-myxlkey="main.drophere"></div>
 <div id="droptarget" ondrop="imbc.drophandler(event);" ondragenter="imbc.prevdef(event);" ondragover="imbc.prevdef(event);" style="border: 5px solid blue;border-radius: 10px;width:300px; height:70px;background-color: rgba(0,0,255,0.2);"></div><br>
 <div  style="font-size:133%;margin-top: 0.5em;"><span data-myxlkey="main.selectraw"></span> <input type="file" accept=".raw,.RAW" id="infile" name="infile" multiple onchange="imbc.fselected()"></div><br>
+</div>
 &nbsp;<br>
 <div id="reloadhint" style="display:none;" data-myxlkey="main.reload"><br>&nbsp;</div>
 <div id="xmsg" style="display: none; width: fit-content;white-space: pre;"><span style="font-weight:bold;" data-myxlkey="main.log"></span><br>
@@ -2783,13 +2853,14 @@ function init() {
 <!-- end of normal preview with question -->
 <!-- this is the picture browser, generated content appended -->
 <div id="browser" style="background-color:#ffccbb;border: 5px solid #ff8833; border-radius: 10px;width: 90%;padding-left:2em;padding-right:2em;padding-top:1em; padding-bottom:1em;display:none;flex-direction:column;">
+<span id="browserx" style="position: fixed; right:6%;"><input type="button" value="X" style="font-weight: bold; font-size: 110%; border: 0.2px solid red; background-color: rgba(230,230,230,0.7);" onclick="imbc.shownormal()"></span>
 <div style="margin-bottom:1em;"><span data-myxlkey="main.sort"></span>: <label for="sbytype"><input type="checkbox" id="sbytype" onclick="imbc.buildtree()"><span data-myxlkey="browser.bytype"></span></label> - <label for="solder"><input type="checkbox" id="solder" onclick="imbc.buildtree()"><span data-myxlkey="browser.olderfirst"></span></label>
- - <span data-myxlkey="main.selected"></span>: <span id="brnsel" class="selnumber">?</span> / <span id="brntot">?</span> - <label for="selall" data-mytitlexlkey="browser.selall.tooltip"><input onclick="imbc.topreccheck()" type="checkbox" id="selall"><span data-myxlkey="browser.selall"></span></label> - <input type="button" data-myvalxlkey="browser.procall" onclick="imbc.browserprocess()" id="doselbut"> - <input type="button" data-myvalxlkey="browser.delall" onclick="imbc.browserdelete()" id="delselbut" disabled></div>
+ - <span data-myxlkey="main.selected"></span>: <span id="brnsel" class="selnumber">?</span> / <span id="brntot">?</span> - <label for="selall" data-mytitlexlkey="browser.selall.tooltip"><input onclick="imbc.topreccheck()" type="checkbox" id="selall"><span data-myxlkey="browser.selall"></span></label> - <input type="button" data-myvalxlkey="browser.procall" onclick="imbc.browserprocess()" id="doselbut"> - <input type="button" data-myvalxlkey="browser.delall" onclick="imbc.browserdelete()" id="delselbut" disabled></div> 
 </div>
 <!-- end of the picture browser, generated content appended -->
 <!-- this is the delete question/progress -->
-<div id="delq" style="border: 2px solid red; border-radius: 20px; padding: 20px;display:none;width:fit-content;">
-<span data-myxlkey="del.question"></span><br>
+<div id="delq" style="border: 5px solid red; border-radius: 20px; padding: 20px;display:none;width:fit-content;">
+<span id="del_text" data-myxlarg0="0" data-myxlkey="del.question"></span><br>
 <input id="delcancelbut" type="button" data-myvalxlkey="del.question.cancel" onclick="imbc.delcancel()"> - <input id="delokbut" type="button" data-myvalxlkey="del.question.ok" onclick="imbc.dodelete()"><br>
 <span data-myxlkey="del.nostatus"></span><br>
 <div id="delprogmsg"></div>
