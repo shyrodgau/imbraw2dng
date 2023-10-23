@@ -28,7 +28,7 @@ Im Moment werden die Sprachen Englisch (EN) und Deutsch (DE) unterstützt. Wenn 
 
 ## Benutzung
 
-Man kann alle Dateien vom I'm back in das blaue Feld schieben. Dann werden nicht-RAW Dateien eins-zu-eins kopiert und die RAW-Dateien nach DNG konvertiert, wobei die `.raw`/`.RAW` Dateiendung durch `.dng` ersetzt wird. Mit der `Choose Files` Schaltfläche können RAW Dateien direkt ausgewählt werden. 
+Man kann alle Dateien vom I'm back (also von der in den PC gesteckten micro-SD-Karte) in das blaue Feld schieben. Dann werden nicht-RAW Dateien eins-zu-eins kopiert und die RAW-Dateien nach DNG konvertiert, wobei die `.raw`/`.RAW` Dateiendung durch `.dng` ersetzt wird. Mit der `Choose Files` Schaltfläche können RAW Dateien direkt ausgewählt werden. 
 
 Der Browser wird das Herunterladen gemäß seiner Download-Einstellungen machen, könnte also einen Dialog zeigen, wo jede einzelne Datei gespeichert werden soll, wenn er so eingestellt ist, oder alle Dateien ins Downloads Verzeichnis schreiben, wenn er so eingestellt ist, oder, oder, oder...
 
