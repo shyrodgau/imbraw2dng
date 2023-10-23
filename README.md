@@ -18,7 +18,7 @@ The current release is [V3.0.0_a0000f9 - ready](https://github.com/shyrodgau/imb
 
 Copy the [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.html) file to your PC or extract it from the release "Source code".zip or .tar.gz and open in your favorite browser (any newer one should do).
 
-If you can not install it locally, you can use it from the network like on [my github page](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) (should always be current version) or at [imback.eu](https://imback.eu/home/im-back-raw-dng-converter-ib35/) (with automated translation to different languages, but might not be current). The image data will stay in your browser in any case.
+If you can not install it locally, you can use it from the network like on [my github page](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) (should always be current version) or [from your own ImB](#browsing-on-the-imback) or at [imback.eu](https://imback.eu/home/im-back-raw-dng-converter-ib35/) (with automated translation to different languages, but might not be current). The image data will stay in your browser in any case.
 
 The github repository itself can be found [here](https://github.com/shyrodgau/imbraw2dng).
 
