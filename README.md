@@ -6,7 +6,7 @@ In here: [Installation](#installation) - [Internationalization](#internationaliz
 
 oder [AUF DEUTSCH](https://shyrodgau.github.io/imbraw2dng/README_de)
 
-They are not really "B&W RAW" but actually the RAW sensor data that also contains the colour filtering. You can see it when you import them as RAW into photoshop as Samuel described - zoom in and you see the gray values rastered in 2x2 squares. So even for B&W it is better to go the DNG way. The page can do parts (or partially more) of the mobile phone app.
+They are not really "B&W RAW" but actually the RAW sensor data that also contains the colour filtering (unfortunately only 8 bit deep..). You can see it when you import them as RAW into photoshop as Samuel described - zoom in and you see the gray values rastered in 2x2 squares. So even for B&W it is better to go the DNG way. The page can do parts (or partially more) of the mobile phone app.
 
 Currently known to work for current firmware on 35mm (also for "Angle medium" and "small") and MF I'm Back. Not all angle variants are covered for MF, if you need it and can help contact me.
 
