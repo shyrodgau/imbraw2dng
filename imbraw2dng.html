@@ -2175,9 +2175,8 @@ this.buildtitle = (gr) => {
 		d.append(sp);
 		s = s.substring(3);
 	} else if (s.startsWith('oth')) {
-		const sp = document.createElement('span');
+		const sp = this.genspan('main.types.notpic');
 		sp.classList.add('gtype');
-		sp.setAttribute('data-myxlkey', 'main.types.notpic');
 		sp.style['display'] = 'none';
 		d.append(sp);
 		s = s.substring(3);
