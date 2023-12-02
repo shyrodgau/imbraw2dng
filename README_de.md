@@ -32,14 +32,14 @@ Man kann alle Dateien vom I'm back (also von der in den PC gesteckten micro-SD-K
 
 Der Browser wird das Herunterladen gemäß seiner Download-Einstellungen machen, könnte also einen Dialog zeigen, wo jede einzelne Datei gespeichert werden soll, wenn er so eingestellt ist, oder alle Dateien ins Downloads Verzeichnis schreiben, wenn er so eingestellt ist, oder, oder, oder...
 
-Bei der Konvertierung nach DNG werden die Zeitstempel-Metadatan gesetzt, wenn der Dateiname wie ein normaler I'm Back Dateiname aussieht, und OriginalRawFilename auf den Namen der RAW Eingabedatei. Somit können die DNG Dateien nach belieben benannt werden, ohne irgendwelche ursprünglichen Daten zu verlieren.
+Bei der Konvertierung nach DNG werden die Zeitstempel-Metadatan gesetzt, wenn der Dateiname wie ein normaler I'm Back Dateiname aussieht (also `JJJJ_MMDD_hhmmss`), und OriginalRawFilename auf den Namen der RAW Eingabedatei. Somit können die DNG Dateien nach belieben benannt werden, ohne irgendwelche ursprünglichen Daten zu verlieren.
 
 Neu: man kann Schritt-für-Schritt durchgehen und eine Vorschau der RAW-Datei dabei sehen. Hierzu das Häkchen bei `Single Step with preview` einschalten. Bei jeder Datei kann entschieden werden, ob sie verarbeitet oder übersprungen werden soll und ob diese Aktion auch für alle folgenden Dateien der Auswahl durchgeführt werden soll. Durch Einschalten des Häkchens `Add separate download link for each file` können die Dateien danach auch noch(mal) heruntergeladen werden (zusätzlich zu dem Download, der bei der Bearbeitung der Datei passiert). Das könnte eher viel Speicherplatz benötigen, daher gibt es diese Möglichkeit nur noch nach Auswahl - die Dateien können ja auch einfach nochmal ausgewählt und verarbeitet werden.
 
 
 ### Gucken auf ImBack selbst
 
-Man kann die html-Datei (auch wegen Internationalisierung umbenannt) auf die micro-SD-Karte im ImBack kopieren, sagen wir mal in das `IMBACK` Verzeichnis. Dann den PC mit dem WLAN des ImBack verbinden und mit dem Browser auf [die Seite im Imback](http://192.168.1.254/IMBACK/imbraw2dng.html) (ggf. mit geändertem Namen) gehen.
+Man kann die html-Datei (auch wegen [Internationalisierung](#internationalisierung) umbenannt) auf die micro-SD-Karte im ImBack kopieren, sagen wir mal in dan `IMBACK` Ordner. Dann den PC mit dem WLAN des ImBack verbinden und mit dem Browser auf [die Seite im Imback](http://192.168.1.254/IMBACK/imbraw2dng.html) (ggf. mit geändertem Namen) gehen.
 
 Dann kann man direkt alle Dateien, die neuer als ein angegebener Zeitstempel sind, verarbeiten/kopieren, oder mit dem Bildbrowser alle Dateien auf dem ImBack nach Typ und/oder Zeitstempel ansehen. RAW- und JPEG-Bilder werden dabei angezeigt. Man kann Dateien auswählen, die man verarbeiten/kopieren oder auch löschen möchte.
 
@@ -51,7 +51,7 @@ Bitte **nicht** erwarten, dass die Bilder direkt okay sind. Ich werde es kaum  s
 
 Eine starke grüne oder magentafarbige Tönung der Bilder sollte nicht mehr vorkommen! Wenn aber eine da ist, die sich **nicht** durch Farbkalibrierung/Farbmatrix/Weißabgleich entfernen lässt, könnte ein Beispielbild interessant sein.
 
-**Ein Wort zu den Farben:** Der für mich richtige Weg, zu guten Farben zu kommen, besteht darin, mit der Farbkalibrierung/Farbmatrix anzufangen. Ich versuche, entsprechende Werte in die DNG-Datei hinenzubekommen, bin da aber nicht weit (im Darktable könnte ich eine Vorgabe erstellen, die so etwas automatisch auf Dateien mit maker `ImBack`anwendet). Bitte **nicht** die vorgegebene Identität-Farbmatrix verwenden, sondern den Faktor grün/grün auf etwa 0,6..0,7 setzen. Damit sieht das Bild zunächst rötlich aus, weil der vorgegebene Weißabgleich da nicht dazu passt. Aber dann kann man mit dem Weißabgleich die Farben ordentlich hinzutzeln. Mit der Identität-Farbmatrix ist es viel schwieriger bis unmöglich, den Weißabgleich ordentlich hinzubekommen. Beispielkonfigurationen wie die Änderung an der Matrix und ein halbwegs neutraler Weißabgleich in darktable aussehen sollten:
+**Ein Wort zu den Farben:** Der für mich richtige Weg, zu guten Farben zu kommen, besteht darin, mit der Farbkalibrierung/Farbmatrix anzufangen. Ich versuche, entsprechende Werte in die DNG-Datei hinenzubekommen, bin da aber nicht weit. Den Faktor grün/grün auf etwa 0,6..0,7 setzen. Damit sieht das Bild zunächst rötlich aus, weil der vorgegebene Weißabgleich da nicht dazu passt. Aber dann kann man mit dem Weißabgleich die Farben ordentlich hinzutzeln.  Beispielkonfigurationen wie die Änderung an der Matrix und ein halbwegs neutraler Weißabgleich in darktable aussehen sollten:
 
 ![darktable Beispiel grüne Farbmatrix](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_color_calib_ok.png "darktable Beispiel grüne Farbmatrix") 
 ![darktable Beispiel neutraler Weißabgleich ](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_neutral_white_balance.png "darktable Beispiel neutraler Weißabgleich")

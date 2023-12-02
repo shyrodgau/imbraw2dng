@@ -32,13 +32,13 @@ You can drop all files from the I'm back (i.e. from the micro SD inserted into y
 
 Your browser will download them according to its download settings, so it might pop up a dialog where to save it for each file if so configured, or throw all files into your Downloads directory if so configured , or, or, or...
 
-Conversion to DNG currently sets the Timestamp Tags if the filename seems to be a reasonable I'm Back filename, and the OriginalRawFilename to the name of the RAW inputfile. That way you can name the DNG file whatever you like without losing any of the original information.
+Conversion to DNG currently sets the Timestamp Tags if the filename seems to be a reasonable I'm Back filename (i.e. `YYYY_MMDD_hhmmss`), and the OriginalRawFilename to the name of the RAW inputfile. That way you can name the DNG file whatever you like without losing any of the original information.
 
 New: you can do a step-by-step walk with a preview of the raw file. For that, check the `Single Step with preview` checkbox. On each file, you can select if you want to process or skip it and also if this same action should be applied to the rest of your currently selected files. When you check the `Add separate download link for each file` checkbox, then the files can be downloaded again (after the download that will be done automatically in the processing). It may cost memory to keep all these so I do not do it any more by default - you can always select the file(s) simply again.
 
 ### Browsing on the ImBack
 
-You can put the html file (also renamed according to internationalization) on the micro-SD that is inside the ImBack, let's say into the `IMBACK` directory. Then you connect your PC to the ImBack Wifi and browse [your Imback](http://192.168.1.254/IMBACK/imbraw2dng.html) (or with the changed name).
+You can put the html file (also renamed according to [internationalization](#internationalization) ) on the micro-SD that is inside the ImBack, let's say into the `IMBACK` folder. Then you connect your PC to the ImBack Wifi and browse [your Imback](http://192.168.1.254/IMBACK/imbraw2dng.html) (or with the changed name).
 
 It offers you direct processing/copying of files newer than a given timestamp, or you can use the visual browser to look at the files on the ImBack by type and/or date. RAW and JPEG images will be displayed. You can select files for processing/conversion or deletion.
 
@@ -50,7 +50,7 @@ Do **not** expect the image to be okay out-of-the-box. I will probably not be ab
 
 A strong green or magenta tint all over the image should not happen any more! But if you have one and **can not** level it out using your software's color matrix/color calibration or white-balancing, a sample image might be interesing to fix it.
 
-**Word on colours:** The right way to get the colours correct is to adjust the color calibration or color matrix. I am trying to get this right somehow inside the DNG but I am far from it (in darktable, I can tell it to automatically set it for DNGs from maker `ImBack`). Do **NOT** use the default identity matrix but change the green/green value to something around 0.6..0.7. This will at first make the image look reddish with the (wrong) default white balance. But then you can use the white balance to adjust it correctly. It is much harder or impossible to get the white balance sorted out with identity color matrix! Sample darktable pictures of how the matrix and the white balance on near neutral light should look:
+**Word on colours:** The right way to get the colours correct is to first adjust the color calibration or color matrix. I am trying to get this right somehow inside the DNG but I am far from it. Change the green/green value to something around 0.6..0.7. This will at first make the image look reddish with the (wrong) default white balance. But then you can use the white balance to adjust it correctly. Sample darktable pictures of how the matrix and the white balance on near neutral light should look:
 
 ![darktable sample color matrix green](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_color_calib_ok.png "darktable sample color matrix green") 
 ![darktable sample neutral white balance  ](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_neutral_white_balance.png "darktable sample neutral white balance")
