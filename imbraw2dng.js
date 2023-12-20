@@ -1,8 +1,24 @@
 /* imbraw2dng.js - node js command line version */
+/* ******************************************** 
+	// Usage: node imbraw2dng.js [-l lang] [-f] [ -d dir] { [-R] [-J] [-O] [-n yy_mmdd_hhmmss] | <files>   Options:
+	 Usage: node imbraw2dng.js [-l lang] [-f] [ -d dir] <files> 
+	 Options:
+		 -l XX - where XX is a valid language code (currently: DE, EN)
+		 -d dir - put output files into dir
+		 -f - overwrite existing files
+		// -R - get RAW from ImB
+		// -J - get JPEG from ImB
+		// -O - get non-RAW/non-JPEG from ImB
+		// -n yyyy_mmdd_hhmmss (or any length of head) - select only newer than this timestamp from ImB
+		 <files> - process local files, e.g. on MicroSD from ImB
+		//Use <files> only without -R/-J/-O.
+		Language can also be set by changing filename to imbraw2dng_XX.js .
+The plan is that this js will be identical to the js inside the html.
+   ******************************************** */
 "use strict;"
 class ImBC {
 /* Indentation out */
-version = "3.0.1_DEVEL"; // actually const
+version = "3.1.0_DEVEL"; // actually const
 alllangs = [ 'de' , 'en', '00' ]; // actually const
 texts = { // actually const
 	main: {
@@ -382,6 +398,32 @@ texts = { // actually const
 			de: 'Bitte Seite neu laden.',
 			en: 'Please reload page.'
 		}
+	},
+	nodehelp: {
+			//en: [ 'Usage: node ', ' [-l lang] [-f] [ -d dir] { [-R] [-J] [-O] [-n yy_mmdd_hhmmss] | <files> }', 'Options:',
+			en: [ 'Usage: node ', ' [-l lang] [-f] [ -d dir] <files> ', 'Options:',
+				' -l XX - where XX is a valid language code (currently: DE, EN)',
+				' -d dir - put output files into dir',
+				' -f - overwrite existing files',
+				//' -R - get RAW from ImB',
+				//' -J - get JPEG from ImB',
+				//' -O - get non-RAW/non-JPEG from ImB',
+				//' -n yyyy_mmdd_hhmmss (or any length of head) - select only newer than this timestamp from ImB',
+				' <files> - process local files, e.g. on MicroSD from ImB',
+				//'Use <files> only without -R/-J/-O.' ,
+				'Language can also be set by changing filename to imbraw2dng_XX.js .'],
+			//de: [ 'Aufruf: node ', ' [-l sprache] [-f] [ -d ordner] { [-R] [-J] [-O] [-n yy_mmdd_hhmmss] | <dateien> }', 'Optionen:',
+			de: [ 'Aufruf: node ', ' [-l sprache] [-f] [ -d ordner] <dateien> ', 'Optionen:',
+				' -l XX - wo XX ein gültiger Sprachcode ist (derzeit: DE, EN)',
+				' -d ordner - Ausgabedateien in diesen Ordner ablegen',
+				' -f - existierende Dateien überschreiben',
+				//' -R - RAW von ImB konvertieren',
+				//' -J - JPEG von ImB kopieren',
+				//' -O - Nicht-JPEG/Nicht-RAW von ImB kopieren',
+				//' -n yyyy_mmdd_hhmmss (oder beliebig langer Anfang davon) - nur Dateien neuer als dieser Zeitstempel von ImB holen',
+				' <dateien> - lokale Dateien (z.B. von der MicroSD Karte aus ImB) verarbeiten',
+				//'<dateien> nur ohne -R/-J/-O verwenden.' 
+				'Die Sprache kann auch durch Umbenennen in imbraw2dng_XX.js geändert werden.']
 	}
 };
 mylang = 'en';
@@ -1582,6 +1624,9 @@ rot0 () {
 }
 /* get imb data for node js */
 checkimbnode  () {
+	require('node:http').get('http://192.168.1.254/IMBACK/', (res) => {
+			// TODO
+	});
 }
 /* check if we are directly on a back */
 checkimb  () {
@@ -2672,9 +2717,23 @@ xl1 (el) {
 	}
 	return el;
 }
+/* get part of translation */
+xl0 (str, base) {
+	if (undefined === base) base = this.texts;
+	const i = str.indexOf('.');
+	if (i === -1) {
+		let r = base[str][this.mylang];
+		if (undefined === r) r = base[str]['en'];
+		return r;
+	}
+	else {
+		const e = base[str.substring(0,i)];
+		return this.xl0(str.substring(i+1),e);
+	}
+}
 /* translate one string with parameters */
 xl (str, base, arg0, arg1, arg2, arg3) {
-	if (this.debugflag) console.log(' XL ' + str + ' - ' + base + ' - ' + arg0 + ' - ' + arg1);
+	// console.log(' XL ' + str + ' - ' + base + ' - ' + arg0 + ' - ' + arg1);
 	if (undefined === base) base = this.texts;
 	if (this.mylang === '00') {
 		let res = '[' + str;
@@ -2760,25 +2819,26 @@ trylang (i) {
 		this.debugflag = true;
 }
 /* find language from filename */
-querylang () {
+querylang (name, offset) {
+	if (undefined === offset) offset = 8;
 	let found = 0;
 	for (const l of this.alllangs) {
-		if (window.location.pathname.substring(window.location.pathname.length - 8).toUpperCase().startsWith('_' + l.toUpperCase())) {
+		if (name.substring(name.length - offset).toUpperCase().startsWith('_' + l.toUpperCase())) {
 			this.mylang = l;
-			document.getElementById('langsel').value = l;
+			if (document) document.getElementById('langsel').value = l;
 			found = 1;
 			break;
 		}
 	}
 	if (!found) {
 		this.mylang = 'en';
-		document.getElementById('langsel').value = 'en';
+		if (document) document.getElementById('langsel').value = 'en';
 	}
 	if ('00' === this.mylang)
 		this.debugflag = true;
-	else
+	else if (document)
 		document.documentElement.lang = this.mylang;
-	if (this.debugflag)
+	if (this.debugflag && document)
 		document.getElementById('langsel').innerHTML += '<option value="00" onclick="imbc.setlang()">00</option></select>';
 	// followed by xlall anyway
 }
@@ -2786,17 +2846,10 @@ querylang () {
 help (caller) {
 	while (caller.indexOf("/") > -1)
 		caller = caller.substring(caller.indexOf("/") + 1);
-	console.log('Usage: node ' + caller + ' [-l lang] [-f] [ -d dir] { [-R] [-J] [-O] [-n yy_mmdd_hhmmss] | <files> }');
-	console.log('Options:');
-	console.log(' -l XX - where XX is a valid language code (currently: DE, EN)');
-	console.log(' -d dir - put output files into dir');
-	console.log(' -f - overwrite existing files');
-	console.log(' -R - get RAW from ImB');
-	console.log(' -J - get JPEG from ImB');
-	console.log(' -O - get non-RAW/non-JPEG from ImB');
-	console.log(' -n yyyy_mmdd_hhmmss (or any length of head) - select only newer than this timestamp from ImB');
-	console.log(' <files> - process local files, e.g. on MicroSD from ImB');
-	console.log('Use <files> only without -R/-J/-O.');
+	const texts = this.xl0('nodehelp');
+	console.log(texts[0] + ' ' + caller + ' ' + texts[1]);
+	for (let j=2; j<texts.length; j++)
+		console.log(texts[j]);
 }
 /* debug */
 prgr (gr, indent) {
@@ -2929,7 +2982,7 @@ dodebug () {
 let imbc;
 function init() {
 	imbc = new ImBC();
-	imbc.querylang(); imbc.xlateall(); imbc.checkimb();
+	imbc.querylang(window.location.pathname); imbc.xlateall(); imbc.checkimb();
 	document.getElementById('mainversion').innerHTML = imbc.version;
 }
 /* node js handling */
@@ -2937,8 +2990,11 @@ if (typeof process !== 'undefined') {
 	document = undefined;
 	imbc = new ImBC();
 	console.log('Welcome to imbraw2html ' + imbc.version + ' !');
+	imbc.querylang(process.argv[1], 6);
+	let helpshown = false;
 	if (process.argv.length < 3) {
 		imbc.help(process.argv[1]);
+		helpshown = true;
 	}
 	let flagging=0;
 	process.argv.forEach((v,i) => {
@@ -2971,28 +3027,29 @@ if (typeof process !== 'undefined') {
 					else
 						flagging=2;
 				}
-				else if (v.substring(0,2)==='-n') {
+				/*else if (v.substring(0,2)==='-n') {
 					if (v.substring(2).length > 0) {
 						imbc.fromimbts = v.substring(2);
 					}
 					else
 						flagging=3;
-				}
+				}*/
 				else if (v.substring(0,2)==='-h') {
 					imbc.help(process.argv[1]);
+					console.log('');
 				}
 				else if (v.substring(0,2)==='-f') {
 					imbc.ovwout = true;
 				}
-				else if (v.substring(0,2)==='-R') {
-					imbc.fromimbflag += 1;
+				/*else if (v.substring(0,2)==='-R') {
+					imbc.fromimbflags += 1;
 				}
 				else if (v.substring(0,2)==='-J') {
-					imbc.fromimbflag += 2;
+					imbc.fromimbflags += 2;
 				}
 				else if (v.substring(0,2)==='-O') {
-					imbc.fromimbflag += 4;
-				}
+					imbc.fromimbflags += 4;
+				}*/
 				else if (v.substring(0,1) === '-') {
 					// currently ignored
 					console.log(`Unknown option: ${v}`);
@@ -3004,7 +3061,7 @@ if (typeof process !== 'undefined') {
 				}
 			}
 	});
-	if (imbc.totnum === 0 && imbc.fromimbflag !== 0) {
+	if (imbc.totnum === 0 && imbc.fromimbflags !== 0) {
 		imbc.checkimbnode();
 	}
 	else if (imbc.totnum > 0)
