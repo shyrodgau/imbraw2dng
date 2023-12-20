@@ -24,7 +24,7 @@ Das github Repository ist [hier](https://github.com/shyrodgau/imbraw2dng).
 
 ### Internationalisierung
 
-Im Moment werden die Sprachen Englisch (EN) und Deutsch (DE) unterstützt. Wenn man die HTML-Datei mit geändertem Namen als imbraw2html_XX.html abspeichert, wobei XX das Sprachkürzel ist, öffnet sich die Seite direkt in dieser Sprache. Wenn du beim Übersetzen helfen magst, nimm Kontakt auf.
+Im Moment werden die Sprachen Englisch (EN) und Deutsch (DE) unterstützt. Wenn man die HTML-Datei mit geändertem Namen als imbraw2html_XX.html abspeichert, wobei XX das Sprachkürzel ist, öffnet sich die Seite direkt in dieser Sprache. Wenn du beim Übersetzen helfen magst, schau [hier](https://shyrodgau.github.io/imbraw2dng/translations.xls) und nimm Kontakt auf.
 
 ## Benutzung
 

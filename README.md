@@ -24,7 +24,7 @@ The github repository itself can be found [here](https://github.com/shyrodgau/im
 
 ### Internationalization
 
-The current supported langauges are english (EN) and german (DE). If you save the html file with a name change to imbraw2dng_XX.html where XX is the language shortcut, it will open the page directly in that language. If you want to contribute to translating, get in contact!
+The current supported langauges are english (EN) and german (DE). If you save the html file with a name change to imbraw2dng_XX.html where XX is the language shortcut, it will open the page directly in that language. If you want to contribute to translating, look [here](https://shyrodgau.github.io/imbraw2dng/translations.xls) and get in contact!
 
 ## Usage
 
