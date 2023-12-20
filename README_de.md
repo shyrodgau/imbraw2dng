@@ -2,7 +2,7 @@
 
 Dies ist freie Software ohne kommerzielle Unterstützung.
 
-Hier gibts: [Installation](#installation) - [Internationalisierung](#internationalisierung) - [Benutzung](#benutzung) - [Verarbeitung des DNG](#verarbeitung-des-dng) - [Wie funktioniert es](#wie-funktioniert-es) - [Gucken auf ImBack selbst](#gucken-auf-imback-selbst)
+Hier gibts: [Installation](#installation) - [Internationalisierung](#internationalisierung) - [Benutzung](#benutzung) - [Gucken auf ImBack selbst](#gucken-auf-imback-selbst) - [Verarbeitung des DNG](#verarbeitung-des-dng) - [Wie funktioniert es](#wie-funktioniert-es) - [In Arbeit: Per Kommandozeile mit node.js](#kommandozeile-mit-nodejs)
 
 or [IN ENGLISH](https://shyrodgau.github.io/imbraw2dng/)
 
@@ -42,6 +42,10 @@ Neu: man kann Schritt-für-Schritt durchgehen und eine Vorschau der RAW-Datei da
 Man kann die html-Datei (auch wegen [Internationalisierung](#internationalisierung) umbenannt) auf die micro-SD-Karte im ImBack kopieren, sagen wir mal in dan `IMBACK` Ordner. Dann den PC mit dem WLAN des ImBack verbinden und mit dem Browser auf [die Seite im Imback](http://192.168.1.254/IMBACK/imbraw2dng.html) (ggf. mit geändertem Namen) gehen.
 
 Dann kann man direkt alle Dateien, die neuer als ein angegebener Zeitstempel sind, verarbeiten/kopieren, oder mit dem Bildbrowser alle Dateien auf dem ImBack nach Typ und/oder Zeitstempel ansehen. RAW- und JPEG-Bilder werden dabei angezeigt. Man kann Dateien auswählen, die man verarbeiten/kopieren oder auch löschen möchte.
+
+### Kommandozeile mit node.js
+
+Sofern man [node.js](https://nodejs.org) hat, kann man die Konvertierung auf der Kommandozeile durchführen. Hierzu die Datei [imbraw2dng.js](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.js) verwenden.
 
 ## Verarbeitung des DNG
 

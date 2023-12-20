@@ -2,7 +2,7 @@
 
 This is free software and not commercially supported.
 
-In here: [Installation](#installation) - [Internationalization](#internationalization) - [Usage](#usage) - [Processing the DNG](#processing-the-dng) - [How does it work](#how-does-it-work) - [Browsing on the ImBack](#browsing-on-the-imback) 
+In here: [Installation](#installation) - [Internationalization](#internationalization) - [Usage](#usage) - [Browsing on the ImBack](#browsing-on-the-imback) - [Processing the DNG](#processing-the-dng) - [How does it work](#how-does-it-work) - [Soon: Command line usage via node.js](#command-line-using-nodejs)
 
 oder [AUF DEUTSCH](https://shyrodgau.github.io/imbraw2dng/README_de)
 
@@ -41,6 +41,10 @@ New: you can do a step-by-step walk with a preview of the raw file. For that, ch
 You can put the html file (also renamed according to [internationalization](#internationalization) ) on the micro-SD that is inside the ImBack, let's say into the `IMBACK` folder. Then you connect your PC to the ImBack Wifi and browse [your Imback](http://192.168.1.254/IMBACK/imbraw2dng.html) (or with the changed name).
 
 It offers you direct processing/copying of files newer than a given timestamp, or you can use the visual browser to look at the files on the ImBack by type and/or date. RAW and JPEG images will be displayed. You can select files for processing/conversion or deletion.
+
+### Command line using node.js
+
+If and when you have [node.js](https://nodejs.org) installed, you can do the conversion via command line by getting the file [imbraw2dng.js](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.js).
 
 ## Processing the DNG
 
