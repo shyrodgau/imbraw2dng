@@ -1,19 +1,34 @@
 "use strict;"
-/* imbraw2dng.js - node js command line version */
+/* when embedded into html, this doc is not valid, control via browser */
 /* ******************************************** 
-	// Usage: node imbraw2dng.js [-l lang] [-f] [ -d dir] { [-R] [-J] [-O] [-n yy_mmdd_hhmmss] | <files>   Options:
-	 Usage: node imbraw2dng.js [-l lang] [-f] [ -d dir] <files> 
-	 Options:
-		 -l XX - where XX is a valid language code (currently: DE, EN)
-		         Language can also be set by changing filename to imbraw2dng_XX.js .
-		 -d dir - put output files into dir
-		 -f - overwrite existing files
-		 -R - get RAW from ImB
-		 -J - get JPEG from ImB
-		 -O - get non-RAW/non-JPEG from ImB
-		 -n yyyy_mmdd_hhmmss (or any length of head) - select only newer than this timestamp from ImB
-		 <files> - process local files, e.g. on MicroSD from ImB
-		Use <files> only without -R/-J/-O.
+
+imbraw2dng.js
+
+Convert RAW from I'm back(R)(https://imback.eu) into DNG
+
+Stefan Hegny, 2023
+
+https://github.com/shyrodgau/imbraw2dng
+
+Free software, use at own risk for whatever you like
+
+	Usage: node  imbraw2dng.js  [-l lang] [-f] [ -d dir] { [-R] [-J] [-O] [-n yy_mmdd_hhmmss] | <files-or-dirs> }
+	Options:
+	 -h 			- show this help
+	 -l XX 			- where XX is a valid language code (currently: DE, EN)
+			 		  Language can also be set by changing filename to imbraw2dng_XX.js .
+	 -d dir 		- put output files into dir
+	 -f 			- overwrite existing files
+	 -----
+	 -R 			- get RAW from ImB connected via Wifi
+	 -J 			- get JPEG from ImB connected via Wifi
+	 -O 			- get non-RAW/non-JPEG from ImB connected via Wifi
+	 -n yyyy_mmdd_hhmmss (or any length of head) - select only newer than this timestamp from ImB
+	 -----
+	 <files-or-dirs> - process local files or directories recursively, e.g. on MicroSD from ImB, recursive
+	 -----
+	<files-or-dirs> and -R/-J/-O are mutually exclusive.
+
 The plan is that this js will be identical to the js inside the html.
    ******************************************** */
 class ImBC {
@@ -206,8 +221,8 @@ texts = { // actually const
 			fr: 'Ou outilizer navigateur visuel des images'
 		},
 		errconnect: {
-			de: '\x1b[31mFEHLER\x1b[0m bei der Verbindung zu $$0! Im ImB WLAN?',
-			en: '\x1b[31mERROR\x1b[0m connecting to $$0! In the ImB WiFi?'
+			de: '\x1b[31mFEHLER\x1b[0m bei der Verbindung zu ImB auf $$0! Im ImB WLAN?',
+			en: '\x1b[31mERROR\x1b[0m connecting to ImB on $$0! In the ImB WiFi?'
 		},
 		nomatch: {
 			de: 'Keine passenden Dateien gefunden.',
@@ -431,32 +446,36 @@ texts = { // actually const
 		}
 	},
 	nodehelp: {
-			en: [ 'Usage: node ', ' [-l lang] [-f] [ -d dir] { [-R] [-J] [-O] [-n yy_mmdd_hhmmss] | <files> }', 'Options:',
-			//en: [ 'Usage: node ', ' [-l lang] [-f] [ -d dir] <files> ', 'Options:',
+			en: [ 'Usage: node ', ' [-l lang] [-f] [ -d dir] { [-R] [-J] [-O] [-n yy_mmdd_hhmmss] | <files-or-dirs> }', 'Options:',
 				' \x1b[1m-h\x1b[0m - show this help',
 				' \x1b[1m-l XX\x1b[0m - where XX is a valid language code (currently: DE, EN)',
 				'         Language can also be set by changing filename to imbraw2dng_XX.js .',
 				' \x1b[1m-d dir\x1b[0m - put output files into dir',
 				' \x1b[1m-f\x1b[0m - overwrite existing files',
-				' \x1b[1m-R\x1b[0m - get RAW from ImB',
-				' \x1b[1m-J\x1b[0m - get JPEG from ImB',
-				' \x1b[1m-O\x1b[0m - get non-RAW/non-JPEG from ImB',
+				' -----',
+				' \x1b[1m-R\x1b[0m - get RAW from ImB connected via Wifi',
+				' \x1b[1m-J\x1b[0m - get JPEG from ImB connected via Wifi',
+				' \x1b[1m-O\x1b[0m - get non-RAW/non-JPEG from ImB connected via Wifi',
 				' \x1b[1m-n yyyy_mmdd_hhmmss\x1b[0m (or any length of head) - select only newer than this timestamp from ImB',
-				' <files> - process local files, e.g. on MicroSD from ImB',
-				'Use <files> only without -R/-J/-O.' ,],
-			de: [ 'Aufruf: node ', ' [-l sprache] [-f] [ -d ordner] { [-R] [-J] [-O] [-n yy_mmdd_hhmmss] | <dateien> }', 'Optionen:',
-			//de: [ 'Aufruf: node ', ' [-l sprache] [-f] [ -d ordner] <dateien> ', 'Optionen:',
+				' -----',
+				' <files-or-dirs> - process local files or directories recursively, e.g. on MicroSD from ImB, recursive',
+				' -----',
+				'<files-or-dirs> and -R/-J/-O are mutually exclusive.' ,],
+			de: [ 'Aufruf: node ', ' [-l sprache] [-f] [ -d ordner] { [-R] [-J] [-O] [-n yy_mmdd_hhmmss] | <dateien-oder-ordner> }', 'Optionen:',
 				' \x1b[1m-h\x1b[0m - diesen Hilfetext zeigen',
 				' \x1b[1m-l XX\x1b[0m - wo XX ein gültiger Sprachcode ist (derzeit: DE, EN)',
 				'         Die Sprache kann auch durch Umbenennen in imbraw2dng_XX.js geändert werden.',
 				' \x1b[1m-d ordner\x1b[0m - Ausgabedateien in diesen Ordner ablegen',
 				' \x1b[1m-f\x1b[0m - existierende Dateien überschreiben',
-				' \x1b[1m-R\x1b[0m - RAW von ImB konvertieren',
-				' \x1b[1m-J\x1b[0m - JPEG von ImB kopieren',
-				' \x1b[1m-O\x1b[0m - Nicht-JPEG/Nicht-RAW von ImB kopieren',
+				' -----',
+				' \x1b[1m-R\x1b[0m - RAW von per WLAN verbundener ImB konvertieren',
+				' \x1b[1m-J\x1b[0m - JPEG von per WLAN verbundener ImB kopieren',
+				' \x1b[1m-O\x1b[0m - Nicht-JPEG/Nicht-RAW von per WLAN verbundener ImB kopieren',
 				' \x1b[1m-n yyyy_mmdd_hhmmss\x1b[0m (oder beliebig langer Anfang davon) - nur Dateien neuer als dieser Zeitstempel von ImB holen',
-				' <dateien> - lokale Dateien (z.B. von der MicroSD Karte aus ImB) verarbeiten',
-				'<dateien> nur ohne -R/-J/-O verwenden.',]
+				' -----',
+				' <dateien-oder-ordner> - lokale Dateien oder Ordner rekursiv (z.B. von der MicroSD Karte aus ImB) verarbeiten',
+				' -----',
+				'<dateien-oder-ordner> und -R/-J/-O schließen sich gegenseitig aus.',]
 	}
 };
 mylang = 'en';
@@ -469,7 +488,7 @@ fromimbts = '0000';
 orients = [ '', 'none', '', 'upsidedown', '', '', 'clockwise', '', 'counterclockwise' ]; // actually const
 oriecw = [ 1, 6, 3, 8 ]; // clockwise indices // actually const
 types = [ "unknown", "ImB35mm", "MF 6x7 ", "MF6x4.5", "MF 6x6 " ]; // actually const
-infos = [
+infos = [ // actually const
 	{
 		size: 14065920,
 		w: 4320,
@@ -564,23 +583,23 @@ addlinkbool = false;
 dispcnt = 1;
 stepmode = 0; // 0: always save (when no preview checkbox or "save all" in dialog), 1: always ask (set on preview checkbox), 2: skip all (after selected in dialog)
 // current preview image
-currentrot = 1;
+currentrot = 1; // see oriecw above
 // from the back itself
-maxcache = 30; // max. length of cache for already downloaded raw data - you may increase this
+maxcache = 30; // max. length of cache for already downloaded raw data - you may increase or decrease this
 cache = []; // actual cache buffer
 imbpics = [];  // found jpegs
 rimbpics = []; // found raws
 imbmovies = []; // found other
-imbeles = [];  // elements for files
-typedclasses = [];  // elements for groups w/o type
-untypedclasses = []; // elements for groups with type
-earliestmov = '9999';  // bounds of dates
+imbeles = [];  // elements for files for visual browser
+typedclasses = [];  // elements for groups w/o type for visual browser
+untypedclasses = []; // elements for groups with type for visual browser
+earliestmov = '9999';  // upper/lower bounds of dates for types
 latestmov='0000';
 earliestjpg='9999';
 latestjpg='0000';
 earliestraw='9999';
 latestraw='0000';
-loaderrunning; // currently handled browser raw preview download
+loaderrunning=false; // currently handled browser raw preview download
 /* deleting */
 deletephase = 0;
 /* debug */
@@ -604,7 +623,6 @@ appendmsgx(msg) {
 		xmsg.style["display"] = "";
 		msgel.append(msg);
 	}
-	else console.log(msg);
 }
 /* helper function to put integer into dng */
 writeinttoout(out, num, off) {
@@ -617,7 +635,7 @@ writeinttoout(out, num, off) {
 appendnl() {
 	if (document) this.appendmsg('<br>&nbsp;<br>');
 }
-/* handler for file selection input */
+/* browserdisplay: handler for file selection input */
 fselected() {
 	if (this.actnum !== this.allfiles.length) return;
     const addlinkel = document.getElementById('addlink');
@@ -640,7 +658,51 @@ fselected() {
 		this.handleonex();
 	}
 }
-/* continue with the next file */
+/* nodejs: handle given files/dirs recursive */
+handlerecurse(already, index) {
+	if (!already) {
+		// initializsation
+		already = [];
+		index = 0;
+		this.stats.total = 0;
+		this.totnum = 0;
+	}
+	const d = this.allfiles[index];
+	if (undefined === d) {
+		// beyond end of allfiles, finished recursion
+		this.allfiles = already;
+		this.stats.total = this.totnum = already.length;
+		if (this.totnum > 0)
+			this.handleonex();
+		return;
+	}
+	this.fs.stat(d, (err, stat) => {
+		if (err) {
+			console.log(this.xl('process.erraccessx', d));
+			console.log(JSON.stringify(err));
+			console.log('');
+		}
+		else if (stat.isDirectory()) {
+			// recurse into
+			this.fs.readdir(d, { withFileTypes: true, recursive: true }, (err2, f) => {
+				if (err2) {
+					console.log(this.xl('process.erraccessx', d));
+					console.log(JSON.stringify(err2));
+				}
+				else for (let i of f.filter(e => e.isFile())) {
+					already.push(i.path + this.pa.sep + i.name);
+					//console.log(i);
+				}
+			});
+		}
+		else {
+			// plain files simply go
+			already.push(d);
+		}
+		this.handlerecurse(already, index + 1);
+	});
+}
+/* continue with the next file if any */
 handlenext() {
 	if (this.actnum < this.allfiles.length - 1) {
 		this.actnum++;
@@ -668,14 +730,14 @@ handlenext() {
 		}
 	}
 }
-/* as it says */
+/* browserdisplay: as it says */
 showreloadhints() {
 	const rl1 = document.getElementById('reloadhint');
 	if (null !== rl1) rl1.style['display'] = '';
 	const rl2 = document.getElementById('reloadhint2');                                          
 	if (null !== rl2) rl2.style['display'] = '';
 }
-/* switch preview config to jpeg img */
+/* preview: switch preview config to jpeg img */
 setjpegpv() {
 	document.getElementById('jpegpreview').style['display'] = '';
 	document.getElementById('rotations').style['display'] = 'none';
@@ -684,7 +746,7 @@ setjpegpv() {
 	document.getElementById('previewerr').style['display'] = 'none';
 	document.getElementById('preview').style['display'] = 'none';
 }
-/* switch preview config to err */
+/* preview: switch preview config to err */
 setpverr() {
 	document.getElementById('jpegpreview').style['display'] = 'none';
 	document.getElementById('rotations').style['display'] = 'none';
@@ -693,7 +755,7 @@ setpverr() {
 	document.getElementById('previewerr').style['display'] = '';
 	document.getElementById('preview').style['display'] = 'none';
 }
-/* switch preview config to wait */
+/* preview: switch preview config to wait */
 setpvwait() {
 	document.getElementById('jpegpreview').style['display'] = 'none';
 	document.getElementById('rotations').style['display'] = 'none';
@@ -738,7 +800,9 @@ createFxNode(url, onok, onerr) {
 							target: { result: fy.data }
 					});
 				};
-				onok(url, fx);
+				setTimeout(() => {
+					onok(url, fx);
+				});
 			});
 		}).on('error', (e) => {
 			console.log(this.xl('onimback.errconnect', '192.168.1.254'));
@@ -750,6 +814,7 @@ createFxNode(url, onok, onerr) {
 		// read local file
 		this.fs.readFile(url, (err, data) => {
 				if (err) {
+					this.mappx('process.erraccess' + (!document ? 'x' : ''), url);
 					console.log(JSON.stringify(err));
 					return onerr(url, fx);
 				}
@@ -873,14 +938,13 @@ handleonex() {
 	else if (this.stepmode === 1) {
 		// show preview and ask for rotation, skip, save
 		// then (in handler) set mode, call handleone (if save) or handlenext (if skip)
-		if (document) this.showquestion();
+		this.showquestion();
 		const f = this.allfiles[this.actnum];
 		if (undefined === f) {
 			return;
 		}
 		if (this.totnum > 1) {
-			if (document) document.getElementById('qhdr').innerHTML = '[' + (1 + this.actnum) + ' / ' + this.totnum + '] ';
-			else console.log('[' + (1 + this.actnum) + ' / ' + this.totnum + '] ');
+			document.getElementById('qhdr').innerHTML = '[' + (1 + this.actnum) + ' / ' + this.totnum + '] ';
 		} else document.getElementById('qhdr').innerHTML = '';
 		if (rawname.substring(rawname.length -4).toUpperCase() === '.JPG' ||
 			rawname.substring(rawname.length -5).toUpperCase() === '.JPEG') {
@@ -926,7 +990,7 @@ handleonex() {
 		this.handleone(f.rot);
 	}
 }
-/* xl helper */
+/* translation helper */
 genspan(key, arg0, arg1, arg2, arg3) {
 	const s = document.createElement('span');
 	s.setAttribute('data-myxlkey', key);
@@ -1092,8 +1156,10 @@ handleone(orientation) {
 		}
 		if (orientation !== undefined && orientation !== 1) {
 			this.mappx('process.orientation');
-			this.appendmsgx(this.genspan('preview.orients.' + this.orients[orientation]));
-			if (document) this.appendmsg('<br>');
+			if (document) {
+				this.appendmsgx(this.genspan('preview.orients.' + this.orients[orientation]));
+				this.appendmsg('<br>');
+			}
 		}
 		/* Here comes the actual building of the DNG */
 		const contents = evt.target.result;
@@ -1272,11 +1338,14 @@ output1(name, type, okmsg, arr1, arr2) {
 		outel.click();
 		this.mappx(okmsg, name);
 		if (this.addlinkbool) {
-			this.mappx('process.dlagaindng', name, thisurl);
+			if (type === 'image/x-adobe-dng')
+				this.mappx('process.dlagaindng', name, thisurl);
+			else
+				this.mappx('process.dlagain', name, thisurl);
 			this.showreloadhints();
 		}
 		this.appendnl();
-		const ie = this.imbeles.find((v) => v.raw.substring(0, rawname.length - 3) === rawname.substring(0, rawname.length - 3));
+		const ie = this.imbeles.find((v) => v.raw.substring(0, v.raw.length - 3) === name.substring(0, name.length - 3));
 		if (ie) {
 			ie.wasselected = true;
 			if (ie.entry)
@@ -1327,7 +1396,7 @@ output1(name, type, okmsg, arr1, arr2) {
 		});
 	}
 }
-/* handler function for dropping OS files into the rect */
+/* browserdisplay: handler function for dropping OS files into the rect */
 drophandler(ev) {
 	if (this.actnum !== this.allfiles.length) return;
 	const addlinkel = document.getElementById('addlink');
@@ -1361,7 +1430,7 @@ drophandler(ev) {
 	document.getElementById('infile').disabled = true;
 	this.handleonex();
 }
-/* some handler on the drop rectangle */
+/* browserdisplay: some handler on the drop rectangle */
 prevdef(ev) {
 	ev.preventDefault();
 }
@@ -1421,7 +1490,7 @@ getPix(x, y, w, view, typ) {
 	outrgb.push((blues[1] + blues[2]) / 2.0);
 	return outrgb;
 }
-/* put preview into canvas */
+/* browserdisplay: put preview into canvas */
 // orientation: 1: norm, 3: rot 180, 6 rot 90 CW, 8: rot 270 CCW
 buildpreview(f, onok, onerr, orientation, targ, afterload) {
 	let w, h, typ;
@@ -1548,7 +1617,7 @@ buildpreview(f, onok, onerr, orientation, targ, afterload) {
 	};
 	reader.readAsArrayBuffer(f);
 }
-/* raw preview okay */
+/* preview: raw preview okay */
 setrawpv() {
 	document.getElementById('preview').style['display'] = '';
 	document.getElementById('rotations').style['display'] = '';
@@ -1557,7 +1626,7 @@ setrawpv() {
 	document.getElementById('previewerr').style['display'] = 'none';
 	document.getElementById('jpegpreview').style['display'] = 'none';
 }
-/* no preview in question */
+/* preview: no preview in question */
 setnopv() {
 	document.getElementById('preview').style['display'] = 'none';
 	document.getElementById('rotations').style['display'] = 'none';
@@ -1566,7 +1635,7 @@ setnopv() {
 	document.getElementById('previewerr').style['display'] = 'none';
 	document.getElementById('jpegpreview').style['display'] = 'none';
 }
-/* as it says */
+/* browserdisplay: show the preview question skip/process */
 showquestion() {
 	const norm = document.getElementById('normal');
 	const quest = document.getElementById('question');
@@ -1576,14 +1645,14 @@ showquestion() {
 	document.getElementById('qhdr').innerHTML = '';
 	document.getElementById('browser').style['display'] = 'none';
 }
-/* put last message viewable */
+/* browserdisplay: put last message viewable */
 showlastmsg() {
 	const ll = document.getElementById('mappx_' + this.dispcnt);
 	if (ll) {
 		ll.scrollIntoView(false, { block: 'nearest' });
 	}
 }
-/* as it says */
+/* browserdisplay: as it says */
 shownormal() {
 	if (document) {
 		window.onscroll = () => undefined;
@@ -1597,7 +1666,7 @@ shownormal() {
 		window.setTimeout(() => { this.showlastmsg(); }, 100);
 	}
 }
-/* previewquestion: skip handler in the step preview */
+/* preview: skip handler in the step preview */
 skipthis() {
 	if (document.getElementById('doforall').checked) this.stepmode = 2;
 	if (this.totnum > 1) {
@@ -1729,7 +1798,7 @@ handle1imb(url) {
 	}
 }
 /* nodejs: get imb data for node js */
-checkimbnode(type, cb, found) {
+checkimbnode(type, found) {
 	//let subdir = '';
 	let subdir = 'PHOTO';
 	if (type) subdir='MOVIE';
@@ -1738,16 +1807,16 @@ checkimbnode(type, cb, found) {
 			let err = false;
 			if (res.statusCode !== 200 || !/^text\/html/.test(res.headers['content-type'])) {
 				err = true;
+				res.resume();
 				if (!type) {
-					res.resume();
-					return this.checkimbnode(true, cb, false);
+					return this.checkimbnode(true, false);
 				}
 				else if (type && !found) {
 					console.log(this.xl('onimback.errconnect', '192.168.1.254'));
 					console.log('Status: ' + res.statusCode + ' Type: ' + res.headers['content-type']);
+					process.exit(1);
 				}
-				else cb();
-				res.resume();
+				else this.imbdoit();
 				return;
 			}
 			let b = '';
@@ -1761,54 +1830,62 @@ checkimbnode(type, cb, found) {
 					let endstr = b.substring(i+j+9).indexOf(delim);
 					let url = b.substring(i+j+9, i+j+9+endstr);
 					if (-1 === url.indexOf('?del=')) {
-						this.handle1imb(url);
+						if (url.startsWith('http://192.168.1.254'))
+							this.handle1imb(url);
+						else
+							this.handle1imb('http://192.168.1.254'+ url);
+						//console.log(url  + ' ' + this.imbpics.length + ' ' + this.imbmovies.length + ' ' + this.rimbpics.length);
 					}
 					i=i+j+10;
 				}
-				if (type) { if (!err || found) cb(); }
-				else this.checkimbnode(true, cb, !err);
+				if (type) { if (!err || found) this.imbdoit(); }
+				else this.checkimbnode(true, !err);
 			});
 	}).on('error', (e) => {
 		if (!type) {
-			return this.checkimbnode(true, cb, false);
+			return this.checkimbnode(true, false);
 		}
 		else if (type && !found) {
 			console.log(this.xl('onimback.errconnect', '192.168.1.254'));
 			console.log(JSON.stringify(e));
+			process.exit(1);
 		}
-		else cb();
+		else this.imbdoit();
 	});
 }
 /* check if we are directly on a back */
-checkimb(type, found) {
+checkimb(type) {
 	if (this.debugflag && document) document.getElementById('dbgfsel').style['display'] = '';
-	if (window.location.protocol !== 'http:') return;
+	if (!window.location.href.startsWith('http://192.168.1.254')) return;
+	document.getElementById('onimback').style['display'] = '';
 	const xhr = new XMLHttpRequest();
 	xhr.onloadend = (event) => {
 		if (xhr.status === 200) {
 			const sel2 = xhr.responseXML.querySelectorAll('a');
 			for (const r of sel2) {
-				if (r) {
-					let rawname = r.href;
-					if (rawname.indexOf('del=') != -1) continue;
-					this.handle1imb(rawname);
+				if (r && r.href.indexOf('del=') === -1) {
+					if (r.href.startsWith('http://192.168.1.254'))
+						this.handle1imb(r.href);
+					else
+						this.handle1imb('http://192.168.1.254'+ r.href);
 				}
 			}
 			if (type && (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0)) {
 				this.aftercheck();
 			}
-			else this.checkimb(true, true);
+			else if (!type) this.checkimb(true);
 		}
+		else if (!type) this.checkimb(true);
 	};
 	xhr.onerror = (event) => {
-		if (!type) this.checkimb(true, false);
-		else if (found && (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0)) {
+		if (!type) this.checkimb(true);
+		else if (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0) {
 			this.aftercheck();
 		}
 	};
-	xhr0.open('GET', '/IMBACK/' + (type ? 'MOVIE' : 'PHOTO'));
-	xhr0.responseType = 'document';
-	xhr0.send();
+	xhr.open('GET', '/IMBACK/' + (type ? 'MOVIE' : 'PHOTO'));
+	xhr.responseType = 'document';
+	xhr.send();
 }
 /* handle the normal selection from imback (do it button), also for nodejs */
 imbdoit() {
@@ -1821,7 +1898,7 @@ imbdoit() {
 	else compval = this.fromimbts;
 	if ((document && document.getElementById('picfromimb').checked) ||
 		(this.fromimbflags % 2)) {
-		for (const e of this.imbpics) {
+		for (const e of this.rimbpics) {
 			let rawname = e;
 			while (rawname.indexOf("/") > -1)
 				rawname = rawname.substring(rawname.indexOf("/") + 1);
@@ -1831,7 +1908,7 @@ imbdoit() {
 	}
 	if ((document && document.getElementById('rpicfromimb').checked) ||
 		((this.fromimbflags % 4) > 1)) {
-		for (const e of this.rimbpics) {
+		for (const e of this.imbpics) {
 			let rawname = e;
 			while (rawname.indexOf("/") > -1)
 				rawname = rawname.substring(rawname.indexOf("/") + 1);
@@ -1884,11 +1961,7 @@ imbdoit() {
 	else if (this.totnum > 0) this.handleonex();
 	else this.mappx('onimback.nomatch');
 }
-/* open visual browser */
-visbrows() {
-	this.showbrowser();
-}
-/* as it says */
+/* browserdisplay: open visual browser */
 showbrowser() {
 	const norm = document.getElementById('normal');
 	const quest = document.getElementById('question');
@@ -1918,7 +1991,6 @@ createwait(el) {
 }
 /* visual browser: prepare the browser display, group the stuff */
 aftercheck() {
-	document.getElementById('onimback').style['display'] = '';
 	document.getElementById('piccnt').innerHTML = '' + this.imbpics.length + ' (';
 	if (this.earliestjpg.length > 4) document.getElementById('piccnt').innerHTML += this.earliestjpg.substring(0,16);
 	document.getElementById('piccnt').innerHTML += ' - ';
@@ -2839,7 +2911,7 @@ prgr(gr, indent) {
 		prgr(s, indent + 1);
 	}
 }
-/* print translations */
+/* debug: print translations for csv */
 prxl(key, el) {
 	if (el['de'] && el['en']) {
 		if (typeof el['de'] === 'string') {
@@ -2880,21 +2952,23 @@ dodebug() {
 /* indentation in */
 };
 let imbc;
+/* onload of html body */
 function init() {
 	imbc = new ImBC();
-	imbc.querylang(window.location.pathname); imbc.xlateall(); imbc.checkimb();
+	imbc.querylang(window.location.pathname);
+	imbc.xlateall();
+	imbc.checkimb();
 	document.getElementById('mainversion').innerHTML = imbc.version;
 }
-/* node js handling */
+/* node js handling main function */
 if (typeof process !== 'undefined') {
 	var document = undefined;
 	imbc = new ImBC();
-	console.log('Welcome to imbraw2html ' + imbc.version + ' !');
+	console.log('\x1b[1mWelcome to imbraw2html\x1b[0m ' + imbc.version + ' !');
 	imbc.querylang(process.argv[1], 6);
-	let helpshown = false;
+	let wanthelp = false;
 	if (process.argv.length < 3) {
-		imbc.help(process.argv[1]);
-		helpshown = true;
+		wanthelp = true;
 	}
 	let flagging=0;
 	process.argv.forEach((v,i) => {
@@ -2935,11 +3009,7 @@ if (typeof process !== 'undefined') {
 						flagging=3;
 				}
 				else if (v.substring(0,2)==='-h') {
-					if (!helpshown) {
-						imbc.help(process.argv[1]);
-						console.log('');
-					}
-					helpshown = true;
+					wanthelp = true;
 				}
 				else if (v.substring(0,2)==='-f') {
 					imbc.ovwout = true;
@@ -2960,14 +3030,16 @@ if (typeof process !== 'undefined') {
 				else {
 					imbc.allfiles.push(v);
 					imbc.totnum ++;
-					imbc.stats.total++;
 				}
 			}
 	});
-	if (helpshown) return;
-	else if (imbc.totnum === 0 && imbc.fromimbflags !== 0) {
-		imbc.checkimbnode(false, () => imbc.imbdoit());
+	if (wanthelp || (imbc.fromimbflags === 0 && imbc.totnum === 0) || (imbc.fromimbflags > 0 && imbc.totnum > 0)) {
+		imbc.help(process.argv[1]);
+		console.log('');
+	}
+	else if (imbc.fromimbflags > 0) {
+		imbc.checkimbnode();
 	}
 	else if (imbc.totnum > 0)
-		imbc.handleonex();
+		imbc.handlerecurse();
 }

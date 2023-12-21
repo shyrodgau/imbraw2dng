@@ -2,11 +2,13 @@
 
 This is free software and not commercially supported.
 
-In here: [Installation](#installation) - [Internationalization](#internationalization) - [Usage](#usage) - [Browsing on the ImBack](#browsing-on-the-imback) - [Processing the DNG](#processing-the-dng) - [How does it work](#how-does-it-work) - [Soon: Command line usage via node.js](#command-line-using-nodejs)
+In here: [Installation](#installation) - [Internationalization](#internationalization) - [Usage](#usage) - [Browsing on the ImBack](#browsing-on-the-imback) - [Processing the DNG](#processing-the-dng) - [How does it work](#how-does-it-work) - [Command line usage via node.js](#command-line-using-nodejs)
 
 oder [AUF DEUTSCH](https://shyrodgau.github.io/imbraw2dng/README_de)
 
-They are not really "B&W RAW" but actually the RAW sensor data that also contains the colour filtering (unfortunately only 8 bit deep..). You can see it when you import them as RAW into photoshop as Samuel described - zoom in and you see the gray values rastered in 2x2 squares. So even for B&W it is better to go the DNG way. The page can do parts (or partially more) of the mobile phone app.
+They are not really "B&W RAW" but actually the RAW sensor data that also contains the colour filtering (unfortunately only 8 bit deep..). 
+
+The page can do parts (or partially more - display RAW) of the mobile phone app.
 
 Currently known to work for current firmware on 35mm (also for "Angle medium" and "small") and MF I'm Back. Not all angle variants are covered for MF, if you need it and can help contact me.
 
@@ -28,9 +30,9 @@ The current supported langauges are english (EN) and german (DE). If you save th
 
 ## Usage
 
-You can drop all files from the I'm back (i.e. from the micro SD inserted into your PC) into the blue field. It will then copy all non-RAW files exactly and convert the RAW files to DNG, replacing the `.raw`/`.RAW` file extension with `.dng`. When you use the `Choose Files` button, you can select RAW files directly. 
+You can drag and drop all files from the I'm back (i.e. from the micro SD inserted into your PC) into the blue field. It will then copy all non-RAW files exactly and convert the RAW files to DNG, replacing the `.raw`/`.RAW` file extension with `.dng`. When you use the `Choose Files` button, you can select RAW files directly. 
 
-Your browser will download them according to its download settings, so it might pop up a dialog where to save it for each file if so configured, or throw all files into your Downloads directory if so configured , or, or, or...
+Your browser will download them according to its download settings, so it might pop up a dialog where to save it for each file if so configured, or throw all files into your Downloads directory (possibly renaming it) if so configured , or, or, or...
 
 Conversion to DNG currently sets the Timestamp Tags if the filename seems to be a reasonable I'm Back filename (i.e. `YYYY_MMDD_hhmmss`), and the OriginalRawFilename to the name of the RAW inputfile. That way you can name the DNG file whatever you like without losing any of the original information.
 
@@ -44,7 +46,7 @@ It offers you direct processing/copying of files newer than a given timestamp, o
 
 ### Command line using node.js
 
-If and when you have [node.js](https://nodejs.org) installed, you can do the conversion via command line by getting the file [imbraw2dng.js](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.js).
+If and when you have [node.js](https://nodejs.org) installed, you can do the conversion via command line by getting the file [imbraw2dng.js](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.js). Naming conventions according to [Internationalization](#internationalization) apply. Parameter and calling help can be read with `node imbraw2dng.js`.
 
 ## Processing the DNG
 

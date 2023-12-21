@@ -2,11 +2,13 @@
 
 Dies ist freie Software ohne kommerzielle Unterstützung.
 
-Hier gibts: [Installation](#installation) - [Internationalisierung](#internationalisierung) - [Benutzung](#benutzung) - [Gucken auf ImBack selbst](#gucken-auf-imback-selbst) - [Verarbeitung des DNG](#verarbeitung-des-dng) - [Wie funktioniert es](#wie-funktioniert-es) - [In Arbeit: Per Kommandozeile mit node.js](#kommandozeile-mit-nodejs)
+Hier gibts: [Installation](#installation) - [Internationalisierung](#internationalisierung) - [Benutzung](#benutzung) - [Gucken auf ImBack selbst](#gucken-auf-imback-selbst) - [Verarbeitung des DNG](#verarbeitung-des-dng) - [Wie funktioniert es](#wie-funktioniert-es) - [Per Kommandozeile mit node.js](#kommandozeile-mit-nodejs)
 
 or [IN ENGLISH](https://shyrodgau.github.io/imbraw2dng/)
 
-Es sind keine "Schwarz-Weiß RAW"-Dateien, sondern die echten Roh-Sensordaten mit der Farbfilterung darauf (leider aber nur 8 bit...). Wenn man sie wie nach Samuels Beschreibung in Photoshop importiert und hineinzoomt, kann man die Rasterung der Grauwerte in 2x2 Quadraten erkennen. Somit ist es auch für Schwarz-Weiß besser, über DNG zu gehen. Die Seite kann inzwischen auch Teilfunktionen (teils auch mehr) der Mobiltelefon App.
+Es sind keine "Schwarz-Weiß RAW"-Dateien, sondern die echten Roh-Sensordaten mit der Farbfilterung darauf (leider aber nur 8 bit...). 
+
+Die Seite kann inzwischen auch Teilfunktionen (teils auch mehr - nämlich RAW anzeigen) der Mobiltelefon App.
 
 Aktuell scheint es für die aktuellen Firmwares auf 35mm (auch für "Winkel Mittel" und "klein") und auf MF I'm Back zu funktionieren. Für MF sind nicht alle Winkel-Einstellungen abgedeckt. Wenn du sie brauchst und ein bisschen mithelfen magst, nimm Kontakt auf.
 
@@ -28,9 +30,9 @@ Im Moment werden die Sprachen Englisch (EN) und Deutsch (DE) unterstützt. Wenn 
 
 ## Benutzung
 
-Man kann alle Dateien vom I'm back (also von der in den PC gesteckten micro-SD-Karte) in das blaue Feld schieben. Dann werden nicht-RAW Dateien eins-zu-eins kopiert und die RAW-Dateien nach DNG konvertiert, wobei die `.raw`/`.RAW` Dateiendung durch `.dng` ersetzt wird. Mit der `Choose Files` Schaltfläche können RAW Dateien direkt ausgewählt werden. 
+Man kann alle Dateien vom I'm back (also von der in den PC gesteckten micro-SD-Karte) in das blaue Feld ziehen und ablegen. Dann werden nicht-RAW Dateien eins-zu-eins kopiert und die RAW-Dateien nach DNG konvertiert, wobei die `.raw`/`.RAW` Dateiendung durch `.dng` ersetzt wird. Mit der `Choose Files` Schaltfläche können RAW Dateien direkt ausgewählt werden. 
 
-Der Browser wird das Herunterladen gemäß seiner Download-Einstellungen machen, könnte also einen Dialog zeigen, wo jede einzelne Datei gespeichert werden soll, wenn er so eingestellt ist, oder alle Dateien ins Downloads Verzeichnis schreiben, wenn er so eingestellt ist, oder, oder, oder...
+Der Browser wird das Herunterladen gemäß seiner Download-Einstellungen machen, könnte also einen Dialog zeigen, wo jede einzelne Datei gespeichert werden soll, wenn er so eingestellt ist, oder alle Dateien ins Downloads Verzeichnis schreiben (unter Umständen mit Umbenennung), wenn er so eingestellt ist, oder, oder, oder...
 
 Bei der Konvertierung nach DNG werden die Zeitstempel-Metadatan gesetzt, wenn der Dateiname wie ein normaler I'm Back Dateiname aussieht (also `JJJJ_MMDD_hhmmss`), und OriginalRawFilename auf den Namen der RAW Eingabedatei. Somit können die DNG Dateien nach belieben benannt werden, ohne irgendwelche ursprünglichen Daten zu verlieren.
 
@@ -45,7 +47,7 @@ Dann kann man direkt alle Dateien, die neuer als ein angegebener Zeitstempel sin
 
 ### Kommandozeile mit node.js
 
-Sofern man [node.js](https://nodejs.org) hat, kann man die Konvertierung auf der Kommandozeile durchführen. Hierzu die Datei [imbraw2dng.js](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.js) verwenden.
+Sofern man [node.js](https://nodejs.org) hat, kann man die Konvertierung auf der Kommandozeile durchführen. Hierzu die Datei [imbraw2dng.js](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.js) verwenden. Kann wie bei [Internationalisierung](#internationalisierung) beschrieben umbenannt werden. Hilfe zum Aufruf z.B. mit `node imbraw2dng.js` oder umbenannt auf Deutsch `node imbraw2dng_de.js`.
 
 ## Verarbeitung des DNG
 
