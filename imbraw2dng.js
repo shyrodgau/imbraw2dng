@@ -1,23 +1,30 @@
+"use strict;"
 /* imbraw2dng.js - node js command line version */
 /* ******************************************** 
 	// Usage: node imbraw2dng.js [-l lang] [-f] [ -d dir] { [-R] [-J] [-O] [-n yy_mmdd_hhmmss] | <files>   Options:
 	 Usage: node imbraw2dng.js [-l lang] [-f] [ -d dir] <files> 
 	 Options:
 		 -l XX - where XX is a valid language code (currently: DE, EN)
+		         Language can also be set by changing filename to imbraw2dng_XX.js .
 		 -d dir - put output files into dir
 		 -f - overwrite existing files
-		// -R - get RAW from ImB
-		// -J - get JPEG from ImB
-		// -O - get non-RAW/non-JPEG from ImB
-		// -n yyyy_mmdd_hhmmss (or any length of head) - select only newer than this timestamp from ImB
+		 -R - get RAW from ImB
+		 -J - get JPEG from ImB
+		 -O - get non-RAW/non-JPEG from ImB
+		 -n yyyy_mmdd_hhmmss (or any length of head) - select only newer than this timestamp from ImB
 		 <files> - process local files, e.g. on MicroSD from ImB
-		//Use <files> only without -R/-J/-O.
-		Language can also be set by changing filename to imbraw2dng_XX.js .
+		Use <files> only without -R/-J/-O.
 The plan is that this js will be identical to the js inside the html.
    ******************************************** */
-"use strict;"
 class ImBC {
 /* Indentation out */
+constructor() {
+	if (!document) {
+		this.fs = require('fs');
+		this.ht = require('http');
+		this.pa = require('path');
+	}
+}
 version = "3.1.0_DEVEL"; // actually const
 alllangs = [ 'de' , 'en', '00' ]; // actually const
 texts = { // actually const
@@ -197,6 +204,14 @@ texts = { // actually const
 			de: 'Bild-Browser benutzen',
 			en: 'Use visual Picture Browser',
 			fr: 'Ou outilizer navigateur visuel des images'
+		},
+		errconnect: {
+			de: '\x1b[31mFEHLER\x1b[0m bei der Verbindung zu $$0! Im ImB WLAN?',
+			en: '\x1b[31mERROR\x1b[0m connecting to $$0! In the ImB WiFi?'
+		},
+		nomatch: {
+			de: 'Keine passenden Dateien gefunden.',
+			en: 'No matching files found'
 		}
 	},
 	process: {
@@ -224,6 +239,10 @@ texts = { // actually const
 			de: '<b>Fehler beim Zugriff auf $$0. ENTSCHLDIGUNG! </b>',
 			en: '<b>Error occured accessing $$0. SORRY! </b>'
 		},
+		erraccessx: {
+			de: '\x1b[31mFEHLER\x1b[0m beim Zugriff auf $$0. ENTSCHLDIGUNG!',
+			en: '\x1b[31mERROR\x1b[0m occured accessing $$0. SORRY!'
+		},
 		notraw: {
 			de: 'Durchleitung weil nicht raw: $$0',
 			en: 'Passing through as not raw: $$0'
@@ -236,21 +255,33 @@ texts = { // actually const
 			de: '<b style="background-color:#ddffdd;">Fertig! Nach $$0 kopiert (Downloads-Ordner prüfen)</b>&nbsp;',
 			en: '<b style="background-color:#ddffdd;">Finished! Copied to $$0 (Check Downloads Folder)</b>&nbsp;'
 		},
+		copyokx: {
+			de: '\x1b[32mFertig!\x1b[0m Nach $$0 kopiert',
+			en: '\x1b[32mFinished!\x1b[0m Copied to $$0'
+		},
 		dlagain: {
 			de: '<a download="$$0\" href=\"$$1">Nochmal händisch herunterladen</a>',
 			en: '<a download="$$0\" href=\"$$1">Manually download again</a>'
 		},
 		dlagaindng: {
-			de: '<a type="image/x-adobe-dng" download="$$0dng" href="$$1">Nochmal händisch herunterladen</a>&nbsp;',
-			en: '<a type="image/x-adobe-dng" download="$$0dng" href="$$1">Manually download again</a>&nbsp;'
+			de: '<a type="image/x-adobe-dng" download="$$0" href="$$1">Nochmal händisch herunterladen</a>&nbsp;',
+			en: '<a type="image/x-adobe-dng" download="$$0" href="$$1">Manually download again</a>&nbsp;'
 		},
 		errorreadingfile: {
 			de: '<b style="background-color:#ffdddd;">Fehler beim Lesen der Datei $$0. ENTSCHULDIGUNG! </b>',
 			en: '<b style="background-color:#ffdddd;">Error occured reading file $$0. SORRY! </b>'
 		},
+		errorreadingfilex: {
+			de: '\x1b[31mFEHLER\x1b[0m beim Lesen der Datei $$0. ENTSCHULDIGUNG!',
+			en: '\x1b[31mERROR\x1b[0m occured reading file $$0. SORRY!'
+		},
 		unknownsize: {
 			de: '<b style="background-color:#ffdddd;">[$$0] Entschuldigung, die Dateigröße <b>$$1</b> passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!</b>',
 			en: '<b style="background-color:#ffdddd;">[$$0] Sorry, file Size <b>$$1</b> does not match known formats. Please contact developer!</b>'
+		},
+		unknownsizex: {
+			de: '[$$0] \x1b[31mEntschuldigung, die Dateigröße $$1 passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!\x1b[0m',
+			en: '[$$0] \x1b[31mSorry, file Size $$1 does not match known formats. Please contact developer!\x1b[0m'
 		},
 		processing: {
 			de: 'Verarbeite Datei: $$0 ',
@@ -269,16 +300,16 @@ texts = { // actually const
 			en: 'Orientation: '
 		},
 		converted: {
-			de: '<b style=\"background-color:#ddffdd;\">Fertig! Nach $$0dng konvertiert (Downloads-Ordner prüfen)</b>&nbsp;',
-			en: '<b style=\"background-color:#ddffdd;\">Finished! Converted to $$0dng (Check Downloads Folder)</b>&nbsp;'
+			de: '<b style=\"background-color:#ddffdd;\">Fertig! Nach $$0 konvertiert (Downloads-Ordner prüfen)</b>&nbsp;',
+			en: '<b style=\"background-color:#ddffdd;\">Finished! Converted to $$0 (Check Downloads Folder)</b>&nbsp;'
 		},
 		convertedx: {
-			de: 'Fertig! Nach $$0$$1dng konvertiert',
-			en: 'Finished! Converted to $$0$$1dng'
+			de: '\x1b[32mFertig!\x1b[0m Nach $$0 konvertiert',
+			en: '\x1b[32mFinished!\x1b[0m Converted to $$0'
 		},
-		errconvert: {
-			de: 'FEHLER! Konnte Datei $$0 nicht speichern.',
-			en: 'ERROR! Could not write file $$0'
+		errsave: {
+			de: '\x1b[31mFEHLER!\x1b[0m Konnte Datei $$0 nicht speichern.',
+			en: '\x1b[31mERROR!\x1b[0m Could not write file $$0'
 		},
 		droppedn: {
 			de: '$$0 Datei(en) wurden abgelegt.',
@@ -400,30 +431,32 @@ texts = { // actually const
 		}
 	},
 	nodehelp: {
-			//en: [ 'Usage: node ', ' [-l lang] [-f] [ -d dir] { [-R] [-J] [-O] [-n yy_mmdd_hhmmss] | <files> }', 'Options:',
-			en: [ 'Usage: node ', ' [-l lang] [-f] [ -d dir] <files> ', 'Options:',
-				' -l XX - where XX is a valid language code (currently: DE, EN)',
-				' -d dir - put output files into dir',
-				' -f - overwrite existing files',
-				//' -R - get RAW from ImB',
-				//' -J - get JPEG from ImB',
-				//' -O - get non-RAW/non-JPEG from ImB',
-				//' -n yyyy_mmdd_hhmmss (or any length of head) - select only newer than this timestamp from ImB',
+			en: [ 'Usage: node ', ' [-l lang] [-f] [ -d dir] { [-R] [-J] [-O] [-n yy_mmdd_hhmmss] | <files> }', 'Options:',
+			//en: [ 'Usage: node ', ' [-l lang] [-f] [ -d dir] <files> ', 'Options:',
+				' \x1b[1m-h\x1b[0m - show this help',
+				' \x1b[1m-l XX\x1b[0m - where XX is a valid language code (currently: DE, EN)',
+				'         Language can also be set by changing filename to imbraw2dng_XX.js .',
+				' \x1b[1m-d dir\x1b[0m - put output files into dir',
+				' \x1b[1m-f\x1b[0m - overwrite existing files',
+				' \x1b[1m-R\x1b[0m - get RAW from ImB',
+				' \x1b[1m-J\x1b[0m - get JPEG from ImB',
+				' \x1b[1m-O\x1b[0m - get non-RAW/non-JPEG from ImB',
+				' \x1b[1m-n yyyy_mmdd_hhmmss\x1b[0m (or any length of head) - select only newer than this timestamp from ImB',
 				' <files> - process local files, e.g. on MicroSD from ImB',
-				//'Use <files> only without -R/-J/-O.' ,
-				'Language can also be set by changing filename to imbraw2dng_XX.js .'],
-			//de: [ 'Aufruf: node ', ' [-l sprache] [-f] [ -d ordner] { [-R] [-J] [-O] [-n yy_mmdd_hhmmss] | <dateien> }', 'Optionen:',
-			de: [ 'Aufruf: node ', ' [-l sprache] [-f] [ -d ordner] <dateien> ', 'Optionen:',
-				' -l XX - wo XX ein gültiger Sprachcode ist (derzeit: DE, EN)',
-				' -d ordner - Ausgabedateien in diesen Ordner ablegen',
-				' -f - existierende Dateien überschreiben',
-				//' -R - RAW von ImB konvertieren',
-				//' -J - JPEG von ImB kopieren',
-				//' -O - Nicht-JPEG/Nicht-RAW von ImB kopieren',
-				//' -n yyyy_mmdd_hhmmss (oder beliebig langer Anfang davon) - nur Dateien neuer als dieser Zeitstempel von ImB holen',
+				'Use <files> only without -R/-J/-O.' ,],
+			de: [ 'Aufruf: node ', ' [-l sprache] [-f] [ -d ordner] { [-R] [-J] [-O] [-n yy_mmdd_hhmmss] | <dateien> }', 'Optionen:',
+			//de: [ 'Aufruf: node ', ' [-l sprache] [-f] [ -d ordner] <dateien> ', 'Optionen:',
+				' \x1b[1m-h\x1b[0m - diesen Hilfetext zeigen',
+				' \x1b[1m-l XX\x1b[0m - wo XX ein gültiger Sprachcode ist (derzeit: DE, EN)',
+				'         Die Sprache kann auch durch Umbenennen in imbraw2dng_XX.js geändert werden.',
+				' \x1b[1m-d ordner\x1b[0m - Ausgabedateien in diesen Ordner ablegen',
+				' \x1b[1m-f\x1b[0m - existierende Dateien überschreiben',
+				' \x1b[1m-R\x1b[0m - RAW von ImB konvertieren',
+				' \x1b[1m-J\x1b[0m - JPEG von ImB kopieren',
+				' \x1b[1m-O\x1b[0m - Nicht-JPEG/Nicht-RAW von ImB kopieren',
+				' \x1b[1m-n yyyy_mmdd_hhmmss\x1b[0m (oder beliebig langer Anfang davon) - nur Dateien neuer als dieser Zeitstempel von ImB holen',
 				' <dateien> - lokale Dateien (z.B. von der MicroSD Karte aus ImB) verarbeiten',
-				//'<dateien> nur ohne -R/-J/-O verwenden.' 
-				'Die Sprache kann auch durch Umbenennen in imbraw2dng_XX.js geändert werden.']
+				'<dateien> nur ohne -R/-J/-O verwenden.',]
 	}
 };
 mylang = 'en';
@@ -564,7 +597,7 @@ appendmsg(msg)  {
 	else console.log(msg);
 }
 /* helper to append message */
-appendmsgx (msg) {
+appendmsgx(msg) {
 	if (document) {
 		const msgel = document.getElementById('outmsg');
 		const xmsg = document.getElementById('xmsg');
@@ -574,18 +607,18 @@ appendmsgx (msg) {
 	else console.log(msg);
 }
 /* helper function to put integer into dng */
-writeinttoout (out, num, off) {
+writeinttoout(out, num, off) {
 	out[off] = (num % 256);
 	out[off + 1] = (num / 256) % 256;
 	out[off + 2] = (num / 65536) % 256;
 	out[off + 3] = (num / 16777216) % 256;
 }
 /* stupid helper */
-appendnl () {
+appendnl() {
 	if (document) this.appendmsg('<br>&nbsp;<br>');
 }
 /* handler for file selection input */
-fselected () {
+fselected() {
 	if (this.actnum !== this.allfiles.length) return;
     const addlinkel = document.getElementById('addlink');
 	if (addlinkel !== null) this.addlinkbool = addlinkel.checked;
@@ -608,7 +641,7 @@ fselected () {
 	}
 }
 /* continue with the next file */
-handlenext () {
+handlenext() {
 	if (this.actnum < this.allfiles.length - 1) {
 		this.actnum++;
 		this.handleonex();
@@ -621,9 +654,11 @@ handlenext () {
 		} else*/ 
 			this.shownormal();
 		if (this.stats.total > 0) {
-			this.appendnl();
+			if (document) this.appendnl();
+			else this.appendmsg('');
 			this.mappx('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
-			this.appendnl();
+			if (document) this.appendnl();
+			else this.appendmsg('');
 		}
 		if (document) {
 			document.getElementById('imbdoit').disabled = false;
@@ -634,14 +669,14 @@ handlenext () {
 	}
 }
 /* as it says */
-showreloadhints () {
+showreloadhints() {
 	const rl1 = document.getElementById('reloadhint');
 	if (null !== rl1) rl1.style['display'] = '';
 	const rl2 = document.getElementById('reloadhint2');                                          
 	if (null !== rl2) rl2.style['display'] = '';
 }
 /* switch preview config to jpeg img */
-setjpegpv () {
+setjpegpv() {
 	document.getElementById('jpegpreview').style['display'] = '';
 	document.getElementById('rotations').style['display'] = 'none';
 	document.getElementById('continues').style['display']='';
@@ -650,7 +685,7 @@ setjpegpv () {
 	document.getElementById('preview').style['display'] = 'none';
 }
 /* switch preview config to err */
-setpverr () {
+setpverr() {
 	document.getElementById('jpegpreview').style['display'] = 'none';
 	document.getElementById('rotations').style['display'] = 'none';
 	document.getElementById('continues').style['display']='';
@@ -659,7 +694,7 @@ setpverr () {
 	document.getElementById('preview').style['display'] = 'none';
 }
 /* switch preview config to wait */
-setpvwait () {
+setpvwait() {
 	document.getElementById('jpegpreview').style['display'] = 'none';
 	document.getElementById('rotations').style['display'] = 'none';
 	document.getElementById('continues').style['display']='none';
@@ -667,8 +702,8 @@ setpvwait () {
 	document.getElementById('previewerr').style['display'] = 'none';
 	document.getElementById('preview').style['display'] = 'none';
 }
-/* file/filereader like interface for node js */
-createFxNode (url, onok, onerr) {
+/* nodejs: file/filereader like interface for node js */
+createFxNode(url, onok, onerr) {
 	if (url.url) {
 		let e = url;
 		url = e.url;
@@ -677,18 +712,48 @@ createFxNode (url, onok, onerr) {
 		imbackextension: true,
 		name: url
 	};
-	if (url.startsWith('http://192.168.1.254')) {
+	if (url.startsWith('http://')) {
 		// http to imback
+		this.ht.get(url, (res) => {
+			let err = false;
+			if (res.statusCode !== 200) {
+				err = true;
+				console.log(this.xl('onimback.errconnect', '192.168.1.254'));
+				console.log('Status: ' + res.statusCode + ' Type: ' + res.headers['content-type']);
+				res.resume();
+				return onerr(url, fx);
+			}
+			let c = 0;
+			let b = new ArrayBuffer(res.headers['content-length']);
+			let a = new Uint8Array(b);
+			res.on('data', (chunk) => {
+				a.set(chunk, c);
+				c += chunk.length;
+			});
+			res.on('end', () => {
+				fx.size = c;
+				fx.data = b;
+				fx.readAsArrayBuffer = (fy) => {
+					fy.onload({
+							target: { result: fy.data }
+					});
+				};
+				onok(url, fx);
+			});
+		}).on('error', (e) => {
+			console.log(this.xl('onimback.errconnect', '192.168.1.254'));
+			console.log(JSON.stringify(e));
+			onerr(url, fx);
+		});
 	}
 	else {
 		// read local file
-		require('node:fs').readFile(url, (err, data) => {
+		this.fs.readFile(url, (err, data) => {
 				if (err) {
 					console.log(JSON.stringify(err));
 					return onerr(url, fx);
 				}
 				else {
-					// console.log(' LL ' + data.byteLength);
 					fx.size = data.length;
 					let ab = new ArrayBuffer(data.byteLength);
 					let ua = new Uint8Array(ab);
@@ -709,7 +774,7 @@ createFxNode (url, onok, onerr) {
 }
 /* file/filereader like interface for imback http */
 // url can also be an imbele member
-createFx (url, onok, onerr) {
+createFx(url, onok, onerr) {
 	if (!document) return this.createFxNode(url, onok, onerr);
 	let rot;
 	if (url.url) {
@@ -788,7 +853,7 @@ createFx (url, onok, onerr) {
 	}
 }
 /* main handler function for one file */
-handleonex () {
+handleonex() {
 	const f = this.allfiles[this.actnum];
 	this.currentrot = 1;
 	if (undefined !== document) {
@@ -862,7 +927,7 @@ handleonex () {
 	}
 }
 /* xl helper */
-genspan (key, arg0, arg1, arg2, arg3) {
+genspan(key, arg0, arg1, arg2, arg3) {
 	const s = document.createElement('span');
 	s.setAttribute('data-myxlkey', key);
 	if (undefined !== arg0) {
@@ -881,12 +946,12 @@ genspan (key, arg0, arg1, arg2, arg3) {
 }
 
 /* translated append to preview header */
-qappx (key, arg0, arg1, arg2, arg3) {
+qappx(key, arg0, arg1, arg2, arg3) {
 	const s = this.genspan(key, arg0, arg1, arg2, arg3);
 	document.getElementById('qhdr').append(s);
 }
 /* translated append to main log */
-mappx (key, arg0, arg1, arg2, arg3) {
+mappx(key, arg0, arg1, arg2, arg3) {
 	if (document) {
 		const s = this.genspan(key, arg0, arg1, arg2, arg3);
 		this.dispcnt++;
@@ -896,10 +961,10 @@ mappx (key, arg0, arg1, arg2, arg3) {
 		xmsg.style["display"] = "";
 		msgel.append(s);
 	}
-	else console.log(this.xl(key, undefined, arg0, arg1, arg2, arg3));
+	else console.log(this.xl(key, arg0, arg1, arg2, arg3));
 }
 /* actual processing function for one file */
-handleone (orientation) {
+handleone(orientation) {
 	const f = this.allfiles[this.actnum];
 	if (undefined === f) {
 		this.mappx('process.nothing');
@@ -912,8 +977,9 @@ handleone (orientation) {
 				this.allfiles[this.actnum] = fx;
 				this.handleone(rot ? rot: orientation);
 			}, (url) => {
-				this.mappx('process.erraccess', url);
-				this.appendnl();
+				this.mappx('process.erraccess' + (!document ? 'x' : ''), url);
+				if (document) this.appendnl();
+				else this.appendmsg('');
 				this.stats.error ++;
 				this.handlenext();
 		  });
@@ -932,37 +998,17 @@ handleone (orientation) {
 			}
 			this.mappx('process.notraw',rawname);
 			if (document) this.appendmsg('<br>');
-			else this.appendnl();
 			const contents = evt.target.result;
 			const view = new DataView(contents);
 			const out = new Uint8Array(f.size);
 			for (let j=0; j<contents.byteLength; j++) {
 				out[j] = view.getUint8(j);
 			}
-			const b = new Blob([ out ], { type: "application/octet-stream"});
-			const outel = document.getElementById('result');
-			outel.download = rawname;
-			const thisurl = URL.createObjectURL(b);
-			outel.href = thisurl;
-			outel.click();
-			this.mappx('process.copyok', rawname);
-			if (this.addlinkbool) {
-				this.mappx('process.dlagain', rawname, thisurl);
-				this.showreloadhints();
-			}
-			this.appendnl();
-			const ie = this.imbeles.find((v) => v.raw === rawname);
-			if (ie) {
-				ie.wasselected = true;
-				if (ie.entry)
-					ie.entry.classList.add('picprocd');
-			}
-			this.stats.ok++;
-			this.handlenext();
+			this.output1(rawname, 'application/octet-stream', 'process.copyok', out);
 		}
 		reader.onerror = (evt) => {
 			console.log('Non-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
-			this.mappend('process.errorreadingfile', f.name);
+			this.mappend('process.errorreadingfile' + (!document ? 'x' : ''), f.name);
 			this.appendnl();
 			this.stats.error++;
 			this.handlenext();
@@ -977,9 +1023,8 @@ handleone (orientation) {
 		if (totnum > 1) {
 			this.appendmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ");
 		}
-		this.mappx('process.unknownsize', f.name, f.size);
+		this.mappx('process.unknownsize' + (!document ? 'x' : ''), f.name, f.size);
 		if (document) this.appendmsg('<br>');
-		else this.appendnl();
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
 			const contents = evt.target.result;
@@ -988,30 +1033,11 @@ handleone (orientation) {
 			for (let j=0; j<view.byteLength; j++) {
 				out[j] = view.getUint8(j);
 			}
-			const b = new Blob([ out ], { type: "application/octet-stream"});
-			const outel = document.getElementById('result');
-			outel.download = rawname;
-			const thisurl = URL.createObjectURL(b);
-			outel.href = thisurl;
-			outel.click();
-			this.mappx('process.copyok', rawname);
-			if (this.addlinkbool) {
-				this.mappx('process.dlagain', rawname, thisurl);
-				this.showreloadhints();
-			}
-			this.appendnl();
-			const ie = this.imbeles.find((v) => v.raw === rawname);
-			if (ie) {
-				ie.wasselected = true;
-				if (ie.entry)
-					ie.entry.classList.add('picprocd');
-			}
-			this.stats.ok++;
-			this.handlenext();
+			this.output1(rawname, 'application/octet-stream', 'process.copyok', out);
 		}
 		reader.onerror = (evt) => {
 			console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
-			this.mappend('process.errorreadingfile', f.name);
+			this.mappend('process.errorreadingfile' + (!document ? 'x' : ''), f.name);
 			this.appendnl();
 			this.stats.error++;
 			this.handlenext();
@@ -1058,20 +1084,16 @@ handleone (orientation) {
 		}
 		this.mappx('process.processing', rawname);
 		if (document) this.appendmsg('<br>');
-		else this.appendnl();
 		this.mappx('process.assuming', this.types[typ], mode);
 		if (document) this.appendmsg('<br>');
-		else this.appendnl();
 		if (dateok) {
 			this.mappx('process.datetime', datestr);
 			if (document) this.appendmsg('<br>');
-			else this.appendnl();
 		}
 		if (orientation !== undefined && orientation !== 1) {
 			this.mappx('process.orientation');
 			this.appendmsgx(this.genspan('preview.orients.' + this.orients[orientation]));
 			if (document) this.appendmsg('<br>');
-			else this.appendnl();
 		}
 		/* Here comes the actual building of the DNG */
 		const contents = evt.target.result;
@@ -1226,78 +1248,87 @@ handleone (orientation) {
 			out.set(datearr, f.size + 446);
 			out[f.size + 465] = 0;
 		}
-		const b = new Blob([ out, rawnamearr ], { type: "image/x-adobe-dng"});
-		if (document) {
-			const outel = document.getElementById('result');
-			outel.download = rawname.substring(0, rawname.length - 3) + 'dng';
-			const thisurl = URL.createObjectURL(b);
-			outel.href = thisurl;
-			outel.click();
-			this.mappx('process.converted', rawname.substring(0, rawname.length - 3));
-			if (this.addlinkbool) {
-				this.mappx('process.dlagaindng', rawname.substring(0, rawname.length - 3), thisurl);
-				this.showreloadhints();
-			}
-			this.appendnl();
-			const ie = this.imbeles.find((v) => v.raw === rawname);
-			if (ie) {
-				ie.wasselected = true;
-				if (ie.entry)
-					ie.entry.classList.add('picprocd');
-			}
-			this.stats.ok++;
-			this.appendmsg('');
-			this.handlenext();
-		} 
-		else {
-			let outfile;
-			if (this.outdir.length > 0 && this.outdir.substring(this.outdir.length - 1) !== '/')
-				outfile = this.outdir+'/' + rawname.substring(0, rawname.length - 3) + 'dng';
-			else
-				outfile = this.outdir + rawname.substring(0, rawname.length - 3) + 'dng';
-
-			require('node:fs').writeFile(outfile, out, {encoding: null, flush: true, flag: this.ovwout ? 'w' : 'wx' }, (err) => {
-					if (err) {
-						this.mappx('process.errconvert', outfile);
-						this.appendmsg(JSON.stringify(err));
-						this.stats.error++;
-						this.appendmsg('');
-						this.handlenext();
-					}
-					else {
-						require('node:fs').writeFile(outfile, rawnamearr,  { flag: 'a'}, (err) => {
-							if (err) {
-								this.mappx('process.errconvert', outfile);
-								this.appendmsg(JSON.stringify(err));
-								this.stats.error++;
-								this.appendmsg('');
-								this.handlenext();
-							}
-							else {
-								if (this.outdir.length > 0 && this.outdir.substring(this.outdir.length - 1) !== '/')
-									this.mappx('process.convertedx', this.outdir+'/',rawname.substring(0, rawname.length - 3));
-								else
-									this.mappx('process.convertedx', this.outdir,rawname.substring(0, rawname.length - 3));
-								this.stats.ok++;
-								this.appendmsg('');
-								this.handlenext();
-							}
-						});
-					}
-			});
-		}
+		this.output1(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted', out, rawnamearr);
 	};
 	reader.onerror = (evt) => {
 		console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
-		this.mappend('process.errorreadingfile', f.name);
+		this.mappend('process.errorreadingfile' + (!document ? 'x' : ''), f.name);
 		this.appendnl();
 		this.stats.error++;
 		this.handlenext();
 	};
 	reader.readAsArrayBuffer(f);
 }
+/* output one thing via browser or nodejs */
+output1(name, type, okmsg, arr1, arr2) {
+	if (document) {
+		let b;
+		if (arr2) b = new Blob([ arr1, arr2 ], { type: type });
+		else b = new Blob([ arr1 ], { type: type });
+		const outel = document.getElementById('result');
+		outel.download = name;
+		const thisurl = URL.createObjectURL(b);
+		outel.href = thisurl;
+		outel.click();
+		this.mappx(okmsg, name);
+		if (this.addlinkbool) {
+			this.mappx('process.dlagaindng', name, thisurl);
+			this.showreloadhints();
+		}
+		this.appendnl();
+		const ie = this.imbeles.find((v) => v.raw.substring(0, rawname.length - 3) === rawname.substring(0, rawname.length - 3));
+		if (ie) {
+			ie.wasselected = true;
+			if (ie.entry)
+				ie.entry.classList.add('picprocd');
+		}
+		this.stats.ok++;
+		this.appendmsg('');
+		this.handlenext();
+	} 
+	else {
+		let outfile;
+		if (this.outdir.length > 0 && this.outdir.substring(this.outdir.length - 1) !== this.pa.sep)
+			outfile = this.outdir + this.pa.sep + name;
+		else
+			outfile = this.outdir + name;
+
+		this.fs.writeFile(outfile, arr1, {encoding: null, flush: true, flag: this.ovwout ? 'w' : 'wx' }, (err) => {
+				if (err) {
+					this.mappx('process.errsave', outfile);
+					this.appendmsg(JSON.stringify(err));
+					this.stats.error++;
+					this.appendmsg('');
+					this.handlenext();
+				}
+				else if (arr2) {
+					this.fs.writeFile(outfile, arr2,  { flag: 'a'}, (err) => {
+						if (err) {
+							this.mappx('process.errsave', outfile);
+							this.appendmsg(JSON.stringify(err));
+							this.stats.error++;
+							this.appendmsg('');
+							this.handlenext();
+						}
+						else {
+							this.mappx(okmsg + 'x', outfile);
+							this.stats.ok++;
+							this.appendmsg('');
+							this.handlenext();
+						}
+					});
+				}
+				else {
+					this.mappx(okmsg + 'x', outfile);
+					this.stats.ok++;
+					this.appendmsg('');
+					this.handlenext();
+				}
+		});
+	}
+}
 /* handler function for dropping OS files into the rect */
-drophandler (ev) {
+drophandler(ev) {
 	if (this.actnum !== this.allfiles.length) return;
 	const addlinkel = document.getElementById('addlink');
 	if (addlinkel !== null) this.addlinkbool = addlinkel.checked;
@@ -1331,11 +1362,11 @@ drophandler (ev) {
 	this.handleonex();
 }
 /* some handler on the drop rectangle */
-prevdef (ev) {
+prevdef(ev) {
 	ev.preventDefault();
 }
 /* get one downsampled median image value [ r g b ] */
-getPix (x, y, w, view, typ) {
+getPix(x, y, w, view, typ) {
 	let outrgb = [];
 	let reds = [];
 	if (typ > 1) {
@@ -1392,7 +1423,7 @@ getPix (x, y, w, view, typ) {
 }
 /* put preview into canvas */
 // orientation: 1: norm, 3: rot 180, 6 rot 90 CW, 8: rot 270 CCW
-buildpreview (f, onok, onerr, orientation, targ, afterload) {
+buildpreview(f, onok, onerr, orientation, targ, afterload) {
 	let w, h, typ;
 	if (undefined === f.size) {
 		window.setTimeout(() => {
@@ -1518,7 +1549,7 @@ buildpreview (f, onok, onerr, orientation, targ, afterload) {
 	reader.readAsArrayBuffer(f);
 }
 /* raw preview okay */
-setrawpv () {
+setrawpv() {
 	document.getElementById('preview').style['display'] = '';
 	document.getElementById('rotations').style['display'] = '';
 	document.getElementById('continues').style['display']='';
@@ -1527,7 +1558,7 @@ setrawpv () {
 	document.getElementById('jpegpreview').style['display'] = 'none';
 }
 /* no preview in question */
-setnopv () {
+setnopv() {
 	document.getElementById('preview').style['display'] = 'none';
 	document.getElementById('rotations').style['display'] = 'none';
 	document.getElementById('continues').style['display']='';
@@ -1536,7 +1567,7 @@ setnopv () {
 	document.getElementById('jpegpreview').style['display'] = 'none';
 }
 /* as it says */
-showquestion () {
+showquestion() {
 	const norm = document.getElementById('normal');
 	const quest = document.getElementById('question');
 	quest.style['display'] = '';
@@ -1546,14 +1577,14 @@ showquestion () {
 	document.getElementById('browser').style['display'] = 'none';
 }
 /* put last message viewable */
-showlastmsg () {
+showlastmsg() {
 	const ll = document.getElementById('mappx_' + this.dispcnt);
 	if (ll) {
 		ll.scrollIntoView(false, { block: 'nearest' });
 	}
 }
 /* as it says */
-shownormal () {
+shownormal() {
 	if (document) {
 		window.onscroll = () => undefined;
 		window.onresize = () => undefined;
@@ -1567,7 +1598,7 @@ shownormal () {
 	}
 }
 /* previewquestion: skip handler in the step preview */
-skipthis () {
+skipthis() {
 	if (document.getElementById('doforall').checked) this.stepmode = 2;
 	if (this.totnum > 1) {
 		this.appendmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ");
@@ -1587,7 +1618,7 @@ skipthis () {
 	this.handlenext();
 }
 /* previewquestion: process handler in the step preview */
-procthis () {
+procthis() {
 	if (document.getElementById('doforall').checked) {
 		this.stepmode = 0;
 		this.shownormal();
@@ -1596,7 +1627,7 @@ procthis () {
 	this.handleone(this.currentrot);
 }
 /* previewquestion, rotation hepler */
-rotxx (r) {
+rotxx(r) {
 	this.setpvwait();
 	let j = this.oriecw.indexOf(this.currentrot);
 	j = ((j + r) % 4);
@@ -1604,274 +1635,192 @@ rotxx (r) {
 	this.buildpreview(this.allfiles[this.actnum], () => { this.setrawpv(); }, () => { this.setpverr(); }, this.currentrot);
 }
 /* previewquestion: handler for clockwise rotation */
-rotcw () {
+rotcw() {
 	this.rotxx(1);
 }
 /* previewquestion: handler for counterclockwise rotation */
-rotccw () {
+rotccw() {
 	this.rotxx(3);
 }
 /* previewquestion: handler for upside down rotation */
-rot180 () {
+rot180() {
 	this.rotxx(2);
 }
 /* previewquestion: handler for reset rotation */
-rot0 () {
+rot0() {
 	if (1 === this.currentrot) return;
 	this.setpvwait();
 	this.currentrot = 1;
 	this.buildpreview(this.allfiles[this.actnum], () => { this.setrawpv(); }, () => { this.setpverr(); }, 1);
 }
-/* get imb data for node js */
-checkimbnode  () {
-	require('node:http').get('http://192.168.1.254/IMBACK/', (res) => {
-			// TODO
+/* handle on entry from imb PHOTO/MOVIE listing page */
+handle1imb(url) {
+	let rawname = url;
+	while (rawname.indexOf("/") > -1)
+		rawname = rawname.substring(rawname.indexOf("/") + 1);
+	if (rawname.substring(rawname.length -4).toUpperCase() === '.RAW') {
+		if (rawname < this.earliestraw) this.earliestraw = rawname;
+		if (rawname > this.latestraw) this.latestraw = rawname;
+		this.rimbpics.push(url);
+		if (document) {
+			this.imbeles.push({
+					type: 'RAW',
+					url: url,
+					raw: rawname,
+					selected: false,
+					preview: null,
+					entry: null,
+					waiting: false,
+					error: false,
+					processed: false
+			});
+			const cl = rawname.substring(0,12);
+			if (this.untypedclasses.findIndex((v, i, o) => v === cl) === -1)
+				this.untypedclasses.push(cl);
+			if (this.typedclasses.findIndex((v, i, o) => v === ('RAW' + cl)) === -1)
+				this.typedclasses.push('RAW' + cl);
+		}
+	}
+	else if (rawname.substring(rawname.length -4).toUpperCase() === '.JPG') {
+		if (rawname < this.earliestjpg) this.earliestjpg = rawname;
+		if (rawname > this.latestjpg) this.latestjpg = rawname;
+		this.imbpics.push(url);
+		if (document) {
+			this.imbeles.push({
+					type: 'JPG',
+					url: url,
+					raw: rawname,
+					selected: false,
+					preview: null,
+					entry: null,
+					waiting: false,
+					error: false,
+					processed: false
+			});
+			const cl = rawname.substring(0,12);
+			if (this.untypedclasses.findIndex((v, i, o) => v === cl) === -1)
+				this.untypedclasses.push(cl);
+			if (this.typedclasses.findIndex((v, i, o) => v === ('JPG' + cl)) === -1)
+				this.typedclasses.push('JPG' + cl);
+		}
+	}
+	else {
+		if (rawname < this.earliestmov) this.earliestmov = rawname;
+		if (rawname > this.latestmov) this.latestmov = rawname;
+		this.imbmovies.push(url);
+		if (document) {
+			this.imbeles.push({
+					type: 'oth',
+					url: url,
+					raw: rawname,
+					selected: false,
+					preview: null,
+					entry: null,
+					waiting: false,
+					error: false,
+					processed: false
+			});
+			const cl = rawname.substring(0,12);
+			if (this.untypedclasses.findIndex((v, i, o) => v === cl) === -1)
+				this.untypedclasses.push(cl);
+			if (this.typedclasses.findIndex((v, i, o) => v === ('oth' + cl)) === -1)
+				this.typedclasses.push('oth' + cl);
+		}
+	}
+}
+/* nodejs: get imb data for node js */
+checkimbnode(type, cb, found) {
+	//let subdir = '';
+	let subdir = 'PHOTO';
+	if (type) subdir='MOVIE';
+	//this.ht.get('http://127.0.0.1:8000/PHOTO.html' + subdir, (res) => {
+	this.ht.get('http://192.168.1.254/IMBACK/' + subdir, (res) => {
+			let err = false;
+			if (res.statusCode !== 200 || !/^text\/html/.test(res.headers['content-type'])) {
+				err = true;
+				if (!type) {
+					res.resume();
+					return this.checkimbnode(true, cb, false);
+				}
+				else if (type && !found) {
+					console.log(this.xl('onimback.errconnect', '192.168.1.254'));
+					console.log('Status: ' + res.statusCode + ' Type: ' + res.headers['content-type']);
+				}
+				else cb();
+				res.resume();
+				return;
+			}
+			let b = '';
+			res.on('data', (chunk) => {
+				b += chunk;
+			});
+			res.on('end', () => {
+				let i=0, j;
+				while ((j = b.substring(i).toLowerCase().indexOf('<a href=')) !== -1) {
+					let delim = b.substring(i+j+8, i+j+9);
+					let endstr = b.substring(i+j+9).indexOf(delim);
+					let url = b.substring(i+j+9, i+j+9+endstr);
+					if (-1 === url.indexOf('?del=')) {
+						this.handle1imb(url);
+					}
+					i=i+j+10;
+				}
+				if (type) { if (!err || found) cb(); }
+				else this.checkimbnode(true, cb, !err);
+			});
+	}).on('error', (e) => {
+		if (!type) {
+			return this.checkimbnode(true, cb, false);
+		}
+		else if (type && !found) {
+			console.log(this.xl('onimback.errconnect', '192.168.1.254'));
+			console.log(JSON.stringify(e));
+		}
+		else cb();
 	});
 }
 /* check if we are directly on a back */
-checkimb  () {
+checkimb(type, found) {
 	if (this.debugflag && document) document.getElementById('dbgfsel').style['display'] = '';
-	if (document && !window.location.origin.startsWith('http://192.168.1.254')) return;
-	const xhr0 = new XMLHttpRequest();
-	xhr0.onloadend = (event) => {
-		if (xhr0.status === 200) {
-			let foundph = false, foundmov = false;
-			const sel = xhr0.responseXML.querySelectorAll('a');
-			for (const r of sel) {
-				if (r.href.indexOf('/IMBACK/PHOTO') != -1)
-					foundph = true;
-				if (r.href.indexOf('/IMBACK/MOVIE') != -1)
-					foundmov = true;
+	if (window.location.protocol !== 'http:') return;
+	const xhr = new XMLHttpRequest();
+	xhr.onloadend = (event) => {
+		if (xhr.status === 200) {
+			const sel2 = xhr.responseXML.querySelectorAll('a');
+			for (const r of sel2) {
+				if (r) {
+					let rawname = r.href;
+					if (rawname.indexOf('del=') != -1) continue;
+					this.handle1imb(rawname);
+				}
 			}
-			if (!foundph && !foundmov) return;
-			if (document) document.getElementById('onimback').style['display'] = '';
-			const xhr = new XMLHttpRequest();
-			xhr.onloadend = (event) => {
-				if (xhr.status === 200) {
-					const sel2 = xhr.responseXML.querySelectorAll('a');
-					for (const r of sel2) {
-						if (r) {
-							let rawname = r.href;
-							if (rawname.indexOf('del=') != -1) continue;
-							while (rawname.indexOf("/") > -1)
-								rawname = rawname.substring(rawname.indexOf("/") + 1);
-							if (rawname.substring(rawname.length -4).toUpperCase() === '.RAW') {
-								if (rawname < this.earliestraw) this.earliestraw = rawname;
-								if (rawname > this.latestraw) this.latestraw = rawname;
-								this.rimbpics.push('http://192.168.1.254/IMBACK/PHOTO/' + rawname);
-								this.imbeles.push({
-										type: 'RAW',
-										url: 'http://192.168.1.254/IMBACK/PHOTO/' + rawname,
-										raw: rawname,
-										selected: false,
-										preview: null,
-										entry: null,
-										waiting: false,
-										error: false,
-										processed: false
-								});
-								const cl = rawname.substring(0,12);
-								if (this.untypedclasses.findIndex((v, i, o) => v === cl) === -1)
-									this.untypedclasses.push(cl);
-								if (this.typedclasses.findIndex((v, i, o) => v === ('RAW' + cl)) === -1)
-									this.typedclasses.push('RAW' + cl);
-							}
-							else if (rawname.substring(rawname.length -4).toUpperCase() === '.JPG') {
-								if (rawname < this.earliestjpg) this.earliestjpg = rawname;
-								if (rawname > this.latestjpg) this.latestjpg = rawname;
-								this.imbpics.push('http://192.168.1.254/IMBACK/PHOTO/' + rawname);
-								this.imbeles.push({
-										type: 'JPG',
-										url: 'http://192.168.1.254/IMBACK/PHOTO/' + rawname,
-										raw: rawname,
-										selected: false,
-										preview: null,
-										entry: null,
-										waiting: false,
-										error: false,
-										processed: false
-								});
-								const cl = rawname.substring(0,12);
-								if (this.untypedclasses.findIndex((v, i, o) => v === cl) === -1)
-									this.untypedclasses.push(cl);
-								if (this.typedclasses.findIndex((v, i, o) => v === ('JPG' + cl)) === -1)
-									this.typedclasses.push('JPG' + cl);
-							}
-							else {
-								if (rawname < this.earliestmov) this.earliestmov = rawname;
-								if (rawname > this.latestmov) this.latestmov = rawname;
-								this.imbmovies.push('http://192.168.1.254/IMBACK/PHOTO/' + rawname);
-								this.imbeles.push({
-										type: 'oth',
-										url: 'http://192.168.1.254/IMBACK/PHOTO/' + rawname,
-										raw: rawname,
-										selected: false,
-										preview: null,
-										entry: null,
-										waiting: false,
-										error: false,
-										processed: false
-								});
-								const cl = rawname.substring(0,12);
-								if (this.untypedclasses.findIndex((v, i, o) => v === cl) === -1)
-									this.untypedclasses.push(cl);
-								if (this.typedclasses.findIndex((v, i, o) => v === ('oth' + cl)) === -1)
-									this.typedclasses.push('oth' + cl);
-							}
-						}
-					}
-					if (document) {
-						document.getElementById('piccnt').innerHTML = '' + this.imbpics.length + ' (';
-						if (this.earliestjpg.length > 4) document.getElementById('piccnt').innerHTML += this.earliestjpg.substring(0,16);
-						document.getElementById('piccnt').innerHTML += ' - ';
-						if (this.latestjpg.length > 4) document.getElementById('piccnt').innerHTML += this.latestjpg.substring(0,16);
-						document.getElementById('piccnt').innerHTML += ')';
-						document.getElementById('piccnt').removeAttribute('data-myxlkey');
-						document.getElementById('rpiccnt').innerHTML = '' + this.rimbpics.length + ' (';
-						if (this.earliestraw.length > 4) document.getElementById('rpiccnt').innerHTML += this.earliestraw.substring(0,16);
-						document.getElementById('rpiccnt').innerHTML += ' - ';
-						if (this.latestraw.length > 4) document.getElementById('rpiccnt').innerHTML += this.latestraw.substring(0,16);
-						document.getElementById('rpiccnt').innerHTML += ')';
-						document.getElementById('rpiccnt').removeAttribute('data-myxlkey');
-					}
-					const xhrm = new XMLHttpRequest();
-					xhrm.onloadend = (event) => {
-						if (xhrm.status === 200) {
-							const sel3 = xhrm.responseXML.querySelectorAll('a');
-							for (const r of sel3) {
-								if (r) {
-									let rawname = r.href;
-									while (rawname.indexOf("/") > -1)
-										rawname = rawname.substring(rawname.indexOf("/") + 1);
-									if (rawname.indexOf('del=') != -1) continue;
-									if (rawname < this.earliestmov) this.earliestmov = rawname;
-									if (rawname > this.latestmov) this.latestmov = rawname;
-									this.imbmovies.push('http://192.168.1.254/IMBACK/MOVIE/' + rawname);
-									this.imbeles.push({
-										type: 'oth',
-										url: 'http://192.168.1.254/IMBACK/MOVIE/' + rawname,
-										raw: rawname,
-										selected: false,
-										preview: null,
-										entry: null,
-										waiting: false,
-										error: false,
-										processed: false
-									});
-									const cl = rawname.substring(0,12);
-									if (this.untypedclasses.findIndex((v, i, o) => v === cl) === -1)
-										this.untypedclasses.push(cl);
-									if (this.typedclasses.findIndex((v, i, o) => v === ('oth' + cl)) === -1)
-										this.typedclasses.push('oth' + cl);
-								}
-							}
-							if (document) {
-								document.getElementById('movcnt').innerHTML = '' + this.imbmovies.length + ' (';
-								if (this.earliestmov.length > 4) document.getElementById('movcnt').innerHTML += this.earliestmov.substring(0,16);
-								document.getElementById('movcnt').innerHTML += ' - ';
-								if (this.latestmov.length > 4) document.getElementById('movcnt').innerHTML += this.latestmov.substring(0,16);
-								document.getElementById('movcnt').innerHTML += ')';
-								document.getElementById('movcnt').removeAttribute('data-myxlkey');
-								document.getElementById('imbdoit').disabled = false;
-								document.getElementById('imbvisbrows').disabled = false;
-								document.getElementById('notimback').style['display'] = 'none';
-							}
-							this.aftercheck();
-						}
-					};
-					xhrm.onerror = (event) => {
-						if (document) {
-							document.getElementById('movcnt').innerHTML = '0';
-							document.getElementById('movcnt').removeAttribute('data-myxlkey');
-							document.getElementById('imbdoit').disabled = false;
-							document.getElementById('imbvisbrows').disabled = false;
-						}
-					};
-					xhrm.open('GET', '/IMBACK/MOVIE/');
-					xhrm.responseType = 'document';
-					xhrm.send();
-				}
-			};
-			xhr.onerror = (event) => {
-				if (document) {
-					document.getElementById('piccnt').innerHTML = '0';
-					document.getElementById('rpiccnt').innerHTML = '0';
-				}
-				const xhrm = new XMLHttpRequest();
-				xhrm.onloadend = (event) => {
-					if (xhrm.status === 200) {
-						const sel3 = xhrm.responseXML.querySelectorAll('a');
-						for (const r of sel3) {
-							if (r) {
-								let rawname = r.href;
-								while (rawname.indexOf("/") > -1)
-									rawname = rawname.substring(rawname.indexOf("/") + 1);
-								if (rawname.indexOf('del=') != -1) continue;
-								if (rawname < this.earliestmov) this.earliestmov = rawname;
-								if (rawname > this.latestmov) this.latestmov = rawname;
-								this.imbmovies.push('http://192.168.1.254/IMBACK/MOVIE/' + rawname);
-								this.imbeles.push({
-										type: 'oth',
-										url: 'http://192.168.1.254/IMBACK/MOVIE/' + rawname,
-										raw: rawname,
-										selected: false,
-										preview: null,
-										entry: null,
-										waiting: false,
-										error: false,
-										processed: false
-								});
-								const cl = rawname.substring(0,12);
-								if (this.untypedclasses.findIndex((v, i, o) => v === cl) === -1)
-									this.untypedclasses.push(cl);
-								if (this.typedclasses.findIndex((v, i, o) => v === ('oth' + cl)) === -1)
-									this.typedclasses.push('oth' + cl);
-							}
-						}
-						if (document) {
-							document.getElementById('movcnt').innerHTML = '' + this.imbmovies.length + ' (';
-							if (earliestmov.length > 4) document.getElementById('movcnt').innerHTML += this.earliestmov.substring(0,16);
-							document.getElementById('movcnt').innerHTML += ' - ';
-							if (latestmov.length > 4) document.getElementById('movcnt').innerHTML += this.latestmov.substring(0,16);
-							document.getElementById('movcnt').innerHTML += ')';
-							document.getElementById('movcnt').removeAttribute('data-myxlkey');
-							document.getElementById('imbdoit').disabled = false;
-							document.getElementById('imbvisbrows').disabled = false;
-							document.getElementById('notimback').style['display'] = 'none';
-						}
-						this.aftercheck();
-					}
-				};
-				xhrm.onerror = (event) => {
-					if (document) {
-						document.getElementById('movcnt').innerHTML = '0';
-						document.getElementById('movcnt').removeAttribute('data-myxlkey');
-						document.getElementById('imbdoit').disabled = false;
-						document.getElementById('imbvisbrows').disabled = false;
-					}
-				};
-				xhrm.open('GET', '/IMBACK/MOVIE/');
-				xhrm.responseType = 'document';
-				xhrm.send();
-			};
-			xhr.open('GET', '/IMBACK/PHOTO/');
-			xhr.responseType = 'document';
-			xhr.send();
+			if (type && (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0)) {
+				this.aftercheck();
+			}
+			else this.checkimb(true, true);
 		}
 	};
-	xhr0.open('GET', '/IMBACK/');
+	xhr.onerror = (event) => {
+		if (!type) this.checkimb(true, false);
+		else if (found && (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0)) {
+			this.aftercheck();
+		}
+	};
+	xhr0.open('GET', '/IMBACK/' + (type ? 'MOVIE' : 'PHOTO'));
 	xhr0.responseType = 'document';
 	xhr0.send();
 }
-/* handle the normal selection from imback (do it button) */
-imbdoit () {
+/* handle the normal selection from imback (do it button), also for nodejs */
+imbdoit() {
 	if (this.actnum !== this.allfiles.length) return;
 	let selecteds = [];
 	let compval = '0000';
-	if (document.getElementById('imbstartts').value != undefined && document.getElementById('imbstartts').value.length > 0) {
+	if (document && document.getElementById('imbstartts').value != undefined && document.getElementById('imbstartts').value.length > 0) {
 		compval = document.getElementById('imbstartts').value;
 	}
-	if (document.getElementById('picfromimb').checked) {
+	else compval = this.fromimbts;
+	if ((document && document.getElementById('picfromimb').checked) ||
+		(this.fromimbflags % 2)) {
 		for (const e of this.imbpics) {
 			let rawname = e;
 			while (rawname.indexOf("/") > -1)
@@ -1880,7 +1829,8 @@ imbdoit () {
 				selecteds.push(e);
 		}
 	}
-	if (document.getElementById('rpicfromimb').checked) {
+	if ((document && document.getElementById('rpicfromimb').checked) ||
+		((this.fromimbflags % 4) > 1)) {
 		for (const e of this.rimbpics) {
 			let rawname = e;
 			while (rawname.indexOf("/") > -1)
@@ -1889,7 +1839,8 @@ imbdoit () {
 				selecteds.push(e);
 		}
 	}
-	if (document.getElementById('movfromimb').checked) {
+	if ((document && document.getElementById('movfromimb').checked) ||
+		((this.fromimbflags % 7) > 3)) {
 		for (const e of this.imbmovies) {
 			let rawname = e;
 			while (rawname.indexOf("/") > -1)
@@ -1909,31 +1860,36 @@ imbdoit () {
 		else if (ra === rb) return 0;
 		else return 1;
 	});
-    const addlinkel = document.getElementById('addlink');
-	if (addlinkel !== null)  this.addlinkbool = addlinkel.checked;
-    const stepprev = document.getElementById('steppreview');
     this.stepmode = 0;
-	if (stepprev !== null && stepprev.checked) this.stepmode = 1;
+	if (document) {
+		const addlinkel = document.getElementById('addlink');
+		if (addlinkel !== null)  this.addlinkbool = addlinkel.checked;
+		const stepprev = document.getElementById('steppreview');
+		if (stepprev !== null && stepprev.checked) this.stepmode = 1;
+	}
 	this.totnum = selecteds.length;
 	this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
 	this.actnum = 0;
 	this.allfiles = selecteds;
-	if (this.totnum > 0) {
-		this.mappx('process.frombackn', this.totnum);
-		this.appendnl();
+	this.mappx('process.frombackn', this.totnum);
+	if (document) this.appendnl();
+	else this.appendmsg('');
+	if (document && this.totnum > 0) {
 		document.getElementById('imbdoit').disabled = true;
 		document.getElementById('imbvisbrows').disabled = true;
 		document.getElementById('droptarget').style['display'] = 'none';
 		document.getElementById('infile').disabled = true
 		this.handleonex();
 	}
+	else if (this.totnum > 0) this.handleonex();
+	else this.mappx('onimback.nomatch');
 }
 /* open visual browser */
-visbrows () {
+visbrows() {
 	this.showbrowser();
 }
 /* as it says */
-showbrowser () {
+showbrowser() {
 	const norm = document.getElementById('normal');
 	const quest = document.getElementById('question');
 	document.getElementById('browser').style['display'] = '';
@@ -1943,7 +1899,7 @@ showbrowser () {
 	window.onresize = () => this.startloadimg();
 }
 /* visual browser: create the wait dots */
-createwait (el) {
+createwait(el) {
 	const waitdiv = document.createElement('div');
 	waitdiv.classList.add('eepvw');
 	const d1 = document.createElement('span');
@@ -1961,7 +1917,29 @@ createwait (el) {
 	el.entry.append(waitdiv);
 }
 /* visual browser: prepare the browser display, group the stuff */
-aftercheck () {
+aftercheck() {
+	document.getElementById('onimback').style['display'] = '';
+	document.getElementById('piccnt').innerHTML = '' + this.imbpics.length + ' (';
+	if (this.earliestjpg.length > 4) document.getElementById('piccnt').innerHTML += this.earliestjpg.substring(0,16);
+	document.getElementById('piccnt').innerHTML += ' - ';
+	if (this.latestjpg.length > 4) document.getElementById('piccnt').innerHTML += this.latestjpg.substring(0,16);
+	document.getElementById('piccnt').innerHTML += ')';
+	document.getElementById('piccnt').removeAttribute('data-myxlkey');
+	document.getElementById('rpiccnt').innerHTML = '' + this.rimbpics.length + ' (';
+	if (this.earliestraw.length > 4) document.getElementById('rpiccnt').innerHTML += this.earliestraw.substring(0,16);
+	document.getElementById('rpiccnt').innerHTML += ' - ';
+	if (this.latestraw.length > 4) document.getElementById('rpiccnt').innerHTML += this.latestraw.substring(0,16);
+	document.getElementById('rpiccnt').innerHTML += ')';
+	document.getElementById('rpiccnt').removeAttribute('data-myxlkey');
+	document.getElementById('movcnt').innerHTML = '' + this.imbmovies.length + ' (';
+	if (this.earliestmov.length > 4) document.getElementById('movcnt').innerHTML += this.earliestmov.substring(0,16);
+	document.getElementById('movcnt').innerHTML += ' - ';
+	if (this.latestmov.length > 4) document.getElementById('movcnt').innerHTML += this.latestmov.substring(0,16);
+	document.getElementById('movcnt').innerHTML += ')';
+	document.getElementById('movcnt').removeAttribute('data-myxlkey');
+	document.getElementById('imbdoit').disabled = false;
+	document.getElementById('imbvisbrows').disabled = false;
+	document.getElementById('notimback').style['display'] = 'none';
 	if (this.untypedclasses[0].title) return;
 	for (const x of this.untypedclasses) {
 		const cl = {
@@ -2061,7 +2039,7 @@ aftercheck () {
 	} */
 }
 /* visual browser: build ordered lists */
-buildtree () {
+buildtree() {
 	let list, toplevel;
 	if (document.getElementById('sbytype').checked) {
 		list = this.typedclasses;
@@ -2093,8 +2071,8 @@ buildtree () {
 	}
 	//this.xlateall();
 }
-// visual browser: find next to load
-findnexttoload (alsooutside) {
+/* visual browser: find next to load */
+findnexttoload(alsooutside) {
 	for (const e of this.imbeles.sort((a,b) => this.myisort(a,b))) {
 		// display: none somewhere?
 		if (!e.entry) continue;
@@ -2134,21 +2112,21 @@ findnexttoload (alsooutside) {
 	return undefined;
 }
 /* visual browser: sort helper */
-mysort (a, b) {
+mysort(a, b) {
 	const fact = document.getElementById('solder').checked ? 1 : -1
 	if (a.title > b.title) return fact;
 	else if (a.title < b.title) return -1 * fact;
 	else return 0;
 }
 /* visual browser: sort helper */
-myisort (a, b) {
+myisort(a, b) {
 	const fact = document.getElementById('solder').checked ? 1 : -1
 	if (a.raw > b.raw) return fact;
 	else if (a.raw < b.raw) return -1 * fact;
 	else return 0;
 }
 /* visual browser: add images sorted  */
-addimgsorted (el) {
+addimgsorted(el) {
 	if (el.fmembers !== null && el.fmembers !== undefined) {
 		for (const e of el.fmembers.sort((a,b) => this.myisort(a, b))) {
 			if (null === e.entry || undefined === e.entry) this.displaydiv(e);
@@ -2158,7 +2136,7 @@ addimgsorted (el) {
 	}
 }
 /* visual browser: add sorted recursively */
-addsorted (el) {
+addsorted(el) {
 	if (el.smembers === null || el.smembers ===  undefined) return;
 	for (const e of el.smembers.sort((a,b) => this.mysort(a, b))) {
 		this.addsorted(e);
@@ -2166,7 +2144,7 @@ addsorted (el) {
 	}
 }
 /* visual browser: recursive texts */
-buildtitlerec (el) {
+buildtitlerec(el) {
 	this.buildtitle(el);
 	if (el.smembers === null || el.smembers ===  undefined) return;
 	for (const e of el.smembers) {
@@ -2174,7 +2152,7 @@ buildtitlerec (el) {
 	}
 }
 /* visual browser: recursive fold close */
-doclose (gr, recurse) {
+doclose(gr, recurse) {
 	gr.entry.querySelector('.ggtt').classList.add('ggttclosed');
 	gr.entry.querySelector('.ggtt').classList.remove('ggttopen');
 	gr.entry.classList.add('ggclosed');
@@ -2183,7 +2161,7 @@ doclose (gr, recurse) {
 		for (const e of gr.smembers) this.doclose(e, recurse);
 }
 /* visual browser: recursive fold open */
-doopen (gr, recurse, nontop) {
+doopen(gr, recurse, nontop) {
 	gr.entry.querySelector('.ggtt').classList.remove('ggttclosed');
 	gr.entry.querySelector('.ggtt').classList.add('ggttopen');
 	gr.entry.classList.remove('ggclosed');
@@ -2200,13 +2178,13 @@ doopen (gr, recurse, nontop) {
 	if (nontop !== true) this.startloadimg();
 }
 /* visual browser: select all from top */
-topreccheck (force) {
+topreccheck(force) {
 	if (undefined === force)
 		force = document.getElementById('selall').checked;
 	this.reccheck(force);
 }
-/* select all */
-reccheck (to, root) {
+/* visual browser: select all */
+reccheck(to, root) {
 	if (undefined === root) {
 		for (const e of this.typedclasses) this.reccheck(to, e);
 		for (const e of this.untypedclasses) this.reccheck(to, e);
@@ -2225,7 +2203,7 @@ reccheck (to, root) {
 	this.updateselections();
 }
 /* visual browser: text and controls on top of a group */
-buildtitle (gr) {
+buildtitle(gr) {
 	let t = '', s = gr.title;
 	const d = document.createElement('div');
 	d.classList.add('ggtt');
@@ -2320,7 +2298,7 @@ buildtitle (gr) {
 	}
 }
 /* visual browser: add classes upwards */
-higherclasses (arr, len, curlevel) {
+higherclasses(arr, len, curlevel) {
 	for (const u of arr.filter((o) => o.level === curlevel)) {
 		if (u.ischild) continue;
 		if (arr.filter((o) => u.title.substring(0,len) === o.title.substring(0,len)).length === 1) {
@@ -2354,7 +2332,7 @@ higherclasses (arr, len, curlevel) {
 		this.higherclasses(arr, len - 3, 3);
 }
 /* visual browser: return count of files in class */
-countfiles (cla) {
+countfiles(cla) {
 	let res = 0;
 	if (undefined !== cla.fmembers) res += cla.fmembers.length;
 	if (undefined !== cla.smembers)
@@ -2363,7 +2341,7 @@ countfiles (cla) {
 	return res;
 }
 /* visual browser: recursive count selection */
-countsel (gr) {
+countsel(gr) {
 	let res = 0;
 	if (gr.fmembers) {
 		res += gr.fmembers.filter((o) => o.selected).length;
@@ -2378,7 +2356,7 @@ countsel (gr) {
 	return res;
 }
 /* visual browser: update all "selected" values */
-updateselections () {
+updateselections() {
 	for (const s of this.typedclasses) this.countsel(s);
 	for (const s of this.untypedclasses) this.countsel(s);
 	let res = 0, sum = 0;
@@ -2391,7 +2369,7 @@ updateselections () {
 	document.getElementById('delselbut').disabled = (res === 0);
 }
 /* visual browser: fill a html div into an imbele */
-displaydiv (e) {
+displaydiv(e) {
 	e.entry = document.createElement('div');
 	if (e.wasselected) e.entry.classList.add('picprocd');
 	e.entry.id = 'div_' + e.raw + '_X';
@@ -2519,7 +2497,7 @@ displaydiv (e) {
 	}
 }
 /* visual browser: image loader call */
-loadimg (url, type, to) {
+loadimg(url, type, to) {
 	if (to.entry.querySelector('.eepvx')
 			|| (to.entry.querySelector('.eepvw')?.style['display'] === 'none' && to.entry.querySelector('.errimg')?.style['display'] === 'none')
 			|| (type === 'oth')) {
@@ -2587,7 +2565,7 @@ loadimg (url, type, to) {
 	}
 }
 /* visual browser: load next from todo list */
-loadnextimg () {
+loadnextimg() {
 	let e = this.findnexttoload();
 	if (!e) e = this.findnexttoload(true);
 	if (!e) {
@@ -2604,7 +2582,7 @@ loadnextimg () {
 	}
 }
 /* visual browser: start loading */
-startloadimg () {
+startloadimg() {
 	if (!this.loaderrunning) {
 		if (this.debugflag) console.log('start loader');
 		this.loadnextimg();
@@ -2614,7 +2592,7 @@ startloadimg () {
 	}
 }
 /* visual browser: delete browser selected */
-browserdelete () {
+browserdelete() {
 	document.getElementById('del_text').setAttribute('data-myxlarg0', this.imbeles.filter((o) => o.selected).length);
 	this.xl1(document.getElementById('del_text'));
 	document.getElementById('delq').style['display'] = '';
@@ -2623,7 +2601,7 @@ browserdelete () {
 	document.getElementById('delcancelbut').disabled = false;
 }
 /* visual browser: do delete */
-dodelete (list) {
+dodelete(list) {
 	const deletephs = [ '|' , '/', '-', '\\' ]; 
 	if (list === undefined && this.imbeles.filter((o) => o.selected).length === 0) {
 		delcancel();
@@ -2660,12 +2638,12 @@ dodelete (list) {
 	}
 }
 /* visual browser: cancel the delete */
-delcancel () {
+delcancel() {
 	document.getElementById('delq').style['display'] = 'none';
 	document.getElementById('browser').style['display'] = '';
 }
 /* visual browser: process browser selected */
-browserprocess () {
+browserprocess() {
 	if (this.actnum !== this.allfiles.length) return;
 	let selecteds = [];
 	for (const i of this.imbeles) {
@@ -2705,9 +2683,9 @@ browserprocess () {
 	}
 }
 /* translate one element */
-xl1 (el) {
+xl1(el) {
 	if (el.attributes.getNamedItem('data-myxlkey')) {
-		el.innerHTML = this.xl(el.attributes.getNamedItem('data-myxlkey').value, undefined,  el.attributes.getNamedItem('data-myxlarg0')?.value, el.attributes.getNamedItem('data-myxlarg1')?.value, el.attributes.getNamedItem('data-myxlarg2')?.value, el.attributes.getNamedItem('data-myxlarg3')?.value );
+		el.innerHTML = this.xl(el.attributes.getNamedItem('data-myxlkey').value, el.attributes.getNamedItem('data-myxlarg0')?.value, el.attributes.getNamedItem('data-myxlarg1')?.value, el.attributes.getNamedItem('data-myxlarg2')?.value, el.attributes.getNamedItem('data-myxlarg3')?.value );
 	}
 	if (el.attributes.getNamedItem('data-myvalxlkey')) {
 		el.value = this.xl(el.attributes.getNamedItem('data-myvalxlkey').value);
@@ -2718,7 +2696,7 @@ xl1 (el) {
 	return el;
 }
 /* get part of translation */
-xl0 (str, base) {
+xl0(str, base) {
 	if (undefined === base) base = this.texts;
 	const i = str.indexOf('.');
 	if (i === -1) {
@@ -2732,7 +2710,7 @@ xl0 (str, base) {
 	}
 }
 /* translate one string with parameters */
-xl (str, base, arg0, arg1, arg2, arg3) {
+xl(str, arg0, arg1, arg2, arg3, base) {
 	// console.log(' XL ' + str + ' - ' + base + ' - ' + arg0 + ' - ' + arg1);
 	if (undefined === base) base = this.texts;
 	if (this.mylang === '00') {
@@ -2771,14 +2749,14 @@ xl (str, base, arg0, arg1, arg2, arg3) {
 	}
 	else {
 		const e = base[str.substring(0,i)];
-		return this.xl(str.substring(i+1),e, arg0, arg1, arg2, arg3);
+		return this.xl(str.substring(i+1), arg0, arg1, arg2, arg3, e);
 	}
 }
 /* translate everything */
-xlateall () {
+xlateall() {
 	const k = document.querySelectorAll('*[data-myxlkey]');
 	for (const e of k) {
-		e.innerHTML = this.xl(e.attributes.getNamedItem('data-myxlkey').value, undefined,  e.attributes.getNamedItem('data-myxlarg0')?.value, e.attributes.getNamedItem('data-myxlarg1')?.value, e.attributes.getNamedItem('data-myxlarg2')?.value, e.attributes.getNamedItem('data-myxlarg3')?.value );
+		e.innerHTML = this.xl(e.attributes.getNamedItem('data-myxlkey').value, e.attributes.getNamedItem('data-myxlarg0')?.value, e.attributes.getNamedItem('data-myxlarg1')?.value, e.attributes.getNamedItem('data-myxlarg2')?.value, e.attributes.getNamedItem('data-myxlarg3')?.value );
 	}
 	const l = document.querySelectorAll('*[data-myvalxlkey]');
 	for (const e of l) {
@@ -2796,13 +2774,13 @@ xlateall () {
 	this.firstflag = false;
 }
 /* translate for new language */
-setlang () {
+setlang() {
 	this.mylang = document.getElementById('langsel').value;
 	this.xlateall();
 	document.documentElement.lang = this.mylang;
 }
 /* try lang from node param */
-trylang (i) {
+trylang(i) {
 	let found = 0;
 	for (const l of this.alllangs) {
 		if (i.toUpperCase() === l.toUpperCase()) {
@@ -2818,8 +2796,8 @@ trylang (i) {
 	if ('00' === this.mylang)
 		this.debugflag = true;
 }
-/* find language from filename */
-querylang (name, offset) {
+/* find language from filename or nodejs scriptfile */
+querylang(name, offset) {
 	if (undefined === offset) offset = 8;
 	let found = 0;
 	for (const l of this.alllangs) {
@@ -2842,8 +2820,8 @@ querylang (name, offset) {
 		document.getElementById('langsel').innerHTML += '<option value="00" onclick="imbc.setlang()">00</option></select>';
 	// followed by xlall anyway
 }
-/* node js help */
-help (caller) {
+/* nodejs: show help */
+help(caller) {
 	while (caller.indexOf("/") > -1)
 		caller = caller.substring(caller.indexOf("/") + 1);
 	const texts = this.xl0('nodehelp');
@@ -2852,7 +2830,7 @@ help (caller) {
 		console.log(texts[j]);
 }
 /* debug */
-prgr (gr, indent) {
+prgr(gr, indent) {
 	const str = '                ';
 	if (undefined === gr.title) return;
 	console.log(str.substring(0,2*indent), gr.title, '   ', this.countfiles(gr));
@@ -2862,19 +2840,29 @@ prgr (gr, indent) {
 	}
 }
 /* print translations */
-prxl (key, el) {
+prxl(key, el) {
 	if (el['de'] && el['en']) {
-		let out = key + ';';
-		out += '\'' + el['de']  + '\';';
-		out += '\'' + el['en']  + '\';';
-		console.log(out);
+		if (typeof el['de'] === 'string') {
+			let out = key + ';';
+			out += '\'' + el['de']  + '\';';
+			out += '\'' + el['en']  + '\';';
+			console.log(out);
+		}
+		else if (typeof el['de'][0] == 'string') {
+			for (let i=0; i< el['de'].length; i++) {
+				let out = key + '[' + i + '];';
+				out += '\'' + el['de'][i]  + '\';';
+				out += '\'' + el['en'][i]  + '\';';
+				console.log(out);
+			}
+		}
 	}
 	for (const ne of Object.keys(el).filter((k) => ((k !== 'en') && (k !== 'de') && (typeof(el[k]) !== 'string')))) {
 		this.prxl(key + '.' + ne, el[ne]);
 	}
 }
 /* only debug */
-dodebug () {
+dodebug() {
 	const fr = new FileReader();
 	fr.onload = (res) => {
 		const dp = new DOMParser();
@@ -2882,97 +2870,9 @@ dodebug () {
 		const sel2 = doc.querySelectorAll('a');
 		for (const r of sel2) {
 			if (r) {
-				let rawname = r.href;
-				if (rawname.indexOf('del=') != -1) continue;
-				while (rawname.indexOf("/") > -1)
-					rawname = rawname.substring(rawname.indexOf("/") + 1);
-				if (rawname.substring(rawname.length -4).toUpperCase() === '.RAW') {
-					if (rawname < this.earliestraw) this.earliestraw = rawname;
-					if (rawname > this.latestraw) this.latestraw = rawname;
-					this.rimbpics.push('http://192.168.1.254/IMBACK/PHOTO/' + rawname);
-					this.imbeles.push({
-							type: 'RAW',
-							url: 'http://192.168.1.254/IMBACK/PHOTO/' + rawname,
-							raw: rawname,
-							selected: false,
-							preview: null,
-							entry: null,
-							waiting: false,
-							error: false,
-							processed: false
-					});
-					const cl = rawname.substring(0,12);
-					if (this.untypedclasses.findIndex((v, i, o) => v === cl) === -1)
-						this.untypedclasses.push(cl);
-					if (this.typedclasses.findIndex((v, i, o) => v === ('RAW' + cl)) === -1)
-						this.typedclasses.push('RAW' + cl);
-				}
-				else if (rawname.substring(rawname.length -4).toUpperCase() === '.JPG') {
-					if (rawname < this.earliestjpg) this.earliestjpg = rawname;
-					if (rawname > this.latestjpg) this.latestjpg = rawname;
-					this.imbpics.push('http://192.168.1.254/IMBACK/PHOTO/' + rawname);
-					this.imbeles.push({
-							type: 'JPG',
-							url: 'http://192.168.1.254/IMBACK/PHOTO/' + rawname,
-							raw: rawname,
-							selected: false,
-							preview: null,
-							entry: null,
-							waiting: false,
-							error: false,
-							processed: false
-					});
-					const cl = rawname.substring(0,12);
-					if (this.untypedclasses.findIndex((v, i, o) => v === cl) === -1)
-						this.untypedclasses.push(cl);
-					if (this.typedclasses.findIndex((v, i, o) => v === ('JPG' + cl)) === -1)
-						this.typedclasses.push('JPG' + cl);
-				}
-				else {
-					if (rawname < this.earliestmov) this.earliestmov = rawname;
-					if (rawname > this.latestmov) this.latestmov = rawname;
-					this.imbmovies.push('http://192.168.1.254/IMBACK/PHOTO/' + rawname);
-					this.imbeles.push({
-							type: 'oth',
-							url: 'http://192.168.1.254/IMBACK/PHOTO/' + rawname,
-							raw: rawname,
-							selected: false,
-							preview: null,
-							entry: null,
-							waiting: false,
-							error: false,
-							processed: false
-					});
-					const cl = rawname.substring(0,12);
-					if (this.untypedclasses.findIndex((v, i, o) => v === cl) === -1)
-						this.untypedclasses.push(cl);
-					if (this.typedclasses.findIndex((v, i, o) => v === ('oth' + cl)) === -1)
-						this.typedclasses.push('oth' + cl);
-				}
+				this.handle1imb(r.href);
 			}
 		}
-		document.getElementById('piccnt').innerHTML = '' + this.imbpics.length + ' (';
-		if (this.earliestjpg.length > 4) document.getElementById('piccnt').innerHTML += this.earliestjpg.substring(0,16);
-		document.getElementById('piccnt').innerHTML += ' - ';
-		if (this.latestjpg.length > 4) document.getElementById('piccnt').innerHTML += this.latestjpg.substring(0,16);
-		document.getElementById('piccnt').innerHTML += ')';
-		document.getElementById('piccnt').removeAttribute('data-myxlkey');
-		document.getElementById('rpiccnt').innerHTML = '' + this.rimbpics.length + ' (';
-		if (this.earliestraw.length > 4) document.getElementById('rpiccnt').innerHTML += this.earliestraw.substring(0,16);
-		document.getElementById('rpiccnt').innerHTML += ' - ';
-		if (this.latestraw.length > 4) document.getElementById('rpiccnt').innerHTML += this.latestraw.substring(0,16);
-		document.getElementById('rpiccnt').innerHTML += ')';
-		document.getElementById('rpiccnt').removeAttribute('data-myxlkey');
-		document.getElementById('movcnt').innerHTML = '' + this.imbmovies.length + ' (';
-		if (this.earliestmov.length > 4) document.getElementById('movcnt').innerHTML += this.earliestmov.substring(0,16);
-		document.getElementById('movcnt').innerHTML += ' - ';
-		if (this.latestmov.length > 4) document.getElementById('movcnt').innerHTML += this.latestmov.substring(0,16);
-		document.getElementById('movcnt').innerHTML += ')';
-		document.getElementById('movcnt').removeAttribute('data-myxlkey');
-		document.getElementById('imbdoit').disabled = false;
-		document.getElementById('imbvisbrows').disabled = false;
-		document.getElementById('onimback').style['display'] = '';
-		document.getElementById('notimback').style['display'] = 'none';
 		this.aftercheck();
 	};
 	fr.readAsText(document.getElementById('dbgfsel').files[0]);
@@ -2987,7 +2887,7 @@ function init() {
 }
 /* node js handling */
 if (typeof process !== 'undefined') {
-	document = undefined;
+	var document = undefined;
 	imbc = new ImBC();
 	console.log('Welcome to imbraw2html ' + imbc.version + ' !');
 	imbc.querylang(process.argv[1], 6);
@@ -3027,29 +2927,32 @@ if (typeof process !== 'undefined') {
 					else
 						flagging=2;
 				}
-				/*else if (v.substring(0,2)==='-n') {
+				else if (v.substring(0,2)==='-n') {
 					if (v.substring(2).length > 0) {
 						imbc.fromimbts = v.substring(2);
 					}
 					else
 						flagging=3;
-				}*/
+				}
 				else if (v.substring(0,2)==='-h') {
-					imbc.help(process.argv[1]);
-					console.log('');
+					if (!helpshown) {
+						imbc.help(process.argv[1]);
+						console.log('');
+					}
+					helpshown = true;
 				}
 				else if (v.substring(0,2)==='-f') {
 					imbc.ovwout = true;
 				}
-				/*else if (v.substring(0,2)==='-R') {
-					imbc.fromimbflags += 1;
+				else if (v.substring(0,2)==='-R') {
+					if (!(imbc.fromimbflags % 2)) imbc.fromimbflags += 1;
 				}
 				else if (v.substring(0,2)==='-J') {
-					imbc.fromimbflags += 2;
+					if ((imbc.fromimbflags % 4) < 2) imbc.fromimbflags += 2;
 				}
 				else if (v.substring(0,2)==='-O') {
-					imbc.fromimbflags += 4;
-				}*/
+					if ((imbc.fromimbflags % 8) < 4) imbc.fromimbflags += 4;
+				}
 				else if (v.substring(0,1) === '-') {
 					// currently ignored
 					console.log(`Unknown option: ${v}`);
@@ -3061,8 +2964,9 @@ if (typeof process !== 'undefined') {
 				}
 			}
 	});
-	if (imbc.totnum === 0 && imbc.fromimbflags !== 0) {
-		imbc.checkimbnode();
+	if (helpshown) return;
+	else if (imbc.totnum === 0 && imbc.fromimbflags !== 0) {
+		imbc.checkimbnode(false, () => imbc.imbdoit());
 	}
 	else if (imbc.totnum > 0)
 		imbc.handleonex();
