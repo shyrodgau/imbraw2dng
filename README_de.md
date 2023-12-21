@@ -16,7 +16,7 @@ Probleme und Ideen können auch in der [I'm Back Users Gruppe auf Facebook](http
 
 ## Installation
 
-Die aktuelle Version ist [V3.0.0_a0000f9 - fertig](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.0.0_a0000f9). Anmerkung: Weiterentwicklung wenn Fehler gefunden, neue Übersetzung beigesteuert, oder neues Bildformat.
+Die aktuelle Version ist [3.1.0_5889c15 - nodejs stuff included](https://github.com/shyrodgau/imbraw2dng/releases/tag/3.1.0_5889c15). Anmerkung: Weiterentwicklung wenn Fehler gefunden, neue Übersetzung beigesteuert, oder neues Bildformat.
 
 Die Datei [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.html) auf den PC kopieren oder aus der Version "Source code".zip oder .tar.gz auspacken und im Lieblingsbrowser öffnen (alles halbwegs aktuellen sollten gehen).
 

@@ -16,7 +16,7 @@ Problems and ideas can also be discussed in the [I'm Back Users Group on Faceboo
 
 ## Installation
 
-The current release is [V3.0.0_a0000f9 - ready](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.0.0_a0000f9). Note: further development when errors reported, new translation contributed or new image format.
+The current release is [3.1.0_5889c15 - nodejs stuff included](https://github.com/shyrodgau/imbraw2dng/releases/tag/3.1.0_5889c15). Note: further development when errors reported, new translation contributed or new image format.
 
 Copy the [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.html) file to your PC or extract it from the release "Source code".zip or .tar.gz and open in your favorite browser (any newer one should do).
 
