@@ -40,7 +40,7 @@ constructor() {
 		this.pa = require('path');
 	}
 }
-version = "3.1.0_DEVEL"; // actually const
+version = "3.1.0_5889c15"; // actually const
 alllangs = [ 'de' , 'en', '00' ]; // actually const
 texts = { // actually const
 	main: {
@@ -2959,6 +2959,7 @@ function init() {
 	imbc.xlateall();
 	imbc.checkimb();
 	document.getElementById('mainversion').innerHTML = imbc.version;
+	document.title= imbc.version;
 }
 /* node js handling main function */
 if (typeof process !== 'undefined') {
