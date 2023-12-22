@@ -839,11 +839,11 @@ createFxNode(url, onok, onerr) {
 }
 /* file/filereader like interface for imback http */
 // url can also be an imbele member
-createFx(url, onok, onerr) {
+createFx(url, onok, onerr, notfirst) {
 	if (!document) return this.createFxNode(url, onok, onerr);
-	let rot;
+	let rot, e = url;;
 	if (url.url) {
-		let e = url;
+		e = url;
 		url = e.url;
 		rot = e.rot;
 	}
@@ -868,6 +868,8 @@ createFx(url, onok, onerr) {
 	}
 	let xhr = new XMLHttpRequest();
 	xhr.onload = (evt) => {
+		let len = JSON.parse(xhr.getResponseHeader('content-length'));
+		if (0 >= len) len=1;
 		if (url.substring(url.length -4).toUpperCase() === '.RAW') {
 			this.cache.push({ url: url, d: xhr.response, l: xhr.response.byteLength });
 			if (this.cache.length > this.maxcache) this.cache.splice(0,1);
@@ -883,9 +885,11 @@ createFx(url, onok, onerr) {
 		xhr.onerror = undefined;
 		xhr.ontimeout = undefined;
 		xhr.onabort = undefined;
-		window.setTimeout(() => {
-				onok(url, fx, rot);
-		});
+		if (notfirst) {
+			window.setTimeout(() => {
+					onok(url, fx, rot);
+			});
+		} else this.createFx(e, onok, onerr, len);
 	};
 	xhr.onerror = (evt, typ) => {
 		if (undefined === typ) typ = 'err';
@@ -900,10 +904,10 @@ createFx(url, onok, onerr) {
 	};
 	xhr.onabort = (evt) => { xhr.onerror(evt, 'abort'); };
 	xhr.ontimeout = (evt) => { xhr.onerror(evt, 'timeout'); };
-	xhr.open('GET', url);
+	xhr.open(notfirst ? 'GET' : 'HEAD', url);
 	xhr.setRequestHeader('Cache-control','max-stale');
 	xhr.responseType = 'arraybuffer';
-	xhr.timeout = 26000;
+	xhr.timeout = (!notfirst || notfirst < 10000000) ? 30000 : Math.round(notfirst / 600;
 	try {
 		xhr.send();
 	} catch (e) {
