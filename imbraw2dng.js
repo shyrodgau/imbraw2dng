@@ -907,7 +907,7 @@ createFx(url, onok, onerr, notfirst) {
 	xhr.open(notfirst ? 'GET' : 'HEAD', url);
 	xhr.setRequestHeader('Cache-control','max-stale');
 	xhr.responseType = 'arraybuffer';
-	xhr.timeout = (!notfirst || notfirst < 10000000) ? 30000 : Math.round(notfirst / 600;
+	xhr.timeout = (!notfirst || notfirst < 10000000) ? 30000 : Math.round(notfirst / 600);
 	try {
 		xhr.send();
 	} catch (e) {
