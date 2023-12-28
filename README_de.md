@@ -19,7 +19,7 @@ Probleme und Ideen können auch in der [I'm Back Users Gruppe auf Facebook](http
 
 ## Installation
 
-Die aktuelle Version ist [V3.1.1_9d4d44c - fix timeouts](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.1.1_9d4d44c). 
+Die aktuelle Version ist [V3.1.1_8536f91 - fix timeouts](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.1.1_8536f91). 
 Anmerkung: Weiterentwicklung wenn Fehler gefunden, neue Übersetzung beigesteuert, oder neues Bildformat.
 
 Die Datei [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.html) auf den PC kopieren oder aus der 
