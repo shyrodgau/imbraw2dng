@@ -25,7 +25,7 @@ Free software, use at own risk for whatever you like
 	 -O 			- get non-RAW/non-JPEG from ImB connected via Wifi
 	 -n yyyy_mmdd_hhmmss (or any length of head) - select only newer than this timestamp from ImB
 	 -----
-	 <files-or-dirs> - process local files or directories recursively, e.g. on MicroSD from ImB, recursive
+	 <files-or-dirs> - process local files or directories recursively, e.g. on MicroSD from ImB
 	 -----
 	<files-or-dirs> and -R/-J/-O are mutually exclusive.
 
@@ -40,7 +40,7 @@ constructor() {
 		this.pa = require('path');
 	}
 }
-version = "3.1.1_9d4d44c"; // actually const
+version = "V3.1.1_9d4d44c"; // actually const
 alllangs = [ 'de' , 'en', '00' ]; // actually const
 texts = { // actually const
 	main: {
@@ -458,7 +458,7 @@ texts = { // actually const
 				' \x1b[1m-O\x1b[0m - get non-RAW/non-JPEG from ImB connected via Wifi',
 				' \x1b[1m-n yyyy_mmdd_hhmmss\x1b[0m (or any length of head) - select only newer than this timestamp from ImB',
 				' -----',
-				' <files-or-dirs> - process local files or directories recursively, e.g. on MicroSD from ImB, recursive',
+				' <files-or-dirs> - process local files or directories recursively, e.g. on MicroSD from ImB',
 				' -----',
 				'<files-or-dirs> and -R/-J/-O are mutually exclusive.' ,],
 			de: [ 'Aufruf: node ', ' [-l sprache] [-f] [ -d ordner] { [-R] [-J] [-O] [-n yy_mmdd_hhmmss] | <dateien-oder-ordner> }', 'Optionen:',
@@ -2969,7 +2969,7 @@ function init() {
 if (typeof process !== 'undefined') {
 	var document = undefined;
 	imbc = new ImBC();
-	console.log('\x1b[1mWelcome to imbraw2html\x1b[0m ' + imbc.version + ' !');
+	console.log('\x1b[1mWelcome to imbraw2dng\x1b[0m ' + imbc.version + ' !');
 	imbc.querylang(process.argv[1], 6);
 	let wanthelp = false;
 	if (process.argv.length < 3) {
