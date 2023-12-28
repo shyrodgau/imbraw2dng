@@ -40,7 +40,7 @@ constructor() {
 		this.pa = require('path');
 	}
 }
-version = "V3.1.1_9d4d44c"; // actually const
+version = "V3.1.1_8536f91"; // actually const
 alllangs = [ 'de' , 'en', '00' ]; // actually const
 texts = { // actually const
 	main: {
