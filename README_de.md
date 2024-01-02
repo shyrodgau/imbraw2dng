@@ -73,7 +73,7 @@ die man verarbeiten/kopieren oder auch löschen möchte.
 
 ### Kommandozeile mit node.js
 
-Sofern man [node.js](https://nodejs.org) hat, kann man die Konvertierung auf der Kommandozeile durchführen. Hierzu die Datei 
+Sofern man [node.js](https://nodejs.org) in Version &ge; V20.10(LTS) hat, kann man die Konvertierung auf der Kommandozeile durchführen. Hierzu die Datei 
 [imbraw2dng.js](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.js) verwenden. Kann wie bei 
 [Internationalisierung](#internationalisierung) beschrieben umbenannt werden. Hilfe zum Aufruf z.B. mit `node imbraw2dng.js` oder 
 umbenannt auf Deutsch `node imbraw2dng_de.js`.

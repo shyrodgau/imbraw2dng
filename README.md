@@ -62,7 +62,7 @@ by type and/or date. RAW and JPEG images will be displayed. You can select files
 
 ### Command line using node.js
 
-If and when you have [node.js](https://nodejs.org) installed, you can do the conversion via command line by getting the file 
+If and when you have [node.js](https://nodejs.org) version &ge; V20.10(LTS) installed, you can do the conversion via command line by getting the file 
 [imbraw2dng.js](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.js). Naming conventions according to [Internationalization](#internationalization) 
 apply. Parameter and calling help can be read with `node imbraw2dng.js`.
 
