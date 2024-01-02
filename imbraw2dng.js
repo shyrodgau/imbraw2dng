@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 "use strict;"
 /* when embedded into html, this doc is not valid, control via browser */
 /* ******************************************** 
@@ -29,7 +30,7 @@ Free software, use at own risk for whatever you like
 	 -----
 	<files-or-dirs> and -R/-J/-O are mutually exclusive.
 
-The plan is that this js will be identical to the js inside the html.
+This js is identical to the js inside the html.
    ******************************************** */
 class ImBC {
 /* Indentation out */
@@ -40,7 +41,7 @@ constructor() {
 		this.pa = require('path');
 	}
 }
-version = "V3.1.1_8536f91"; // actually const
+version = "V3.1.2_DEVEL"; // actually const
 alllangs = [ 'de' , 'en', '00' ]; // actually const
 texts = { // actually const
 	main: {
