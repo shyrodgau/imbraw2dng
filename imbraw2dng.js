@@ -7,6 +7,7 @@ imbraw2dng.js
 
 Convert RAW from I'm back(R)(https://imback.eu) into DNG
 
+Based on work by Michele Asciutti.
 Stefan Hegny, 2023
 
 https://github.com/shyrodgau/imbraw2dng
@@ -2976,7 +2977,7 @@ if (typeof process !== 'undefined') {
 	if (process.argv.length < 3) {
 		wanthelp = true;
 	}
-	let flagging=0;
+	let flagging=0, datefound = false;
 	process.argv.forEach((v,i) => {
 			if (i >= 2) {
 				// console.log(` ${i} -- ${v} ${flagging}`);
@@ -2991,6 +2992,7 @@ if (typeof process !== 'undefined') {
 				else if (flagging === 3) {
 					flagging = 0;
 					imbc.fromimbts = v;
+					datefound = true;
 				}
 				else if (v.substring(0,2)==='-l') {
 					if (v.substring(2).length > 0) {
@@ -3010,6 +3012,7 @@ if (typeof process !== 'undefined') {
 				else if (v.substring(0,2)==='-n') {
 					if (v.substring(2).length > 0) {
 						imbc.fromimbts = v.substring(2);
+						datefound = true;
 					}
 					else
 						flagging=3;
@@ -3039,6 +3042,7 @@ if (typeof process !== 'undefined') {
 				}
 			}
 	});
+	if (datefound && 0 === imbc.fromimbflags) imbc.fromimbflags = 7;
 	if (wanthelp || (imbc.fromimbflags === 0 && imbc.totnum === 0) || (imbc.fromimbflags > 0 && imbc.totnum > 0)) {
 		imbc.help(process.argv[1]);
 		console.log('');

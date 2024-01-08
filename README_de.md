@@ -54,8 +54,10 @@ aussieht (also `JJJJ_MMDD_hhmmss`), und OriginalRawFilename auf den Namen der RA
 benannt werden, ohne irgendwelche ursprünglichen Daten zu verlieren.
 
 Neu: man kann Schritt-für-Schritt durchgehen und eine Vorschau der RAW-Datei dabei sehen. Hierzu das Häkchen bei `Single Step with preview` 
+bzw. `Einzelschritt mit Vorschau`
 einschalten. Bei jeder Datei kann entschieden werden, ob sie verarbeitet oder übersprungen werden soll und ob diese Aktion auch für 
 alle folgenden Dateien der Auswahl durchgeführt werden soll. Durch Einschalten des Häkchens `Add separate download link for each file` 
+bzw. `Extra Download-Link an jeder Datei` 
 können die Dateien danach auch noch(mal) heruntergeladen werden (zusätzlich zu dem Download, der bei der Bearbeitung der Datei passiert). 
 Das könnte eher viel Speicherplatz benötigen, daher gibt es diese Möglichkeit nur noch nach Auswahl - die Dateien können ja auch einfach 
 nochmal ausgewählt und verarbeitet werden.
@@ -69,7 +71,7 @@ sagen wir mal in dan `IMBACK` Ordner. Dann den PC mit dem WLAN des ImBack verbin
 
 Dann kann man direkt alle Dateien, die neuer als ein angegebener Zeitstempel sind, verarbeiten/kopieren, oder mit dem Bildbrowser alle 
 Dateien auf dem ImBack nach Typ und/oder Zeitstempel ansehen. RAW- und JPEG-Bilder werden dabei angezeigt. Man kann Dateien auswählen, 
-die man verarbeiten/kopieren oder auch löschen möchte.
+die man kopieren/herunterladen oder auch löschen möchte.
 
 ### Kommandozeile mit node.js
 

@@ -58,7 +58,7 @@ You can put the html file (also renamed according to [internationalization](#int
 let's say into the `IMBACK` folder. Then you connect your PC to the ImBack Wifi and browse [your Imback](http://192.168.1.254/IMBACK/imbraw2dng.html) (or with the changed name).
 
 It offers you direct processing/copying of files newer than a given timestamp, or you can use the visual browser to look at the files on the ImBack 
-by type and/or date. RAW and JPEG images will be displayed. You can select files for processing/conversion or deletion.
+by type and/or date. RAW and JPEG images will be displayed. You can select files for conversion/download or deletion.
 
 ### Command line using node.js
 
