@@ -65,6 +65,24 @@ by type and/or date. RAW and JPEG images will be displayed. You can select files
 If and when you have [node.js](https://nodejs.org) version &ge; V20.10(LTS) installed, you can do the conversion via command line by getting the file 
 [imbraw2dng.js](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.js). Naming conventions according to [Internationalization](#internationalization) 
 apply. Parameter and calling help can be read with `node imbraw2dng.js`.
+```
+Usage: node imbraw2dng.js [-l lang] [-f] [ -d dir] { [-R] [-J] [-O] [-n yy_mmdd_hhmmss] | <files-or-dirs> }  
+Options:  
+ -h - show this help
+ -l XX - where XX is a valid language code (currently: DE, EN)  
+         Language can also be set by changing filename to imbraw2dng_XX.js.  
+ -d dir - put output files into dir  
+ -f - overwrite existing files  
+  -----  
+ <files-or-dirs> - process local files or directories recursively, e.g. on MicroSD from ImB  
+ -----  
+ -R - get RAW from ImB connected via Wifi  
+ -J - get JPEG from ImB connected via Wifi  
+ -O - get non-RAW/non-JPEG from ImB connected via Wifi  
+ -n yyyy_mmdd_hhmmss (or any length of head) - select only newer than this timestamp from ImB  
+ -----  
+<files-or-dirs> and -R/-J/-O are mutually exclusive.
+```
 
 ## Processing the DNG
 

@@ -79,6 +79,24 @@ Sofern man [node.js](https://nodejs.org) in Version &ge; V20.10(LTS) hat, kann m
 [imbraw2dng.js](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.js) verwenden. Kann wie bei 
 [Internationalisierung](#internationalisierung) beschrieben umbenannt werden. Hilfe zum Aufruf z.B. mit `node imbraw2dng.js` oder 
 umbenannt auf Deutsch `node imbraw2dng_de.js`.
+```
+Aufruf: node imbraw2dng.js [-l sprache] [-f] [ -d ordner] { [-R] [-J] [-O] [-n yy_mmdd_hhmmss] | <dateien-oder-ordner> }   
+Optionen:  
+ -h - diesen Hilfetext zeigen   
+ -l XX - wo XX ein gültiger Sprachcode ist (derzeit: DE, EN)   
+         Die Sprache kann auch durch Umbenennen in imbraw2dng_XX.js geändert werden.   
+ -d ordner - Ausgabedateien in diesen Ordner ablegen   
+ -f - existierende Dateien überschreiben   
+ -----   
+ <dateien-oder-ordner> - lokale Dateien oder Ordner rekursiv (z.B. von der MicroSD Karte aus ImB) verarbeiten   
+ -----   
+ -R - RAW von per WLAN verbundener ImB konvertieren   
+ -J - JPEG von per WLAN verbundener ImB kopieren   
+ -O - Nicht-JPEG/Nicht-RAW von per WLAN verbundener ImB kopieren   
+ -n yyyy_mmdd_hhmmss (oder beliebig langer Anfang davon) - nur Dateien neuer als dieser Zeitstempel von ImB holen   
+ -----   
+<dateien-oder-ordner> und -R/-J/-O schließen sich gegenseitig aus.
+```
 
 ## Verarbeitung des DNG
 
