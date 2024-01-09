@@ -36,6 +36,9 @@ The current supported langauges are english (EN) and german (DE). If you save th
 is the language shortcut, it will open the page directly in that language. If you want to contribute to translating, look 
 [here](https://shyrodgau.github.io/imbraw2dng/translations.xls) and get in contact!
 
+When you have [node.js](https://nodejs.org) version &ge; V20.10(LTS), you can get the file [imbraw2dng.js](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.js), 
+save it under `imbraw2dng_00.js` and then call `node imbraw2dng_00.js -CSV > mytexts.csv` to generate a current CSV with texts to be translated.
+
 ## Usage
 
 You can drag and drop all files from the I'm back (i.e. from the micro SD inserted into your PC) into the blue field. It will then copy all non-RAW 

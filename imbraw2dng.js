@@ -45,6 +45,7 @@ constructor() {
 version = "V3.1.2_DEVEL"; // actually const
 alllangs = [ 'de' , 'en', '00' ]; // actually const
 texts = { // actually const
+	langs: { de: 'DE', en: 'EN' },
 	main: {
 		title: {
 			de: 'ImB RAW nach DNG Konverter',
