@@ -80,14 +80,15 @@ Sofern man [node.js](https://nodejs.org) in Version &ge; V20.10(LTS) hat, kann m
 [Internationalisierung](#internationalisierung) beschrieben umbenannt werden. Hilfe zum Aufruf z.B. mit `node imbraw2dng.js` oder 
 umbenannt auf Deutsch `node imbraw2dng_de.js`.
 ```
-Aufruf: node imbraw2dng.js [-l sprache] [-f] [ -d ordner] [-nc] { [-R] [-J] [-O] [-n yy_mmdd_hhmmss] | [--] <dateien-oder-ordner> }   
+Aufruf: node imbraw2dng_de.js [-l sprache] [-f] [ -d ordner] [-nc] { [-R] [-J] [-O] [-n yy_mmdd_hhmmss] | [--] <dateien-oder-ordner> }   
 Optionen:  
  -h - diesen Hilfetext zeigen   
  -nc - keinen farbigen Text zeigen   
  -l XX - wo XX ein gültiger Sprachcode ist (derzeit: DE, EN)   
          Die Sprache kann auch durch Umbenennen in imbraw2dng_XX.js geändert werden.   
  -d ordner - Ausgabedateien in diesen Ordner ablegen   
- -f - existierende Dateien überschreiben   
+ -f - existierende Dateien überschreiben  
+ -- - weitere Parameter als lokale Dateien oder Ordner betrachten
  -----   
  <dateien-oder-ordner> - lokale Dateien oder Ordner rekursiv (z.B. von der MicroSD Karte aus ImB) verarbeiten   
  -----   
