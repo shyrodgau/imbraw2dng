@@ -2,8 +2,9 @@
 
 This is free software and not commercially supported.
 
-In here: [Installation](#installation) - [Internationalization](#internationalization) - [Usage](#usage) - [Browsing on the ImBack](#browsing-on-the-imback) - 
-[Processing the DNG](#processing-the-dng) - [How does it work](#how-does-it-work) - [Command line usage via node.js](#command-line-using-nodejs)
+In here: [Installation](#installation) - [Internationalization](#internationalization) -    
+[Usage](#usage) - [Browsing on the ImBack](#browsing-on-the-imback) - [Command line usage via node.js](#command-line-using-nodejs) -   
+[Processing the DNG](#processing-the-dng) - [How does it work](#how-does-it-work)
 
 oder [AUF DEUTSCH](https://github.com/shyrodgau/imbraw2dng/blob/master/README_de.md)
 
@@ -27,6 +28,8 @@ Copy the [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/im
 If you can not install it locally, you can use it from the network like on [my github page](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) 
 (should always be current version) or [from your own ImB](#browsing-on-the-imback) or at [imback.eu](https://imback.eu/home/im-back-raw-dng-converter-ib35/) 
 (with automated translation to different languages, but might not be current). The image data will stay in your browser in any case.
+
+For [node.js](#command-line-using-nodejs), only the Javascript file [imbraw2dng.js](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.js) is needed.
 
 The github repository itself can be found [here](https://github.com/shyrodgau/imbraw2dng).
 

@@ -40,10 +40,10 @@ constructor() {
 		this.fs = require('fs');
 		this.ht = require('http');
 		this.pa = require('path');
-		if (require('process').platform.substring(0,3) === 'win') this.withcolours = false;
+		if (process.platform.substring(0,3) === 'win') this.withcolours = false;
 	}
 }
-version = "V3.1.2_412bb89"; // actually const
+version = "V3.1.3_DEVEL"; // actually const
 alllangs = [ 'de' , 'en', '00' ]; // actually const
 texts = { // actually const
 	langs: { de: 'DE', en: 'EN' },
@@ -3086,7 +3086,7 @@ if (typeof process !== 'undefined') {
 		wanthelp = true;
 	}
 	if (datefound && 0 === imbc.fromimbflags) imbc.fromimbflags = 7;
-	if (wanthelp || (imbc.fromimbflags === 0 && imbc.totnum === 0) || (imbc.fromimbflags > 0 && imbc.totnum > 0)) {
+	if (wanthelp || (imbc.fromimbflags === 0 && imbc.totnum === 0) || (!wantxl && imbc.fromimbflags > 0 && imbc.totnum > 0)) {
 		imbc.help(process.argv[1]);
 		console.log('');
 	}
@@ -3094,7 +3094,7 @@ if (typeof process !== 'undefined') {
 		console.log(imbc.subst(imbc.xl0('node.help')[0], imbc.version));
 		imbc.checkimbnode();
 	}
-	else if (imbc.totnum > 0) {
+	else if (!wantxl && imbc.totnum > 0) {
 		console.log(imbc.subst(imbc.xl0('node.help')[0], imbc.version));
 		imbc.handlerecurse();
 	}

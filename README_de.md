@@ -2,9 +2,10 @@
 
 Dies ist freie Software ohne kommerzielle Unterstützung.
 
-Hier gibts: [Installation](#installation) - [Internationalisierung](#internationalisierung) - [Benutzung](#benutzung) - 
-[Gucken auf ImBack selbst](#gucken-auf-imback-selbst) - [Verarbeitung des DNG](#verarbeitung-des-dng) - [Wie funktioniert es](#wie-funktioniert-es) - 
-[Per Kommandozeile mit node.js](#kommandozeile-mit-nodejs)
+Hier gibts: [Installation](#installation) - [Internationalisierung](#internationalisierung) -    
+[Benutzung](#benutzung) - [Gucken auf ImBack selbst](#gucken-auf-imback-selbst) - [Per Kommandozeile mit node.js](#kommandozeile-mit-nodejs) -   
+[Verarbeitung des DNG](#verarbeitung-des-dng) - [Wie funktioniert es](#wie-funktioniert-es)
+
 
 or [IN ENGLISH](https://github.com/shyrodgau/imbraw2dng/blob/master/README.md)
 
@@ -29,12 +30,14 @@ Wenn eine lokale Installation nicht möglich ist, kann es vom Netzwerk wie von [
 (sollte immer die neueste Version sein) oder [von deinem ImB](#gucken-auf-imback-selbst) oder von [imback.eu](https://imback.eu/home/im-back-raw-dng-converter-ib35/) 
 (mit automatisierter Übersetzung in andere Sprachen, aber vielleicht nicht immer aktuell) genommen werden. Die Bilddaten bleiben auf jeden Fall im Browser.
 
+Für [node.js](#kommandozeile-mit-nodejs) wird nur die Javascript-Datei [imbraw2dng.js](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.js) gebraucht.
+
 Das github Repository ist [hier](https://github.com/shyrodgau/imbraw2dng).
 
 ### Internationalisierung
 
 Im Moment werden die Sprachen Englisch (EN) und Deutsch (DE) unterstützt. Wenn man die HTML-Datei mit geändertem Namen
-als `imbraw2html_XX.html` abspeichert, wobei `XX` das Sprachkürzel ist, öffnet sich die Seite direkt in dieser Sprache. Wenn
+als `imbraw2dng_XX.html` abspeichert, wobei `XX` das Sprachkürzel ist, öffnet sich die Seite direkt in dieser Sprache. Wenn
 du beim Übersetzen helfen magst, schau [hier](https://shyrodgau.github.io/imbraw2dng/translations.xls) und nimm Kontakt
 auf.
 
