@@ -43,7 +43,7 @@ constructor() {
 		if (require('process').platform.substring(0,3) === 'win') this.withcolours = false;
 	}
 }
-version = "V3.1.2_6e994c7"; // actually const
+version = "V3.1.2_412bb89"; // actually const
 alllangs = [ 'de' , 'en', '00' ]; // actually const
 texts = { // actually const
 	langs: { de: 'DE', en: 'EN' },
