@@ -40,6 +40,7 @@ constructor() {
 		this.fs = require('fs');
 		this.ht = require('http');
 		this.pa = require('path');
+		if (require('process').platform.substring(0,3) === 'win') this.withcolours = false;
 	}
 }
 version = "V3.1.2_DEVEL"; // actually const
@@ -63,9 +64,9 @@ texts = { // actually const
 			fr: '? Aide Doc',
 		},
 		helplink: {
-			de: 'https://shyrodgau.github.io/imbraw2dng/README_de',
-			en: 'https://shyrodgau.github.io/imbraw2dng/',
-			fr: 'https://shyrodgau.github.io/imbraw2dng/',
+			de: 'https://github.com/shyrodgau/imbraw2dng/blob/master/README_de.md',
+			en: 'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md',
+			fr: 'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md',
 		},
 		generaladvice: {
 			de: 'Kann sein, dass der Browser fragt, ob Sie zulassen wollen, dass mehrere Dateien heruntergeladen werden.<br>Dateien, die nicht oder unbekannte RAW-Dateien sind, werden 1:1 kopiert.',
@@ -73,14 +74,14 @@ texts = { // actually const
 			fr: 'Le navigateur peux questionner que vous acceptez le téléchargement de beaucoup de fichers.'
 		},
 		drophere: {
-			de: 'Datein von ImB hier ablegen: ',
+			de: 'Dateien von ImB hier ablegen: ',
 			en: 'Drop Files from ImB here: ',
 			fr: 'Posez fichers de ImB ici:'
 		},
 		selectraw: {
-			de: 'Oder diese Seite per WLAN von ImB direkt verwenden<br>Oder <b>.raw</b> Datei(en) auswählen:',
-			en: 'Or use this page via Wifi directly from ImB.<br> Or select <b>.raw</b> File(s):',
-			fr: 'Ou utiliez cette page via Wifi sur ImB.<br> Ou selectez <b>.raw</b> fichier(s):'
+			de: 'Oder diese Seite per WLAN <a href="https://github.com/shyrodgau/imbraw2dng/blob/master/README_de.md#gucken-auf-imback-selbst">direkt von ImB</a> verwenden.<br>Oder <b>.RAW</b> Datei(en) auswählen:',
+			en: 'Or use this page via Wifi <a href="https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback">directly from ImB</a>.<br> Or select <b>.RAW</b> File(s):',
+			fr: 'Ou utiliez cette page <a href="https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback">via Wifi sur ImB</a>.<br> Ou selectez <b>.RAW</b> fichier(s):'
 		},
 		stillcounting: {
 			de: '... zähle ... ',
@@ -138,11 +139,6 @@ texts = { // actually const
 			de: 'Oder ',
 			en: 'Or ',
 			fr: 'Ou '
-		},
-		reload: {
-			de: 'Seite ab und zu neu laden, um Speicher freizugeben.',
-			en: 'Reload page from time to time to free memory.',
-			fr: 'Rechargez la page de temps en temps pour libérer de la mémoire'
 		},
 		log: {
 			de: 'Protokoll-Ausgabe:',
@@ -237,16 +233,6 @@ texts = { // actually const
 			de: 'Einzelschritt mit Vorschau',
 			en: 'Single Step with preview',
 			fr: 'Seule étape avec aperçu'
-		},
-		addlink: {
-			de: 'Extra Download-Link an jeder Datei',
-			en: 'Add separate download link for each file',
-			fr: 'Ajoutez un lien telechargement vers chaque ficher'
-		},
-		maycostmem: {
-			de: 'Dies könnte Speicher kosten und wird daher von Hause aus nicht mehr angeboten. Man kann einfach nochmal die gleiche(n) Datei(en) auswählen.',
-			en: 'This may cost memory and is thus no longer by default. Simply select the file(s) again.',
-			fr: 'Cela coûte du stockage.'
 		},
 		nothing: {
 			de: 'Nichts ausgewählt.. ?',
@@ -448,13 +434,17 @@ texts = { // actually const
 			en: 'Please reload page.'
 		}
 	},
-	nodehelp: {
-			en: [ '\x1b[1mWelcome to imbraw2dng\x1b[0m $$0 !', 'Usage: node $$0 [-l lang] [-f] [ -d dir] { [-R] [-J] [-O] [-n yy_mmdd_hhmmss] | <files-or-dirs> }', 'Options:',
+	node: {
+		help: {
+			en: [ '\x1b[1mWelcome to imbraw2dng\x1b[0m $$0 !', 'Usage: node $$0 \x1b[1m[\x1b[0m-l lang\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-f\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m -d dir\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-nc\x1b[1m]\x1b[0m \x1b[1m{\x1b[0m \x1b[1m[\x1b[0m-R\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-J\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-O\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-n yy_mmdd_hhmmss\x1b[1m]\x1b[0m \x1b[1m|\x1b[0m \x1b[1m[\x1b[0m--\x1b[1m]\x1b[0m \x1b[1m<\x1b[0mfiles-or-dirs\x1b[1m>\x1b[0m \x1b[1m}\x1b[0m',
+				'Options:',
 				' \x1b[1m-h\x1b[0m - show this help',
+				' \x1b[1m-nc\x1b[0m - do not use coloured text',
 				' \x1b[1m-l XX\x1b[0m - where XX is a valid language code (currently: DE, EN)',
 				'         Language can also be set by changing filename to imbraw2dng_XX.js .',
 				' \x1b[1m-d dir\x1b[0m - put output files into dir',
 				' \x1b[1m-f\x1b[0m - overwrite existing files',
+				' \x1b[1m--\x1b[0m - treat rest of parameters as local files or dirs',
 				' -----',
 				' <files-or-dirs> - process local files or directories recursively, e.g. on MicroSD from ImB',
 				' -----',
@@ -464,12 +454,15 @@ texts = { // actually const
 				' \x1b[1m-n yyyy_mmdd_hhmmss\x1b[0m (or any length of head) - select only newer than this timestamp from ImB',
 				' -----',
 				'<files-or-dirs> and -R/-J/-O/-n can not be used at the same time.' ,],
-			de: [ '\x1b[1mWillkommen bei imbraw2dng\x1b[0m $$0 !', 'Aufruf: node $$0 [-l sprache] [-f] [ -d ordner] { [-R] [-J] [-O] [-n yy_mmdd_hhmmss] | <dateien-oder-ordner> }', 'Optionen:',
+			de: [ '\x1b[1mWillkommen bei imbraw2dng\x1b[0m $$0 !', 'Aufruf: node $$0 \x1b[1m[\x1b[0m-l sprache\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-f\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m -d ordner\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-nc\x1b[1m]\x1b[0m \x1b[1m{\x1b[0m \x1b[1m[\x1b[0m-R\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-J\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-O\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-n yy_mmdd_hhmmss\x1b[1m]\x1b[0m \x1b[1m|\x1b[0m \x1b[1m[\x1b[0m--\x1b[1m]\x1b[0m \x1b[1m<\x1b[0mdateien-oder-ordner\x1b[1m>\x1b[0m \x1b[1m}\x1b[0m',
+				'Optionen:',
 				' \x1b[1m-h\x1b[0m - diesen Hilfetext zeigen',
+				' \x1b[1m-nc\x1b[0m - keinen farbigen Text zeigen',
 				' \x1b[1m-l XX\x1b[0m - wo XX ein gültiger Sprachcode ist (derzeit: DE, EN)',
 				'         Die Sprache kann auch durch Umbenennen in imbraw2dng_XX.js geändert werden.',
 				' \x1b[1m-d ordner\x1b[0m - Ausgabedateien in diesen Ordner ablegen',
 				' \x1b[1m-f\x1b[0m - existierende Dateien überschreiben',
+				' \x1b[1m--\x1b[0m - weitere Parameter als lokale Dateien oder Ordner betrachten',
 				' -----',
 				' <dateien-oder-ordner> - lokale Dateien oder Ordner rekursiv (z.B. von der MicroSD Karte aus ImB) verarbeiten',
 				' -----',
@@ -479,9 +472,19 @@ texts = { // actually const
 				' \x1b[1m-n yyyy_mmdd_hhmmss\x1b[0m (oder beliebig langer Anfang davon) - nur Dateien neuer als dieser Zeitstempel von ImB holen',
 				' -----',
 				'<dateien-oder-ordner> und -R/-J/-O/-n können nicht gleichzeitig verwendet werden.',]
+		},
+		unkopt: {
+			en: '\x1b[31mUnknown Option:\x1b[0m $$0',
+			de: '\x1b[31mUnbekannte Option:\x1b[0m $$0'
+		},
+		missingval: {
+			en: '\x1b[31mMissing value for last parameter.\x1b[0m',
+			de: '\x1b[31mFehlender Wert für letzten Parameter.\x1b[0m'
+		}
 	}
 };
 mylang = 'en';
+withcolours = true;
 /* node js: */
 outdir = '';
 ovwout = false;
@@ -582,7 +585,6 @@ totnum=0;
 actnum=0;
 stats = { total: 0, skipped: 0, ok: 0, error: 0 };
 allfiles = [];
-addlinkbool = false;
 dispcnt = 1;
 stepmode = 0; // 0: always save (when no preview checkbox or "save all" in dialog), 1: always ask (set on preview checkbox), 2: skip all (after selected in dialog)
 // current preview image
@@ -641,8 +643,6 @@ appendnl() {
 /* browserdisplay: handler for file selection input */
 fselected() {
 	if (this.actnum !== this.allfiles.length) return;
-    const addlinkel = document.getElementById('addlink');
-	if (addlinkel !== null) this.addlinkbool = addlinkel.checked;
     const stepprev = document.getElementById('steppreview');
     this.stepmode = 0;
 	if (stepprev !== null && stepprev.checked) this.stepmode = 1;
@@ -732,13 +732,6 @@ handlenext() {
 			document.getElementById('infile').disabled = false;
 		}
 	}
-}
-/* browserdisplay: as it says */
-showreloadhints() {
-	const rl1 = document.getElementById('reloadhint');
-	if (null !== rl1) rl1.style['display'] = '';
-	const rl2 = document.getElementById('reloadhint2');                                          
-	if (null !== rl2) rl2.style['display'] = '';
 }
 /* preview: switch preview config to jpeg img */
 setjpegpv() {
@@ -1344,13 +1337,6 @@ output1(name, type, okmsg, arr1, arr2) {
 		outel.href = thisurl;
 		outel.click();
 		this.mappx(okmsg, name);
-		if (this.addlinkbool) {
-			if (type === 'image/x-adobe-dng')
-				this.mappx('process.dlagaindng', name, thisurl);
-			else
-				this.mappx('process.dlagain', name, thisurl);
-			this.showreloadhints();
-		}
 		this.appendnl();
 		const ie = this.imbeles.find((v) => v.raw.substring(0, v.raw.length - 3) === name.substring(0, name.length - 3));
 		if (ie) {
@@ -1406,8 +1392,6 @@ output1(name, type, okmsg, arr1, arr2) {
 /* browserdisplay: handler function for dropping OS files into the rect */
 drophandler(ev) {
 	if (this.actnum !== this.allfiles.length) return;
-	const addlinkel = document.getElementById('addlink');
-	if (addlinkel !== null) this.addlinkbool = addlinkel.checked;
     const stepprev = document.getElementById('steppreview');
     this.stepmode = 0;
 	if (stepprev !== null && stepprev.checked) this.stepmode = 1;
@@ -1946,8 +1930,6 @@ imbdoit() {
 	});
     this.stepmode = 0;
 	if (document) {
-		const addlinkel = document.getElementById('addlink');
-		if (addlinkel !== null)  this.addlinkbool = addlinkel.checked;
 		const stepprev = document.getElementById('steppreview');
 		if (stepprev !== null && stepprev.checked) this.stepmode = 1;
 	}
@@ -2504,8 +2486,6 @@ displaydiv(e) {
 			if (!this.debugflag && dlbtn.classList.contains('disabled')) return;
 			if (this.actnum !== this.allfiles.length) return;
 			let selecteds = [ e.url ];
-			const addlinkel = document.getElementById('addlink');
-			if (addlinkel !== null) this.addlinkbool = addlinkel.checked;
 			this.stepmode = 0;
 			this.totnum = 1;
 			this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
@@ -2741,8 +2721,6 @@ browserprocess() {
 		else if (ra === rb) return 0;
 		else return 1;
 	});
-    const addlinkel = document.getElementById('addlink');
-	if (addlinkel !== null) this.addlinkbool = addlinkel.checked;
     this.stepmode = 0;
 	this.totnum = selecteds.length;
 	this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
@@ -2760,6 +2738,21 @@ browserprocess() {
 	} else {
 		this.shownormal();
 	}
+}
+/* remove VT100 color escapes for windows */
+rmesc(str) {
+	//console.log('RRR ' + str);
+	if (this.withcolours) return (str);
+	let i = 0, j, k;
+	while ((j = str.substring(i).indexOf('\x1b')) !== -1) {
+		k = str.substring(i+j).indexOf('m');
+		//console.log('i ' + i + ' j ' + j + ' k ' + k + ' str ' + str + '\x1b[0m');
+		if (j !== -1 && k !== -1) {
+			str = str.substring(0, i+j) + str.substring(i+j+k+1);
+			i += (k+j-1);
+		} else i++;
+	}
+	return str;
 }
 /* translate one element */
 xl1(el) {
@@ -2781,7 +2774,10 @@ xl0(str, base) {
 	if (i === -1) {
 		let r = base[str][this.mylang];
 		if (undefined === r) r = base[str]['en'];
-		return r;
+		if (typeof r === 'string')
+			return this.rmesc(r);
+		else
+			return r;
 	}
 	else {
 		const e = base[str.substring(0,i)];
@@ -2802,7 +2798,7 @@ subst(r, arg0, arg1, arg2, arg3, base) {
 			}
 		}
 	}
-	return r;
+	return this.rmesc(r);
 }
 /* translate one string with parameters */
 xl(str, arg0, arg1, arg2, arg3, base) {
@@ -2855,6 +2851,7 @@ xlateall() {
 			this.prxl(el, this.texts[el]);
 	}
 	this.firstflag = false;
+	document.title = this.xl0('main.title') + ' ' + imbc.version;
 }
 /* translate for new language */
 setlang() {
@@ -2907,17 +2904,17 @@ querylang(name, offset) {
 help(caller) {
 	while (caller.indexOf("/") > -1)
 		caller = caller.substring(caller.indexOf("/") + 1);
-	let texts = this.xl0('nodehelp');
+	let texts = this.xl0('node.help');
 	/*if ('00' === this.mylang) {
 		texts = []; let j=0;
-		for (const f of this.texts.nodehelp.en) {
-			texts.push('nodehelp[' + j++ + ']');
+		for (const f of this.texts.node.help.en) {
+			texts.push('node.help[' + j++ + ']');
 		}
 	}*/
 	console.log(this.subst(texts[0], this.version));
 	console.log(this.subst(texts[1], caller));
 	for (let j=2; j<texts.length; j++) {
-		console.log(texts[j]);
+		console.log(this.rmesc(texts[j]));
 		if (this.debugflag && j === 7) {
 			console.log(' \x1b[1m-CSV\x1b[0m - Translation CSV');
 		}
@@ -2993,7 +2990,6 @@ function init() {
 	imbc.xlateall();
 	imbc.checkimb();
 	document.getElementById('mainversion').innerHTML = imbc.version;
-	document.title= imbc.version;
 }
 /* node js handling main function */
 if (typeof process !== 'undefined') {
@@ -3004,11 +3000,18 @@ if (typeof process !== 'undefined') {
 	if (process.argv.length < 3) {
 		wanthelp = true;
 	}
-	let flagging=0, datefound = false;
+	let flagging=0, datefound = false, restisfiles = false;
 	process.argv.forEach((v,i) => {
 			if (i >= 2) {
-				// console.log(` ${i} -- ${v} ${flagging}`);
-				if (flagging === 1) {
+				//console.log(` ${i} -- ${v} ${flagging}`);
+				if (v ==='--') {
+					restisfiles = true;
+				}
+				else if (restisfiles) {
+					imbc.allfiles.push(v);
+					imbc.totnum ++;
+				}
+				else if (flagging === 1) {
 					flagging = 0;
 					imbc.trylang(v);
 				}
@@ -3026,6 +3029,9 @@ if (typeof process !== 'undefined') {
 						imbc.prxl(el, imbc.texts[el]);
 					wantxl = true;
 					imbc.fromimbflags = 16;
+				}
+				else if (v ==='-nc') {
+					imbc.withcolours = false;
 				}
 				else if (v.substring(0,2)==='-l') {
 					if (v.substring(2).length > 0) {
@@ -3050,24 +3056,24 @@ if (typeof process !== 'undefined') {
 					else
 						flagging=3;
 				}
-				else if (v.substring(0,2)==='-h') {
+				else if (v ==='-h') {
 					wanthelp = true;
 				}
-				else if (v.substring(0,2)==='-f') {
+				else if (v ==='-f') {
 					imbc.ovwout = true;
 				}
-				else if (v.substring(0,2)==='-R') {
+				else if (v ==='-R') {
 					if (!(imbc.fromimbflags % 2)) imbc.fromimbflags += 1;
 				}
-				else if (v.substring(0,2)==='-J') {
+				else if (v ==='-J') {
 					if ((imbc.fromimbflags % 4) < 2) imbc.fromimbflags += 2;
 				}
-				else if (v.substring(0,2)==='-O') {
+				else if (v ==='-O') {
 					if ((imbc.fromimbflags % 8) < 4) imbc.fromimbflags += 4;
 				}
 				else if (v.substring(0,1) === '-') {
-					// currently ignored
-					console.log(`Unknown option: ${v}`);
+					console.log(imbc.subst(imbc.xl0('node.unkopt'), v));
+					wanthelp = true;
 				}
 				else {
 					imbc.allfiles.push(v);
@@ -3075,16 +3081,21 @@ if (typeof process !== 'undefined') {
 				}
 			}
 	});
+	if (flagging) {
+		console.log(imbc.xl0('node.missingval'));
+		wanthelp = true;
+	}
 	if (datefound && 0 === imbc.fromimbflags) imbc.fromimbflags = 7;
 	if (wanthelp || (imbc.fromimbflags === 0 && imbc.totnum === 0) || (imbc.fromimbflags > 0 && imbc.totnum > 0)) {
 		imbc.help(process.argv[1]);
 		console.log('');
 	}
 	else if (!wantxl && imbc.fromimbflags > 0) {
-		console.log(imbc.subst(imbc.xl0('nodehelp')[0], imbc.version));
+		console.log(imbc.subst(imbc.xl0('node.help')[0], imbc.version));
 		imbc.checkimbnode();
 	}
-	else if (imbc.totnum > 0)
-		console.log(imbc.subst(imbc.xl0('nodehelp')[0], imbc.version));
+	else if (imbc.totnum > 0) {
+		console.log(imbc.subst(imbc.xl0('node.help')[0], imbc.version));
 		imbc.handlerecurse();
+	}
 }

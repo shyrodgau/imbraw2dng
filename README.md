@@ -5,7 +5,7 @@ This is free software and not commercially supported.
 In here: [Installation](#installation) - [Internationalization](#internationalization) - [Usage](#usage) - [Browsing on the ImBack](#browsing-on-the-imback) - 
 [Processing the DNG](#processing-the-dng) - [How does it work](#how-does-it-work) - [Command line usage via node.js](#command-line-using-nodejs)
 
-oder [AUF DEUTSCH](https://shyrodgau.github.io/imbraw2dng/README_de)
+oder [AUF DEUTSCH](https://github.com/shyrodgau/imbraw2dng/blob/master/README_de.md)
 
 They are not really "B&W RAW" but actually the RAW sensor data that also contains the colour filtering (unfortunately only 8 bit deep..). 
 
@@ -32,7 +32,7 @@ The github repository itself can be found [here](https://github.com/shyrodgau/im
 
 ### Internationalization
 
-The current supported langauges are english (EN) and german (DE). If you save the html file with a name change to imbraw2dng_XX.html where XX 
+The current supported langauges are english (EN) and german (DE). If you save the html file with a name change to `imbraw2dng_XX.html` where `XX` 
 is the language shortcut, it will open the page directly in that language. If you want to contribute to translating, look 
 [here](https://shyrodgau.github.io/imbraw2dng/translations.xls) and get in contact!
 
@@ -51,9 +51,7 @@ Conversion to DNG currently sets the Timestamp Tags if the filename seems to be 
 OriginalRawFilename to the name of the RAW inputfile. That way you can name the DNG file whatever you like without losing any of the original information.
 
 New: you can do a step-by-step walk with a preview of the raw file. For that, check the `Single Step with preview` checkbox. On each file, you can 
-select if you want to process or skip it and also if this same action should be applied to the rest of your currently selected files. When you check the 
-`Add separate download link for each file` checkbox, then the files can be downloaded again (after the download that will be done automatically in the processing). 
-It may cost memory to keep all these so I do not do it any more by default - you can always select the file(s) simply again.
+select if you want to process or skip it and also if this same action should be applied to the rest of your currently selected files. 
 
 ### Browsing on the ImBack
 
@@ -69,13 +67,15 @@ If and when you have [node.js](https://nodejs.org) version &ge; V20.10(LTS) inst
 [imbraw2dng.js](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.js). Naming conventions according to [Internationalization](#internationalization) 
 apply. Parameter and calling help can be read with `node imbraw2dng.js`.
 ```
-Usage: node imbraw2dng.js [-l lang] [-f] [ -d dir] { [-R] [-J] [-O] [-n yy_mmdd_hhmmss] | <files-or-dirs> }  
+Usage: node imbraw2dng.js [-l lang] [-f] [ -d dir] [-nc] { [-R] [-J] [-O] [-n yy_mmdd_hhmmss] | [--] <files-or-dirs> }  
 Options:  
- -h - show this help
+ -h - show this help   
+ -nc - do not use coloured text   
  -l XX - where XX is a valid language code (currently: DE, EN)  
          Language can also be set by changing filename to imbraw2dng_XX.js.  
  -d dir - put output files into dir  
  -f - overwrite existing files  
+ -- - treat rest of parameters as local files or dirs   
   -----  
  <files-or-dirs> - process local files or directories recursively, e.g. on MicroSD from ImB  
  -----  
@@ -84,7 +84,7 @@ Options:
  -O - get non-RAW/non-JPEG from ImB connected via Wifi  
  -n yyyy_mmdd_hhmmss (or any length of head) - select only newer than this timestamp from ImB  
  -----  
-<files-or-dirs> and -R/-J/-O are mutually exclusive.
+<files-or-dirs> and -R/-J/-O/-n can not be used at the same time.
 ```
 
 ## Processing the DNG

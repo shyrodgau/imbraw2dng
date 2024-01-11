@@ -6,7 +6,7 @@ Hier gibts: [Installation](#installation) - [Internationalisierung](#internation
 [Gucken auf ImBack selbst](#gucken-auf-imback-selbst) - [Verarbeitung des DNG](#verarbeitung-des-dng) - [Wie funktioniert es](#wie-funktioniert-es) - 
 [Per Kommandozeile mit node.js](#kommandozeile-mit-nodejs)
 
-or [IN ENGLISH](https://shyrodgau.github.io/imbraw2dng/)
+or [IN ENGLISH](https://github.com/shyrodgau/imbraw2dng/blob/master/README.md)
 
 Es sind keine "Schwarz-Weiß RAW"-Dateien, sondern die echten Roh-Sensordaten mit der Farbfilterung darauf (leider aber nur 8 bit...). 
 
@@ -34,7 +34,7 @@ Das github Repository ist [hier](https://github.com/shyrodgau/imbraw2dng).
 ### Internationalisierung
 
 Im Moment werden die Sprachen Englisch (EN) und Deutsch (DE) unterstützt. Wenn man die HTML-Datei mit geändertem Namen
-als imbraw2html_XX.html abspeichert, wobei XX das Sprachkürzel ist, öffnet sich die Seite direkt in dieser Sprache. Wenn
+als `imbraw2html_XX.html` abspeichert, wobei `XX` das Sprachkürzel ist, öffnet sich die Seite direkt in dieser Sprache. Wenn
 du beim Übersetzen helfen magst, schau [hier](https://shyrodgau.github.io/imbraw2dng/translations.xls) und nimm Kontakt
 auf.
 
@@ -60,11 +60,7 @@ benannt werden, ohne irgendwelche ursprünglichen Daten zu verlieren.
 Neu: man kann Schritt-für-Schritt durchgehen und eine Vorschau der RAW-Datei dabei sehen. Hierzu das Häkchen bei `Single Step with preview` 
 bzw. `Einzelschritt mit Vorschau`
 einschalten. Bei jeder Datei kann entschieden werden, ob sie verarbeitet oder übersprungen werden soll und ob diese Aktion auch für 
-alle folgenden Dateien der Auswahl durchgeführt werden soll. Durch Einschalten des Häkchens `Add separate download link for each file` 
-bzw. `Extra Download-Link an jeder Datei` 
-können die Dateien danach auch noch(mal) heruntergeladen werden (zusätzlich zu dem Download, der bei der Bearbeitung der Datei passiert). 
-Das könnte eher viel Speicherplatz benötigen, daher gibt es diese Möglichkeit nur noch nach Auswahl - die Dateien können ja auch einfach 
-nochmal ausgewählt und verarbeitet werden.
+alle folgenden Dateien der Auswahl durchgeführt werden soll. 
 
 
 ### Gucken auf ImBack selbst
@@ -84,9 +80,10 @@ Sofern man [node.js](https://nodejs.org) in Version &ge; V20.10(LTS) hat, kann m
 [Internationalisierung](#internationalisierung) beschrieben umbenannt werden. Hilfe zum Aufruf z.B. mit `node imbraw2dng.js` oder 
 umbenannt auf Deutsch `node imbraw2dng_de.js`.
 ```
-Aufruf: node imbraw2dng.js [-l sprache] [-f] [ -d ordner] { [-R] [-J] [-O] [-n yy_mmdd_hhmmss] | <dateien-oder-ordner> }   
+Aufruf: node imbraw2dng.js [-l sprache] [-f] [ -d ordner] [-nc] { [-R] [-J] [-O] [-n yy_mmdd_hhmmss] | [--] <dateien-oder-ordner> }   
 Optionen:  
  -h - diesen Hilfetext zeigen   
+ -nc - keinen farbigen Text zeigen   
  -l XX - wo XX ein gültiger Sprachcode ist (derzeit: DE, EN)   
          Die Sprache kann auch durch Umbenennen in imbraw2dng_XX.js geändert werden.   
  -d ordner - Ausgabedateien in diesen Ordner ablegen   
@@ -99,7 +96,7 @@ Optionen:
  -O - Nicht-JPEG/Nicht-RAW von per WLAN verbundener ImB kopieren   
  -n yyyy_mmdd_hhmmss (oder beliebig langer Anfang davon) - nur Dateien neuer als dieser Zeitstempel von ImB holen   
  -----   
-<dateien-oder-ordner> und -R/-J/-O schließen sich gegenseitig aus.
+<dateien-oder-ordner> und -R/-J/-O/-n können nicht gleichzeitig verwendet werden.
 ```
 
 ## Verarbeitung des DNG
