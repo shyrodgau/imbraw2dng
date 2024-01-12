@@ -74,7 +74,7 @@ Usage: node imbraw2dng.js [-l lang] [-f] [ -d dir] [-nc] { [-R] [-J] [-O] [-n yy
 Options:  
  -h - show this help   
  -nc - do not use coloured text   
- -l XX - where XX is a valid language code (currently: DE, EN)  
+ -l XX - where XX is a valid language code (currently: DE, EN, FR)  
          Language can also be set by changing filename to imbraw2dng_XX.js.  
  -d dir - put output files into dir  
  -f - overwrite existing files  

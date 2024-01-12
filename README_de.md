@@ -87,7 +87,7 @@ Aufruf: node imbraw2dng_de.js [-l sprache] [-f] [ -d ordner] [-nc] { [-R] [-J] [
 Optionen:  
  -h - diesen Hilfetext zeigen   
  -nc - keinen farbigen Text zeigen   
- -l XX - wo XX ein gültiger Sprachcode ist (derzeit: DE, EN)   
+ -l XX - wo XX ein gültiger Sprachcode ist (derzeit: DE, EN, FR)   
          Die Sprache kann auch durch Umbenennen in imbraw2dng_XX.js geändert werden.   
  -d ordner - Ausgabedateien in diesen Ordner ablegen   
  -f - existierende Dateien überschreiben  
