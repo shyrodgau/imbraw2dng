@@ -127,9 +127,9 @@ constructor() {
 	}
 }
 version = "V3.1.3_DEVEL"; // actually const
-alllangs = [ 'de' , 'en', '00' ]; // actually const
+alllangs = [ 'de' , 'en', 'fr', '00' ]; // actually const
 texts = { // actually const
-	langs: { de: 'DE', en: 'EN' },
+	langs: { de: 'DE', en: 'EN', fr: 'FR' },
 	main: {
 		title: {
 			de: 'ImB RAW nach DNG Konverter',
@@ -139,7 +139,7 @@ texts = { // actually const
 		file: {
 			de: 'Datei',
 			en: 'File',
-			fr: 'Fichier',
+			fr: 'Fiche',
 		},
 		help: {
 			de: '? Hilfe Doku',
@@ -154,17 +154,17 @@ texts = { // actually const
 		generaladvice: {
 			de: 'Kann sein, dass der Browser fragt, ob Sie zulassen wollen, dass mehrere Dateien heruntergeladen werden.<br>Dateien, die nicht oder unbekannte RAW-Dateien sind, werden 1:1 kopiert.',
 			en: 'Browser may ask you if you want to allow downloading multiple files.<br>Not or unrecognized RAW Files simply will be copied.',
-			fr: 'Le navigateur peux questionner que vous acceptez le téléchargement de beaucoup de fichers.'
+			fr: 'Le navigateur peux questionner que vous acceptez le téléchargement de beaucoup de fiches.'
 		},
 		drophere: {
 			de: 'Dateien von ImB hier ablegen: ',
 			en: 'Drop Files from ImB here: ',
-			fr: 'Posez fichers de ImB ici:'
+			fr: 'Posez fiches de ImB ici:'
 		},
 		selectraw: {
 			de: 'Oder diese Seite per WLAN <a href="https://github.com/shyrodgau/imbraw2dng/blob/master/README_de.md#gucken-auf-imback-selbst">direkt von ImB</a> verwenden.<br>Oder <b>.RAW</b> Datei(en) auswählen:',
 			en: 'Or use this page via Wifi <a href="https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback">directly from ImB</a>.<br> Or select <b>.RAW</b> File(s):',
-			fr: 'Ou utiliez cette page <a href="https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback">via Wifi sur ImB</a>.<br> Ou selectez <b>.RAW</b> fichier(s):'
+			fr: 'Ou utiliez cette page <a href="https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback">via Wifi sur ImB</a>.<br> Ou selectez <b>.RAW</b> fiche(s):'
 		},
 		stillcounting: {
 			de: '... zähle ... ',
@@ -207,11 +207,11 @@ texts = { // actually const
 			rawunknown: {
 				de: 'Datei $$0<br>Unerkannte RAW Dateigröße $$1, bitte Entwickler kontaktieren! Keine Vorschau...',
 				en: 'File $$0<br>Unknown raw size $$1, please contact developer! No preview...',
-				fr: 'Fiche $$0<br>taille de fichier $$1 non reconnue, contacter le développeur, pas de aperçu...' 
+				fr: 'Fiche $$0<br>taille de fiche $$1 non reconnue, contacter le développeur, pas de aperçu...' 
 			},
 			de: 'Datei $$0',
 			en: 'File $$0',
-			fr: 'Fichier $$0'
+			fr: 'Fiche $$0'
 		},
 		sort: {
 			de: 'Sortiere',
@@ -304,11 +304,13 @@ texts = { // actually const
 		},
 		errconnect: {
 			de: '\x1b[31mFEHLER\x1b[0m bei der Verbindung zu ImB auf $$0! Im ImB WLAN?',
-			en: '\x1b[31mERROR\x1b[0m connecting to ImB on $$0! In the ImB WiFi?'
+			en: '\x1b[31mERROR\x1b[0m connecting to ImB on $$0! In the ImB WiFi?',
+			fr: '\x1b[31mERREUR\x1b[0m lors de la connexion à imback. Dans le Wifi ImB?'
 		},
 		nomatch: {
 			de: 'Keine passenden Dateien gefunden.',
-			en: 'No matching files found'
+			en: 'No matching files found',
+			fr: 'Aucun fiche correspondant trouvé'
 		}
 	},
 	process: {
@@ -324,137 +326,160 @@ texts = { // actually const
 		},
 		erraccess: {
 			de: '<b>Fehler beim Zugriff auf $$0. ENTSCHLDIGUNG! </b>',
-			en: '<b>Error occured accessing $$0. SORRY! </b>'
+			en: '<b>Error occured accessing $$0. SORRY! </b>',
+			fr: '<b>Erreur lors de l\'accès à $$0. DÉSOLÉE!</b>'
 		},
 		erraccessx: {
 			de: '\x1b[31mFEHLER\x1b[0m beim Zugriff auf $$0. ENTSCHLDIGUNG!',
-			en: '\x1b[31mERROR\x1b[0m occured accessing $$0. SORRY!'
+			en: '\x1b[31mERROR\x1b[0m occured accessing $$0. SORRY!',
+			fr: '\x1b[31mERREUR\x1b[0m lors de l\'accès à $$0. DÉSOLÉE!'
 		},
 		notraw: {
 			de: 'Durchleitung weil nicht raw: $$0',
-			en: 'Passing through as not raw: $$0'
+			en: 'Passing through as not raw: $$0',
+			fr: 'Passage comme non RAW: $$0'
 		},
 		selectedn: {
 			de: '$$0 Datei(en) wurden ausgewählt.',
-			en: 'Got $$0 file(s) selected.'
+			en: 'Got $$0 file(s) selected.',
+			fr: '$$0 fiche(s) sélectionné(s)'
 		},
 		copyok: {
 			de: '<b style="background-color:#ddffdd;">Fertig! Nach $$0 kopiert (Downloads-Ordner prüfen)</b>&nbsp;',
-			en: '<b style="background-color:#ddffdd;">Finished! Copied to $$0 (Check Downloads Folder)</b>&nbsp;'
+			en: '<b style="background-color:#ddffdd;">Finished! Copied to $$0 (Check Downloads Folder)</b>&nbsp;',
+			fr: '<b style="background-color:#ddffdd;">Fini! Copié sur $$0 (Vérifier le dossier de téléchargements/Downloads)</b>&nbsp;'
 		},
 		copyokx: {
 			de: '\x1b[32mFertig!\x1b[0m Nach $$0 kopiert',
-			en: '\x1b[32mFinished!\x1b[0m Copied to $$0'
-		},
-		dlagain: {
-			de: '<a download="$$0\" href=\"$$1">Nochmal händisch herunterladen</a>',
-			en: '<a download="$$0\" href=\"$$1">Manually download again</a>'
-		},
-		dlagaindng: {
-			de: '<a type="image/x-adobe-dng" download="$$0" href="$$1">Nochmal händisch herunterladen</a>&nbsp;',
-			en: '<a type="image/x-adobe-dng" download="$$0" href="$$1">Manually download again</a>&nbsp;'
+			en: '\x1b[32mFinished!\x1b[0m Copied to $$0',
+			fr: '\x1b[32mFini!\x1b[0m Copié sur $$0'
 		},
 		errorreadingfile: {
 			de: '<b style="background-color:#ffdddd;">Fehler beim Lesen der Datei $$0. ENTSCHULDIGUNG! </b>',
-			en: '<b style="background-color:#ffdddd;">Error occured reading file $$0. SORRY! </b>'
+			en: '<b style="background-color:#ffdddd;">Error occured reading file $$0. SORRY! </b>',
+			fr: '<b style="background-color:#ffdddd;">Erreur de lecture du fiche $$0. DÉSOLÉE! </b>'
 		},
 		errorreadingfilex: {
 			de: '\x1b[31mFEHLER\x1b[0m beim Lesen der Datei $$0. ENTSCHULDIGUNG!',
-			en: '\x1b[31mERROR\x1b[0m occured reading file $$0. SORRY!'
+			en: '\x1b[31mERROR\x1b[0m occured reading file $$0. SORRY!',
+			fr: '\x1b[31mERREUR\x1b[0m de lecture du fiche $$0. DÉSOLÉE!'
 		},
 		unknownsize: {
 			de: '<b style="background-color:#ffdddd;">[$$0] Entschuldigung, die Dateigröße <b>$$1</b> passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!</b>',
-			en: '<b style="background-color:#ffdddd;">[$$0] Sorry, file Size <b>$$1</b> does not match known formats. Please contact developer!</b>'
+			en: '<b style="background-color:#ffdddd;">[$$0] Sorry, file Size <b>$$1</b> does not match known formats. Please contact developer!</b>',
+			fr: '<b style="background-color:#ffdddd;">[$$0] Désolée, la taille du fiche $$1 ne correspond pas au format connu. Veuillez contacter le développeur</b>'
 		},
 		unknownsizex: {
 			de: '[$$0] \x1b[31mEntschuldigung, die Dateigröße $$1 passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!\x1b[0m',
-			en: '[$$0] \x1b[31mSorry, file Size $$1 does not match known formats. Please contact developer!\x1b[0m'
+			en: '[$$0] \x1b[31mSorry, file Size $$1 does not match known formats. Please contact developer!\x1b[0m',
+			fr: '[$$0] \x1b[31mDésolée, la taille du fiche $$1 ne correspond pas au format connu. Veuillez contacter le développeur\x1b[0m'
 		},
 		processing: {
 			de: 'Verarbeite Datei: $$0 ',
-			en:'Processing file: $$0'
+			en: 'Processing file: $$0',
+			fr: 'Je suis en train de traiter le fiche $$0'
 		},
 		assuming: {
 			de: 'Annahme: $$0 $$1',
-			en: 'Assuming $$0 $$1'
+			en: 'Assuming $$0 $$1',
+			fr: 'Hypothèse: $$0 $$1'
 		},
 		datetime: {
 			de: 'Datum/Zeit: $$0',
-			en: 'Date/Time: $$0 '
+			en: 'Date/Time: $$0 ',
+			fr: 'Date/heure: $$0'
 		},
 		orientation: {
 			de: 'Drehung: ',
-			en: 'Orientation: '
+			en: 'Orientation: ',
+			fr: 'Rotation: '
 		},
 		converted: {
 			de: '<b style=\"background-color:#ddffdd;\">Fertig! Nach $$0 konvertiert (Downloads-Ordner prüfen)</b>&nbsp;',
-			en: '<b style=\"background-color:#ddffdd;\">Finished! Converted to $$0 (Check Downloads Folder)</b>&nbsp;'
+			en: '<b style=\"background-color:#ddffdd;\">Finished! Converted to $$0 (Check Downloads Folder)</b>&nbsp;',
+			fr: '<b style="background-color:#ddffdd;">Fini! Converti en $$0 (Vérifier le dossier de téléchargements/Downloads)</b>&nbsp;'
 		},
 		convertedx: {
 			de: '\x1b[32mFertig!\x1b[0m Nach $$0 konvertiert',
-			en: '\x1b[32mFinished!\x1b[0m Converted to $$0'
+			en: '\x1b[32mFinished!\x1b[0m Converted to $$0',
+			fr: '\x1b[31mFini!\x1b[0m Converti en $$0'
 		},
 		errsave: {
 			de: '\x1b[31mFEHLER!\x1b[0m Konnte Datei $$0 nicht speichern.',
-			en: '\x1b[31mERROR!\x1b[0m Could not write file $$0'
+			en: '\x1b[31mERROR!\x1b[0m Could not write file $$0',
+			fr: '\x1b[31mERREUR\x1b[0m Impossible d\'écrire le fiche $$0.'
 		},
 		droppedn: {
 			de: '$$0 Datei(en) wurden abgelegt.',
-			en: 'Got $$0 file(s) dropped.'
+			en: 'Got $$0 file(s) dropped.',
+			fr: '$$0 fiche(s) ont été stockés'
 		},
 		frombackn: {
 			de: '$$0 Datei(en) vom ImB zu verarbeiten.',
-			en: 'Got $$0 file(s) from ImB.'
+			en: 'Got $$0 file(s) from ImB.',
+			fr: 'J\'ai reçu $$0 fiche(s) d\'ImB'
 		},
 		frombrowsern: {
 			de: '$$0 Datei(en) vom Bild-Browser zu verarbeiten.',
-			en: 'Got $$0 file(s) from Visual browser.'
+			en: 'Got $$0 file(s) from Visual browser.',
+			fr: 'J\'ai obtenu $$ fiche(s) du navigateur visuel'
 		},
 		skipped: {
 			remaining: {
 				de: 'Verbleibende $$0 Dateien auf Anforderung übersprungen',
-				en: 'Skipping remaining $$0 images at your request'
+				en: 'Skipping remaining $$0 images at your request',
+				fr: '$$0 fiches restants ignorés sur demande'
 			},
 			de: 'Auf Anforderung übersprungen: $$0',
-			en: 'Skipped at your request: $$0'
+			en: 'Skipped at your request: $$0',
+			fr: 'Ignoré à votre demande: $$0'
 		},
 		totals: {
 			en: 'Total $$0, ok $$1, skipped $$2, Errors $$3',
-			de: 'Total $$0, ok $$1, übersprungen $$2, Fehler $$3'
+			de: 'Total $$0, ok $$1, übersprungen $$2, Fehler $$3',
+			fr: 'Total : $$0, ok :$$1, Ignoré : $$2, Erreur : $$3'
 		}
 	},
 	preview: {
 		err: {
 			de: 'Fehler bei Vorschau :-(',
-			en: 'Error with Preview :-('
+			en: 'Error with Preview :-(',
+			fr: 'Erreur dans l\'aperçu :-('
 		},
 		rotcw: {
 			de: 'im Uhrzeigersinn drehen',
 			en: 'Rotate clockwise',
+			fr: 'tourner dans le sens des aiguilles d\'une montre'
 		},
 		rotccw: {
 			de: 'gegen den Uhrzeigersinn drehen',
 			en: 'rotate counterclockwise',
+			fr: 'tourner dans le sens inverse des aiguilles d\'une montre'
 		},
 		rot180: {
 			de: 'auf den Kopf',
 			en: 'Rotate 180°',
+			fr: 'retourné'
 		},
 		rotreset: {
 			de: 'Drehung zurücksetzen',
 			en: 'Reset',
+			fr: 'Réinitialiser la rotation',
 			tooltip: {
 				de: 'Ursprüngliche Bildausrichtung wiederherstellen',
-				en: 'Reset original image orientation'
+				en: 'Reset original image orientation',
+				fr: 'Restaurer l\'orientation originale de l\'image'
 			}
 		},
 		process: {
 			de: 'Kopieren/Konvertieren',
-			en: 'Copy/Convert'
+			en: 'Copy/Convert',
+			fr: 'Copie/Convertir'
 		},
 		skip: {
 			de: 'Überspringen',
-			en: 'Skip'
+			en: 'Skip',
+			fr: 'Sauter'
 		},
 		/*wait: {
 			de: 'w a r t e . . .',
@@ -462,68 +487,80 @@ texts = { // actually const
 		},*/
 		forall: {
 			de: 'Für alle weiteren das selbe',
-			en: 'Do this for all following'
+			en: 'Do this for all following',
+			fr: 'Faites ceci pour tous les suivants'
 		},
 		orients: {
 			none: {
 				de: 'keine',
-				en: 'none'
+				en: 'none',
+				fr: 'aucune'
 			},
 			upsidedown: {
 				de: '180°',
-				en: '180°'
+				en: '180°',
+				fr: '180°'
 			},
 			clockwise: {
 				de: 'im Uhrzeigersinn',
-				en: 'clockwise'
+				en: 'clockwise',
+				fr: 'dans le sens des aiguilles d\'une montre'
 			},
 			counterclockwise: {
 				de: 'gegen den Uhrzeigersinn',
-				en: 'counterclockwise'
+				en: 'counterclockwise',
+				fr: 'dans le sens inverse des aiguilles d\'une montre'
 			}
 		}
 	},
 	raw: {
 		unknownsize: {
 			de: 'Unerkannte RAW-Dateigröße, Entwickler kontaktieren',
-			en: 'Unrecognized RAW file size, contact developer'
+			en: 'Unrecognized RAW file size, contact developer',
+			fr: 'La taille du fiche RAW ne correspond pas au format connu. Veuillez contacter le développeur'
 		},
 	},
 	selection: {
 		got: {
 			de: '$$0 Dateien wurden ausgewählt.',
-			en: 'Got $$0 files selected.'
+			en: 'Got $$0 files selected.',
+			fr: '$$0 dossiers ont été sélectionnés.'
 		},
 	},
 	del: {
 		question: {
-			en: 'Deleting $$0 files can not be undone! Are you sure you want to continue?',
-			de: 'Löschen von $$0 Dateien kann nicht rückgängig gemacht werden. Sicher damit weitermachen?',
+			en: 'Deleting $$0 file(s) can not be undone! Are you sure you want to continue?',
+			de: 'Löschen von $$0 Datei(en) kann nicht rückgängig gemacht werden. Sicher damit weitermachen?',
+			fr: 'La suppression de $$0 fiche(s) est irréversible. Es-tu sur de vouloir continuer?',
 			ok: {
 				de: 'Ok',
-				en: 'Ok'
+				en: 'Ok',
+				fr: 'Ok'
 			},
 			cancel: {
 				de: 'Abbrechen',
-				en: 'Cancel'
+				en: 'Cancel',
+				fr: 'Annuler'
 			}
 		},
 		nostatus: {
 			de: 'Der Status des Löschens kann nicht sicher geprüft werden. Bitte laden Sie die Seite nach dem Löschen neu.',
-			en: 'The status of the delete can not be checked safely. Reload the page after deleting.'
+			en: 'The status of the delete can not be checked safely. Reload the page after deleting.',
+			fr: 'Le statut de la suppression ne peut pas être vérifié avec certitude. Veuillez recharger la page après la suppression.'
 		},
 		reload: {
 			de: 'Bitte Seite neu laden.',
-			en: 'Please reload page.'
+			en: 'Please reload page.',
+			fr: 'Veuillez recharger la page.'
 		}
 	},
 	node: {
 		help: {
-			en: [ '\x1b[1mWelcome to imbraw2dng\x1b[0m $$0 !', 'Usage: node $$0 \x1b[1m[\x1b[0m-l lang\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-f\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m -d dir\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-nc\x1b[1m]\x1b[0m \x1b[1m{\x1b[0m \x1b[1m[\x1b[0m-R\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-J\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-O\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-n yy_mmdd_hhmmss\x1b[1m]\x1b[0m \x1b[1m|\x1b[0m \x1b[1m[\x1b[0m--\x1b[1m]\x1b[0m \x1b[1m<\x1b[0mfiles-or-dirs\x1b[1m>\x1b[0m \x1b[1m}\x1b[0m',
+			en: [ '\x1b[1mWelcome to imbraw2dng\x1b[0m $$0 !', 'Usage: node $$0 \x1b[1m[\x1b[0m-l lang\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-f\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m -d dir\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-nc\x1b[1m]\x1b[0m \x1b[1m{\x1b[0m \x1b[1m[\x1b[0m-R\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-J\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-O\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-n yyyy_mmdd_hhmmss\x1b[1m]\x1b[0m \x1b[1m|\x1b[0m \x1b[1m[\x1b[0m--\x1b[1m]\x1b[0m \x1b[1m<\x1b[0mfiles-or-dirs\x1b[1m>\x1b[0m \x1b[1m}\x1b[0m',
 				'Options:',
 				' \x1b[1m-h\x1b[0m - show this help',
 				' \x1b[1m-nc\x1b[0m - do not use coloured text',
-				' \x1b[1m-l XX\x1b[0m - where XX is a valid language code (currently: DE, EN)',
+				' \x1b[1m-l XX\x1b[0m - where XX is a valid language code (currently: DE, EN, FR)',
 				'         Language can also be set by changing filename to imbraw2dng_XX.js .',
 				' \x1b[1m-d dir\x1b[0m - put output files into dir',
 				' \x1b[1m-f\x1b[0m - overwrite existing files',
@@ -534,14 +571,32 @@ texts = { // actually const
 				' \x1b[1m-R\x1b[0m - get RAW from ImB connected via Wifi',
 				' \x1b[1m-J\x1b[0m - get JPEG from ImB connected via Wifi',
 				' \x1b[1m-O\x1b[0m - get non-RAW/non-JPEG from ImB connected via Wifi',
-				' \x1b[1m-n yyyy_mmdd_hhmmss\x1b[0m (or any length of head) - select only newer than this timestamp from ImB',
+				' \x1b[1m-n yyyy_mmdd_hhmmss\x1b[0m (or prefix of any length) - select only newer than this timestamp from ImB',
 				' -----',
 				'<files-or-dirs> and -R/-J/-O/-n can not be used at the same time.' ,],
-			de: [ '\x1b[1mWillkommen bei imbraw2dng\x1b[0m $$0 !', 'Aufruf: node $$0 \x1b[1m[\x1b[0m-l sprache\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-f\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m -d ordner\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-nc\x1b[1m]\x1b[0m \x1b[1m{\x1b[0m \x1b[1m[\x1b[0m-R\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-J\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-O\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-n yy_mmdd_hhmmss\x1b[1m]\x1b[0m \x1b[1m|\x1b[0m \x1b[1m[\x1b[0m--\x1b[1m]\x1b[0m \x1b[1m<\x1b[0mdateien-oder-ordner\x1b[1m>\x1b[0m \x1b[1m}\x1b[0m',
+			fr: [ '\x1b[1mBienvenu a imbraw2dng\x1b[0m $$0 !', 'Operation: node $$0 \x1b[1m[\x1b[0m-l lang\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-f\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m -d repertoire\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-nc\x1b[1m]\x1b[0m \x1b[1m{\x1b[0m \x1b[1m[\x1b[0m-R\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-J\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-O\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-n yyyy_mmdd_hhmmss\x1b[1m]\x1b[0m \x1b[1m|\x1b[0m \x1b[1m[\x1b[0m--\x1b[1m]\x1b[0m \x1b[1m<\x1b[0mfiches-ou-repertoires\x1b[1m>\x1b[0m \x1b[1m}\x1b[0m',
+				'Choix:',
+				' \x1b[1m-h\x1b[0m - montrer cette aide',
+				' \x1b[1m-nc\x1b[0m - n\'utilisez pas de texte en couleur',
+				' \x1b[1m-l XX\x1b[0m - quand XX est une code du langue valide (actuellement: DE, EN, FR)',
+				'         La langue peut également être définie en changeant le nom du fiche en imbraw2dng_XX.js .',
+				' \x1b[1m-d repertoire\x1b[0m - mettre les fiches de sortie dans le répertoire',
+				' \x1b[1m-f\x1b[0m - écraser les fiches existants',
+				' \x1b[1m--\x1b[0m - traiter le reste des paramètres comme des fiches ou des répertoires locaux',
+				' -----',
+				' <fiches-ou-repertoires> - traiter des fiches ou des répertoires locaux de manière récursive, par exemple sur MicroSD d\'ImB',
+				' -----',
+				' \x1b[1m-R\x1b[0m - obtenez RAW d\'ImB connecté via Wifi',
+				' \x1b[1m-J\x1b[0m - obtenez RAW d\'ImB connecté via Wifi',
+				' \x1b[1m-O\x1b[0m - obtenez du non-RAW/non-JPEG d\'ImB connecté via Wifi',
+				' \x1b[1m-n yyyy_mmdd_hhmmss\x1b[0m (ou préfixe de n\'importe quelle longueur) - sélectionnez uniquement plus récent que cet horodatage d\'ImB',
+				' -----',
+				'<fichiers-ou-repertoires> ete -R/-J/-O/-n ne peut pas être utilisé en même temps.' ,],
+			de: [ '\x1b[1mWillkommen bei imbraw2dng\x1b[0m $$0 !', 'Aufruf: node $$0 \x1b[1m[\x1b[0m-l sprache\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-f\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m -d ordner\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-nc\x1b[1m]\x1b[0m \x1b[1m{\x1b[0m \x1b[1m[\x1b[0m-R\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-J\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-O\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-n yyyy_mmdd_hhmmss\x1b[1m]\x1b[0m \x1b[1m|\x1b[0m \x1b[1m[\x1b[0m--\x1b[1m]\x1b[0m \x1b[1m<\x1b[0mdateien-oder-ordner\x1b[1m>\x1b[0m \x1b[1m}\x1b[0m',
 				'Optionen:',
 				' \x1b[1m-h\x1b[0m - diesen Hilfetext zeigen',
 				' \x1b[1m-nc\x1b[0m - keinen farbigen Text zeigen',
-				' \x1b[1m-l XX\x1b[0m - wo XX ein gültiger Sprachcode ist (derzeit: DE, EN)',
+				' \x1b[1m-l XX\x1b[0m - wo XX ein gültiger Sprachcode ist (derzeit: DE, EN, FR)',
 				'         Die Sprache kann auch durch Umbenennen in imbraw2dng_XX.js geändert werden.',
 				' \x1b[1m-d ordner\x1b[0m - Ausgabedateien in diesen Ordner ablegen',
 				' \x1b[1m-f\x1b[0m - existierende Dateien überschreiben',
@@ -558,11 +613,13 @@ texts = { // actually const
 		},
 		unkopt: {
 			en: '\x1b[31mUnknown Option:\x1b[0m $$0',
-			de: '\x1b[31mUnbekannte Option:\x1b[0m $$0'
+			de: '\x1b[31mUnbekannte Option:\x1b[0m $$0',
+			fr: '\x1b[31mOption inconnue:\x1b[0m $$0'
 		},
 		missingval: {
 			en: '\x1b[31mMissing value for last parameter.\x1b[0m',
-			de: '\x1b[31mFehlender Wert für letzten Parameter.\x1b[0m'
+			de: '\x1b[31mFehlender Wert für letzten Parameter.\x1b[0m',
+			fr: '\x1b[31mValeur manquante pour le dernier paramètre.\x1b[0m'
 		}
 	}
 };
@@ -2952,7 +3009,7 @@ querylang(name, offset) {
 	if (undefined === offset) offset = 8;
 	let found = 0;
 	for (const l of this.alllangs) {
-		if (name.substring(name.length - offset).toUpperCase().startsWith('_' + l.toUpperCase())) {
+		if (name.substring(name.length - offset, name.length - offset + 4).toUpperCase() === ('_' + l.toUpperCase() + '.')) {
 			this.mylang = l;
 			if (document) document.getElementById('langsel').value = l;
 			found = 1;
@@ -3004,6 +3061,7 @@ prgr(gr, indent) {
 /* debug: print translations for csv */
 prxl(key, el) {
 	if (el['de'] && el['en']) {
+		try{
 		if (typeof el['de'] === 'string') {
 			let out = key + ';';
 			let a = el['de'];
@@ -3011,6 +3069,10 @@ prxl(key, el) {
 			if (-1 !== a.indexOf('\'')) b = '"';
 			out += b + a  + b + ';';
 			a = el['en'];
+			b = '\'';
+			if (-1 !== a.indexOf('\'')) b = '"';
+			out += b + a  + b + ';';
+			a = el['fr'];
 			b = '\'';
 			if (-1 !== a.indexOf('\'')) b = '"';
 			out += b + a  + b + ';';
@@ -3027,9 +3089,14 @@ prxl(key, el) {
 				b = '\'';
 				if (-1 !== a.indexOf('\'')) b = '"';
 				out += b + a  + b + ';';
+				a = el['fr'][i];
+				b = '\'';
+				if (-1 !== a.indexOf('\'')) b = '"';
+				out += b + a  + b + ';';
 				console.log(out);
 			}
 		}
+		} catch (e) { require('process').exit(); }
 	}
 	for (const ne of Object.keys(el).filter((k) => ((k !== 'en') && (k !== 'de') && (typeof(el[k]) !== 'string')))) {
 		this.prxl(key + '.' + ne, el[ne]);
@@ -3174,7 +3241,8 @@ if (typeof process !== 'undefined') {
 </head>
 <!-- here comes the html itself -->
 <body style="font-family: Helvetica, Arial, sans-serif;" onload="init();">
-<div style="font-weight:bold;"><span data-myxlkey='main.title'> </span> <span id="mainversion"> </span>- <a target="_new" id="helplink" href="https://shyrodgau.github.io/imbraw2dng/" data-myxlkey='main.help'></a> <select id="langsel" onchange="imbc.setlang()"><option value="de" onclick="imbc.setlang()">DE</option><option value="en" onclick="imbc.setlang()">EN</option></select></div>
+<div style="font-weight:bold;"><span data-myxlkey='main.title'> </span> <span id="mainversion"> </span>- <a target="_new" id="helplink" href="https://shyrodgau.github.io/imbraw2dng/" data-myxlkey='main.help'></a>
+<select id="langsel" onchange="imbc.setlang()"><option value="de" onclick="imbc.setlang()">DE</option><option value="en" onclick="imbc.setlang()">EN</option><option value="fr" onclick="imbc.setlang()">FR</option></select></div>
 <!-- the normal display -->
 <div id="normal" style="margin-top: 0.5em;">
 <div><input type="checkbox" id="steppreview" checked><label for="steppreview" data-myxlkey="process.singlestep"></label></div>
