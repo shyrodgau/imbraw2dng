@@ -19,7 +19,7 @@ Problems and ideas can also be discussed in the [I'm Back Users Group on Faceboo
 
 ## Installation
 
-The current release is [V3.1.2_412bb89 - fixes](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.1.2_412bb89). 
+The current release is [V3.1.3_c730259 - avec francais](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.1.3_c730259). 
 Note: further development when errors reported, new translation contributed or new image format.
 
 Copy the [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.html) file to your PC or extract it from the release 
