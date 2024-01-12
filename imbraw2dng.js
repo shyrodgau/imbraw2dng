@@ -1,6 +1,4 @@
 #!/usr/bin/env node
-"use strict;"
-/* when embedded into html, this doc is not valid, control via browser */
 /* ******************************************** 
 
 imbraw2dng.js
@@ -31,8 +29,9 @@ Free software, use at own risk for whatever you like
 	 -----
 	<files-or-dirs> and -R/-J/-O are mutually exclusive.
 
-This js is identical to the js inside the html.
+The following js code is identical to the js inside imbraw2dng.html.
    ******************************************** */
+"use strict;"
 class ImBC {
 /* Indentation out */
 constructor() {
@@ -609,7 +608,6 @@ loaderrunning=false; // currently handled browser raw preview download
 deletephase = 0;
 /* debug */
 debugflag = false;
-firstflag = true;
 /* helper to append message */
 appendmsg(msg)  {
 	if (document) {
@@ -1164,9 +1162,7 @@ handleone(orientation) {
 		/* Here comes the actual building of the DNG */
 		const contents = evt.target.result;
 		const view = new DataView(contents);
-		//console.log('SSS ' + (f.size + (dateok ? 466: 422)));
 		const out = new Uint8Array(f.size + (dateok ? 466: 422));
-		//console.log('III ' + contents.length + ' -- ' + view.byteLength + ' -- ' + f.size);
 		out[0] = 0x49;
 		out[1] = 0x49;
 		out[2] = 0x2a;
@@ -1521,9 +1517,6 @@ buildpreview(f, onok, onerr, orientation, targ, afterload) {
 	const ctx = canv.getContext('2d', { alpha: false });
 	if (undefined !== targ) {
 		const sc = 120 / canv.height;
-		//ctx.scale(sc, sc);
-		//canv.height = 100;
-		//canv.width *= sc;
 		canv.style['width'] = '' + (sc*canv.width) + 'px';
 	}
 	const reader = f.imbackextension ? f : new FileReader();
@@ -1825,7 +1818,6 @@ checkimbnode(type, found) {
 							this.handle1imb(url);
 						else
 							this.handle1imb('http://192.168.1.254'+ url);
-						//console.log(url  + ' ' + this.imbpics.length + ' ' + this.imbmovies.length + ' ' + this.rimbpics.length);
 					}
 					i=i+j+10;
 				}
@@ -2130,7 +2122,6 @@ buildtree() {
 		document.getElementById('browser').append(e.entry);
 		this.addsorted(e);
 	}
-	//this.xlateall();
 }
 /* visual browser: find next to load */
 findnexttoload(alsooutside) {
@@ -2846,11 +2837,6 @@ xlateall() {
 		e.title = this.xl(e.attributes.getNamedItem('data-mytitlexlkey').value);
 	}
 	document.getElementById('helplink').href = this.xl('main.helplink');
-	if (this.debugflag && this.firstflag) {
-		for (const el of Object.keys(this.texts))
-			this.prxl(el, this.texts[el]);
-	}
-	this.firstflag = false;
 	document.title = this.xl0('main.title') + ' ' + imbc.version;
 }
 /* translate for new language */
@@ -2872,6 +2858,7 @@ trylang(i) {
 	}
 	if (!found) {
 		this.mylang = 'en';
+		console.log('Unknown language: ' + i);
 	}
 	if ('00' === this.mylang)
 		this.debugflag = true;
@@ -2891,9 +2878,15 @@ querylang(name, offset) {
 	if (!found) {
 		this.mylang = 'en';
 		if (document) document.getElementById('langsel').value = 'en';
+		if (name.substring(name.length - offset,name.length - offset+1) === '_') console.log('Unknown language: ' + name.substring(name.length - offset+1).substring(0,2));
 	}
-	if ('00' === this.mylang)
+	if ('00' === this.mylang) {
 		this.debugflag = true;
+		if (document) {
+			for (const el of Object.keys(this.texts))
+				this.prxl(el, this.texts[el]);
+		}
+	}
 	else if (document)
 		document.documentElement.lang = this.mylang;
 	if (this.debugflag && document)
@@ -2905,12 +2898,6 @@ help(caller) {
 	while (caller.indexOf("/") > -1)
 		caller = caller.substring(caller.indexOf("/") + 1);
 	let texts = this.xl0('node.help');
-	/*if ('00' === this.mylang) {
-		texts = []; let j=0;
-		for (const f of this.texts.node.help.en) {
-			texts.push('node.help[' + j++ + ']');
-		}
-	}*/
 	console.log(this.subst(texts[0], this.version));
 	console.log(this.subst(texts[1], caller));
 	for (let j=2; j<texts.length; j++) {
