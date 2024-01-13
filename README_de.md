@@ -7,7 +7,7 @@ Hier gibts: [Installation](#installation) - [Internationalisierung](#internation
 [Verarbeitung des DNG](#verarbeitung-des-dng) - [Wie funktioniert es](#wie-funktioniert-es)
 
 
-or [IN ENGLISH](https://github.com/shyrodgau/imbraw2dng/blob/master/README.md)
+or [IN ENGLISH](https://shyrodgau.github.io/imbraw2dng/)
 
 Es sind keine "Schwarz-Weiß RAW"-Dateien, sondern die echten Roh-Sensordaten mit der Farbfilterung darauf (leider aber nur 8 bit...). 
 

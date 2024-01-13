@@ -63,9 +63,9 @@ texts = { // actually const
 			fr: '? Aide Doc',
 		},
 		helplink: {
-			de: 'https://github.com/shyrodgau/imbraw2dng/blob/master/README_de.md',
-			en: 'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md',
-			fr: 'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md',
+			de: 'https://shyrodgau.github.io/imbraw2dng/README_de',
+			en: 'https://shyrodgau.github.io/imbraw2dng/',
+			fr: 'https://shyrodgau.github.io/imbraw2dng/',
 		},
 		generaladvice: {
 			de: 'Kann sein, dass der Browser fragt, ob Sie zulassen wollen, dass mehrere Dateien heruntergeladen werden.<br>Dateien, die nicht oder unbekannte RAW-Dateien sind, werden 1:1 kopiert.',

@@ -6,7 +6,7 @@ In here: [Installation](#installation) - [Internationalization](#internationaliz
 [Usage](#usage) - [Browsing on the ImBack](#browsing-on-the-imback) - [Command line usage via node.js](#command-line-using-nodejs) -   
 [Processing the DNG](#processing-the-dng) - [How does it work](#how-does-it-work)
 
-oder [AUF DEUTSCH](https://github.com/shyrodgau/imbraw2dng/blob/master/README_de.md)
+oder [AUF DEUTSCH](https://shyrodgau.github.io/imbraw2dng/README_de)
 
 They are not really "B&W RAW" but actually the RAW sensor data that also contains the colour filtering (unfortunately only 8 bit deep..). 
 
