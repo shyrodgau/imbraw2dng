@@ -36,7 +36,7 @@ The github repository itself can be found [here](https://github.com/shyrodgau/im
 ### Internationalization
 
 The current supported langauges are english (EN), french (FR) and german (DE). If you save the html file with a name change to `imbraw2dng_XX.html` where `XX` 
-is the language shortcut, it will open the page directly in that language. If you want to contribute to translating, look 
+is the language shortcut, it will open the page directly in that language. If you want to contribute to translating, translate what you are reading now or look 
 [here](https://shyrodgau.github.io/imbraw2dng/translations.xls) and get in contact!
 
 When you have [node.js](https://nodejs.org) version &ge; V20.10(LTS), you can get the file [imbraw2dng.js](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.js), 
@@ -51,7 +51,7 @@ Your browser will download them according to its download settings, so it might 
 throw all files into your Downloads directory (possibly renaming it) if so configured , or, or, or...
 
 Conversion to DNG currently sets the Timestamp Tags if the filename seems to be a reasonable I'm Back filename (i.e. `YYYY_MMDD_hhmmss`), and the 
-OriginalRawFilename to the name of the RAW inputfile. That way you can name the DNG file whatever you like without losing any of the original information.
+OriginalRawFilename to the name of the RAW inputfile. That way you can name the DNG file whatever you like without losing much of the original information.
 
 New: you can do a step-by-step walk with a preview of the raw file. For that, check the `Single Step with preview` checkbox. On each file, you can 
 select if you want to process or skip it and also if this same action should be applied to the rest of your currently selected files. 
@@ -70,7 +70,7 @@ If and when you have [node.js](https://nodejs.org) version &ge; V20.10(LTS) inst
 [imbraw2dng.js](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.js). Naming conventions according to [Internationalization](#internationalization) 
 apply. Parameter and calling help can be read with `node imbraw2dng.js`.
 ```
-Usage: node imbraw2dng.js [-l lang] [-f] [ -d dir] [-nc] { [-R] [-J] [-O] [-n yy_mmdd_hhmmss] | [--] <files-or-dirs> }  
+Usage: node imbraw2dng.js [-l lang] [-f] [ -d dir] [-nc] { [-R] [-J] [-O] [-n yyyy_mmdd_hhmmss] | [--] <files-or-dirs> }  
 Options:  
  -h - show this help   
  -nc - do not use coloured text   

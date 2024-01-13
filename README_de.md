@@ -38,7 +38,7 @@ Das github Repository ist [hier](https://github.com/shyrodgau/imbraw2dng).
 
 Im Moment werden die Sprachen Englisch (EN), Französisch (FR) und Deutsch (DE) unterstützt. Wenn man die HTML-Datei mit geändertem Namen
 als `imbraw2dng_XX.html` abspeichert, wobei `XX` das Sprachkürzel ist, öffnet sich die Seite direkt in dieser Sprache. Wenn
-du beim Übersetzen helfen magst, schau [hier](https://shyrodgau.github.io/imbraw2dng/translations.xls) und nimm Kontakt
+du beim Übersetzen helfen magst, übersetze die Seite, die du gerade liest oder schau [hier](https://shyrodgau.github.io/imbraw2dng/translations.xls) und nimm Kontakt
 auf.
 
 Wenn man [node.js](https://nodejs.org) Version &ge; V20.10(LTS) hat, kann man die Datei [imbraw2dng.js](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.js), 
@@ -56,9 +56,9 @@ Der Browser wird das Herunterladen gemäß seiner Download-Einstellungen machen,
 Datei gespeichert werden soll, wenn er so eingestellt ist, oder alle Dateien ins Downloads Verzeichnis schreiben (unter Umständen mit 
 Umbenennung), wenn er so eingestellt ist, oder, oder, oder...
 
-Bei der Konvertierung nach DNG werden die Zeitstempel-Metadatan gesetzt, wenn der Dateiname wie ein normaler I'm Back Dateiname 
+Bei der Konvertierung nach DNG werden die Zeitstempel-Metadaten gesetzt, wenn der Dateiname wie ein normaler I'm Back Dateiname 
 aussieht (also `JJJJ_MMDD_hhmmss`), und OriginalRawFilename auf den Namen der RAW Eingabedatei. Somit können die DNG Dateien nach belieben 
-benannt werden, ohne irgendwelche ursprünglichen Daten zu verlieren.
+benannt werden, ohne viel der ursprünglichen Daten zu verlieren.
 
 Neu: man kann Schritt-für-Schritt durchgehen und eine Vorschau der RAW-Datei dabei sehen. Hierzu das Häkchen bei `Single Step with preview` 
 bzw. `Einzelschritt mit Vorschau`
@@ -83,7 +83,7 @@ Sofern man [node.js](https://nodejs.org) in Version &ge; V20.10(LTS) hat, kann m
 [Internationalisierung](#internationalisierung) beschrieben umbenannt werden. Hilfe zum Aufruf z.B. mit `node imbraw2dng.js` oder 
 umbenannt auf Deutsch `node imbraw2dng_de.js`.
 ```
-Aufruf: node imbraw2dng_de.js [-l sprache] [-f] [ -d ordner] [-nc] { [-R] [-J] [-O] [-n yy_mmdd_hhmmss] | [--] <dateien-oder-ordner> }   
+Aufruf: node imbraw2dng_de.js [-l sprache] [-f] [ -d ordner] [-nc] { [-R] [-J] [-O] [-n yyyy_mmdd_hhmmss] | [--] <dateien-oder-ordner> }   
 Optionen:  
  -h - diesen Hilfetext zeigen   
  -nc - keinen farbigen Text zeigen   
