@@ -921,8 +921,8 @@ createFx(url, onok, onerr, notfirst) {
 	xhr.onload = (evt) => {
 		let len = JSON.parse(xhr.getResponseHeader('content-length'));
 		if (0 >= len) len=1;
-		if (url.substring(url.length -4).toUpperCase() === '.RAW') {
-			this.cache.push({ url: url, d: xhr.response, l: xhr.response.byteLength });
+		if (notfirst && url.substring(url.length -4).toUpperCase() === '.RAW') {
+			this.cache.push({ url: url, d: xhr.response, l: len });
 			if (this.cache.length > this.maxcache) this.cache.splice(0,1);
 		}
 		fx.data = xhr.response;
@@ -1936,7 +1936,7 @@ imbdoit() {
 		compval = document.getElementById('imbstartts').value;
 	}
 	else compval = this.fromimbts;
-	if ((document && document.getElementById('picfromimb').checked) ||
+	if ((document && document.getElementById('rpicfromimb').checked) ||
 		(this.fromimbflags % 2)) {
 		for (const e of this.rimbpics) {
 			let rawname = e;
@@ -1946,7 +1946,7 @@ imbdoit() {
 				selecteds.push(e);
 		}
 	}
-	if ((document && document.getElementById('rpicfromimb').checked) ||
+	if ((document && document.getElementById('picfromimb').checked) ||
 		((this.fromimbflags % 4) > 1)) {
 		for (const e of this.imbpics) {
 			let rawname = e;
@@ -3050,6 +3050,7 @@ if (typeof process !== 'undefined') {
 	var document = undefined;
 	imbc = new ImBC();
 	imbc.querylang(process.argv[1], 6);
+	if (process.stdout.isTTY !== true) imbc.withcolours = false;
 	let wanthelp = false, wantxl = false;
 	if (process.argv.length < 3) {
 		wanthelp = true;
