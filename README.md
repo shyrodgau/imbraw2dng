@@ -79,7 +79,7 @@ Options:
  -d dir - put output files into dir  
  -f - overwrite existing files  
  -- - treat rest of parameters as local files or dirs   
-  -----  
+ -----  
  <files-or-dirs> - process local files or directories recursively, e.g. on MicroSD from ImB  
  -----  
  -R - get RAW from ImB connected via Wifi  
