@@ -19,6 +19,7 @@ Use: open in browser and select RAW
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>ImB RAW to DNG Converter V???</title>
 <style type="text/css">
+#rpiclbl, #piclbl, #movlbl, #rpiccnt, #piccnt, #movcnt { font-weight: bold; }
 #imbvisbrows {
 	padding: 0.4em;
 	margin: 0.4em;
@@ -154,7 +155,7 @@ texts = { // actually const
 		generaladvice: {
 			de: 'Kann sein, dass der Browser fragt, ob Sie zulassen wollen, dass mehrere Dateien heruntergeladen werden.<br>Dateien, die nicht oder unbekannte RAW-Dateien sind, werden 1:1 kopiert.',
 			en: 'Browser may ask you if you want to allow downloading multiple files.<br>Not or unrecognized RAW Files simply will be copied.',
-			fr: 'Le navigateur peux questionner que vous acceptez le téléchargement de beaucoup de fiches.'
+			fr: 'Le navigateur peux questionner que vous acceptez le téléchargement de beaucoup de fiches.<br>Fiches pas-RAW ou RAW inconnue sont copiée 1:1.'
 		},
 		drophere: {
 			de: 'Dateien von ImB hier ablegen: ',
@@ -2113,23 +2114,35 @@ createwait(el) {
 }
 /* visual browser: prepare the browser display, group the stuff */
 aftercheck() {
-	document.getElementById('piccnt').innerHTML = '' + this.imbpics.length + ' (';
-	if (this.earliestjpg.length > 4) document.getElementById('piccnt').innerHTML += this.earliestjpg.substring(0,16);
-	document.getElementById('piccnt').innerHTML += ' - ';
-	if (this.latestjpg.length > 4) document.getElementById('piccnt').innerHTML += this.latestjpg.substring(0,16);
-	document.getElementById('piccnt').innerHTML += ')';
+	document.getElementById('piccnt').innerHTML = '' + this.imbpics.length;
+	if (this.earliestjpg.length > 4) {
+		document.getElementById('picinterval').innerHTML += '(';
+		document.getElementById('picinterval').innerHTML += this.earliestjpg.substring(0,16);
+		document.getElementById('picinterval').innerHTML += ' - ';
+		document.getElementById('picinterval').innerHTML += this.latestjpg.substring(0,16);
+		document.getElementById('picinterval').innerHTML += ')';
+		document.getElementById('picinterval').style['display']='';
+	}
 	document.getElementById('piccnt').removeAttribute('data-myxlkey');
-	document.getElementById('rpiccnt').innerHTML = '' + this.rimbpics.length + ' (';
-	if (this.earliestraw.length > 4) document.getElementById('rpiccnt').innerHTML += this.earliestraw.substring(0,16);
-	document.getElementById('rpiccnt').innerHTML += ' - ';
-	if (this.latestraw.length > 4) document.getElementById('rpiccnt').innerHTML += this.latestraw.substring(0,16);
-	document.getElementById('rpiccnt').innerHTML += ')';
+	document.getElementById('rpiccnt').innerHTML = '' + this.rimbpics.length;
+	if (this.earliestraw.length > 4) {
+		document.getElementById('rpicinterval').innerHTML += '(';
+		document.getElementById('rpicinterval').innerHTML += this.earliestraw.substring(0,16);
+		document.getElementById('rpicinterval').innerHTML += ' - ';
+		document.getElementById('rpicinterval').innerHTML += this.latestraw.substring(0,16);
+		document.getElementById('rpicinterval').innerHTML += ')';
+		document.getElementById('rpicinterval').style['display']='';
+	}
 	document.getElementById('rpiccnt').removeAttribute('data-myxlkey');
-	document.getElementById('movcnt').innerHTML = '' + this.imbmovies.length + ' (';
-	if (this.earliestmov.length > 4) document.getElementById('movcnt').innerHTML += this.earliestmov.substring(0,16);
-	document.getElementById('movcnt').innerHTML += ' - ';
-	if (this.latestmov.length > 4) document.getElementById('movcnt').innerHTML += this.latestmov.substring(0,16);
-	document.getElementById('movcnt').innerHTML += ')';
+	document.getElementById('movcnt').innerHTML = '' + this.imbmovies.length;
+	if (this.earliestmov.length > 4) {
+		document.getElementById('movinterval').innerHTML += '(';
+		document.getElementById('movinterval').innerHTML += this.earliestmov.substring(0,16);
+		document.getElementById('movinterval').innerHTML += ' - ';
+		document.getElementById('movinterval').innerHTML += this.latestmov.substring(0,16);
+		document.getElementById('movinterval').innerHTML += ')';
+		document.getElementById('movinterval').style['display']='';
+	}
 	document.getElementById('movcnt').removeAttribute('data-myxlkey');
 	document.getElementById('imbdoit').disabled = false;
 	document.getElementById('imbvisbrows').disabled = false;
@@ -3110,10 +3123,12 @@ dodebug() {
 		const doc = dp.parseFromString(res.target.result,'text/html');
 		const sel2 = doc.querySelectorAll('a');
 		for (const r of sel2) {
-			if (r) {
+			if (r && (-1 === r.href.indexOf('?del='))) {
 				this.handle1imb(r.href);
 			}
 		}
+		document.getElementById('dbgfsel').style['display'] = 'none';
+		document.getElementById('onimback').style['display'] = '';
 		this.aftercheck();
 	};
 	fr.readAsText(document.getElementById('dbgfsel').files[0]);
@@ -3251,9 +3266,9 @@ if (typeof process !== 'undefined') {
 <!-- connected ! -->
 <div id="onimback" style="background-color:#ffffbb;border: 5px solid #ffff88;border-radius: 10px;width:fit-content;padding:1em;display:none;"><div style="font-size:133%;" data-myxlkey="onimback.connected">&nbsp;<br></div>
 <span data-myxlkey="onimback.dlconvert"></span><br>
-<input checked type="checkbox" id="rpicfromimb"><label for="rpicfromimb" data-myxlkey="main.types.rawpics"></label>, <span data-myxlkey="onimback.totalnum"></span> <span id="rpiccnt" data-myxlkey="main.stillcounting"></span>
-<br><input checked type="checkbox" id="picfromimb"><label for="picfromimb" data-myxlkey="main.types.jpgpics"></label>, <span data-myxlkey="onimback.totalnum"></span> <span id="piccnt" data-myxlkey="main.stillcounting"></span> 
-<br><input checked type="checkbox" id="movfromimb"><label for="movfromimb" data-myxlkey="main.types.other"></label>, <span data-myxlkey="onimback.totalnum"></span> <span id="movcnt" data-myxlkey="main.stillcounting"></span><br>
+<input checked type="checkbox" id="rpicfromimb"><label for="rpicfromimb" id="rpiclbl" data-myxlkey="main.types.rawpics"></label>, <span data-myxlkey="onimback.totalnum"></span> <span id="rpiccnt" data-myxlkey="main.stillcounting"></span> <span id="rpicinterval" style="display:none;"></span>
+<br><input checked type="checkbox" id="picfromimb"><label for="picfromimb" id="piclbl" data-myxlkey="main.types.jpgpics"></label>, <span data-myxlkey="onimback.totalnum"></span> <span id="piccnt" data-myxlkey="main.stillcounting"></span> <span id="picinterval" style="display:none;"></span> 
+<br><input checked type="checkbox" id="movfromimb"><label for="movfromimb" id="movlbl" data-myxlkey="main.types.other"></label>, <span data-myxlkey="onimback.totalnum"></span> <span id="movcnt" data-myxlkey="main.stillcounting"></span> <span id="movinterval" style="display:none;"></span><br>
 <span data-myxlkey="onimback.fromtime"></span> <input type="text" maxlength="16" id="imbstartts" inlength="0" placeholder="YYYY_MMDD_hhmmss" pattern="[0-9][0-9][0-9][0-9](_[0-9][0-9][0-9][0-9]_([0-9][0-9]([0-9]([0-9][0-9][0-9])*)*)*)*"> (<span data-myxlkey="onimback.nullforall"></span>) <br>
 <input onclick="imbc.imbdoit()" type="button" data-myvalxlkey="onimback.doit" id="imbdoit" disabled><br>
 <span data-myxlkey="main.or"></span> <input type="button" data-myvalxlkey="onimback.visual" id="imbvisbrows" onclick="imbc.showbrowser()" disabled>.

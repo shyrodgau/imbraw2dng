@@ -70,7 +70,7 @@ texts = { // actually const
 		generaladvice: {
 			de: 'Kann sein, dass der Browser fragt, ob Sie zulassen wollen, dass mehrere Dateien heruntergeladen werden.<br>Dateien, die nicht oder unbekannte RAW-Dateien sind, werden 1:1 kopiert.',
 			en: 'Browser may ask you if you want to allow downloading multiple files.<br>Not or unrecognized RAW Files simply will be copied.',
-			fr: 'Le navigateur peux questionner que vous acceptez le téléchargement de beaucoup de fiches.'
+			fr: 'Le navigateur peux questionner que vous acceptez le téléchargement de beaucoup de fiches.<br>Fiches pas-RAW ou RAW inconnue sont copiée 1:1.'
 		},
 		drophere: {
 			de: 'Dateien von ImB hier ablegen: ',
@@ -2029,23 +2029,35 @@ createwait(el) {
 }
 /* visual browser: prepare the browser display, group the stuff */
 aftercheck() {
-	document.getElementById('piccnt').innerHTML = '' + this.imbpics.length + ' (';
-	if (this.earliestjpg.length > 4) document.getElementById('piccnt').innerHTML += this.earliestjpg.substring(0,16);
-	document.getElementById('piccnt').innerHTML += ' - ';
-	if (this.latestjpg.length > 4) document.getElementById('piccnt').innerHTML += this.latestjpg.substring(0,16);
-	document.getElementById('piccnt').innerHTML += ')';
+	document.getElementById('piccnt').innerHTML = '' + this.imbpics.length;
+	if (this.earliestjpg.length > 4) {
+		document.getElementById('picinterval').innerHTML += '(';
+		document.getElementById('picinterval').innerHTML += this.earliestjpg.substring(0,16);
+		document.getElementById('picinterval').innerHTML += ' - ';
+		document.getElementById('picinterval').innerHTML += this.latestjpg.substring(0,16);
+		document.getElementById('picinterval').innerHTML += ')';
+		document.getElementById('picinterval').style['display']='';
+	}
 	document.getElementById('piccnt').removeAttribute('data-myxlkey');
-	document.getElementById('rpiccnt').innerHTML = '' + this.rimbpics.length + ' (';
-	if (this.earliestraw.length > 4) document.getElementById('rpiccnt').innerHTML += this.earliestraw.substring(0,16);
-	document.getElementById('rpiccnt').innerHTML += ' - ';
-	if (this.latestraw.length > 4) document.getElementById('rpiccnt').innerHTML += this.latestraw.substring(0,16);
-	document.getElementById('rpiccnt').innerHTML += ')';
+	document.getElementById('rpiccnt').innerHTML = '' + this.rimbpics.length;
+	if (this.earliestraw.length > 4) {
+		document.getElementById('rpicinterval').innerHTML += '(';
+		document.getElementById('rpicinterval').innerHTML += this.earliestraw.substring(0,16);
+		document.getElementById('rpicinterval').innerHTML += ' - ';
+		document.getElementById('rpicinterval').innerHTML += this.latestraw.substring(0,16);
+		document.getElementById('rpicinterval').innerHTML += ')';
+		document.getElementById('rpicinterval').style['display']='';
+	}
 	document.getElementById('rpiccnt').removeAttribute('data-myxlkey');
-	document.getElementById('movcnt').innerHTML = '' + this.imbmovies.length + ' (';
-	if (this.earliestmov.length > 4) document.getElementById('movcnt').innerHTML += this.earliestmov.substring(0,16);
-	document.getElementById('movcnt').innerHTML += ' - ';
-	if (this.latestmov.length > 4) document.getElementById('movcnt').innerHTML += this.latestmov.substring(0,16);
-	document.getElementById('movcnt').innerHTML += ')';
+	document.getElementById('movcnt').innerHTML = '' + this.imbmovies.length;
+	if (this.earliestmov.length > 4) {
+		document.getElementById('movinterval').innerHTML += '(';
+		document.getElementById('movinterval').innerHTML += this.earliestmov.substring(0,16);
+		document.getElementById('movinterval').innerHTML += ' - ';
+		document.getElementById('movinterval').innerHTML += this.latestmov.substring(0,16);
+		document.getElementById('movinterval').innerHTML += ')';
+		document.getElementById('movinterval').style['display']='';
+	}
 	document.getElementById('movcnt').removeAttribute('data-myxlkey');
 	document.getElementById('imbdoit').disabled = false;
 	document.getElementById('imbvisbrows').disabled = false;
@@ -3026,10 +3038,12 @@ dodebug() {
 		const doc = dp.parseFromString(res.target.result,'text/html');
 		const sel2 = doc.querySelectorAll('a');
 		for (const r of sel2) {
-			if (r) {
+			if (r && (-1 === r.href.indexOf('?del='))) {
 				this.handle1imb(r.href);
 			}
 		}
+		document.getElementById('dbgfsel').style['display'] = 'none';
+		document.getElementById('onimback').style['display'] = '';
 		this.aftercheck();
 	};
 	fr.readAsText(document.getElementById('dbgfsel').files[0]);
