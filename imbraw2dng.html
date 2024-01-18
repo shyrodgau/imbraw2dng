@@ -3081,16 +3081,16 @@ prxl(key, el) {
 		if (typeof el['de'] === 'string') {
 			let out = key + ';';
 			let a = el['de'];
-			let b = '\'';
-			if (-1 !== a.indexOf('\'')) b = '"';
+			let b = '"';
+			if (-1 !== a.indexOf('"')) b = '\'';
 			out += b + a  + b + ';';
 			a = el['en'];
-			b = '\'';
-			if (-1 !== a.indexOf('\'')) b = '"';
+			b = '"';
+			if (-1 !== a.indexOf('"')) b = '\'';
 			out += b + a  + b + ';';
 			a = el['fr'];
-			b = '\'';
-			if (-1 !== a.indexOf('\'')) b = '"';
+			b = '"';
+			if (-1 !== a.indexOf('"')) b = '\'';
 			out += b + a  + b + ';';
 			console.log(out);
 		}
@@ -3098,16 +3098,16 @@ prxl(key, el) {
 			for (let i=0; i< el['de'].length; i++) {
 				let out = key + '[' + i + '];';
 				let a = el['de'][i];
-				let b = '\'';
-				if (-1 !== a.indexOf('\'')) b = '"';
+				let b = '"';
+				if (-1 !== a.indexOf('"')) b = '\'';
 				out += b + a  + b + ';';
 				a = el['en'][i];
-				b = '\'';
-				if (-1 !== a.indexOf('\'')) b = '"';
+				b = '"';
+				if (-1 !== a.indexOf('"')) b = '\'';
 				out += b + a  + b + ';';
 				a = el['fr'][i];
-				b = '\'';
-				if (-1 !== a.indexOf('\'')) b = '"';
+				b = '"';
+				if (-1 !== a.indexOf('"')) b = '\'';
 				out += b + a  + b + ';';
 				console.log(out);
 			}
