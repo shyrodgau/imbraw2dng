@@ -472,10 +472,11 @@ texts = { // actually const
 	},
 	node: {
 		help: {
-			en: [ '\x1b[1mWelcome to imbraw2dng\x1b[0m $$0 !', 'Usage: node $$0 \x1b[1m[\x1b[0m-l lang\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-f\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-d dir\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-nc\x1b[1m]\x1b[0m \x1b[1m{\x1b[0m \x1b[1m[\x1b[0m-R\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-J\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-O\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-n yyyy_mmdd_hhmmss\x1b[1m]\x1b[0m \x1b[1m|\x1b[0m \x1b[1m[\x1b[0m--\x1b[1m]\x1b[0m \x1b[1m<\x1b[0mfiles-or-dirs\x1b[1m>\x1b[0m \x1b[1m}\x1b[0m',
+			en: [ '\x1b[1mWelcome to imbraw2dng\x1b[0m $$0 !', 'Usage: node $$0 \x1b[1m[\x1b[0m-l lang\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-f\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-d dir\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-nc \x1b[1m|\x1b[0m -co\x1b[1m]\x1b[0m \x1b[1m{\x1b[0m \x1b[1m[\x1b[0m-R\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-J\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-O\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-n yyyy_mmdd_hhmmss\x1b[1m]\x1b[0m \x1b[1m|\x1b[0m \x1b[1m[\x1b[0m--\x1b[1m]\x1b[0m \x1b[1m<\x1b[0mfiles-or-dirs\x1b[1m>\x1b[0m \x1b[1m}\x1b[0m',
 				'Options:',
 				' \x1b[1m-h\x1b[0m - show this help',
 				' \x1b[1m-nc\x1b[0m - do not use coloured text',
+				' \x1b[1m-co\x1b[0m - force coloured text',
 				' \x1b[1m-l XX\x1b[0m - where XX is a valid language code (currently: DE, EN, FR)',
 				'         Language can also be set by changing filename to imbraw2dng_XX.js .',
 				' \x1b[1m-d dir\x1b[0m - put output files into dir',
@@ -490,10 +491,11 @@ texts = { // actually const
 				' \x1b[1m-n yyyy_mmdd_hhmmss\x1b[0m (or prefix of any length) - select only newer than this timestamp from ImB',
 				' -----',
 				'<files-or-dirs> and -R/-J/-O/-n can not be used at the same time.' ,],
-			fr: [ '\x1b[1mBienvenu a imbraw2dng\x1b[0m $$0 !', 'Operation: node $$0 \x1b[1m[\x1b[0m-l lang\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-f\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-d repertoire\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-nc\x1b[1m]\x1b[0m \x1b[1m{\x1b[0m \x1b[1m[\x1b[0m-R\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-J\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-O\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-n yyyy_mmdd_hhmmss\x1b[1m]\x1b[0m \x1b[1m|\x1b[0m \x1b[1m[\x1b[0m--\x1b[1m]\x1b[0m \x1b[1m<\x1b[0mfiches-ou-repertoires\x1b[1m>\x1b[0m \x1b[1m}\x1b[0m',
+			fr: [ '\x1b[1mBienvenu a imbraw2dng\x1b[0m $$0 !', 'Operation: node $$0 \x1b[1m[\x1b[0m-l lang\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-f\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-d repertoire\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-nc \x1b[1m|\x1b[0m -co\x1b[1m]\x1b[0m \x1b[1m{\x1b[0m \x1b[1m[\x1b[0m-R\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-J\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-O\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-n yyyy_mmdd_hhmmss\x1b[1m]\x1b[0m \x1b[1m|\x1b[0m \x1b[1m[\x1b[0m--\x1b[1m]\x1b[0m \x1b[1m<\x1b[0mfiches-ou-repertoires\x1b[1m>\x1b[0m \x1b[1m}\x1b[0m',
 				'Choix:',
 				' \x1b[1m-h\x1b[0m - montrer cette aide',
 				' \x1b[1m-nc\x1b[0m - n\'utilisez pas de texte en couleur',
+				' \x1b[1m-co\x1b[0m - utilisez de texte en couleur',
 				' \x1b[1m-l XX\x1b[0m - quand XX est une code du langue valide (actuellement: DE, EN, FR)',
 				'         La langue peut également être définie en changeant le nom du fiche en imbraw2dng_XX.js .',
 				' \x1b[1m-d repertoire\x1b[0m - mettre les fiches de sortie dans le répertoire',
@@ -508,10 +510,11 @@ texts = { // actually const
 				' \x1b[1m-n yyyy_mmdd_hhmmss\x1b[0m (ou préfixe de n\'importe quelle longueur) - sélectionnez uniquement plus récent que cet horodatage d\'ImB',
 				' -----',
 				'<fichiers-ou-repertoires> ete -R/-J/-O/-n ne peut pas être utilisé en même temps.' ,],
-			de: [ '\x1b[1mWillkommen bei imbraw2dng\x1b[0m $$0 !', 'Aufruf: node $$0 \x1b[1m[\x1b[0m-l sprache\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-f\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-d ordner\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-nc\x1b[1m]\x1b[0m \x1b[1m{\x1b[0m \x1b[1m[\x1b[0m-R\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-J\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-O\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-n yyyy_mmdd_hhmmss\x1b[1m]\x1b[0m \x1b[1m|\x1b[0m \x1b[1m[\x1b[0m--\x1b[1m]\x1b[0m \x1b[1m<\x1b[0mdateien-oder-ordner\x1b[1m>\x1b[0m \x1b[1m}\x1b[0m',
+			de: [ '\x1b[1mWillkommen bei imbraw2dng\x1b[0m $$0 !', 'Aufruf: node $$0 \x1b[1m[\x1b[0m-l sprache\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-f\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-d ordner\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-nc \x1b[1m|\x1b[0m -co\x1b[1m]\x1b[0m \x1b[1m{\x1b[0m \x1b[1m[\x1b[0m-R\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-J\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-O\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-n yyyy_mmdd_hhmmss\x1b[1m]\x1b[0m \x1b[1m|\x1b[0m \x1b[1m[\x1b[0m--\x1b[1m]\x1b[0m \x1b[1m<\x1b[0mdateien-oder-ordner\x1b[1m>\x1b[0m \x1b[1m}\x1b[0m',
 				'Optionen:',
 				' \x1b[1m-h\x1b[0m - diesen Hilfetext zeigen',
 				' \x1b[1m-nc\x1b[0m - keinen farbigen Text zeigen',
+				' \x1b[1m-co\x1b[0m - farbigen Text zeigen',
 				' \x1b[1m-l XX\x1b[0m - wo XX ein gültiger Sprachcode ist (derzeit: DE, EN, FR)',
 				'         Die Sprache kann auch durch Umbenennen in imbraw2dng_XX.js geändert werden.',
 				' \x1b[1m-d ordner\x1b[0m - Ausgabedateien in diesen Ordner ablegen',
@@ -3101,6 +3104,9 @@ if (typeof process !== 'undefined') {
 				}
 				else if (v ==='-nc') {
 					imbc.withcolours = false;
+				}
+				else if (v ==='-co') {
+					imbc.withcolours = true;
 				}
 				else if (v.substring(0,2)==='-l') {
 					if (v.substring(2).length > 0) {
