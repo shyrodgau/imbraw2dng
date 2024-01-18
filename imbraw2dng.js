@@ -42,7 +42,7 @@ constructor() {
 		if (process.platform.substring(0,3) === 'win') this.withcolours = false;
 	}
 }
-version = "V3.1.4_7062a51"; // actually const
+version = "V3.1.5_DEVEL"; // actually const
 alllangs = [ 'de' , 'en', 'fr', '00' ]; // actually const
 texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' },
@@ -78,9 +78,9 @@ texts = { // actually const
 			fr: 'Posez fiches de ImB ici:'
 		},
 		selectraw: {
-			de: 'Oder diese Seite per WLAN <a href="https://github.com/shyrodgau/imbraw2dng/blob/master/README_de.md#gucken-auf-imback-selbst">direkt von ImB</a> verwenden.<br>Oder <b>.RAW</b> Datei(en) auswählen:',
-			en: 'Or use this page via Wifi <a href="https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback">directly from ImB</a>.<br> Or select <b>.RAW</b> File(s):',
-			fr: 'Ou utiliez cette page <a href="https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback">via Wifi sur ImB</a>.<br> Ou selectez <b>.RAW</b> fiche(s):'
+			de: 'Oder diese Seite per WLAN <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README_de.md#gucken-auf-imback-selbst\'>direkt von ImB</a> verwenden.<br>Oder <b>.RAW</b> Datei(en) auswählen:',
+			en: 'Or use this page via Wifi <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\'>directly from ImB</a>.<br> Or select <b>.RAW</b> File(s):',
+			fr: 'Ou utiliez cette page <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\'>via Wifi sur ImB</a>.<br> Ou selectez <b>.RAW</b> fiche(s):'
 		},
 		stillcounting: {
 			de: '... zähle ... ',
@@ -204,9 +204,9 @@ texts = { // actually const
 			fr: 'à partir de l\'horodatage ou plus jeune que '
 		},
 		nullforall: {
-			de: '0000 oder leer für "alle"',
-			en: '0000 or empty for "all"',
-			fr: '0000 ou déposer pour tout'
+			de: '0000 oder leer für \'alle\'',
+			en: '0000 or empty for \'all\'',
+			fr: '0000 ou déposer pour \'tout\''
 		},
 		doit: {
 			de: 'Mach es',
@@ -261,9 +261,9 @@ texts = { // actually const
 			fr: '$$0 fiche(s) sélectionné(s)'
 		},
 		copyok: {
-			de: '<b style="background-color:#ddffdd;">Fertig! Nach $$0 kopiert (Downloads-Ordner prüfen)</b>&nbsp;',
-			en: '<b style="background-color:#ddffdd;">Finished! Copied to $$0 (Check Downloads Folder)</b>&nbsp;',
-			fr: '<b style="background-color:#ddffdd;">Fini! Copié sur $$0 (Vérifier le dossier de téléchargements/Downloads)</b>&nbsp;'
+			de: '<b style=\'background-color:#ddffdd;\'>Fertig! Nach $$0 kopiert (Downloads-Ordner prüfen)</b>&nbsp;',
+			en: '<b style=\'background-color:#ddffdd;\'>Finished! Copied to $$0 (Check Downloads Folder)</b>&nbsp;',
+			fr: '<b style=\'background-color:#ddffdd;\'>Fini! Copié sur $$0 (Vérifier le dossier de téléchargements/Downloads)</b>&nbsp;'
 		},
 		copyokx: {
 			de: '\x1b[32mFertig!\x1b[0m Nach $$0 kopiert',
@@ -271,9 +271,9 @@ texts = { // actually const
 			fr: '\x1b[32mFini!\x1b[0m Copié sur $$0'
 		},
 		errorreadingfile: {
-			de: '<b style="background-color:#ffdddd;">Fehler beim Lesen der Datei $$0. ENTSCHULDIGUNG! </b>',
-			en: '<b style="background-color:#ffdddd;">Error occured reading file $$0. SORRY! </b>',
-			fr: '<b style="background-color:#ffdddd;">Erreur de lecture du fiche $$0. DÉSOLÉE! </b>'
+			de: '<b style=\'background-color:#ffdddd;\'>Fehler beim Lesen der Datei $$0. ENTSCHULDIGUNG! </b>',
+			en: '<b style=\'background-color:#ffdddd;\'>Error occured reading file $$0. SORRY! </b>',
+			fr: '<b style=\'background-color:#ffdddd;\'>Erreur de lecture du fiche $$0. DÉSOLÉE! </b>'
 		},
 		errorreadingfilex: {
 			de: '\x1b[31mFEHLER\x1b[0m beim Lesen der Datei $$0. ENTSCHULDIGUNG!',
@@ -281,9 +281,9 @@ texts = { // actually const
 			fr: '\x1b[31mERREUR\x1b[0m de lecture du fiche $$0. DÉSOLÉE!'
 		},
 		unknownsize: {
-			de: '<b style="background-color:#ffdddd;">[$$0] Entschuldigung, die Dateigröße <b>$$1</b> passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!</b>',
-			en: '<b style="background-color:#ffdddd;">[$$0] Sorry, file Size <b>$$1</b> does not match known formats. Please contact developer!</b>',
-			fr: '<b style="background-color:#ffdddd;">[$$0] Désolée, la taille du fiche $$1 ne correspond pas au format connu. Veuillez contacter le développeur</b>'
+			de: '<b style=\'background-color:#ffdddd;\'>[$$0] Entschuldigung, die Dateigröße <b>$$1</b> passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!</b>',
+			en: '<b style=\'background-color:#ffdddd;\'>[$$0] Sorry, file Size <b>$$1</b> does not match known formats. Please contact developer!</b>',
+			fr: '<b style=\'background-color:#ffdddd;\'>[$$0] Désolée, la taille du fiche $$1 ne correspond pas au format connu. Veuillez contacter le développeur</b>'
 		},
 		unknownsizex: {
 			de: '[$$0] \x1b[31mEntschuldigung, die Dateigröße $$1 passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!\x1b[0m',
@@ -311,9 +311,9 @@ texts = { // actually const
 			fr: 'Rotation: '
 		},
 		converted: {
-			de: '<b style=\"background-color:#ddffdd;\">Fertig! Nach $$0 konvertiert (Downloads-Ordner prüfen)</b>&nbsp;',
-			en: '<b style=\"background-color:#ddffdd;\">Finished! Converted to $$0 (Check Downloads Folder)</b>&nbsp;',
-			fr: '<b style="background-color:#ddffdd;">Fini! Converti en $$0 (Vérifier le dossier de téléchargements/Downloads)</b>&nbsp;'
+			de: '<b style=\'background-color:#ddffdd;\'>Fertig! Nach $$0 konvertiert (Downloads-Ordner prüfen)</b>&nbsp;',
+			en: '<b style=\'background-color:#ddffdd;\'>Finished! Converted to $$0 (Check Downloads Folder)</b>&nbsp;',
+			fr: '<b style=\'background-color:#ddffdd;\'>Fini! Converti en $$0 (Vérifier le dossier de téléchargements/Downloads)</b>&nbsp;'
 		},
 		convertedx: {
 			de: '\x1b[32mFertig!\x1b[0m Nach $$0 konvertiert',
