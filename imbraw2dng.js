@@ -42,7 +42,7 @@ constructor() {
 		if (process.platform.substring(0,3) === 'win') this.withcolours = false;
 	}
 }
-version = "V3.1.5_DEVEL"; // actually const
+version = "V3.1.6_DEVEL"; // actually const
 alllangs = [ 'de' , 'en', 'fr', '00' ]; // actually const
 texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' },
@@ -2828,6 +2828,9 @@ xl1(el) {
 	if (el.attributes.getNamedItem('data-mytitlexlkey')) {
 		el.title = this.xl(el.attributes.getNamedItem('data-mytitlexlkey').value);
 	}
+	if (el.attributes.getNamedItem('data-myhrefxlkey')) {
+		el.href = this.xl(el.attributes.getNamedItem('data-myhrefxlkey').value);
+	}
 	return el;
 }
 /* get part of translation */
@@ -2908,7 +2911,10 @@ xlateall() {
 	for (const e of m) {
 		e.title = this.xl(e.attributes.getNamedItem('data-mytitlexlkey').value);
 	}
-	document.getElementById('helplink').href = this.xl('main.helplink');
+	const h = document.querySelectorAll('*[data-myhrefxlkey]');
+	for (const e of h) {
+		e.href = this.xl(e.attributes.getNamedItem('data-myhrefxlkey').value);
+	}
 	document.title = this.xl0('main.title') + ' ' + imbc.version;
 }
 /* translate for new language */
@@ -2977,6 +2983,116 @@ help(caller) {
 		if (this.debugflag && j === 7) {
 			console.log(' \x1b[1m-CSV\x1b[0m - Translation CSV');
 		}
+	}
+}
+/* nodejs runup */
+startnode() {
+	if (process.stdout.isTTY !== true) this.withcolours = false;
+	let wanthelp = false, wantxl = false, flagging=0, datefound = false, restisfiles = false;
+	if (process.argv.length < 3) {
+		wanthelp = true;
+	}
+	process.argv.forEach((v,i) => {
+			if (i >= 2) {
+				//console.log(` ${i} -- ${v} ${flagging}`);
+				if (v ==='--') {
+					restisfiles = true;
+				}
+				else if (restisfiles) {
+					this.allfiles.push(v);
+					this.totnum ++;
+				}
+				else if (flagging === 1) {
+					flagging = 0;
+					this.trylang(v);
+				}
+				else if (flagging === 2) {
+					flagging = 0;
+					this.outdir = v;
+				}
+				else if (flagging === 3) {
+					flagging = 0;
+					this.fromimbts = v;
+					datefound = true;
+				}
+				else if (v.substring(0,4)==='-CSV' && this.debugflag) {
+					for (const el of Object.keys(this.texts))
+						this.prxl(el, this.texts[el]);
+					wantxl = true;
+				}
+				else if (v ==='-nc') {
+					this.withcolours = false;
+				}
+				else if (v ==='-co') {
+					this.withcolours = true;
+				}
+				else if (v.substring(0,2)==='-l') {
+					if (v.substring(2).length > 0) {
+						let l = v.substring(2);
+						this.trylang(l);
+					}
+					else
+						flagging=1;
+				}
+				else if (v.substring(0,2)==='-d') {
+					if (v.substring(2).length > 0) {
+						this.outdir = v.substring(2);
+					}
+					else
+						flagging=2;
+				}
+				else if (v.substring(0,2)==='-n') {
+					if (v.substring(2).length > 0) {
+						this.fromimbts = v.substring(2);
+						datefound = true;
+					}
+					else
+						flagging=3;
+				}
+				else if (v ==='-h') {
+					wanthelp = true;
+				}
+				else if (v ==='-f') {
+					this.ovwout = true;
+				}
+				else if (v ==='-R') {
+					if (!(this.fromimbflags % 2)) this.fromimbflags += 1;
+				}
+				else if (v ==='-J') {
+					if ((this.fromimbflags % 4) < 2) this.fromimbflags += 2;
+				}
+				else if (v ==='-O') {
+					if ((this.fromimbflags % 8) < 4) this.fromimbflags += 4;
+				}
+				else if (v.substring(0,1) === '-') {
+					console.log(this.subst(this.xl0('node.unkopt'), v));
+					wanthelp = true;
+				}
+				else {
+					this.allfiles.push(v);
+					this.totnum ++;
+				}
+			}
+	});
+	if (wantxl) return;
+	else if (flagging) {
+		console.log(this.xl0('node.missingval'));
+		wanthelp = true;
+	}
+	else if (datefound && 0 === this.fromimbflags) this.fromimbflags = 7;
+
+	if (wanthelp || (this.fromimbflags === 0 && this.totnum === 0) || (this.fromimbflags > 0 && this.totnum > 0)) {
+		this.help(process.argv[1]);
+		console.log('');
+		return;
+	}
+	else if (this.fromimbflags > 0) {
+		console.log(this.subst(this.xl0('node.help')[0], this.version));
+		this.checkimbnode();
+	}
+	else if (this.totnum > 0) {
+		console.log(this.subst(this.xl0('node.help')[0], this.version));
+		this.handlerecurse();
 	}
 }
 /* debug */
@@ -3067,110 +3183,5 @@ if (typeof process !== 'undefined') {
 	var document = undefined;
 	imbc = new ImBC();
 	imbc.querylang(process.argv[1], 6);
-	if (process.stdout.isTTY !== true) imbc.withcolours = false;
-	let wanthelp = false, wantxl = false;
-	if (process.argv.length < 3) {
-		wanthelp = true;
-	}
-	let flagging=0, datefound = false, restisfiles = false;
-	process.argv.forEach((v,i) => {
-			if (i >= 2) {
-				//console.log(` ${i} -- ${v} ${flagging}`);
-				if (v ==='--') {
-					restisfiles = true;
-				}
-				else if (restisfiles) {
-					imbc.allfiles.push(v);
-					imbc.totnum ++;
-				}
-				else if (flagging === 1) {
-					flagging = 0;
-					imbc.trylang(v);
-				}
-				else if (flagging === 2) {
-					flagging = 0;
-					imbc.outdir = v;
-				}
-				else if (flagging === 3) {
-					flagging = 0;
-					imbc.fromimbts = v;
-					datefound = true;
-				}
-				else if (v.substring(0,4)==='-CSV' && imbc.debugflag) {
-					for (const el of Object.keys(imbc.texts))
-						imbc.prxl(el, imbc.texts[el]);
-					wantxl = true;
-					imbc.fromimbflags = 16;
-				}
-				else if (v ==='-nc') {
-					imbc.withcolours = false;
-				}
-				else if (v ==='-co') {
-					imbc.withcolours = true;
-				}
-				else if (v.substring(0,2)==='-l') {
-					if (v.substring(2).length > 0) {
-						let l = v.substring(2);
-						imbc.trylang(l);
-					}
-					else
-						flagging=1;
-				}
-				else if (v.substring(0,2)==='-d') {
-					if (v.substring(2).length > 0) {
-						imbc.outdir = v.substring(2);
-					}
-					else
-						flagging=2;
-				}
-				else if (v.substring(0,2)==='-n') {
-					if (v.substring(2).length > 0) {
-						imbc.fromimbts = v.substring(2);
-						datefound = true;
-					}
-					else
-						flagging=3;
-				}
-				else if (v ==='-h') {
-					wanthelp = true;
-				}
-				else if (v ==='-f') {
-					imbc.ovwout = true;
-				}
-				else if (v ==='-R') {
-					if (!(imbc.fromimbflags % 2)) imbc.fromimbflags += 1;
-				}
-				else if (v ==='-J') {
-					if ((imbc.fromimbflags % 4) < 2) imbc.fromimbflags += 2;
-				}
-				else if (v ==='-O') {
-					if ((imbc.fromimbflags % 8) < 4) imbc.fromimbflags += 4;
-				}
-				else if (v.substring(0,1) === '-') {
-					console.log(imbc.subst(imbc.xl0('node.unkopt'), v));
-					wanthelp = true;
-				}
-				else {
-					imbc.allfiles.push(v);
-					imbc.totnum ++;
-				}
-			}
-	});
-	if (flagging) {
-		console.log(imbc.xl0('node.missingval'));
-		wanthelp = true;
-	}
-	if (datefound && 0 === imbc.fromimbflags) imbc.fromimbflags = 7;
-	if (wanthelp || (imbc.fromimbflags === 0 && imbc.totnum === 0) || (!wantxl && imbc.fromimbflags > 0 && imbc.totnum > 0)) {
-		imbc.help(process.argv[1]);
-		console.log('');
-	}
-	else if (!wantxl && imbc.fromimbflags > 0) {
-		console.log(imbc.subst(imbc.xl0('node.help')[0], imbc.version));
-		imbc.checkimbnode();
-	}
-	else if (!wantxl && imbc.totnum > 0) {
-		console.log(imbc.subst(imbc.xl0('node.help')[0], imbc.version));
-		imbc.handlerecurse();
-	}
+	imbc.startnode();
 }
