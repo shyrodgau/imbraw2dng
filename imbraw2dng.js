@@ -1,36 +1,50 @@
 #!/usr/bin/env node
-/* ******************************************** 
+// SPDX-License-Identifier: 0BSD
+/* 
+******************************************** 
 
 imbraw2dng.js
 
 Convert RAW from I'm back(R)(https://imback.eu) into DNG
 
 Based on work by Michele Asciutti.
-Stefan Hegny, 2023
 
 https://github.com/shyrodgau/imbraw2dng
 
-Free software, use at own risk for whatever you like
-
-	Usage: node  imbraw2dng.js  [-l lang] [-f] [ -d dir] { [-R] [-J] [-O] [-n yy_mmdd_hhmmss] | <files-or-dirs> }
-	Options:
-	 -h 			- show this help
-	 -l XX 			- where XX is a valid language code (currently: DE, EN, FR)
-			 		  Language can also be set by changing filename to imbraw2dng_XX.js .
-	 -d dir 		- put output files into dir
-	 -f 			- overwrite existing files
-	 -----
-	 -R 			- get RAW from ImB connected via Wifi
-	 -J 			- get JPEG from ImB connected via Wifi
-	 -O 			- get non-RAW/non-JPEG from ImB connected via Wifi
-	 -n yyyy_mmdd_hhmmss (or any length of head) - select only newer than this timestamp from ImB
-	 -----
-	 <files-or-dirs> - process local files or directories recursively, e.g. on MicroSD from ImB
-	 -----
-	<files-or-dirs> and -R/-J/-O are mutually exclusive.
+Usage: node imbraw2dng_de.js [-l lang] [-f] [-d dir] [-nc | -co] { [-R] [-J] [-O] [-n yyyy_mmdd_hhmmss] | [--] <files-or-dirs> }
+Options:
+ -h - show this help
+ -nc - do not use coloured text
+ -co - force coloured text
+ -l XX - where XX is a valid language code (currently: DE, EN, FR)
+         Language can also be set by changing filename to imbraw2dng_XX.js .
+ -d dir - put output files into dir
+ -f - overwrite existing files
+ -- - treat rest of parameters as local files or dirs
+ -----
+ <files-or-dirs> - process local files or directories recursively, e.g. on MicroSD from ImB
+ -----
+ -R - get RAW from ImB connected via Wifi
+ -J - get JPEG from ImB connected via Wifi
+ -O - get non-RAW/non-JPEG from ImB connected via Wifi
+ -n yyyy_mmdd_hhmmss (or prefix of any length) - select only newer than this timestamp from ImB
+ -----
+<files-or-dirs> and -R/-J/-O/-n can not be used at the same time.
 
 The following js code is identical to the js inside imbraw2dng.html.
-   ******************************************** */
+
+******************************************** 
+
+Copyright (C) 2023,2024 by Stefan Hegny, stefan@hegny.de
+
+Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. 
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, 
+DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+********************************************
+*/
 "use strict;"
 class ImBC {
 /* Indentation out */
