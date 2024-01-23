@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-// SPDX-License-Identifier: 0BSD
 /* 
 ******************************************** 
 
@@ -43,6 +42,8 @@ THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH RE
 IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, 
 DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+// SPDX-License-Identifier: 0BSD
+
 ********************************************
 */
 "use strict;"
@@ -56,7 +57,7 @@ constructor() {
 		if (process.platform.substring(0,3) === 'win') this.withcolours = false;
 	}
 }
-version = "V3.1.6_DEVEL"; // actually const
+version = "V3.1.7_DEVEL"; // actually const
 alllangs = [ 'de' , 'en', 'fr', '00' ]; // actually const
 texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' },
@@ -92,9 +93,9 @@ texts = { // actually const
 			fr: 'Posez fiches de ImB ici:'
 		},
 		selectraw: {
-			de: 'Oder diese Seite per WLAN <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README_de.md#gucken-auf-imback-selbst\'>direkt von ImB</a> verwenden.<br>Oder <b>.RAW</b> Datei(en) auswählen:',
-			en: 'Or use this page via Wifi <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\'>directly from ImB</a>.<br> Or select <b>.RAW</b> File(s):',
-			fr: 'Ou utiliez cette page <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\'>via Wifi sur ImB</a>.<br> Ou selectez <b>.RAW</b> fiche(s):'
+			de: 'Oder diese Seite per WLAN <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README_de.md#gucken-auf-imback-selbst\'>direkt von ImB</a> verwenden.<br>Oder <tt>.RAW</tt> Datei(en) auswählen:',
+			en: 'Or use this page via Wifi <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\'>directly from ImB</a>.<br> Or select <tt>.RAW</tt> File(s):',
+			fr: 'Ou utiliez cette page <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\'>via Wifi sur ImB</a>.<br> Ou selectez <tt>.RAW</tt> fiche(s):'
 		},
 		stillcounting: {
 			de: '... zähle ... ',
@@ -1912,7 +1913,10 @@ checkimbnode(type, found) {
 }
 /* check if we are directly on a back */
 checkimb(type) {
-	if (this.debugflag && document) document.getElementById('dbgfsel').style['display'] = '';
+	if (this.debugflag && document) {
+		document.getElementById('dbgcache').value = this.maxcache;
+		document.getElementById('debugonly').style['display'] = '';
+	}
 	if (!window.location.href.startsWith('http://192.168.1.254')) return;
 	document.getElementById('onimback').style['display'] = '';
 	const xhr = new XMLHttpRequest();
@@ -2913,6 +2917,7 @@ xl(str, arg0, arg1, arg2, arg3, base) {
 }
 /* translate everything */
 xlateall() {
+	document.documentElement.lang = this.mylang;
 	const k = document.querySelectorAll('*[data-myxlkey]');
 	for (const e of k) {
 		e.innerHTML = this.xl(e.attributes.getNamedItem('data-myxlkey').value, e.attributes.getNamedItem('data-myxlarg0')?.value, e.attributes.getNamedItem('data-myxlarg1')?.value, e.attributes.getNamedItem('data-myxlarg2')?.value, e.attributes.getNamedItem('data-myxlarg3')?.value );
@@ -2935,7 +2940,6 @@ xlateall() {
 setlang() {
 	this.mylang = document.getElementById('langsel').value;
 	this.xlateall();
-	document.documentElement.lang = this.mylang;
 }
 /* try lang from node param */
 trylang(i) {
@@ -2944,7 +2948,6 @@ trylang(i) {
 		if (i.toUpperCase() === l.toUpperCase()) {
 			this.mylang = l;
 			found = 1;
-			//console.log('LANG ' + l);
 			break;
 		}
 	}
@@ -2952,7 +2955,7 @@ trylang(i) {
 		this.mylang = 'en';
 		console.log('Unknown language: ' + i);
 	}
-	if ('00' === this.mylang)
+	else if ('00' === this.mylang)
 		this.debugflag = true;
 }
 /* find language from filename or nodejs scriptfile */
@@ -2962,27 +2965,24 @@ querylang(name, offset) {
 	for (const l of this.alllangs) {
 		if (name.substring(name.length - offset, name.length - offset + 4).toUpperCase() === ('_' + l.toUpperCase() + '.')) {
 			this.mylang = l;
-			if (document) document.getElementById('langsel').value = l;
+			if ('00' === l) {
+				this.debugflag = true;
+				if (document) {
+					for (const el of Object.keys(this.texts))
+						this.prxl(el, this.texts[el]);
+					document.getElementById('langsel').innerHTML += '<option value="00" onclick="imbc.setlang()">00</option></select>';
+				}
+			}
+			if (document) {
+				document.getElementById('langsel').value = l;
+			}
 			found = 1;
 			break;
 		}
 	}
 	if (!found) {
-		this.mylang = 'en';
-		if (document) document.getElementById('langsel').value = 'en';
-		if (name.substring(name.length - offset,name.length - offset+1) === '_') console.log('Unknown language: ' + name.substring(name.length - offset+1).substring(0,2));
+		if (name.substring(name.length - offset, name.length - offset+1) === '_') console.log('Unknown language: ' + name.substring(name.length - offset+1).substring(0,2));
 	}
-	if ('00' === this.mylang) {
-		this.debugflag = true;
-		if (document) {
-			for (const el of Object.keys(this.texts))
-				this.prxl(el, this.texts[el]);
-		}
-	}
-	else if (document)
-		document.documentElement.lang = this.mylang;
-	if (this.debugflag && document)
-		document.getElementById('langsel').innerHTML += '<option value="00" onclick="imbc.setlang()">00</option></select>';
 	// followed by xlall anyway
 }
 /* nodejs: show help */
@@ -3108,6 +3108,10 @@ startnode() {
 		console.log(this.subst(this.xl0('node.help')[0], this.version));
 		this.handlerecurse();
 	}
+}
+/* visual browser: change cache size (currently only visible in debug _00) */
+chgcache() {
+	this.maxcache = document.getElementById('dbgcache').value;
 }
 /* debug */
 prgr(gr, indent) {
