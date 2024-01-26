@@ -748,8 +748,8 @@ handlerecurse(already, index) {
 		// beyond end of allfiles, finished recursion
 		this.allfiles = already;
 		this.stats.total = this.totnum = already.length;
-		if (this.totnum > 0)
-			this.handleonex();
+		if (this.totnum > 0) this.handleonex();
+		else this.mappx('onimback.nomatch');
 		return;
 	}
 	this.fs.stat(d, (err, stat) => {
@@ -1005,6 +1005,7 @@ handleonex() {
 		rawname = rawname.substring(rawname.indexOf("/") + 1);
 	}
 	if (this.stepmode === 2) {
+		// skip rest
 		this.shownormal();
 		return this.handlenext();
 	}
@@ -1024,6 +1025,7 @@ handleonex() {
 			/* jpeg preview */
 			this.qappx('main.file.jpeg', rawname);
 			if (f.name) {
+				// read jpeg file for preview
 				const fr = new FileReader();
 				fr.onload = (evt) => {
 					let contents = evt.target.result;
@@ -1038,6 +1040,7 @@ handleonex() {
 				fr.readAsDataURL(f);
 			}
 			else {
+				// simply set image src
 				document.getElementById('jpegpreview').src = f;
 			}
 		}
