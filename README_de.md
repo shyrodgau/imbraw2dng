@@ -33,14 +33,17 @@ Alle diese Möglichkeiten belassen die Dateien 1:1, wie sie sind, was für JPEGs
 Im Folgenden liegt der Fokus darauf, während des Kopierens die RAW-Dateien ins DNG-Format umzuwandeln.
 
 1. [imbraw2dng_de.html](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html) im Browser öffnen, Micro-SD Karte herausnehmen und in PC oder Smartphone stecken, 
-Dateien aus `IMBACK/PHOTO` und `IMBACK/MOVIE` Ordner in das blaue Feld ziehen
+Dateien aus `IMBACK/PHOTO` und `IMBACK/MOVIE` Ordner in das blaue Feld ziehen. [(Details)](#benutzung)
 
 1. Micro-SD Karte herausnehmen und in PC oder in Smartphone stecken, [imbraw2dng_de.html](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html) im `IMBACK` Ordner 
-darauf abspeichern und Karte zurück in ImB. PC oder Smartphone ins ImB WLAN hängen und dann [http://192.168.1.254/IMBACK/imbraw2dng_de.html](http://192.168.1.254/IMBACK/imbraw2dng_de.html) vom ImB im Browser öffnen
+darauf abspeichern und Karte zurück in ImB. PC oder Smartphone ins ImB WLAN hängen und dann [http://192.168.1.254/IMBACK/imbraw2dng_de.html](http://192.168.1.254/IMBACK/imbraw2dng_de.html) vom ImB im Browser öffnen. 
+[(Details)](#gucken-auf-imback-selbst)
 
-1. Micro-SD Karte herausnehmen und in PC stecken, [imbraw2dng_de.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.js) herunterladen und `node imbraw2dng_de.js <Pfadname_vom_der_ImB_microsd>` aufrufen
+1. Micro-SD Karte herausnehmen und in PC stecken, [imbraw2dng_de.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.js) herunterladen und `node imbraw2dng_de.js <Pfadname_vom_der_ImB_microsd>` aufrufen. 
+[(Details)](#kommandozeile-mit-nodejs)
 
-1. PC ins WLAN von ImB verbinden, [imbraw2dng_de.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.js) herunterladen und `node imbraw2dng_de.js -R -J -O` aufrufen
+1. PC ins WLAN von ImB verbinden, [imbraw2dng_de.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.js) herunterladen und `node imbraw2dng_de.js -R -J -O` aufrufen.
+[(Details)](#kommandozeile-mit-nodejs)
 
 
 ## Installation

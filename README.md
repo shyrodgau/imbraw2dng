@@ -32,14 +32,17 @@ These ways keep all files 1:1 as the were which usually is fine for JPEGs or mov
 The following ways focus on converting RAW files into DNG while copying.
 
 1. Open [imbraw2dng.html](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) in browser, Take Micro-SD out of ImB and put into PC or smartphone. 
-Drag and drop files from `IMBACK/PHOTO` and `IMBACK/MOVIE` into the blue field
+Drag and drop files from `IMBACK/PHOTO` and `IMBACK/MOVIE` into the blue field. [(Details)](#usage)
 
 1. Take Micro-SD out of ImB and put into PC or smartphone. Copy [imbraw2dng.html](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) into `IMBACK` folder on MicroSD and put card back into ImB. 
 Connect Smartphone or PC in ImB Wifi and navigate browser to [http://192.168.1.254/IMBACK/imbraw2dng.html](http://192.168.1.254/IMBACK/imbraw2dng.html) from ImB.
+[(Details)](#browsing-on-the-imback)
 
-1. Take Micro-SD out of ImB and put into PC. Download [imbraw2dng.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) and invoke `node imbraw2dng.js <path_of_the_microsd>`
+1. Take Micro-SD out of ImB and put into PC. Download [imbraw2dng.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) and invoke `node imbraw2dng.js <path_of_the_microsd>`.
+[(Details)](#command-line-using-nodejs)
 
-1. Conect PC into ImB Wifi, download [imbraw2dng.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) and invoke `node imbraw2dng.js -R -J -O`
+1. Conect PC into ImB Wifi, download [imbraw2dng.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) and invoke `node imbraw2dng.js -R -J -O`.
+[(Details)](#command-line-using-nodejs)
 
 
 
