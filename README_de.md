@@ -19,6 +19,30 @@ Für MF sind nicht alle Winkel-Einstellungen abgedeckt. Wenn du sie brauchst und
 
 Probleme und Ideen können auch in der [I'm Back Users Gruppe auf Facebook](https://www.facebook.com/groups/1212628099691211) diskutiert werden.
 
+## Grundlagen ;tldr
+
+Es gibt die folgenden Möglichkeiten, um Dateien (Bilder oder Filme) von ImB weiterzureichen:
+
+1. Micro-SD Karte herausnehmen und in PC oder (ggf. per Adapter) in/an Smartphone stecken. Dateien auf anderes Medium kopieren
+
+1. Smartphone per WLAN mit ImB verbinden und Android- oder Apple-App zum Kopieren aufs Smartphone verwenden
+
+1. (nicht dokumentert) Smartphone oder PC per WLAN verbinden und per Browser von http://192.168.1.254 durch die Dateien navigieren und herunterladen
+
+Alle diese Möglichkeiten belassen die Dateien 1:1, wie sie sind, was für JPEGs und Filme in der Regel gewollt ist, bei RAW Bildern aber in einer Art Sackgasse münden kann.   
+Im Folgenden liegt der Fokus darauf, während des Kopierens die RAW-Dateien ins DNG-Format umzuwandeln.
+
+1. [imbraw2dng_de.html](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html) im Browser öffnen, Micro-SD Karte herausnehmen und in PC oder Smartphone stecken, 
+Dateien aus `IMBACK/PHOTO` und `IMBACK/MOVIE` Ordner in das blaue Feld ziehen
+
+1. Micro-SD Karte herausnehmen und in PC oder in Smartphone stecken, [imbraw2dng_de.html](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html) im `IMBACK` Ordner 
+darauf abspeichern und Karte zurück in ImB. PC oder Smartphone ins ImB WLAN hängen und dann [http://192.168.1.254/IMBACK/imbraw2dng_de.html](http://192.168.1.254/IMBACK/imbraw2dng_de.html) vom ImB im Browser öffnen
+
+1. Micro-SD Karte herausnehmen und in PC stecken, [imbraw2dng_de.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.js) herunterladen und `node imbraw2dng_de.js <Pfadname_vom_der_ImB_microsd>` aufrufen
+
+1. PC ins WLAN von ImB verbinden, [imbraw2dng_de.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.js) herunterladen und `node imbraw2dng_de.js -R -J -O` aufrufen
+
+
 ## Installation
 
 Die aktuelle Version ist [V3.1.4_7062a51 - mir fällt nix mehr zum Verbessern ein](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.1.4_7062a51). 
