@@ -31,6 +31,7 @@ Es gibt die folgenden Möglichkeiten, um Dateien (Bilder oder Filme) von ImB wei
 
 Alle diese Möglichkeiten belassen die Dateien 1:1, wie sie sind, was für JPEGs und Filme in der Regel gewollt ist, bei RAW Bildern aber in einer Art Sackgasse münden kann.   
 Im Folgenden liegt der Fokus darauf, während des Kopierens die RAW-Dateien ins DNG-Format umzuwandeln.
+Es wird je nur eine Datei für Benutzung im Browser und/oder eine Datei für Benutzung mit node.js gebraucht.
 
 1. [imbraw2dng_de.html](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html) im Browser öffnen, Micro-SD Karte herausnehmen und in PC oder Smartphone stecken, 
 Dateien aus `IMBACK/PHOTO` und `IMBACK/MOVIE` Ordner in das blaue Feld ziehen. [(Details)](#benutzung)
