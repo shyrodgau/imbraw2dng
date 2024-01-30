@@ -1,5 +1,5 @@
 <!-- SPDX-License-Identifier: 0BSD -->
-# imbraw2dng - Convert RAW from [I'm Back(R)](https://imback.eu) into DNG
+# imbraw2dng - Convert RAW files from [I'mBack<sup>&reg;</sup>&nbsp;35mm/MF](https://imback.eu) into DNG
 
 This is free software ([0-clause BSD-License](LICENSE.txt)) and not commercially supported.
 
@@ -34,7 +34,7 @@ The following ways focus on converting RAW files into DNG while copying. You onl
 1. Open [imbraw2dng.html](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) in browser, Take Micro-SD out of ImB and put into PC or smartphone. 
 Drag and drop files from `IMBACK/PHOTO` and `IMBACK/MOVIE` into the blue field. [(Details)](#usage)
 
-1. Take Micro-SD out of ImB and put into PC or smartphone. Copy [imbraw2dng.html](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) into `IMBACK` folder on MicroSD and put card back into ImB. 
+1. Take Micro-SD out of ImB and put into PC or smartphone. Copy [imbraw2dng.html](https://raw.githubusercontent.com/shyrodgau/imbraw2dng/master/imbraw2dng.html) into `IMBACK` folder on MicroSD and put card back into ImB. 
 Connect Smartphone or PC in ImB Wifi and navigate browser to [http://192.168.1.254/IMBACK/imbraw2dng.html](http://192.168.1.254/IMBACK/imbraw2dng.html) from ImB.
 [(Details)](#browsing-on-the-imback)
 
@@ -99,7 +99,7 @@ If and when you have [node.js](https://nodejs.org) version &ge; V20.10(LTS) inst
 [imbraw2dng.js](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.js). Naming conventions according to [Internationalization](#internationalization) 
 apply. Parameter and calling help can be read with `node imbraw2dng.js`.
 ```
-Usage: node imbraw2dng_de.js [-l lang] [-f] [-d dir] [-nc | -co] { [-R] [-J] [-O] [-n yyyy_mmdd_hhmmss] | [--] <files-or-dirs> }
+Usage: node imbraw2dng.js [-l lang] [-f] [-d dir] [-nc | -co] { [-R] [-J] [-O] [-n yyyy_mmdd_hhmmss] | [--] <files-or-dirs> }
 Options:
  -h - show this help
  -nc - do not use coloured text

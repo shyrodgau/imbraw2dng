@@ -10,7 +10,7 @@ Based on work by Michele Asciutti.
 
 https://github.com/shyrodgau/imbraw2dng
 
-Usage: node imbraw2dng_de.js [-l lang] [-f] [-d dir] [-nc | -co] { [-R] [-J] [-O] [-n yyyy_mmdd_hhmmss] | [--] <files-or-dirs> }
+Usage: node imbraw2dng.js [-l lang] [-f] [-d dir] [-nc | -co] { [-R] [-J] [-O] [-n yyyy_mmdd_hhmmss] | [--] <files-or-dirs> }
 Options:
  -h - show this help
  -nc - do not use coloured text
