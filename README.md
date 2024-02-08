@@ -13,7 +13,7 @@ They are not really "B&W RAW" but actually the RAW sensor data that also contain
 
 The page can do parts (or partially more - display RAW) of the mobile phone app.
 
-Currently known to work for current firmware on 35mm (also for "Angle medium" and "small") and MF I'm Back. Not all angle variants are 
+Currently known to work for current firmware on 35mm (also for "Angle medium" and "small") and I'm Back MF (medium format). Not all angle variants are 
 covered for MF, if you need it and can help contact me.
 
 Problems and ideas can also be discussed in the [I'm Back Users Group on Facebook](https://www.facebook.com/groups/1212628099691211).
@@ -87,7 +87,7 @@ select if you want to process or skip it and also if this same action should be 
 
 ### Browsing on the ImBack
 
-You can put the html file (also renamed according to [internationalization](#internationalization) ) on the micro-SD that is inside the ImBack, 
+You can put the html file (also renamed according to [internationalization](#internationalization)) on the micro-SD that is inside the ImBack, 
 let's say into the `IMBACK` folder. Then you connect your PC to the ImBack Wifi and browse [your Imback](http://192.168.1.254/IMBACK/imbraw2dng.html) (or with the changed name).
 
 It offers you direct processing/copying of files newer than a given timestamp, or you can use the visual browser to look at the files on the ImBack 

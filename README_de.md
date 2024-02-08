@@ -14,7 +14,7 @@ Es sind keine "Schwarz-Weiß RAW"-Dateien, sondern die echten Roh-Sensordaten mi
 
 Die Seite kann inzwischen auch Teilfunktionen (teils auch mehr - nämlich RAW anzeigen) der Mobiltelefon App.
 
-Aktuell scheint es für die aktuellen Firmwares auf 35mm (auch für "Winkel Mittel" und "klein") und auf MF I'm Back zu funktionieren. 
+Aktuell scheint es für die aktuellen Firmwares auf 35mm (auch für "Winkel Mittel" und "klein") und auf I'm Back MF (Mittelformat) zu funktionieren. 
 Für MF sind nicht alle Winkel-Einstellungen abgedeckt. Wenn du sie brauchst und ein bisschen mithelfen magst, nimm Kontakt auf.
 
 Probleme und Ideen können auch in der [I'm Back Users Gruppe auf Facebook](https://www.facebook.com/groups/1212628099691211) diskutiert werden.
