@@ -49,7 +49,7 @@ darauf abspeichern und Karte zurück in ImB. PC oder Smartphone ins ImB WLAN hä
 
 ## Installation
 
-Die aktuelle Version ist [V3.1.8_c5c31bb - mir fällt nix mehr zum Verbessern ein](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.1.8_c5c31bb). 
+Die aktuelle Version ist [V3.1.8_4055902 - node.js Aufruf verbessert](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.1.8_4055902). 
 Anmerkung: Weiterentwicklung wenn Fehler gefunden, neue Übersetzung beigesteuert, oder neues Bildformat.
 
 Die Datei [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.html) auf den PC kopieren oder aus der 
