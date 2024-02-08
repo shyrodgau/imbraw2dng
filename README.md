@@ -48,7 +48,7 @@ Connect Smartphone or PC in ImB Wifi and navigate browser to [http://192.168.1.2
 
 ## Installation
 
-The current release is [V3.1.4_7062a51 - dont know what to do next](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.1.4_7062a51). 
+The current release is [V3.1.8_c5c31bb - dont know what to do next](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.1.8_c5c31bb). 
 Note: further development when errors reported, new translation contributed or new image format.
 
 Copy the [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.html) file to your PC or extract it from the release 
