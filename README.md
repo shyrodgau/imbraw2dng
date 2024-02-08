@@ -99,7 +99,7 @@ If and when you have [node.js](https://nodejs.org) version &ge; V20.10(LTS) inst
 [imbraw2dng.js](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.js). Naming conventions according to [Internationalization](#internationalization) 
 apply. Parameter and calling help can be read with `node imbraw2dng.js`.
 ```
-Usage: node imbraw2dng.js [-l lang] [-f] [-d dir] [-nc | -co] [-R] [-J] [-O] [-n yyyy_mmdd_hhmmss] [ [--] <files-or-dirs> ]
+Usage: node imbraw2dng.js [-l lang] [-f] [-d dir] [-nc | -co] [-R] [-J] [-O] [-n yyyy_mmdd_hhmmss] [ [--] <files-or-dirs>* ]
 Options:
  -h - show this help
  -nc - do not use coloured text
