@@ -10,7 +10,7 @@ Based on work by Michele Asciutti.
 
 https://github.com/shyrodgau/imbraw2dng
 
-Usage: node imbraw2dng.js [-l lang] [-f] [-d dir] [-nc | -co] { [-R] [-J] [-O] [-n yyyy_mmdd_hhmmss] | [--] <files-or-dirs> }
+Usage: node imbraw2dng.js [-l lang] [-f] [-d dir] [-nc | -co] [-R] [-J] [-O] [-n yyyy_mmdd_hhmmss] [ [--] <files-or-dirs>* ]
 Options:
  -h - show this help
  -nc - do not use coloured text
@@ -19,16 +19,13 @@ Options:
          Language can also be set by changing filename to imbraw2dng_XX.js .
  -d dir - put output files into dir
  -f - overwrite existing files
+ -R - get RAW from ImB connected via Wifi or from given directories
+ -J - get JPEG from ImB connected via Wifi or from given directories
+ -O - get non-RAW/non-JPEG from ImB connected via Wifi or from given directories
+ -n yyyy_mmdd_hhmmss (or prefix of any length) - select only newer than this timestamp from ImB or from given directories
+ -----
  -- - treat rest of parameters as local files or dirs
- -----
  <files-or-dirs> - process local files or directories recursively, e.g. on MicroSD from ImB
- -----
- -R - get RAW from ImB connected via Wifi
- -J - get JPEG from ImB connected via Wifi
- -O - get non-RAW/non-JPEG from ImB connected via Wifi
- -n yyyy_mmdd_hhmmss (or prefix of any length) - select only newer than this timestamp from ImB
- -----
-<files-or-dirs> and -R/-J/-O/-n can not be used at the same time.
 
 The following js code is identical to the js inside imbraw2dng.html.
 
@@ -58,24 +55,27 @@ constructor() {
 	}
 }
 version = "V3.1.7_DEVEL"; // actually const
-alllangs = [ 'de' , 'en', 'fr', '00' ]; // actually const
+alllangs = [ 'de' , 'en', 'fr', 'ru', '00' ]; // actually const
 texts = { // actually const
-	langs: { de: 'DE', en: 'EN', fr: 'FR' },
+	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU' },
 	main: {
 		title: {
 			de: 'ImB RAW nach DNG Konverter',
 			en: 'ImB RAW to DNG converter',
 			fr: 'Convertisseur ImB RAW a DNG',
+			ru: 'Конвертер ImB RAW в DNG'
 		},
 		file: {
 			de: 'Datei',
 			en: 'File',
 			fr: 'Fiche',
+			ru: 'файл'
 		},
 		help: {
 			de: '? Hilfe Doku',
 			en: '? Help Doc',
 			fr: '? Aide Doc',
+			ru: '? Помощь Док'
 		},
 		helplink: {
 			de: 'https://shyrodgau.github.io/imbraw2dng/README_de',
@@ -85,22 +85,26 @@ texts = { // actually const
 		generaladvice: {
 			de: 'Daten werden nur im Browser verarbeitet, nicht im \'Internet\'.<br>Kann sein, dass der Browser fragt, ob Sie zulassen wollen, dass mehrere Dateien heruntergeladen werden.<br>Dateien, die nicht oder unbekannte RAW-Dateien sind, werden 1:1 kopiert.',
 			en: 'Data processing is entirely in the browser, not in \'the internet\'<br>Browser may ask you if you want to allow downloading multiple files.<br>Not or unrecognized RAW Files simply will be copied.',
-			fr: 'L\'information est entièrement traitée dans le navigateur et non sur \'Internet\'<br>Le navigateur peux questionner que vous acceptez le téléchargement de beaucoup de fiches.<br>Fiches pas-RAW ou RAW inconnue sont copiée 1:1.'
+			fr: 'L\'information est entièrement traitée dans le navigateur et non sur \'Internet\'<br>Le navigateur peux questionner que vous acceptez le téléchargement de beaucoup de fiches.<br>Fiches pas-RAW ou RAW inconnue sont copiée 1:1.',
+			ru: 'Данные обрабатываются только в браузере, а не в \'Интернете\'.<br>Браузер может спросить, хотите ли вы разрешить загрузку нескольких файлов.<br>Файлы, которые не являются или неизвестными файлами RAW, копируются 1:1.'
 		},
 		drophere: {
 			de: 'Dateien von ImB hier ablegen: ',
 			en: 'Drop Files from ImB here: ',
-			fr: 'Posez fiches de ImB ici:'
+			fr: 'Posez fiches de ImB ici: ',
+			ru: 'Храните файлы из ImB здесь: '
 		},
 		selectraw: {
 			de: 'Oder diese Seite per WLAN <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README_de.md#gucken-auf-imback-selbst\'>direkt von ImB</a> verwenden.<br>Oder <tt>.RAW</tt> Datei(en) auswählen:',
-			en: 'Or use this page via Wifi <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\'>directly from ImB</a>.<br> Or select <tt>.RAW</tt> File(s):',
-			fr: 'Ou utiliez cette page <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\'>via Wifi sur ImB</a>.<br> Ou selectez <tt>.RAW</tt> fiche(s):'
+			en: 'Or use this page via Wifi <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\'>directly from ImB</a>.<br>Or select <tt>.RAW</tt> File(s):',
+			fr: 'Ou utiliez cette page <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\'>via Wifi sur ImB</a>.<br>Ou selectez <tt>.RAW</tt> fiche(s):',
+			ru: 'Или используйте эту страницу через Wi-Fi <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\'>прямо из ImB</a>.<br>Или выберите файл(ы) <tt>RAW</tt>:'
 		},
 		stillcounting: {
 			de: '... zähle ... ',
 			en: '... counting ... ',
-			fr: '... compter ...'
+			fr: '... compter ...',
+			ru: '... подсчет ...'
 		},
 		types: {
 			rawpics: {
@@ -487,7 +491,7 @@ texts = { // actually const
 	},
 	node: {
 		help: {
-			en: [ '\x1b[1mWelcome to imbraw2dng\x1b[0m $$0 !', 'Usage: node $$0 \x1b[1m[\x1b[0m-l lang\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-f\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-d dir\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-nc \x1b[1m|\x1b[0m -co\x1b[1m]\x1b[0m \x1b[1m{\x1b[0m \x1b[1m[\x1b[0m-R\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-J\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-O\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-n yyyy_mmdd_hhmmss\x1b[1m]\x1b[0m \x1b[1m|\x1b[0m \x1b[1m[\x1b[0m--\x1b[1m]\x1b[0m \x1b[1m<\x1b[0mfiles-or-dirs\x1b[1m>\x1b[0m \x1b[1m}\x1b[0m',
+			en: [ '\x1b[1mWelcome to imbraw2dng\x1b[0m $$0 !', 'Usage: node $$0 \x1b[1m[\x1b[0m-l lang\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-f\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-d dir\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-nc \x1b[1m|\x1b[0m -co\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-R\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-J\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-O\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-n yyyy_mmdd_hhmmss\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m \x1b[1m[\x1b[0m--\x1b[1m]\x1b[0m \x1b[1m<\x1b[0mfiles-or-dirs\x1b[1m>*\x1b[0m \x1b[1m]\x1b[0m',
 				'Options:',
 				' \x1b[1m-h\x1b[0m - show this help',
 				' \x1b[1m-nc\x1b[0m - do not use coloured text',
@@ -496,17 +500,14 @@ texts = { // actually const
 				'         Language can also be set by changing filename to imbraw2dng_XX.js .',
 				' \x1b[1m-d dir\x1b[0m - put output files into dir',
 				' \x1b[1m-f\x1b[0m - overwrite existing files',
+				' \x1b[1m-R\x1b[0m - get RAW from ImB connected via Wifi or from given directories',
+				' \x1b[1m-J\x1b[0m - get JPEG from ImB connected via Wifi or from given directories',
+				' \x1b[1m-O\x1b[0m - get non-RAW/non-JPEG from ImB connected via Wifi or from given directories',
+				' \x1b[1m-n yyyy_mmdd_hhmmss\x1b[0m (or prefix of any length) - select only newer than this timestamp from ImB or from given directories',
+				' -----',
 				' \x1b[1m--\x1b[0m - treat rest of parameters as local files or dirs',
-				' -----',
-				' <files-or-dirs> - process local files or directories recursively, e.g. on MicroSD from ImB',
-				' -----',
-				' \x1b[1m-R\x1b[0m - get RAW from ImB connected via Wifi',
-				' \x1b[1m-J\x1b[0m - get JPEG from ImB connected via Wifi',
-				' \x1b[1m-O\x1b[0m - get non-RAW/non-JPEG from ImB connected via Wifi',
-				' \x1b[1m-n yyyy_mmdd_hhmmss\x1b[0m (or prefix of any length) - select only newer than this timestamp from ImB',
-				' -----',
-				'<files-or-dirs> and -R/-J/-O/-n can not be used at the same time.' ,],
-			fr: [ '\x1b[1mBienvenu a imbraw2dng\x1b[0m $$0 !', 'Operation: node $$0 \x1b[1m[\x1b[0m-l lang\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-f\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-d repertoire\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-nc \x1b[1m|\x1b[0m -co\x1b[1m]\x1b[0m \x1b[1m{\x1b[0m \x1b[1m[\x1b[0m-R\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-J\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-O\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-n yyyy_mmdd_hhmmss\x1b[1m]\x1b[0m \x1b[1m|\x1b[0m \x1b[1m[\x1b[0m--\x1b[1m]\x1b[0m \x1b[1m<\x1b[0mfiches-ou-repertoires\x1b[1m>\x1b[0m \x1b[1m}\x1b[0m',
+				' <files-or-dirs> - process local files or directories recursively, e.g. on MicroSD from ImB',],
+			fr: [ '\x1b[1mBienvenu a imbraw2dng\x1b[0m $$0 !', 'Operation: node $$0 \x1b[1m[\x1b[0m-l lang\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-f\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-d repertoire\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-nc \x1b[1m|\x1b[0m -co\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-R\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-J\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-O\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-n yyyy_mmdd_hhmmss\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m \x1b[1m[\x1b[0m--\x1b[1m]\x1b[0m \x1b[1m<\x1b[0mfiches-ou-repertoires\x1b[1m>*\x1b[0m \x1b[1m]\x1b[0m',
 				'Choix:',
 				' \x1b[1m-h\x1b[0m - montrer cette aide',
 				' \x1b[1m-nc\x1b[0m - n\'utilisez pas de texte en couleur',
@@ -515,17 +516,14 @@ texts = { // actually const
 				'         La langue peut également être définie en changeant le nom du fiche en imbraw2dng_XX.js .',
 				' \x1b[1m-d repertoire\x1b[0m - mettre les fiches de sortie dans le répertoire',
 				' \x1b[1m-f\x1b[0m - écraser les fiches existants',
+				' \x1b[1m-R\x1b[0m - obtenez RAW d\'ImB connecté via Wifi ou repertoires donnés',
+				' \x1b[1m-J\x1b[0m - obtenez JPEG d\'ImB connecté via Wifi ou repertoires donnés',
+				' \x1b[1m-O\x1b[0m - obtenez du non-RAW/non-JPEG d\'ImB connecté via Wifi ou repertoires donnés',
+				' \x1b[1m-n yyyy_mmdd_hhmmss\x1b[0m (ou préfixe de n\'importe quelle longueur) - sélectionnez uniquement plus récent que cet horodatage d\'ImB ou repertoires donnés',
+				' -----',
 				' \x1b[1m--\x1b[0m - traiter le reste des paramètres comme des fiches ou des répertoires locaux',
-				' -----',
-				' <fiches-ou-repertoires> - traiter des fiches ou des répertoires locaux de manière récursive, par exemple sur MicroSD d\'ImB',
-				' -----',
-				' \x1b[1m-R\x1b[0m - obtenez RAW d\'ImB connecté via Wifi',
-				' \x1b[1m-J\x1b[0m - obtenez JPEG d\'ImB connecté via Wifi',
-				' \x1b[1m-O\x1b[0m - obtenez du non-RAW/non-JPEG d\'ImB connecté via Wifi',
-				' \x1b[1m-n yyyy_mmdd_hhmmss\x1b[0m (ou préfixe de n\'importe quelle longueur) - sélectionnez uniquement plus récent que cet horodatage d\'ImB',
-				' -----',
-				'<fichiers-ou-repertoires> ete -R/-J/-O/-n ne peut pas être utilisé en même temps.' ,],
-			de: [ '\x1b[1mWillkommen bei imbraw2dng\x1b[0m $$0 !', 'Aufruf: node $$0 \x1b[1m[\x1b[0m-l sprache\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-f\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-d ordner\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-nc \x1b[1m|\x1b[0m -co\x1b[1m]\x1b[0m \x1b[1m{\x1b[0m \x1b[1m[\x1b[0m-R\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-J\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-O\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-n yyyy_mmdd_hhmmss\x1b[1m]\x1b[0m \x1b[1m|\x1b[0m \x1b[1m[\x1b[0m--\x1b[1m]\x1b[0m \x1b[1m<\x1b[0mdateien-oder-ordner\x1b[1m>\x1b[0m \x1b[1m}\x1b[0m',
+			' <fiches-ou-repertoires> - traiter des fiches ou des répertoires locaux de manière récursive, par exemple sur MicroSD d\'ImB',],
+			de: [ '\x1b[1mWillkommen bei imbraw2dng\x1b[0m $$0 !', 'Aufruf: node $$0 \x1b[1m[\x1b[0m-l sprache\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-f\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-d ordner\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-nc \x1b[1m|\x1b[0m -co\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-R\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-J\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-O\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-n yyyy_mmdd_hhmmss\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m \x1b[1m[\x1b[0m--\x1b[1m]\x1b[0m \x1b[1m<\x1b[0mdateien-oder-ordner\x1b[1m>*\x1b[0m \x1b[1m]\x1b[0m',
 				'Optionen:',
 				' \x1b[1m-h\x1b[0m - diesen Hilfetext zeigen',
 				' \x1b[1m-nc\x1b[0m - keinen farbigen Text zeigen',
@@ -534,16 +532,13 @@ texts = { // actually const
 				'         Die Sprache kann auch durch Umbenennen in imbraw2dng_XX.js geändert werden.',
 				' \x1b[1m-d ordner\x1b[0m - Ausgabedateien in diesen Ordner ablegen',
 				' \x1b[1m-f\x1b[0m - existierende Dateien überschreiben',
+				' \x1b[1m-R\x1b[0m - RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen konvertieren',
+				' \x1b[1m-J\x1b[0m - JPEG von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren',
+				' \x1b[1m-O\x1b[0m - Nicht-JPEG/Nicht-RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren',
+				' \x1b[1m-n yyyy_mmdd_hhmmss\x1b[0m (oder beliebig langer Anfang davon) - nur Dateien neuer als dieser Zeitstempel von ImB oder übergebenen Verzeichnissen holen',
+				' -----',
 				' \x1b[1m--\x1b[0m - weitere Parameter als lokale Dateien oder Ordner betrachten',
-				' -----',
-				' <dateien-oder-ordner> - lokale Dateien oder Ordner rekursiv (z.B. von der MicroSD Karte aus ImB) verarbeiten',
-				' -----',
-				' \x1b[1m-R\x1b[0m - RAW von per WLAN verbundener ImB konvertieren',
-				' \x1b[1m-J\x1b[0m - JPEG von per WLAN verbundener ImB kopieren',
-				' \x1b[1m-O\x1b[0m - Nicht-JPEG/Nicht-RAW von per WLAN verbundener ImB kopieren',
-				' \x1b[1m-n yyyy_mmdd_hhmmss\x1b[0m (oder beliebig langer Anfang davon) - nur Dateien neuer als dieser Zeitstempel von ImB holen',
-				' -----',
-				'<dateien-oder-ordner> und -R/-J/-O/-n können nicht gleichzeitig verwendet werden.',]
+				' <dateien-oder-ordner> - lokale Dateien oder Ordner rekursiv (z.B. von der MicroSD Karte aus ImB) verarbeiten',]
 		},
 		unkopt: {
 			en: '\x1b[31mUnknown Option:\x1b[0m $$0',
@@ -562,8 +557,8 @@ withcolours = true;
 /* node js: */
 outdir = '';
 ovwout = false;
-fromimbflags = 0;
-fromimbts = '0000';
+typeflags = 0;
+fromts = '0000';
 /* Data for the Imback variants and exif stuff */
 orients = [ '', 'none', '', 'upsidedown', '', '', 'clockwise', '', 'counterclockwise' ]; // actually const
 oriecw = [ 1, 6, 3, 8 ]; // clockwise indices // actually const
@@ -766,7 +761,13 @@ handlerecurse(already, index) {
 					console.log(JSON.stringify(err2));
 				}
 				else for (let i of f.filter(e => e.isFile())) {
-					already.push(i.path + this.pa.sep + i.name);
+					if ((i.name.substring(i.name.length -4).toUpperCase() === '.RAW' && (this.typeflags % 2)) ||
+						((i.name.substring(i.name.length -5).toUpperCase() === '.JPEG' || i.name.substring(i.name.length -4).toUpperCase() === '.JPG') && ((this.typeflags % 4) > 1)) ||
+						(i.name.substring(i.name.length -5).toUpperCase() !== '.JPEG' && i.name.substring(i.name.length -4).toUpperCase() !== '.JPG' &&
+							i.name.substring(i.name.length -4).toUpperCase() !== '.RAW' && ((this.typeflags % 7) > 3))) {
+						if (i.name.substring(0, this.fromts.length) >= this.fromts)
+							already.push(i.path + this.pa.sep + i.name);
+					}
 					//console.log(i);
 				}
 			});
@@ -1959,9 +1960,9 @@ imbdoit() {
 	if (document && document.getElementById('imbstartts').value != undefined && document.getElementById('imbstartts').value.length > 0) {
 		compval = document.getElementById('imbstartts').value;
 	}
-	else compval = this.fromimbts;
+	else compval = this.fromts;
 	if ((document && document.getElementById('rpicfromimb').checked) ||
-		(this.fromimbflags % 2)) {
+		(this.typeflags % 2)) {
 		for (const e of this.rimbpics) {
 			let rawname = e;
 			while (rawname.indexOf("/") > -1)
@@ -1971,7 +1972,7 @@ imbdoit() {
 		}
 	}
 	if ((document && document.getElementById('picfromimb').checked) ||
-		((this.fromimbflags % 4) > 1)) {
+		((this.typeflags % 4) > 1)) {
 		for (const e of this.imbpics) {
 			let rawname = e;
 			while (rawname.indexOf("/") > -1)
@@ -1981,7 +1982,7 @@ imbdoit() {
 		}
 	}
 	if ((document && document.getElementById('movfromimb').checked) ||
-		((this.fromimbflags % 7) > 3)) {
+		((this.typeflags % 7) > 3)) {
 		for (const e of this.imbmovies) {
 			let rawname = e;
 			while (rawname.indexOf("/") > -1)
@@ -3029,7 +3030,7 @@ startnode() {
 				}
 				else if (flagging === 3) {
 					flagging = 0;
-					this.fromimbts = v;
+					this.fromts = v;
 					datefound = true;
 				}
 				else if (v.substring(0,4)==='-CSV' && this.debugflag) {
@@ -3060,7 +3061,7 @@ startnode() {
 				}
 				else if (v.substring(0,2)==='-n') {
 					if (v.substring(2).length > 0) {
-						this.fromimbts = v.substring(2);
+						this.fromts = v.substring(2);
 						datefound = true;
 					}
 					else
@@ -3073,13 +3074,13 @@ startnode() {
 					this.ovwout = true;
 				}
 				else if (v ==='-R') {
-					if (!(this.fromimbflags % 2)) this.fromimbflags += 1;
+					if (!(this.typeflags % 2)) this.typeflags += 1;
 				}
 				else if (v ==='-J') {
-					if ((this.fromimbflags % 4) < 2) this.fromimbflags += 2;
+					if ((this.typeflags % 4) < 2) this.typeflags += 2;
 				}
 				else if (v ==='-O') {
-					if ((this.fromimbflags % 8) < 4) this.fromimbflags += 4;
+					if ((this.typeflags % 8) < 4) this.typeflags += 4;
 				}
 				else if (v.substring(0,1) === '-') {
 					console.log(this.subst(this.xl0('node.unkopt'), v));
@@ -3096,20 +3097,21 @@ startnode() {
 		console.log(this.xl0('node.missingval'));
 		wanthelp = true;
 	}
-	else if (datefound && 0 === this.fromimbflags) this.fromimbflags = 7;
+	else if (datefound && 0 === this.typeflags) this.typeflags = 7;
 
-	if (wanthelp || (this.fromimbflags === 0 && this.totnum === 0) || (this.fromimbflags > 0 && this.totnum > 0)) {
+	if (wanthelp || (this.typeflags === 0 && this.totnum === 0)) {
 		this.help(process.argv[1]);
 		console.log('');
 		return;
 	}
-	else if (this.fromimbflags > 0) {
-		console.log(this.subst(this.xl0('node.help')[0], this.version));
-		this.checkimbnode();
-	}
 	else if (this.totnum > 0) {
 		console.log(this.subst(this.xl0('node.help')[0], this.version));
+		if (this.typeflags === 0) this.typeflags = 7;
 		this.handlerecurse();
+	}
+	else if (this.typeflags > 0) {
+		console.log(this.subst(this.xl0('node.help')[0], this.version));
+		this.checkimbnode();
 	}
 }
 /* visual browser: change cache size (currently only visible in debug _00) */
@@ -3132,35 +3134,27 @@ prxl(key, el) {
 		try{
 		if (typeof el['de'] === 'string') {
 			let out = key + ';';
-			let a = el['de'];
-			let b = '"';
-			if (-1 !== a.indexOf('"')) b = '\'';
-			out += b + a  + b + ';';
-			a = el['en'];
-			b = '"';
-			if (-1 !== a.indexOf('"')) b = '\'';
-			out += b + a  + b + ';';
-			a = el['fr'];
-			b = '"';
-			if (-1 !== a.indexOf('"')) b = '\'';
-			out += b + a  + b + ';';
+			for (const l of this.alllangs) {
+				if (undefined !== el[l]) {
+					let a = el[l];
+					let b = '"';
+					if (-1 !== a.indexOf('"')) b = '\'';
+					out += b + a  + b + ';';
+				} else out += ';'
+			}
 			console.log(out);
 		}
 		else if (typeof el['de'][0] === 'string') {
 			for (let i=0; i< el['de'].length; i++) {
 				let out = key + '[' + i + '];';
-				let a = el['de'][i];
-				let b = '"';
-				if (-1 !== a.indexOf('"')) b = '\'';
-				out += b + a  + b + ';';
-				a = el['en'][i];
-				b = '"';
-				if (-1 !== a.indexOf('"')) b = '\'';
-				out += b + a  + b + ';';
-				a = el['fr'][i];
-				b = '"';
-				if (-1 !== a.indexOf('"')) b = '\'';
-				out += b + a  + b + ';';
+				for (const l of alllangs) {
+					if (undefined !== el[l][i]) {
+						let a = el[l][i];
+						let b = '"';
+						if (-1 !== a.indexOf('"')) b = '\'';
+						out += b + a  + b + ';';
+					} else out += ';';
+				}
 				console.log(out);
 			}
 		}
