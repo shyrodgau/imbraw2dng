@@ -3147,8 +3147,8 @@ prxl(key, el) {
 		else if (typeof el['de'][0] === 'string') {
 			for (let i=0; i< el['de'].length; i++) {
 				let out = key + '[' + i + '];';
-				for (const l of alllangs) {
-					if (undefined !== el[l][i]) {
+				for (const l of this.alllangs) {
+					if (undefined !== el[l] && undefined !== undefined !== el[l][i]) {
 						let a = el[l][i];
 						let b = '"';
 						if (-1 !== a.indexOf('"')) b = '\'';
