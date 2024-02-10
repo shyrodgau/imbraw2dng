@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* 
-******************************************** 
+***************************************************** 
 
 imbraw2dng.js
 
@@ -29,7 +29,7 @@ Options:
 
 The following js code is identical to the js inside imbraw2dng.html.
 
-******************************************** 
+***************************************************** 
 
 Copyright (C) 2023,2024 by Stefan Hegny, stefan@hegny.de
 
@@ -41,7 +41,7 @@ DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS 
 
 // SPDX-License-Identifier: 0BSD
 
-********************************************
+***************************************************** 
 */
 "use strict;"
 class ImBC {

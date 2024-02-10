@@ -17,7 +17,8 @@ Die Seite kann inzwischen auch Teilfunktionen (teils auch mehr - nämlich RAW an
 Aktuell scheint es für die aktuellen Firmwares auf 35mm (auch für "Winkel Mittel" und "klein") und auf I'm Back MF (Mittelformat) zu funktionieren. 
 Für MF sind nicht alle Winkel-Einstellungen abgedeckt. Wenn du sie brauchst und ein bisschen mithelfen magst, nimm Kontakt auf.
 
-Probleme und Ideen können auch in der [I'm Back Users Gruppe auf Facebook](https://www.facebook.com/groups/1212628099691211) diskutiert werden.
+Probleme und Ideen können auch unter "[Issues](https://github.com/shyrodgau/imbraw2dng/issues)" oder "[Discussions](https://github.com/shyrodgau/imbraw2dng/discussions)"  
+des [github Repositorys](https://github.com/shyrodgau/imbraw2dng) oder in der [I'm Back Users Gruppe auf Facebook](https://www.facebook.com/groups/1212628099691211) diskutiert werden.
 
 ## Grundlagen ;tldr
 
@@ -26,6 +27,8 @@ Es gibt die folgenden Möglichkeiten, um Dateien (Bilder oder Filme) von ImB wei
 1. Micro-SD Karte herausnehmen und in PC oder (ggf. per Adapter) in/an Smartphone stecken. Dateien auf anderes Medium kopieren
 
 1. Smartphone per WLAN mit ImB verbinden und Android- oder Apple-App zum Kopieren aufs Smartphone verwenden
+
+1. ImB per USB-Kabel mit PC verbinden, auf ImB `MassStorage`/`Massenspeicher` wählen, weiter wie 1. ohne MicroSD
 
 1. (nicht dokumentert) Smartphone oder PC per WLAN verbinden und per Browser von http://192.168.1.254 durch die Dateien navigieren und herunterladen
 
@@ -40,8 +43,12 @@ Dateien aus `IMBACK/PHOTO` und `IMBACK/MOVIE` Ordner in das blaue Feld ziehen. [
 darauf abspeichern und Karte zurück in ImB. PC oder Smartphone ins ImB WLAN hängen und dann [http://192.168.1.254/IMBACK/imbraw2dng_de.html](http://192.168.1.254/IMBACK/imbraw2dng_de.html) vom ImB im Browser öffnen. 
 [(Details)](#gucken-auf-imback-selbst)
 
+1. ImB per USB-Kabel mit PC verbinden, auf ImB "MassStorage" wählen, weiter wie 1. oder 2. ohne MicroSD
+
 1. Micro-SD Karte herausnehmen und in PC stecken, [imbraw2dng_de.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.js) herunterladen und `node imbraw2dng_de.js <Pfadname_vom_der_ImB_microsd>` aufrufen. 
 [(Details)](#kommandozeile-mit-nodejs)
+
+1. ImB per USB-Kabel mit PC verbinden, auf ImB `MassStorage`/`Massenspeicher` wählen, weiter auf PC wie 4. ohne MicroSD
 
 1. PC ins WLAN von ImB verbinden, [imbraw2dng_de.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.js) herunterladen und `node imbraw2dng_de.js -R -J -O` aufrufen.
 [(Details)](#kommandozeile-mit-nodejs)

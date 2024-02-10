@@ -16,7 +16,8 @@ The page can do parts (or partially more - display RAW) of the mobile phone app.
 Currently known to work for current firmware on 35mm (also for "Angle medium" and "small") and I'm Back MF (medium format). Not all angle variants are 
 covered for MF, if you need it and can help contact me.
 
-Problems and ideas can also be discussed in the [I'm Back Users Group on Facebook](https://www.facebook.com/groups/1212628099691211).
+Problems and ideas can also be discussed on the "[Issues](https://github.com/shyrodgau/imbraw2dng/issues)" or "[Discussions](https://github.com/shyrodgau/imbraw2dng/discussions)" tabs 
+of the [github repos](https://github.com/shyrodgau/imbraw2dng) or in the [I'm Back Users Group on Facebook](https://www.facebook.com/groups/1212628099691211).
 
 ## Basics ;tldr
 
@@ -25,6 +26,8 @@ There are the following possibilities to make use of files (pictures or movies) 
 1. Take Micro-SD out of ImB and put into PC or (maybe using an adapter) into/to the smartphone. Copy files from the Micro-SD somewhere else
 
 1. Connect Smartphone with ImB Wifi and use Android- or Apple App to copy files to smartphone
+
+1. Connect ImB to PC via USB, select `MassStorage` on ImB, continue as 1. without MicroSD
 
 1. (not documented) Connect smartphone or PC with ImB Wifi and use browser on http://192.168.1.254 to browse and download files
 
@@ -38,8 +41,12 @@ Drag and drop files from `IMBACK/PHOTO` and `IMBACK/MOVIE` into the blue field. 
 Connect Smartphone or PC in ImB Wifi and navigate browser to [http://192.168.1.254/IMBACK/imbraw2dng.html](http://192.168.1.254/IMBACK/imbraw2dng.html) from ImB.
 [(Details)](#browsing-on-the-imback)
 
+1. Connect ImB to PC via USB, select `MassStorage` on ImB, continue as 1. or 2. without MicroSD
+
 1. Take Micro-SD out of ImB and put into PC. Download [imbraw2dng.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) and invoke `node imbraw2dng.js <path_of_the_microsd>`.
 [(Details)](#command-line-using-nodejs)
+
+1. Connect ImB to PC via USB, select `MassStorage` on ImB, continue on PC as 4. without MicroSD
 
 1. Connect PC into ImB Wifi, download [imbraw2dng.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) and invoke `node imbraw2dng.js -R -J -O`.
 [(Details)](#command-line-using-nodejs)
