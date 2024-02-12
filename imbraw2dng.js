@@ -54,7 +54,7 @@ constructor() {
 		if (process.platform.substring(0,3) === 'win') this.withcolours = false;
 	}
 }
-version = "V3.1.8_4055902"; // actually const
+version = "V3.1.9_DEVEL"; // actually const
 alllangs = [ 'de' , 'en', 'fr', 'ru', '00' ]; // actually const
 texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU' },
@@ -203,7 +203,7 @@ texts = { // actually const
 	},
 	onimback: {
 		connected: {
-			de: 'ImB Verbunden!! ',
+			de: 'ImB Verbunden! ',
 			en: 'ImB Connected! ',
 			fr: 'ImB Connecté! '
 		},
@@ -243,9 +243,9 @@ texts = { // actually const
 			fr: '\x1b[31mERREUR\x1b[0m lors de la connexion à imback. Dans le Wifi ImB?'
 		},
 		nomatch: {
-			de: 'Keine passenden Dateien gefunden.',
-			en: 'No matching files found',
-			fr: 'Aucun fiche correspondant trouvé'
+			de: 'Keine passenden Dateien gefunden. Kann vorübergehend sein.',
+			en: 'No matching files found. Might be temporary.',
+			fr: 'Aucun fiche correspondant trouvé. Peut-etre temporaire.'
 		}
 	},
 	process: {
@@ -337,7 +337,7 @@ texts = { // actually const
 		convertedx: {
 			de: '\x1b[32mFertig!\x1b[0m Nach $$0 konvertiert',
 			en: '\x1b[32mFinished!\x1b[0m Converted to $$0',
-			fr: '\x1b[31mFini!\x1b[0m Converti en $$0'
+			fr: '\x1b[32mFini!\x1b[0m Converti en $$0'
 		},
 		errsave: {
 			de: '\x1b[31mFEHLER!\x1b[0m Konnte Datei $$0 nicht speichern.',
@@ -559,6 +559,7 @@ outdir = '';
 ovwout = false;
 typeflags = 0;
 fromts = '0000';
+connmsg = false;
 /* Data for the Imback variants and exif stuff */
 orients = [ '', 'none', '', 'upsidedown', '', '', 'clockwise', '', 'counterclockwise' ]; // actually const
 oriecw = [ 1, 6, 3, 8 ]; // clockwise indices // actually const
@@ -1884,6 +1885,8 @@ checkimbnode(type, found) {
 			}
 			let b = '';
 			res.on('data', (chunk) => {
+				if (!this.connmsg) console.log('\x1b[32m' + this.xl('onimback.connected') + '\x1b[0m');
+				this.connmsg = true;
 				b += chunk;
 			});
 			res.on('end', () => {
