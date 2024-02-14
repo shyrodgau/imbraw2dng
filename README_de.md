@@ -42,7 +42,8 @@ Dateien aus `IMBACK/PHOTO` und `IMBACK/MOVIE` Ordner in das blaue Feld ziehen. [
 1. ImB per USB-Kabel mit PC verbinden, auf ImB "MassStorage" wählen, weiter wie 1. wobei MicroSD durch eingehängten USB Massenspeicher ersetzt
 
 1. Micro-SD Karte herausnehmen und in PC oder in Smartphone stecken, [imbraw2dng_de.html](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html) im `IMBACK` Ordner 
-darauf abspeichern und Karte zurück in ImB. PC oder Smartphone ins ImB WLAN hängen und dann [http://192.168.1.254/IMBACK/imbraw2dng_de.html](http://192.168.1.254/IMBACK/imbraw2dng_de.html) vom ImB im Browser öffnen. 
+darauf abspeichern. Karte sauber auswerfern und zurück in ImB. PC oder Smartphone ins ImB WLAN hängen 
+und dann [http://192.168.1.254/IMBACK/imbraw2dng_de.html](http://192.168.1.254/IMBACK/imbraw2dng_de.html) vom ImB im Browser öffnen. 
 [(Details)](#gucken-auf-imback-selbst)
 
 1. Micro-SD Karte herausnehmen und in PC stecken, [imbraw2dng_de.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.js) herunterladen und `node imbraw2dng_de.js <Pfadname_vom_der_ImB_microsd>` aufrufen. 

@@ -39,7 +39,8 @@ Drag and drop files from `IMBACK/PHOTO` and `IMBACK/MOVIE` into the blue field. 
 
 1. Connect ImB to PC via USB, select `MassStorage` on ImB, continue as 1. replacing MicroSD with mounted USB mass storage
 
-1. Take Micro-SD out of ImB and put into PC or smartphone. Copy [imbraw2dng.html](https://raw.githubusercontent.com/shyrodgau/imbraw2dng/master/imbraw2dng.html) into `IMBACK` folder on MicroSD and put card back into ImB. 
+1. Take Micro-SD out of ImB and put into PC or smartphone. Copy [imbraw2dng.html](https://raw.githubusercontent.com/shyrodgau/imbraw2dng/master/imbraw2dng.html) into `IMBACK` folder on MicroSD. 
+Eject cleanly and put card back into ImB. 
 Connect Smartphone or PC in ImB Wifi and navigate browser to [http://192.168.1.254/IMBACK/imbraw2dng.html](http://192.168.1.254/IMBACK/imbraw2dng.html) from ImB.
 [(Details)](#browsing-on-the-imback)
 
