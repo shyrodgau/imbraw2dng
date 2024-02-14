@@ -25,11 +25,11 @@ There are the following possibilities to make use of files (pictures or movies) 
 
 1. Take Micro-SD out of ImB and put into PC or (maybe using an adapter) into/to the smartphone. Copy files from the Micro-SD somewhere else
 
+1. Connect ImB to PC via USB, select `MassStorage` on ImB, continue as 1. replacing MicroSD with mounted USB mass storage
+
 1. Connect Smartphone with ImB Wifi and use Android- or Apple App to copy files to smartphone
 
-1. Connect ImB to PC via USB, select `MassStorage` on ImB, continue as 1. without MicroSD
-
-1. (not documented) Connect smartphone or PC with ImB Wifi and use browser on http://192.168.1.254 to browse and download files
+1. (not documented) Connect smartphone or PC with ImB Wifi and use browser on http://192.168.1.254 to browse and download or delete files
 
 These ways keep all files 1:1 as they were which usually is fine for JPEGs or movies. But on RAW images it can end up in a kind of dead end.   
 The following ways focus on converting RAW files into DNG while copying. You only need one file for using with browser and/or one file for using with node.js.
@@ -37,16 +37,16 @@ The following ways focus on converting RAW files into DNG while copying. You onl
 1. Open [imbraw2dng.html](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) in browser, Take Micro-SD out of ImB and put into PC or smartphone. 
 Drag and drop files from `IMBACK/PHOTO` and `IMBACK/MOVIE` into the blue field. [(Details)](#usage)
 
+1. Connect ImB to PC via USB, select `MassStorage` on ImB, continue as 1. replacing MicroSD with mounted USB mass storage
+
 1. Take Micro-SD out of ImB and put into PC or smartphone. Copy [imbraw2dng.html](https://raw.githubusercontent.com/shyrodgau/imbraw2dng/master/imbraw2dng.html) into `IMBACK` folder on MicroSD and put card back into ImB. 
 Connect Smartphone or PC in ImB Wifi and navigate browser to [http://192.168.1.254/IMBACK/imbraw2dng.html](http://192.168.1.254/IMBACK/imbraw2dng.html) from ImB.
 [(Details)](#browsing-on-the-imback)
 
-1. Connect ImB to PC via USB, select `MassStorage` on ImB, continue as 1. or 2. without MicroSD
-
 1. Take Micro-SD out of ImB and put into PC. Download [imbraw2dng.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) and invoke `node imbraw2dng.js <path_of_the_microsd>`.
 [(Details)](#command-line-using-nodejs)
 
-1. Connect ImB to PC via USB, select `MassStorage` on ImB, continue on PC as 4. without MicroSD
+1. Connect ImB to PC via USB, select `MassStorage` on ImB, continue on PC as 4. replacing MicroSD with mounted USB mass storage
 
 1. Connect PC into ImB Wifi, download [imbraw2dng.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) and invoke `node imbraw2dng.js -R -J -O`.
 [(Details)](#command-line-using-nodejs)
@@ -80,7 +80,7 @@ save it under `imbraw2dng_00.js` and then call `node imbraw2dng_00.js -CSV > myt
 
 ## Usage
 
-You can drag and drop all files from the I'm back (i.e. from the micro SD inserted into your PC) into the blue field. It will then copy all non-RAW 
+You can drag and drop all files from the I'm back (i.e. from the micro SD inserted into your PC or the USB mass storage) into the blue field. It will then copy all non-RAW 
 files exactly and convert the RAW files to DNG, replacing the `.raw`/`.RAW` file extension with `.dng`. When you use the `Choose Files` button, you can select RAW files directly. 
 
 Your browser will download them according to its download settings, so it might pop up a dialog where to save it for each file if so configured, or 
