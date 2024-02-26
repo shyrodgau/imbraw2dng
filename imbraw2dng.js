@@ -10,7 +10,7 @@ Based on work by Michele Asciutti.
 
 https://github.com/shyrodgau/imbraw2dng
 
-Usage: node imbraw2dng.js [-l lang] [-f] [-d dir] [-nc | -co] [-R] [-J] [-O] [-n yyyy_mmdd_hhmmss] [ [--] <files-or-dirs>* ]
+Usage: node imbraw2dng.js [-l lang] [-f] [-d dir] [-nc | -co] [-R] [-J] [-O] [-n yyyy_mm_dd-hh_mm_ss] [ [--] <files-or-dirs>* ]
 Options:
  -h - show this help
  -nc - do not use coloured text
@@ -22,7 +22,7 @@ Options:
  -R - get RAW from ImB connected via Wifi or from given directories
  -J - get JPEG from ImB connected via Wifi or from given directories
  -O - get non-RAW/non-JPEG from ImB connected via Wifi or from given directories
- -n yyyy_mmdd_hhmmss (or prefix of any length) - select only newer than this timestamp from ImB or from given directories
+ -n yyyy_mm_dd-hh_mm_ss (or prefix of any length) - select only newer than this timestamp from ImB or from given directories
  -----
  -- - treat rest of parameters as local files or dirs
  <files-or-dirs> - process local files or directories recursively, e.g. on MicroSD from ImB
@@ -523,7 +523,7 @@ texts = { // actually const
 				' \x1b[1m-R\x1b[0m - get RAW from ImB connected via Wifi or from given directories',
 				' \x1b[1m-J\x1b[0m - get JPEG from ImB connected via Wifi or from given directories',
 				' \x1b[1m-O\x1b[0m - get non-RAW/non-JPEG from ImB connected via Wifi or from given directories',
-				' \x1b[1m-n yyyy_mmdd_hhmmss\x1b[0m (or prefix of any length) - select only newer than this timestamp from ImB or from given directories',
+				' \x1b[1m-n yyyy_mm_dd-hh_mm_ss\x1b[0m (or prefix of any length) - select only newer than this timestamp from ImB or from given directories',
 				' -----',
 				' \x1b[1m--\x1b[0m - treat rest of parameters as local files or dirs',
 				' <files-or-dirs> - process local files or directories recursively, e.g. on MicroSD from ImB',],
@@ -539,7 +539,7 @@ texts = { // actually const
 				' \x1b[1m-R\x1b[0m - obtenez RAW d\'ImB connecté via Wifi ou repertoires donnés',
 				' \x1b[1m-J\x1b[0m - obtenez JPEG d\'ImB connecté via Wifi ou repertoires donnés',
 				' \x1b[1m-O\x1b[0m - obtenez du non-RAW/non-JPEG d\'ImB connecté via Wifi ou repertoires donnés',
-				' \x1b[1m-n yyyy_mmdd_hhmmss\x1b[0m (ou préfixe de n\'importe quelle longueur) - sélectionnez uniquement plus récent que cet horodatage d\'ImB ou repertoires donnés',
+				' \x1b[1m-n yyyy_mm_dd-hh_mm_ss\x1b[0m (ou préfixe de n\'importe quelle longueur) - sélectionnez uniquement plus récent que cet horodatage d\'ImB ou repertoires donnés',
 				' -----',
 				' \x1b[1m--\x1b[0m - traiter le reste des paramètres comme des fiches ou des répertoires locaux',
 			' <fiches-ou-repertoires> - traiter des fiches ou des répertoires locaux de manière récursive, par exemple sur MicroSD d\'ImB',],
@@ -555,7 +555,7 @@ texts = { // actually const
 				' \x1b[1m-R\x1b[0m - RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen konvertieren',
 				' \x1b[1m-J\x1b[0m - JPEG von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren',
 				' \x1b[1m-O\x1b[0m - Nicht-JPEG/Nicht-RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren',
-				' \x1b[1m-n yyyy_mmdd_hhmmss\x1b[0m (oder beliebig langer Anfang davon) - nur Dateien neuer als dieser Zeitstempel von ImB oder übergebenen Verzeichnissen holen',
+				' \x1b[1m-n yyyy_mm_dd-hh_mm_ss\x1b[0m (oder beliebig langer Anfang davon) - nur Dateien neuer als dieser Zeitstempel von ImB oder übergebenen Verzeichnissen holen',
 				' -----',
 				' \x1b[1m--\x1b[0m - weitere Parameter als lokale Dateien oder Ordner betrachten',
 				' <dateien-oder-ordner> - lokale Dateien oder Ordner rekursiv (z.B. von der MicroSD Karte aus ImB) verarbeiten',]

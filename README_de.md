@@ -120,7 +120,7 @@ Sofern man [node.js](https://nodejs.org) in Version &ge; V20.10(LTS) hat, kann m
 [Internationalisierung](#internationalisierung) beschrieben umbenannt werden. Hilfe zum Aufruf z.B. mit `node imbraw2dng.js` oder 
 umbenannt auf Deutsch `node imbraw2dng_de.js`.
 ```
-Aufruf: node imbraw2dng_de.js [-l sprache] [-f] [-d ordner] [-nc | -co] [-R] [-J] [-O] [-n yyyy_mmdd_hhmmss] [ [--] <dateien-oder-ordner>* ]
+Aufruf: node imbraw2dng_de.js [-l sprache] [-f] [-d ordner] [-nc | -co] [-R] [-J] [-O] [-n yyyy_mm_dd-hh_mm_ss] [ [--] <dateien-oder-ordner>* ]
 Optionen:
  -h - diesen Hilfetext zeigen
  -nc - keinen farbigen Text zeigen
@@ -132,7 +132,7 @@ Optionen:
  -R - RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen konvertieren
  -J - JPEG von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren
  -O - Nicht-JPEG/Nicht-RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren
- -n yyyy_mmdd_hhmmss (oder beliebig langer Anfang davon) - nur Dateien neuer als dieser Zeitstempel von ImB oder übergebenen Verzeichnissen holen
+ -n yyyy_mm_dd-hh_mm_ss (oder beliebig langer Anfang davon) - nur Dateien neuer als dieser Zeitstempel von ImB oder übergebenen Verzeichnissen holen
  -----
  -- - weitere Parameter als lokale Dateien oder Ordner betrachten
  <dateien-oder-ordner> - lokale Dateien oder Ordner rekursiv (z.B. von der MicroSD Karte aus ImB) verarbeiten
