@@ -178,7 +178,7 @@ texts = { // actually const
 		olderfirst: {
 			de: 'Ältere nach oben',
 			en: 'Older first',
-			fr: 'plus anciens ci-dessus'
+			fr: 'Plus anciens ci-dessus'
 		},
 		selall: {
 			tooltip: {
@@ -246,7 +246,27 @@ texts = { // actually const
 			de: 'Keine passenden Dateien gefunden. Kann vorübergehend sein.',
 			en: 'No matching files found. Might be temporary.',
 			fr: 'Aucun fiche correspondant trouvé. Peut-etre temporaire.'
-		}
+		},
+		strangename: {
+			de: '<b style=\'background-color:#ffdddd;\'>Warnung:</b> Komischer Dateiname: $$0',
+			en: '<b style=\'background-color:#ffdddd;\'>Warning:</b> Strange file name: $$0',
+			fr: '<b style=\'background-color:#ffdddd;\'>Avertissement:</b> Nom de fiche inhabituel: $$0'
+		},
+		strangenamex: {
+			de: '\x1b[31mWarnung:\x1b[0m Komischer Dateiname: $$0',
+			en: '\x1b[31mWarning:\x1b[0m Strange file name: $$0',
+			fr: '\x1b[31mAvertissement:\x1b[0m Nom de fiche inhabituel: $$0'
+		},
+		invaltime: {
+			de: '<b style=\'background-color:#ffdddd;\'>FEHLER:</b> Ungültiger Zeitstempel: $$0',
+			en: '<b style=\'background-color:#ffdddd;\'>ERROR:</b> Invalid timestamp: $$0',
+			fr: '<b style=\'background-color:#ffdddd;\'>ERREUR:</b> Horodatage invalide: $$0'
+		},
+		invaltimex: {
+			de: '\x1b[31mFEHLER:\x1b[0m Ungültiger Zeitstempel: $$0',
+			en: '\x1b[31mERROR:\x1b[0m Invalid timestamp: $$0',
+			fr: '\x1b[31mERREUR:\x1b[0m Horodatage invalide: $$0'
+		},
 	},
 	process: {
 		singlestep: {
@@ -491,7 +511,7 @@ texts = { // actually const
 	},
 	node: {
 		help: {
-			en: [ '\x1b[1mWelcome to imbraw2dng\x1b[0m $$0 !', 'Usage: node $$0 \x1b[1m[\x1b[0m-l lang\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-f\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-d dir\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-nc \x1b[1m|\x1b[0m -co\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-R\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-J\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-O\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-n yyyy_mmdd_hhmmss\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m \x1b[1m[\x1b[0m--\x1b[1m]\x1b[0m \x1b[1m<\x1b[0mfiles-or-dirs\x1b[1m>*\x1b[0m \x1b[1m]\x1b[0m',
+			en: [ '\x1b[1mWelcome to imbraw2dng\x1b[0m $$0 !', 'Usage: node $$0 \x1b[1m[\x1b[0m-l lang\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-f\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-d dir\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-nc \x1b[1m|\x1b[0m -co\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-R\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-J\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-O\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-n yyyy_mm_dd-hh_mm_ss\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m \x1b[1m[\x1b[0m--\x1b[1m]\x1b[0m \x1b[1m<\x1b[0mfiles-or-dirs\x1b[1m>*\x1b[0m \x1b[1m]\x1b[0m',
 				'Options:',
 				' \x1b[1m-h\x1b[0m - show this help',
 				' \x1b[1m-nc\x1b[0m - do not use coloured text',
@@ -507,7 +527,7 @@ texts = { // actually const
 				' -----',
 				' \x1b[1m--\x1b[0m - treat rest of parameters as local files or dirs',
 				' <files-or-dirs> - process local files or directories recursively, e.g. on MicroSD from ImB',],
-			fr: [ '\x1b[1mBienvenu a imbraw2dng\x1b[0m $$0 !', 'Operation: node $$0 \x1b[1m[\x1b[0m-l lang\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-f\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-d repertoire\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-nc \x1b[1m|\x1b[0m -co\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-R\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-J\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-O\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-n yyyy_mmdd_hhmmss\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m \x1b[1m[\x1b[0m--\x1b[1m]\x1b[0m \x1b[1m<\x1b[0mfiches-ou-repertoires\x1b[1m>*\x1b[0m \x1b[1m]\x1b[0m',
+			fr: [ '\x1b[1mBienvenu a imbraw2dng\x1b[0m $$0 !', 'Operation: node $$0 \x1b[1m[\x1b[0m-l lang\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-f\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-d repertoire\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-nc \x1b[1m|\x1b[0m -co\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-R\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-J\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-O\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-n yyyy_mm_dd-hh_mm_ss\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m \x1b[1m[\x1b[0m--\x1b[1m]\x1b[0m \x1b[1m<\x1b[0mfiches-ou-repertoires\x1b[1m>*\x1b[0m \x1b[1m]\x1b[0m',
 				'Choix:',
 				' \x1b[1m-h\x1b[0m - montrer cette aide',
 				' \x1b[1m-nc\x1b[0m - n\'utilisez pas de texte en couleur',
@@ -523,7 +543,7 @@ texts = { // actually const
 				' -----',
 				' \x1b[1m--\x1b[0m - traiter le reste des paramètres comme des fiches ou des répertoires locaux',
 			' <fiches-ou-repertoires> - traiter des fiches ou des répertoires locaux de manière récursive, par exemple sur MicroSD d\'ImB',],
-			de: [ '\x1b[1mWillkommen bei imbraw2dng\x1b[0m $$0 !', 'Aufruf: node $$0 \x1b[1m[\x1b[0m-l sprache\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-f\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-d ordner\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-nc \x1b[1m|\x1b[0m -co\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-R\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-J\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-O\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-n yyyy_mmdd_hhmmss\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m \x1b[1m[\x1b[0m--\x1b[1m]\x1b[0m \x1b[1m<\x1b[0mdateien-oder-ordner\x1b[1m>*\x1b[0m \x1b[1m]\x1b[0m',
+			de: [ '\x1b[1mWillkommen bei imbraw2dng\x1b[0m $$0 !', 'Aufruf: node $$0 \x1b[1m[\x1b[0m-l sprache\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-f\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-d ordner\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-nc \x1b[1m|\x1b[0m -co\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-R\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-J\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-O\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-n yyyy_mm_dd-hh_mm_ss\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m \x1b[1m[\x1b[0m--\x1b[1m]\x1b[0m \x1b[1m<\x1b[0mdateien-oder-ordner\x1b[1m>*\x1b[0m \x1b[1m]\x1b[0m',
 				'Optionen:',
 				' \x1b[1m-h\x1b[0m - diesen Hilfetext zeigen',
 				' \x1b[1m-nc\x1b[0m - keinen farbigen Text zeigen',
@@ -549,6 +569,11 @@ texts = { // actually const
 			en: '\x1b[31mMissing value for last parameter.\x1b[0m',
 			de: '\x1b[31mFehlender Wert für letzten Parameter.\x1b[0m',
 			fr: '\x1b[31mValeur manquante pour le dernier paramètre.\x1b[0m'
+		},
+		fnwarn: {
+			en: '\x1b[31mWarning:\x1b[0m $$0 looks like a timestamp, did you forget \x1b[1m-n\x1b[0m or \x1b[1m--\x1b[0m in front of it?',
+			de: '\x1b[31mWarnung:\x1b[0m $$0 sieht wie ein Zeitstempel aus, vielleicht \x1b[1m-n\x1b[0m oder \x1b[1m--\x1b[0m davor vergessen?',
+			fr: '\x1b[31mAvertissement:\x1b[0m $$0 ressemble à un horodatage, oubliée \x1b[1m-n\x1b[0m ou \x1b[1m--\x1b[0m?',
 		}
 	}
 };
@@ -560,7 +585,16 @@ ovwout = false;
 typeflags = 0;
 fromts = '0000';
 connmsg = false;
+// generic user input timestamp (any prefix)
+//           y      y     y     y      .      m     m     .      d      d      .      h     h      .      m     m      .      s     s
+tsregex = /^[02-3]([0-9]([0-9]([0-9](([^0-9])[01]([0-9](([^0-9])[0123]([0-9](([^0-9])[012]([0-9](([^0-9])[0-5]([0-9](([^0-9])[0-5]([0-9])?)?)?)?)?)?)?)?)?)?)?)?)?$/
 /* Data for the Imback variants and exif stuff */
+// generic imb filename format
+//            y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s            EXT
+fnregex = /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])(.*[.])([^.]*)$/
+// generic imb filename format, only timestamp
+//             y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s
+fnregexx = /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])/
 orients = [ '', 'none', '', 'upsidedown', '', '', 'clockwise', '', 'counterclockwise' ]; // actually const
 oriecw = [ 1, 6, 3, 8 ]; // clockwise indices // actually const
 types = [ "unknown", "ImB35mm", "MF 6x7 ", "MF6x4.5", "MF 6x6 " ]; // actually const
@@ -570,82 +604,82 @@ infos = [ // actually const
 		w: 4320,
 		h: 3256,
 		typ: 0,
-		mode: "historic (4320x3256)"
+		mode: "historic"
 	},
 	{ /* MF 6x7 */
 		size: 15925248,
 		w: 4608,
 		h: 3456,
 		typ: 2,
-		mode: "(4608x3456)"
+		mode: ""
 	},
-	{
+	/*{
 		size: 12076120, // guessed
 		w: 4012,
 		h: 3010,
 		typ: 2,
-		mode: "Medium-angle (4012x3010)"
+		mode: "Medium-angle"
 	},
 	{
 		size: 7967440, // guessed
 		w: 3260,
 		h: 2444,
 		typ: 2,
-		mode: "Small-angle (3260x2444)"
-	},
+		mode: "Small-angle"
+	},*/
 	{ /* MF 6x4.5 */
 		size: 12937632,
 		w: 4152, h: 3116,
 		typ: 3,
-		mode: "(4152x3116)"
+		mode: ""
 	},
 	{
 		size: 9806592,
 		w: 3616, h: 2712,
 		typ: 3,
-		mode: "Medium-angle (2616x2717)"
+		mode: "Medium-angle"
 	},
 	{
 		size: 6470944,
 		w: 2936, h: 2204,
 		typ: 3,
-		mode: "Small-angle (2936x2204)"
+		mode: "Small-angle"
 	},
 	{ /* MF 6x6 */
 		size: 11943936,
 		w: 3456, h: 3456,
 		typ: 4,
-		mode: "(3456x3456)"
+		mode: ""
 	},
-	{
+	/*{
 		size: 9060100, // guessed
 		w: 3010, h: 3010,
 		typ: 4,
-		mode: "Medium-angle (3010x3010)"
+		mode: "Medium-angle"
 	},
 	{
 		size: 5973136, // guessed
 		w: 2444, h: 2444,
 		typ: 4,
-		mode: "Small-angle (2444x2444)"
-	},
+		mode: "Small-angle"
+	},*/
 	{ /* 35mm */
 		size: 15335424,
 		w: 4608, h: 3328,
 		typ: 1,
-		mode: "(4608x3328)"
+		mode: ""
 	},
 	{
 		size: 11618752,
 		w: 4012, h: 2896,
 		typ: 1,
-		mode: "Medium-angle (4012x2896)"
+		mode: "Medium-angle"
 	},
 	{
 		size: 7667520,
 		w: 3260, h: 2352,
 		typ: 1,
-		mode: "Small-angle (3260x2352)"
+		mode: "Small-angle"
 	}
 	/* Film ? */
 ];
@@ -762,11 +796,13 @@ handlerecurse(already, index) {
 					console.log(JSON.stringify(err2));
 				}
 				else for (let i of f.filter(e => e.isFile())) {
-					if ((i.name.substring(i.name.length -4).toUpperCase() === '.RAW' && (this.typeflags % 2)) ||
-						((i.name.substring(i.name.length -5).toUpperCase() === '.JPEG' || i.name.substring(i.name.length -4).toUpperCase() === '.JPG') && ((this.typeflags % 4) > 1)) ||
-						(i.name.substring(i.name.length -5).toUpperCase() !== '.JPEG' && i.name.substring(i.name.length -4).toUpperCase() !== '.JPG' &&
-							i.name.substring(i.name.length -4).toUpperCase() !== '.RAW' && ((this.typeflags % 7) > 3))) {
-						if (i.name.substring(0, this.fromts.length) >= this.fromts)
+					const n = i.name;
+					if (i.substring(0,10).toUpperCase() === 'IMBRAW2DNG') continue;
+					if ((n.substring(n.length -4).toUpperCase() === '.RAW' && (this.typeflags % 2)) ||
+						((n.substring(n.length -5).toUpperCase() === '.JPEG' || n.substring(n.length -4).toUpperCase() === '.JPG') && ((this.typeflags % 4) > 1)) ||
+						(n.substring(n.length -5).toUpperCase() !== '.JPEG' && n.substring(n.length -4).toUpperCase() !== '.JPG' &&
+							n.substring(n.length -4).toUpperCase() !== '.RAW' && ((this.typeflags % 8) > 3))) {
+						if (this.comptime(i.name, this.fromts))
 							already.push(i.path + this.pa.sep + i.name);
 					}
 					//console.log(i);
@@ -1162,7 +1198,7 @@ handleone(orientation) {
 	let typ = 0;
 	const zz = this.infos.findIndex((v, i, o) => v.size === f.size);
 	if (zz === -1) {
-		if (totnum > 1) {
+		if (this.totnum > 1) {
 			this.appendmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ");
 		}
 		this.mappx('process.unknownsize' + (!document ? 'x' : ''), f.name, f.size);
@@ -1190,35 +1226,27 @@ handleone(orientation) {
 		w = this.infos[zz].w;
 		h = this.infos[zz].h;
 		mode = this.infos[zz].mode;
+		if (mode.length !== 0) mode += ' ';
+		mode += '(' + w + ' x ' + h + ')';
 		typ = this.infos[zz].typ;
 	}
 	const rawnamearr = new TextEncoder().encode(rawname);
 	let datestr="", dateaddoff = 0, dateok = false;
 	// date?
-	const yr = Number.parseInt(rawname.substring(0,4));
-	if (yr >= 2019 && yr < 3000 && JSON.stringify(yr) === rawname.substring(0,4)) {
-		let mon = Number.parseInt(rawname.substring(5,7));
-		if (mon > 0 && mon < 13 && (JSON.stringify(mon) === ((mon < 10) ? rawname.substring(6,7) : rawname.substring(5,7)))) {
-			let day = Number.parseInt(rawname.substring(7,9));
-			if (day > 0 && day < 32 && (JSON.stringify(day) === ((day < 10) ? rawname.substring(8,9) : rawname.substring(7,9)))) {
-				let hr = Number.parseInt(rawname.substring(10,12));
-				if (hr >= 0 && hr < 25 && (JSON.stringify(hr) === ((hr < 10) ? rawname.substring(11,12) : rawname.substring(10,12)))) {
-					let min = Number.parseInt(rawname.substring(12,14));
-					if (min >= 0 && min <= 60 && (JSON.stringify(min) === ((min < 10) ? rawname.substring(13,14) : rawname.substring(12,14)))) {
-						let sec = Number.parseInt(rawname.substring(14,16));
-						if (sec >= 0 && sec <= 60 && (JSON.stringify(sec) === ((sec < 10) ? rawname.substring(15,16) : rawname.substring(14,16)))) { // maybe leap second?
-							datestr = "" + yr + ":" + ((mon < 10) ? "0":"") + mon + ":" + ((day < 10) ? "0":"") + day + " "+
-							((hr < 10) ? "0":"") + hr + ":" + ((min < 10) ? "0":"") + min + ":" + ((sec < 10) ? "0":"") + sec;
-							if (datestr.length === 19) {
-								dateaddoff = 24;
-								dateok = true;
-							}
-						}
-					}
-				}
-			}
-		}
+	let res = this.fnregexx.exec(rawname);
+	if (res !== null) {
+		const yr = Number.parseInt(res[1]);
+		const mon = Number.parseInt(res[3]);
+		const day = Number.parseInt(res[5]);
+		const hr = Number.parseInt(res[7]);
+		const min = Number.parseInt(res[9]);
+		const sec = Number.parseInt(res[11]);
+		datestr = "" + yr + ":" + ((mon < 10) ? "0":"") + mon + ":" + ((day < 10) ? "0":"") + day + " "+
+			((hr < 10) ? "0":"") + hr + ":" + ((min < 10) ? "0":"") + min + ":" + ((sec < 10) ? "0":"") + sec;
+		dateaddoff = 24;
+		dateok = true;
 	}
+
 	const reader = f.imbackextension ? f : new FileReader();
 	reader.onload = (evt) => {
 		if (this.totnum > 1) {
@@ -1791,15 +1819,28 @@ handle1imb(url) {
 	let rawname = url;
 	while (rawname.indexOf("/") > -1)
 		rawname = rawname.substring(rawname.indexOf("/") + 1);
+	if (rawname.substring(0,10).toUpperCase() === 'IMBRAW2DNG') return;
+	let timestx = this.fnregex.exec(rawname);
+	let timest = null, cl = '9999_99_99-99';
+	if (null !== timestx) {
+		timest = timestx[1] + '_' + timestx[3] + '_' + timestx[5] + '-' + timestx[7] + '_' + timestx[9] + '_' + timestx[11];
+		cl = timestx[1] + '_' + timestx[3] + '_' + timestx[5] + '-' + timestx[7];
+	} else {
+		this.mappx('onimback.strangename' + (document?'':'x'), rawname);
+		this.appendnl();
+	}
 	if (rawname.substring(rawname.length -4).toUpperCase() === '.RAW') {
-		if (rawname < this.earliestraw) this.earliestraw = rawname;
-		if (rawname > this.latestraw) this.latestraw = rawname;
+		if (null !== timest) {
+			if (timest < this.earliestraw) this.earliestraw = timest;
+			if (timest > this.latestraw) this.latestraw = timest;
+		}
 		this.rimbpics.push(url);
 		if (document) {
 			this.imbeles.push({
 					type: 'RAW',
 					url: url,
 					raw: rawname,
+					ts: cl,
 					selected: false,
 					preview: null,
 					entry: null,
@@ -1807,7 +1848,6 @@ handle1imb(url) {
 					error: false,
 					processed: false
 			});
-			const cl = rawname.substring(0,12);
 			if (this.untypedclasses.findIndex((v, i, o) => v === cl) === -1)
 				this.untypedclasses.push(cl);
 			if (this.typedclasses.findIndex((v, i, o) => v === ('RAW' + cl)) === -1)
@@ -1815,14 +1855,17 @@ handle1imb(url) {
 		}
 	}
 	else if (rawname.substring(rawname.length -4).toUpperCase() === '.JPG') {
-		if (rawname < this.earliestjpg) this.earliestjpg = rawname;
-		if (rawname > this.latestjpg) this.latestjpg = rawname;
+		if (null !== timest) {
+			if (timest < this.earliestjpg) this.earliestjpg = timest;
+			if (timest > this.latestjpg) this.latestjpg = timest;
+		}
 		this.imbpics.push(url);
 		if (document) {
 			this.imbeles.push({
 					type: 'JPG',
 					url: url,
 					raw: rawname,
+					ts: cl,
 					selected: false,
 					preview: null,
 					entry: null,
@@ -1830,7 +1873,6 @@ handle1imb(url) {
 					error: false,
 					processed: false
 			});
-			const cl = rawname.substring(0,12);
 			if (this.untypedclasses.findIndex((v, i, o) => v === cl) === -1)
 				this.untypedclasses.push(cl);
 			if (this.typedclasses.findIndex((v, i, o) => v === ('JPG' + cl)) === -1)
@@ -1838,14 +1880,17 @@ handle1imb(url) {
 		}
 	}
 	else {
-		if (rawname < this.earliestmov) this.earliestmov = rawname;
-		if (rawname > this.latestmov) this.latestmov = rawname;
+		if (null !== timest) {
+			if (timest < this.earliestmov) this.earliestmov = timest;
+			if (timest > this.latestmov) this.latestmov = timest;
+		}
 		this.imbmovies.push(url);
 		if (document) {
 			this.imbeles.push({
 					type: 'oth',
 					url: url,
 					raw: rawname,
+					ts: cl,
 					selected: false,
 					preview: null,
 					entry: null,
@@ -1853,7 +1898,6 @@ handle1imb(url) {
 					error: false,
 					processed: false
 			});
-			const cl = rawname.substring(0,12);
 			if (this.untypedclasses.findIndex((v, i, o) => v === cl) === -1)
 				this.untypedclasses.push(cl);
 			if (this.typedclasses.findIndex((v, i, o) => v === ('oth' + cl)) === -1)
@@ -1955,6 +1999,20 @@ checkimb(type) {
 	xhr.responseType = 'document';
 	xhr.send();
 }
+/* compare timestamp */
+comptime(fname, compts) {
+	const res = this.fnregex.exec(fname);
+	if (res === null) {
+		this.mappx('onimback.strangename'+ (document?'':'x'), fname);
+		this.appendnl();
+		return (compts === '0000');
+	} else {
+		const ts = res[1] + '_' + res[3] + '_' + res[5] + '-' + res[7] + '_' + res[9] + '_' + res[11];
+		if (ts.substring(0, ts.length) >= compts)
+			return true;
+	}
+	return false;
+}
 /* handle the normal selection from imback (do it button), also for nodejs */
 imbdoit() {
 	if (this.actnum !== this.allfiles.length) return;
@@ -1962,6 +2020,15 @@ imbdoit() {
 	let compval = '0000';
 	if (document && document.getElementById('imbstartts').value != undefined && document.getElementById('imbstartts').value.length > 0) {
 		compval = document.getElementById('imbstartts').value;
+		if (null === this.tsregex.exec(compval)) {
+			this.mappx('onimback.invaltime', compval);
+			this.appendnl();
+			const wc = this.withcolours;
+			this.withcolours = false;
+			alert(this.subst(this.xl0('onimback.invaltimex'), compval));
+			this.withcolours = wc;
+			return;
+		}
 	}
 	else compval = this.fromts;
 	if ((document && document.getElementById('rpicfromimb').checked) ||
@@ -1970,7 +2037,7 @@ imbdoit() {
 			let rawname = e;
 			while (rawname.indexOf("/") > -1)
 				rawname = rawname.substring(rawname.indexOf("/") + 1);
-			if (rawname.substring(0, compval.length) >= compval)
+			if (this.comptime(rawname, compval))
 				selecteds.push(e);
 		}
 	}
@@ -1980,17 +2047,17 @@ imbdoit() {
 			let rawname = e;
 			while (rawname.indexOf("/") > -1)
 				rawname = rawname.substring(rawname.indexOf("/") + 1);
-			if (rawname.substring(0, compval.length) >= compval)
+			if (this.comptime(rawname, compval))
 				selecteds.push(e);
 		}
 	}
 	if ((document && document.getElementById('movfromimb').checked) ||
-		((this.typeflags % 7) > 3)) {
+		((this.typeflags % 8) > 3)) {
 		for (const e of this.imbmovies) {
 			let rawname = e;
 			while (rawname.indexOf("/") > -1)
 				rawname = rawname.substring(rawname.indexOf("/") + 1);
-			if (rawname.substring(0, compval.length) >= compval)
+			if (this.comptime(rawname, compval))
 				selecteds.push(e);
 		}
 	}
@@ -2060,9 +2127,9 @@ aftercheck() {
 	document.getElementById('piccnt').innerHTML = '' + this.imbpics.length;
 	if (this.earliestjpg.length > 4) {
 		document.getElementById('picinterval').innerHTML += '(';
-		document.getElementById('picinterval').innerHTML += this.earliestjpg.substring(0,16);
+		document.getElementById('picinterval').innerHTML += this.earliestjpg;
 		document.getElementById('picinterval').innerHTML += ' - ';
-		document.getElementById('picinterval').innerHTML += this.latestjpg.substring(0,16);
+		document.getElementById('picinterval').innerHTML += this.latestjpg;
 		document.getElementById('picinterval').innerHTML += ')';
 		document.getElementById('picinterval').style['display']='';
 	}
@@ -2070,9 +2137,9 @@ aftercheck() {
 	document.getElementById('rpiccnt').innerHTML = '' + this.rimbpics.length;
 	if (this.earliestraw.length > 4) {
 		document.getElementById('rpicinterval').innerHTML += '(';
-		document.getElementById('rpicinterval').innerHTML += this.earliestraw.substring(0,16);
+		document.getElementById('rpicinterval').innerHTML += this.earliestraw;
 		document.getElementById('rpicinterval').innerHTML += ' - ';
-		document.getElementById('rpicinterval').innerHTML += this.latestraw.substring(0,16);
+		document.getElementById('rpicinterval').innerHTML += this.latestraw;
 		document.getElementById('rpicinterval').innerHTML += ')';
 		document.getElementById('rpicinterval').style['display']='';
 	}
@@ -2080,9 +2147,9 @@ aftercheck() {
 	document.getElementById('movcnt').innerHTML = '' + this.imbmovies.length;
 	if (this.earliestmov.length > 4) {
 		document.getElementById('movinterval').innerHTML += '(';
-		document.getElementById('movinterval').innerHTML += this.earliestmov.substring(0,16);
+		document.getElementById('movinterval').innerHTML += this.earliestmov;
 		document.getElementById('movinterval').innerHTML += ' - ';
-		document.getElementById('movinterval').innerHTML += this.latestmov.substring(0,16);
+		document.getElementById('movinterval').innerHTML += this.latestmov;
 		document.getElementById('movinterval').innerHTML += ')';
 		document.getElementById('movinterval').style['display']='';
 	}
@@ -2103,7 +2170,7 @@ aftercheck() {
 		cl.entry.classList.add('ggclosed');
 		cl.entry.classList.add('gl5');
 		for (const y of this.imbeles) {
-			if (x === y.raw.substring(0,12))
+			if (x === y.ts)
 			{
 				// todo: sort
 				cl.fmembers.push(y);
@@ -2124,7 +2191,7 @@ aftercheck() {
 		cl.entry.classList.add('ggclosed');
 		cl.entry.classList.add('gl5');
 		for (const y of this.imbeles) {
-			if (x === y.type + y.raw.substring(0,12))
+			if (x === y.type + y.ts)
 			{
 				// todo: sort
 				cl.fmembers.push(y);
@@ -2133,8 +2200,8 @@ aftercheck() {
 		}
 		this.typedclasses.splice(this.typedclasses.findIndex((v,i,o) => v === x), 1, cl);
 	}
-	this.higherclasses(this.untypedclasses, 9, 5);
-	this.higherclasses(this.typedclasses, 12, 5);
+	this.higherclasses(this.untypedclasses, 10, 5);
+	this.higherclasses(this.typedclasses, 13, 5);
 	// top type classes here
 	for (const u of this.typedclasses.filter((o) => o.level === 2)) {
 		if (u.ischild) continue;
@@ -2476,7 +2543,7 @@ higherclasses(arr, len, curlevel) {
 		}
 	}
 	if (curlevel === 5)
-		this.higherclasses(arr, len - 2, 4);
+		this.higherclasses(arr, len - 3, 4);
 	else if (curlevel === 4)
 		this.higherclasses(arr, len - 3, 3);
 }
@@ -2943,7 +3010,7 @@ xlateall() {
 	}
 	document.title = this.xl0('main.title') + ' ' + imbc.version;
 }
-/* translate for new language */
+/* translate html for new language */
 setlang() {
 	this.mylang = document.getElementById('langsel').value;
 	this.xlateall();
@@ -3033,8 +3100,13 @@ startnode() {
 				}
 				else if (flagging === 3) {
 					flagging = 0;
-					this.fromts = v;
-					datefound = true;
+					if (null !== this.tsregex.exec(v)) {
+						this.fromts = v;
+						datefound = true;
+					} else {
+						wanthelp = true;
+						console.log(this.subst(this.xl0('onimback.invaltimex'), v));
+					}
 				}
 				else if (v.substring(0,4)==='-CSV' && this.debugflag) {
 					for (const el of Object.keys(this.texts))
@@ -3064,8 +3136,13 @@ startnode() {
 				}
 				else if (v.substring(0,2)==='-n') {
 					if (v.substring(2).length > 0) {
-						this.fromts = v.substring(2);
-						datefound = true;
+						if (null !== this.tsregex.exec(v.substring(2))) {
+							this.fromts = v.substring(2);
+							datefound = true;
+						} else {
+							wanthelp = true;
+							console.log(this.subst(this.xl0('onimback.invaltimex'), v.substring(2)));
+						}
 					}
 					else
 						flagging=3;
@@ -3090,6 +3167,10 @@ startnode() {
 					wanthelp = true;
 				}
 				else {
+					if (null !== this.tsregex.exec(v)) {
+						this.mappx('node.fnwarn', v);
+						wanthelp = true;
+					}
 					this.allfiles.push(v);
 					this.totnum ++;
 				}
@@ -3201,5 +3282,20 @@ if (typeof process !== 'undefined') {
 	var document = undefined;
 	imbc = new ImBC();
 	imbc.querylang(process.argv[1], 6);
+	/*let teststr = [ "20230405", "202304059", "202304051_12-3", "20230405_12-3", "20230405_123456ABC", "20230405.RAW", "20230405_123456ABC.RAW"];
+	for (const s of teststr) {
+		console.log('ts    ' + s + '        ' + JSON.stringify(imbc.tsregex.exec(s)));
+		console.log('fn    ' + s + '        ' + JSON.stringify(imbc.fnregex.exec(s)));
+		console.log('fnx    ' + s + '        ' + JSON.stringify(imbc.fnregexx.exec(s)));
+		console.log('ts   X' + s + '        ' + JSON.stringify(imbc.tsregex.exec('X' +s)));
+		console.log('fn   X' + s + '        ' + JSON.stringify(imbc.fnregex.exec('X' +s)));
+		console.log('fnx  X' + s + '        ' + JSON.stringify(imbc.fnregexx.exec('X' +s)));
+		console.log('ts    ' + s + '.RAW    ' + JSON.stringify(imbc.tsregex.exec(s + '.RAW')));
+		console.log('fn    ' + s + '.RAW    ' + JSON.stringify(imbc.fnregex.exec(s + '.RAW')));
+		console.log('fnx   ' + s + '.RAW    ' + JSON.stringify(imbc.fnregexx.exec(s + '.RAW')));
+		console.log('ts   X' + s + '.RAW    ' + JSON.stringify(imbc.tsregex.exec('X' +s + '.RAW')));
+		console.log('fn   X' + s + '.RAW    ' + JSON.stringify(imbc.fnregex.exec('X' +s + '.RAW')));
+		console.log('fnx  X' + s + '.RAW    ' + JSON.stringify(imbc.fnregexx.exec('X' +s + '.RAW')));
+	}*/
 	imbc.startnode();
 }
