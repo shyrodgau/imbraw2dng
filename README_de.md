@@ -39,7 +39,7 @@ Es wird je nur eine Datei für Benutzung im Browser und/oder eine Datei für Ben
 1. [imbraw2dng_de.html](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html) im Browser öffnen, Micro-SD Karte herausnehmen und in PC oder Smartphone stecken, 
 Dateien aus `IMBACK/PHOTO` und `IMBACK/MOVIE` Ordner in das blaue Feld ziehen. [(Details)](#benutzung)
 
-1. ImB per USB-Kabel mit PC verbinden, auf ImB "MassStorage" wählen, weiter wie 1. wobei MicroSD durch eingehängten USB Massenspeicher ersetzt
+1. ImB per USB-Kabel mit PC verbinden, auf ImB `MassStorage`/`Massenspeicher` wählen, weiter wie 1. wobei MicroSD durch eingehängten USB Massenspeicher ersetzt
 
 1. Micro-SD Karte herausnehmen und in PC oder in Smartphone stecken, [imbraw2dng_de.html](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html) im `IMBACK` Ordner 
 darauf abspeichern. Karte sauber auswerfern und zurück in ImB. PC oder Smartphone ins ImB WLAN hängen 
