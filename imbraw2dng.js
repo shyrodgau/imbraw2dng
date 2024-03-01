@@ -54,7 +54,7 @@ constructor() {
 		if (process.platform.substring(0,3) === 'win') this.withcolours = false;
 	}
 }
-version = "V3.2.0_772d359"; // actually const
+version = "V3.2.0_a8a04e6"; // actually const
 alllangs = [ 'de' , 'en', 'fr', 'ru', '00' ]; // actually const
 texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU' },
