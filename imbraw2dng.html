@@ -145,11 +145,16 @@ constructor() {
 		if (process.platform.substring(0,3) === 'win') this.withcolours = false;
 	}
 }
-version = "V3.2.0_a8a04e6"; // actually const
+version = "V3.2.1_DEVEL"; // actually const
 alllangs = [ 'de' , 'en', 'fr', 'ru', '00' ]; // actually const
 texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU' },
 	main: {
+		coloursyourrisk: {
+			de: 'Bei Farben bin ich raus! Eigenes Risiko, fraach mich net!!',
+			en: 'About colurs, I am out! Own risk, do not ask me!!',
+			fr: 'About colurs, I am out! Own risk, do not ask me!!'
+		},
 		title: {
 			de: 'ImB RAW nach DNG Konverter',
 			en: 'ImB RAW to DNG converter',
@@ -3396,6 +3401,7 @@ if (typeof process !== 'undefined') {
 <body style="font-family: Helvetica, Arial, sans-serif;" onload="init();" lang="en">
 <div style="font-weight:bold;"><span data-myxlkey='main.title'> </span> <span id="mainversion"> </span>- <a target="_new" data-myhrefxlkey="main.helplink" data-myxlkey='main.help'></a>
 <select id="langsel" onchange="imbc.setlang()" value="en"><option value="de" onclick="imbc.setlang()">DE</option><option value="en" selected onclick="imbc.setlang()">EN</option><option value="fr" onclick="imbc.setlang()">FR</option><!--option value="ru" onclick="imbc.setlang()">RU</option--></select></div>
+<br>&nbsp;<br><div style="font-weight:bold;font-size:150%;"><span data-myxlkey="main.coloursyourrisk"> </span><br>&nbsp;<br></div>
 <!-- the normal display -->
 <div id="normal" style="margin-top: 0.5em;">
 <div><input type="checkbox" id="steppreview" checked><label for="steppreview" data-myxlkey="process.singlestep"></label></div>

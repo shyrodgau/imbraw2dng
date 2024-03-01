@@ -54,11 +54,16 @@ constructor() {
 		if (process.platform.substring(0,3) === 'win') this.withcolours = false;
 	}
 }
-version = "V3.2.0_a8a04e6"; // actually const
+version = "V3.2.1_DEVEL"; // actually const
 alllangs = [ 'de' , 'en', 'fr', 'ru', '00' ]; // actually const
 texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU' },
 	main: {
+		coloursyourrisk: {
+			de: 'Bei Farben bin ich raus! Eigenes Risiko, fraach mich net!!',
+			en: 'About colurs, I am out! Own risk, do not ask me!!',
+			fr: 'About colurs, I am out! Own risk, do not ask me!!'
+		},
 		title: {
 			de: 'ImB RAW nach DNG Konverter',
 			en: 'ImB RAW to DNG converter',
