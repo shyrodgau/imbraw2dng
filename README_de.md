@@ -57,7 +57,7 @@ und dann [http://192.168.1.254/IMBACK/imbraw2dng_de.html](http://192.168.1.254/I
 
 ## Installation
 
-Die aktuelle Version ist [V3.2.0_a8a04e6 - Zeitstempelformat geändert](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.2.0_a8a04e6). 
+Die aktuelle Version ist [V3.2.0_4e726df - Genug vom Thema Farbe](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.2.0_4e726df). 
 Anmerkung: Weiterentwicklung wenn Fehler gefunden, neue Übersetzung beigesteuert, oder neues Bildformat.
 
 Die Datei [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.html) auf den PC kopieren oder aus der 
