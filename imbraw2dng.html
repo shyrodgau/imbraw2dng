@@ -888,7 +888,7 @@ handlerecurse(already, index) {
 				}
 				else for (let i of f.filter(e => e.isFile())) {
 					const n = i.name;
-					if (i.substring(0,10).toUpperCase() === 'IMBRAW2DNG') continue;
+					if (n.substring(0,10).toUpperCase() === 'IMBRAW2DNG') continue;
 					if ((n.substring(n.length -4).toUpperCase() === '.RAW' && (this.typeflags % 2)) ||
 						((n.substring(n.length -5).toUpperCase() === '.JPEG' || n.substring(n.length -4).toUpperCase() === '.JPG') && ((this.typeflags % 4) > 1)) ||
 						(n.substring(n.length -5).toUpperCase() !== '.JPEG' && n.substring(n.length -4).toUpperCase() !== '.JPG' &&
