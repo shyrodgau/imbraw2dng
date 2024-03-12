@@ -151,9 +151,9 @@ texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU' },
 	main: {
 		coloursyourrisk: {
-			de: 'Bei Farben bin ich raus! Eigenes Risiko, fraach mich net!!',
-			en: 'About colurs, I am out! Own risk, do not ask me!!',
-			fr: 'About colurs, I am out! Own risk, do not ask me!!'
+			de: 'Bei Farben bin ich raus! Eigenes Risiko, fraach mich net!',
+			en: 'About colurs, I am out! Own risk, do not ask me!',
+			fr: 'About colurs, I am out! Own risk, do not ask me!'
 		},
 		title: {
 			de: 'ImB RAW nach DNG Konverter',
@@ -3399,9 +3399,9 @@ if (typeof process !== 'undefined') {
 </head>
 <!-- here comes the html itself -->
 <body style="font-family: Helvetica, Arial, sans-serif;" onload="init();" lang="en">
-<div style="font-weight:bold;"><span data-myxlkey='main.title'> </span> <span id="mainversion"> </span>- <a target="_new" data-myhrefxlkey="main.helplink" data-myxlkey='main.help'></a>
+<div style="font-weight:bold;"><span data-myxlkey='main.title'> </span> <span id="mainversion"> </span> - <a target="_new" data-myhrefxlkey="main.helplink" data-myxlkey='main.help'></a>
 <select id="langsel" onchange="imbc.setlang()" value="en"><option value="de" onclick="imbc.setlang()">DE</option><option value="en" selected onclick="imbc.setlang()">EN</option><option value="fr" onclick="imbc.setlang()">FR</option><!--option value="ru" onclick="imbc.setlang()">RU</option--></select></div>
-<br>&nbsp;<br><div style="font-weight:bold;font-size:150%;"><span data-myxlkey="main.coloursyourrisk"> </span><br>&nbsp;<br></div>
+<br>&nbsp;<br><div style="font-weight:bold;font-size:120%;"><span data-myxlkey="main.coloursyourrisk"> </span><br>&nbsp;<br></div>
 <!-- the normal display -->
 <div id="normal" style="margin-top: 0.5em;">
 <div><input type="checkbox" id="steppreview" checked><label for="steppreview" data-myxlkey="process.singlestep"></label></div>

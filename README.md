@@ -138,11 +138,7 @@ A strong green or magenta tint all over the image should not happen any more! Bu
 color matrix/color calibration or white-balancing, a sample image might be interesing to fix it.
 
 **Word on colours:** The right way to get the colours correct is to first adjust the color calibration or color matrix. I am trying to get this right somehow 
-inside the DNG but I am far from it. Change the green/green value to something around 0.6..0.7. This will at first make the image look reddish with the 
-(wrong) default white balance. But then you can use the white balance to adjust it correctly. Sample darktable pictures of how the matrix and the white balance on near neutral light should look:
-
-![darktable sample color matrix green](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_color_calib_ok.png "darktable sample color matrix green") 
-![darktable sample neutral white balance  ](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_neutral_white_balance.png "darktable sample neutral white balance")
+inside the DNG but I am far from it. Change the green/green and red/red value to something around 0.6..0.7. Then you can use the white balance to adjust it correctly.
 
 If a red highlighted spot is in the center of the image, a manual retouche after the processing is required, or use the following darktable setting, 
 placing and sizing a circle shape manually around the area.

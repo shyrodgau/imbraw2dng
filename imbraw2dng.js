@@ -60,9 +60,9 @@ texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU' },
 	main: {
 		coloursyourrisk: {
-			de: 'Bei Farben bin ich raus! Eigenes Risiko, fraach mich net!!',
-			en: 'About colurs, I am out! Own risk, do not ask me!!',
-			fr: 'About colurs, I am out! Own risk, do not ask me!!'
+			de: 'Bei Farben bin ich raus! Eigenes Risiko, fraach mich net!',
+			en: 'About colurs, I am out! Own risk, do not ask me!',
+			fr: 'About colurs, I am out! Own risk, do not ask me!'
 		},
 		title: {
 			de: 'ImB RAW nach DNG Konverter',

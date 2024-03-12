@@ -152,14 +152,8 @@ Eine starke grüne oder magentafarbige Tönung der Bilder sollte nicht mehr vork
 Farbkalibrierung/Farbmatrix/Weißabgleich entfernen lässt, könnte ein Beispielbild interessant sein.
 
 **Ein Wort zu den Farben:** Der für mich richtige Weg, zu guten Farben zu kommen, besteht darin, mit der Farbkalibrierung/Farbmatrix anzufangen. 
-Ich versuche, entsprechende Werte in die DNG-Datei hinenzubekommen, bin da aber nicht weit. Den Faktor grün/grün auf etwa 0,6..0,7 setzen. 
-Damit sieht das Bild zunächst rötlich aus, weil der vorgegebene Weißabgleich da nicht dazu passt. Aber dann kann man mit dem Weißabgleich 
-die Farben ordentlich hinzutzeln.  Beispielkonfigurationen wie die Änderung an der Matrix und ein halbwegs neutraler Weißabgleich in darktable aussehen sollten:
-
-![darktable Beispiel grüne Farbmatrix](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_color_calib_ok.png 
-"darktable Beispiel grüne Farbmatrix") 
-![darktable Beispiel neutraler Weißabgleich ](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_neutral_white_balance.png 
-"darktable Beispiel neutraler Weißabgleich")
+Ich versuche, entsprechende Werte in die DNG-Datei hinenzubekommen, bin da aber nicht weit. Den Faktor grün/grün und rot/rot auf etwa 0,6..0,7 setzen. 
+Dann kann man mit dem Weißabgleich die Farben ordentlich hinzutzeln.
 
 Wenn in der Bildmitte ein rot hervorstechender Punkt ist, muss eine manuelle Retusche erfolgen, oder im darktable die folgende Einstellung 
 verwenden und dann einen Kreis manuell darumherum platziern.
