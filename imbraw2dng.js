@@ -1127,7 +1127,25 @@ genspan(key, arg0, arg1, arg2, arg3) {
 	}
 	return this.xl1(s);
 }
-
+/* translation helper with title */
+genspantitle(title, key, arg0, arg1, arg2, arg3) {
+	const s = document.createElement('span');
+	s.setAttribute('data-myxlkey', key);
+	s.setAttribute('data-mytitlexlkey', title);
+	if (undefined !== arg0) {
+		s.setAttribute('data-myxlarg0', arg0);
+		if (undefined !== arg1) {
+			s.setAttribute('data-myxlarg1', arg1);
+			if (undefined !== arg2) {
+				s.setAttribute('data-myxlarg2', arg2);
+				if (undefined !== arg3) {
+					s.setAttribute('data-myxlarg3', arg3);
+				}
+			}
+		}
+	}
+	return this.xl1(s);
+}
 /* translated append to preview header */
 qappx(key, arg0, arg1, arg2, arg3) {
 	const s = this.genspan(key, arg0, arg1, arg2, arg3);
@@ -2504,7 +2522,7 @@ buildtitle(gr) {
 	cb.classList.add('selcb');
 	texttit.htmlFor = cb.id;
 	texttit.append(cb);
-	texttit.append(this.genspan('browser.selall'));
+	texttit.append(this.genspantitle('browser.selall.tooltip', 'browser.selall'));
 	cb.onclick = (ev) => {
 		if (cb.checked) this.reccheck(true, gr);
 		else this.reccheck(false, gr);
