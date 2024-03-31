@@ -145,7 +145,7 @@ constructor() {
 		if (process.platform.substring(0,3) === 'win') this.withcolours = false;
 	}
 }
-version = "V3.2.0_4e726df"; // actually const
+version = "V3.2.1_DEVEL"; // actually const
 alllangs = [ 'de' , 'en', 'fr', 'ru', '00' ]; // actually const
 texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU' },
@@ -693,7 +693,7 @@ fnregex = /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0
 fnregexx = /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])/
 orients = [ '', 'none', '', 'upsidedown', '', '', 'clockwise', '', 'counterclockwise' ]; // actually const
 oriecw = [ 1, 6, 3, 8 ]; // clockwise indices // actually const
-types = [ "unknown", "ImB35mm", "MF 6x7 ", "MF6x4.5", "MF 6x6 " ]; // actually const
+types = [ "unknown", "ImB35mm", "MF 6x7 ", "MF6x4.5", "MF 6x6 " ]; // all length 7, actually const
 infos = [ // actually const
 	{
 		size: 14065920,
@@ -1395,9 +1395,9 @@ handleone(orientation) {
 			out[k++] = view.getUint8(j);
 		}
 		if (dateok)
-			out[k++] = 0x19;
+			out[k++] = 0x18;
 		else
-			out[k++] = 0x17;
+			out[k++] = 0x16;
 		const rest0 = [
 			0x00, 0xfe, 0x00, 0x04, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00
 		]; /* followed by 4b width */
@@ -1476,17 +1476,17 @@ handleone(orientation) {
 			k += 4;
 		}
 		const rest6b = [ 0x12, 0xc6, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x13, 0xc6, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00,
-			0x00, 0x00, 0x14, 0xc6, 0x02, 0x00, 0x07, 0x00, 0x00, 0x00 ];
+			0x00, 0x00, 0x14, 0xc6, 0x02, 0x00, 0x10, 0x00, 0x00, 0x00 ];
 		out.set(rest6b, k);
 		k += rest6b.length;
-		this.writeinttoout(out, (dateaddoff + 318) + f.size, k);
+		this.writeinttoout(out, (dateaddoff + 290) + f.size, k);
 		k += 4;
 
-		const rest7 = [ 0x1d, 0xc6, 0x04, 0x00, 0x01, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x21, 0xc6, 0x0a, 0x00, 0x09, 0x00, 0x00, 0x00 ];
+		const rest7 = [ 0x1d, 0xc6, 0x04, 0x00, 0x01, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00 ]; //, 0x21, 0xc6, 0x0a, 0x00, 0x09, 0x00, 0x00, 0x00 ];
 		out.set(rest7, k);
 		k += rest7.length;
-		this.writeinttoout(out, (dateaddoff + 326) + f.size, k);
-		k += 4;
+		//this.writeinttoout(out, (dateaddoff + 326) + f.size, k);
+		//k += 4;
 
 		const rest8 = [ 0x28, 0xc6, 0x05, 0x00, 0x03, 0x00, 0x00, 0x00 ];
 		out.set(rest8, k);
@@ -1502,7 +1502,11 @@ handleone(orientation) {
 		this.writeinttoout(out, (dateok ? 466: 422) + f.size, k);
 		k += 4;
 
-		const rest9 = [ 0x00, 0x00, 0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x00, 0x00 ];
+		const rest8x = [ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ];
+		out.set(rest8x, k);
+		k += rest8x.length;
+
+		const rest9 = [ 0x00, 0x00, 0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x20, 0x20 ];
 		out.set(rest9, k);
 		k += rest9.length;
 		out.set(new TextEncoder().encode(this.types[typ]), k);
