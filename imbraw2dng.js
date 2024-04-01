@@ -1293,7 +1293,7 @@ handleone(orientation) {
 		/* Here comes the actual building of the DNG */
 		const contents = evt.target.result;
 		const view = new DataView(contents);
-		const out = new Uint8Array(f.size + (dateok ? 466: 422));
+		const out = new Uint8Array(f.size + (dateok ? 466: 422) + rawnamearr.length);
 		out[0] = 0x49;
 		out[1] = 0x49;
 		out[2] = 0x2a;
@@ -1444,8 +1444,10 @@ handleone(orientation) {
 			const datearr = new TextEncoder().encode(datestr);
 			out.set(datearr, f.size + 446);
 			out[f.size + 465] = 0;
+			out.set(rawnamearr, f.size + 466);
 		}
-		this.output1(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted', out, rawnamearr);
+		else out.set(rawnamearr, k);
+		this.output1(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted', out);
 	};
 	reader.onerror = (evt) => {
 		console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
@@ -1457,11 +1459,9 @@ handleone(orientation) {
 	reader.readAsArrayBuffer(f);
 }
 /* output one thing via browser or nodejs */
-output1(name, type, okmsg, arr1, arr2) {
+output1(name, type, okmsg, arr1) {
 	if (document) {
-		let b;
-		if (arr2) b = new Blob([ arr1, arr2 ], { type: type });
-		else b = new Blob([ arr1 ], { type: type });
+		let b = new Blob([ arr1 ], { type: type });
 		const outel = document.getElementById('result');
 		outel.download = name;
 		const thisurl = URL.createObjectURL(b);
