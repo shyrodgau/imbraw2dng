@@ -145,7 +145,7 @@ constructor() {
 		if (process.platform.substring(0,3) === 'win') this.withcolours = false;
 	}
 }
-version = "V3.2.1_DEVEL"; // actually const
+version = "V3.2.2_DEVEL"; // actually const
 alllangs = [ 'de' , 'en', 'fr', 'ru', '00' ]; // actually const
 texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU' },
@@ -1345,6 +1345,9 @@ handleone(orientation) {
 		typ = this.infos[zz].typ;
 	}
 	const rawnamearr = new TextEncoder().encode(rawname);
+	const verarr = new TextEncoder(). encode(this.version);
+	const verlen = (verarr.length > 0) ? (verarr.length + 1) : 0;
+	const veroff = (verlen && ((verlen % 2) === 0)) ? verlen : (verlen + 1);
 	let datestr="", dateaddoff = 0, dateok = false;
 	// date?
 	let res = this.fnregexx.exec(rawname);
@@ -1384,7 +1387,7 @@ handleone(orientation) {
 		/* Here comes the actual building of the DNG */
 		const contents = evt.target.result;
 		const view = new DataView(contents);
-		const out = new Uint8Array(f.size + (dateok ? 466: 422));
+		const out = new Uint8Array(f.size + (dateok ? 474: 430) + rawnamearr.length + veroff);
 		out[0] = 0x49;
 		out[1] = 0x49;
 		out[2] = 0x2a;
@@ -1425,7 +1428,7 @@ handleone(orientation) {
 		const rest3 = [ 0x10, 0x01, 0x02, 0x00, 0x08, 0x00, 0x00, 0x00 ];
 		out.set(rest3, k);
 		k += rest3.length;
-		this.writeinttoout(out, f.size + (dateaddoff + 298), k);
+		this.writeinttoout(out, f.size + (dateaddoff + 305), k);
 		k += 4;
 
 		const rest4 = [ 0x11, 0x01, 0x04, 0x00, 0x01, 0x00,
@@ -1443,17 +1446,21 @@ handleone(orientation) {
 		this.writeinttoout(out, f.size, k);
 		k += 4;
 
-		const rest5 = [ 0x1c, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x31, 0x01, 0x02, 0x00, 0x0b, 0x00, 0x00, 0x00 ];
+		const rest5 = [ 0x1c, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x31, 0x01, 0x02, 0x00];  // 0x0b,
 		out.set(rest5, k);
 		k += rest5.length;
-		this.writeinttoout(out, f.size + (dateaddoff + 306), k);
+		out[k++] = (11 + verlen);
+		const rest5b = [ 0x00, 0x00, 0x00 ];
+		out.set(rest5b, k);
+		k += rest5b.length;
+		this.writeinttoout(out, f.size + (dateaddoff + 314), k);
 		k += 4;
 
 		if (dateok) { // one datetime tag
 			const rest5a = [ 0x32, 0x01, 0x02, 0x00, 0x14, 0x00, 0x00, 0x00 ];
 			out.set(rest5a, k);
 			k += rest5a.length;
-			this.writeinttoout(out, f.size + 446, k);
+			this.writeinttoout(out, f.size + 454 + veroff, k);
 			k += 4;
 		}
 
@@ -1472,14 +1479,14 @@ handleone(orientation) {
 			const rest6a = [ 0x03, 0x90, 0x02, 0x00, 0x14, 0x00, 0x00, 0x00 ];
 			out.set(rest6a, k);
 			k += rest6a.length;
-			this.writeinttoout(out, f.size + 446, k);
+			this.writeinttoout(out, f.size + 454 + veroff, k);
 			k += 4;
 		}
 		const rest6b = [ 0x12, 0xc6, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x13, 0xc6, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00,
-			0x00, 0x00, 0x14, 0xc6, 0x02, 0x00, 0x10, 0x00, 0x00, 0x00 ];
+			0x00, 0x00, 0x14, 0xc6, 0x02, 0x00, 0x0f, 0x00, 0x00, 0x00 ];
 		out.set(rest6b, k);
 		k += rest6b.length;
-		this.writeinttoout(out, (dateaddoff + 290) + f.size, k);
+		this.writeinttoout(out, (dateaddoff + 298) + f.size, k);
 		k += 4;
 
 		const rest7 = [ 0x1d, 0xc6, 0x04, 0x00, 0x01, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00 ]; //, 0x21, 0xc6, 0x0a, 0x00, 0x09, 0x00, 0x00, 0x00 ];
@@ -1491,7 +1498,7 @@ handleone(orientation) {
 		const rest8 = [ 0x28, 0xc6, 0x05, 0x00, 0x03, 0x00, 0x00, 0x00 ];
 		out.set(rest8, k);
 		k += rest8.length;
-		this.writeinttoout(out, (dateaddoff + 398) + f.size, k);
+		this.writeinttoout(out, (dateaddoff + 406 + veroff) + f.size, k);
 		k += 4;
 
 		const rest8b = [ 0x8b, 0xc6, 0x01, 0x00 ];
@@ -1499,25 +1506,35 @@ handleone(orientation) {
 		k += rest8b.length;
 		this.writeinttoout(out, rawnamearr.length, k);
 		k += 4;
-		this.writeinttoout(out, (dateok ? 466: 422) + f.size, k);
+		this.writeinttoout(out, (dateok ? 474: 430) + f.size + veroff, k);
 		k += 4;
 
 		const rest8x = [ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ];
 		out.set(rest8x, k);
 		k += rest8x.length;
 
-		const rest9 = [ 0x00, 0x00, 0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x20, 0x20 ];
+		const rest9 = [ 0x00, 0x00, 0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x20 ];
 		out.set(rest9, k);
 		k += rest9.length;
 		out.set(new TextEncoder().encode(this.types[typ]), k);
 		k += 7;
 
-		const rest10a = [ 0x00, 0x69, 0x6d, 0x62, 0x72, 0x61, 0x77, 0x32, 0x64, 0x6e, 0x67,
-			0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x00, 0x00 ];
+		const rest10a = [ 0x00, 0x00, 0x69, 0x6d, 0x62, 0x72, 0x61, 0x77, 0x32, 0x64, 0x6e, 0x67 ];
 		out.set(rest10a, k);
 		k += rest10a.length;
+		if (verlen) {
+			out[k] = 0x20;
+			out.set(verarr, k + 1);
+			k += verlen;
+			out[k++] = 0x0;
+			if (verlen !== veroff) out[k++] = 0x0;
+		}
+		else {
+			out[k++] = 0x0;
+			out[k++] = 0x0;
+		}
 
-		const rest10b = [ 0xff, 0xff, 0xff, 0x7f, 0xf4, 0xb6,
+		const rest10b = [ 0x0, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x00, 0x00, 0xff, 0xff, 0xff, 0x7f, 0xf4, 0xb6,
 			0x6d, 0x5b, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00,
@@ -1533,10 +1550,13 @@ handleone(orientation) {
 
 		if (dateok) { // datetime value
 			const datearr = new TextEncoder().encode(datestr);
-			out.set(datearr, f.size + 446);
-			out[f.size + 465] = 0;
+			out.set(datearr, k);
+			k += 19;
+			out[k++] = 0;
+			out.set(rawnamearr, k);
 		}
-		this.output1(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted', out, rawnamearr);
+		else out.set(rawnamearr, k);
+		this.output1(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted', out);
 	};
 	reader.onerror = (evt) => {
 		console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
@@ -1548,11 +1568,9 @@ handleone(orientation) {
 	reader.readAsArrayBuffer(f);
 }
 /* output one thing via browser or nodejs */
-output1(name, type, okmsg, arr1, arr2) {
+output1(name, type, okmsg, arr1) {
 	if (document) {
-		let b;
-		if (arr2) b = new Blob([ arr1, arr2 ], { type: type });
-		else b = new Blob([ arr1 ], { type: type });
+		let b = new Blob([ arr1 ], { type: type });
 		const outel = document.getElementById('result');
 		outel.download = name;
 		const thisurl = URL.createObjectURL(b);
@@ -1584,23 +1602,6 @@ output1(name, type, okmsg, arr1, arr2) {
 					this.stats.error++;
 					this.appendmsg('');
 					this.handlenext();
-				}
-				else if (arr2) {
-					this.fs.writeFile(outfile, arr2,  { flag: 'a'}, (err) => {
-						if (err) {
-							this.mappx('process.errsave', outfile);
-							this.appendmsg(JSON.stringify(err));
-							this.stats.error++;
-							this.appendmsg('');
-							this.handlenext();
-						}
-						else {
-							this.mappx(okmsg + 'x', outfile);
-							this.stats.ok++;
-							this.appendmsg('');
-							this.handlenext();
-						}
-					});
 				}
 				else {
 					this.mappx(okmsg + 'x', outfile);
@@ -3304,15 +3305,19 @@ startnode() {
 	if (wanthelp || (this.typeflags === 0 && this.totnum === 0)) {
 		this.help(process.argv[1]);
 		console.log('');
+		console.log(this.xl0('main.coloursyourrisk'));
+		console.log('');
 		return;
 	}
 	else if (this.totnum > 0) {
 		console.log(this.subst(this.xl0('node.help')[0], this.version));
+		console.log(this.xl0('main.coloursyourrisk'));
 		if (this.typeflags === 0) this.typeflags = 7;
 		this.handlerecurse();
 	}
 	else if (this.typeflags > 0) {
 		console.log(this.subst(this.xl0('node.help')[0], this.version));
+		console.log(this.xl0('main.coloursyourrisk'));
 		this.checkimbnode();
 	}
 }
@@ -3400,21 +3405,6 @@ if (typeof process !== 'undefined') {
 	var document = undefined;
 	imbc = new ImBC();
 	imbc.querylang(process.argv[1], 6);
-	/*let teststr = [ "20230405", "202304059", "202304051_12-3", "20230405_12-3", "20230405_123456ABC", "20230405.RAW", "20230405_123456ABC.RAW"];
-	for (const s of teststr) {
-		console.log('ts    ' + s + '        ' + JSON.stringify(imbc.tsregex.exec(s)));
-		console.log('fn    ' + s + '        ' + JSON.stringify(imbc.fnregex.exec(s)));
-		console.log('fnx    ' + s + '        ' + JSON.stringify(imbc.fnregexx.exec(s)));
-		console.log('ts   X' + s + '        ' + JSON.stringify(imbc.tsregex.exec('X' +s)));
-		console.log('fn   X' + s + '        ' + JSON.stringify(imbc.fnregex.exec('X' +s)));
-		console.log('fnx  X' + s + '        ' + JSON.stringify(imbc.fnregexx.exec('X' +s)));
-		console.log('ts    ' + s + '.RAW    ' + JSON.stringify(imbc.tsregex.exec(s + '.RAW')));
-		console.log('fn    ' + s + '.RAW    ' + JSON.stringify(imbc.fnregex.exec(s + '.RAW')));
-		console.log('fnx   ' + s + '.RAW    ' + JSON.stringify(imbc.fnregexx.exec(s + '.RAW')));
-		console.log('ts   X' + s + '.RAW    ' + JSON.stringify(imbc.tsregex.exec('X' +s + '.RAW')));
-		console.log('fn   X' + s + '.RAW    ' + JSON.stringify(imbc.fnregex.exec('X' +s + '.RAW')));
-		console.log('fnx  X' + s + '.RAW    ' + JSON.stringify(imbc.fnregexx.exec('X' +s + '.RAW')));
-	}*/
 	imbc.startnode();
 }
 </script>
@@ -3423,7 +3413,7 @@ if (typeof process !== 'undefined') {
 <body style="font-family: Helvetica, Arial, sans-serif;" onload="init();" lang="en">
 <div style="font-weight:bold;"><span data-myxlkey='main.title'> </span> <span id="mainversion"> </span> - <a target="_new" data-myhrefxlkey="main.helplink" data-myxlkey='main.help'></a>
 <select id="langsel" onchange="imbc.setlang()" value="en"><option value="de" onclick="imbc.setlang()">DE</option><option value="en" selected onclick="imbc.setlang()">EN</option><option value="fr" onclick="imbc.setlang()">FR</option><!--option value="ru" onclick="imbc.setlang()">RU</option--></select></div>
-<br>&nbsp;<br><div style="font-weight:bold;font-size:120%;"><span data-myxlkey="main.coloursyourrisk"> </span><br>&nbsp;<br></div>
+<br><div><span data-myxlkey="main.coloursyourrisk"> </span>&nbsp;<br></div>
 <!-- the normal display -->
 <div id="normal" style="margin-top: 0.5em;">
 <div><input type="checkbox" id="steppreview" checked><label for="steppreview" data-myxlkey="process.singlestep"></label></div>

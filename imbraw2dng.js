@@ -1425,11 +1425,9 @@ handleone(orientation) {
 		const rest9 = [ 0x00, 0x00, 0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x20 ];
 		out.set(rest9, k);
 		k += rest9.length;
-			// console.log('0 size ' + f.size + ' - veroff ' + veroff + ' - k ' + k + ' - k-size ' + (k - f.size) + ' - verlen ' + verlen + ' - dateaddoff ' + dateaddoff);
 		out.set(new TextEncoder().encode(this.types[typ]), k);
 		k += 7;
 
-			// console.log('A size ' + f.size + ' - veroff ' + veroff + ' - k ' + k + ' - k-size ' + (k - f.size) + ' - verlen ' + verlen + ' - dateaddoff ' + dateaddoff);
 		const rest10a = [ 0x00, 0x00, 0x69, 0x6d, 0x62, 0x72, 0x61, 0x77, 0x32, 0x64, 0x6e, 0x67 ];
 		out.set(rest10a, k);
 		k += rest10a.length;
@@ -1445,7 +1443,6 @@ handleone(orientation) {
 			out[k++] = 0x0;
 		}
 
-			// console.log('B size ' + f.size + ' - veroff ' + veroff + ' - k ' + k + ' - k-size ' + (k - f.size) + ' - verlen ' + verlen + ' - dateaddoff ' + dateaddoff);
 		const rest10b = [ 0x0, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x00, 0x00, 0xff, 0xff, 0xff, 0x7f, 0xf4, 0xb6,
 			0x6d, 0x5b, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
@@ -1460,19 +1457,14 @@ handleone(orientation) {
 		out.set(rest10c, k);
 		k += rest10c.length;
 
-			// console.log('size ' + f.size + ' - veroff ' + veroff + ' - k ' + k + ' - k-size ' + (k - f.size) + ' - verlen ' + verlen + ' - dateaddoff ' + dateaddoff);
 		if (dateok) { // datetime value
 			const datearr = new TextEncoder().encode(datestr);
 			out.set(datearr, k);
 			k += 19;
 			out[k++] = 0;
-			// console.log('Z size ' + f.size + ' - veroff ' + veroff + ' - k ' + k + ' - k-size ' + (k - f.size) + ' - verlen ' + verlen + ' - dateaddoff ' + dateaddoff);
 			out.set(rawnamearr, k);
 		}
-		else {
-			// console.log('Y size ' + f.size + ' - veroff ' + veroff + ' - k ' + k + ' - k-size ' + (k - f.size) + ' - verlen ' + verlen + ' - dateaddoff ' + dateaddoff);
-			out.set(rawnamearr, k);
-		}
+		else out.set(rawnamearr, k);
 		this.output1(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted', out);
 	};
 	reader.onerror = (evt) => {
@@ -3222,15 +3214,19 @@ startnode() {
 	if (wanthelp || (this.typeflags === 0 && this.totnum === 0)) {
 		this.help(process.argv[1]);
 		console.log('');
+		console.log(this.xl0('main.coloursyourrisk'));
+		console.log('');
 		return;
 	}
 	else if (this.totnum > 0) {
 		console.log(this.subst(this.xl0('node.help')[0], this.version));
+		console.log(this.xl0('main.coloursyourrisk'));
 		if (this.typeflags === 0) this.typeflags = 7;
 		this.handlerecurse();
 	}
 	else if (this.typeflags > 0) {
 		console.log(this.subst(this.xl0('node.help')[0], this.version));
+		console.log(this.xl0('main.coloursyourrisk'));
 		this.checkimbnode();
 	}
 }
@@ -3318,20 +3314,5 @@ if (typeof process !== 'undefined') {
 	var document = undefined;
 	imbc = new ImBC();
 	imbc.querylang(process.argv[1], 6);
-	/*let teststr = [ "20230405", "202304059", "202304051_12-3", "20230405_12-3", "20230405_123456ABC", "20230405.RAW", "20230405_123456ABC.RAW"];
-	for (const s of teststr) {
-		console.log('ts    ' + s + '        ' + JSON.stringify(imbc.tsregex.exec(s)));
-		console.log('fn    ' + s + '        ' + JSON.stringify(imbc.fnregex.exec(s)));
-		console.log('fnx    ' + s + '        ' + JSON.stringify(imbc.fnregexx.exec(s)));
-		console.log('ts   X' + s + '        ' + JSON.stringify(imbc.tsregex.exec('X' +s)));
-		console.log('fn   X' + s + '        ' + JSON.stringify(imbc.fnregex.exec('X' +s)));
-		console.log('fnx  X' + s + '        ' + JSON.stringify(imbc.fnregexx.exec('X' +s)));
-		console.log('ts    ' + s + '.RAW    ' + JSON.stringify(imbc.tsregex.exec(s + '.RAW')));
-		console.log('fn    ' + s + '.RAW    ' + JSON.stringify(imbc.fnregex.exec(s + '.RAW')));
-		console.log('fnx   ' + s + '.RAW    ' + JSON.stringify(imbc.fnregexx.exec(s + '.RAW')));
-		console.log('ts   X' + s + '.RAW    ' + JSON.stringify(imbc.tsregex.exec('X' +s + '.RAW')));
-		console.log('fn   X' + s + '.RAW    ' + JSON.stringify(imbc.fnregex.exec('X' +s + '.RAW')));
-		console.log('fnx  X' + s + '.RAW    ' + JSON.stringify(imbc.fnregexx.exec('X' +s + '.RAW')));
-	}*/
 	imbc.startnode();
 }
