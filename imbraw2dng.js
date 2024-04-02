@@ -54,7 +54,7 @@ constructor() {
 		if (process.platform.substring(0,3) === 'win') this.withcolours = false;
 	}
 }
-version = "V3.2.1_DEVEL"; // actually const
+version = "V3.2.2_DEVEL"; // actually const
 alllangs = [ 'de' , 'en', 'fr', 'ru', '00' ]; // actually const
 texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU' },
@@ -1254,6 +1254,9 @@ handleone(orientation) {
 		typ = this.infos[zz].typ;
 	}
 	const rawnamearr = new TextEncoder().encode(rawname);
+	const verarr = new TextEncoder(). encode(this.version);
+	const verlen = (verarr.length > 0) ? (verarr.length + 1) : 0;
+	const veroff = (verlen && ((verlen % 2) === 0)) ? verlen : (verlen + 1);
 	let datestr="", dateaddoff = 0, dateok = false;
 	// date?
 	let res = this.fnregexx.exec(rawname);
@@ -1293,7 +1296,7 @@ handleone(orientation) {
 		/* Here comes the actual building of the DNG */
 		const contents = evt.target.result;
 		const view = new DataView(contents);
-		const out = new Uint8Array(f.size + (dateok ? 474: 430) + rawnamearr.length);
+		const out = new Uint8Array(f.size + (dateok ? 474: 430) + rawnamearr.length + veroff);
 		out[0] = 0x49;
 		out[1] = 0x49;
 		out[2] = 0x2a;
@@ -1352,9 +1355,13 @@ handleone(orientation) {
 		this.writeinttoout(out, f.size, k);
 		k += 4;
 
-		const rest5 = [ 0x1c, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x31, 0x01, 0x02, 0x00, 0x0b, 0x00, 0x00, 0x00 ];
+		const rest5 = [ 0x1c, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x31, 0x01, 0x02, 0x00];  // 0x0b,
 		out.set(rest5, k);
 		k += rest5.length;
+		out[k++] = (11 + verlen);
+		const rest5b = [ 0x00, 0x00, 0x00 ];
+		out.set(rest5b, k);
+		k += rest5b.length;
 		this.writeinttoout(out, f.size + (dateaddoff + 314), k);
 		k += 4;
 
@@ -1362,7 +1369,7 @@ handleone(orientation) {
 			const rest5a = [ 0x32, 0x01, 0x02, 0x00, 0x14, 0x00, 0x00, 0x00 ];
 			out.set(rest5a, k);
 			k += rest5a.length;
-			this.writeinttoout(out, f.size + 454, k);
+			this.writeinttoout(out, f.size + 454 + veroff, k);
 			k += 4;
 		}
 
@@ -1381,7 +1388,7 @@ handleone(orientation) {
 			const rest6a = [ 0x03, 0x90, 0x02, 0x00, 0x14, 0x00, 0x00, 0x00 ];
 			out.set(rest6a, k);
 			k += rest6a.length;
-			this.writeinttoout(out, f.size + 454, k);
+			this.writeinttoout(out, f.size + 454 + veroff, k);
 			k += 4;
 		}
 		const rest6b = [ 0x12, 0xc6, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x13, 0xc6, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00,
@@ -1400,7 +1407,7 @@ handleone(orientation) {
 		const rest8 = [ 0x28, 0xc6, 0x05, 0x00, 0x03, 0x00, 0x00, 0x00 ];
 		out.set(rest8, k);
 		k += rest8.length;
-		this.writeinttoout(out, (dateaddoff + 406) + f.size, k);
+		this.writeinttoout(out, (dateaddoff + 406 + veroff) + f.size, k);
 		k += 4;
 
 		const rest8b = [ 0x8b, 0xc6, 0x01, 0x00 ];
@@ -1408,7 +1415,7 @@ handleone(orientation) {
 		k += rest8b.length;
 		this.writeinttoout(out, rawnamearr.length, k);
 		k += 4;
-		this.writeinttoout(out, (dateok ? 474: 430) + f.size, k);
+		this.writeinttoout(out, (dateok ? 474: 430) + f.size + veroff, k);
 		k += 4;
 
 		const rest8x = [ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ];
@@ -1418,15 +1425,28 @@ handleone(orientation) {
 		const rest9 = [ 0x00, 0x00, 0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x20 ];
 		out.set(rest9, k);
 		k += rest9.length;
+			// console.log('0 size ' + f.size + ' - veroff ' + veroff + ' - k ' + k + ' - k-size ' + (k - f.size) + ' - verlen ' + verlen + ' - dateaddoff ' + dateaddoff);
 		out.set(new TextEncoder().encode(this.types[typ]), k);
 		k += 7;
 
-		const rest10a = [ 0x00, 0x00, 0x69, 0x6d, 0x62, 0x72, 0x61, 0x77, 0x32, 0x64, 0x6e, 0x67,
-			0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x00, 0x00 ];
+			// console.log('A size ' + f.size + ' - veroff ' + veroff + ' - k ' + k + ' - k-size ' + (k - f.size) + ' - verlen ' + verlen + ' - dateaddoff ' + dateaddoff);
+		const rest10a = [ 0x00, 0x00, 0x69, 0x6d, 0x62, 0x72, 0x61, 0x77, 0x32, 0x64, 0x6e, 0x67 ];
 		out.set(rest10a, k);
 		k += rest10a.length;
+		if (verlen) {
+			out[k] = 0x20;
+			out.set(verarr, k + 1);
+			k += verlen;
+			out[k++] = 0x0;
+			if (verlen !== veroff) out[k++] = 0x0;
+		}
+		else {
+			out[k++] = 0x0;
+			out[k++] = 0x0;
+		}
 
-		const rest10b = [ 0xff, 0xff, 0xff, 0x7f, 0xf4, 0xb6,
+			// console.log('B size ' + f.size + ' - veroff ' + veroff + ' - k ' + k + ' - k-size ' + (k - f.size) + ' - verlen ' + verlen + ' - dateaddoff ' + dateaddoff);
+		const rest10b = [ 0x0, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x00, 0x00, 0xff, 0xff, 0xff, 0x7f, 0xf4, 0xb6,
 			0x6d, 0x5b, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00,
@@ -1440,13 +1460,19 @@ handleone(orientation) {
 		out.set(rest10c, k);
 		k += rest10c.length;
 
+			// console.log('size ' + f.size + ' - veroff ' + veroff + ' - k ' + k + ' - k-size ' + (k - f.size) + ' - verlen ' + verlen + ' - dateaddoff ' + dateaddoff);
 		if (dateok) { // datetime value
 			const datearr = new TextEncoder().encode(datestr);
-			out.set(datearr, f.size + 454);
-			out[f.size + 473] = 0;
-			out.set(rawnamearr, f.size + 474);
+			out.set(datearr, k);
+			k += 19;
+			out[k++] = 0;
+			// console.log('Z size ' + f.size + ' - veroff ' + veroff + ' - k ' + k + ' - k-size ' + (k - f.size) + ' - verlen ' + verlen + ' - dateaddoff ' + dateaddoff);
+			out.set(rawnamearr, k);
 		}
-		else out.set(rawnamearr, k);
+		else {
+			// console.log('Y size ' + f.size + ' - veroff ' + veroff + ' - k ' + k + ' - k-size ' + (k - f.size) + ' - verlen ' + verlen + ' - dateaddoff ' + dateaddoff);
+			out.set(rawnamearr, k);
+		}
 		this.output1(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted', out);
 	};
 	reader.onerror = (evt) => {
