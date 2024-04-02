@@ -1293,7 +1293,7 @@ handleone(orientation) {
 		/* Here comes the actual building of the DNG */
 		const contents = evt.target.result;
 		const view = new DataView(contents);
-		const out = new Uint8Array(f.size + (dateok ? 466: 422) + rawnamearr.length);
+		const out = new Uint8Array(f.size + (dateok ? 474: 430) + rawnamearr.length);
 		out[0] = 0x49;
 		out[1] = 0x49;
 		out[2] = 0x2a;
@@ -1334,7 +1334,7 @@ handleone(orientation) {
 		const rest3 = [ 0x10, 0x01, 0x02, 0x00, 0x08, 0x00, 0x00, 0x00 ];
 		out.set(rest3, k);
 		k += rest3.length;
-		this.writeinttoout(out, f.size + (dateaddoff + 298), k);
+		this.writeinttoout(out, f.size + (dateaddoff + 305), k);
 		k += 4;
 
 		const rest4 = [ 0x11, 0x01, 0x04, 0x00, 0x01, 0x00,
@@ -1355,14 +1355,14 @@ handleone(orientation) {
 		const rest5 = [ 0x1c, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x31, 0x01, 0x02, 0x00, 0x0b, 0x00, 0x00, 0x00 ];
 		out.set(rest5, k);
 		k += rest5.length;
-		this.writeinttoout(out, f.size + (dateaddoff + 306), k);
+		this.writeinttoout(out, f.size + (dateaddoff + 314), k);
 		k += 4;
 
 		if (dateok) { // one datetime tag
 			const rest5a = [ 0x32, 0x01, 0x02, 0x00, 0x14, 0x00, 0x00, 0x00 ];
 			out.set(rest5a, k);
 			k += rest5a.length;
-			this.writeinttoout(out, f.size + 446, k);
+			this.writeinttoout(out, f.size + 454, k);
 			k += 4;
 		}
 
@@ -1381,14 +1381,14 @@ handleone(orientation) {
 			const rest6a = [ 0x03, 0x90, 0x02, 0x00, 0x14, 0x00, 0x00, 0x00 ];
 			out.set(rest6a, k);
 			k += rest6a.length;
-			this.writeinttoout(out, f.size + 446, k);
+			this.writeinttoout(out, f.size + 454, k);
 			k += 4;
 		}
 		const rest6b = [ 0x12, 0xc6, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x13, 0xc6, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00,
-			0x00, 0x00, 0x14, 0xc6, 0x02, 0x00, 0x10, 0x00, 0x00, 0x00 ];
+			0x00, 0x00, 0x14, 0xc6, 0x02, 0x00, 0x0f, 0x00, 0x00, 0x00 ];
 		out.set(rest6b, k);
 		k += rest6b.length;
-		this.writeinttoout(out, (dateaddoff + 290) + f.size, k);
+		this.writeinttoout(out, (dateaddoff + 298) + f.size, k);
 		k += 4;
 
 		const rest7 = [ 0x1d, 0xc6, 0x04, 0x00, 0x01, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00 ]; //, 0x21, 0xc6, 0x0a, 0x00, 0x09, 0x00, 0x00, 0x00 ];
@@ -1400,7 +1400,7 @@ handleone(orientation) {
 		const rest8 = [ 0x28, 0xc6, 0x05, 0x00, 0x03, 0x00, 0x00, 0x00 ];
 		out.set(rest8, k);
 		k += rest8.length;
-		this.writeinttoout(out, (dateaddoff + 398) + f.size, k);
+		this.writeinttoout(out, (dateaddoff + 406) + f.size, k);
 		k += 4;
 
 		const rest8b = [ 0x8b, 0xc6, 0x01, 0x00 ];
@@ -1408,20 +1408,20 @@ handleone(orientation) {
 		k += rest8b.length;
 		this.writeinttoout(out, rawnamearr.length, k);
 		k += 4;
-		this.writeinttoout(out, (dateok ? 466: 422) + f.size, k);
+		this.writeinttoout(out, (dateok ? 474: 430) + f.size, k);
 		k += 4;
 
 		const rest8x = [ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ];
 		out.set(rest8x, k);
 		k += rest8x.length;
 
-		const rest9 = [ 0x00, 0x00, 0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x20, 0x20 ];
+		const rest9 = [ 0x00, 0x00, 0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x20 ];
 		out.set(rest9, k);
 		k += rest9.length;
 		out.set(new TextEncoder().encode(this.types[typ]), k);
 		k += 7;
 
-		const rest10a = [ 0x00, 0x69, 0x6d, 0x62, 0x72, 0x61, 0x77, 0x32, 0x64, 0x6e, 0x67,
+		const rest10a = [ 0x00, 0x00, 0x69, 0x6d, 0x62, 0x72, 0x61, 0x77, 0x32, 0x64, 0x6e, 0x67,
 			0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x00, 0x00 ];
 		out.set(rest10a, k);
 		k += rest10a.length;
@@ -1442,9 +1442,9 @@ handleone(orientation) {
 
 		if (dateok) { // datetime value
 			const datearr = new TextEncoder().encode(datestr);
-			out.set(datearr, f.size + 446);
-			out[f.size + 465] = 0;
-			out.set(rawnamearr, f.size + 466);
+			out.set(datearr, f.size + 454);
+			out[f.size + 473] = 0;
+			out.set(rawnamearr, f.size + 474);
 		}
 		else out.set(rawnamearr, k);
 		this.output1(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted', out);
@@ -1493,23 +1493,6 @@ output1(name, type, okmsg, arr1) {
 					this.stats.error++;
 					this.appendmsg('');
 					this.handlenext();
-				}
-				else if (arr2) {
-					this.fs.writeFile(outfile, arr2,  { flag: 'a'}, (err) => {
-						if (err) {
-							this.mappx('process.errsave', outfile);
-							this.appendmsg(JSON.stringify(err));
-							this.stats.error++;
-							this.appendmsg('');
-							this.handlenext();
-						}
-						else {
-							this.mappx(okmsg + 'x', outfile);
-							this.stats.ok++;
-							this.appendmsg('');
-							this.handlenext();
-						}
-					});
 				}
 				else {
 					this.mappx(okmsg + 'x', outfile);
