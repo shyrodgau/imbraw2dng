@@ -22,34 +22,19 @@ des [github Repositorys](https://github.com/shyrodgau/imbraw2dng) oder in der [I
 
 ## Grundlagen ;tldr
 
-Es gibt die folgenden Möglichkeiten, um Dateien (Bilder oder Filme) von ImB weiterzureichen:
-
-1. Micro-SD Karte herausnehmen und in PC oder (ggf. per Adapter) in/an Smartphone stecken. Dateien auf anderes Medium kopieren
-
-1. ImB per USB-Kabel mit PC verbinden, auf ImB `MassStorage`/`Massenspeicher` wählen, weiter wie 1. wobei MicroSD durch eingehängten USB Massenspeicher ersetzt
-
-1. Smartphone per WLAN mit ImB verbinden und Android- oder Apple-App zum Kopieren aufs Smartphone verwenden
-
-1. (nicht dokumentert) Smartphone oder PC per WLAN verbinden und per Browser von http://192.168.1.254 durch die Dateien navigieren und herunterladen oder löschen
-
-Alle diese Möglichkeiten belassen die Dateien 1:1, wie sie sind, was für JPEGs und Filme in der Regel gewollt ist, bei RAW Bildern aber in einer Art Sackgasse münden kann.   
 Im Folgenden liegt der Fokus darauf, während des Kopierens die RAW-Dateien ins DNG-Format umzuwandeln.
 Es wird je nur eine Datei für Benutzung im Browser und/oder eine Datei für Benutzung mit node.js gebraucht.
 
-1. [imbraw2dng_de.html](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html) im Browser öffnen, Micro-SD Karte herausnehmen und in PC oder Smartphone stecken, 
-Dateien aus `IMBACK/PHOTO` und `IMBACK/MOVIE` Ordner in das blaue Feld ziehen. [(Details)](#benutzung)
+`.../IMBACK` ist das Verzeichnis auf der Micro SD Karte von ImB, zugänglich entweder per USB (`Massenspeicher` auf ImB auswählen), oder durch Einstecken der Micro SD Karte in PC oder Smartphone.
 
-1. ImB per USB-Kabel mit PC verbinden, auf ImB `MassStorage`/`Massenspeicher` wählen, weiter wie 1. wobei MicroSD durch eingehängten USB Massenspeicher ersetzt
+1. [imbraw2dng_de.html](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html) im Browser öffnen. Dateien aus `.../IMBACK/PHOTO` und `.../IMBACK/MOVIE` Ordner in das blaue Feld ziehen. [(Details)](#benutzung)
 
-1. Micro-SD Karte herausnehmen und in PC oder in Smartphone stecken, [imbraw2dng_de.html](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html) im `IMBACK` Ordner 
-darauf abspeichern. Karte sauber auswerfern und zurück in ImB. PC oder Smartphone ins ImB WLAN hängen 
+1. (Nachdem [imbraw2dng_de.html](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html) in den `.../IMBACK` Ordner abgespeichert und Karte sauber ausgeworfen) PC oder Smartphone ins ImB WLAN hängen 
 und dann [http://192.168.1.254/IMBACK/imbraw2dng_de.html](http://192.168.1.254/IMBACK/imbraw2dng_de.html) vom ImB im Browser öffnen. 
 [(Details)](#gucken-auf-imback-selbst)
 
-1. Micro-SD Karte herausnehmen und in PC stecken, [imbraw2dng_de.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.js) herunterladen und `node imbraw2dng_de.js <Pfadname_vom_der_ImB_microsd>` aufrufen. 
+1. [imbraw2dng_de.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.js) herunterladen und `node imbraw2dng_de.js .../IMBACK` aufrufen. 
 [(Details)](#kommandozeile-mit-nodejs)
-
-1. ImB per USB-Kabel mit PC verbinden, auf ImB `MassStorage`/`Massenspeicher` wählen, weiter auf PC wie 4. wobei MicroSD durch eingehängten USB Massenspeicher ersetzt
 
 1. PC ins WLAN von ImB verbinden, [imbraw2dng_de.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.js) herunterladen und `node imbraw2dng_de.js -R -J -O` aufrufen.
 [(Details)](#kommandozeile-mit-nodejs)
@@ -57,7 +42,7 @@ und dann [http://192.168.1.254/IMBACK/imbraw2dng_de.html](http://192.168.1.254/I
 
 ## Installation
 
-Die aktuelle Version ist [V3.2.0_4e726df - Genug vom Thema Farbe](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.2.0_4e726df). 
+Die aktuelle Version ist [V3.3.0_2087006 - Böse Matrix entfernt](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.3.0_2087006). 
 Anmerkung: Weiterentwicklung wenn Fehler gefunden, neue Übersetzung beigesteuert, oder neues Bildformat.
 
 Die Datei [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.html) auf den PC kopieren oder aus der 
@@ -151,9 +136,7 @@ I'm Back digital back [Developers Group on Facebook](https://www.facebook.com/gr
 Eine starke grüne oder magentafarbige Tönung der Bilder sollte nicht mehr vorkommen! Wenn aber eine da ist, die sich **nicht** durch 
 Farbkalibrierung/Farbmatrix/Weißabgleich entfernen lässt, könnte ein Beispielbild interessant sein.
 
-**Ein Wort zu den Farben:** Der für mich richtige Weg, zu guten Farben zu kommen, besteht darin, mit der Farbkalibrierung/Farbmatrix anzufangen. 
-Ich versuche, entsprechende Werte in die DNG-Datei hinenzubekommen, bin da aber nicht weit. Den Faktor grün/grün und rot/rot auf etwa 0,6..0,7 setzen. 
-Dann kann man mit dem Weißabgleich die Farben ordentlich hinzutzeln.
+**Ein Wort zu den Farben:** Ich habe keine Ahnung davon...
 
 Wenn in der Bildmitte ein rot hervorstechender Punkt ist, muss eine manuelle Retusche erfolgen, oder im darktable die folgende Einstellung 
 verwenden und dann einen Kreis manuell darumherum platziern.

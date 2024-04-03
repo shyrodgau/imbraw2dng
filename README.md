@@ -21,33 +21,18 @@ of the [github repos](https://github.com/shyrodgau/imbraw2dng) or in the [I'm Ba
 
 ## Basics ;tldr
 
-There are the following possibilities to make use of files (pictures or movies) from ImB:
-
-1. Take Micro-SD out of ImB and put into PC or (maybe using an adapter) into/to the smartphone. Copy files from the Micro-SD somewhere else
-
-1. Connect ImB to PC via USB, select `MassStorage` on ImB, continue as 1. replacing MicroSD with mounted USB mass storage
-
-1. Connect Smartphone with ImB Wifi and use Android- or Apple App to copy files to smartphone
-
-1. (not documented) Connect smartphone or PC with ImB Wifi and use browser on http://192.168.1.254 to browse and download or delete files
-
-These ways keep all files 1:1 as they were which usually is fine for JPEGs or movies. But on RAW images it can end up in a kind of dead end.   
 The following ways focus on converting RAW files into DNG while copying. You only need one file for using with browser and/or one file for using with node.js.
 
-1. Open [imbraw2dng.html](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) in browser, Take Micro-SD out of ImB and put into PC or smartphone. 
-Drag and drop files from `IMBACK/PHOTO` and `IMBACK/MOVIE` into the blue field. [(Details)](#usage)
+`.../IMBACK` refers to the path of the device, either by mounting via USB cable (select `MassStorage` on device), or by inserting the Micro SD into the PC or smartphone.
 
-1. Connect ImB to PC via USB, select `MassStorage` on ImB, continue as 1. replacing MicroSD with mounted USB mass storage
+1. Open [imbraw2dng.html](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) in browser. Drag and drop files from `.../IMBACK/PHOTO` and `.../IMBACK/MOVIE` into the blue field. [(Details)](#usage)
 
-1. Take Micro-SD out of ImB and put into PC or smartphone. Copy [imbraw2dng.html](https://raw.githubusercontent.com/shyrodgau/imbraw2dng/master/imbraw2dng.html) into `IMBACK` folder on MicroSD. 
-Eject cleanly and put card back into ImB. 
+1. (After copying [imbraw2dng.html](https://raw.githubusercontent.com/shyrodgau/imbraw2dng/master/imbraw2dng.html) into `.../IMBACK` folder on MicroSD and ejecting cleanly) 
 Connect Smartphone or PC in ImB Wifi and navigate browser to [http://192.168.1.254/IMBACK/imbraw2dng.html](http://192.168.1.254/IMBACK/imbraw2dng.html) from ImB.
 [(Details)](#browsing-on-the-imback)
 
-1. Take Micro-SD out of ImB and put into PC. Download [imbraw2dng.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) and invoke `node imbraw2dng.js <path_of_the_microsd>`.
+1. Download [imbraw2dng.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) and invoke `node imbraw2dng.js .../IMBACK`.
 [(Details)](#command-line-using-nodejs)
-
-1. Connect ImB to PC via USB, select `MassStorage` on ImB, continue on PC as 4. replacing MicroSD with mounted USB mass storage
 
 1. Connect PC into ImB Wifi, download [imbraw2dng.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) and invoke `node imbraw2dng.js -R -J -O`.
 [(Details)](#command-line-using-nodejs)
@@ -56,7 +41,7 @@ Connect Smartphone or PC in ImB Wifi and navigate browser to [http://192.168.1.2
 
 ## Installation
 
-The current release is [V3.2.0_4e726df - fed up with colours](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.2.0_4e726df). 
+The current release is [V3.3.0_2087006 - remove evil matrix](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.3.0_2087006). 
 Note: further development when errors reported, new translation contributed or new image format.
 
 Copy the [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.html) file to your PC or extract it from the release 
@@ -137,8 +122,7 @@ I'm Back digital back [Developers Group on Facebook](https://www.facebook.com/gr
 A strong green or magenta tint all over the image should not happen any more! But if you have one and **can not** level it out using your software's 
 color matrix/color calibration or white-balancing, a sample image might be interesing to fix it.
 
-**Word on colours:** The right way to get the colours correct is to first adjust the color calibration or color matrix. I am trying to get this right somehow 
-inside the DNG but I am far from it. Change the green/green and red/red value to something around 0.6..0.7. Then you can use the white balance to adjust it correctly.
+**Word on colours:** I don't have the slightest idea...
 
 If a red highlighted spot is in the center of the image, a manual retouche after the processing is required, or use the following darktable setting, 
 placing and sizing a circle shape manually around the area.
