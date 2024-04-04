@@ -1,11 +1,7 @@
 <!-- SPDX-License-Identifier: 0BSD -->
-# imbraw2dng - Konvertierung von RAW-Dateien von [I'mBack<sup>&reg;</sup>&nbsp;35mm/MF](https://imback.eu) nach DNG
+# imbraw2dng - Konvertierung von RAW-Dateien von [I'mBack<sup>&reg;</sup>&nbsp;35mm/MF](https://imback.eu) nach DNG - Schnelleinstieg
 
 Dies ist freie Software ([0-Klausel-BSD-Lizenz](LICENSE.txt)) ohne kommerzielle Unterstützung.
-
-Hier gibts: [Installation](#installation) - [Internationalisierung](#internationalisierung) -    
-[Benutzung](#benutzung) - [Gucken auf ImBack selbst](#gucken-auf-imback-selbst) - [Per Kommandozeile mit node.js](#kommandozeile-mit-nodejs) -   
-[Verarbeitung des DNG](#verarbeitung-des-dng) - [Wie funktioniert es](#wie-funktioniert-es)
 
 Mehr Doku: [hier](https://shyrodgau.github.io/imbraw2dng/moredoc_de)
 
@@ -29,17 +25,17 @@ Es wird je nur eine Datei für Benutzung im Browser und/oder eine Datei für Ben
 `.../IMBACK` ist das Verzeichnis auf der Micro SD Karte von ImB, zugänglich entweder per USB (`Massenspeicher` auf ImB auswählen), oder durch Einstecken der Micro SD Karte in PC oder Smartphone.
 
 1. [imbraw2dng_de.html](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html) im Browser öffnen. Dateien aus `.../IMBACK/PHOTO` und `.../IMBACK/MOVIE` Ordner in das blaue Feld ziehen. 
-[(Details)](http://192.168.1.254/IMBACK/moredoc_de#benutzung)
+[(Details)](https://shyrodgau.github.io/imbraw2dng/moredoc_de#benutzung)
 
 1. (Nachdem [imbraw2dng_de.html](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html) in den `.../IMBACK` Ordner abgespeichert und Karte sauber ausgeworfen) PC oder Smartphone ins ImB WLAN hängen 
 und dann [http://192.168.1.254/IMBACK/imbraw2dng_de.html](http://192.168.1.254/IMBACK/imbraw2dng_de.html) vom ImB im Browser öffnen. 
-[(Details)](http://192.168.1.254/IMBACK/moredoc_de#gucken-auf-imback-selbst)
+[(Details)](https://shyrodgau.github.io/imbraw2dng/moredoc_de#gucken-auf-imback-selbst)
 
 1. [imbraw2dng_de.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.js) herunterladen und `node imbraw2dng_de.js .../IMBACK` aufrufen. 
-[(Details)](http://192.168.1.254/IMBACK/moredoc_de#kommandozeile-mit-nodejs)
+[(Details)](https://shyrodgau.github.io/imbraw2dng/moredoc_de#kommandozeile-mit-nodejs)
 
 1. PC ins WLAN von ImB verbinden, [imbraw2dng_de.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.js) herunterladen und `node imbraw2dng_de.js -R -J -O` aufrufen.
-[(Details)](http://192.168.1.254/IMBACK/moredoc_de#kommandozeile-mit-nodejs)
+[(Details)](https://shyrodgau.github.io/imbraw2dng//moredoc_de#kommandozeile-mit-nodejs)
 
 ## Verarbeitung des DNG
 
