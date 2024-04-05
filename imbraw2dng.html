@@ -145,7 +145,7 @@ constructor() {
 		if (process.platform.substring(0,3) === 'win') this.withcolours = false;
 	}
 }
-version = "V3.3.0_2087006"; // actually const
+version = "V3.3.0_DEVEL"; // actually const
 alllangs = [ 'de' , 'en', 'fr', 'ru', '00' ]; // actually const
 texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU' },
@@ -835,6 +835,18 @@ writeinttoout(out, num, off) {
 	out[off + 2] = (num / 65536) % 256;
 	out[off + 3] = (num / 16777216) % 256;
 }
+/* helper to read dng */
+readshort(view, off) {
+	let res = view.getUint8(off);
+	res += (256 * view.getUint8(off+1));
+	return res;
+}
+/* helper to read dng */
+readint(view, off) {
+	let res = this.readshort(view, off);
+	res += (65536 * this.readshort(view,off+2));
+	return res;
+}
 /* stupid helper */
 appendnl() {
 	if (document) this.appendmsg('<br>&nbsp;<br>');
@@ -894,9 +906,9 @@ handlerecurse(already, index) {
 				else for (let i of f.filter(e => e.isFile())) {
 					const n = i.name;
 					if (n.substring(0,10).toUpperCase() === 'IMBRAW2DNG') continue;
-					if ((n.substring(n.length -4).toUpperCase() === '.RAW' && (this.typeflags % 2)) ||
+					if (((n.substring(n.length -4).toUpperCase() === '.RAW' || n.substring(n.length -4).toUpperCase() === '.DNG') && (this.typeflags % 2)) ||
 						((n.substring(n.length -5).toUpperCase() === '.JPEG' || n.substring(n.length -4).toUpperCase() === '.JPG') && ((this.typeflags % 4) > 1)) ||
-						(n.substring(n.length -5).toUpperCase() !== '.JPEG' && n.substring(n.length -4).toUpperCase() !== '.JPG' &&
+						(n.substring(n.length -5).toUpperCase() !== '.JPEG' && n.substring(n.length -4).toUpperCase() !== '.JPG' && n.substring(n.length -4).toUpperCase() !== '.DNG' &&
 							n.substring(n.length -4).toUpperCase() !== '.RAW' && ((this.typeflags % 8) > 3))) {
 						if (this.comptime(i.name, this.fromts))
 							already.push(i.path + this.pa.sep + i.name);
@@ -966,6 +978,54 @@ setpvwait() {
 	document.getElementById('previewwait').style['display'] = '';
 	document.getElementById('previewerr').style['display'] = 'none';
 	document.getElementById('preview').style['display'] = 'none';
+}
+/* handle dng like raw */
+parseDng(f, onok, onerr) {
+	// blindly assumes that it is one of our own DNG
+	// interesting tags: orientation, datetime
+	if (undefined === f.data) {
+		const reader = f.imbackextension ? f : new FileReader();
+		reader.onload = (evt) => {
+			f.data = evt.target.result;
+			this.parseDng(f, onok, onerr);
+		}
+		reader.readAsArrayBuffer(f);
+		return;
+	}
+	const v = new DataView(f.data);
+	const ifd = this.readint(v, 4);
+	const zz = this.infos.findIndex((v, i, o) => v.size === ifd - 8);
+	if (this.readshort(v, 2) !== 42 || this.readshort(v,0) !== 18761 /* 0x4949 */ || zz === -1)
+		return onerr(f.name);
+	const nent = this.readshort(v, ifd);
+	let fx = {
+		imbackextension: true,
+		name: f.name + '_X.raw',
+		size: ifd - 8,
+		data: f.data.slice(8, ifd)
+	};
+	let off = ifd+2;
+	for (let k=0; k<((nent<30)? nent: 0); k++) {
+		let tag = this.readshort(v, off);
+		if (tag === 274)
+			fx.rot = this.readshort(v, off+8); // rotation handling has problems
+		else if (tag === 306) {
+			fx.datestr = '';
+			let xoff = this.readint(v, off+8);
+			const len = this.readshort(v, off+4)-1;
+			for (let j=0; j<len;j++)
+				fx.datestr += String.fromCharCode(v.getUint8(xoff++));
+		}
+		off += 12;
+	}
+	fx.readAsArrayBuffer = (fy) => {
+		fy.onload({
+				target: { result: fy.data }
+		});
+	};
+	setTimeout(() => {
+			onok(f.name, fx, fx.rot);
+	});
 }
 /* nodejs: file/filereader like interface for node js */
 createFxNode(url, onok, onerr) {
@@ -1044,7 +1104,7 @@ createFxNode(url, onok, onerr) {
 // url can also be an imbele member
 createFx(url, onok, onerr, notfirst) {
 	if (!document) return this.createFxNode(url, onok, onerr);
-	let rot, e = url;;
+	let rot, e = url;
 	if (url.url) {
 		e = url;
 		url = e.url;
@@ -1073,7 +1133,7 @@ createFx(url, onok, onerr, notfirst) {
 	xhr.onload = (evt) => {
 		let len = JSON.parse(xhr.getResponseHeader('content-length'));
 		if (0 >= len) len=1;
-		if (notfirst && url.substring(url.length -4).toUpperCase() === '.RAW') {
+		if (notfirst && (url.substring(url.length -4).toUpperCase() === '.RAW' || url.substring(url.length -4).toUpperCase() === '.DNG')) {
 			this.cache.push({ url: url, d: xhr.response, l: len });
 			if (this.cache.length > this.maxcache) this.cache.splice(0,1);
 		}
@@ -1178,10 +1238,14 @@ handleonex() {
 				document.getElementById('jpegpreview').src = f;
 			}
 		}
-		else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
+		else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW' && rawname.substring(rawname.length -4).toUpperCase() !== '.DNG') {
 			/* no preview */
 			this.qappx('main.file.nopreview', rawname);
 			this.setnopv();
+		}
+		else if (rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
+			this.qappx('main.file',rawname);
+			this.buildpreview(f, () => { this.setrawpv(); }, () => { this.setpverr(); });
 		}
 		else {
 			const zz = this.infos.findIndex((v, i, o) => v.size === f.size);
@@ -1220,21 +1284,8 @@ genspan(key, arg0, arg1, arg2, arg3) {
 }
 /* translation helper with title */
 genspantitle(title, key, arg0, arg1, arg2, arg3) {
-	const s = document.createElement('span');
-	s.setAttribute('data-myxlkey', key);
+	const s = this.genspan(key, arg0, arg1, arg2, arg3);
 	s.setAttribute('data-mytitlexlkey', title);
-	if (undefined !== arg0) {
-		s.setAttribute('data-myxlarg0', arg0);
-		if (undefined !== arg1) {
-			s.setAttribute('data-myxlarg1', arg1);
-			if (undefined !== arg2) {
-				s.setAttribute('data-myxlarg2', arg2);
-				if (undefined !== arg3) {
-					s.setAttribute('data-myxlarg3', arg3);
-				}
-			}
-		}
-	}
 	return this.xl1(s);
 }
 /* translated append to preview header */
@@ -1281,6 +1332,21 @@ handleone(orientation) {
 	let rawname = f.name;
 	while (rawname.indexOf("/") > -1) {
 		rawname = rawname.substring(rawname.indexOf("/") + 1);
+	}
+	if (rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
+		this.mappx('process.processing', rawname);
+		if (document) this.appendmsg('<br>');
+		return this.parseDng(f, 
+			(url, fx, rot) => {
+				this.allfiles[this.actnum] = fx;
+				this.handleone(orientation ? orientation: rot);
+			}, (url) => {
+				this.mappx('process.erraccess' + (!document ? 'x' : ''), url);
+				if (document) this.appendnl();
+				else this.appendmsg('');
+				this.stats.error ++;
+				this.handlenext();
+			});
 	}
 	if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
 		const reader = f.imbackextension ? f : new FileReader();
@@ -1350,8 +1416,13 @@ handleone(orientation) {
 	const veroff = (verlen && ((verlen % 2) === 0)) ? verlen : (verlen + 1);
 	let datestr="", dateaddoff = 0, dateok = false;
 	// date?
+	if (undefined !== f.datestr) {
+		datestr = f.datestr;
+		dateok = true;
+		dateaddoff = 24;
+	}
 	let res = this.fnregexx.exec(rawname);
-	if (res !== null) {
+	if (res !== null && !dateok) {
 		const yr = Number.parseInt(res[1]);
 		const mon = Number.parseInt(res[3]);
 		const day = Number.parseInt(res[5]);
@@ -1387,7 +1458,7 @@ handleone(orientation) {
 		/* Here comes the actual building of the DNG */
 		const contents = evt.target.result;
 		const view = new DataView(contents);
-		const out = new Uint8Array(f.size + (dateok ? 474: 430) + rawnamearr.length + veroff);
+		const out = new Uint8Array(f.size + (dateok ? 486: 442) + rawnamearr.length + veroff);
 		out[0] = 0x49;
 		out[1] = 0x49;
 		out[2] = 0x2a;
@@ -1398,9 +1469,9 @@ handleone(orientation) {
 			out[k++] = view.getUint8(j);
 		}
 		if (dateok)
-			out[k++] = 0x18;
+			out[k++] = 0x1a;
 		else
-			out[k++] = 0x16;
+			out[k++] = 0x18;
 		const rest0 = [
 			0x00, 0xfe, 0x00, 0x04, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00
 		]; /* followed by 4b width */
@@ -1422,13 +1493,13 @@ handleone(orientation) {
 			0x00, 0x00, 0x0f, 0x01, 0x02, 0x00, 0x07, 0x00, 0x00, 0x00 ];
 		out.set(rest2, k);
 		k += rest2.length;
-		this.writeinttoout(out, f.size + (dateaddoff + 290), k);
+		this.writeinttoout(out, f.size + (dateaddoff + 302), k);
 		k += 4;
 
 		const rest3 = [ 0x10, 0x01, 0x02, 0x00, 0x08, 0x00, 0x00, 0x00 ];
 		out.set(rest3, k);
 		k += rest3.length;
-		this.writeinttoout(out, f.size + (dateaddoff + 305), k);
+		this.writeinttoout(out, f.size + (dateaddoff + 317), k);
 		k += 4;
 
 		const rest4 = [ 0x11, 0x01, 0x04, 0x00, 0x01, 0x00,
@@ -1453,14 +1524,14 @@ handleone(orientation) {
 		const rest5b = [ 0x00, 0x00, 0x00 ];
 		out.set(rest5b, k);
 		k += rest5b.length;
-		this.writeinttoout(out, f.size + (dateaddoff + 314), k);
+		this.writeinttoout(out, f.size + (dateaddoff + 326), k);
 		k += 4;
 
 		if (dateok) { // one datetime tag
 			const rest5a = [ 0x32, 0x01, 0x02, 0x00, 0x14, 0x00, 0x00, 0x00 ];
 			out.set(rest5a, k);
 			k += rest5a.length;
-			this.writeinttoout(out, f.size + 454 + veroff, k);
+			this.writeinttoout(out, f.size + 466 + veroff, k);
 			k += 4;
 		}
 
@@ -1479,39 +1550,43 @@ handleone(orientation) {
 			const rest6a = [ 0x03, 0x90, 0x02, 0x00, 0x14, 0x00, 0x00, 0x00 ];
 			out.set(rest6a, k);
 			k += rest6a.length;
-			this.writeinttoout(out, f.size + 454 + veroff, k);
+			this.writeinttoout(out, f.size + 466 + veroff, k);
 			k += 4;
 		}
 		const rest6b = [ 0x12, 0xc6, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x13, 0xc6, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00,
 			0x00, 0x00, 0x14, 0xc6, 0x02, 0x00, 0x0f, 0x00, 0x00, 0x00 ];
 		out.set(rest6b, k);
 		k += rest6b.length;
-		this.writeinttoout(out, (dateaddoff + 298) + f.size, k);
+		this.writeinttoout(out, (dateaddoff + 310) + f.size, k);
 		k += 4;
 
-		const rest7 = [ 0x1d, 0xc6, 0x04, 0x00, 0x01, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00 ]; //, 0x21, 0xc6, 0x0a, 0x00, 0x09, 0x00, 0x00, 0x00 ];
+		const rest7 = [ 0x1d, 0xc6, 0x04, 0x00, 0x01, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x21, 0xc6, 0x0a, 0x00, 0x09, 0x00, 0x00, 0x00 ];
 		out.set(rest7, k);
 		k += rest7.length;
-		//this.writeinttoout(out, (dateaddoff + 326) + f.size, k);
-		//k += 4;
+		this.writeinttoout(out, (dateaddoff + 346 + veroff) + f.size, k);
+		k += 4;
 
 		const rest8 = [ 0x28, 0xc6, 0x05, 0x00, 0x03, 0x00, 0x00, 0x00 ];
 		out.set(rest8, k);
 		k += rest8.length;
-		this.writeinttoout(out, (dateaddoff + 406 + veroff) + f.size, k);
+		this.writeinttoout(out, (dateaddoff + 418 + veroff) + f.size, k);
 		k += 4;
+
+		const rest8i = [ 0x5a, 0xc6, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x17, 0x00, 0x00, 0x00 ];  // 0x0b,
+		out.set(rest8i, k);
+		k += rest8i.length;
 
 		const rest8b = [ 0x8b, 0xc6, 0x01, 0x00 ];
 		out.set(rest8b, k);
 		k += rest8b.length;
 		this.writeinttoout(out, rawnamearr.length, k);
 		k += 4;
-		this.writeinttoout(out, (dateok ? 474: 430) + f.size + veroff, k);
+		this.writeinttoout(out, (dateok ? 486: 442) + f.size + veroff, k);
 		k += 4;
 
-		const rest8x = [ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ];
-		out.set(rest8x, k);
-		k += rest8x.length;
+		//const rest8x = [ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ];
+		//out.set(rest8x, k);
+		//k += rest8x.length;
 
 		const rest9 = [ 0x00, 0x00, 0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x20 ];
 		out.set(rest9, k);
@@ -1534,12 +1609,12 @@ handleone(orientation) {
 			out[k++] = 0x0;
 		}
 
-		const rest10b = [ 0x0, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x00, 0x00, 0xff, 0xff, 0xff, 0x7f, 0xf4, 0xb6,
-			0x6d, 0x5b, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00,
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00,
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0x7f, 0xf4, 0xb6,
-			0x6d, 0x5b ];
+		const rest10b = [ 0x0, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x00, 0x00, 0x95, 0x09, 0x00, 0x00, 0xe2, 0x04,
+			0x00, 0x00, 0x3b, 0xfb, 0xff, 0xff, 0xd0, 0x07, 0x00, 0x00, 0x21, 0xea, 0xff, 0xff, 0x13, 0x40,
+			0x00, 0x00, 0x4f, 0xe9, 0xff, 0xff, 0x2f, 0x17, 0x00, 0x00, 0xcb, 0x1e, 0x00, 0x00, 0x12, 0x10,
+			0x00, 0x00, 0x9d, 0x02, 0x00, 0x00, 0x20, 0x4e, 0x00, 0x00, 0x01, 0x0d, 0x00, 0x00, 0x4e, 0xc5,
+			0x01, 0x00, 0x91, 0xfe, 0xff, 0xff, 0xc4, 0x09, 0x00, 0x00, 0x00, 0x26, 0x00, 0x00, 0x2d, 0x1c,
+			0x00, 0x00 ];
 		out.set(rest10b, k);
 		k += rest10b.length;
 
@@ -1717,6 +1792,15 @@ buildpreview(f, onok, onerr, orientation, targ, afterload) {
 		  });
 		});
 		return;
+	}
+	if (f.name.substring(f.name.length -4).toUpperCase() === '.DNG') {
+		if (document) this.appendmsg('<br>');
+		return this.parseDng(f, 
+			(url, fx, rot) => {
+				this.buildpreview(fx, onok, onerr, orientation ? orientation: rot, targ, afterload);
+			}, (url) => {
+				onerr(f);
+			});
 	}
 	const zz = this.infos.findIndex((v, i, o) => v.size === f.size);
 	if (zz === -1) {
@@ -1948,7 +2032,7 @@ handle1imb(url) {
 		this.mappx('onimback.strangename' + (document?'':'x'), rawname);
 		this.appendnl();
 	}
-	if (rawname.substring(rawname.length -4).toUpperCase() === '.RAW') {
+	if (rawname.substring(rawname.length -4).toUpperCase() === '.RAW' || rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
 		if (null !== timest) {
 			if (timest < this.earliestraw) this.earliestraw = timest;
 			if (timest > this.latestraw) this.latestraw = timest;

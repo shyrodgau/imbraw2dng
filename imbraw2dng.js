@@ -744,6 +744,18 @@ writeinttoout(out, num, off) {
 	out[off + 2] = (num / 65536) % 256;
 	out[off + 3] = (num / 16777216) % 256;
 }
+/* helper to read dng */
+readshort(view, off) {
+	let res = view.getUint8(off);
+	res += (256 * view.getUint8(off+1));
+	return res;
+}
+/* helper to read dng */
+readint(view, off) {
+	let res = this.readshort(view, off);
+	res += (65536 * this.readshort(view,off+2));
+	return res;
+}
 /* stupid helper */
 appendnl() {
 	if (document) this.appendmsg('<br>&nbsp;<br>');
@@ -803,9 +815,9 @@ handlerecurse(already, index) {
 				else for (let i of f.filter(e => e.isFile())) {
 					const n = i.name;
 					if (n.substring(0,10).toUpperCase() === 'IMBRAW2DNG') continue;
-					if ((n.substring(n.length -4).toUpperCase() === '.RAW' && (this.typeflags % 2)) ||
+					if (((n.substring(n.length -4).toUpperCase() === '.RAW' || n.substring(n.length -4).toUpperCase() === '.DNG') && (this.typeflags % 2)) ||
 						((n.substring(n.length -5).toUpperCase() === '.JPEG' || n.substring(n.length -4).toUpperCase() === '.JPG') && ((this.typeflags % 4) > 1)) ||
-						(n.substring(n.length -5).toUpperCase() !== '.JPEG' && n.substring(n.length -4).toUpperCase() !== '.JPG' &&
+						(n.substring(n.length -5).toUpperCase() !== '.JPEG' && n.substring(n.length -4).toUpperCase() !== '.JPG' && n.substring(n.length -4).toUpperCase() !== '.DNG' &&
 							n.substring(n.length -4).toUpperCase() !== '.RAW' && ((this.typeflags % 8) > 3))) {
 						if (this.comptime(i.name, this.fromts))
 							already.push(i.path + this.pa.sep + i.name);
@@ -875,6 +887,54 @@ setpvwait() {
 	document.getElementById('previewwait').style['display'] = '';
 	document.getElementById('previewerr').style['display'] = 'none';
 	document.getElementById('preview').style['display'] = 'none';
+}
+/* handle dng like raw */
+parseDng(f, onok, onerr) {
+	// blindly assumes that it is one of our own DNG
+	// interesting tags: orientation, datetime
+	if (undefined === f.data) {
+		const reader = f.imbackextension ? f : new FileReader();
+		reader.onload = (evt) => {
+			f.data = evt.target.result;
+			this.parseDng(f, onok, onerr);
+		}
+		reader.readAsArrayBuffer(f);
+		return;
+	}
+	const v = new DataView(f.data);
+	const ifd = this.readint(v, 4);
+	const zz = this.infos.findIndex((v, i, o) => v.size === ifd - 8);
+	if (this.readshort(v, 2) !== 42 || this.readshort(v,0) !== 18761 /* 0x4949 */ || zz === -1)
+		return onerr(f.name);
+	const nent = this.readshort(v, ifd);
+	let fx = {
+		imbackextension: true,
+		name: f.name + '_X.raw',
+		size: ifd - 8,
+		data: f.data.slice(8, ifd)
+	};
+	let off = ifd+2;
+	for (let k=0; k<((nent<30)? nent: 0); k++) {
+		let tag = this.readshort(v, off);
+		if (tag === 274)
+			fx.rot = this.readshort(v, off+8); // rotation handling has problems
+		else if (tag === 306) {
+			fx.datestr = '';
+			let xoff = this.readint(v, off+8);
+			const len = this.readshort(v, off+4)-1;
+			for (let j=0; j<len;j++)
+				fx.datestr += String.fromCharCode(v.getUint8(xoff++));
+		}
+		off += 12;
+	}
+	fx.readAsArrayBuffer = (fy) => {
+		fy.onload({
+				target: { result: fy.data }
+		});
+	};
+	setTimeout(() => {
+			onok(f.name, fx, fx.rot);
+	});
 }
 /* nodejs: file/filereader like interface for node js */
 createFxNode(url, onok, onerr) {
@@ -982,7 +1042,7 @@ createFx(url, onok, onerr, notfirst) {
 	xhr.onload = (evt) => {
 		let len = JSON.parse(xhr.getResponseHeader('content-length'));
 		if (0 >= len) len=1;
-		if (notfirst && url.substring(url.length -4).toUpperCase() === '.RAW') {
+		if (notfirst && (url.substring(url.length -4).toUpperCase() === '.RAW' || url.substring(url.length -4).toUpperCase() === '.DNG')) {
 			this.cache.push({ url: url, d: xhr.response, l: len });
 			if (this.cache.length > this.maxcache) this.cache.splice(0,1);
 		}
@@ -1087,10 +1147,14 @@ handleonex() {
 				document.getElementById('jpegpreview').src = f;
 			}
 		}
-		else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
+		else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW' && rawname.substring(rawname.length -4).toUpperCase() !== '.DNG') {
 			/* no preview */
 			this.qappx('main.file.nopreview', rawname);
 			this.setnopv();
+		}
+		else if (rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
+			this.qappx('main.file',rawname);
+			this.buildpreview(f, () => { this.setrawpv(); }, () => { this.setpverr(); });
 		}
 		else {
 			const zz = this.infos.findIndex((v, i, o) => v.size === f.size);
@@ -1178,6 +1242,21 @@ handleone(orientation) {
 	while (rawname.indexOf("/") > -1) {
 		rawname = rawname.substring(rawname.indexOf("/") + 1);
 	}
+	if (rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
+		this.mappx('process.processing', rawname);
+		if (document) this.appendmsg('<br>');
+		return this.parseDng(f, 
+			(url, fx, rot) => {
+				this.allfiles[this.actnum] = fx;
+				this.handleone(orientation ? orientation: rot);
+			}, (url) => {
+				this.mappx('process.erraccess' + (!document ? 'x' : ''), url);
+				if (document) this.appendnl();
+				else this.appendmsg('');
+				this.stats.error ++;
+				this.handlenext();
+			});
+	}
 	if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
@@ -1246,8 +1325,13 @@ handleone(orientation) {
 	const veroff = (verlen && ((verlen % 2) === 0)) ? verlen : (verlen + 1);
 	let datestr="", dateaddoff = 0, dateok = false;
 	// date?
+	if (undefined !== f.datestr) {
+		datestr = f.datestr;
+		dateok = true;
+		dateaddoff = 24;
+	}
 	let res = this.fnregexx.exec(rawname);
-	if (res !== null) {
+	if (res !== null && !dateok) {
 		const yr = Number.parseInt(res[1]);
 		const mon = Number.parseInt(res[3]);
 		const day = Number.parseInt(res[5]);
@@ -1618,6 +1702,15 @@ buildpreview(f, onok, onerr, orientation, targ, afterload) {
 		});
 		return;
 	}
+	if (f.name.substring(f.name.length -4).toUpperCase() === '.DNG') {
+		if (document) this.appendmsg('<br>');
+		return this.parseDng(f, 
+			(url, fx, rot) => {
+				this.buildpreview(fx, onok, onerr, orientation ? orientation: rot, targ, afterload);
+			}, (url) => {
+				onerr(f);
+			});
+	}
 	const zz = this.infos.findIndex((v, i, o) => v.size === f.size);
 	if (zz === -1) {
 		console.log('preview: unsupported size ' + f.size + ' of ' + f.name);
@@ -1848,7 +1941,7 @@ handle1imb(url) {
 		this.mappx('onimback.strangename' + (document?'':'x'), rawname);
 		this.appendnl();
 	}
-	if (rawname.substring(rawname.length -4).toUpperCase() === '.RAW') {
+	if (rawname.substring(rawname.length -4).toUpperCase() === '.RAW' || rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
 		if (null !== timest) {
 			if (timest < this.earliestraw) this.earliestraw = timest;
 			if (timest > this.latestraw) this.latestraw = timest;
