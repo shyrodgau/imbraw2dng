@@ -135,6 +135,7 @@ div#xmsg {
 <!-- javascript code identical to imbraw2dng.js -->
 <script type="text/javascript" language="javascript">
 "use strict;"
+/* Main class */
 class ImBC {
 /* Indentation out */
 constructor() {
@@ -145,7 +146,7 @@ constructor() {
 		if (process.platform.substring(0,3) === 'win') this.#withcolours = false;
 	}
 }
-#version = "V3.3.0_DEVEL"; // actually const
+#version = "V3.4.0_DEVEL"; // actually const
 #alllangs = [ 'de' , 'en', 'fr', 'ru', '00' ]; // actually const
 #texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU' },
@@ -828,13 +829,6 @@ constructor() {
 		msgel.append(msg);
 	}
 }
-/* helper function to put integer into dng */
-#writeinttoout(out, num, off) {
-	out[off] = (num % 256);
-	out[off + 1] = (num / 256) % 256;
-	out[off + 2] = (num / 65536) % 256;
-	out[off + 3] = (num / 16777216) % 256;
-}
 /* helper to read dng */
 #readshort(view, off) {
 	let res = view.getUint8(off);
@@ -987,8 +981,9 @@ setpvwait() {
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
 			f.data = evt.target.result;
-			this.parseDng(f, onok, onerr);
+			this.#parseDng(f, onok, onerr);
 		}
+		reader.onerror = (evt) => { onerr(f.name); };
 		reader.readAsArrayBuffer(f);
 		return;
 	}
@@ -1195,8 +1190,8 @@ setpvwait() {
 		} else document.getElementById('forrest').style['display'] = 'none';
 	}
 	let rawname = f.url ? f.url : (f.name ? f.name : f);
-	while (rawname.indexOf("/") > -1) {
-		rawname = rawname.substring(rawname.indexOf("/") + 1);
+	while (rawname.lastIndexOf("/") > -1) {
+		rawname = rawname.substring(rawname.lastIndexOf("/") + 1);
 	}
 	if (this.#stepmode === 2) {
 		// skip rest
@@ -1330,8 +1325,8 @@ setpvwait() {
 		return;
 	}
 	let rawname = f.name;
-	while (rawname.indexOf("/") > -1) {
-		rawname = rawname.substring(rawname.indexOf("/") + 1);
+	while (rawname.lastIndexOf("/") > -1) {
+		rawname = rawname.substring(rawname.lastIndexOf("/") + 1);
 	}
 	if (rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
 		this.#mappx('process.processing', rawname);
@@ -1411,7 +1406,7 @@ setpvwait() {
 		typ = this.#infos[zz].typ;
 	}
 	const rawnamearr = new TextEncoder().encode(rawname);
-	const verarr = new TextEncoder(). encode(this.#version);
+	const verarr = new TextEncoder().encode(this.#version);
 	const verlen = (verarr.length > 0) ? (verarr.length + 1) : 0;
 	const veroff = (verlen && ((verlen % 2) === 0)) ? verlen : (verlen + 1);
 	let datestr="", dateaddoff = 0, dateok = false;
@@ -1459,179 +1454,32 @@ setpvwait() {
 		const contents = evt.target.result;
 		const view = new DataView(contents);
 		const out = new Uint8Array(f.size + (dateok ? 486: 442) + rawnamearr.length + veroff);
-		out[0] = 0x49;
-		out[1] = 0x49;
-		out[2] = 0x2a;
-		out[3] = 0;
-		this.#writeinttoout(out, 8 + f.size, 4);
-		let k = 8;
-		for (let j=0; j<view.byteLength; j++) {
-			out[k++] = view.getUint8(j);
-		}
-		if (dateok)
-			out[k++] = 0x1a;
-		else
-			out[k++] = 0x18;
-		const rest0 = [
-			0x00, 0xfe, 0x00, 0x04, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00
-		]; /* followed by 4b width */
-		out.set(rest0, k);
-		k += rest0.length;
-		this.#writeinttoout(out, w, k);
-		k += 4;
-
-		const rest1 = [
-			0x01, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00
-		]; /* followed by 4b height */
-		out.set(rest1, k);
-		k += rest1.length;
-		this.#writeinttoout(out, h, k);
-		k += 4;
-
-		const rest2 = [ 0x02, 0x01,
-			0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x03, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x06, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x23, 0x80,
-			0x00, 0x00, 0x0f, 0x01, 0x02, 0x00, 0x07, 0x00, 0x00, 0x00 ];
-		out.set(rest2, k);
-		k += rest2.length;
-		this.#writeinttoout(out, f.size + (dateaddoff + 302), k);
-		k += 4;
-
-		const rest3 = [ 0x10, 0x01, 0x02, 0x00, 0x08, 0x00, 0x00, 0x00 ];
-		out.set(rest3, k);
-		k += rest3.length;
-		this.#writeinttoout(out, f.size + (dateaddoff + 317), k);
-		k += 4;
-
-		const rest4 = [ 0x11, 0x01, 0x04, 0x00, 0x01, 0x00,
-			0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x12, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00 ];
-		out.set(rest4, k);
-		k += rest4.length;
-		if (undefined === orientation) {
-			this.#writeinttoout(out, 1, k);
-		} else this.#writeinttoout(out, orientation, k);
-		k += 4;
-		const rest4b = [ 0x15, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x17, 0x01,
-			0x04, 0x00, 0x01, 0x00, 0x00, 0x00 ];
-		out.set(rest4b, k);
-		k += rest4b.length;
-		this.#writeinttoout(out, f.size, k);
-		k += 4;
-
-		const rest5 = [ 0x1c, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x31, 0x01, 0x02, 0x00];  // 0x0b,
-		out.set(rest5, k);
-		k += rest5.length;
-		out[k++] = (11 + verlen);
-		const rest5b = [ 0x00, 0x00, 0x00 ];
-		out.set(rest5b, k);
-		k += rest5b.length;
-		this.#writeinttoout(out, f.size + (dateaddoff + 326), k);
-		k += 4;
-
-		if (dateok) { // one datetime tag
-			const rest5a = [ 0x32, 0x01, 0x02, 0x00, 0x14, 0x00, 0x00, 0x00 ];
-			out.set(rest5a, k);
-			k += rest5a.length;
-			this.#writeinttoout(out, f.size + 466 + veroff, k);
-			k += 4;
-		}
-
-		const rest6 = [ 0x8d, 0x82, 0x03, 0x00, 0x02, 0x00, 0x00, 0x00, 0x02, 0x00, 0x02, 0x00, 0x8e, 0x82, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00 ];
-		out.set(rest6, k);
-		k += rest6.length;
-		const cfa35 = [ 0x01, 0x00, 0x02, 0x01 ];
-		const cfamf = [ 0x02, 0x01, 0x01, 0x00 ]
-		if (typ > 1) // color filter array depends on type
-			out.set(cfamf, k);
-		else
-			out.set(cfa35, k);
-		k += cfa35.length; // both have same length
-
-		if (dateok) { // other datetime tag
-			const rest6a = [ 0x03, 0x90, 0x02, 0x00, 0x14, 0x00, 0x00, 0x00 ];
-			out.set(rest6a, k);
-			k += rest6a.length;
-			this.#writeinttoout(out, f.size + 466 + veroff, k);
-			k += 4;
-		}
-		const rest6b = [ 0x12, 0xc6, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x13, 0xc6, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00,
-			0x00, 0x00, 0x14, 0xc6, 0x02, 0x00, 0x0f, 0x00, 0x00, 0x00 ];
-		out.set(rest6b, k);
-		k += rest6b.length;
-		this.#writeinttoout(out, (dateaddoff + 310) + f.size, k);
-		k += 4;
-
-		const rest7 = [ 0x1d, 0xc6, 0x04, 0x00, 0x01, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x21, 0xc6, 0x0a, 0x00, 0x09, 0x00, 0x00, 0x00 ];
-		out.set(rest7, k);
-		k += rest7.length;
-		this.#writeinttoout(out, (dateaddoff + 346 + veroff) + f.size, k);
-		k += 4;
-
-		const rest8 = [ 0x28, 0xc6, 0x05, 0x00, 0x03, 0x00, 0x00, 0x00 ];
-		out.set(rest8, k);
-		k += rest8.length;
-		this.#writeinttoout(out, (dateaddoff + 418 + veroff) + f.size, k);
-		k += 4;
-
-		const rest8i = [ 0x5a, 0xc6, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x17, 0x00, 0x00, 0x00 ];  // 0x0b,
-		out.set(rest8i, k);
-		k += rest8i.length;
-
-		const rest8b = [ 0x8b, 0xc6, 0x01, 0x00 ];
-		out.set(rest8b, k);
-		k += rest8b.length;
-		this.#writeinttoout(out, rawnamearr.length, k);
-		k += 4;
-		this.#writeinttoout(out, (dateok ? 486: 442) + f.size + veroff, k);
-		k += 4;
-
-		//const rest8x = [ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ];
-		//out.set(rest8x, k);
-		//k += rest8x.length;
-
-		const rest9 = [ 0x00, 0x00, 0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x20 ];
-		out.set(rest9, k);
-		k += rest9.length;
-		out.set(new TextEncoder().encode(this.#types[typ]), k);
-		k += 7;
-
-		const rest10a = [ 0x00, 0x00, 0x69, 0x6d, 0x62, 0x72, 0x61, 0x77, 0x32, 0x64, 0x6e, 0x67 ];
-		out.set(rest10a, k);
-		k += rest10a.length;
-		if (verlen) {
-			out[k] = 0x20;
-			out.set(verarr, k + 1);
-			k += verlen;
-			out[k++] = 0x0;
-			if (verlen !== veroff) out[k++] = 0x0;
-		}
-		else {
-			out[k++] = 0x0;
-			out[k++] = 0x0;
-		}
-
-		const rest10b = [ 0x0, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x00, 0x00, 0x95, 0x09, 0x00, 0x00, 0xe2, 0x04,
-			0x00, 0x00, 0x3b, 0xfb, 0xff, 0xff, 0xd0, 0x07, 0x00, 0x00, 0x21, 0xea, 0xff, 0xff, 0x13, 0x40,
-			0x00, 0x00, 0x4f, 0xe9, 0xff, 0xff, 0x2f, 0x17, 0x00, 0x00, 0xcb, 0x1e, 0x00, 0x00, 0x12, 0x10,
-			0x00, 0x00, 0x9d, 0x02, 0x00, 0x00, 0x20, 0x4e, 0x00, 0x00, 0x01, 0x0d, 0x00, 0x00, 0x4e, 0xc5,
-			0x01, 0x00, 0x91, 0xfe, 0xff, 0xff, 0xc4, 0x09, 0x00, 0x00, 0x00, 0x26, 0x00, 0x00, 0x2d, 0x1c,
-			0x00, 0x00 ];
-		out.set(rest10b, k);
-		k += rest10b.length;
-
-		const rest10c = [ 0xff, 0x99, 0x99, 0x99, 0xff, 0xff, 0xff, 0xff, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
-			0x00, 0x00, 0xff, 0x99, 0x99, 0x99, 0xff, 0xff, 0xff, 0xff ];
-		out.set(rest10c, k);
-		k += rest10c.length;
-
-		if (dateok) { // datetime value
-			const datearr = new TextEncoder().encode(datestr);
-			out.set(datearr, k);
-			k += 19;
-			out[k++] = 0;
-			out.set(rawnamearr, k);
-		}
-		else out.set(rawnamearr, k);
-		this.#output1(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted', out);
+		let ti = new TIFFOut();
+		ti.addIfd();
+		ti.addImageStrip(0, view, w, h);
+		ti.addEntry(258 , 'SHORT', [ 8 ]); /* BitsPerSample */
+		ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression */
+		ti.addEntry(262, 'SHORT', [ 0x8023 ]); /* Photometric */
+		ti.addEntry(271, 'ASCII', 'ImBack'); /* Make */
+		ti.addEntry(50708, 'ASCII', 'ImBack' + ' ' + this.#types[typ]); /* Unique model */
+		ti.addEntryRelative(272, 50708, 7); /* Model */
+		ti.addEntry(274, 'SHORT', [ undefined == orientation ? 1 : orientation ]); /* Orientation */
+		ti.addEntry(277, 'SHORT', [ 1 ]); /* Samples per Pixel */
+		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config */
+		ti.addEntry(305, 'ASCII', 'imbraw2dng ' + this.#version); /* SW and version */
+		if (dateok) ti.addEntry(306, 'ASCII', datestr); /* datetime */
+		if (dateok) ti.addEntryRelative(36867, 306, 0); /* Original date time */
+		ti.addEntry(33421, 'SHORT', [ 2, 2 ]); /* CFA Repeat Pattern Dim */
+		ti.addEntry(33422, 'BYTE', [ 1, 0, 2, 1 ]); /* CFA Pattern */
+		ti.addEntry(50706, 'BYTE', [ 1, 1, 0, 0 ]); /* DNG Version */
+		ti.addEntry(50707, 'BYTE', [ 1, 0, 0, 0 ]); /* DNG Backward Version */
+		ti.addEntry(50717, 'LONG', [ 255 ]); /* White level */
+		ti.addEntry(50721, 'SRATIONAL', [ 19624, 10000, -6105, 10000, -34134, 100000, -97877, 100000, 191614, 100000, 3345, 100000, 28687, 1000000, -1468, 10000, 1348676, 1000000 ]); /* Color Matrix 1 */
+		ti.addEntry(50778, 'SHORT', [ 23 ]); /* Calibration Illuminant 1 */
+		ti.addEntry(50728, 'RATIONAL', [ 6, 10, 1, 1, 6, 10 ]); /* As shot neutral */
+		ti.addEntry(50827, 'BYTE', rawnamearr); /* Raw file name */
+		//let x = ti.getData();
+		this.#output1(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted', ti.getData());
 	};
 	reader.onerror = (evt) => {
 		console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
@@ -1779,6 +1627,81 @@ prevdef(ev) {
 	outrgb.push((blues[1] + blues[2]) / 2.0);
 	return outrgb;
 }
+/* build preview in array */
+#buildpvarray(view, typ, w, h, orientation, withalpha) {
+	const w8 = Math.floor((w+7)/8) - 1;
+	const h8 = Math.floor((h+7)/8) - 1;
+	let minred=255, minblue = 255, mingreen = 255, maxred = 0, maxblue = 0, maxgreen = 0, allmin = 255, allmax = 0;
+	let outpix = [];
+	let rowiterstart, rowiterend;
+	let coliterstart, coliterend;
+	let transpose = false;
+	if (orientation === 3) {
+		rowiterstart = -1*(h8 -1);
+		rowiterend = 1;
+		coliterstart = -1*(w8 - 1);
+		coliterend = 1;
+	} else if (orientation === 6) {
+		transpose = true;
+		rowiterstart = 0;
+		rowiterend = w8;
+		coliterstart = -1*(h8 - 1);
+		coliterend = 1;
+	} else if (orientation === 8) {
+		transpose = true;
+		rowiterstart = -1*(w8 -1);
+		rowiterend = 1;
+		coliterstart = 0;
+		coliterend = h8;
+	} else {
+		rowiterstart = 0;
+		rowiterend = h8;
+		coliterstart = 0;
+		coliterend = w8;
+	}
+	for (let i = rowiterstart; i < rowiterend; i +=1) {
+		for (let j = coliterstart; j < coliterend; j+=1) {
+			let a = this.#getPix(Math.abs(transpose ? i :j)*8, Math.abs(transpose ? j :i)*8, w, view, typ);
+			outpix.push(a[0]);
+			if (a[0] > maxred) maxred = a[0];
+			if (a[0] < minred) minred = a[0];
+			if (a[0] > allmax) allmax = a[0];
+			if (a[0] < allmin) allmin = a[0];
+			outpix.push(a[1]);
+			if (a[1] > maxgreen) maxgreen = a[1];
+			if (a[1] < mingreen) mingreen = a[1];
+			if (0.6*a[1] > allmax) allmax = a[1] * 0.6;
+			if (0.6*a[1] < allmin) allmin = a[1] * 0.6;
+			outpix.push(a[2]);
+			if (a[2] > maxblue) maxblue = a[2];
+			if (a[2] < minblue) minblue = a[2];
+			if (a[2] > allmax) allmax = a[2];
+			if (a[2] < allmin) allmin = a[2];
+			if (withalpha) outpix.push(255);
+		}
+	}
+	const fact = 255 / (allmax - allmin);
+	const o = withalpha ? 4 : 3;
+	for (let i = 0; i < h8; i++) {
+		for (let j=0; j< w8; j++) {
+			if ((outpix[o*((i * w8) + j)] > 250) &&
+				(outpix[o*((i * w8) + j) + 2] > 250) &&
+				(outpix[o*((i * w8) + j) + 1] > 0.6 * 250))
+			{
+				outpix[o*((i*w8) + j) + 1] = 255;
+			} else {
+				// maybe some brightening gamma?
+				const r = (fact * (outpix[o * ((i*w8) + j)] - allmin));
+				outpix[o * ((i*w8) + j)] = 255-Math.round(255*((255-r)/255)*((255-r)/255));
+				const g = (fact * 0.6 * (outpix[o * ((i*w8) + j) + 1] - allmin* 0.6));
+				outpix[o * ((i*w8) + j) + 1] = 255-Math.round(255*((255-g)/255)*((255-g)/255));
+				const b = (fact * (outpix[o * ((i*w8) + j) + 2] - allmin));
+				outpix[o * ((i*w8) + j) + 2] = 255-Math.round(255*((255-b)/255)*((255-b)/255));
+			}
+		}
+	}
+	return outpix;
+}
 /* browserdisplay: put preview into canvas */
 // orientation: 1: norm, 3: rot 180, 6 rot 90 CW, 8: rot 270 CCW
 #buildpreview(f, onok, onerr, orientation, targ, afterload) {
@@ -1835,74 +1758,11 @@ prevdef(ev) {
 		if (undefined !== afterload) afterload();
 		const contents = evt.target.result;
 		const view = new DataView(contents);
-		let minred=255, minblue = 255, mingreen = 255, maxred = 0, maxblue = 0, maxgreen = 0, allmin = 255, allmax = 0;
-		let outpix = [];
-		let rowiterstart, rowiterend;
-		let coliterstart, coliterend;
 		let transpose = false;
-		if (orientation === 3) {
-			rowiterstart = -1*(h8 -1);
-			rowiterend = 1;
-			coliterstart = -1*(w8 - 1);
-			coliterend = 1;
-		} else if (orientation === 6) {
-			transpose = true;
-			rowiterstart = 0;
-			rowiterend = w8;
-			coliterstart = -1*(h8 - 1);
-			coliterend = 1;
-		} else if (orientation === 8) {
-			transpose = true;
-			rowiterstart = -1*(w8 -1);
-			rowiterend = 1;
-			coliterstart = 0;
-			coliterend = h8;
-		} else {
-			rowiterstart = 0;
-			rowiterend = h8;
-			coliterstart = 0;
-			coliterend = w8;
-		}
-		for (let i = rowiterstart; i < rowiterend; i +=1) {
-			for (let j = coliterstart; j < coliterend; j+=1) {
-				let a = this.#getPix(Math.abs(transpose ? i :j)*8, Math.abs(transpose ? j :i)*8, w, view, typ);
-				outpix.push(a[0]);
-				if (a[0] > maxred) maxred = a[0];
-				if (a[0] < minred) minred = a[0];
-				if (a[0] > allmax) allmax = a[0];
-				if (a[0] < allmin) allmin = a[0];
-				outpix.push(a[1]);
-				if (a[1] > maxgreen) maxgreen = a[1];
-				if (a[1] < mingreen) mingreen = a[1];
-				if (0.6*a[1] > allmax) allmax = a[1] * 0.6;
-				if (0.6*a[1] < allmin) allmin = a[1] * 0.6;
-				outpix.push(a[2]);
-				if (a[2] > maxblue) maxblue = a[2];
-				if (a[2] < minblue) minblue = a[2];
-				if (a[2] > allmax) allmax = a[2];
-				if (a[2] < allmin) allmin = a[2];
-				outpix.push(255);
-			}
-		}
-		const fact = 255 / (allmax - allmin);
-		for (let i = 0; i < h8; i++) {
-			for (let j=0; j< w8; j++) {
-				if ((outpix[4*((i * w8) + j)] > 250) &&
-					(outpix[4*((i * w8) + j) + 2] > 250) &&
-					(outpix[4*((i * w8) + j) + 1] > 0.6 * 250))
-				{
-					outpix[4*((i*w8) + j) + 1] = 255;
-				} else {
-					// maybe some brightening gamma?
-					const r = (fact * (outpix[4 * ((i*w8) + j)] - allmin));
-					outpix[4 * ((i*w8) + j)] = 255-Math.round(255*((255-r)/255)*((255-r)/255));
-					const g = (fact * 0.6 * (outpix[4 * ((i*w8) + j) + 1] - allmin* 0.6));
-					outpix[4 * ((i*w8) + j) + 1] = 255-Math.round(255*((255-g)/255)*((255-g)/255));
-					const b = (fact * (outpix[4 * ((i*w8) + j) + 2] - allmin));
-					outpix[4 * ((i*w8) + j) + 2] = 255-Math.round(255*((255-b)/255)*((255-b)/255));
-				}
-			}
-		}
+		let outpix = this.#buildpvarray(view, typ, w, h, orientation, true);
+        if (orientation === 6 || orientation === 8) {
+                transpose = true;
+        }
 		ctx.putImageData(new ImageData(new Uint8ClampedArray(outpix), transpose ? h8: w8, transpose? w8 :h8), 0, 0);
 		onok(f);
 	};
@@ -1972,8 +1832,8 @@ skipthis() {
 		this.#stats.skipped += (this.#totnum - this.#actnum);
 	} else {
 		let rawname = this.#allfiles[this.#actnum].name ? this.#allfiles[this.#actnum].name : this.#allfiles[this.#actnum];
-		while (rawname.indexOf("/") > -1) 
-			rawname = rawname.substring(rawname.indexOf("/") + 1);
+		while (rawname.lastIndexOf("/") > -1) 
+			rawname = rawname.substring(rawname.lastIndexOf("/") + 1);
 		this.#mappx('process.skipped', rawname);
 		this.#appendnl();
 		this.#stats.skipped ++;
@@ -2020,8 +1880,8 @@ rot0() {
 /* handle on entry from imb PHOTO/MOVIE listing page */
 #handle1imb(url) {
 	let rawname = url;
-	while (rawname.indexOf("/") > -1)
-		rawname = rawname.substring(rawname.indexOf("/") + 1);
+	while (rawname.lastIndexOf("/") > -1)
+		rawname = rawname.substring(rawname.lastIndexOf("/") + 1);
 	if (rawname.substring(0,10).toUpperCase() === 'IMBRAW2DNG') return;
 	let timestx = this.#fnregex.exec(rawname);
 	let timest = null, cl = '9999_99_99-99';
@@ -2238,8 +2098,8 @@ imbdoit() {
 		(this.#typeflags % 2)) {
 		for (const e of this.#rimbpics) {
 			let rawname = e;
-			while (rawname.indexOf("/") > -1)
-				rawname = rawname.substring(rawname.indexOf("/") + 1);
+			while (rawname.lastIndexOf("/") > -1)
+				rawname = rawname.substring(rawname.lastIndexOf("/") + 1);
 			if (this.#comptime(rawname, compval))
 				selecteds.push(e);
 		}
@@ -2248,8 +2108,8 @@ imbdoit() {
 		((this.#typeflags % 4) > 1)) {
 		for (const e of this.#imbpics) {
 			let rawname = e;
-			while (rawname.indexOf("/") > -1)
-				rawname = rawname.substring(rawname.indexOf("/") + 1);
+			while (rawname.lastIndexOf("/") > -1)
+				rawname = rawname.substring(rawname.lastIndexOf("/") + 1);
 			if (this.#comptime(rawname, compval))
 				selecteds.push(e);
 		}
@@ -2258,8 +2118,8 @@ imbdoit() {
 		((this.#typeflags % 8) > 3)) {
 		for (const e of this.#imbmovies) {
 			let rawname = e;
-			while (rawname.indexOf("/") > -1)
-				rawname = rawname.substring(rawname.indexOf("/") + 1);
+			while (rawname.lastIndexOf("/") > -1)
+				rawname = rawname.substring(rawname.lastIndexOf("/") + 1);
 			if (this.#comptime(rawname, compval))
 				selecteds.push(e);
 		}
@@ -2267,10 +2127,10 @@ imbdoit() {
 	selecteds.sort((a, b) => {
 		let ra = a;
 		let rb = b;
-		while (ra.indexOf("/") > -1)
-			ra = ra.substring(ra.indexOf("/") + 1);
-		while (rb.indexOf("/") > -1)
-			rb = rb.substring(rb.indexOf("/") + 1);
+		while (ra.lastIndexOf("/") > -1)
+			ra = ra.substring(ra.lastIndexOf("/") + 1);
+		while (rb.lastIndexOf("/") > -1)
+			rb = rb.substring(rb.lastIndexOf("/") + 1);
 		if (ra < rb) return -1;
 		else if (ra === rb) return 0;
 		else return 1;
@@ -2795,8 +2655,8 @@ topreccheck(force) {
 	e.entry.classList.add('ee');
 	e.entry.classList.add(e.type);
 	let rawname = e.url;
-	while (rawname.indexOf("/") > -1)
-		rawname = rawname.substring(rawname.indexOf("/") + 1);
+	while (rawname.lastIndexOf("/") > -1)
+		rawname = rawname.substring(rawname.lastIndexOf("/") + 1);
 	e.entry.classList.add('ET_' + e.type + rawname.substring(0,12));
 	e.entry.classList.add('EY_' + rawname.substring(0,12));
 	const topline = document.createElement('div');
@@ -3071,10 +2931,10 @@ browserprocess() {
 	selecteds.sort((a, b) => {
 		let ra = a.url;
 		let rb = b.url;
-		while (ra.indexOf("/") > -1)
-			ra = ra.substring(ra.indexOf("/") + 1);
-		while (rb.indexOf("/") > -1)
-			rb = rb.substring(rb.indexOf("/") + 1);
+		while (ra.lastIndexOf("/") > -1)
+			ra = ra.substring(ra.lastIndexOf("/") + 1);
+		while (rb.lastIndexOf("/") > -1)
+			rb = rb.substring(rb.lastIndexOf("/") + 1);
 		if (ra < rb) return -1;
 		else if (ra === rb) return 0;
 		else return 1;
@@ -3265,8 +3125,8 @@ querylang(name, offset) {
 }
 /* nodejs: show help */
 #help(caller) {
-	while (caller.indexOf("/") > -1)
-		caller = caller.substring(caller.indexOf("/") + 1);
+	while (caller.lastIndexOf("/") > -1)
+		caller = caller.substring(caller.lastIndexOf("/") + 1);
 	let texts = this.#xl0('node.help');
 	console.log(this.#subst(texts[0], this.#version));
 	console.log(this.#subst(texts[1], caller));
@@ -3474,8 +3334,300 @@ dodebug() {
 	};
 	fr.readAsText(document.getElementById('dbgfsel').files[0]);
 }
-/* indentation in */
+/* indentation in - end of class ImBC */
 };
+/* Tiff helper classes */
+class IFD {
+/* Indentation out */
+#entrys = [];
+#numtags = 0;
+#currentoff = 0;
+#imgdata = null;
+#imglen = 0;
+#data = new Uint8Array(20000000);
+#dyndata = [] ; //new Uint8Array(20000);
+addImageStrip(typ, view, width, height) {
+	this.#imgdata = view;
+	this.#imglen = (this.#imgdata.byteLength + 3) & 0xFFFFFFFC;
+	this.addEntry(254 , 'LONG', [ typ ]); /* SubFileType */
+	this.addEntry(256 , 'SHORT', [ width ]); /* width */
+	this.addEntry(257 , 'SHORT', [ height ]); /* height */
+	this.addEntry(273 , 'LONG', [ 0 ]); /* StipOffsets , special */
+	this.addEntry(279 , 'LONG', [ this.#imgdata.byteLength ]); /* StripByte count */
+	this.addEntry(278 , 'LONG', [ height ]); /* Rows per strip */
+}
+addEntry(tag, type, value) {
+	let x = TIFFOut.tToNum(type);
+	let l = value.length;
+	if (type === 'ASCII') l++;
+	else if (type === 'RATIONAL' || type === 'SRATIONAL') l /= 2;
+	if (tag === 273) {
+		let e = { 
+			xtag: tag,
+			tag: [ 0, 0 ],
+			xtype: x.t,
+			type: [ 0, 0 ],
+			xcount: l,
+			count: [ 0, 0, 0, 0 ],
+			ptr: -1
+		};
+		TIFFOut.writeshorttoout(e.tag, tag, 0);
+		TIFFOut.writeshorttoout(e.type, x.t, 0);
+		TIFFOut.writeinttoout(e.count, l, 0);
+		this.#entrys.push(e);
+	} else if (l * x.l <= 4) {
+		let e = {
+			xtag: tag,
+			tag: [ 0, 0 ],
+			xtype: x.t,
+			type: [ 0, 0 ],
+			xcount: l,
+			count: [ 0, 0, 0, 0 ],
+			value: [ 0, 0, 0, 0 ]
+		};
+		TIFFOut.writeshorttoout(e.tag, tag, 0);
+		TIFFOut.writeshorttoout(e.type, x.t, 0);
+		TIFFOut.writeinttoout(e.count, l, 0);
+		if (type === 'BYTE' || type === 'SBYTE' || type === 'UNDEFINED') {
+			for (let k=0; k<l; k++) e.value[k] = value[k];
+		} else if (type === 'ASCII') {
+			for (let k=0; k<l-1; k++) e.value[k] = value.charCodeAt(k) % 256;
+		} else if (type === 'LONG') {
+			TIFFOut.writeinttoout(e.value, value[0], 0);
+		} else if (type === 'SLONG') {
+			TIFFOut.writeinttoout(e.value, (65536*65536)+value[0], 0);
+		} else if (type === 'SHORT') {
+			TIFFOut.writeshorttoout(e.value, value[0], 0);
+			if (l === 2) TIFFOut.writeshorttoout(e.value, value[1], 2);
+		} else if (type === 'SSHORT') {
+			TIFFOut.writeshorttoout(e.value, 65536-value[0], 0);
+			if (l === 2) TIFFOut.writeshorttoout(e.value, 65536+value[1], 2);
+		}
+		this.#entrys.push(e);
+	}
+	else {
+		let e = { 
+			xtag: tag,
+			tag: [ 0, 0 ],
+			xtype: x.t,
+			type: [ 0, 0 ],
+			xcount: l,
+			count: [ 0, 0, 0, 0 ],
+			ptr: this.#currentoff
+		};
+		TIFFOut.writeshorttoout(e.tag, tag, 0);
+		TIFFOut.writeshorttoout(e.type, x.t, 0);
+		TIFFOut.writeinttoout(e.count, l, 0);
+		if (type === 'BYTE' || type === 'SBYTE' || type === 'UNDEFINED') {
+			for (let k=0; k<l; k++) this.#dyndata.push(value[k]);
+			this.#currentoff += l;
+			while (this.#currentoff % 4) {
+				this.#dyndata.push(0); this.#currentoff++;
+			}
+		} else if (type === 'ASCII') {
+			for (let k=0; k<l-1; k++) this.#dyndata.push(value.charCodeAt(k) % 256);
+			this.#dyndata.push(0);
+			this.#currentoff += l;
+			while (this.#currentoff % 4) {
+				this.#dyndata.push(0); this.#currentoff++;
+			}
+		} else if (type === 'LONG') {
+			for (let k = 0; k < l; k++) {
+				this.#dyndata.push(0); this.#dyndata.push(0); this.#dyndata.push(0); this.#dyndata.push(0);
+				TIFFOut.writeinttoout(this.#dyndata, value[k], this.#currentoff);
+				this.#currentoff += 4;
+			}
+		} else if (type === 'SLONG') {
+			for (let k = 0; k < l; k++) {
+				this.#dyndata.push(0); this.#dyndata.push(0); this.#dyndata.push(0); this.#dyndata.push(0);
+				if (value[k] < 0) TIFFOut.writeinttoout(this.#dyndata, (65536*65536)+value[k], this.#currentoff);
+				else TIFFOut.writeinttoout(this.#dyndata, value[k], this.#currentoff);
+				this.#currentoff += 4;
+			}
+		} else if (type === 'SHORT') {
+			for (let k = 0; k < l; k++) {
+				this.#dyndata.push(0); this.#dyndata.push(0);
+				TIFFOut.writeinttoout(this.#dyndata, value[k], this.#currentoff);
+				this.#currentoff += 2;
+			}
+			if (this.#currentoff % 4) this.#currentoff = ((this.#currentoff + 4) & 0xFFFFFFFC);
+		} else if (type === 'SSHORT') {
+			for (let k = 0; k < l; k++) {
+				this.#dyndata.push(0); this.#dyndata.push(0);
+				if (value[k] < 0) TIFFOut.writeinttoout(this.#dyndata, 65536 + value[k], this.#currentoff);
+				else TIFFOut.writeinttoout(this.#dyndata, value[k], this.#currentoff);
+				this.#currentoff += 2;
+			}
+			if (this.#currentoff % 4) this.#currentoff = ((this.#currentoff + 4) & 0xFFFFFFFC);
+		} else if (type === 'RATIONAL') {
+			for (let k = 0; k < l; k++) {
+				this.#dyndata.push(0); this.#dyndata.push(0); this.#dyndata.push(0); this.#dyndata.push(0);
+				this.#dyndata.push(0); this.#dyndata.push(0); this.#dyndata.push(0); this.#dyndata.push(0);
+				TIFFOut.writeinttoout(this.#dyndata, value[2*k], this.#currentoff);
+				TIFFOut.writeinttoout(this.#dyndata, value[2*k + 1], this.#currentoff + 4);
+				this.#currentoff += 8;
+			}
+		} else if (type === 'SRATIONAL') {
+			for (let k = 0; k < l; k++) {
+				this.#dyndata.push(0); this.#dyndata.push(0); this.#dyndata.push(0); this.#dyndata.push(0);
+				this.#dyndata.push(0); this.#dyndata.push(0); this.#dyndata.push(0); this.#dyndata.push(0);
+				if (value[2*k] < 0) TIFFOut.writeinttoout(this.#dyndata, (65536*65536)+value[2*k], this.#currentoff);
+				else TIFFOut.writeinttoout(this.#dyndata, value[2*k], this.#currentoff);
+				if (value[2*k + 1] < 0) TIFFOut.writeinttoout(this.#dyndata, (65536*65536)+value[2*k + 1], this.#currentoff + 4);
+				else TIFFOut.writeinttoout(this.#dyndata, value[2*k + 1], this.#currentoff + 4);
+				this.#currentoff += 8;
+			}
+		}
+		//console.log('After ptr tag ' + tag +  ' type ' + type + ' * ' + l + ' :' + this.#currentoff);
+		this.#entrys.push(e);
+	}
+}
+addEntryRelative(tag, reltag, offset) {
+	let o = null;
+	for (const e of this.#entrys) {
+		if (e.xtag === reltag) {
+			o = e;
+			break;
+		}
+	}
+	if (null === o) {
+		console.log('Rel: Old entry with tag ' + tag + ' not found!');
+		return;
+	}
+	let t = TIFFOut.types.filter(v =>  v.t === o.xtype )[0];
+	if (t.l !== 1 && offset !== 0) {
+		console.log('Rel not possible because offset ' + offset + ' and length not 1 but ' + t.l);
+		return;
+	}
+	if (o.ptr === undefined) {
+		console.log('Rel not possible because reltag has no pointer');
+		return;
+	}
+	if (t.l === 1 && (o.xcount - offset) <= 4) {
+		console.log('Rel not possible because rest length < 4 ' + (o.xcount - offset));
+		return;
+	}
+	let e = {
+		xtag: tag,
+		tag: [ 0, 0 ],
+		xtype: o.xtype,
+		type: [ 0, 0 ],
+		xcount: (o.xcount - offset),
+		count: [ 0, 0, 0, 0 ],
+		ptr: o.ptr + (offset * t.l)
+	};
+	TIFFOut.writeshorttoout(e.tag, tag, 0);
+	TIFFOut.writeshorttoout(e.type, o.xtype, 0);
+	TIFFOut.writeinttoout(e.count, (o.xcount - offset), 0);
+	this.#entrys.push(e);
+}
+getData(offset) {
+	let ioff = 2 + this.#imglen;
+	for (let z=0; z<this.#imgdata.byteLength; z++)
+		this.#data[z] = this.#imgdata.getUint8(z);
+	//let e = this.#imgdata.buffer;
+	//this.#data.set(this.#imgdata.buffer, 0);
+	TIFFOut.writeshorttoout(this.#data, this.#entrys.length, this.#imglen);
+	for (const i of this.#entrys.sort(function(a,b) { return a.xtag - b.xtag; })) {
+		this.#data.set(i.tag, ioff);
+		this.#data.set(i.type, ioff + 2);
+		this.#data.set(i.count, ioff + 4);
+		if (undefined !== i.value) {
+			this.#data.set(i.value, ioff + 8);
+		} else if (i.ptr === -1) {
+			let parr = [ 0, 0, 0, 0 ];
+			TIFFOut.writeinttoout(parr, offset, 0);
+			this.#data.set(parr, ioff + 8);
+			//console.log('Write ptr tag ' + i.xtag +  ' type ' + i.type + ' * ' + i.xcount + ' :' + i.ptr);
+		} else {
+			let parr = [ 0, 0, 0, 0 ];
+			TIFFOut.writeinttoout(parr, i.ptr + offset + this.#imglen + 6 + (12 * this.#entrys.length), 0);
+			//console.log('Write ptr tag ' + i.xtag +  ' type ' + i.type + ' * ' + i.xcount + ' :' + i.ptr + ' (offset ' + (i.ptr + offset + this.#imglen + 6 + (12 * this.#entrys.length)) + ' )');
+			this.#data.set(parr, ioff + 8);
+		}
+		ioff += 12;
+	}
+	let oarr = [ 0, 0, 0, 0 ];
+	// next ifd
+	this.#data.set(oarr, ioff);
+	ioff += 4;
+	this.#data.set(this.#dyndata, ioff);
+	return this.#data.slice(0, ioff + this.#currentoff);
+}
+getOffset() {
+	return this.#imglen;
+}
+getNextIfdPosOffset() {
+	return this.#imglen + 2 + (12 * this.#entrys.length);
+}
+/* Indentation in - end of class IFD */
+};
+class TIFFOut {
+/* Indentation out */
+#ifds = [];
+#currentifd = null;
+#data = new Uint8Array(20000000);
+addIfd() {
+	if (null !== this.#currentifd) {
+		this.#ifds.push(this.#currentifd);
+	}
+	this.#currentifd = new IFD();
+}
+addImageStrip(typ, view, width, height) {
+	this.#currentifd.addImageStrip(typ, view, width, height);
+}
+addEntry(tag, type, data) {
+	this.#currentifd.addEntry(tag, type, data);
+}
+addEntryRelative(tag, reltag, offset) {
+	this.#currentifd.addEntryRelative(tag, reltag, offset);
+}
+static types = [
+	{ n: 'BYTE', t: 1, l: 1 },
+	{ n: 'ASCII', t: 2, l: 1 },
+	{ n: 'SHORT', t: 3, l: 2 },
+	{ n: 'LONG', t: 4, l: 4 },
+	{ n: 'RATIONAL', t: 5, l: 8 },
+	{ n: 'SBYTE', t: 6, l: 1 },
+	{ n: 'UNDEFINED', t: 7, l: 1 },
+	{ n: 'SSHORT', t: 8, l: 2 },
+	{ n: 'SLONG', t: 9, l: 4 },
+	{ n: 'SRATIONAL', t: 10, l: 8 },
+	//{ n: 'BYTE', t: 11, l: 4 },
+	//{ n: 'BYTE', t: 12, l: 8 },
+];
+static tToNum(type) {
+	return (TIFFOut.types.filter(v =>  v.n === type )[0]);
+}
+/* helper function to put integer into dng */
+static writeinttoout(out, num, off) {
+	TIFFOut.writeshorttoout(out, num % 65536, off);
+	TIFFOut.writeshorttoout(out, (Math.floor(num / 65536)) % 65536, off+2);
+}
+static writeshorttoout(out, num, off) {
+	out[off] = (num % 256);
+	out[off + 1] = Math.floor(num / 256) % 256;
+}
+getData() {
+	if (null !== this.#currentifd) {
+		this.#ifds.push(this.#currentifd);
+	}
+	TIFFOut.writeshorttoout(this.#data, 18761 /* 0x4949 */, 0);
+	TIFFOut.writeshorttoout(this.#data, 42, 2);
+	let lastoffpos = 4;
+	let lastlen = 8;
+	for (const i of this.#ifds) {
+		TIFFOut.writeinttoout(this.#data, i.getOffset() + lastlen, lastoffpos);
+		let d = i.getData(lastlen);
+		this.#data.set(d, lastlen);
+		lastoffpos = i.getNextIfdPosOffset() + lastlen;
+		lastlen += d.length;
+	}
+	TIFFOut.writeinttoout(this.#data, 0, lastoffpos);
+	return this.#data.slice(0, lastlen);
+}
+/* Indentation in - end of class TIFFOut */
+}
 let imbc;
 /* onload of html body */
 function init() {

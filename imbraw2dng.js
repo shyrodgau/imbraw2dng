@@ -55,7 +55,7 @@ constructor() {
 		if (process.platform.substring(0,3) === 'win') this.#withcolours = false;
 	}
 }
-#version = "V3.3.0_DEVEL"; // actually const
+#version = "V3.4.0_DEVEL"; // actually const
 #alllangs = [ 'de' , 'en', 'fr', 'ru', '00' ]; // actually const
 #texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU' },
@@ -738,13 +738,6 @@ constructor() {
 		msgel.append(msg);
 	}
 }
-/* helper function to put integer into dng */
-#writeinttoout(out, num, off) {
-	out[off] = (num % 256);
-	out[off + 1] = (num / 256) % 256;
-	out[off + 2] = (num / 65536) % 256;
-	out[off + 3] = (num / 16777216) % 256;
-}
 /* helper to read dng */
 #readshort(view, off) {
 	let res = view.getUint8(off);
@@ -897,7 +890,7 @@ setpvwait() {
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
 			f.data = evt.target.result;
-			this.parseDng(f, onok, onerr);
+			this.#parseDng(f, onok, onerr);
 		}
 		reader.onerror = (evt) => { onerr(f.name); };
 		reader.readAsArrayBuffer(f);
@@ -1106,8 +1099,8 @@ setpvwait() {
 		} else document.getElementById('forrest').style['display'] = 'none';
 	}
 	let rawname = f.url ? f.url : (f.name ? f.name : f);
-	while (rawname.indexOf("/") > -1) {
-		rawname = rawname.substring(rawname.indexOf("/") + 1);
+	while (rawname.lastIndexOf("/") > -1) {
+		rawname = rawname.substring(rawname.lastIndexOf("/") + 1);
 	}
 	if (this.#stepmode === 2) {
 		// skip rest
@@ -1241,8 +1234,8 @@ setpvwait() {
 		return;
 	}
 	let rawname = f.name;
-	while (rawname.indexOf("/") > -1) {
-		rawname = rawname.substring(rawname.indexOf("/") + 1);
+	while (rawname.lastIndexOf("/") > -1) {
+		rawname = rawname.substring(rawname.lastIndexOf("/") + 1);
 	}
 	if (rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
 		this.#mappx('process.processing', rawname);
@@ -1384,15 +1377,15 @@ setpvwait() {
 		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config */
 		ti.addEntry(305, 'ASCII', 'imbraw2dng ' + this.#version); /* SW and version */
 		if (dateok) ti.addEntry(306, 'ASCII', datestr); /* datetime */
+		if (dateok) ti.addEntryRelative(36867, 306, 0); /* Original date time */
 		ti.addEntry(33421, 'SHORT', [ 2, 2 ]); /* CFA Repeat Pattern Dim */
 		ti.addEntry(33422, 'BYTE', [ 1, 0, 2, 1 ]); /* CFA Pattern */
-		if (dateok) ti.addEntryRelative(36867, 306, 0); /* Original date time */
 		ti.addEntry(50706, 'BYTE', [ 1, 1, 0, 0 ]); /* DNG Version */
 		ti.addEntry(50707, 'BYTE', [ 1, 0, 0, 0 ]); /* DNG Backward Version */
 		ti.addEntry(50717, 'LONG', [ 255 ]); /* White level */
 		ti.addEntry(50721, 'SRATIONAL', [ 19624, 10000, -6105, 10000, -34134, 100000, -97877, 100000, 191614, 100000, 3345, 100000, 28687, 1000000, -1468, 10000, 1348676, 1000000 ]); /* Color Matrix 1 */
-		ti.addEntry(50728, 'RATIONAL', [ 6, 10, 1, 1, 6, 10 ]); /* As shot neutral */
 		ti.addEntry(50778, 'SHORT', [ 23 ]); /* Calibration Illuminant 1 */
+		ti.addEntry(50728, 'RATIONAL', [ 6, 10, 1, 1, 6, 10 ]); /* As shot neutral */
 		ti.addEntry(50827, 'BYTE', rawnamearr); /* Raw file name */
 		//let x = ti.getData();
 		this.#output1(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted', ti.getData());
@@ -1674,7 +1667,11 @@ prevdef(ev) {
 		if (undefined !== afterload) afterload();
 		const contents = evt.target.result;
 		const view = new DataView(contents);
+		let transpose = false;
 		let outpix = this.#buildpvarray(view, typ, w, h, orientation, true);
+        if (orientation === 6 || orientation === 8) {
+                transpose = true;
+        }
 		ctx.putImageData(new ImageData(new Uint8ClampedArray(outpix), transpose ? h8: w8, transpose? w8 :h8), 0, 0);
 		onok(f);
 	};
@@ -1744,8 +1741,8 @@ skipthis() {
 		this.#stats.skipped += (this.#totnum - this.#actnum);
 	} else {
 		let rawname = this.#allfiles[this.#actnum].name ? this.#allfiles[this.#actnum].name : this.#allfiles[this.#actnum];
-		while (rawname.indexOf("/") > -1) 
-			rawname = rawname.substring(rawname.indexOf("/") + 1);
+		while (rawname.lastIndexOf("/") > -1) 
+			rawname = rawname.substring(rawname.lastIndexOf("/") + 1);
 		this.#mappx('process.skipped', rawname);
 		this.#appendnl();
 		this.#stats.skipped ++;
@@ -1792,8 +1789,8 @@ rot0() {
 /* handle on entry from imb PHOTO/MOVIE listing page */
 #handle1imb(url) {
 	let rawname = url;
-	while (rawname.indexOf("/") > -1)
-		rawname = rawname.substring(rawname.indexOf("/") + 1);
+	while (rawname.lastIndexOf("/") > -1)
+		rawname = rawname.substring(rawname.lastIndexOf("/") + 1);
 	if (rawname.substring(0,10).toUpperCase() === 'IMBRAW2DNG') return;
 	let timestx = this.#fnregex.exec(rawname);
 	let timest = null, cl = '9999_99_99-99';
@@ -2010,8 +2007,8 @@ imbdoit() {
 		(this.#typeflags % 2)) {
 		for (const e of this.#rimbpics) {
 			let rawname = e;
-			while (rawname.indexOf("/") > -1)
-				rawname = rawname.substring(rawname.indexOf("/") + 1);
+			while (rawname.lastIndexOf("/") > -1)
+				rawname = rawname.substring(rawname.lastIndexOf("/") + 1);
 			if (this.#comptime(rawname, compval))
 				selecteds.push(e);
 		}
@@ -2020,8 +2017,8 @@ imbdoit() {
 		((this.#typeflags % 4) > 1)) {
 		for (const e of this.#imbpics) {
 			let rawname = e;
-			while (rawname.indexOf("/") > -1)
-				rawname = rawname.substring(rawname.indexOf("/") + 1);
+			while (rawname.lastIndexOf("/") > -1)
+				rawname = rawname.substring(rawname.lastIndexOf("/") + 1);
 			if (this.#comptime(rawname, compval))
 				selecteds.push(e);
 		}
@@ -2030,8 +2027,8 @@ imbdoit() {
 		((this.#typeflags % 8) > 3)) {
 		for (const e of this.#imbmovies) {
 			let rawname = e;
-			while (rawname.indexOf("/") > -1)
-				rawname = rawname.substring(rawname.indexOf("/") + 1);
+			while (rawname.lastIndexOf("/") > -1)
+				rawname = rawname.substring(rawname.lastIndexOf("/") + 1);
 			if (this.#comptime(rawname, compval))
 				selecteds.push(e);
 		}
@@ -2039,10 +2036,10 @@ imbdoit() {
 	selecteds.sort((a, b) => {
 		let ra = a;
 		let rb = b;
-		while (ra.indexOf("/") > -1)
-			ra = ra.substring(ra.indexOf("/") + 1);
-		while (rb.indexOf("/") > -1)
-			rb = rb.substring(rb.indexOf("/") + 1);
+		while (ra.lastIndexOf("/") > -1)
+			ra = ra.substring(ra.lastIndexOf("/") + 1);
+		while (rb.lastIndexOf("/") > -1)
+			rb = rb.substring(rb.lastIndexOf("/") + 1);
 		if (ra < rb) return -1;
 		else if (ra === rb) return 0;
 		else return 1;
@@ -2567,8 +2564,8 @@ topreccheck(force) {
 	e.entry.classList.add('ee');
 	e.entry.classList.add(e.type);
 	let rawname = e.url;
-	while (rawname.indexOf("/") > -1)
-		rawname = rawname.substring(rawname.indexOf("/") + 1);
+	while (rawname.lastIndexOf("/") > -1)
+		rawname = rawname.substring(rawname.lastIndexOf("/") + 1);
 	e.entry.classList.add('ET_' + e.type + rawname.substring(0,12));
 	e.entry.classList.add('EY_' + rawname.substring(0,12));
 	const topline = document.createElement('div');
@@ -2843,10 +2840,10 @@ browserprocess() {
 	selecteds.sort((a, b) => {
 		let ra = a.url;
 		let rb = b.url;
-		while (ra.indexOf("/") > -1)
-			ra = ra.substring(ra.indexOf("/") + 1);
-		while (rb.indexOf("/") > -1)
-			rb = rb.substring(rb.indexOf("/") + 1);
+		while (ra.lastIndexOf("/") > -1)
+			ra = ra.substring(ra.lastIndexOf("/") + 1);
+		while (rb.lastIndexOf("/") > -1)
+			rb = rb.substring(rb.lastIndexOf("/") + 1);
 		if (ra < rb) return -1;
 		else if (ra === rb) return 0;
 		else return 1;
@@ -3037,8 +3034,8 @@ querylang(name, offset) {
 }
 /* nodejs: show help */
 #help(caller) {
-	while (caller.indexOf("/") > -1)
-		caller = caller.substring(caller.indexOf("/") + 1);
+	while (caller.lastIndexOf("/") > -1)
+		caller = caller.substring(caller.lastIndexOf("/") + 1);
 	let texts = this.#xl0('node.help');
 	console.log(this.#subst(texts[0], this.#version));
 	console.log(this.#subst(texts[1], caller));
@@ -3307,13 +3304,13 @@ addEntry(tag, type, value) {
 		} else if (type === 'LONG') {
 			TIFFOut.writeinttoout(e.value, value[0], 0);
 		} else if (type === 'SLONG') {
-			TIFFOut.writeinttoout(e.value, (65536*65536)-value[0], 0);
+			TIFFOut.writeinttoout(e.value, (65536*65536)+value[0], 0);
 		} else if (type === 'SHORT') {
 			TIFFOut.writeshorttoout(e.value, value[0], 0);
 			if (l === 2) TIFFOut.writeshorttoout(e.value, value[1], 2);
 		} else if (type === 'SSHORT') {
 			TIFFOut.writeshorttoout(e.value, 65536-value[0], 0);
-			if (l === 2) TIFFOut.writeshorttoout(e.value, 65536-value[1], 2);
+			if (l === 2) TIFFOut.writeshorttoout(e.value, 65536+value[1], 2);
 		}
 		this.#entrys.push(e);
 	}
@@ -3352,7 +3349,7 @@ addEntry(tag, type, value) {
 		} else if (type === 'SLONG') {
 			for (let k = 0; k < l; k++) {
 				this.#dyndata.push(0); this.#dyndata.push(0); this.#dyndata.push(0); this.#dyndata.push(0);
-				if (value[k] < 0) TIFFOut.writeinttoout(this.#dyndata, (65536*65536)-value[k], this.#currentoff);
+				if (value[k] < 0) TIFFOut.writeinttoout(this.#dyndata, (65536*65536)+value[k], this.#currentoff);
 				else TIFFOut.writeinttoout(this.#dyndata, value[k], this.#currentoff);
 				this.#currentoff += 4;
 			}
@@ -3366,7 +3363,7 @@ addEntry(tag, type, value) {
 		} else if (type === 'SSHORT') {
 			for (let k = 0; k < l; k++) {
 				this.#dyndata.push(0); this.#dyndata.push(0);
-				if (value[k] < 0) TIFFOut.writeinttoout(this.#dyndata, 65536 - value[k], this.#currentoff);
+				if (value[k] < 0) TIFFOut.writeinttoout(this.#dyndata, 65536 + value[k], this.#currentoff);
 				else TIFFOut.writeinttoout(this.#dyndata, value[k], this.#currentoff);
 				this.#currentoff += 2;
 			}
@@ -3383,9 +3380,9 @@ addEntry(tag, type, value) {
 			for (let k = 0; k < l; k++) {
 				this.#dyndata.push(0); this.#dyndata.push(0); this.#dyndata.push(0); this.#dyndata.push(0);
 				this.#dyndata.push(0); this.#dyndata.push(0); this.#dyndata.push(0); this.#dyndata.push(0);
-				if (value[2*k] < 0) TIFFOut.writeinttoout(this.#dyndata, (65536*65536)-value[2*k], this.#currentoff);
+				if (value[2*k] < 0) TIFFOut.writeinttoout(this.#dyndata, (65536*65536)+value[2*k], this.#currentoff);
 				else TIFFOut.writeinttoout(this.#dyndata, value[2*k], this.#currentoff);
-				if (value[2*k + 1] < 0) TIFFOut.writeinttoout(this.#dyndata, (65536*65536)-value[2*k + 1], this.#currentoff + 4);
+				if (value[2*k + 1] < 0) TIFFOut.writeinttoout(this.#dyndata, (65536*65536)+value[2*k + 1], this.#currentoff + 4);
 				else TIFFOut.writeinttoout(this.#dyndata, value[2*k + 1], this.#currentoff + 4);
 				this.#currentoff += 8;
 			}
