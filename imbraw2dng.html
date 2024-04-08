@@ -142,12 +142,12 @@ constructor() {
 		this.fs = require('fs');
 		this.ht = require('http');
 		this.pa = require('path');
-		if (process.platform.substring(0,3) === 'win') this.withcolours = false;
+		if (process.platform.substring(0,3) === 'win') this.#withcolours = false;
 	}
 }
-version = "V3.3.0_DEVEL"; // actually const
-alllangs = [ 'de' , 'en', 'fr', 'ru', '00' ]; // actually const
-texts = { // actually const
+#version = "V3.3.0_DEVEL"; // actually const
+#alllangs = [ 'de' , 'en', 'fr', 'ru', '00' ]; // actually const
+#texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU' },
 	main: {
 		coloursyourrisk: {
@@ -673,28 +673,28 @@ texts = { // actually const
 		}
 	}
 };
-mylang = 'en';
-withcolours = true;
+#mylang = 'en';
+#withcolours = true;
 /* node js: */
-outdir = '';
-ovwout = false;
-typeflags = 0;
-fromts = '0000';
-connmsg = false;
+#outdir = '';
+#ovwout = false;
+#typeflags = 0;
+#fromts = '0000';
+#connmsg = false;
 // generic user input timestamp (any prefix)
 //           y      y     y     y      .      m     m     .      d      d      .      h     h      .      m     m      .      s     s
-tsregex = /^[02-3]([0-9]([0-9]([0-9](([^0-9])[01]([0-9](([^0-9])[0123]([0-9](([^0-9])[012]([0-9](([^0-9])[0-5]([0-9](([^0-9])[0-5]([0-9])?)?)?)?)?)?)?)?)?)?)?)?)?$/
+#tsregex = /^[02-3]([0-9]([0-9]([0-9](([^0-9])[01]([0-9](([^0-9])[0123]([0-9](([^0-9])[012]([0-9](([^0-9])[0-5]([0-9](([^0-9])[0-5]([0-9])?)?)?)?)?)?)?)?)?)?)?)?)?$/
 /* Data for the Imback variants and exif stuff */
 // generic imb filename format
 //            y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s            EXT
-fnregex = /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])(.*[.])([^.]*)$/
+#fnregex = /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])(.*[.])([^.]*)$/
 // generic imb filename format, only timestamp
 //             y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s
-fnregexx = /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])/
-orients = [ '', 'none', '', 'upsidedown', '', '', 'clockwise', '', 'counterclockwise' ]; // actually const
-oriecw = [ 1, 6, 3, 8 ]; // clockwise indices // actually const
-types = [ "unknown", "ImB35mm", "MF 6x7 ", "MF6x4.5", "MF 6x6 " ]; // all length 7, actually const
-infos = [ // actually const
+#fnregexx = /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])/
+#orients = [ '', 'none', '', 'upsidedown', '', '', 'clockwise', '', 'counterclockwise' ]; // actually const
+#oriecw = [ 1, 6, 3, 8 ]; // clockwise indices // actually const
+#types = [ "unknown", "ImB35mm", "MF 6x7 ", "MF6x4.5", "MF 6x6 " ]; // all length 7, actually const
+#infos = [ // actually const
 	{
 		size: 14065920,
 		w: 4320,
@@ -781,36 +781,36 @@ infos = [ // actually const
 ];
 
 /* For processing several files */
-totnum=0;
-actnum=0;
-stats = { total: 0, skipped: 0, ok: 0, error: 0 };
-allfiles = [];
-dispcnt = 1;
-stepmode = 0; // 0: always save (when no preview checkbox or "save all" in dialog), 1: always ask (set on preview checkbox), 2: skip all (after selected in dialog)
+#totnum=0;
+#actnum=0;
+#stats = { total: 0, skipped: 0, ok: 0, error: 0 };
+#allfiles = [];
+#dispcnt = 1;
+#stepmode = 0; // 0: always save (when no preview checkbox or "save all" in dialog), 1: always ask (set on preview checkbox), 2: skip all (after selected in dialog)
 // current preview image
-currentrot = 1; // see oriecw above
+#currentrot = 1; // see oriecw above
 // from the back itself
-maxcache = 30; // max. length of cache for already downloaded raw data - you may increase or decrease this
-cache = []; // actual cache buffer
-imbpics = [];  // found jpegs
-rimbpics = []; // found raws
-imbmovies = []; // found other
-imbeles = [];  // elements for files for visual browser
-typedclasses = [];  // elements for groups w/o type for visual browser
-untypedclasses = []; // elements for groups with type for visual browser
-earliestmov = '9999';  // upper/lower bounds of dates for types
-latestmov='0000';
-earliestjpg='9999';
-latestjpg='0000';
-earliestraw='9999';
-latestraw='0000';
-loaderrunning=false; // currently handled browser raw preview download
+#maxcache = 30; // max. length of cache for already downloaded raw data - you may increase or decrease this
+#cache = []; // actual cache buffer
+#imbpics = [];  // found jpegs
+#rimbpics = []; // found raws
+#imbmovies = []; // found other
+#imbeles = [];  // elements for files for visual browser
+#typedclasses = [];  // elements for groups w/o type for visual browser
+#untypedclasses = []; // elements for groups with type for visual browser
+#earliestmov = '9999';  // upper/lower bounds of dates for types
+#latestmov='0000';
+#earliestjpg='9999';
+#latestjpg='0000';
+#earliestraw='9999';
+#latestraw='0000';
+#loaderrunning=false; // currently handled browser raw preview download
 /* deleting */
-deletephase = 0;
+#deletephase = 0;
 /* debug */
-debugflag = false;
+#debugflag = false;
 /* helper to append message */
-appendmsg(msg)  {
+#appendmsg(msg)  {
 	if (document) {
 		const msgel = document.getElementById('outmsg');
 		const xmsg = document.getElementById('xmsg');
@@ -820,7 +820,7 @@ appendmsg(msg)  {
 	else console.log(msg);
 }
 /* helper to append message */
-appendmsgx(msg) {
+#appendmsgx(msg) {
 	if (document) {
 		const msgel = document.getElementById('outmsg');
 		const xmsg = document.getElementById('xmsg');
@@ -829,70 +829,70 @@ appendmsgx(msg) {
 	}
 }
 /* helper function to put integer into dng */
-writeinttoout(out, num, off) {
+#writeinttoout(out, num, off) {
 	out[off] = (num % 256);
 	out[off + 1] = (num / 256) % 256;
 	out[off + 2] = (num / 65536) % 256;
 	out[off + 3] = (num / 16777216) % 256;
 }
 /* helper to read dng */
-readshort(view, off) {
+#readshort(view, off) {
 	let res = view.getUint8(off);
 	res += (256 * view.getUint8(off+1));
 	return res;
 }
 /* helper to read dng */
-readint(view, off) {
-	let res = this.readshort(view, off);
-	res += (65536 * this.readshort(view,off+2));
+#readint(view, off) {
+	let res = this.#readshort(view, off);
+	res += (65536 * this.#readshort(view,off+2));
 	return res;
 }
 /* stupid helper */
-appendnl() {
-	if (document) this.appendmsg('<br>&nbsp;<br>');
+#appendnl() {
+	if (document) this.#appendmsg('<br>&nbsp;<br>');
 }
 /* browserdisplay: handler for file selection input */
 fselected() {
-	if (this.actnum !== this.allfiles.length) return;
+	if (this.#actnum !== this.#allfiles.length) return;
     const stepprev = document.getElementById('steppreview');
-    this.stepmode = 0;
-	if (stepprev !== null && stepprev.checked) this.stepmode = 1;
+    this.#stepmode = 0;
+	if (stepprev !== null && stepprev.checked) this.#stepmode = 1;
 	const el = document.getElementById('infile');
-	this.totnum = el.files.length;
-	this.actnum = 0;
-	this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
-	this.allfiles = el.files;
-	if (this.totnum > 0) {
-		this.mappx('process.selectedn', this.totnum);
-		this.appendnl();
+	this.#totnum = el.files.length;
+	this.#actnum = 0;
+	this.#stats = { total: this.#totnum, skipped: 0, error: 0, ok: 0 };
+	this.#allfiles = el.files;
+	if (this.#totnum > 0) {
+		this.#mappx('process.selectedn', this.#totnum);
+		this.#appendnl();
 		document.getElementById('imbdoit').disabled = true;
 		document.getElementById('imbvisbrows').disabled = true;
 		document.getElementById('droptarget').style['display'] = 'none';
 		document.getElementById('infile').disabled = true;
-		this.handleonex();
+		this.#handleonex();
 	}
 }
 /* nodejs: handle given files/dirs recursive */
-handlerecurse(already, index) {
+#handlerecurse(already, index) {
 	if (!already) {
 		// initializsation
 		already = [];
 		index = 0;
-		this.stats.total = 0;
-		this.totnum = 0;
+		this.#stats.total = 0;
+		this.#totnum = 0;
 	}
-	const d = this.allfiles[index];
+	const d = this.#allfiles[index];
 	if (undefined === d) {
 		// beyond end of allfiles, finished recursion
-		this.allfiles = already;
-		this.stats.total = this.totnum = already.length;
-		if (this.totnum > 0) this.handleonex();
-		else this.mappx('onimback.nomatch');
+		this.#allfiles = already;
+		this.#stats.total = this.#totnum = already.length;
+		if (this.#totnum > 0) this.#handleonex();
+		else this.#mappx('onimback.nomatch');
 		return;
 	}
 	this.fs.stat(d, (err, stat) => {
 		if (err) {
-			console.log(this.xl('process.erraccessx', d));
+			console.log(this.#xl('process.erraccessx', d));
 			console.log(JSON.stringify(err));
 			console.log('');
 		}
@@ -900,17 +900,17 @@ handlerecurse(already, index) {
 			// recurse into
 			this.fs.readdir(d, { withFileTypes: true, recursive: true }, (err2, f) => {
 				if (err2) {
-					console.log(this.xl('process.erraccessx', d));
+					console.log(this.#xl('process.erraccessx', d));
 					console.log(JSON.stringify(err2));
 				}
 				else for (let i of f.filter(e => e.isFile())) {
 					const n = i.name;
 					if (n.substring(0,10).toUpperCase() === 'IMBRAW2DNG') continue;
-					if (((n.substring(n.length -4).toUpperCase() === '.RAW' || n.substring(n.length -4).toUpperCase() === '.DNG') && (this.typeflags % 2)) ||
-						((n.substring(n.length -5).toUpperCase() === '.JPEG' || n.substring(n.length -4).toUpperCase() === '.JPG') && ((this.typeflags % 4) > 1)) ||
+					if (((n.substring(n.length -4).toUpperCase() === '.RAW' || n.substring(n.length -4).toUpperCase() === '.DNG') && (this.#typeflags % 2)) ||
+						((n.substring(n.length -5).toUpperCase() === '.JPEG' || n.substring(n.length -4).toUpperCase() === '.JPG') && ((this.#typeflags % 4) > 1)) ||
 						(n.substring(n.length -5).toUpperCase() !== '.JPEG' && n.substring(n.length -4).toUpperCase() !== '.JPG' && n.substring(n.length -4).toUpperCase() !== '.DNG' &&
-							n.substring(n.length -4).toUpperCase() !== '.RAW' && ((this.typeflags % 8) > 3))) {
-						if (this.comptime(i.name, this.fromts))
+							n.substring(n.length -4).toUpperCase() !== '.RAW' && ((this.#typeflags % 8) > 3))) {
+						if (this.#comptime(i.name, this.#fromts))
 							already.push(i.path + this.pa.sep + i.name);
 					}
 					//console.log(i);
@@ -921,28 +921,28 @@ handlerecurse(already, index) {
 			// plain files simply go
 			already.push(d);
 		}
-		this.handlerecurse(already, index + 1);
+		this.#handlerecurse(already, index + 1);
 	});
 }
 /* continue with the next file if any */
-handlenext() {
-	if (this.actnum < this.allfiles.length - 1) {
-		this.actnum++;
-		this.handleonex();
+#handlenext() {
+	if (this.#actnum < this.#allfiles.length - 1) {
+		this.#actnum++;
+		this.#handleonex();
 	} else {
-		this.actnum = 0;
-		this.allfiles = [];
+		this.#actnum = 0;
+		this.#allfiles = [];
 		/*if (this.fromvisbrows) {
 			this.fromvisbrows = false;
 			this.showbrowser();
 		} else*/ 
 			this.shownormal();
-		if (this.stats.total > 0) {
-			if (document) this.appendnl();
-			else this.appendmsg('');
-			this.mappx('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
-			if (document) this.appendnl();
-			else this.appendmsg('');
+		if (this.#stats.total > 0) {
+			if (document) this.#appendnl();
+			else this.#appendmsg('');
+			this.#mappx('process.totals', this.#stats.total, this.#stats.ok, this.#stats.skipped, this.#stats.error);
+			if (document) this.#appendnl();
+			else this.#appendmsg('');
 		}
 		if (document) {
 			document.getElementById('imbdoit').disabled = false;
@@ -980,7 +980,7 @@ setpvwait() {
 	document.getElementById('preview').style['display'] = 'none';
 }
 /* handle dng like raw */
-parseDng(f, onok, onerr) {
+#parseDng(f, onok, onerr) {
 	// blindly assumes that it is one of our own DNG
 	// interesting tags: orientation, datetime
 	if (undefined === f.data) {
@@ -993,11 +993,11 @@ parseDng(f, onok, onerr) {
 		return;
 	}
 	const v = new DataView(f.data);
-	const ifd = this.readint(v, 4);
-	const zz = this.infos.findIndex((v, i, o) => v.size === ifd - 8);
-	if (this.readshort(v, 2) !== 42 || this.readshort(v,0) !== 18761 /* 0x4949 */ || zz === -1)
+	const ifd = this.#readint(v, 4);
+	const zz = this.#infos.findIndex((v, i, o) => v.size === ifd - 8);
+	if (this.#readshort(v, 2) !== 42 || this.#readshort(v,0) !== 18761 /* 0x4949 */ || zz === -1)
 		return onerr(f.name);
-	const nent = this.readshort(v, ifd);
+	const nent = this.#readshort(v, ifd);
 	let fx = {
 		imbackextension: true,
 		name: f.name + '_X.raw',
@@ -1006,13 +1006,13 @@ parseDng(f, onok, onerr) {
 	};
 	let off = ifd+2;
 	for (let k=0; k<((nent<30)? nent: 0); k++) {
-		let tag = this.readshort(v, off);
+		let tag = this.#readshort(v, off);
 		if (tag === 274)
-			fx.rot = this.readshort(v, off+8); // rotation handling has problems
+			fx.rot = this.#readshort(v, off+8); // rotation handling has problems
 		else if (tag === 306) {
 			fx.datestr = '';
-			let xoff = this.readint(v, off+8);
-			const len = this.readshort(v, off+4)-1;
+			let xoff = this.#readint(v, off+8);
+			const len = this.#readshort(v, off+4)-1;
 			for (let j=0; j<len;j++)
 				fx.datestr += String.fromCharCode(v.getUint8(xoff++));
 		}
@@ -1028,7 +1028,7 @@ parseDng(f, onok, onerr) {
 	});
 }
 /* nodejs: file/filereader like interface for node js */
-createFxNode(url, onok, onerr) {
+#createFxNode(url, onok, onerr) {
 	if (url.url) {
 		let e = url;
 		url = e.url;
@@ -1068,7 +1068,7 @@ createFxNode(url, onok, onerr) {
 				});
 			});
 		}).on('error', (e) => {
-			console.log(this.xl('onimback.errconnect', '192.168.1.254'));
+			console.log(this.#xl('onimback.errconnect', '192.168.1.254'));
 			console.log(JSON.stringify(e));
 			onerr(url, fx);
 		});
@@ -1077,7 +1077,7 @@ createFxNode(url, onok, onerr) {
 		// read local file
 		this.fs.readFile(url, (err, data) => {
 				if (err) {
-					this.mappx('process.erraccess' + (!document ? 'x' : ''), url);
+					this.#mappx('process.erraccess' + (!document ? 'x' : ''), url);
 					console.log(JSON.stringify(err));
 					return onerr(url, fx);
 				}
@@ -1102,8 +1102,8 @@ createFxNode(url, onok, onerr) {
 }
 /* file/filereader like interface for imback http */
 // url can also be an imbele member
-createFx(url, onok, onerr, notfirst) {
-	if (!document) return this.createFxNode(url, onok, onerr);
+#createFx(url, onok, onerr, notfirst) {
+	if (!document) return this.#createFxNode(url, onok, onerr);
 	let rot, e = url;
 	if (url.url) {
 		e = url;
@@ -1134,8 +1134,8 @@ createFx(url, onok, onerr, notfirst) {
 		let len = JSON.parse(xhr.getResponseHeader('content-length'));
 		if (0 >= len) len=1;
 		if (notfirst && (url.substring(url.length -4).toUpperCase() === '.RAW' || url.substring(url.length -4).toUpperCase() === '.DNG')) {
-			this.cache.push({ url: url, d: xhr.response, l: len });
-			if (this.cache.length > this.maxcache) this.cache.splice(0,1);
+			this.#cache.push({ url: url, d: xhr.response, l: len });
+			if (this.#cache.length > this.maxcache) this.#cache.splice(0,1);
 		}
 		fx.data = xhr.response;
 		fx.size = xhr.response.byteLength;
@@ -1152,7 +1152,7 @@ createFx(url, onok, onerr, notfirst) {
 			window.setTimeout(() => {
 					onok(url, fx, rot);
 			});
-		} else this.createFx(e, onok, onerr, len);
+		} else this.#createFx(e, onok, onerr, len);
 	};
 	xhr.onerror = (evt, typ) => {
 		if (undefined === typ) typ = 'err';
@@ -1185,12 +1185,12 @@ createFx(url, onok, onerr, notfirst) {
 	}
 }
 /* main handler function for one file */
-handleonex() {
-	const f = this.allfiles[this.actnum];
-	this.currentrot = 1;
+#handleonex() {
+	const f = this.#allfiles[this.#actnum];
+	this.#currentrot = 1;
 	if (undefined !== document) {
 		document.getElementById('doforall').checked = false;
-		if (this.actnum < this.totnum-1) {
+		if (this.#actnum < this.#totnum-1) {
 			document.getElementById('forrest').style['display'] = '';
 		} else document.getElementById('forrest').style['display'] = 'none';
 	}
@@ -1198,26 +1198,26 @@ handleonex() {
 	while (rawname.indexOf("/") > -1) {
 		rawname = rawname.substring(rawname.indexOf("/") + 1);
 	}
-	if (this.stepmode === 2) {
+	if (this.#stepmode === 2) {
 		// skip rest
 		this.shownormal();
-		return this.handlenext();
+		return this.#handlenext();
 	}
-	else if (this.stepmode === 1) {
+	else if (this.#stepmode === 1) {
 		// show preview and ask for rotation, skip, save
 		// then (in handler) set mode, call handleone (if save) or handlenext (if skip)
 		this.showquestion();
-		const f = this.allfiles[this.actnum];
+		const f = this.#allfiles[this.#actnum];
 		if (undefined === f) {
 			return;
 		}
-		if (this.totnum > 1) {
-			document.getElementById('qhdr').innerHTML = '[' + (1 + this.actnum) + ' / ' + this.totnum + '] ';
+		if (this.#totnum > 1) {
+			document.getElementById('qhdr').innerHTML = '[' + (1 + this.#actnum) + ' / ' + this.#totnum + '] ';
 		} else document.getElementById('qhdr').innerHTML = '';
 		if (rawname.substring(rawname.length -4).toUpperCase() === '.JPG' ||
 			rawname.substring(rawname.length -5).toUpperCase() === '.JPEG') {
 			/* jpeg preview */
-			this.qappx('main.file.jpeg', rawname);
+			this.#qappx('main.file.jpeg', rawname);
 			if (f.name) {
 				// read jpeg file for preview
 				const fr = new FileReader();
@@ -1240,32 +1240,32 @@ handleonex() {
 		}
 		else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW' && rawname.substring(rawname.length -4).toUpperCase() !== '.DNG') {
 			/* no preview */
-			this.qappx('main.file.nopreview', rawname);
+			this.#qappx('main.file.nopreview', rawname);
 			this.setnopv();
 		}
 		else if (rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
-			this.qappx('main.file',rawname);
-			this.buildpreview(f, () => { this.setrawpv(); }, () => { this.setpverr(); });
+			this.#qappx('main.file',rawname);
+			this.#buildpreview(f, () => { this.setrawpv(); }, () => { this.setpverr(); });
 		}
 		else {
-			const zz = this.infos.findIndex((v, i, o) => v.size === f.size);
+			const zz = this.#infos.findIndex((v, i, o) => v.size === f.size);
 			if (zz === -1 && undefined !== f.size) {
 				/* no preview */
-				this.qappx('main.file.rawunknown', rawname, f.size);
+				this.#qappx('main.file.rawunknown', rawname, f.size);
 				this.setnopv();
 			} else {
-				this.qappx('main.file',rawname);
-				this.buildpreview(f, () => { this.setrawpv(); }, () => { this.setpverr(); });
+				this.#qappx('main.file',rawname);
+				this.#buildpreview(f, () => { this.setrawpv(); }, () => { this.setpverr(); });
 			}
 		}
 	}
 	else { // normal processing without question
 		this.shownormal();
-		this.handleone(f.rot);
+		this.#handleone(f.rot);
 	}
 }
 /* translation helper */
-genspan(key, arg0, arg1, arg2, arg3) {
+#genspan(key, arg0, arg1, arg2, arg3) {
 	const s = document.createElement('span');
 	s.setAttribute('data-myxlkey', key);
 	if (undefined !== arg0) {
@@ -1280,51 +1280,51 @@ genspan(key, arg0, arg1, arg2, arg3) {
 			}
 		}
 	}
-	return this.xl1(s);
+	return this.#xl1(s);
 }
 /* translation helper with title */
-genspantitle(title, key, arg0, arg1, arg2, arg3) {
-	const s = this.genspan(key, arg0, arg1, arg2, arg3);
+#genspantitle(title, key, arg0, arg1, arg2, arg3) {
+	const s = this.#genspan(key, arg0, arg1, arg2, arg3);
 	s.setAttribute('data-mytitlexlkey', title);
-	return this.xl1(s);
+	return this.#xl1(s);
 }
 /* translated append to preview header */
-qappx(key, arg0, arg1, arg2, arg3) {
-	const s = this.genspan(key, arg0, arg1, arg2, arg3);
+#qappx(key, arg0, arg1, arg2, arg3) {
+	const s = this.#genspan(key, arg0, arg1, arg2, arg3);
 	document.getElementById('qhdr').append(s);
 }
 /* translated append to main log */
-mappx(key, arg0, arg1, arg2, arg3) {
+#mappx(key, arg0, arg1, arg2, arg3) {
 	if (document) {
-		const s = this.genspan(key, arg0, arg1, arg2, arg3);
-		this.dispcnt++;
-		s.id = 'mappx_' + this.dispcnt;
+		const s = this.#genspan(key, arg0, arg1, arg2, arg3);
+		this.#dispcnt++;
+		s.id = 'mappx_' + this.#dispcnt;
 		const msgel = document.getElementById('outmsg');
 		const xmsg = document.getElementById('xmsg');
 		xmsg.style["display"] = "";
 		msgel.append(s);
 	}
-	else console.log(this.xl(key, arg0, arg1, arg2, arg3));
+	else console.log(this.#xl(key, arg0, arg1, arg2, arg3));
 }
 /* actual processing function for one file */
-handleone(orientation) {
-	const f = this.allfiles[this.actnum];
+#handleone(orientation) {
+	const f = this.#allfiles[this.#actnum];
 	if (undefined === f) {
-		this.mappx('process.nothing');
-		this.appendnl();
-		return this.handlenext();
+		this.#mappx('process.nothing');
+		this.#appendnl();
+		return this.#handlenext();
 	}
 	if (undefined === f.size) {
 		setTimeout(() => {
-		  this.createFx(f, (url, fx, rot) => {
-				this.allfiles[this.actnum] = fx;
-				this.handleone(rot ? rot: orientation);
+		  this.#createFx(f, (url, fx, rot) => {
+				this.#allfiles[this.#actnum] = fx;
+				this.#handleone(rot ? rot: orientation);
 			}, (url) => {
-				this.mappx('process.erraccess' + (!document ? 'x' : ''), url);
-				if (document) this.appendnl();
-				else this.appendmsg('');
-				this.stats.error ++;
-				this.handlenext();
+				this.#mappx('process.erraccess' + (!document ? 'x' : ''), url);
+				if (document) this.#appendnl();
+				else this.#appendmsg('');
+				this.#stats.error ++;
+				this.#handlenext();
 		  });
 		});
 		return;
@@ -1334,55 +1334,55 @@ handleone(orientation) {
 		rawname = rawname.substring(rawname.indexOf("/") + 1);
 	}
 	if (rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
-		this.mappx('process.processing', rawname);
-		if (document) this.appendmsg('<br>');
-		return this.parseDng(f, 
+		this.#mappx('process.processing', rawname);
+		if (document) this.#appendmsg('<br>');
+		return this.#parseDng(f, 
 			(url, fx, rot) => {
-				this.allfiles[this.actnum] = fx;
-				this.handleone(orientation ? orientation: rot);
+				this.#allfiles[this.#actnum] = fx;
+				this.#handleone(orientation ? orientation: rot);
 			}, (url) => {
-				this.mappx('process.erraccess' + (!document ? 'x' : ''), url);
-				if (document) this.appendnl();
-				else this.appendmsg('');
-				this.stats.error ++;
-				this.handlenext();
+				this.#mappx('process.erraccess' + (!document ? 'x' : ''), url);
+				if (document) this.#appendnl();
+				else this.#appendmsg('');
+				this.#stats.error ++;
+				this.#handlenext();
 			});
 	}
 	if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
-			if (this.totnum > 1) {
-				this.appendmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ");
+			if (this.#totnum > 1) {
+				this.#appendmsg("[" + (1 + this.#actnum) + " / " + this.#totnum + "] ");
 			}
-			this.mappx('process.notraw',rawname);
-			if (document) this.appendmsg('<br>');
+			this.#mappx('process.notraw',rawname);
+			if (document) this.#appendmsg('<br>');
 			const contents = evt.target.result;
 			const view = new DataView(contents);
 			const out = new Uint8Array(f.size);
 			for (let j=0; j<contents.byteLength; j++) {
 				out[j] = view.getUint8(j);
 			}
-			this.output1(rawname, 'application/octet-stream', 'process.copyok', out);
+			this.#output1(rawname, 'application/octet-stream', 'process.copyok', out);
 		}
 		reader.onerror = (evt) => {
 			console.log('Non-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
-			this.mappend('process.errorreadingfile' + (!document ? 'x' : ''), f.name);
-			this.appendnl();
-			this.stats.error++;
-			this.handlenext();
+			this.#mappx('process.errorreadingfile' + (!document ? 'x' : ''), f.name);
+			this.#appendnl();
+			this.#stats.error++;
+			this.#handlenext();
 		}
 		reader.readAsArrayBuffer(f);
 		return;
 	}
 	let w, h, mode = "??";
 	let typ = 0;
-	const zz = this.infos.findIndex((v, i, o) => v.size === f.size);
+	const zz = this.#infos.findIndex((v, i, o) => v.size === f.size);
 	if (zz === -1) {
-		if (this.totnum > 1) {
-			this.appendmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ");
+		if (this.#totnum > 1) {
+			this.#appendmsg("[" + (1 + this.#actnum) + " / " + this.#totnum + "] ");
 		}
-		this.mappx('process.unknownsize' + (!document ? 'x' : ''), f.name, f.size);
-		if (document) this.appendmsg('<br>');
+		this.#mappx('process.unknownsize' + (!document ? 'x' : ''), f.name, f.size);
+		if (document) this.#appendmsg('<br>');
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
 			const contents = evt.target.result;
@@ -1391,27 +1391,27 @@ handleone(orientation) {
 			for (let j=0; j<view.byteLength; j++) {
 				out[j] = view.getUint8(j);
 			}
-			this.output1(rawname, 'application/octet-stream', 'process.copyok', out);
+			this.#output1(rawname, 'application/octet-stream', 'process.copyok', out);
 		}
 		reader.onerror = (evt) => {
 			console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
-			this.mappend('process.errorreadingfile' + (!document ? 'x' : ''), f.name);
-			this.appendnl();
-			this.stats.error++;
-			this.handlenext();
+			this.#mappx('process.errorreadingfile' + (!document ? 'x' : ''), f.name);
+			this.#appendnl();
+			this.#stats.error++;
+			this.#handlenext();
 		}
 		reader.readAsArrayBuffer(f);
 		return;
 	} else {
-		w = this.infos[zz].w;
-		h = this.infos[zz].h;
-		mode = this.infos[zz].mode;
+		w = this.#infos[zz].w;
+		h = this.#infos[zz].h;
+		mode = this.#infos[zz].mode;
 		if (mode.length !== 0) mode += ' ';
 		mode += '(' + w + ' x ' + h + ')';
-		typ = this.infos[zz].typ;
+		typ = this.#infos[zz].typ;
 	}
 	const rawnamearr = new TextEncoder().encode(rawname);
-	const verarr = new TextEncoder(). encode(this.version);
+	const verarr = new TextEncoder(). encode(this.#version);
 	const verlen = (verarr.length > 0) ? (verarr.length + 1) : 0;
 	const veroff = (verlen && ((verlen % 2) === 0)) ? verlen : (verlen + 1);
 	let datestr="", dateaddoff = 0, dateok = false;
@@ -1421,7 +1421,7 @@ handleone(orientation) {
 		dateok = true;
 		dateaddoff = 24;
 	}
-	let res = this.fnregexx.exec(rawname);
+	let res = this.#fnregexx.exec(rawname);
 	if (res !== null && !dateok) {
 		const yr = Number.parseInt(res[1]);
 		const mon = Number.parseInt(res[3]);
@@ -1437,22 +1437,22 @@ handleone(orientation) {
 
 	const reader = f.imbackextension ? f : new FileReader();
 	reader.onload = (evt) => {
-		if (this.totnum > 1) {
-			this.appendmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ");
+		if (this.#totnum > 1) {
+			this.#appendmsg("[" + (1 + this.#actnum) + " / " + this.#totnum + "] ");
 		}
-		this.mappx('process.processing', rawname);
-		if (document) this.appendmsg('<br>');
-		this.mappx('process.assuming', this.types[typ], mode);
-		if (document) this.appendmsg('<br>');
+		this.#mappx('process.processing', rawname);
+		if (document) this.#appendmsg('<br>');
+		this.#mappx('process.assuming', this.#types[typ], mode);
+		if (document) this.#appendmsg('<br>');
 		if (dateok) {
-			this.mappx('process.datetime', datestr);
-			if (document) this.appendmsg('<br>');
+			this.#mappx('process.datetime', datestr);
+			if (document) this.#appendmsg('<br>');
 		}
 		if (orientation !== undefined && orientation !== 1) {
-			this.mappx('process.orientation');
+			this.#mappx('process.orientation');
 			if (document) {
-				this.appendmsgx(this.genspan('preview.orients.' + this.orients[orientation]));
-				this.appendmsg('<br>');
+				this.#appendmsgx(this.#genspan('preview.orients.' + this.#orients[orientation]));
+				this.#appendmsg('<br>');
 			}
 		}
 		/* Here comes the actual building of the DNG */
@@ -1463,7 +1463,7 @@ handleone(orientation) {
 		out[1] = 0x49;
 		out[2] = 0x2a;
 		out[3] = 0;
-		this.writeinttoout(out, 8 + f.size, 4);
+		this.#writeinttoout(out, 8 + f.size, 4);
 		let k = 8;
 		for (let j=0; j<view.byteLength; j++) {
 			out[k++] = view.getUint8(j);
@@ -1477,7 +1477,7 @@ handleone(orientation) {
 		]; /* followed by 4b width */
 		out.set(rest0, k);
 		k += rest0.length;
-		this.writeinttoout(out, w, k);
+		this.#writeinttoout(out, w, k);
 		k += 4;
 
 		const rest1 = [
@@ -1485,7 +1485,7 @@ handleone(orientation) {
 		]; /* followed by 4b height */
 		out.set(rest1, k);
 		k += rest1.length;
-		this.writeinttoout(out, h, k);
+		this.#writeinttoout(out, h, k);
 		k += 4;
 
 		const rest2 = [ 0x02, 0x01,
@@ -1493,13 +1493,13 @@ handleone(orientation) {
 			0x00, 0x00, 0x0f, 0x01, 0x02, 0x00, 0x07, 0x00, 0x00, 0x00 ];
 		out.set(rest2, k);
 		k += rest2.length;
-		this.writeinttoout(out, f.size + (dateaddoff + 302), k);
+		this.#writeinttoout(out, f.size + (dateaddoff + 302), k);
 		k += 4;
 
 		const rest3 = [ 0x10, 0x01, 0x02, 0x00, 0x08, 0x00, 0x00, 0x00 ];
 		out.set(rest3, k);
 		k += rest3.length;
-		this.writeinttoout(out, f.size + (dateaddoff + 317), k);
+		this.#writeinttoout(out, f.size + (dateaddoff + 317), k);
 		k += 4;
 
 		const rest4 = [ 0x11, 0x01, 0x04, 0x00, 0x01, 0x00,
@@ -1507,14 +1507,14 @@ handleone(orientation) {
 		out.set(rest4, k);
 		k += rest4.length;
 		if (undefined === orientation) {
-			this.writeinttoout(out, 1, k);
-		} else this.writeinttoout(out, orientation, k);
+			this.#writeinttoout(out, 1, k);
+		} else this.#writeinttoout(out, orientation, k);
 		k += 4;
 		const rest4b = [ 0x15, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x17, 0x01,
 			0x04, 0x00, 0x01, 0x00, 0x00, 0x00 ];
 		out.set(rest4b, k);
 		k += rest4b.length;
-		this.writeinttoout(out, f.size, k);
+		this.#writeinttoout(out, f.size, k);
 		k += 4;
 
 		const rest5 = [ 0x1c, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x31, 0x01, 0x02, 0x00];  // 0x0b,
@@ -1524,14 +1524,14 @@ handleone(orientation) {
 		const rest5b = [ 0x00, 0x00, 0x00 ];
 		out.set(rest5b, k);
 		k += rest5b.length;
-		this.writeinttoout(out, f.size + (dateaddoff + 326), k);
+		this.#writeinttoout(out, f.size + (dateaddoff + 326), k);
 		k += 4;
 
 		if (dateok) { // one datetime tag
 			const rest5a = [ 0x32, 0x01, 0x02, 0x00, 0x14, 0x00, 0x00, 0x00 ];
 			out.set(rest5a, k);
 			k += rest5a.length;
-			this.writeinttoout(out, f.size + 466 + veroff, k);
+			this.#writeinttoout(out, f.size + 466 + veroff, k);
 			k += 4;
 		}
 
@@ -1550,26 +1550,26 @@ handleone(orientation) {
 			const rest6a = [ 0x03, 0x90, 0x02, 0x00, 0x14, 0x00, 0x00, 0x00 ];
 			out.set(rest6a, k);
 			k += rest6a.length;
-			this.writeinttoout(out, f.size + 466 + veroff, k);
+			this.#writeinttoout(out, f.size + 466 + veroff, k);
 			k += 4;
 		}
 		const rest6b = [ 0x12, 0xc6, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x13, 0xc6, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00,
 			0x00, 0x00, 0x14, 0xc6, 0x02, 0x00, 0x0f, 0x00, 0x00, 0x00 ];
 		out.set(rest6b, k);
 		k += rest6b.length;
-		this.writeinttoout(out, (dateaddoff + 310) + f.size, k);
+		this.#writeinttoout(out, (dateaddoff + 310) + f.size, k);
 		k += 4;
 
 		const rest7 = [ 0x1d, 0xc6, 0x04, 0x00, 0x01, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x21, 0xc6, 0x0a, 0x00, 0x09, 0x00, 0x00, 0x00 ];
 		out.set(rest7, k);
 		k += rest7.length;
-		this.writeinttoout(out, (dateaddoff + 346 + veroff) + f.size, k);
+		this.#writeinttoout(out, (dateaddoff + 346 + veroff) + f.size, k);
 		k += 4;
 
 		const rest8 = [ 0x28, 0xc6, 0x05, 0x00, 0x03, 0x00, 0x00, 0x00 ];
 		out.set(rest8, k);
 		k += rest8.length;
-		this.writeinttoout(out, (dateaddoff + 418 + veroff) + f.size, k);
+		this.#writeinttoout(out, (dateaddoff + 418 + veroff) + f.size, k);
 		k += 4;
 
 		const rest8i = [ 0x5a, 0xc6, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x17, 0x00, 0x00, 0x00 ];  // 0x0b,
@@ -1579,9 +1579,9 @@ handleone(orientation) {
 		const rest8b = [ 0x8b, 0xc6, 0x01, 0x00 ];
 		out.set(rest8b, k);
 		k += rest8b.length;
-		this.writeinttoout(out, rawnamearr.length, k);
+		this.#writeinttoout(out, rawnamearr.length, k);
 		k += 4;
-		this.writeinttoout(out, (dateok ? 486: 442) + f.size + veroff, k);
+		this.#writeinttoout(out, (dateok ? 486: 442) + f.size + veroff, k);
 		k += 4;
 
 		//const rest8x = [ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ];
@@ -1591,7 +1591,7 @@ handleone(orientation) {
 		const rest9 = [ 0x00, 0x00, 0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x00, 0x00, 0x49, 0x6d, 0x42, 0x61, 0x63, 0x6b, 0x20 ];
 		out.set(rest9, k);
 		k += rest9.length;
-		out.set(new TextEncoder().encode(this.types[typ]), k);
+		out.set(new TextEncoder().encode(this.#types[typ]), k);
 		k += 7;
 
 		const rest10a = [ 0x00, 0x00, 0x69, 0x6d, 0x62, 0x72, 0x61, 0x77, 0x32, 0x64, 0x6e, 0x67 ];
@@ -1631,19 +1631,19 @@ handleone(orientation) {
 			out.set(rawnamearr, k);
 		}
 		else out.set(rawnamearr, k);
-		this.output1(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted', out);
+		this.#output1(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted', out);
 	};
 	reader.onerror = (evt) => {
 		console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
-		this.mappend('process.errorreadingfile' + (!document ? 'x' : ''), f.name);
-		this.appendnl();
-		this.stats.error++;
-		this.handlenext();
+		this.#mappx('process.errorreadingfile' + (!document ? 'x' : ''), f.name);
+		this.#appendnl();
+		this.#stats.error++;
+		this.#handlenext();
 	};
 	reader.readAsArrayBuffer(f);
 }
 /* output one thing via browser or nodejs */
-output1(name, type, okmsg, arr1) {
+#output1(name, type, okmsg, arr1) {
 	if (document) {
 		let b = new Blob([ arr1 ], { type: type });
 		const outel = document.getElementById('result');
@@ -1651,80 +1651,80 @@ output1(name, type, okmsg, arr1) {
 		const thisurl = URL.createObjectURL(b);
 		outel.href = thisurl;
 		outel.click();
-		this.mappx(okmsg, name);
-		this.appendnl();
-		const ie = this.imbeles.find((v) => v.raw.substring(0, v.raw.length - 3) === name.substring(0, name.length - 3));
+		this.#mappx(okmsg, name);
+		this.#appendnl();
+		const ie = this.#imbeles.find((v) => v.raw.substring(0, v.raw.length - 3) === name.substring(0, name.length - 3));
 		if (ie) {
 			ie.wasselected = true;
 			if (ie.entry)
 				ie.entry.classList.add('picprocd');
 		}
-		this.stats.ok++;
-		this.appendmsg('');
-		this.handlenext();
+		this.#stats.ok++;
+		this.#appendmsg('');
+		this.#handlenext();
 	} 
 	else {
 		let outfile;
-		if (this.outdir.length > 0 && this.outdir.substring(this.outdir.length - 1) !== this.pa.sep)
-			outfile = this.outdir + this.pa.sep + name;
+		if (this.#outdir.length > 0 && this.#outdir.substring(this.#outdir.length - 1) !== this.pa.sep)
+			outfile = this.#outdir + this.pa.sep + name;
 		else
-			outfile = this.outdir + name;
+			outfile = this.#outdir + name;
 
-		this.fs.writeFile(outfile, arr1, {encoding: null, flush: true, flag: this.ovwout ? 'w' : 'wx' }, (err) => {
+		this.fs.writeFile(outfile, arr1, {encoding: null, flush: true, flag: this.#ovwout ? 'w' : 'wx' }, (err) => {
 				if (err) {
-					this.mappx('process.errsave', outfile);
-					this.appendmsg(JSON.stringify(err));
-					this.stats.error++;
-					this.appendmsg('');
-					this.handlenext();
+					this.#mappx('process.errsave', outfile);
+					this.#appendmsg(JSON.stringify(err));
+					this.#stats.error++;
+					this.#appendmsg('');
+					this.#handlenext();
 				}
 				else {
-					this.mappx(okmsg + 'x', outfile);
-					this.stats.ok++;
-					this.appendmsg('');
-					this.handlenext();
+					this.#mappx(okmsg + 'x', outfile);
+					this.#stats.ok++;
+					this.#appendmsg('');
+					this.#handlenext();
 				}
 		});
 	}
 }
 /* browserdisplay: handler function for dropping OS files into the rect */
 drophandler(ev) {
-	if (this.actnum !== this.allfiles.length) return;
+	if (this.#actnum !== this.#allfiles.length) return;
     const stepprev = document.getElementById('steppreview');
-    this.stepmode = 0;
-	if (stepprev !== null && stepprev.checked) this.stepmode = 1;
+    this.#stepmode = 0;
+	if (stepprev !== null && stepprev.checked) this.#stepmode = 1;
 	ev.preventDefault();
-	this.allfiles = [];
-	this.actnum = 0;
+	this.#allfiles = [];
+	this.#actnum = 0;
 	if (ev.dataTransfer.items) {
-		this.totnum = [...ev.dataTransfer.items].length;
+		this.#totnum = [...ev.dataTransfer.items].length;
 		[...ev.dataTransfer.items].forEach((item, i) => {
 			if (item.kind === "file") {
 				const file = item.getAsFile();
-				this.allfiles.push(item.getAsFile());
+				this.#allfiles.push(item.getAsFile());
 			}
 		});
 	} else {
-		this.totnum = [...ev.dataTransfer.files].length;
+		this.#totnum = [...ev.dataTransfer.files].length;
 		[...ev.dataTransfer.files].forEach((file, i) => {
-			this.allfiles.push(file);
+			this.#allfiles.push(file);
 		});
 	}
-	this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
-	this.mappx('process.droppedn', this.totnum);
-	this.appendnl();
+	this.#stats = { total: this.#totnum, skipped: 0, error: 0, ok: 0 };
+	this.#mappx('process.droppedn', this.#totnum);
+	this.#appendnl();
 	document.getElementById('imbdoit').disabled = true;
 	document.getElementById('imbvisbrows').disabled = true;
 	document.getElementById('droptarget').style['display'] = 'none';
 	document.getElementById('infile').disabled = true;
-	this.handleonex();
+	this.#handleonex();
 }
 /* browserdisplay: some handler on the drop rectangle */
 prevdef(ev) {
 	ev.preventDefault();
 }
 /* get one downsampled median image value [ r g b ] */
-getPix(x, y, w, view, typ) {
+#getPix(x, y, w, view, typ) {
 	let outrgb = [];
 	let reds = [];
 	if (typ > 1) {
@@ -1781,12 +1781,12 @@ getPix(x, y, w, view, typ) {
 }
 /* browserdisplay: put preview into canvas */
 // orientation: 1: norm, 3: rot 180, 6 rot 90 CW, 8: rot 270 CCW
-buildpreview(f, onok, onerr, orientation, targ, afterload) {
+#buildpreview(f, onok, onerr, orientation, targ, afterload) {
 	let w, h, typ;
 	if (undefined === f.size) {
 		window.setTimeout(() => {
-		  this.createFx(f, (url, fx) => {
-				this.buildpreview(fx, onok, onerr, orientation, targ, afterload);
+		  this.#createFx(f, (url, fx) => {
+				this.#buildpreview(fx, onok, onerr, orientation, targ, afterload);
 			}, (url) => {
 				onerr(f);
 		  });
@@ -1794,23 +1794,23 @@ buildpreview(f, onok, onerr, orientation, targ, afterload) {
 		return;
 	}
 	if (f.name.substring(f.name.length -4).toUpperCase() === '.DNG') {
-		if (document) this.appendmsg('<br>');
-		return this.parseDng(f, 
+		if (document) this.#appendmsg('<br>');
+		return this.#parseDng(f, 
 			(url, fx, rot) => {
-				this.buildpreview(fx, onok, onerr, orientation ? orientation: rot, targ, afterload);
+				this.#buildpreview(fx, onok, onerr, orientation ? orientation: rot, targ, afterload);
 			}, (url) => {
 				onerr(f);
 			});
 	}
-	const zz = this.infos.findIndex((v, i, o) => v.size === f.size);
+	const zz = this.#infos.findIndex((v, i, o) => v.size === f.size);
 	if (zz === -1) {
 		console.log('preview: unsupported size ' + f.size + ' of ' + f.name);
 		onerr(f);
 		return;
 	} else {
-		w = this.infos[zz].w;
-		typ = this.infos[zz].typ;
-		h = this.infos[zz].h;
+		w = this.#infos[zz].w;
+		typ = this.#infos[zz].typ;
+		h = this.#infos[zz].h;
 	}
 	let canv;
 	if (undefined !== targ)
@@ -1865,7 +1865,7 @@ buildpreview(f, onok, onerr, orientation, targ, afterload) {
 		}
 		for (let i = rowiterstart; i < rowiterend; i +=1) {
 			for (let j = coliterstart; j < coliterend; j+=1) {
-				let a = this.getPix(Math.abs(transpose ? i :j)*8, Math.abs(transpose ? j :i)*8, w, view, typ);
+				let a = this.#getPix(Math.abs(transpose ? i :j)*8, Math.abs(transpose ? j :i)*8, w, view, typ);
 				outpix.push(a[0]);
 				if (a[0] > maxred) maxred = a[0];
 				if (a[0] < minred) minred = a[0];
@@ -1942,7 +1942,7 @@ showquestion() {
 }
 /* browserdisplay: put last message viewable */
 showlastmsg() {
-	const ll = document.getElementById('mappx_' + this.dispcnt);
+	const ll = document.getElementById('mappx_' + this.#dispcnt);
 	if (ll) {
 		ll.scrollIntoView(false, { block: 'nearest' });
 	}
@@ -1963,83 +1963,83 @@ shownormal() {
 }
 /* preview: skip handler in the step preview */
 skipthis() {
-	if (document.getElementById('doforall').checked) this.stepmode = 2;
-	if (this.totnum > 1) {
-		this.appendmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ");
+	if (document.getElementById('doforall').checked) this.#stepmode = 2;
+	if (this.#totnum > 1) {
+		this.#appendmsg("[" + (1 + this.#actnum) + " / " + this.#totnum + "] ");
 	}
 	if (document.getElementById('doforall').checked) {
-		this.mappx('process.skipped.remaining', this.totnum - this.actnum);
-		this.stats.skipped += (this.totnum - this.actnum);
+		this.#mappx('process.skipped.remaining', this.#totnum - this.#actnum);
+		this.#stats.skipped += (this.#totnum - this.#actnum);
 	} else {
-		let rawname = this.allfiles[this.actnum].name ? this.allfiles[this.actnum].name : this.allfiles[this.actnum];
+		let rawname = this.#allfiles[this.#actnum].name ? this.#allfiles[this.#actnum].name : this.#allfiles[this.#actnum];
 		while (rawname.indexOf("/") > -1) 
 			rawname = rawname.substring(rawname.indexOf("/") + 1);
-		this.mappx('process.skipped', rawname);
-		this.appendnl();
-		this.stats.skipped ++;
+		this.#mappx('process.skipped', rawname);
+		this.#appendnl();
+		this.#stats.skipped ++;
 	}
 	this.shownormal();
-	this.handlenext();
+	this.#handlenext();
 }
 /* previewquestion: process handler in the step preview */
 procthis() {
 	if (document.getElementById('doforall').checked) {
-		this.stepmode = 0;
+		this.#stepmode = 0;
 		this.shownormal();
 	}
 	this.setpvwait();
-	this.handleone(this.currentrot);
+	this.#handleone(this.#currentrot);
 }
 /* previewquestion, rotation hepler */
-rotxx(r) {
+#rotxx(r) {
 	this.setpvwait();
-	let j = this.oriecw.indexOf(this.currentrot);
+	let j = this.#oriecw.indexOf(this.#currentrot);
 	j = ((j + r) % 4);
-	this.currentrot = this.oriecw[j];
-	this.buildpreview(this.allfiles[this.actnum], () => { this.setrawpv(); }, () => { this.setpverr(); }, this.currentrot);
+	this.#currentrot = this.#oriecw[j];
+	this.#buildpreview(this.#allfiles[this.#actnum], () => { this.setrawpv(); }, () => { this.setpverr(); }, this.#currentrot);
 }
 /* previewquestion: handler for clockwise rotation */
 rotcw() {
-	this.rotxx(1);
+	this.#rotxx(1);
 }
 /* previewquestion: handler for counterclockwise rotation */
 rotccw() {
-	this.rotxx(3);
+	this.#rotxx(3);
 }
 /* previewquestion: handler for upside down rotation */
 rot180() {
-	this.rotxx(2);
+	this.#rotxx(2);
 }
 /* previewquestion: handler for reset rotation */
 rot0() {
-	if (1 === this.currentrot) return;
+	if (1 === this.#currentrot) return;
 	this.setpvwait();
-	this.currentrot = 1;
-	this.buildpreview(this.allfiles[this.actnum], () => { this.setrawpv(); }, () => { this.setpverr(); }, 1);
+	this.#currentrot = 1;
+	this.#buildpreview(this.#allfiles[this.#actnum], () => { this.setrawpv(); }, () => { this.setpverr(); }, 1);
 }
 /* handle on entry from imb PHOTO/MOVIE listing page */
-handle1imb(url) {
+#handle1imb(url) {
 	let rawname = url;
 	while (rawname.indexOf("/") > -1)
 		rawname = rawname.substring(rawname.indexOf("/") + 1);
 	if (rawname.substring(0,10).toUpperCase() === 'IMBRAW2DNG') return;
-	let timestx = this.fnregex.exec(rawname);
+	let timestx = this.#fnregex.exec(rawname);
 	let timest = null, cl = '9999_99_99-99';
 	if (null !== timestx) {
 		timest = timestx[1] + '_' + timestx[3] + '_' + timestx[5] + '-' + timestx[7] + '_' + timestx[9] + '_' + timestx[11];
 		cl = timestx[1] + '_' + timestx[3] + '_' + timestx[5] + '-' + timestx[7];
 	} else {
-		this.mappx('onimback.strangename' + (document?'':'x'), rawname);
-		this.appendnl();
+		this.#mappx('onimback.strangename' + (document?'':'x'), rawname);
+		this.#appendnl();
 	}
 	if (rawname.substring(rawname.length -4).toUpperCase() === '.RAW' || rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
 		if (null !== timest) {
-			if (timest < this.earliestraw) this.earliestraw = timest;
-			if (timest > this.latestraw) this.latestraw = timest;
+			if (timest < this.#earliestraw) this.#earliestraw = timest;
+			if (timest > this.#latestraw) this.#latestraw = timest;
 		}
-		this.rimbpics.push(url);
+		this.#rimbpics.push(url);
 		if (document) {
-			this.imbeles.push({
+			this.#imbeles.push({
 					type: 'RAW',
 					url: url,
 					raw: rawname,
@@ -2051,20 +2051,20 @@ handle1imb(url) {
 					error: false,
 					processed: false
 			});
-			if (this.untypedclasses.findIndex((v, i, o) => v === cl) === -1)
-				this.untypedclasses.push(cl);
-			if (this.typedclasses.findIndex((v, i, o) => v === ('RAW' + cl)) === -1)
-				this.typedclasses.push('RAW' + cl);
+			if (this.#untypedclasses.findIndex((v, i, o) => v === cl) === -1)
+				this.#untypedclasses.push(cl);
+			if (this.#typedclasses.findIndex((v, i, o) => v === ('RAW' + cl)) === -1)
+				this.#typedclasses.push('RAW' + cl);
 		}
 	}
 	else if (rawname.substring(rawname.length -4).toUpperCase() === '.JPG') {
 		if (null !== timest) {
-			if (timest < this.earliestjpg) this.earliestjpg = timest;
-			if (timest > this.latestjpg) this.latestjpg = timest;
+			if (timest < this.#earliestjpg) this.#earliestjpg = timest;
+			if (timest > this.#latestjpg) this.#latestjpg = timest;
 		}
-		this.imbpics.push(url);
+		this.#imbpics.push(url);
 		if (document) {
-			this.imbeles.push({
+			this.#imbeles.push({
 					type: 'JPG',
 					url: url,
 					raw: rawname,
@@ -2076,20 +2076,20 @@ handle1imb(url) {
 					error: false,
 					processed: false
 			});
-			if (this.untypedclasses.findIndex((v, i, o) => v === cl) === -1)
-				this.untypedclasses.push(cl);
-			if (this.typedclasses.findIndex((v, i, o) => v === ('JPG' + cl)) === -1)
-				this.typedclasses.push('JPG' + cl);
+			if (this.#untypedclasses.findIndex((v, i, o) => v === cl) === -1)
+				this.#untypedclasses.push(cl);
+			if (this.#typedclasses.findIndex((v, i, o) => v === ('JPG' + cl)) === -1)
+				this.#typedclasses.push('JPG' + cl);
 		}
 	}
 	else {
 		if (null !== timest) {
-			if (timest < this.earliestmov) this.earliestmov = timest;
-			if (timest > this.latestmov) this.latestmov = timest;
+			if (timest < this.#earliestmov) this.#earliestmov = timest;
+			if (timest > this.#latestmov) this.#latestmov = timest;
 		}
-		this.imbmovies.push(url);
+		this.#imbmovies.push(url);
 		if (document) {
-			this.imbeles.push({
+			this.#imbeles.push({
 					type: 'oth',
 					url: url,
 					raw: rawname,
@@ -2101,15 +2101,15 @@ handle1imb(url) {
 					error: false,
 					processed: false
 			});
-			if (this.untypedclasses.findIndex((v, i, o) => v === cl) === -1)
-				this.untypedclasses.push(cl);
-			if (this.typedclasses.findIndex((v, i, o) => v === ('oth' + cl)) === -1)
-				this.typedclasses.push('oth' + cl);
+			if (this.#untypedclasses.findIndex((v, i, o) => v === cl) === -1)
+				this.#untypedclasses.push(cl);
+			if (this.#typedclasses.findIndex((v, i, o) => v === ('oth' + cl)) === -1)
+				this.#typedclasses.push('oth' + cl);
 		}
 	}
 }
 /* nodejs: get imb data for node js */
-checkimbnode(type, found) {
+#checkimbnode(type, found) {
 	//let subdir = '';
 	let subdir = 'PHOTO';
 	if (type) subdir='MOVIE';
@@ -2120,10 +2120,10 @@ checkimbnode(type, found) {
 				err = true;
 				res.resume();
 				if (!type) {
-					return this.checkimbnode(true, false);
+					return this.#checkimbnode(true, false);
 				}
 				else if (type && !found) {
-					console.log(this.xl('onimback.errconnect', '192.168.1.254'));
+					console.log(this.#xl('onimback.errconnect', '192.168.1.254'));
 					console.log('Status: ' + res.statusCode + ' Type: ' + res.headers['content-type']);
 					process.exit(1);
 				}
@@ -2132,8 +2132,8 @@ checkimbnode(type, found) {
 			}
 			let b = '';
 			res.on('data', (chunk) => {
-				if (!this.connmsg) console.log('\x1b[32m' + this.xl('onimback.connected') + '\x1b[0m');
-				this.connmsg = true;
+				if (!this.#connmsg) console.log('\x1b[32m' + this.#xl('onimback.connected') + '\x1b[0m');
+				this.#connmsg = true;
 				b += chunk;
 			});
 			res.on('end', () => {
@@ -2144,21 +2144,21 @@ checkimbnode(type, found) {
 					let url = b.substring(i+j+9, i+j+9+endstr);
 					if (-1 === url.indexOf('?del=')) {
 						if (url.startsWith('http://192.168.1.254'))
-							this.handle1imb(url);
+							this.#handle1imb(url);
 						else
-							this.handle1imb('http://192.168.1.254'+ url);
+							this.#handle1imb('http://192.168.1.254'+ url);
 					}
 					i=i+j+10;
 				}
 				if (type) { if (!err || found) this.imbdoit(); }
-				else this.checkimbnode(true, !err);
+				else this.#checkimbnode(true, !err);
 			});
 	}).on('error', (e) => {
 		if (!type) {
-			return this.checkimbnode(true, false);
+			return this.#checkimbnode(true, false);
 		}
 		else if (type && !found) {
-			console.log(this.xl('onimback.errconnect', '192.168.1.254'));
+			console.log(this.#xl('onimback.errconnect', '192.168.1.254'));
 			console.log(JSON.stringify(e));
 			process.exit(1);
 		}
@@ -2167,8 +2167,8 @@ checkimbnode(type, found) {
 }
 /* check if we are directly on a back */
 checkimb(type) {
-	if (this.debugflag && document) {
-		document.getElementById('dbgcache').value = this.maxcache;
+	if (this.#debugflag && document) {
+		document.getElementById('dbgcache').value = this.#maxcache;
 		document.getElementById('debugonly').style['display'] = '';
 	}
 	if (!window.location.href.startsWith('http://192.168.1.254')) return;
@@ -2185,8 +2185,8 @@ checkimb(type) {
 						this.handle1imb('http://192.168.1.254'+ r.href);
 				}
 			}
-			if (type && (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0)) {
-				this.aftercheck();
+			if (type && (this.#imbpics.length + this.#rimbpics.length + this.#imbmovies.length > 0)) {
+				this.#aftercheck();
 			}
 			else if (!type) this.checkimb(true);
 		}
@@ -2194,7 +2194,7 @@ checkimb(type) {
 	};
 	xhr.onerror = (event) => {
 		if (!type) this.checkimb(true);
-		else if (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0) {
+		else if (this.#imbpics.length + this.#rimbpics.length + this.#imbmovies.length > 0) {
 			this.aftercheck();
 		}
 	};
@@ -2203,11 +2203,11 @@ checkimb(type) {
 	xhr.send();
 }
 /* compare timestamp */
-comptime(fname, compts) {
-	const res = this.fnregex.exec(fname);
+#comptime(fname, compts) {
+	const res = this.#fnregex.exec(fname);
 	if (res === null) {
-		this.mappx('onimback.strangename'+ (document?'':'x'), fname);
-		this.appendnl();
+		this.#mappx('onimback.strangename'+ (document?'':'x'), fname);
+		this.#appendnl();
 		return (compts === '0000');
 	} else {
 		const ts = res[1] + '_' + res[3] + '_' + res[5] + '-' + res[7] + '_' + res[9] + '_' + res[11];
@@ -2218,49 +2218,49 @@ comptime(fname, compts) {
 }
 /* handle the normal selection from imback (do it button), also for nodejs */
 imbdoit() {
-	if (this.actnum !== this.allfiles.length) return;
+	if (this.#actnum !== this.#allfiles.length) return;
 	let selecteds = [];
 	let compval = '0000';
 	if (document && document.getElementById('imbstartts').value != undefined && document.getElementById('imbstartts').value.length > 0) {
 		compval = document.getElementById('imbstartts').value;
-		if (null === this.tsregex.exec(compval)) {
-			this.mappx('onimback.invaltime', compval);
-			this.appendnl();
-			const wc = this.withcolours;
-			this.withcolours = false;
-			alert(this.subst(this.xl0('onimback.invaltimex'), compval));
-			this.withcolours = wc;
+		if (null === this.#tsregex.exec(compval)) {
+			this.#mappx('onimback.invaltime', compval);
+			this.#appendnl();
+			const wc = this.#withcolours;
+			this.#withcolours = false;
+			alert(this.#subst(this.#xl0('onimback.invaltimex'), compval));
+			this.#withcolours = wc;
 			return;
 		}
 	}
-	else compval = this.fromts;
+	else compval = this.#fromts;
 	if ((document && document.getElementById('rpicfromimb').checked) ||
-		(this.typeflags % 2)) {
-		for (const e of this.rimbpics) {
+		(this.#typeflags % 2)) {
+		for (const e of this.#rimbpics) {
 			let rawname = e;
 			while (rawname.indexOf("/") > -1)
 				rawname = rawname.substring(rawname.indexOf("/") + 1);
-			if (this.comptime(rawname, compval))
+			if (this.#comptime(rawname, compval))
 				selecteds.push(e);
 		}
 	}
 	if ((document && document.getElementById('picfromimb').checked) ||
-		((this.typeflags % 4) > 1)) {
-		for (const e of this.imbpics) {
+		((this.#typeflags % 4) > 1)) {
+		for (const e of this.#imbpics) {
 			let rawname = e;
 			while (rawname.indexOf("/") > -1)
 				rawname = rawname.substring(rawname.indexOf("/") + 1);
-			if (this.comptime(rawname, compval))
+			if (this.#comptime(rawname, compval))
 				selecteds.push(e);
 		}
 	}
 	if ((document && document.getElementById('movfromimb').checked) ||
-		((this.typeflags % 8) > 3)) {
-		for (const e of this.imbmovies) {
+		((this.#typeflags % 8) > 3)) {
+		for (const e of this.#imbmovies) {
 			let rawname = e;
 			while (rawname.indexOf("/") > -1)
 				rawname = rawname.substring(rawname.indexOf("/") + 1);
-			if (this.comptime(rawname, compval))
+			if (this.#comptime(rawname, compval))
 				selecteds.push(e);
 		}
 	}
@@ -2275,27 +2275,27 @@ imbdoit() {
 		else if (ra === rb) return 0;
 		else return 1;
 	});
-    this.stepmode = 0;
+    this.#stepmode = 0;
 	if (document) {
 		const stepprev = document.getElementById('steppreview');
-		if (stepprev !== null && stepprev.checked) this.stepmode = 1;
+		if (stepprev !== null && stepprev.checked) this.#stepmode = 1;
 	}
-	this.totnum = selecteds.length;
-	this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
-	this.actnum = 0;
-	this.allfiles = selecteds;
-	this.mappx('process.frombackn', this.totnum);
-	if (document) this.appendnl();
-	else this.appendmsg('');
-	if (document && this.totnum > 0) {
+	this.#totnum = selecteds.length;
+	this.#stats = { total: this.#totnum, skipped: 0, error: 0, ok: 0 };
+	this.#actnum = 0;
+	this.#allfiles = selecteds;
+	this.#mappx('process.frombackn', this.#totnum);
+	if (document) this.#appendnl();
+	else this.#appendmsg('');
+	if (document && this.#totnum > 0) {
 		document.getElementById('imbdoit').disabled = true;
 		document.getElementById('imbvisbrows').disabled = true;
 		document.getElementById('droptarget').style['display'] = 'none';
 		document.getElementById('infile').disabled = true
-		this.handleonex();
+		this.#handleonex();
 	}
-	else if (this.totnum > 0) this.handleonex();
-	else this.mappx('onimback.nomatch');
+	else if (this.#totnum > 0) this.#handleonex();
+	else this.#mappx('onimback.nomatch');
 }
 /* browserdisplay: open visual browser */
 showbrowser() {
@@ -2304,11 +2304,11 @@ showbrowser() {
 	document.getElementById('browser').style['display'] = '';
 	quest.style['display'] = 'none';
 	norm.style['display'] = 'none';
-	window.onscroll = () => this.startloadimg();
-	window.onresize = () => this.startloadimg();
+	window.onscroll = () => this.#startloadimg();
+	window.onresize = () => this.#startloadimg();
 }
 /* visual browser: create the wait dots */
-createwait(el) {
+#createwait(el) {
 	const waitdiv = document.createElement('div');
 	waitdiv.classList.add('eepvw');
 	const d1 = document.createElement('span');
@@ -2326,33 +2326,33 @@ createwait(el) {
 	el.entry.append(waitdiv);
 }
 /* visual browser: prepare the browser display, group the stuff */
-aftercheck() {
-	document.getElementById('piccnt').innerHTML = '' + this.imbpics.length;
-	if (this.earliestjpg.length > 4) {
+#aftercheck() {
+	document.getElementById('piccnt').innerHTML = '' + this.#imbpics.length;
+	if (this.#earliestjpg.length > 4) {
 		document.getElementById('picinterval').innerHTML += '(';
-		document.getElementById('picinterval').innerHTML += this.earliestjpg;
+		document.getElementById('picinterval').innerHTML += this.#earliestjpg;
 		document.getElementById('picinterval').innerHTML += ' - ';
-		document.getElementById('picinterval').innerHTML += this.latestjpg;
+		document.getElementById('picinterval').innerHTML += this.#latestjpg;
 		document.getElementById('picinterval').innerHTML += ')';
 		document.getElementById('picinterval').style['display']='';
 	}
 	document.getElementById('piccnt').removeAttribute('data-myxlkey');
-	document.getElementById('rpiccnt').innerHTML = '' + this.rimbpics.length;
-	if (this.earliestraw.length > 4) {
+	document.getElementById('rpiccnt').innerHTML = '' + this.#rimbpics.length;
+	if (this.#earliestraw.length > 4) {
 		document.getElementById('rpicinterval').innerHTML += '(';
-		document.getElementById('rpicinterval').innerHTML += this.earliestraw;
+		document.getElementById('rpicinterval').innerHTML += this.#earliestraw;
 		document.getElementById('rpicinterval').innerHTML += ' - ';
-		document.getElementById('rpicinterval').innerHTML += this.latestraw;
+		document.getElementById('rpicinterval').innerHTML += this.#latestraw;
 		document.getElementById('rpicinterval').innerHTML += ')';
 		document.getElementById('rpicinterval').style['display']='';
 	}
 	document.getElementById('rpiccnt').removeAttribute('data-myxlkey');
-	document.getElementById('movcnt').innerHTML = '' + this.imbmovies.length;
-	if (this.earliestmov.length > 4) {
+	document.getElementById('movcnt').innerHTML = '' + this.#imbmovies.length;
+	if (this.#earliestmov.length > 4) {
 		document.getElementById('movinterval').innerHTML += '(';
-		document.getElementById('movinterval').innerHTML += this.earliestmov;
+		document.getElementById('movinterval').innerHTML += this.#earliestmov;
 		document.getElementById('movinterval').innerHTML += ' - ';
-		document.getElementById('movinterval').innerHTML += this.latestmov;
+		document.getElementById('movinterval').innerHTML += this.#latestmov;
 		document.getElementById('movinterval').innerHTML += ')';
 		document.getElementById('movinterval').style['display']='';
 	}
@@ -2360,8 +2360,8 @@ aftercheck() {
 	document.getElementById('imbdoit').disabled = false;
 	document.getElementById('imbvisbrows').disabled = false;
 	document.getElementById('notimback').style['display'] = 'none';
-	if (this.untypedclasses[0].title) return;
-	for (const x of this.untypedclasses) {
+	if (this.#untypedclasses[0].title) return;
+	for (const x of this.#untypedclasses) {
 		const cl = {
 			title: x,
 			level: 5,
@@ -2372,7 +2372,7 @@ aftercheck() {
 		cl.entry.classList.add('gg');
 		cl.entry.classList.add('ggclosed');
 		cl.entry.classList.add('gl5');
-		for (const y of this.imbeles) {
+		for (const y of this.#imbeles) {
 			if (x === y.ts)
 			{
 				// todo: sort
@@ -2380,9 +2380,9 @@ aftercheck() {
 				y.inuntyped = true;
 			}
 		}
-		this.untypedclasses.splice(this.untypedclasses.findIndex((v,i,o) => v === x), 1, cl);
+		this.#untypedclasses.splice(this.#untypedclasses.findIndex((v,i,o) => v === x), 1, cl);
 	}
-	for (const x of this.typedclasses) {
+	for (const x of this.#typedclasses) {
 		const cl = {
 			title: x,
 			level: 5,
@@ -2393,7 +2393,7 @@ aftercheck() {
 		cl.entry.classList.add('gg');
 		cl.entry.classList.add('ggclosed');
 		cl.entry.classList.add('gl5');
-		for (const y of this.imbeles) {
+		for (const y of this.#imbeles) {
 			if (x === y.type + y.ts)
 			{
 				// todo: sort
@@ -2401,18 +2401,18 @@ aftercheck() {
 				y.intyped = true;
 			}
 		}
-		this.typedclasses.splice(this.typedclasses.findIndex((v,i,o) => v === x), 1, cl);
+		this.#typedclasses.splice(this.#typedclasses.findIndex((v,i,o) => v === x), 1, cl);
 	}
-	this.higherclasses(this.untypedclasses, 10, 5);
-	this.higherclasses(this.typedclasses, 13, 5);
+	this.#higherclasses(this.#untypedclasses, 10, 5);
+	this.#higherclasses(this.#typedclasses, 13, 5);
 	// top type classes here
-	for (const u of this.typedclasses.filter((o) => o.level === 2)) {
+	for (const u of this.#typedclasses.filter((o) => o.level === 2)) {
 		if (u.ischild) continue;
-		if (this.typedclasses.filter((o) => u.title.substring(0,3) === o.title.substring(0,3)).length === 1) {
+		if (this.#typedclasses.filter((o) => u.title.substring(0,3) === o.title.substring(0,3)).length === 1) {
 			u.level --;
 			u.entry.classList.add('gl' + u.level);
 			u.entry.classList.remove('gl' + (u.level + 1));
-		} else if (this.typedclasses.findIndex((o) => o.title === u.title.substring(0,3)) === -1) {
+		} else if (this.#typedclasses.findIndex((o) => o.title === u.title.substring(0,3)) === -1) {
 			const cl = {
 				title: u.title.substring(0,3),
 				level: 1,
@@ -2423,34 +2423,34 @@ aftercheck() {
 			cl.entry.classList.add('gg');
 			cl.entry.classList.add('ggclosed');
 			cl.entry.classList.add('gl1');
-			for (const x of this.typedclasses.filter((o) => u.title.substring(0,3) === o.title.substring(0,3))) {
+			for (const x of this.#typedclasses.filter((o) => u.title.substring(0,3) === o.title.substring(0,3))) {
 				x.ischild = true;
 				// todo: sort when display
 				cl.smembers.push(x);
 				cl.haschildren = true;
-				this.typedclasses.splice(this.typedclasses.findIndex((o) => o.title === x.title),1);
+				this.#typedclasses.splice(this.#typedclasses.findIndex((o) => o.title === x.title),1);
 			}
-			this.typedclasses.push(cl);
+			this.#typedclasses.push(cl);
 		}
 	}
 	// non-typed upgraded to gl1, unless only one
-	if (this.untypedclasses.filter((o) => o.level === 2).length === 1 && this.untypedclasses.filter((o) => o.level === 2)[0].smembers) {
-		const t = this.untypedclasses.filter((o) => o.level === 2)[0];
-		this.untypedclasses.splice(0,1);
+	if (this.#untypedclasses.filter((o) => o.level === 2).length === 1 && this.#untypedclasses.filter((o) => o.level === 2)[0].smembers) {
+		const t = this.#untypedclasses.filter((o) => o.level === 2)[0];
+		this.#untypedclasses.splice(0,1);
 		for (const s of t.smembers) {
 			s.entry.classList.add('gl1');
 			s.level = 2;
-			this.untypedclasses.push(s);
+			this.#untypedclasses.push(s);
 		}
 	} else
-		for (const s of this.untypedclasses.filter((o) => o.level === 2)) s.entry.classList.add('gl1');
+		for (const s of this.#untypedclasses.filter((o) => o.level === 2)) s.entry.classList.add('gl1');
 	// build title elemenes
-	for (const s of this.untypedclasses) this.buildtitlerec(s);
-	for (const s of this.typedclasses) this.buildtitlerec(s);
+	for (const s of this.#untypedclasses) this.#buildtitlerec(s);
+	for (const s of this.#typedclasses) this.#buildtitlerec(s);
 	if (document) {
 		document.getElementById('brnsel').innerHTML = '0';
-		document.getElementById('brntot').innerHTML = '' + this.imbeles.length;
-		this.buildtree();
+		document.getElementById('brntot').innerHTML = '' + this.#imbeles.length;
+		this.#buildtree();
 	}
 	/* debug * /
 	if (debugflag) {
@@ -2459,40 +2459,40 @@ aftercheck() {
 	} */
 }
 /* visual browser: build ordered lists */
-buildtree() {
+#buildtree() {
 	let list, toplevel;
 	if (document.getElementById('sbytype').checked) {
-		list = this.typedclasses;
+		list = this.#typedclasses;
 		toplevel = 1;
 	}
 	else {
-		list = this.untypedclasses;
+		list = this.#untypedclasses;
 		toplevel = 2;
 	}
 
 	// first, make everything empty
-	for (const e of this.untypedclasses) {
+	for (const e of this.#untypedclasses) {
 		e.entry.remove();
-		this.doclose(e, true);
+		this.#doclose(e, true);
 	}
-	for (const e of this.typedclasses) {
+	for (const e of this.#typedclasses) {
 		e.entry.remove();
-		this.doclose(e, true);
+		this.#doclose(e, true);
 	}
-	for (const d of this.imbeles) {
+	for (const d of this.#imbeles) {
 		if (undefined !== d.entry && null !== d.entry)
 			d.entry.remove();
 	}
 
 	// now, sort and add
-	for (const e of list.filter((o) => o.level === toplevel).sort((a,b) => this.mysort(a, b))) {
+	for (const e of list.filter((o) => o.level === toplevel).sort((a,b) => this.#mysort(a, b))) {
 		document.getElementById('browser').append(e.entry);
-		this.addsorted(e);
+		this.#addsorted(e);
 	}
 }
 /* visual browser: find next to load */
-findnexttoload(alsooutside) {
-	for (const e of this.imbeles.sort((a,b) => this.myisort(a,b))) {
+#findnexttoload(alsooutside) {
+	for (const e of this.#imbeles.sort((a,b) => this.#myisort(a,b))) {
 		// display: none somewhere?
 		if (!e.entry) continue;
 		const p = e.entry;
@@ -2531,82 +2531,82 @@ findnexttoload(alsooutside) {
 	return undefined;
 }
 /* visual browser: sort helper */
-mysort(a, b) {
+#mysort(a, b) {
 	const fact = document.getElementById('solder').checked ? 1 : -1
 	if (a.title > b.title) return fact;
 	else if (a.title < b.title) return -1 * fact;
 	else return 0;
 }
 /* visual browser: sort helper */
-myisort(a, b) {
+#myisort(a, b) {
 	const fact = document.getElementById('solder').checked ? 1 : -1
 	if (a.raw > b.raw) return fact;
 	else if (a.raw < b.raw) return -1 * fact;
 	else return 0;
 }
 /* visual browser: add images sorted  */
-addimgsorted(el) {
+#addimgsorted(el) {
 	if (el.fmembers !== null && el.fmembers !== undefined) {
-		for (const e of el.fmembers.sort((a,b) => this.myisort(a, b))) {
-			if (null === e.entry || undefined === e.entry) this.displaydiv(e);
+		for (const e of el.fmembers.sort((a,b) => this.#myisort(a, b))) {
+			if (null === e.entry || undefined === e.entry) this.#displaydiv(e);
 			el.entry.querySelector('.igtype').append(e.entry);
 			e.nonewerr = false; // retry again if was error
 		}
 	}
 }
 /* visual browser: add sorted recursively */
-addsorted(el) {
+#addsorted(el) {
 	if (el.smembers === null || el.smembers ===  undefined) return;
-	for (const e of el.smembers.sort((a,b) => this.mysort(a, b))) {
-		this.addsorted(e);
+	for (const e of el.smembers.sort((a,b) => this.#mysort(a, b))) {
+		this.#addsorted(e);
 		el.entry.append(e.entry);
 	}
 }
 /* visual browser: recursive texts */
-buildtitlerec(el) {
-	this.buildtitle(el);
+#buildtitlerec(el) {
+	this.#buildtitle(el);
 	if (el.smembers === null || el.smembers ===  undefined) return;
 	for (const e of el.smembers) {
-		this.buildtitlerec(e);
+		this.#buildtitlerec(e);
 	}
 }
 /* visual browser: recursive fold close */
-doclose(gr, recurse) {
+#doclose(gr, recurse) {
 	gr.entry.querySelector('.ggtt').classList.add('ggttclosed');
 	gr.entry.querySelector('.ggtt').classList.remove('ggttopen');
 	gr.entry.classList.add('ggclosed');
 	gr.entry.classList.remove('ggopen');
 	if (recurse && gr.smembers)
-		for (const e of gr.smembers) this.doclose(e, recurse);
+		for (const e of gr.smembers) this.#doclose(e, recurse);
 }
 /* visual browser: recursive fold open */
-doopen(gr, recurse, nontop) {
+#doopen(gr, recurse, nontop) {
 	gr.entry.querySelector('.ggtt').classList.remove('ggttclosed');
 	gr.entry.querySelector('.ggtt').classList.add('ggttopen');
 	gr.entry.classList.remove('ggclosed');
 	gr.entry.classList.add('ggopen');
 	if (recurse && gr.smembers)
-		for (const e of gr.smembers) this.doopen(e, recurse, true);
+		for (const e of gr.smembers) this.#doopen(e, recurse, true);
 	if (gr.fmembers) {
 		for (const e of gr.fmembers) {
 			if (e.entry) e.entry.remove();
 		}
 	}
 	if (gr.fmembers && !gr.entry.querySelector('.ee'))
-		this.addimgsorted(gr);
-	if (nontop !== true) this.startloadimg();
+		this.#addimgsorted(gr);
+	if (nontop !== true) this.#startloadimg();
 }
 /* visual browser: select all from top */
 topreccheck(force) {
 	if (undefined === force)
 		force = document.getElementById('selall').checked;
-	this.reccheck(force);
+	this.#reccheck(force);
 }
 /* visual browser: select all */
-reccheck(to, root) {
+#reccheck(to, root) {
 	if (undefined === root) {
-		for (const e of this.typedclasses) this.reccheck(to, e);
-		for (const e of this.untypedclasses) this.reccheck(to, e);
+		for (const e of this.#typedclasses) this.#reccheck(to, e);
+		for (const e of this.#untypedclasses) this.#reccheck(to, e);
 		return;
 	} else {
 		root.entry.querySelector('.selcb').checked = to;
@@ -2617,12 +2617,12 @@ reccheck(to, root) {
 			}
 		}
 		if (root.smembers)
-			for (const e of root.smembers) this.reccheck(to, e);
+			for (const e of root.smembers) this.#reccheck(to, e);
 	}
-	this.updateselections();
+	this.#updateselections();
 }
 /* visual browser: text and controls on top of a group */
-buildtitle(gr) {
+#buildtitle(gr) {
 	let t = '', s = gr.title;
 	const d = document.createElement('div');
 	d.classList.add('ggtt');
@@ -2631,7 +2631,7 @@ buildtitle(gr) {
 	pluss.classList.add('ggttplus');
 	pluss.append('[+]');
 	pluss.onclick = () => {
-		this.doopen(gr, false);
+		this.#doopen(gr, false);
 	};
 	d.append(pluss);
 	const pluspluss = document.createElement('span');
@@ -2639,7 +2639,7 @@ buildtitle(gr) {
 	if (gr.haschildren) {
 		pluspluss.append('[++]');
 		pluspluss.onclick = () => {
-			this.doopen(gr, true);
+			this.#doopen(gr, true);
 		};
 	}
 	else
@@ -2653,7 +2653,7 @@ buildtitle(gr) {
 		d.classList.add('ggttclosed');
 		d.parentElement.classList.remove('ggopen');
 		d.parentElement.classList.add('ggclosed');
-		this.startloadimg();
+		this.#startloadimg();
 	};
 	d.append(minuss);
 	const nixs = document.createElement('span');
@@ -2668,7 +2668,7 @@ buildtitle(gr) {
 		d.append(sp);
 		s = s.substring(3);
 	} else if (s.startsWith('oth')) {
-		const sp = this.genspan('main.types.notpic');
+		const sp = this.#genspan('main.types.notpic');
 		sp.classList.add('gtype');
 		sp.style['display'] = 'none';
 		d.append(sp);
@@ -2680,7 +2680,7 @@ buildtitle(gr) {
 	tit.append(t);
 	d.append(tit);
 	d.append(' - ');
-	d.append(this.genspan('main.selected'));
+	d.append(this.#genspan('main.selected'));
 	d.append(': ');
 	const selno = document.createElement('span');
 	selno.id = 'SEL_' + gr.title;
@@ -2690,7 +2690,7 @@ buildtitle(gr) {
 	d.append(' / ');
 	const totno = document.createElement('span');
 	totno.id = 'TOT_' + gr.title;
-	totno.append('' + this.countfiles(gr));
+	totno.append('' + this.#countfiles(gr));
 	d.append(totno);
 	d.append(' - ');
 	const texttit = document.createElement('label');
@@ -2702,10 +2702,10 @@ buildtitle(gr) {
 	cb.classList.add('selcb');
 	texttit.htmlFor = cb.id;
 	texttit.append(cb);
-	texttit.append(this.genspantitle('browser.selall.tooltip', 'browser.selall'));
+	texttit.append(this.#genspantitle('browser.selall.tooltip', 'browser.selall'));
 	cb.onclick = (ev) => {
-		if (cb.checked) this.reccheck(true, gr);
-		else this.reccheck(false, gr);
+		if (cb.checked) this.#reccheck(true, gr);
+		else this.#reccheck(false, gr);
 	};
 	d.append(texttit);
 
@@ -2717,7 +2717,7 @@ buildtitle(gr) {
 	}
 }
 /* visual browser: add classes upwards */
-higherclasses(arr, len, curlevel) {
+#higherclasses(arr, len, curlevel) {
 	for (const u of arr.filter((o) => o.level === curlevel)) {
 		if (u.ischild) continue;
 		if (arr.filter((o) => u.title.substring(0,len) === o.title.substring(0,len)).length === 1) {
@@ -2746,49 +2746,49 @@ higherclasses(arr, len, curlevel) {
 		}
 	}
 	if (curlevel === 5)
-		this.higherclasses(arr, len - 3, 4);
+		this.#higherclasses(arr, len - 3, 4);
 	else if (curlevel === 4)
-		this.higherclasses(arr, len - 3, 3);
+		this.#higherclasses(arr, len - 3, 3);
 }
 /* visual browser: return count of files in class */
-countfiles(cla) {
+#countfiles(cla) {
 	let res = 0;
 	if (undefined !== cla.fmembers) res += cla.fmembers.length;
 	if (undefined !== cla.smembers)
 		for (const s of cla.smembers)
-			res += this.countfiles(s);
+			res += this.#countfiles(s);
 	return res;
 }
 /* visual browser: recursive count selection */
-countsel(gr) {
+#countsel(gr) {
 	let res = 0;
 	if (gr.fmembers) {
 		res += gr.fmembers.filter((o) => o.selected).length;
 	}
 	if (gr.smembers) {
 		for (const g of gr.smembers)
-			res += this.countsel(g);
+			res += this.#countsel(g);
 	}
 	gr.entry.querySelector('.selnumber').innerHTML = '' + res;
-	gr.entry.querySelector('.selcb').checked = (res === this.countfiles(gr));
+	gr.entry.querySelector('.selcb').checked = (res === this.#countfiles(gr));
 	gr.sels = res;
 	return res;
 }
 /* visual browser: update all "selected" values */
-updateselections() {
-	for (const s of this.typedclasses) this.countsel(s);
-	for (const s of this.untypedclasses) this.countsel(s);
+#updateselections() {
+	for (const s of this.#typedclasses) this.#countsel(s);
+	for (const s of this.#untypedclasses) this.#countsel(s);
 	let res = 0, sum = 0;
-	for (const s of this.typedclasses) {
+	for (const s of this.#typedclasses) {
 		res += s.sels;
-		sum += this.countfiles(s);
+		sum += this.#countfiles(s);
 	}
 	document.getElementById('brnsel').innerHTML = '' + res;
 	document.getElementById('selall').checked = (res === sum);
 	document.getElementById('delselbut').disabled = (res === 0);
 }
 /* visual browser: fill a html div into an imbele */
-displaydiv(e) {
+#displaydiv(e) {
 	e.entry = document.createElement('div');
 	if (e.wasselected) e.entry.classList.add('picprocd');
 	e.entry.id = 'div_' + e.raw + '_X';
@@ -2810,7 +2810,7 @@ displaydiv(e) {
 	check.checked = e.selected;
 	check.onclick = () => {
 		e.selected = check.checked;
-		this.updateselections();
+		this.#updateselections();
 	};
 	texttit.htmlFor = check.id;
 	texttit.append(check);
@@ -2824,13 +2824,13 @@ displaydiv(e) {
 		rotbtn.classList.add('disabled');
 		rotbtn.append('\u21b7');
 		rotbtn.onclick = () => {
-			if (!this.debugflag && rotbtn.classList.contains('disabled')) return;
-			let j = this.oriecw.indexOf(e.rot);
+			if (!this.#debugflag && rotbtn.classList.contains('disabled')) return;
+			let j = this.#oriecw.indexOf(e.rot);
 			j = ((j + 1) % 4);
-			e.rot = this.oriecw[j];
+			e.rot = this.#oriecw[j];
 			e.preview.style['display'] = 'none';
 			e.entry.querySelector('.eepvw').style['display'] = '';
-			this.startloadimg();
+			this.#startloadimg();
 		};
 		topline.append(rotbtn);
 	}
@@ -2841,26 +2841,26 @@ displaydiv(e) {
 	dlbtn.append('\u2193');
 	if (e.type === 'RAW') {
 		dlbtn.onclick = (ev) => {
-			if (!this.debugflag && dlbtn.classList.contains('disabled')) return;
-			if (this.actnum !== this.allfiles.length) return;
+			if (!this.#debugflag && dlbtn.classList.contains('disabled')) return;
+			if (this.#actnum !== this.#allfiles.length) return;
 			let selecteds = [ e.url ];
-			this.stepmode = 0;
-			this.totnum = 1;
-			this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
-			this.actnum = 0;
-			this.allfiles = selecteds;
+			this.#stepmode = 0;
+			this.#totnum = 1;
+			this.#stats = { total: this.#totnum, skipped: 0, error: 0, ok: 0 };
+			this.#actnum = 0;
+			this.#allfiles = selecteds;
 			document.getElementById('imbdoit').disabled = true;
 			document.getElementById('imbvisbrows').disabled = true;
 			document.getElementById('droptarget').style['display'] = 'none';
 			document.getElementById('infile').disabled = true
 			//this.fromvisbrows = true;
 			this.shownormal();
-			this.handleone(e.rot);
+			this.#handleone(e.rot);
 			e.entry.classList.add('picprocd');
 		};
 	} else {
 		dlbtn.onclick = (ev) => {
-			if (!this.debugflag && dlbtn.classList.contains('disabled')) return;
+			if (!this.#debugflag && dlbtn.classList.contains('disabled')) return;
 			const outel = document.getElementById('result');
 			outel.download = rawname;
 			outel.href = e.url;
@@ -2891,7 +2891,7 @@ displaydiv(e) {
 			e.preview.classList.remove('biggie');
 		}
 		e.entry.append(e.preview);
-		this.createwait(e);
+		this.#createwait(e);
 	} else if (e.type === 'JPG') {
 		e.preview = document.createElement('img');
 		e.preview.classList.add('eeimg');
@@ -2905,7 +2905,7 @@ displaydiv(e) {
 			e.preview.classList.remove('biggie');
 		}
 		e.entry.append(e.preview);
-		this.createwait(e);
+		this.#createwait(e);
 	} else {
 		e.preview = document.createElement('div');
 		e.preview.classList.add('eepvx');
@@ -2914,12 +2914,12 @@ displaydiv(e) {
 	}
 }
 /* visual browser: image loader call */
-loadimg(url, type, to) {
+#loadimg(url, type, to) {
 	if (to.entry.querySelector('.eepvx')
 			|| (to.entry.querySelector('.eepvw')?.style['display'] === 'none' && to.entry.querySelector('.errimg')?.style['display'] === 'none')
 			|| (type === 'oth')) {
-		if (this.debugflag) console.log('ldr aa lnx ' + to.raw);
-		this.loadnextimg();
+		if (this.#debugflag) console.log('ldr aa lnx ' + to.raw);
+		this.#loadnextimg();
 		return;
 	}
 	to.entry.querySelector('.errimg').style['display'] = 'none';
@@ -2931,32 +2931,32 @@ loadimg(url, type, to) {
 			to.preview.style['display'] = '';
 			to.preview.style['width'] = to.preview.woidth * (120 / to.preview.height);
 			to.entry.querySelector('.dlbtn').classList.remove('disabled');
-			if (this.debugflag) console.log('ldr j f lnx ' + to.raw);
-			this.loadnextimg();
+			if (this.#debugflag) console.log('ldr j f lnx ' + to.raw);
+			this.#loadnextimg();
 		};
 		to.preview.onerror = (ev) => {
 			console.log('JPEG preview load error for ' + url + ' ' + JSON.stringify(ev));
 			to.entry.querySelector('.eepvw').style['display'] = 'none';
 			to.entry.querySelector('.errimg').style['display'] = '';
 			to.entry.querySelector('.dlbtn').classList.add('disabled');
-			if (this.debugflag) console.log('ldr j e lnx ' + to.raw);
+			if (this.#debugflag) console.log('ldr j e lnx ' + to.raw);
 			to.nonewerr = true;
-			this.loadnextimg();
+			this.#loadnextimg();
 		};
 		to.preview.src = url;
 	}
 	else if (type === 'RAW') {
-		this.buildpreview(url, () => { /* on ok: */
+		this.#buildpreview(url, () => { /* on ok: */
 			to.entry.querySelector('.eepvw').style['display'] = 'none';
 			to.entry.querySelector('.rotbtn').classList.remove('disabled');
 			to.entry.querySelector('.dlbtn').classList.remove('disabled');
 			to.preview.style['display'] = '';
-			if (this.debugflag) console.log('ldr r f ' + to.raw);
-			if (this.loaderrunning === url) {
-				if (this.debugflag) console.log('ldr r e lnx ' + to.raw);
-				this.loadnextimg();
+			if (this.#debugflag) console.log('ldr r f ' + to.raw);
+			if (this.#loaderrunning === url) {
+				if (this.#debugflag) console.log('ldr r e lnx ' + to.raw);
+				this.#loadnextimg();
 			} // else the afterload had already been called
-			else if (this.debugflag) {
+			else if (this.#debugflag) {
 				console.log('ldr r ff lnyy ' + to.raw);
 			}
 		}, () => { /* on err: */
@@ -2965,53 +2965,53 @@ loadimg(url, type, to) {
 			to.entry.querySelector('.rotbtn').classList.add['disabled'];
 			to.entry.querySelector('.dlbtn').classList.add['disabled'];
 			to.nonewerr = true;
-			if (this.debugflag) console.log('ldr r e ' + to.raw);
-			if (this.loaderrunning === url) {
-				if (this.debugflag) console.log('ldr r e lnx ' + to.raw);
-				this.loadnextimg();
+			if (this.#debugflag) console.log('ldr r e ' + to.raw);
+			if (this.#loaderrunning === url) {
+				if (this.#debugflag) console.log('ldr r e lnx ' + to.raw);
+				this.#loadnextimg();
 			} // else the afterload had already been called
-			else if (this.debugflag) {
+			else if (this.#debugflag) {
 				console.log('ldr r ee lnyy ' + to.raw);
 			}
 		}, to.rot, to.preview, () => { /* afterload: */
-			if (this.debugflag) console.log('ldr r l lnx ' + to.raw);
+			if (this.#debugflag) console.log('ldr r l lnx ' + to.raw);
 			// invalidate url for err callback
-			this.loaderrunning = '1';
-			this.loadnextimg();
+			this.#loaderrunning = '1';
+			this.#loadnextimg();
 		});
 	}
 }
 /* visual browser: load next from todo list */
-loadnextimg() {
-	let e = this.findnexttoload();
-	if (!e) e = this.findnexttoload(true);
+#loadnextimg() {
+	let e = this.#findnexttoload();
+	if (!e) e = this.#findnexttoload(true);
 	if (!e) {
-		this.loaderrunning = false;
-		if (this.debugflag) console.log('TERM loader');
+		this.#loaderrunning = false;
+		if (this.#debugflag) console.log('TERM loader');
 		return;
 	}
 	else {
-		this.loaderrunning = e.url;
+		this.#loaderrunning = e.url;
 		window.setTimeout(() => {
-			if (this.debugflag) console.log('L ' + e.raw);
-			this.loadimg(e.url, e.type, e)
+			if (this.#debugflag) console.log('L ' + e.raw);
+			this.#loadimg(e.url, e.type, e)
 		}, 33);
 	}
 }
 /* visual browser: start loading */
-startloadimg() {
-	if (!this.loaderrunning) {
-		if (this.debugflag) console.log('start loader');
-		this.loadnextimg();
+#startloadimg() {
+	if (!this.#loaderrunning) {
+		if (this.#debugflag) console.log('start loader');
+		this.#loadnextimg();
 	}
-	else if (this.debugflag) {
-		console.log('load already on ' + this.loaderrunning);
+	else if (this.#debugflag) {
+		console.log('load already on ' + this.#loaderrunning);
 	}
 }
 /* visual browser: delete browser selected */
-browserdelete() {
-	document.getElementById('del_text').setAttribute('data-myxlarg0', this.imbeles.filter((o) => o.selected).length);
-	this.xl1(document.getElementById('del_text'));
+#browserdelete() {
+	document.getElementById('del_text').setAttribute('data-myxlarg0', this.#imbeles.filter((o) => o.selected).length);
+	this.#xl1(document.getElementById('del_text'));
 	document.getElementById('delq').style['display'] = '';
 	document.getElementById('browser').style['display'] = 'none';
 	document.getElementById('delokbut').disabled = false;
@@ -3020,22 +3020,22 @@ browserdelete() {
 /* visual browser: do delete */
 dodelete(list) {
 	const deletephs = [ '|' , '/', '-', '\\' ]; 
-	if (list === undefined && this.imbeles.filter((o) => o.selected).length === 0) {
-		delcancel();
+	if (list === undefined && this.#imbeles.filter((o) => o.selected).length === 0) {
+		this.delcancel();
 		return;
 	}
 	else if (list === undefined) {
 		document.getElementById('delokbut').disabled = true;
 		document.getElementById('delcancelbut').disabled = true;
-		this.dodelete(this.imbeles.filter((o) => o.selected));
-		this.deletephase=0;
-		document.getElementById('delprogmsg').innerHTML = deletephs[this.deletephase];
+		this.dodelete(this.#imbeles.filter((o) => o.selected));
+		this.#deletephase=0;
+		document.getElementById('delprogmsg').innerHTML = deletephs[this.#deletephase];
 		return;
 	} else if (list.length > 0) {
 		let xhr = new XMLHttpRequest();
 		xhr.onload = () => {
-			this.deletephase ++;
-			document.getElementById('delprogmsg').innerHTML = deletephs[this.deletephase % deletephs.length];
+			this.#deletephase ++;
+			document.getElementById('delprogmsg').innerHTML = deletephs[this.#deletephase % deletephs.length];
 			const pv = list[0].preview;
 			//if (pv)
 			//	pv.classList.add('picdeleted');
@@ -3050,7 +3050,7 @@ dodelete(list) {
 		xhr.open('GET',list[0].url + '?del=1');
 		xhr.send();
 	} else {
-		alert(this.xl('del.reload'));
+		alert(this.#xl('del.reload'));
 		this.delcancel();
 	}
 }
@@ -3061,9 +3061,9 @@ delcancel() {
 }
 /* visual browser: process browser selected */
 browserprocess() {
-	if (this.actnum !== this.allfiles.length) return;
+	if (this.#actnum !== this.#allfiles.length) return;
 	let selecteds = [];
-	for (const i of this.imbeles) {
+	for (const i of this.#imbeles) {
 		if (i.selected) {
 			selecteds.push(i);
 		}
@@ -3079,28 +3079,28 @@ browserprocess() {
 		else if (ra === rb) return 0;
 		else return 1;
 	});
-    this.stepmode = 0;
-	this.totnum = selecteds.length;
-	this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
-	this.actnum = 0;
-	this.allfiles = selecteds;
-	if (this.totnum > 0) {
-		this.mappx('process.frombrowsern', this.totnum);
-		this.appendnl();
+    this.#stepmode = 0;
+	this.#totnum = selecteds.length;
+	this.#stats = { total: this.#totnum, skipped: 0, error: 0, ok: 0 };
+	this.#actnum = 0;
+	this.#allfiles = selecteds;
+	if (this.#totnum > 0) {
+		this.#mappx('process.frombrowsern', this.#totnum);
+		this.#appendnl();
 		document.getElementById('imbdoit').disabled = true;
 		document.getElementById('imbvisbrows').disabled = true;
 		document.getElementById('droptarget').style['display'] = 'none';
 		document.getElementById('infile').disabled = true
-		this.handleonex();
+		this.#handleonex();
 		this.topreccheck(false);
 	} else {
 		this.shownormal();
 	}
 }
 /* remove VT100 color escapes for windows */
-rmesc(str) {
+#rmesc(str) {
 	//console.log('RRR ' + str);
-	if (this.withcolours) return (str);
+	if (this.#withcolours) return (str);
 	let i = 0, j, k;
 	while ((j = str.substring(i).indexOf('\x1b')) !== -1) {
 		k = str.substring(i+j).indexOf('m');
@@ -3113,40 +3113,40 @@ rmesc(str) {
 	return str;
 }
 /* translate one element */
-xl1(el) {
+#xl1(el) {
 	if (el.attributes.getNamedItem('data-myxlkey')) {
-		el.innerHTML = this.xl(el.attributes.getNamedItem('data-myxlkey').value, el.attributes.getNamedItem('data-myxlarg0')?.value, el.attributes.getNamedItem('data-myxlarg1')?.value, el.attributes.getNamedItem('data-myxlarg2')?.value, el.attributes.getNamedItem('data-myxlarg3')?.value );
+		el.innerHTML = this.#xl(el.attributes.getNamedItem('data-myxlkey').value, el.attributes.getNamedItem('data-myxlarg0')?.value, el.attributes.getNamedItem('data-myxlarg1')?.value, el.attributes.getNamedItem('data-myxlarg2')?.value, el.attributes.getNamedItem('data-myxlarg3')?.value );
 	}
 	if (el.attributes.getNamedItem('data-myvalxlkey')) {
-		el.value = this.xl(el.attributes.getNamedItem('data-myvalxlkey').value);
+		el.value = this.#xl(el.attributes.getNamedItem('data-myvalxlkey').value);
 	}
 	if (el.attributes.getNamedItem('data-mytitlexlkey')) {
-		el.title = this.xl(el.attributes.getNamedItem('data-mytitlexlkey').value);
+		el.title = this.#xl(el.attributes.getNamedItem('data-mytitlexlkey').value);
 	}
 	if (el.attributes.getNamedItem('data-myhrefxlkey')) {
-		el.href = this.xl(el.attributes.getNamedItem('data-myhrefxlkey').value);
+		el.href = this.#xl(el.attributes.getNamedItem('data-myhrefxlkey').value);
 	}
 	return el;
 }
 /* get part of translation */
-xl0(str, base) {
-	if (undefined === base) base = this.texts;
+#xl0(str, base) {
+	if (undefined === base) base = this.#texts;
 	const i = str.indexOf('.');
 	if (i === -1) {
-		let r = base[str][this.mylang];
+		let r = base[str][this.#mylang];
 		if (undefined === r) r = base[str]['en'];
 		if (typeof r === 'string')
-			return this.rmesc(r);
+			return this.#rmesc(r);
 		else
 			return r;
 	}
 	else {
 		const e = base[str.substring(0,i)];
-		return this.xl0(str.substring(i+1),e);
+		return this.#xl0(str.substring(i+1),e);
 	}
 }
 /* substitute in translation */
-subst(r, arg0, arg1, arg2, arg3, base) {
+#subst(r, arg0, arg1, arg2, arg3, base) {
 	if (r.indexOf('$$0') !== -1 && arg0 !== undefined) {
 		r = r.substring(0, r.indexOf('$$0')) + arg0 + r.substring(r.indexOf('$$0') + 3);
 		if (r.indexOf('$$1') !== -1 && arg1 !== undefined) {
@@ -3159,13 +3159,13 @@ subst(r, arg0, arg1, arg2, arg3, base) {
 			}
 		}
 	}
-	return this.rmesc(r);
+	return this.#rmesc(r);
 }
 /* translate one string with parameters */
-xl(str, arg0, arg1, arg2, arg3, base) {
+#xl(str, arg0, arg1, arg2, arg3, base) {
 	// console.log(' XL ' + str + ' - ' + base + ' - ' + arg0 + ' - ' + arg1);
-	if (undefined === base) base = this.texts;
-	if (this.mylang === '00') {
+	if (undefined === base) base = this.#texts;
+	if (this.#mylang === '00') {
 		let res = '[' + str;
 		if (undefined !== arg0) {
 			res += ',' + arg0;
@@ -3183,70 +3183,71 @@ xl(str, arg0, arg1, arg2, arg3, base) {
 	}
 	const i = str.indexOf('.');
 	if (i === -1) {
-		let r = base[str][this.mylang];
+		let r = base[str][this.#mylang];
 		if (undefined === r) r = base[str]['en'];
-		return this.subst(r, arg0, arg1, arg2, arg3);
+		return this.#subst(r, arg0, arg1, arg2, arg3);
 	}
 	else {
 		const e = base[str.substring(0,i)];
-		return this.xl(str.substring(i+1), arg0, arg1, arg2, arg3, e);
+		return this.#xl(str.substring(i+1), arg0, arg1, arg2, arg3, e);
 	}
 }
 /* translate everything */
 xlateall() {
-	document.documentElement.lang = this.mylang;
+	document.getElementById('mainversion').innerHTML = this.#version;
+	document.documentElement.lang = this.#mylang;
 	const k = document.querySelectorAll('*[data-myxlkey]');
 	for (const e of k) {
-		e.innerHTML = this.xl(e.attributes.getNamedItem('data-myxlkey').value, e.attributes.getNamedItem('data-myxlarg0')?.value, e.attributes.getNamedItem('data-myxlarg1')?.value, e.attributes.getNamedItem('data-myxlarg2')?.value, e.attributes.getNamedItem('data-myxlarg3')?.value );
+		e.innerHTML = this.#xl(e.attributes.getNamedItem('data-myxlkey').value, e.attributes.getNamedItem('data-myxlarg0')?.value, e.attributes.getNamedItem('data-myxlarg1')?.value, e.attributes.getNamedItem('data-myxlarg2')?.value, e.attributes.getNamedItem('data-myxlarg3')?.value );
 	}
 	const l = document.querySelectorAll('*[data-myvalxlkey]');
 	for (const e of l) {
-		e.value = this.xl(e.attributes.getNamedItem('data-myvalxlkey').value);
+		e.value = this.#xl(e.attributes.getNamedItem('data-myvalxlkey').value);
 	}
 	const m = document.querySelectorAll('*[data-mytitlexlkey]');
 	for (const e of m) {
-		e.title = this.xl(e.attributes.getNamedItem('data-mytitlexlkey').value);
+		e.title = this.#xl(e.attributes.getNamedItem('data-mytitlexlkey').value);
 	}
 	const h = document.querySelectorAll('*[data-myhrefxlkey]');
 	for (const e of h) {
-		e.href = this.xl(e.attributes.getNamedItem('data-myhrefxlkey').value);
+		e.href = this.#xl(e.attributes.getNamedItem('data-myhrefxlkey').value);
 	}
-	document.title = this.xl0('main.title') + ' ' + imbc.version;
+	document.title = this.#xl0('main.title') + ' ' + this.#version;
 }
 /* translate html for new language */
 setlang() {
-	this.mylang = document.getElementById('langsel').value;
+	this.#mylang = document.getElementById('langsel').value;
 	this.xlateall();
 }
 /* try lang from node param */
-trylang(i) {
+#trylang(i) {
 	let found = 0;
-	for (const l of this.alllangs) {
+	for (const l of this.#alllangs) {
 		if (i.toUpperCase() === l.toUpperCase()) {
-			this.mylang = l;
+			this.#mylang = l;
 			found = 1;
 			break;
 		}
 	}
 	if (!found) {
-		this.mylang = 'en';
+		this.#mylang = 'en';
 		console.log('Unknown language: ' + i);
 	}
-	else if ('00' === this.mylang)
-		this.debugflag = true;
+	else if ('00' === this.#mylang)
+		this.#debugflag = true;
 }
 /* find language from filename or nodejs scriptfile */
 querylang(name, offset) {
 	if (undefined === offset) offset = 8;
 	let found = 0;
-	for (const l of this.alllangs) {
+	for (const l of this.#alllangs) {
 		if (name.substring(name.length - offset, name.length - offset + 4).toUpperCase() === ('_' + l.toUpperCase() + '.')) {
-			this.mylang = l;
+			this.#mylang = l;
 			if ('00' === l) {
-				this.debugflag = true;
+				this.#debugflag = true;
 				if (document) {
-					for (const el of Object.keys(this.texts))
-						this.prxl(el, this.texts[el]);
+					for (const el of Object.keys(this.#texts))
+						this.#prxl(el, this.#texts[el]);
 					document.getElementById('langsel').innerHTML += '<option value="00" onclick="imbc.setlang()">00</option></select>';
 				}
 			}
@@ -3263,22 +3264,22 @@ querylang(name, offset) {
 	// followed by xlall anyway
 }
 /* nodejs: show help */
-help(caller) {
+#help(caller) {
 	while (caller.indexOf("/") > -1)
 		caller = caller.substring(caller.indexOf("/") + 1);
-	let texts = this.xl0('node.help');
-	console.log(this.subst(texts[0], this.version));
-	console.log(this.subst(texts[1], caller));
+	let texts = this.#xl0('node.help');
+	console.log(this.#subst(texts[0], this.#version));
+	console.log(this.#subst(texts[1], caller));
 	for (let j=2; j<texts.length; j++) {
-		console.log(this.rmesc(texts[j]));
-		if (this.debugflag && j === 7) {
+		console.log(this.#rmesc(texts[j]));
+		if (this.#debugflag && j === 7) {
 			console.log(' \x1b[1m-CSV\x1b[0m - Translation CSV');
 		}
 	}
 }
 /* nodejs runup */
 startnode() {
-	if (process.stdout.isTTY !== true) this.withcolours = false;
+	if (process.stdout.isTTY !== true) this.#withcolours = false;
 	let wanthelp = false, wantxl = false, flagging=0, datefound = false, restisfiles = false;
 	if (process.argv.length < 3) {
 		wanthelp = true;
@@ -3290,61 +3291,61 @@ startnode() {
 					restisfiles = true;
 				}
 				else if (restisfiles) {
-					this.allfiles.push(v);
-					this.totnum ++;
+					this.#allfiles.push(v);
+					this.#totnum ++;
 				}
 				else if (flagging === 1) {
 					flagging = 0;
-					this.trylang(v);
+					this.#trylang(v);
 				}
 				else if (flagging === 2) {
 					flagging = 0;
-					this.outdir = v;
+					this.#outdir = v;
 				}
 				else if (flagging === 3) {
 					flagging = 0;
-					if (null !== this.tsregex.exec(v)) {
-						this.fromts = v;
+					if (null !== this.#tsregex.exec(v)) {
+						this.#fromts = v;
 						datefound = true;
 					} else {
 						wanthelp = true;
-						console.log(this.subst(this.xl0('onimback.invaltimex'), v));
+						console.log(this.#subst(this.#xl0('onimback.invaltimex'), v));
 					}
 				}
-				else if (v.substring(0,4)==='-CSV' && this.debugflag) {
-					for (const el of Object.keys(this.texts))
-						this.prxl(el, this.texts[el]);
+				else if (v.substring(0,4)==='-CSV' && this.#debugflag) {
+					for (const el of Object.keys(this.#texts))
+						this.#prxl(el, this.#texts[el]);
 					wantxl = true;
 				}
 				else if (v ==='-nc') {
-					this.withcolours = false;
+					this.#withcolours = false;
 				}
 				else if (v ==='-co') {
-					this.withcolours = true;
+					this.#withcolours = true;
 				}
 				else if (v.substring(0,2)==='-l') {
 					if (v.substring(2).length > 0) {
 						let l = v.substring(2);
-						this.trylang(l);
+						this.#trylang(l);
 					}
 					else
 						flagging=1;
 				}
 				else if (v.substring(0,2)==='-d') {
 					if (v.substring(2).length > 0) {
-						this.outdir = v.substring(2);
+						this.#outdir = v.substring(2);
 					}
 					else
 						flagging=2;
 				}
 				else if (v.substring(0,2)==='-n') {
 					if (v.substring(2).length > 0) {
-						if (null !== this.tsregex.exec(v.substring(2))) {
-							this.fromts = v.substring(2);
+						if (null !== this.#tsregex.exec(v.substring(2))) {
+							this.#fromts = v.substring(2);
 							datefound = true;
 						} else {
 							wanthelp = true;
-							console.log(this.subst(this.xl0('onimback.invaltimex'), v.substring(2)));
+							console.log(this.#subst(this.#xl0('onimback.invaltimex'), v.substring(2)));
 						}
 					}
 					else
@@ -3354,78 +3355,78 @@ startnode() {
 					wanthelp = true;
 				}
 				else if (v ==='-f') {
-					this.ovwout = true;
+					this.#ovwout = true;
 				}
 				else if (v ==='-R') {
-					if (!(this.typeflags % 2)) this.typeflags += 1;
+					if (!(this.#typeflags % 2)) this.#typeflags += 1;
 				}
 				else if (v ==='-J') {
-					if ((this.typeflags % 4) < 2) this.typeflags += 2;
+					if ((this.#typeflags % 4) < 2) this.#typeflags += 2;
 				}
 				else if (v ==='-O') {
-					if ((this.typeflags % 8) < 4) this.typeflags += 4;
+					if ((this.#typeflags % 8) < 4) this.#typeflags += 4;
 				}
 				else if (v.substring(0,1) === '-') {
-					console.log(this.subst(this.xl0('node.unkopt'), v));
+					console.log(this.#subst(this.#xl0('node.unkopt'), v));
 					wanthelp = true;
 				}
 				else {
-					if (null !== this.tsregex.exec(v)) {
-						this.mappx('node.fnwarn', v);
+					if (null !== this.#tsregex.exec(v)) {
+						this.#mappx('node.fnwarn', v);
 						wanthelp = true;
 					}
-					this.allfiles.push(v);
-					this.totnum ++;
+					this.#allfiles.push(v);
+					this.#totnum ++;
 				}
 			}
 	});
 	if (wantxl) return;
 	else if (flagging) {
-		console.log(this.xl0('node.missingval'));
+		console.log(this.#xl0('node.missingval'));
 		wanthelp = true;
 	}
-	else if (datefound && 0 === this.typeflags) this.typeflags = 7;
+	else if (datefound && 0 === this.#typeflags) this.#typeflags = 7;
 
-	if (wanthelp || (this.typeflags === 0 && this.totnum === 0)) {
-		this.help(process.argv[1]);
+	if (wanthelp || (this.#typeflags === 0 && this.#totnum === 0)) {
+		this.#help(process.argv[1]);
 		console.log('');
-		console.log(this.xl0('main.coloursyourrisk'));
+		console.log(this.#xl0('main.coloursyourrisk'));
 		console.log('');
 		return;
 	}
-	else if (this.totnum > 0) {
-		console.log(this.subst(this.xl0('node.help')[0], this.version));
-		console.log(this.xl0('main.coloursyourrisk'));
-		if (this.typeflags === 0) this.typeflags = 7;
-		this.handlerecurse();
+	else if (this.#totnum > 0) {
+		console.log(this.#subst(this.#xl0('node.help')[0], this.#version));
+		console.log(this.#xl0('main.coloursyourrisk'));
+		if (this.#typeflags === 0) this.#typeflags = 7;
+		this.#handlerecurse();
 	}
-	else if (this.typeflags > 0) {
-		console.log(this.subst(this.xl0('node.help')[0], this.version));
-		console.log(this.xl0('main.coloursyourrisk'));
-		this.checkimbnode();
+	else if (this.#typeflags > 0) {
+		console.log(this.#subst(this.#xl0('node.help')[0], this.#version));
+		console.log(this.#xl0('main.coloursyourrisk'));
+		this.#checkimbnode();
 	}
 }
 /* visual browser: change cache size (currently only visible in debug _00) */
 chgcache() {
-	this.maxcache = document.getElementById('dbgcache').value;
+	this.#maxcache = document.getElementById('dbgcache').value;
 }
 /* debug */
-prgr(gr, indent) {
+#prgr(gr, indent) {
 	const str = '                ';
 	if (undefined === gr.title) return;
-	console.log(str.substring(0,2*indent), gr.title, '   ', this.countfiles(gr));
+	console.log(str.substring(0,2*indent), gr.title, '   ', this.#countfiles(gr));
 	if (undefined === gr.smembers) return;
 	for (const s of gr.smembers) {
 		prgr(s, indent + 1);
 	}
 }
 /* debug: print translations for csv */
-prxl(key, el) {
+#prxl(key, el) {
 	if (el['de'] && el['en']) {
 		try{
 		if (typeof el['de'] === 'string') {
 			let out = key + ';';
-			for (const l of this.alllangs) {
+			for (const l of this.#alllangs) {
 				if (undefined !== el[l]) {
 					let a = el[l];
 					let b = '"';
@@ -3438,7 +3439,7 @@ prxl(key, el) {
 		else if (typeof el['de'][0] === 'string') {
 			for (let i=0; i< el['de'].length; i++) {
 				let out = key + '[' + i + '];';
-				for (const l of this.alllangs) {
+				for (const l of this.#alllangs) {
 					if (undefined !== el[l] && undefined !== undefined !== el[l][i]) {
 						let a = el[l][i];
 						let b = '"';
@@ -3452,7 +3453,7 @@ prxl(key, el) {
 		} catch (e) { require('process').exit(); }
 	}
 	for (const ne of Object.keys(el).filter((k) => ((k !== 'en') && (k !== 'de') && (typeof(el[k]) !== 'string')))) {
-		this.prxl(key + '.' + ne, el[ne]);
+		this.#prxl(key + '.' + ne, el[ne]);
 	}
 }
 /* only debug */
@@ -3464,12 +3465,12 @@ dodebug() {
 		const sel2 = doc.querySelectorAll('a');
 		for (const r of sel2) {
 			if (r && (-1 === r.href.indexOf('?del='))) {
-				this.handle1imb(r.href);
+				this.#handle1imb(r.href);
 			}
 		}
 		document.getElementById('dbgfsel').style['display'] = 'none';
 		document.getElementById('onimback').style['display'] = '';
-		this.aftercheck();
+		this.#aftercheck();
 	};
 	fr.readAsText(document.getElementById('dbgfsel').files[0]);
 }
@@ -3482,7 +3483,7 @@ function init() {
 	imbc.querylang(window.location.pathname);
 	imbc.xlateall();
 	imbc.checkimb();
-	document.getElementById('mainversion').innerHTML = imbc.version;
+	//document.getElementById('mainversion').innerHTML = imbc.#version;
 }
 /* node js handling main function */
 if (typeof process !== 'undefined') {
