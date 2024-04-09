@@ -2910,7 +2910,6 @@ browserprocess() {
 	let i = 0, j, k;
 	while ((j = str.substring(i).indexOf('\x1b')) !== -1) {
 		k = str.substring(i+j).indexOf('m');
-		//console.log('i ' + i + ' j ' + j + ' k ' + k + ' str ' + str + '\x1b[0m');
 		if (j !== -1 && k !== -1) {
 			str = str.substring(0, i+j) + str.substring(i+j+k+1);
 			i += (k+j-1);
@@ -3003,21 +3002,17 @@ xlateall() {
 	document.getElementById('mainversion').innerHTML = this.#version;
 	document.documentElement.lang = this.#mylang;
 	const k = document.querySelectorAll('*[data-myxlkey]');
-	for (const e of k) {
-		e.innerHTML = this.#xl(e.attributes.getNamedItem('data-myxlkey').value, e.attributes.getNamedItem('data-myxlarg0')?.value, e.attributes.getNamedItem('data-myxlarg1')?.value, e.attributes.getNamedItem('data-myxlarg2')?.value, e.attributes.getNamedItem('data-myxlarg3')?.value );
-	}
+	for (const e of k)
+		this.#xl1(e);
 	const l = document.querySelectorAll('*[data-myvalxlkey]');
-	for (const e of l) {
-		e.value = this.#xl(e.attributes.getNamedItem('data-myvalxlkey').value);
-	}
+	for (const e of l)
+		this.#xl1(e);
 	const m = document.querySelectorAll('*[data-mytitlexlkey]');
-	for (const e of m) {
-		e.title = this.#xl(e.attributes.getNamedItem('data-mytitlexlkey').value);
-	}
+	for (const e of m)
+		this.#xl1(e);
 	const h = document.querySelectorAll('*[data-myhrefxlkey]');
-	for (const e of h) {
-		e.href = this.#xl(e.attributes.getNamedItem('data-myhrefxlkey').value);
-	}
+	for (const e of h)
+		this.#xl1(e);
 	document.title = this.#xl0('main.title') + ' ' + this.#version;
 }
 /* translate html for new language */
