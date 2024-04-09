@@ -1398,32 +1398,35 @@ setpvwait() {
 			if (document) this.#appendmsg('<br>');
 		}
 		let ori = orientation ? orientation : 1;
+		let transp = false;
 		if (ori !== 1) {
 			this.#mappx('process.orientation');
 			if (document) {
 				this.#appendmsgx(this.#genspan('preview.orients.' + this.#orients[ori]));
 				this.#appendmsg('<br>');
 			}
+			if (ori === 6 || ori === 8) transp = true;
 		}
 		/* Here comes the actual building of the DNG */
 		const contents = evt.target.result;
 		const view = new DataView(contents);
-		const out = new Uint8Array(f.size + (dateok ? 486: 442) + rawnamearr.length + veroff);
 		let ti = new TIFFOut();
 		ti.addIfd();
-		ti.addImageStrip(1, this.#buildpvarray(view, typ, w, h, ori, false), (ori === 6||ori === 8)? h/32:w/32, (ori === 6||ori === 8)? w/32: h/32);
+		ti.addImageStrip(1, this.#buildpvarray(view, typ, w, h, ori, false), transp ? h/32:w/32, transp ? w/32: h/32);
 		ti.addEntry(258 , 'SHORT', [ 8 ]); /* BitsPerSample */
-		ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression */
-		ti.addEntry(262, 'SHORT', [ 2 ]); /* Photometric */
+		ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression -none */
+		ti.addEntry(262, 'SHORT', [ 2 ]); /* Photometric - RGB */
 		ti.addEntry(271, 'ASCII', 'ImBack'); /* Make */
 		ti.addEntry(50708, 'ASCII', 'ImBack' + ' ' + this.#types[typ]); /* Unique model */
 		ti.addEntryRelative(272, 50708, 7); /* Model */
 		ti.addEntry(274, 'SHORT', [ ori ]); /* Orientation */
 		ti.addEntry(277, 'SHORT', [ 3 ]); /* Samples per Pixel */
-		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config */
+		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config - chunky */
 		ti.addEntry(305, 'ASCII', 'imbraw2dng ' + this.#version); /* SW and version */
-		if (dateok) ti.addEntry(306, 'ASCII', datestr); /* datetime */
-		if (dateok) ti.addEntryRelative(36867, 306, 0); /* Original date time */
+		if (dateok) {
+			ti.addEntry(306, 'ASCII', datestr); /* datetime */
+			ti.addEntryRelative(36867, 306, 0); /* Original date time */
+		}
 		ti.addEntry(50706, 'BYTE', [ 1, 2, 0, 0 ]); /* DNG Version */
 		ti.addEntry(50707, 'BYTE', [ 1, 0, 0, 0 ]); /* DNG Backward Version */
 		ti.addEntry(50717, 'LONG', [ 255 ]); /* White level */
@@ -1434,18 +1437,15 @@ setpvwait() {
 		ti.addEntry(50827, 'BYTE', rawnamearr); /* Raw file name */
 		ti.addEntry(50932, 'ASCII', 'Generic Imback converted profile'); /* Profile calibration signature */
 		ti.addEntry(50931, 'ASCII', 'Generic Imback converted profile'); /* Camera calibration signature */
-		//ti.addEntry(65042, 'UNDEFINED', [ 0xFF, 0xFF, 0xFF, 0xFD ]); /* PRIVATE, will be length of raw data */
-		//ti.addEntry(65420, 'UNDEFINED', [ 0xFF, 0xFF, 0xFF, 0xFB ]); /* PRIVATE, will be offset of raw data */
 		ti.addSubIfd();
 		ti.addImageStrip(0, view, w, h);
 		ti.addEntry(258 , 'SHORT', [ 8 ]); /* BitsPerSample */
-		ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression */
-		ti.addEntry(262, 'SHORT', [ 0x8023 ]); /* Photometric */
+		ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression - none */
+		ti.addEntry(262, 'SHORT', [ 0x8023 ]); /* Photometric - CFA */
 		ti.addEntry(277, 'SHORT', [ 1 ]); /* Samples per Pixel */
-		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config */
+		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config - chunky */
 		ti.addEntry(33421, 'SHORT', [ 2, 2 ]); /* CFA Repeat Pattern Dim */
 		ti.addEntry(33422, 'BYTE', [ 1, 0, 2, 1 ]); /* CFA Pattern */
-		//let x = ti.getData();
 		this.#output1(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted', ti.getData());
 	};
 	reader.onerror = (evt) => {
