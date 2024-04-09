@@ -1362,21 +1362,19 @@ setpvwait() {
 		const out = new Uint8Array(f.size + (dateok ? 486: 442) + rawnamearr.length + veroff);
 		let ti = new TIFFOut();
 		ti.addIfd();
-		ti.addImageStrip(0, view, w, h);
+		ti.addImageStrip(1, this.#buildpvarray(view, typ, w, h, orientation ? 1 : orientation, false), w/32, h/32);
 		ti.addEntry(258 , 'SHORT', [ 8 ]); /* BitsPerSample */
 		ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression */
-		ti.addEntry(262, 'SHORT', [ 0x8023 ]); /* Photometric */
+		ti.addEntry(262, 'SHORT', [ 2 ]); /* Photometric */
 		ti.addEntry(271, 'ASCII', 'ImBack'); /* Make */
 		ti.addEntry(50708, 'ASCII', 'ImBack' + ' ' + this.#types[typ]); /* Unique model */
 		ti.addEntryRelative(272, 50708, 7); /* Model */
 		ti.addEntry(274, 'SHORT', [ undefined == orientation ? 1 : orientation ]); /* Orientation */
-		ti.addEntry(277, 'SHORT', [ 1 ]); /* Samples per Pixel */
+		ti.addEntry(277, 'SHORT', [ 3 ]); /* Samples per Pixel */
 		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config */
 		ti.addEntry(305, 'ASCII', 'imbraw2dng ' + this.#version); /* SW and version */
 		if (dateok) ti.addEntry(306, 'ASCII', datestr); /* datetime */
 		if (dateok) ti.addEntryRelative(36867, 306, 0); /* Original date time */
-		ti.addEntry(33421, 'SHORT', [ 2, 2 ]); /* CFA Repeat Pattern Dim */
-		ti.addEntry(33422, 'BYTE', [ 1, 0, 2, 1 ]); /* CFA Pattern */
 		ti.addEntry(50706, 'BYTE', [ 1, 2, 0, 0 ]); /* DNG Version */
 		ti.addEntry(50707, 'BYTE', [ 1, 0, 0, 0 ]); /* DNG Backward Version */
 		ti.addEntry(50717, 'LONG', [ 255 ]); /* White level */
@@ -1387,6 +1385,15 @@ setpvwait() {
 		ti.addEntry(50827, 'BYTE', rawnamearr); /* Raw file name */
 		ti.addEntry(50932, 'ASCII', 'Generic Imback converted profile'); /* Profile calibration signature */
 		ti.addEntry(50931, 'ASCII', 'Generic Imback converted profile'); /* Camera calibration signature */
+		ti.addSubIfd();
+		ti.addImageStrip(0, view, w, h);
+		ti.addEntry(258 , 'SHORT', [ 8 ]); /* BitsPerSample */
+		ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression */
+		ti.addEntry(262, 'SHORT', [ 0x8023 ]); /* Photometric */
+		ti.addEntry(277, 'SHORT', [ 1 ]); /* Samples per Pixel */
+		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config */
+		ti.addEntry(33421, 'SHORT', [ 2, 2 ]); /* CFA Repeat Pattern Dim */
+		ti.addEntry(33422, 'BYTE', [ 1, 0, 2, 1 ]); /* CFA Pattern */
 		//let x = ti.getData();
 		this.#output1(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted', ti.getData());
 	};
@@ -1538,8 +1545,9 @@ prevdef(ev) {
 }
 /* build preview in array */
 #buildpvarray(view, typ, w, h, orientation, withalpha) {
-	const w8 = Math.floor((w+7)/8) - 1;
-	const h8 = Math.floor((h+7)/8) - 1;
+	const sfact = withalpha ? 8 : 32;
+	const w8 = Math.floor((w+(sfact -1))/sfact) - (withalpha ? 1 : 0);
+	const h8 = Math.floor((h+(sfact -1))/sfact) - (withalpha ? 1 : 0);
 	let minred=255, minblue = 255, mingreen = 255, maxred = 0, maxblue = 0, maxgreen = 0, allmin = 255, allmax = 0;
 	let outpix = [];
 	let rowiterstart, rowiterend;
@@ -1570,7 +1578,7 @@ prevdef(ev) {
 	}
 	for (let i = rowiterstart; i < rowiterend; i +=1) {
 		for (let j = coliterstart; j < coliterend; j+=1) {
-			let a = this.#getPix(Math.abs(transpose ? i :j)*8, Math.abs(transpose ? j :i)*8, w, view, typ);
+			let a = this.#getPix(Math.abs(transpose ? i :j)*sfact, Math.abs(transpose ? j :i)*sfact, w, view, typ);
 			outpix.push(a[0]);
 			if (a[0] > maxred) maxred = a[0];
 			if (a[0] < minred) minred = a[0];
@@ -3166,12 +3174,14 @@ startnode() {
 	else if (this.#totnum > 0) {
 		console.log(this.#subst(this.#xl0('node.help')[0], this.#version));
 		console.log(this.#xl0('main.coloursyourrisk'));
+		console.log('');
 		if (this.#typeflags === 0) this.#typeflags = 7;
 		this.#handlerecurse();
 	}
 	else if (this.#typeflags > 0) {
 		console.log(this.#subst(this.#xl0('node.help')[0], this.#version));
 		console.log(this.#xl0('main.coloursyourrisk'));
+		console.log('');
 		this.#checkimbnode();
 	}
 }
@@ -3246,31 +3256,34 @@ dodebug() {
 /* indentation in - end of class ImBC */
 };
 /* Tiff helper classes */
-class IFD {
+class IFDOut {
 /* Indentation out */
 #entrys = [];
 #numtags = 0;
 #currentoff = 0;
+// imgdata can be view or array
 #imgdata = null;
 #imglen = 0;
 #data = new Uint8Array(20000000);
 #dyndata = [] ; //new Uint8Array(20000);
+/* add image data to ifd */
 addImageStrip(typ, view, width, height) {
 	this.#imgdata = view;
-	this.#imglen = (this.#imgdata.byteLength + 3) & 0xFFFFFFFC;
+	this.#imglen = view.byteLength ? ((this.#imgdata.byteLength + 3) & 0xFFFFFFFC) : (view.length + 3) & 0xFFFFFFFC;
 	this.addEntry(254 , 'LONG', [ typ ]); /* SubFileType */
 	this.addEntry(256 , 'SHORT', [ width ]); /* width */
 	this.addEntry(257 , 'SHORT', [ height ]); /* height */
-	this.addEntry(273 , 'LONG', [ 0 ]); /* StipOffsets , special */
-	this.addEntry(279 , 'LONG', [ this.#imgdata.byteLength ]); /* StripByte count */
+	this.addEntry(273 , 'LONG', [ 0xFFFFFFFF ]); /* StipOffsets , special */
+	this.addEntry(279 , 'LONG', [ this.#imgdata.byteLength ? this.#imgdata.byteLength : view.length ]); /* StripByte count */
 	this.addEntry(278 , 'LONG', [ height ]); /* Rows per strip */
 }
+/* add entry to ifd */
 addEntry(tag, type, value) {
 	let x = TIFFOut.tToNum(type);
 	let l = value.length;
 	if (type === 'ASCII') l++;
 	else if (type === 'RATIONAL' || type === 'SRATIONAL') l /= 2;
-	if (tag === 273) {
+	if (tag === 273 || tag === 330) { /* special cases */
 		let e = { 
 			xtag: tag,
 			tag: [ 0, 0 ],
@@ -3278,13 +3291,13 @@ addEntry(tag, type, value) {
 			type: [ 0, 0 ],
 			xcount: l,
 			count: [ 0, 0, 0, 0 ],
-			ptr: -1
+			ptr: value[0]
 		};
 		TIFFOut.writeshorttoout(e.tag, tag, 0);
 		TIFFOut.writeshorttoout(e.type, x.t, 0);
 		TIFFOut.writeinttoout(e.count, l, 0);
 		this.#entrys.push(e);
-	} else if (l * x.l <= 4) {
+	} else if (l * x.l <= 4) { /* fits into data */
 		let e = {
 			xtag: tag,
 			tag: [ 0, 0 ],
@@ -3314,7 +3327,7 @@ addEntry(tag, type, value) {
 		}
 		this.#entrys.push(e);
 	}
-	else {
+	else { /* data accessed via pointer */
 		let e = { 
 			xtag: tag,
 			tag: [ 0, 0 ],
@@ -3330,14 +3343,14 @@ addEntry(tag, type, value) {
 		if (type === 'BYTE' || type === 'SBYTE' || type === 'UNDEFINED') {
 			for (let k=0; k<l; k++) this.#dyndata.push(value[k]);
 			this.#currentoff += l;
-			while (this.#currentoff % 4) {
+			while (this.#currentoff % 4) { // alignment
 				this.#dyndata.push(0); this.#currentoff++;
 			}
 		} else if (type === 'ASCII') {
 			for (let k=0; k<l-1; k++) this.#dyndata.push(value.charCodeAt(k) % 256);
 			this.#dyndata.push(0);
 			this.#currentoff += l;
-			while (this.#currentoff % 4) {
+			while (this.#currentoff % 4) { // alignment
 				this.#dyndata.push(0); this.#currentoff++;
 			}
 		} else if (type === 'LONG') {
@@ -3359,7 +3372,9 @@ addEntry(tag, type, value) {
 				TIFFOut.writeinttoout(this.#dyndata, value[k], this.#currentoff);
 				this.#currentoff += 2;
 			}
-			if (this.#currentoff % 4) this.#currentoff = ((this.#currentoff + 4) & 0xFFFFFFFC);
+			while (this.#currentoff % 4) { // alignment
+				this.#dyndata.push(0); this.#currentoff++;
+			}
 		} else if (type === 'SSHORT') {
 			for (let k = 0; k < l; k++) {
 				this.#dyndata.push(0); this.#dyndata.push(0);
@@ -3367,7 +3382,9 @@ addEntry(tag, type, value) {
 				else TIFFOut.writeinttoout(this.#dyndata, value[k], this.#currentoff);
 				this.#currentoff += 2;
 			}
-			if (this.#currentoff % 4) this.#currentoff = ((this.#currentoff + 4) & 0xFFFFFFFC);
+			while (this.#currentoff % 4) { // alignment
+				this.#dyndata.push(0); this.#currentoff++;
+			}
 		} else if (type === 'RATIONAL') {
 			for (let k = 0; k < l; k++) {
 				this.#dyndata.push(0); this.#dyndata.push(0); this.#dyndata.push(0); this.#dyndata.push(0);
@@ -3391,6 +3408,7 @@ addEntry(tag, type, value) {
 		this.#entrys.push(e);
 	}
 }
+/* illegal overload of data */
 addEntryRelative(tag, reltag, offset) {
 	let o = null;
 	for (const e of this.#entrys) {
@@ -3430,12 +3448,16 @@ addEntryRelative(tag, reltag, offset) {
 	TIFFOut.writeinttoout(e.count, (o.xcount - offset), 0);
 	this.#entrys.push(e);
 }
+/* get data for this ifd, shifted to actual offset in file */
 getData(offset) {
 	let ioff = 2 + this.#imglen;
-	for (let z=0; z<this.#imgdata.byteLength; z++)
-		this.#data[z] = this.#imgdata.getUint8(z);
-	//let e = this.#imgdata.buffer;
-	//this.#data.set(this.#imgdata.buffer, 0);
+	if (this.#imgdata.byteLength) {
+		for (let z=0; z<this.#imgdata.byteLength; z++)
+			this.#data[z] = this.#imgdata.getUint8(z);
+	} else {
+		for (let z=0; z<this.#imgdata.length; z++)
+			this.#data[z] = this.#imgdata[z];
+	}
 	TIFFOut.writeshorttoout(this.#data, this.#entrys.length, this.#imglen);
 	for (const i of this.#entrys.sort(function(a,b) { return a.xtag - b.xtag; })) {
 		this.#data.set(i.tag, ioff);
@@ -3443,7 +3465,7 @@ getData(offset) {
 		this.#data.set(i.count, ioff + 4);
 		if (undefined !== i.value) {
 			this.#data.set(i.value, ioff + 8);
-		} else if (i.ptr === -1) {
+		} else if (i.ptr === 0xFFFFFFFF) { /* strip offsets is set here, subifd (-2) outside */
 			let parr = [ 0, 0, 0, 0 ];
 			TIFFOut.writeinttoout(parr, offset, 0);
 			this.#data.set(parr, ioff + 8);
@@ -3457,17 +3479,24 @@ getData(offset) {
 		ioff += 12;
 	}
 	let oarr = [ 0, 0, 0, 0 ];
-	// next ifd
+	// next ifd - stays zero if has sub ifd
 	this.#data.set(oarr, ioff);
 	ioff += 4;
 	this.#data.set(this.#dyndata, ioff);
 	return this.#data.slice(0, ioff + this.#currentoff);
 }
+/* tiff directory is placed after image data */
 getOffset() {
 	return this.#imglen;
 }
+/* if has sub ifd, then return that */
 getNextIfdPosOffset() {
-	return this.#imglen + 2 + (12 * this.#entrys.length);
+	if (this.hassub) {
+		const i = this.#entrys.findIndex(v => v.xtag === 330);
+		return this.#imglen + 2 + (12 * i) + 8;
+	} else {
+		return this.#imglen + 2 + (12 * this.#entrys.length);
+	}
 }
 /* Indentation in - end of class IFD */
 };
@@ -3476,21 +3505,34 @@ class TIFFOut {
 #ifds = [];
 #currentifd = null;
 #data = new Uint8Array(20000000);
+/* add an ifd */
 addIfd() {
 	if (null !== this.#currentifd) {
 		this.#ifds.push(this.#currentifd);
 	}
-	this.#currentifd = new IFD();
+	this.#currentifd = new IFDOut();
 }
+/* add sub ifd */
+addSubIfd() {
+	if (null !== this.#currentifd) {
+		this.#currentifd.hassub = true;
+		this.#currentifd.addEntry(330, 'LONG', [ 0xFFFFFFFE ]); /* subifd, special */
+	}
+	this.addIfd();
+}
+/* add image data to current ifd */
 addImageStrip(typ, view, width, height) {
 	this.#currentifd.addImageStrip(typ, view, width, height);
 }
+/* add an entry to current ifd */
 addEntry(tag, type, data) {
 	this.#currentifd.addEntry(tag, type, data);
 }
+/* illegal overload of data */
 addEntryRelative(tag, reltag, offset) {
 	this.#currentifd.addEntryRelative(tag, reltag, offset);
 }
+/* map string type to tiff id */
 static types = [
 	{ n: 'BYTE', t: 1, l: 1 },
 	{ n: 'ASCII', t: 2, l: 1 },
@@ -3505,6 +3547,7 @@ static types = [
 	//{ n: 'BYTE', t: 11, l: 4 },
 	//{ n: 'BYTE', t: 12, l: 8 },
 ];
+/* map string type to tiff id */
 static tToNum(type) {
 	return (TIFFOut.types.filter(v =>  v.n === type )[0]);
 }
@@ -3513,10 +3556,12 @@ static writeinttoout(out, num, off) {
 	TIFFOut.writeshorttoout(out, num % 65536, off);
 	TIFFOut.writeshorttoout(out, (Math.floor(num / 65536)) % 65536, off+2);
 }
+/* helper function to put short integer into dng */
 static writeshorttoout(out, num, off) {
 	out[off] = (num % 256);
 	out[off + 1] = Math.floor(num / 256) % 256;
 }
+/* return the tiff binary data */
 getData() {
 	if (null !== this.#currentifd) {
 		this.#ifds.push(this.#currentifd);
@@ -3544,7 +3589,6 @@ function init() {
 	imbc.querylang(window.location.pathname);
 	imbc.xlateall();
 	imbc.checkimb();
-	//document.getElementById('mainversion').innerHTML = imbc.#version;
 }
 /* node js handling main function */
 if (typeof process !== 'undefined') {
