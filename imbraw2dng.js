@@ -153,7 +153,7 @@ constructor() {
 			dngimpnote: {
 				de: 'Import eines DNG geht nur, wenn diese genau das hiermit erzeugte Original ist.',
 				en: 'Re-import of a DNG is only possible if this is exactly the original that was created here.',
-				fr: 'La réimportation d’un DNG n’est possible que s’il s’agit exactement de l’original créé ici.'
+				fr: 'La réimportation d\'un DNG n\'est possible que s\'il s\'agit exactement de l\'original créé ici.'
 			},
 			de: 'Datei $$0',
 			en: 'File $$0',
@@ -195,7 +195,7 @@ constructor() {
 			tooltip: {
 				de: 'Wenn Haken nicht gesetzt, wähle alles aus. Bei Klick wenn angehakt setze Auswahl auf Nichts.',
 				en: 'If not selected then select all. If it is selected and clicked then unselect all.',
-				fr: 'S’il n’est pas sélectionner, sélectionner tout. Au clic si sélectionné, vider la sélection'
+				fr: 'S\'il n\'est pas sélectionner, sélectionner tout. Au clic si sélectionné, vider la sélection'
 			},
 			de: 'Alle de-/ oder selektieren',
 			en: 'De-/select all',
