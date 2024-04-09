@@ -13,7 +13,7 @@ oder [AUF DEUTSCH](https://shyrodgau.github.io/imbraw2dng/README_de)
 
 ## Installation
 
-The current release is [V3.3.0_2087006 - remove evil matrix](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.3.0_2087006). 
+The current release is [V3.4.0_c322e96 - overwork](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.3.0_2087006). 
 Note: further development when errors reported, new translation contributed or new image format.
 
 Copy the [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.html) file to your PC or extract it from the release 
