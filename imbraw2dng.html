@@ -538,10 +538,6 @@ constructor() {
 			en: 'Skip',
 			fr: 'Sauter'
 		},
-		/*wait: {
-			de: 'w a r t e . . .',
-			en: 'w a i t . . .'
-		},*/
 		forall: {
 			de: 'Für alle weiteren das selbe',
 			en: 'Do this for all following',
@@ -689,14 +685,14 @@ constructor() {
 #connmsg = false;
 // generic user input timestamp (any prefix)
 //           y      y     y     y      .      m     m     .      d      d      .      h     h      .      m     m      .      s     s
-#tsregex = /^[02-3]([0-9]([0-9]([0-9](([^0-9])[01]([0-9](([^0-9])[0123]([0-9](([^0-9])[012]([0-9](([^0-9])[0-5]([0-9](([^0-9])[0-5]([0-9])?)?)?)?)?)?)?)?)?)?)?)?)?$/
+#tsregex = /^[02-3]([0-9]([0-9]([0-9](([^0-9])[01]([0-9](([^0-9])[0123]([0-9](([^0-9])[012]([0-9](([^0-9])[0-5]([0-9](([^0-9])[0-5]([0-9])?)?)?)?)?)?)?)?)?)?)?)?)?$/ // actually const
 /* Data for the Imback variants and exif stuff */
 // generic imb filename format
 //            y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s            EXT
-#fnregex = /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])(.*[.])([^.]*)$/
+#fnregex = /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])(.*[.])([^.]*)$/ // actually const
 // generic imb filename format, only timestamp
 //             y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s
-#fnregexx = /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])/
+#fnregexx = /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])/ // actually const
 #orients = [ '', 'none', '', 'upsidedown', '', '', 'clockwise', '', 'counterclockwise' ]; // actually const
 #oriecw = [ 1, 6, 3, 8 ]; // clockwise indices // actually const
 #types = [ "unknown", "ImB35mm", "MF 6x7 ", "MF6x4.5", "MF 6x6 " ]; // all length 7, actually const
@@ -815,6 +811,13 @@ constructor() {
 #deletephase = 0;
 /* debug */
 #debugflag = false;
+/* primitive basename helper */
+#basename(n) {
+	while (n.lastIndexOf("/") > -1) {
+		n = n.substring(n.lastIndexOf("/") + 1);
+	}
+	return n;
+}
 /* helper to append message */
 #appendmsg(msg)  {
 	if (document) {
@@ -1234,10 +1237,7 @@ setpvwait() {
 			document.getElementById('forrest').style['display'] = '';
 		} else document.getElementById('forrest').style['display'] = 'none';
 	}
-	let rawname = f.url ? f.url : (f.name ? f.name : f);
-	while (rawname.lastIndexOf("/") > -1) {
-		rawname = rawname.substring(rawname.lastIndexOf("/") + 1);
-	}
+	let rawname = this.#basename(f.url ? f.url : (f.name ? f.name : f));
 	if (this.#stepmode === 2) {
 		// skip rest
 		this.shownormal();
@@ -1369,10 +1369,7 @@ setpvwait() {
 		});
 		return;
 	}
-	let rawname = f.name;
-	while (rawname.lastIndexOf("/") > -1) {
-		rawname = rawname.substring(rawname.lastIndexOf("/") + 1);
-	}
+	let rawname = this.#basename(f.name);
 	if (rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
 		this.#mappx('process.processing', rawname);
 		if (document) this.#appendmsg('<br>');
@@ -1891,9 +1888,7 @@ skipthis() {
 		this.#mappx('process.skipped.remaining', this.#totnum - this.#actnum);
 		this.#stats.skipped += (this.#totnum - this.#actnum);
 	} else {
-		let rawname = this.#allfiles[this.#actnum].name ? this.#allfiles[this.#actnum].name : this.#allfiles[this.#actnum];
-		while (rawname.lastIndexOf("/") > -1) 
-			rawname = rawname.substring(rawname.lastIndexOf("/") + 1);
+		let rawname = this.#basename(this.#allfiles[this.#actnum].name ? this.#allfiles[this.#actnum].name : this.#allfiles[this.#actnum]);
 		this.#mappx('process.skipped', rawname);
 		this.#appendnl();
 		this.#stats.skipped ++;
@@ -1939,9 +1934,7 @@ rot0() {
 }
 /* handle on entry from imb PHOTO/MOVIE listing page */
 #handle1imb(url) {
-	let rawname = url;
-	while (rawname.lastIndexOf("/") > -1)
-		rawname = rawname.substring(rawname.lastIndexOf("/") + 1);
+	let rawname = this.#basename(url);
 	if (rawname.substring(0,10).toUpperCase() === 'IMBRAW2DNG') return;
 	let timestx = this.#fnregex.exec(rawname);
 	let timest = null, cl = '9999_99_99-99';
@@ -2157,9 +2150,7 @@ imbdoit() {
 	if ((document && document.getElementById('rpicfromimb').checked) ||
 		(this.#typeflags % 2)) {
 		for (const e of this.#rimbpics) {
-			let rawname = e;
-			while (rawname.lastIndexOf("/") > -1)
-				rawname = rawname.substring(rawname.lastIndexOf("/") + 1);
+			let rawname = this.#basename(e);
 			if (this.#comptime(rawname, compval))
 				selecteds.push(e);
 		}
@@ -2167,9 +2158,7 @@ imbdoit() {
 	if ((document && document.getElementById('picfromimb').checked) ||
 		((this.#typeflags % 4) > 1)) {
 		for (const e of this.#imbpics) {
-			let rawname = e;
-			while (rawname.lastIndexOf("/") > -1)
-				rawname = rawname.substring(rawname.lastIndexOf("/") + 1);
+			let rawname = this.#basename(e);
 			if (this.#comptime(rawname, compval))
 				selecteds.push(e);
 		}
@@ -2177,20 +2166,14 @@ imbdoit() {
 	if ((document && document.getElementById('movfromimb').checked) ||
 		((this.#typeflags % 8) > 3)) {
 		for (const e of this.#imbmovies) {
-			let rawname = e;
-			while (rawname.lastIndexOf("/") > -1)
-				rawname = rawname.substring(rawname.lastIndexOf("/") + 1);
+			let rawname = this.#basename(e);
 			if (this.#comptime(rawname, compval))
 				selecteds.push(e);
 		}
 	}
 	selecteds.sort((a, b) => {
-		let ra = a;
-		let rb = b;
-		while (ra.lastIndexOf("/") > -1)
-			ra = ra.substring(ra.lastIndexOf("/") + 1);
-		while (rb.lastIndexOf("/") > -1)
-			rb = rb.substring(rb.lastIndexOf("/") + 1);
+		let ra = this.#basename(a);
+		let rb = this.#basename(b);
 		if (ra < rb) return -1;
 		else if (ra === rb) return 0;
 		else return 1;
@@ -2714,9 +2697,7 @@ topreccheck(force) {
 	e.entry.id = 'div_' + e.raw + '_X';
 	e.entry.classList.add('ee');
 	e.entry.classList.add(e.type);
-	let rawname = e.url;
-	while (rawname.lastIndexOf("/") > -1)
-		rawname = rawname.substring(rawname.lastIndexOf("/") + 1);
+	let rawname = this.basename(e.url);
 	e.entry.classList.add('ET_' + e.type + rawname.substring(0,12));
 	e.entry.classList.add('EY_' + rawname.substring(0,12));
 	const topline = document.createElement('div');
@@ -2989,12 +2970,8 @@ browserprocess() {
 		}
 	}
 	selecteds.sort((a, b) => {
-		let ra = a.url;
-		let rb = b.url;
-		while (ra.lastIndexOf("/") > -1)
-			ra = ra.substring(ra.lastIndexOf("/") + 1);
-		while (rb.lastIndexOf("/") > -1)
-			rb = rb.substring(rb.lastIndexOf("/") + 1);
+		let ra = this.#basename(a.url);
+		let rb = this.#basename(b.url);
 		if (ra < rb) return -1;
 		else if (ra === rb) return 0;
 		else return 1;
@@ -3185,8 +3162,7 @@ querylang(name, offset) {
 }
 /* nodejs: show help */
 #help(caller) {
-	while (caller.lastIndexOf("/") > -1)
-		caller = caller.substring(caller.lastIndexOf("/") + 1);
+	caller = this.#basename(caller);
 	let texts = this.#xl0('node.help');
 	console.log(this.#subst(texts[0], this.#version));
 	console.log(this.#subst(texts[1], caller));
