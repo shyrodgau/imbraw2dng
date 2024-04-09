@@ -1157,10 +1157,10 @@ setpvwait() {
 		imbackextension: true,
 		name: url
 	};
-	const ii = this.cache.findIndex((v) => (v.url === url));
+	const ii = this.#cache.findIndex((v) => (v.url === url));
 	if (ii !== -1) {
-		fx.data = this.cache[ii].d;
-		fx.size = this.cache[ii].l;
+		fx.data = this.#cache[ii].d;
+		fx.size = this.#cache[ii].l;
 		fx.readAsArrayBuffer = (fy) => {
 			fy.onload({
 				target: {
@@ -2353,7 +2353,7 @@ showbrowser() {
 	if (document) {
 		document.getElementById('brnsel').innerHTML = '0';
 		document.getElementById('brntot').innerHTML = '' + this.#imbeles.length;
-		this.#buildtree();
+		this.buildtree();
 	}
 	/* debug * /
 	if (debugflag) {
@@ -2362,7 +2362,7 @@ showbrowser() {
 	} */
 }
 /* visual browser: build ordered lists */
-#buildtree() {
+buildtree() {
 	let list, toplevel;
 	if (document.getElementById('sbytype').checked) {
 		list = this.#typedclasses;
@@ -2697,7 +2697,7 @@ topreccheck(force) {
 	e.entry.id = 'div_' + e.raw + '_X';
 	e.entry.classList.add('ee');
 	e.entry.classList.add(e.type);
-	let rawname = this.basename(e.url);
+	let rawname = this.#basename(e.url);
 	e.entry.classList.add('ET_' + e.type + rawname.substring(0,12));
 	e.entry.classList.add('EY_' + rawname.substring(0,12));
 	const topline = document.createElement('div');
@@ -2910,7 +2910,7 @@ topreccheck(force) {
 	}
 }
 /* visual browser: delete browser selected */
-#browserdelete() {
+browserdelete() {
 	document.getElementById('del_text').setAttribute('data-myxlarg0', this.#imbeles.filter((o) => o.selected).length);
 	this.#xl1(document.getElementById('del_text'));
 	document.getElementById('delq').style['display'] = '';
@@ -3765,7 +3765,8 @@ if (typeof process !== 'undefined') {
 <!-- normal preview with question -->
 <div id="question" style="display:none;background-color:#ddffaa;border: 5px solid #33ff33; border-radius: 10px;width: fit-content;padding:2em;">
 <div style="font-weight:bold;" id="qhdr">&nbsp;</div>
-<canvas id="preview"></canvas><img style="display:none;max-width:550px; max-height:550px;" id="jpegpreview" onload="imbc.setjpegpv()" onerror="imbc.setpverr()"><div id="previewerr" data-myxlkey="preview.err"></div><div id="previewwait"><span class="blink">.</span><span class="blink2">.</span><span class="blink3">.</span></div><br>
+<canvas id="preview"></canvas><img style="display:none;max-width:550px; max-height:550px;" id="jpegpreview" onload="imbc.setjpegpv()" onerror="imbc.setpverr()"><div id="previewerr" data-myxlkey="preview.err"></div><div id="previewwait">
+<span class="blink">.</span><span class="blink2">.</span><span class="blink3">.</span></div><br>
 <div id="rotations"><input type="button" id="procthiscw" data-myvalxlkey="preview.rotcw" onclick="imbc.rotcw()" style="padding:0.5em; margin:0.5em;margin-left:2.5em;">
 <input type="button" id="procthisccw" data-myvalxlkey="preview.rotccw" onclick="imbc.rotccw()" style="padding:0.5em; margin:0.5em;">
 <input type="button" id="procthisud" data-myvalxlkey="preview.rot180" onclick="imbc.rot180()" style="padding:0.5em; margin:0.5em;" >
@@ -3778,8 +3779,11 @@ if (typeof process !== 'undefined') {
 <!-- this is the picture browser, generated content appended -->
 <div id="browser" style="background-color:#ffccbb;border: 5px solid #ff8833; border-radius: 10px;width: 90%;padding-left:2em;padding-right:2em;padding-top:1em; padding-bottom:1em;display:none;flex-direction:column;">
 <span id="browserx" style="position: fixed; right:9%;"><input type="button" value="X" style="font-weight: bold; font-size: 110%; border: 0.2px solid red; background-color: rgba(230,230,230,0.7);" onclick="imbc.shownormal()"></span>
-<div style="margin-bottom:1em;"><span data-myxlkey="main.sort"></span>: <label for="sbytype"><input type="checkbox" id="sbytype" onclick="imbc.buildtree()"><span data-myxlkey="browser.bytype"></span></label> - <label for="solder"><input type="checkbox" id="solder" onclick="imbc.buildtree()"><span data-myxlkey="browser.olderfirst"></span></label>
- - <span data-myxlkey="main.selected"></span>: <span id="brnsel" class="selnumber">?</span> / <span id="brntot">?</span> - <label for="selall" data-mytitlexlkey="browser.selall.tooltip"><input onclick="imbc.topreccheck()" type="checkbox" id="selall"><span data-myxlkey="browser.selall"></span></label> - <input type="button" data-myvalxlkey="browser.procall" onclick="imbc.browserprocess()" id="doselbut"> - <input type="button" data-myvalxlkey="browser.delall" onclick="imbc.browserdelete()" id="delselbut" disabled></div> 
+<div style="margin-bottom:1em;"><span data-myxlkey="main.sort"></span>: <label for="sbytype"><input type="checkbox" id="sbytype" onclick="imbc.buildtree()"><span data-myxlkey="browser.bytype"></span></label> - <label for="solder">
+<input type="checkbox" id="solder" onclick="imbc.buildtree()"><span data-myxlkey="browser.olderfirst"></span></label>
+ - <span data-myxlkey="main.selected"></span>: <span id="brnsel" class="selnumber">?</span> / <span id="brntot">?</span> - <label for="selall" data-mytitlexlkey="browser.selall.tooltip">
+ <input onclick="imbc.topreccheck()" type="checkbox" id="selall"><span data-myxlkey="browser.selall"></span></label> - <input type="button" data-myvalxlkey="browser.procall" onclick="imbc.browserprocess()" id="doselbut"> - 
+ <input type="button" data-myvalxlkey="browser.delall" onclick="imbc.browserdelete()" id="delselbut" disabled></div> 
 </div>
 <!-- end of the picture browser, generated content appended -->
 <!-- this is the delete question/progress -->

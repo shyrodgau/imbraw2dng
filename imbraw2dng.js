@@ -1066,10 +1066,10 @@ setpvwait() {
 		imbackextension: true,
 		name: url
 	};
-	const ii = this.cache.findIndex((v) => (v.url === url));
+	const ii = this.#cache.findIndex((v) => (v.url === url));
 	if (ii !== -1) {
-		fx.data = this.cache[ii].d;
-		fx.size = this.cache[ii].l;
+		fx.data = this.#cache[ii].d;
+		fx.size = this.#cache[ii].l;
 		fx.readAsArrayBuffer = (fy) => {
 			fy.onload({
 				target: {
@@ -2262,7 +2262,7 @@ showbrowser() {
 	if (document) {
 		document.getElementById('brnsel').innerHTML = '0';
 		document.getElementById('brntot').innerHTML = '' + this.#imbeles.length;
-		this.#buildtree();
+		this.buildtree();
 	}
 	/* debug * /
 	if (debugflag) {
@@ -2271,7 +2271,7 @@ showbrowser() {
 	} */
 }
 /* visual browser: build ordered lists */
-#buildtree() {
+buildtree() {
 	let list, toplevel;
 	if (document.getElementById('sbytype').checked) {
 		list = this.#typedclasses;
@@ -2606,7 +2606,7 @@ topreccheck(force) {
 	e.entry.id = 'div_' + e.raw + '_X';
 	e.entry.classList.add('ee');
 	e.entry.classList.add(e.type);
-	let rawname = this.basename(e.url);
+	let rawname = this.#basename(e.url);
 	e.entry.classList.add('ET_' + e.type + rawname.substring(0,12));
 	e.entry.classList.add('EY_' + rawname.substring(0,12));
 	const topline = document.createElement('div');
@@ -2819,7 +2819,7 @@ topreccheck(force) {
 	}
 }
 /* visual browser: delete browser selected */
-#browserdelete() {
+browserdelete() {
 	document.getElementById('del_text').setAttribute('data-myxlarg0', this.#imbeles.filter((o) => o.selected).length);
 	this.#xl1(document.getElementById('del_text'));
 	document.getElementById('delq').style['display'] = '';
