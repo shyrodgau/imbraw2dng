@@ -899,17 +899,31 @@ setpvwait() {
 	const v = new DataView(f.data);
 	const ifd = this.#readint(v, 4);
 	const zz = this.#infos.findIndex((v, i, o) => v.size === ifd - 8);
-	if (this.#readshort(v, 2) !== 42 || this.#readshort(v,0) !== 18761 /* 0x4949 */ || zz === -1)
-		return onerr(f.name);
 	const nent = this.#readshort(v, ifd);
+	let datalen = ifd - 8, dataoff = 8;
+	let off = ifd+2;
+	if (this.#readshort(v, 2) !== 42 || this.#readshort(v,0) !== 18761 /* 0x4949 */ || zz === -1) {
+		// seek private tags
+		for (let k=0; k<((nent<50)? nent: 0); k++) {
+			let tag = this.#readshort(v, off);
+			if (tag === 65042) {
+				datalen = this.#readint(v, off+8);
+			} else if (tag === 65420)
+				dataoff = this.#readint(v, off+8);
+			off += 12;
+		}
+		const zzz = this.#infos.findIndex((v, i, o) => v.size === datalen);
+		if (8 === dataoff || zzz === -1)
+			return onerr(f.name);
+	}
 	let fx = {
 		imbackextension: true,
 		name: f.name + '_X.raw',
-		size: ifd - 8,
-		data: f.data.slice(8, ifd)
+		size: datalen,
+		data: f.data.slice(dataoff, datalen + dataoff)
 	};
-	let off = ifd+2;
-	for (let k=0; k<((nent<30)? nent: 0); k++) {
+	off = ifd+2;
+	for (let k=0; k<((nent<50)? nent: 0); k++) {
 		let tag = this.#readshort(v, off);
 		if (tag === 274)
 			fx.rot = this.#readshort(v, off+8); // rotation handling has problems
@@ -1349,10 +1363,11 @@ setpvwait() {
 			this.#mappx('process.datetime', datestr);
 			if (document) this.#appendmsg('<br>');
 		}
-		if (orientation !== undefined && orientation !== 1) {
+		let ori = orientation ? orientation : 1;
+		if (ori !== 1) {
 			this.#mappx('process.orientation');
 			if (document) {
-				this.#appendmsgx(this.#genspan('preview.orients.' + this.#orients[orientation]));
+				this.#appendmsgx(this.#genspan('preview.orients.' + this.#orients[ori]));
 				this.#appendmsg('<br>');
 			}
 		}
@@ -1362,14 +1377,14 @@ setpvwait() {
 		const out = new Uint8Array(f.size + (dateok ? 486: 442) + rawnamearr.length + veroff);
 		let ti = new TIFFOut();
 		ti.addIfd();
-		ti.addImageStrip(1, this.#buildpvarray(view, typ, w, h, orientation ? 1 : orientation, false), w/32, h/32);
+		ti.addImageStrip(1, this.#buildpvarray(view, typ, w, h, ori, false), (ori === 6||ori === 8)? h/32:w/32, (ori === 6||ori === 8)? w/32: h/32);
 		ti.addEntry(258 , 'SHORT', [ 8 ]); /* BitsPerSample */
 		ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression */
 		ti.addEntry(262, 'SHORT', [ 2 ]); /* Photometric */
 		ti.addEntry(271, 'ASCII', 'ImBack'); /* Make */
 		ti.addEntry(50708, 'ASCII', 'ImBack' + ' ' + this.#types[typ]); /* Unique model */
 		ti.addEntryRelative(272, 50708, 7); /* Model */
-		ti.addEntry(274, 'SHORT', [ undefined == orientation ? 1 : orientation ]); /* Orientation */
+		ti.addEntry(274, 'SHORT', [ ori ]); /* Orientation */
 		ti.addEntry(277, 'SHORT', [ 3 ]); /* Samples per Pixel */
 		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config */
 		ti.addEntry(305, 'ASCII', 'imbraw2dng ' + this.#version); /* SW and version */
@@ -1385,6 +1400,8 @@ setpvwait() {
 		ti.addEntry(50827, 'BYTE', rawnamearr); /* Raw file name */
 		ti.addEntry(50932, 'ASCII', 'Generic Imback converted profile'); /* Profile calibration signature */
 		ti.addEntry(50931, 'ASCII', 'Generic Imback converted profile'); /* Camera calibration signature */
+		ti.addEntry(65042, 'UNDEFINED', [ 0xFF, 0xFF, 0xFF, 0xFD ]); /* PRIVATE, will be length of raw data */
+		ti.addEntry(65420, 'UNDEFINED', [ 0xFF, 0xFF, 0xFF, 0xFB ]); /* PRIVATE, will be offset of raw data */
 		ti.addSubIfd();
 		ti.addImageStrip(0, view, w, h);
 		ti.addEntry(258 , 'SHORT', [ 8 ]); /* BitsPerSample */
@@ -3266,6 +3283,9 @@ class IFDOut {
 #imglen = 0;
 #data = new Uint8Array(20000000);
 #dyndata = [] ; //new Uint8Array(20000);
+/* position where the raw length / start offset must be placed in the private tags */
+rawlenpos = -1;
+rawoffpos = -1;
 /* add image data to ifd */
 addImageStrip(typ, view, width, height) {
 	this.#imgdata = view;
@@ -3463,17 +3483,19 @@ getData(offset) {
 		this.#data.set(i.tag, ioff);
 		this.#data.set(i.type, ioff + 2);
 		this.#data.set(i.count, ioff + 4);
-		if (undefined !== i.value) {
-			this.#data.set(i.value, ioff + 8);
-		} else if (i.ptr === 0xFFFFFFFF) { /* strip offsets is set here, subifd (-2) outside */
+		if (i.xtag === 273) { /* strip offsets is set here, subifd (-2) and private stuff outside */
 			let parr = [ 0, 0, 0, 0 ];
 			TIFFOut.writeinttoout(parr, offset, 0);
 			this.#data.set(parr, ioff + 8);
-			//console.log('Write ptr tag ' + i.xtag +  ' type ' + i.type + ' * ' + i.xcount + ' :' + i.ptr);
+		} else if (i.xtag === 65042) {
+			this.rawlenpos = offset + ioff + 8;
+		} else if (i.xtag === 65420) {
+			this.rawoffpos = offset + ioff + 8;
+		} else if (undefined !== i.value) {
+			this.#data.set(i.value, ioff + 8);
 		} else {
 			let parr = [ 0, 0, 0, 0 ];
 			TIFFOut.writeinttoout(parr, i.ptr + offset + this.#imglen + 6 + (12 * this.#entrys.length), 0);
-			//console.log('Write ptr tag ' + i.xtag +  ' type ' + i.type + ' * ' + i.xcount + ' :' + i.ptr + ' (offset ' + (i.ptr + offset + this.#imglen + 6 + (12 * this.#entrys.length)) + ' )');
 			this.#data.set(parr, ioff + 8);
 		}
 		ioff += 12;
@@ -3505,12 +3527,14 @@ class TIFFOut {
 #ifds = [];
 #currentifd = null;
 #data = new Uint8Array(20000000);
+#rawdatalen = -1;
 /* add an ifd */
-addIfd() {
+addIfd(issub) {
 	if (null !== this.#currentifd) {
 		this.#ifds.push(this.#currentifd);
 	}
 	this.#currentifd = new IFDOut();
+	if (issub) this.#currentifd.issub = true;
 }
 /* add sub ifd */
 addSubIfd() {
@@ -3518,11 +3542,12 @@ addSubIfd() {
 		this.#currentifd.hassub = true;
 		this.#currentifd.addEntry(330, 'LONG', [ 0xFFFFFFFE ]); /* subifd, special */
 	}
-	this.addIfd();
+	this.addIfd(true);
 }
 /* add image data to current ifd */
 addImageStrip(typ, view, width, height) {
 	this.#currentifd.addImageStrip(typ, view, width, height);
+	if (0 === typ) this.#rawdatalen = view.byteLength;
 }
 /* add an entry to current ifd */
 addEntry(tag, type, data) {
@@ -3570,7 +3595,9 @@ getData() {
 	TIFFOut.writeshorttoout(this.#data, 42, 2);
 	let lastoffpos = 4;
 	let lastlen = 8;
+	let rawdatastart = -1; // for the private tags
 	for (const i of this.#ifds) {
+		if (i.issub) rawdatastart = lastlen; // raw data is at start of sub ifd
 		TIFFOut.writeinttoout(this.#data, i.getOffset() + lastlen, lastoffpos);
 		let d = i.getData(lastlen);
 		this.#data.set(d, lastlen);
@@ -3578,6 +3605,8 @@ getData() {
 		lastlen += d.length;
 	}
 	TIFFOut.writeinttoout(this.#data, 0, lastoffpos);
+	TIFFOut.writeinttoout(this.#data, rawdatastart, this.#ifds[0].rawoffpos);
+	TIFFOut.writeinttoout(this.#data, this.#rawdatalen, this.#ifds[0].rawlenpos);
 	return this.#data.slice(0, lastlen);
 }
 /* Indentation in - end of class TIFFOut */
