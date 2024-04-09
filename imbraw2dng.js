@@ -55,7 +55,7 @@ constructor() {
 		if (process.platform.substring(0,3) === 'win') this.#withcolours = false;
 	}
 }
-#version = "V3.4.0_c322e96"; // actually const
+#version = "V3.4.1_DEV"; // actually const
 #alllangs = [ 'de' , 'en', 'fr', 'ru', '00' ]; // actually const
 #texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU' },
@@ -978,29 +978,26 @@ setpvwait() {
 		});
 	}
 	else {
-		// read local file
-		this.fs.readFile(url, (err, data) => {
-				if (err) {
-					this.#mappx('process.erraccess' + (!document ? 'x' : ''), url);
-					console.log(JSON.stringify(err));
-					return onerr(url, fx);
-				}
-				else {
-					fx.size = data.length;
-					let ab = new ArrayBuffer(data.byteLength);
-					let ua = new Uint8Array(ab);
-					for (let j=0; j < data.byteLength; j++)
-						ua[j] = data[j];
-					fx.data = ab;
-					fx.readAsArrayBuffer = (fy) => {
-						fy.onload({
-								target: { result: fy.data }
-						});
-					};
-					setTimeout(() => {
-							onok(url, fx);
-					});
-				}
+		// read local (or cifs/nfs...) file
+		let ab = new ArrayBuffer(20000000);
+		let ua = new Uint8Array(ab);
+		let len = 0;
+		const str = this.fs.createReadStream(url, { highWaterMark: 20*1024*1024 });
+		str.on('error', () => onerr(url,fx));
+		str.on('data', (chunk) =>  {
+			ua.set(chunk, len);
+			len += chunk.length;
+			fx.size = len;
+			fx.data = ab.slice(0, len);
+			fx.readAsArrayBuffer = (fy) => {
+				fy.onload({
+						target: { result: fy.data }
+				});
+			};
+			setTimeout(() => {
+					str.close();
+					onok(url, fx);
+			});
 		});
 	}
 }
@@ -1380,13 +1377,16 @@ setpvwait() {
 		if (dateok) ti.addEntryRelative(36867, 306, 0); /* Original date time */
 		ti.addEntry(33421, 'SHORT', [ 2, 2 ]); /* CFA Repeat Pattern Dim */
 		ti.addEntry(33422, 'BYTE', [ 1, 0, 2, 1 ]); /* CFA Pattern */
-		ti.addEntry(50706, 'BYTE', [ 1, 1, 0, 0 ]); /* DNG Version */
+		ti.addEntry(50706, 'BYTE', [ 1, 2, 0, 0 ]); /* DNG Version */
 		ti.addEntry(50707, 'BYTE', [ 1, 0, 0, 0 ]); /* DNG Backward Version */
 		ti.addEntry(50717, 'LONG', [ 255 ]); /* White level */
-		ti.addEntry(50721, 'SRATIONAL', [ 19624, 10000, -6105, 10000, -34134, 100000, -97877, 100000, 191614, 100000, 3345, 100000, 28687, 1000000, -1468, 10000, 1348676, 1000000 ]); /* Color Matrix 1 */
+		ti.addEntry(50721, 'SRATIONAL', [ 19624, 10000, -6105, 10000, -34134, 100000, -97877, 100000, 191614, 100000, 3345, 100000, 28687, 1000000, -14068, 100000, 1348676, 1000000 ]); /* Color Matrix 1 */
+		ti.addEntry(50964, 'SRATIONAL', [ 7161, 10000, 10093, 100000, 14719, 100000, 25819, 100000, 72494, 100000, 16875, 1000000, 0, 1000000, 5178, 100000, 77342, 100000 ]); /* Forward Matrix 1 */
 		ti.addEntry(50778, 'SHORT', [ 23 ]); /* Calibration Illuminant 1 */
 		ti.addEntry(50728, 'RATIONAL', [ 6, 10, 1, 1, 6, 10 ]); /* As shot neutral */
 		ti.addEntry(50827, 'BYTE', rawnamearr); /* Raw file name */
+		ti.addEntry(50932, 'ASCII', 'Generic Imback converted profile'); /* Profile calibration signature */
+		ti.addEntry(50931, 'ASCII', 'Generic Imback converted profile'); /* Camera calibration signature */
 		//let x = ti.getData();
 		this.#output1(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted', ti.getData());
 	};
