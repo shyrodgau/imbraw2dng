@@ -87,3 +87,5 @@ Options:
 DNG is a TIFF-like format and consists mainly of constant data around the original image scanlines. The data varies depending on width, height 
 (they are noted explicitly and there are a lot of offsets depending on the data length) and filename (for the OriginalRawFilename tag) of the image. 
 If the date from the ImB filename looks valid, tags (EXIFTAG_DATETIMEORIGINAL, TIFFTAG_DATETIME) are added for that. If it is from a MF ImB then the Color Filter Array is different.
+
+About colours, please also read [Processing the DNG](README#processing-the-dng).

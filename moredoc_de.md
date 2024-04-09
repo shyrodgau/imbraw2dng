@@ -99,3 +99,5 @@ DNG ist ein auf TIFF basierendes Dateiformat, das hauptsächlich konstante Daten
 ab von Breite und Höhe (die explizit drinstehen, sowie sich auf viele Offsets auswirken, die von der Gesamtlänge abhängen) sowie der Dateiename 
 (OriginalRawFilename Tag). Falls das Datum von ImB Dateinamen gültig aussieht, werden die Tags dafür (EXIFTAG_DATETIMEORIGINAL, TIFFTAG_DATETIME) 
 eingebaut. Bei Dateien von MF ist die Farbfilter-Matrix (Color Filter Array) anders.
+
+Bezüglich Farben, bitte [Verarbeitung des DNG](README_de#verarbeitung-des-dng) lesen.
