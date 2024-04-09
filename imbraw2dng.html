@@ -146,7 +146,7 @@ constructor() {
 		if (process.platform.substring(0,3) === 'win') this.#withcolours = false;
 	}
 }
-#version = "V3.5.0_30dbab0cae"; // actually const
+#version = "V3.5.1_DEV"; // actually const
 #alllangs = [ 'de' , 'en', 'fr', 'ru', '00' ]; // actually const
 #texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU' },
@@ -240,6 +240,11 @@ constructor() {
 				de: 'Datei $$0<br>Unerkannte RAW Dateigröße $$1, bitte Entwickler kontaktieren! Keine Vorschau...',
 				en: 'File $$0<br>Unknown raw size $$1, please contact developer! No preview...',
 				fr: 'Fiche $$0<br>taille de fiche $$1 non reconnue, contacter le développeur, pas de aperçu...' 
+			},
+			dngimpnote: {
+				de: 'Import eines DNG geht nur, wenn diese genau das hiermit erzeugte Original ist.',
+				en: 'Re-import of a DNG is only possible if this is exactly the original that was created here.',
+				fr: 'La réimportation d’un DNG n’est possible que s’il s’agit exactement de l’original créé ici.'
 			},
 			de: 'Datei $$0',
 			en: 'File $$0',
@@ -830,17 +835,17 @@ constructor() {
 	}
 }
 /* helper to read dng */
-/*#readshort(view, off) {
+#readshort(view, off) {
 	let res = view.getUint8(off);
 	res += (256 * view.getUint8(off+1));
 	return res;
-}*/
+}
 /* helper to read dng */
-/*#readint(view, off) {
+#readint(view, off) {
 	let res = this.#readshort(view, off);
 	res += (65536 * this.#readshort(view,off+2));
 	return res;
-}*/
+}
 /* stupid helper */
 #appendnl() {
 	if (document) this.#appendmsg('<br>&nbsp;<br>');
@@ -900,9 +905,9 @@ fselected() {
 				else for (let i of f.filter(e => e.isFile())) {
 					const n = i.name;
 					if (n.substring(0,10).toUpperCase() === 'IMBRAW2DNG') continue;
-					if (((n.substring(n.length -4).toUpperCase() === '.RAW' /*|| n.substring(n.length -4).toUpperCase() === '.DNG'*/) && (this.#typeflags % 2)) ||
+					if (((n.substring(n.length -4).toUpperCase() === '.RAW' || n.substring(n.length -4).toUpperCase() === '.DNG') && (this.#typeflags % 2)) ||
 						((n.substring(n.length -5).toUpperCase() === '.JPEG' || n.substring(n.length -4).toUpperCase() === '.JPG') && ((this.#typeflags % 4) > 1)) ||
-						(n.substring(n.length -5).toUpperCase() !== '.JPEG' && n.substring(n.length -4).toUpperCase() !== '.JPG' /*&& n.substring(n.length -4).toUpperCase() !== '.DNG'*/ &&
+						(n.substring(n.length -5).toUpperCase() !== '.JPEG' && n.substring(n.length -4).toUpperCase() !== '.JPG' && n.substring(n.length -4).toUpperCase() !== '.DNG' &&
 							n.substring(n.length -4).toUpperCase() !== '.RAW' && ((this.#typeflags % 8) > 3))) {
 						if (this.#comptime(i.name, this.#fromts))
 							already.push(i.path + this.pa.sep + i.name);
@@ -974,7 +979,7 @@ setpvwait() {
 	document.getElementById('preview').style['display'] = 'none';
 }
 /* handle dng like raw */
-/*#parseDng(f, onok, onerr) {
+#parseDng(f, onok, onerr) {
 	// blindly assumes that it is one of our own DNG
 	// interesting tags: orientation, datetime
 	if (undefined === f.data) {
@@ -991,27 +996,56 @@ setpvwait() {
 	const ifd = this.#readint(v, 4);
 	const zz = this.#infos.findIndex((v, i, o) => v.size === ifd - 8);
 	const nent = this.#readshort(v, ifd);
-	let datalen = ifd - 8, dataoff = 8;
+	let subifdstart = -1, rawstripstart = -1, datalen = -1;
 	let off = ifd+2;
-	if (this.#readshort(v, 2) !== 42 || this.#readshort(v,0) !== 18761 / * 0x4949 * / || zz === -1) {
-		// seek private tags
+	if (this.#readshort(v, 2) !== 42 || this.#readshort(v,0) !== 18761 /* 0x4949 */ || zz === -1) {
+		// seek sub ifd then therein the stripoffsets
 		for (let k=0; k<((nent<50)? nent: 0); k++) {
 			let tag = this.#readshort(v, off);
-			if (tag === 65042) {
-				datalen = this.#readint(v, off+8);
-			} else if (tag === 65420)
-				dataoff = this.#readint(v, off+8);
+			if (tag === 330) {
+				subifdstart = this.#readint(v, off+8);
+				break;
+			}
 			off += 12;
 		}
-		const zzz = this.#infos.findIndex((v, i, o) => v.size === datalen);
-		if (8 === dataoff || zzz === -1)
+		if (-1 !== subifdstart) {
+			let subnent = this.#readshort(v, subifdstart);
+			off = subifdstart + 2;
+			for (let j=0; j<((subnent < 50)? subnent: 0); j++) {
+				let stag = this.#readshort(v, off);
+				if (stag === 273) {
+					rawstripstart = this.#readint(v, off+8);
+					break;
+				}
+				off += 12;
+			}
+			if (-1 !== rawstripstart) {
+				datalen = subifdstart - rawstripstart;
+				const zzz = this.#infos.findIndex((v, i, o) => v.size === datalen);
+				if (-1 === zzz) {
+					this.#mappx('main.file.dngimpnote');
+					return onerr(f.name);
+				}
+			}
+			else {
+				this.#mappx('main.file.dngimpnote');
+				return onerr(f.name);
+			}
+		}
+		else {
+			this.#mappx('main.file.dngimpnote');
 			return onerr(f.name);
+		}
+	}
+	else {
+		rawstripstart = 8;
+		datalen = ifd - 8;
 	}
 	let fx = {
 		imbackextension: true,
 		name: f.name + '_X.raw',
 		size: datalen,
-		data: f.data.slice(dataoff, datalen + dataoff)
+		data: f.data.slice(rawstripstart, datalen + rawstripstart)
 	};
 	off = ifd+2;
 	for (let k=0; k<((nent<50)? nent: 0); k++) {
@@ -1035,7 +1069,7 @@ setpvwait() {
 	setTimeout(() => {
 			onok(f.name, fx, fx.rot);
 	});
-}*/
+}
 /* nodejs: file/filereader like interface for node js */
 #createFxNode(url, onok, onerr) {
 	if (url.url) {
@@ -1139,7 +1173,7 @@ setpvwait() {
 	xhr.onload = (evt) => {
 		let len = JSON.parse(xhr.getResponseHeader('content-length'));
 		if (0 >= len) len=1;
-		if (notfirst && (url.substring(url.length -4).toUpperCase() === '.RAW' /*|| url.substring(url.length -4).toUpperCase() === '.DNG'*/)) {
+		if (notfirst && (url.substring(url.length -4).toUpperCase() === '.RAW' || url.substring(url.length -4).toUpperCase() === '.DNG')) {
 			this.#cache.push({ url: url, d: xhr.response, l: len });
 			if (this.#cache.length > this.maxcache) this.#cache.splice(0,1);
 		}
@@ -1244,15 +1278,15 @@ setpvwait() {
 				document.getElementById('jpegpreview').src = f;
 			}
 		}
-		else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW' /*&& rawname.substring(rawname.length -4).toUpperCase() !== '.DNG'*/) {
+		else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW' && rawname.substring(rawname.length -4).toUpperCase() !== '.DNG') {
 			/* no preview */
 			this.#qappx('main.file.nopreview', rawname);
 			this.setnopv();
 		}
-		/*else if (rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
+		else if (rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
 			this.#qappx('main.file',rawname);
 			this.#buildpreview(f, () => { this.setrawpv(); }, () => { this.setpverr(); });
-		}*/
+		}
 		else {
 			const zz = this.#infos.findIndex((v, i, o) => v.size === f.size);
 			if (zz === -1 && undefined !== f.size) {
@@ -1339,7 +1373,7 @@ setpvwait() {
 	while (rawname.lastIndexOf("/") > -1) {
 		rawname = rawname.substring(rawname.lastIndexOf("/") + 1);
 	}
-	/*if (rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
+	if (rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
 		this.#mappx('process.processing', rawname);
 		if (document) this.#appendmsg('<br>');
 		return this.#parseDng(f, 
@@ -1353,7 +1387,7 @@ setpvwait() {
 				this.#stats.error ++;
 				this.#handlenext();
 			});
-	}*/
+	}
 	if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
@@ -1741,7 +1775,7 @@ prevdef(ev) {
 		});
 		return;
 	}
-	/*if (f.name.substring(f.name.length -4).toUpperCase() === '.DNG') {
+	if (f.name.substring(f.name.length -4).toUpperCase() === '.DNG') {
 		if (document) this.#appendmsg('<br>');
 		return this.#parseDng(f, 
 			(url, fx, rot) => {
@@ -1749,7 +1783,7 @@ prevdef(ev) {
 			}, (url) => {
 				onerr(f);
 			});
-	}*/
+	}
 	const zz = this.#infos.findIndex((v, i, o) => v.size === f.size);
 	if (zz === -1) {
 		console.log('preview: unsupported size ' + f.size + ' of ' + f.name);
@@ -1917,7 +1951,7 @@ rot0() {
 		this.#mappx('onimback.strangename' + (document?'':'x'), rawname);
 		this.#appendnl();
 	}
-	if (rawname.substring(rawname.length -4).toUpperCase() === '.RAW' /*|| rawname.substring(rawname.length -4).toUpperCase() === '.DNG'*/) {
+	if (rawname.substring(rawname.length -4).toUpperCase() === '.RAW' || rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
 		if (null !== timest) {
 			if (timest < this.#earliestraw) this.#earliestraw = timest;
 			if (timest > this.#latestraw) this.#latestraw = timest;
@@ -3744,7 +3778,7 @@ if (typeof process !== 'undefined') {
 <div id="notimback">
 <div style="font-size:133%;margin-top: 0.5em;" data-myxlkey="main.drophere"></div>
 <div id="droptarget" ondrop="imbc.drophandler(event);" ondragenter="imbc.prevdef(event);" ondragover="imbc.prevdef(event);" style="border: 5px solid blue;border-radius: 10px;width:300px; height:70px;background-color: rgba(0,0,255,0.2);"></div><br>
-<div  style="font-size:133%;margin-top: 0.5em;"><span data-myxlkey="main.selectraw"></span> <input type="file" accept=".raw,.RAW" id="infile" name="infile" multiple onchange="imbc.fselected()"></div><br>
+<div  style="font-size:133%;margin-top: 0.5em;"><span data-myxlkey="main.selectraw"></span> <input type="file" accept=".raw,.RAW,.dng,.DNG" id="infile" name="infile" multiple onchange="imbc.fselected()"></div><br>
 </div>
 &nbsp;<br>
 <div id="xmsg" style="display: none; width: fit-content;white-space: pre;"><span style="font-weight:bold;" data-myxlkey="main.log"></span><br>
