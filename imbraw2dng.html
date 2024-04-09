@@ -1528,6 +1528,7 @@ setpvwait() {
 		ti.addEntry(50827, 'BYTE', rawnamearr); /* Raw file name */
 		ti.addEntry(50932, 'ASCII', 'Generic Imback converted profile'); /* Profile calibration signature */
 		ti.addEntry(50931, 'ASCII', 'Generic Imback converted profile'); /* Camera calibration signature */
+		ti.addEntry(50971, 'ASCII', new Date(Date.now()).toISOString() ); /* Preview date time */
 		ti.addSubIfd();
 		ti.addImageStrip(0, view, w, h);
 		ti.addEntry(258 , 'SHORT', [ 8 ]); /* BitsPerSample */
