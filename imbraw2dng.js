@@ -1262,7 +1262,7 @@ setpvwait() {
 		ti.addIfd(); /******************************************/
 		ti.addImageStrip(1, this.#buildpvarray(view, typ, w, h, ori, false), Math.floor(transp ? (h+31)/32:(w+31)/32), Math.floor(transp ? (w+31)/32: (h+31)/32));
 		ti.addEntry(258 , 'SHORT', [ 8 ]); /* BitsPerSample */
-		ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression -none */
+		ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression - none */
 		ti.addEntry(262, 'SHORT', [ 2 ]); /* Photometric - RGB */
 		ti.addEntry(271, 'ASCII', 'ImBack'); /* Make */
 		ti.addEntry(50708, 'ASCII', 'ImBack' + ' ' + this.#types[typ]); /* Unique model */
@@ -1280,11 +1280,12 @@ setpvwait() {
 		ti.addEntry(50717, 'LONG', [ 255 ]); /* White level */
 		ti.addEntry(50721, 'SRATIONAL', [ 19624, 10000, -6105, 10000, -34134, 100000, -97877, 100000, 191614, 100000, 3345, 100000, 28687, 1000000, -14068, 100000, 1348676, 1000000 ]); /* Color Matrix 1 */
 		ti.addEntry(50964, 'SRATIONAL', [ 7161, 10000, 10093, 100000, 14719, 100000, 25819, 100000, 72494, 100000, 16875, 1000000, 0, 1000000, 5178, 100000, 77342, 100000 ]); /* Forward Matrix 1 */
-		ti.addEntry(50778, 'SHORT', [ 23 ]); /* Calibration Illuminant 1 */
+		ti.addEntry(50778, 'SHORT', [ 23 ]); /* Calibration Illuminant 1 - D50 */
 		ti.addEntry(50728, 'RATIONAL', [ 6, 10, 1, 1, 6, 10 ]); /* As shot neutral */
 		ti.addEntry(50827, 'BYTE', rawnamearr); /* Raw file name */
-		ti.addEntry(50932, 'ASCII', 'Generic Imback converted profile'); /* Profile calibration signature */
-		ti.addEntry(50931, 'ASCII', 'Generic Imback converted profile'); /* Camera calibration signature */
+		ti.addEntry(50932, 'ASCII', 'Generic ImB conv profile Sig'); /* Profile calibration signature */
+		ti.addEntry(50931, 'ASCII', 'Generic ImB conv profile Sig'); /* Camera calibration signature */
+		//ti.addEntry(50936, 'ASCII', 'Generic ImB conv profile'); /* Camera calibration name */
 		ti.addEntry(50971, 'ASCII', new Date(Date.now()).toISOString() ); /* Preview date time */
 		ti.addSubIfd(); /******************************************/
 		ti.addImageStrip(0, view, w, h);
@@ -1297,8 +1298,10 @@ setpvwait() {
 		ti.addEntry(33422, 'BYTE', [ 1, 0, 2, 1 ]); /* CFA Pattern */
 		//ti.createCamProf('test1'); /******************************************/
 		//ti.addEntry(50941, 'LONG', [ 3 ]); /* profile embed policy */
+		//ti.addEntry(50932, 'ASCII', 'Generic ImB conv profile Sig'); /* Profile calibration signature */
 		//ti.createCamProf('test2');
 		//ti.addEntry(50941, 'LONG', [ 1 ]); /* profile embed policy */
+		//ti.addEntry(50932, 'ASCII', 'Generic ImB conv profile Sig'); /* Profile calibration signature */
 		this.#output1(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted', ti.getData());
 	};
 	reader.onerror = (evt) => {
@@ -3341,7 +3344,6 @@ class TIFFOut {
 /* Indentation out */
 #ifds = [];
 #cameraprofiles = [];
-#camprofbuf = new Uint8Array(1000);
 #currentifd = null;
 #data = new Uint8Array(20000000);
 /* add an ifd  (will set this as current IFD) */
@@ -3410,7 +3412,7 @@ getData() {
 		for (const j of this.#cameraprofiles) camprofarr.push(1);
 		this.#ifds[0].addEntry(50933, 'LONG', camprofarr); /* camera profiles pointer */
 	}
-	TIFFOut.writeshorttoout(this.#data, 18761 /* 0x4949 */, 0);
+	TIFFOut.writeshorttoout(this.#data, 0x4949, 0); // magics
 	TIFFOut.writeshorttoout(this.#data, 42, 2);
 	let lastoffpos = 4;
 	let lastlen = 8;
@@ -3439,12 +3441,13 @@ createCamProf(name) {
 }
 /* get camera profile data analog to ifd */
 #getCamProfData(p) {
-	TIFFOut.writeshorttoout(this.#camprofbuf, 0x4949, 0);
-	TIFFOut.writeshorttoout(this.#camprofbuf, 0x4352, 2);
-	TIFFOut.writeinttoout(this.#camprofbuf, 8, 4);
+	let camprofbuf = new Uint8Array(3000);
+	TIFFOut.writeshorttoout(camprofbuf, 0x4949, 0); // magics
+	TIFFOut.writeshorttoout(camprofbuf, 0x4352, 2);
+	TIFFOut.writeinttoout(camprofbuf, 8, 4);
 	let d = p.getData(8);
-	this.#camprofbuf.set(d, 8);
-	return this.#camprofbuf.slice(0, 8 + d.length);
+	camprofbuf.set(d, 8);
+	return camprofbuf.slice(0, 8 + d.length);
 }
 /* Indentation in - end of class TIFFOut */
 }
