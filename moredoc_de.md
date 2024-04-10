@@ -101,3 +101,5 @@ ab von Breite und Höhe (die explizit drinstehen, sowie sich auf viele Offsets a
 eingebaut. Bei Dateien von MF ist die Farbfilter-Matrix (Color Filter Array) anders.
 
 Bezüglich Farben, bitte [Verarbeitung des DNG](README_de#verarbeitung-des-dng) lesen.
+
+Falls jemals das Origina-RAW wieder benötigt wird (z.B. um es mit einer neueren Version nochmal zu konvertieren), ist das mit [imbdng2raw.html](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html) möglich.

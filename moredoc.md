@@ -89,3 +89,5 @@ DNG is a TIFF-like format and consists mainly of constant data around the origin
 If the date from the ImB filename looks valid, tags (EXIFTAG_DATETIMEORIGINAL, TIFFTAG_DATETIME) are added for that. If it is from a MF ImB then the Color Filter Array is different.
 
 About colours, please also read [Processing the DNG](README#processing-the-dng).
+
+If you ever need to revert the original RAW from the DNG (e.g. to do the conversion again with a never version), this is possbile using [imbdng2raw.html](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html)

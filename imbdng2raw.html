@@ -370,9 +370,8 @@ function init() {
 </head>
 <!-- here comes the html itself -->
 <body style="font-family: Helvetica, Arial, sans-serif;" onload="init();" lang="en">
-<div style="font-weight:bold;"><span>DNG - to - RAW Converter </span> 
-<select id="langsel" onchange="imbc.setlang()" value="en"><option value="de" onclick="imbc.setlang()">DE</option><option value="en" selected onclick="imbc.setlang()">EN</option><option value="fr" onclick="imbc.setlang()">FR</option><!--option value="ru" onclick="imbc.setlang()">RU</option--></select></div>
-<br><div><span> </span>&nbsp;<br>This does the inverse operation of <a href="imbraw2dng.html">imbraw2dng.html</a> but only if the DNG is the original one.</div>
+<div style="font-weight:bold;">DNG - to - RAW Converter</div>
+<br><div>&nbsp;<br>This does the inverse operation of <a href="imbraw2dng.html">imbraw2dng.html</a> but only if the DNG is the original one.</div>
 <!-- the normal display -->
 <div id="normal" style="margin-top: 0.5em;">
 <div id="notimback">
@@ -381,7 +380,7 @@ function init() {
 <div  style="font-size:133%;margin-top: 0.5em;"><span data-myxlkey="main.selectraw"></span> <input type="file" accept=".dng,.DNG" id="infile" name="infile" multiple onchange="imbc.fselected()"></div><br>
 </div>
 &nbsp;<br>
-<div id="xmsg" style="display: none; width: fit-content;white-space: pre;"><span style="font-weight:bold;" data-myxlkey="main.log"></span><br>
+<div id="xmsg" style="display: none; width: fit-content;white-space: pre;"><span style="font-weight:bold;">Log: </span><br>
 <div id="outmsg"></div></div>
 </div>
 <!-- end of the normal display -->
