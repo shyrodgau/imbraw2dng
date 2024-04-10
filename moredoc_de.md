@@ -85,6 +85,7 @@ Optionen:
  -d ordner - Ausgabedateien in diesen Ordner ablegen
  -f - existierende Dateien überschreiben
  -r - Ausgabedatei umbenennen, falls schon existiert
+ -np - Kein kleines Vorschaubild im DNG
  -R - RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen konvertieren
  -J - JPEG von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren
  -O - Nicht-JPEG/Nicht-RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren

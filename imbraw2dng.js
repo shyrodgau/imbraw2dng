@@ -20,6 +20,7 @@ Options:
  -d dir - put output files into dir
  -f - overwrite existing files
  -r - rename output file, if already exists
+ -np - Do not add preview thumbnail to DNG
  -R - get RAW from ImB connected via Wifi or from given directories
  -J - get JPEG from ImB connected via Wifi or from given directories
  -O - get non-RAW/non-JPEG from ImB connected via Wifi or from given directories
@@ -405,6 +406,11 @@ constructor() {
 			en: 'Total $$0, ok $$1, skipped $$2, Errors $$3',
 			de: 'Total $$0, ok $$1, übersprungen $$2, Fehler $$3',
 			fr: 'Total : $$0, ok :$$1, Ignoré : $$2, Erreur : $$3'
+		},
+		addpreview: {
+			en: 'Add preview thumbnail to DNG',
+			de: 'Kleines Vorschaubild im DNG',
+			fr: 'Petite image d\'aperçu en DNG'
 		}
 	},
 	preview: {
@@ -529,6 +535,7 @@ constructor() {
 				' \x1b[1m-d dir\x1b[0m - put output files into dir',
 				' \x1b[1m-f\x1b[0m - overwrite existing files',
 				' \x1b[1m-r\x1b[0m - rename output file, if already exists',
+				' \x1b[1m-np\x1b[0m - Do not add preview thumbnail to DNG',
 				' \x1b[1m-R\x1b[0m - get RAW from ImB connected via Wifi or from given directories',
 				' \x1b[1m-J\x1b[0m - get JPEG from ImB connected via Wifi or from given directories',
 				' \x1b[1m-O\x1b[0m - get non-RAW/non-JPEG from ImB connected via Wifi or from given directories',
@@ -546,6 +553,7 @@ constructor() {
 				' \x1b[1m-d repertoire\x1b[0m - mettre les fiches de sortie dans le répertoire',
 				' \x1b[1m-f\x1b[0m - écraser les fiches existants',
 				' \x1b[1m-r\x1b[0m - quand fiche existe, renommer le résultat',
+				' \x1b[1m-np\x1b[0m - Pas petite image d\'aperçu en DNG',
 				' \x1b[1m-R\x1b[0m - obtenez RAW d\'ImB connecté via Wifi ou repertoires donnés',
 				' \x1b[1m-J\x1b[0m - obtenez JPEG d\'ImB connecté via Wifi ou repertoires donnés',
 				' \x1b[1m-O\x1b[0m - obtenez du non-RAW/non-JPEG d\'ImB connecté via Wifi ou repertoires donnés',
@@ -563,6 +571,7 @@ constructor() {
 				' \x1b[1m-d ordner\x1b[0m - Ausgabedateien in diesen Ordner ablegen',
 				' \x1b[1m-f\x1b[0m - existierende Dateien überschreiben',
 				' \x1b[1m-r\x1b[0m - Ausgabedatei umbenennen, falls schon existiert',
+				' \x1b[1m-np\x1b[0m - Kein kleines Vorschaubild im DNG',
 				' \x1b[1m-R\x1b[0m - RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen konvertieren',
 				' \x1b[1m-J\x1b[0m - JPEG von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren',
 				' \x1b[1m-O\x1b[0m - Nicht-JPEG/Nicht-RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren',
@@ -1888,9 +1897,9 @@ checkimb(type) {
 			for (const r of sel2) {
 				if (r && r.href.indexOf('del=') === -1) {
 					if (r.href.startsWith('http://192.168.1.254'))
-						this.handle1imb(r.href);
+						this.#handle1imb(r.href);
 					else
-						this.handle1imb('http://192.168.1.254'+ r.href);
+						this.#handle1imb('http://192.168.1.254'+ r.href);
 				}
 			}
 			if (type && (this.#imbpics.length + this.#rimbpics.length + this.#imbmovies.length > 0)) {
@@ -2901,6 +2910,11 @@ xlateall() {
 		this.#xl1(e);
 	document.title = this.#xl0('main.title') + ' ' + this.#version;
 }
+/* html dng preview checkbox handler */
+chgdngpreview() {
+    const dngprev = document.getElementById('dngpreview');
+    this.#withpreview = (dngprev !== null && dngprev.checked);
+}
 /* translate html for new language */
 setlang() {
 	this.#mylang = document.getElementById('langsel').value;
@@ -3008,6 +3022,9 @@ startnode() {
 				}
 				else if (v ==='-co') {
 					this.#withcolours = true;
+				}
+				else if (v ==='-np') {
+					this.#withpreview = false;
 				}
 				else if (v.substring(0,2)==='-l') {
 					if (v.substring(2).length > 0) {

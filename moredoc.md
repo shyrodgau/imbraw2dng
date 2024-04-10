@@ -74,6 +74,7 @@ Options:
  -d dir - put output files into dir
  -f - overwrite existing files
  -r - rename output file, if already exists
+ -np - Do not add preview thumbnail to DNG
  -R - get RAW from ImB connected via Wifi or from given directories
  -J - get JPEG from ImB connected via Wifi or from given directories
  -O - get non-RAW/non-JPEG from ImB connected via Wifi or from given directories
