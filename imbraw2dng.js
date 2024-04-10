@@ -55,7 +55,7 @@ constructor() {
 		if (process.platform.substring(0,3) === 'win') this.#withcolours = false;
 	}
 }
-#version = "V3.5.2_a8c2532"; // actually const
+#version = "V3.5.3_dev"; // actually const
 #alllangs = [ 'de' , 'en', 'fr', 'ru', '00' ]; // actually const
 #texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU' },
@@ -620,20 +620,6 @@ constructor() {
 		typ: 2,
 		mode: ""
 	},
-	/*{
-		size: 12076120, // guessed
-		w: 4012,
-		h: 3010,
-		typ: 2,
-		mode: "Medium-angle"
-	},
-	{
-		size: 7967440, // guessed
-		w: 3260,
-		h: 2444,
-		typ: 2,
-		mode: "Small-angle"
-	},*/
 	{ /* MF 6x4.5 */
 		size: 12937632,
 		w: 4152, h: 3116,
@@ -658,18 +644,6 @@ constructor() {
 		typ: 4,
 		mode: ""
 	},
-	/*{
-		size: 9060100, // guessed
-		w: 3010, h: 3010,
-		typ: 4,
-		mode: "Medium-angle"
-	},
-	{
-		size: 5973136, // guessed
-		w: 2444, h: 2444,
-		typ: 4,
-		mode: "Small-angle"
-	},*/
 	{ /* 35mm */
 		size: 15335424,
 		w: 4608, h: 3328,
@@ -1409,7 +1383,7 @@ setpvwait() {
 		const view = new DataView(contents);
 		let ti = new TIFFOut();
 		ti.addIfd();
-		ti.addImageStrip(1, this.#buildpvarray(view, typ, w, h, ori, false), transp ? h/32:w/32, transp ? w/32: h/32);
+		ti.addImageStrip(1, this.#buildpvarray(view, typ, w, h, ori, false), Math.floor(transp ? (h+31)/32:(w+31)/32), Math.floor(transp ? (w+31)/32: (h+31)/32));
 		ti.addEntry(258 , 'SHORT', [ 8 ]); /* BitsPerSample */
 		ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression -none */
 		ti.addEntry(262, 'SHORT', [ 2 ]); /* Photometric - RGB */
