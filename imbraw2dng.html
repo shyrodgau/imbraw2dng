@@ -1357,14 +1357,14 @@ setpvwait() {
 		ti.addEntry(262, 'SHORT', [ 2 ]); /* Photometric - RGB */
 		ti.addEntry(271, 'ASCII', 'ImBack'); /* Make */
 		ti.addEntry(50708, 'ASCII', 'ImBack' + ' ' + this.#types[typ]); /* Unique model */
-		ti.addEntryRelative(272, 50708, 7); /* Model */
+		ti.addEntry(272, 'ASCII', this.#types[typ]); /* Model */
 		ti.addEntry(274, 'SHORT', [ ori ]); /* Orientation */
 		ti.addEntry(277, 'SHORT', [ 3 ]); /* Samples per Pixel */
 		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config - chunky */
 		ti.addEntry(305, 'ASCII', 'imbraw2dng ' + this.#version); /* SW and version */
 		if (dateok) {
 			ti.addEntry(306, 'ASCII', datestr); /* datetime */
-			ti.addEntryRelative(36867, 306, 0); /* Original date time */
+			ti.addEntry(36867, 'ASCII', datestr); /* Original date time */
 		}
 		ti.addEntry(50706, 'BYTE', [ 1, 2, 0, 0 ]); /* DNG Version */
 		ti.addEntry(50707, 'BYTE', [ 1, 0, 0, 0 ]); /* DNG Backward Version */
@@ -3364,46 +3364,6 @@ addEntry(tag, type, value) {
 		this.#entrys.push(e);
 	}
 }
-/* illegal overload of data */
-addEntryRelative(tag, reltag, offset) {
-	let o = null;
-	for (const e of this.#entrys) {
-		if (e.xtag === reltag) {
-			o = e;
-			break;
-		}
-	}
-	if (null === o) {
-		console.log('Rel: Old entry with tag ' + tag + ' not found!');
-		return;
-	}
-	let t = TIFFOut.types.filter(v =>  v.t === o.xtype )[0];
-	if (t.l !== 1 && offset !== 0) {
-		console.log('Rel not possible because offset ' + offset + ' and length not 1 but ' + t.l);
-		return;
-	}
-	if (o.ptr === undefined) {
-		console.log('Rel not possible because reltag has no pointer');
-		return;
-	}
-	if (t.l === 1 && (o.xcount - offset) <= 4) {
-		console.log('Rel not possible because rest length < 4 ' + (o.xcount - offset));
-		return;
-	}
-	let e = {
-		xtag: tag,
-		tag: [ 0, 0 ],
-		xtype: o.xtype,
-		type: [ 0, 0 ],
-		xcount: (o.xcount - offset),
-		count: [ 0, 0, 0, 0 ],
-		ptr: o.ptr + (offset * t.l)
-	};
-	TIFFOut.writeshorttoout(e.tag, tag, 0);
-	TIFFOut.writeshorttoout(e.type, o.xtype, 0);
-	TIFFOut.writeinttoout(e.count, (o.xcount - offset), 0);
-	this.#entrys.push(e);
-}
 /* get data for this ifd, shifted to actual offset in file */
 getData(offset) {
 	let ioff = 2 + this.#imglen;
@@ -3482,10 +3442,6 @@ addImageStrip(typ, view, width, height) {
 /* add an entry to current ifd */
 addEntry(tag, type, data) {
 	this.#currentifd.addEntry(tag, type, data);
-}
-/* illegal overload of data */
-addEntryRelative(tag, reltag, offset) {
-	this.#currentifd.addEntryRelative(tag, reltag, offset);
 }
 /* map string type to tiff id */
 static types = [
