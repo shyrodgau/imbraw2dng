@@ -1350,7 +1350,7 @@ setpvwait() {
 		const contents = evt.target.result;
 		const view = new DataView(contents);
 		let ti = new TIFFOut();
-		ti.addIfd();
+		ti.addIfd(); /******************************************/
 		ti.addImageStrip(1, this.#buildpvarray(view, typ, w, h, ori, false), Math.floor(transp ? (h+31)/32:(w+31)/32), Math.floor(transp ? (w+31)/32: (h+31)/32));
 		ti.addEntry(258 , 'SHORT', [ 8 ]); /* BitsPerSample */
 		ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression -none */
@@ -1377,7 +1377,7 @@ setpvwait() {
 		ti.addEntry(50932, 'ASCII', 'Generic Imback converted profile'); /* Profile calibration signature */
 		ti.addEntry(50931, 'ASCII', 'Generic Imback converted profile'); /* Camera calibration signature */
 		ti.addEntry(50971, 'ASCII', new Date(Date.now()).toISOString() ); /* Preview date time */
-		ti.addSubIfd();
+		ti.addSubIfd(); /******************************************/
 		ti.addImageStrip(0, view, w, h);
 		ti.addEntry(258 , 'SHORT', [ 8 ]); /* BitsPerSample */
 		ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression - none */
@@ -1386,6 +1386,10 @@ setpvwait() {
 		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config - chunky */
 		ti.addEntry(33421, 'SHORT', [ 2, 2 ]); /* CFA Repeat Pattern Dim */
 		ti.addEntry(33422, 'BYTE', [ 1, 0, 2, 1 ]); /* CFA Pattern */
+		//ti.createCamProf('test1'); /******************************************/
+		//ti.addEntry(50941, 'LONG', [ 3 ]); /* profile embed policy */
+		//ti.createCamProf('test2');
+		//ti.addEntry(50941, 'LONG', [ 1 ]); /* profile embed policy */
 		this.#output1(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted', ti.getData());
 	};
 	reader.onerror = (evt) => {
@@ -3215,13 +3219,13 @@ dodebug() {
 class IFDOut {
 /* Indentation out */
 #entrys = [];
-#numtags = 0;
 #currentoff = 0;
 // imgdata can be view or array
 #imgdata = null;
 #imglen = 0;
 #data = new Uint8Array(20000000);
 #dyndata = [] ; //new Uint8Array(20000);
+camprofptr = -1; // first of the pointers, they are sequential, accessed by TIFFOut
 /* add image data to ifd */
 addImageStrip(typ, view, width, height) {
 	this.#imgdata = view;
@@ -3366,15 +3370,16 @@ addEntry(tag, type, value) {
 }
 /* get data for this ifd, shifted to actual offset in file */
 getData(offset) {
-	let ioff = 2 + this.#imglen;
-	if (this.#imgdata.byteLength) {
+	let ioff = 0;
+	if (this.#imgdata?.byteLength) {
 		for (let z=0; z<this.#imgdata.byteLength; z++)
-			this.#data[z] = this.#imgdata.getUint8(z);
-	} else {
+			this.#data[ioff++] = this.#imgdata.getUint8(z);
+	} else if (this.#imgdata) {
 		for (let z=0; z<this.#imgdata.length; z++)
-			this.#data[z] = this.#imgdata[z];
+			this.#data[ioff++] = this.#imgdata[z];
 	}
-	TIFFOut.writeshorttoout(this.#data, this.#entrys.length, this.#imglen);
+	TIFFOut.writeshorttoout(this.#data, this.#entrys.length, ioff);
+	ioff += 2;
 	for (const i of this.#entrys.sort(function(a,b) { return a.xtag - b.xtag; })) {
 		this.#data.set(i.tag, ioff);
 		this.#data.set(i.type, ioff + 2);
@@ -3383,6 +3388,15 @@ getData(offset) {
 			let parr = [ 0, 0, 0, 0 ];
 			TIFFOut.writeinttoout(parr, offset, 0);
 			this.#data.set(parr, ioff + 8);
+		} else if (i.xtag === 50933) { // camera profiles
+			if (undefined !== i.value) // only one, profile ptr fits into value
+				this.camprofptr = offset + ioff + 8;
+			else {			// more than one, dereference
+				let parr = [ 0, 0, 0, 0 ];
+				TIFFOut.writeinttoout(parr, i.ptr + offset + this.#imglen + 6 + (12 * this.#entrys.length), 0);
+				this.#data.set(parr, ioff + 8);
+				this.camprofptr = offset + this.#imglen + i.ptr + 6 + (12 * this.#entrys.length);
+			}
 		} else if (undefined !== i.value) {
 			this.#data.set(i.value, ioff + 8);
 		} else {
@@ -3417,9 +3431,11 @@ getNextIfdPosOffset() {
 class TIFFOut {
 /* Indentation out */
 #ifds = [];
+#cameraprofiles = [];
+#camprofbuf = new Uint8Array(1000);
 #currentifd = null;
 #data = new Uint8Array(20000000);
-/* add an ifd */
+/* add an ifd  (will set this as current IFD) */
 addIfd(issub) {
 	if (null !== this.#currentifd) {
 		this.#ifds.push(this.#currentifd);
@@ -3427,7 +3443,7 @@ addIfd(issub) {
 	this.#currentifd = new IFDOut();
 	if (issub) this.#currentifd.issub = true;
 }
-/* add sub ifd */
+/* add sub ifd  (will set this as current IFD) */
 addSubIfd() {
 	if (null !== this.#currentifd) {
 		this.#currentifd.hassub = true;
@@ -3441,7 +3457,10 @@ addImageStrip(typ, view, width, height) {
 }
 /* add an entry to current ifd */
 addEntry(tag, type, data) {
-	this.#currentifd.addEntry(tag, type, data);
+	if (this.#cameraprofiles.length > 0) {
+		this.#cameraprofiles[this.#cameraprofiles.length - 1].addEntry(tag, type, data);
+	} else
+		this.#currentifd.addEntry(tag, type, data);
 }
 /* map string type to tiff id */
 static types = [
@@ -3455,8 +3474,8 @@ static types = [
 	{ n: 'SSHORT', t: 8, l: 2 },
 	{ n: 'SLONG', t: 9, l: 4 },
 	{ n: 'SRATIONAL', t: 10, l: 8 },
-	//{ n: 'BYTE', t: 11, l: 4 },
-	//{ n: 'BYTE', t: 12, l: 8 },
+	//{ n: 'FLOAT', t: 11, l: 4 },
+	//{ n: 'DOUBLE', t: 12, l: 8 },
 ];
 /* map string type to tiff id */
 static tToNum(type) {
@@ -3477,6 +3496,11 @@ getData() {
 	if (null !== this.#currentifd) {
 		this.#ifds.push(this.#currentifd);
 	}
+	if (this.#cameraprofiles.length > 0) {
+		let camprofarr = [];
+		for (const j of this.#cameraprofiles) camprofarr.push(1);
+		this.#ifds[0].addEntry(50933, 'LONG', camprofarr); /* camera profiles pointer */
+	}
 	TIFFOut.writeshorttoout(this.#data, 18761 /* 0x4949 */, 0);
 	TIFFOut.writeshorttoout(this.#data, 42, 2);
 	let lastoffpos = 4;
@@ -3489,7 +3513,29 @@ getData() {
 		lastlen += d.length;
 	}
 	TIFFOut.writeinttoout(this.#data, 0, lastoffpos);
+	if (-1 !== this.#ifds[0].camprofptr && this.#cameraprofiles.length > 0) {
+		for (let l=0; l<this.#cameraprofiles.length; l++) {
+			TIFFOut.writeinttoout(this.#data, lastlen, this.#ifds[0].camprofptr + (4*l));
+			let cpd = this.#getCamProfData(this.#cameraprofiles[l]);
+			this.#data.set(cpd, lastlen);
+			lastlen += cpd.length;
+		}
+	}
 	return this.#data.slice(0, lastlen);
+}
+// add extra camera profile (will set this as current IFD), must go behind all other IFDs
+createCamProf(name) {
+	this.#cameraprofiles.push(new IFDOut());
+	this.#cameraprofiles[this.#cameraprofiles.length - 1].addEntry(50936, 'ASCII', name); /* profile name */
+}
+/* get camera profile data analog to ifd */
+#getCamProfData(p) {
+	TIFFOut.writeshorttoout(this.#camprofbuf, 0x4949, 0);
+	TIFFOut.writeshorttoout(this.#camprofbuf, 0x4352, 2);
+	TIFFOut.writeinttoout(this.#camprofbuf, 8, 4);
+	let d = p.getData(8);
+	this.#camprofbuf.set(d, 8);
+	return this.#camprofbuf.slice(0, 8 + d.length);
 }
 /* Indentation in - end of class TIFFOut */
 }
