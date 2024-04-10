@@ -146,7 +146,7 @@ constructor() {
 		if (process.platform.substring(0,3) === 'win') this.#withcolours = false;
 	}
 }
-#version = "V3.5.4_dev"; // actually const
+#version = "V3.5.5_dev"; // actually const
 #alllangs = [ 'de' , 'en', 'fr', 'ru', '00' ]; // actually const
 #texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU' },
@@ -618,6 +618,7 @@ constructor() {
 				'         Language can also be set by changing filename to imbraw2dng_XX.js .',
 				' \x1b[1m-d dir\x1b[0m - put output files into dir',
 				' \x1b[1m-f\x1b[0m - overwrite existing files',
+				' \x1b[1m-r\x1b[0m - rename output file, if already exists',
 				' \x1b[1m-R\x1b[0m - get RAW from ImB connected via Wifi or from given directories',
 				' \x1b[1m-J\x1b[0m - get JPEG from ImB connected via Wifi or from given directories',
 				' \x1b[1m-O\x1b[0m - get non-RAW/non-JPEG from ImB connected via Wifi or from given directories',
@@ -634,6 +635,7 @@ constructor() {
 				'         La langue peut également être définie en changeant le nom du fiche en imbraw2dng_XX.js .',
 				' \x1b[1m-d repertoire\x1b[0m - mettre les fiches de sortie dans le répertoire',
 				' \x1b[1m-f\x1b[0m - écraser les fiches existants',
+				' \x1b[1m-r\x1b[0m - quand fiche existe, renommer le résultat',
 				' \x1b[1m-R\x1b[0m - obtenez RAW d\'ImB connecté via Wifi ou repertoires donnés',
 				' \x1b[1m-J\x1b[0m - obtenez JPEG d\'ImB connecté via Wifi ou repertoires donnés',
 				' \x1b[1m-O\x1b[0m - obtenez du non-RAW/non-JPEG d\'ImB connecté via Wifi ou repertoires donnés',
@@ -650,6 +652,7 @@ constructor() {
 				'         Die Sprache kann auch durch Umbenennen in imbraw2dng_XX.js geändert werden.',
 				' \x1b[1m-d ordner\x1b[0m - Ausgabedateien in diesen Ordner ablegen',
 				' \x1b[1m-f\x1b[0m - existierende Dateien überschreiben',
+				' \x1b[1m-r\x1b[0m - Ausgabedatei umbenennen, falls schon existiert',
 				' \x1b[1m-R\x1b[0m - RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen konvertieren',
 				' \x1b[1m-J\x1b[0m - JPEG von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren',
 				' \x1b[1m-O\x1b[0m - Nicht-JPEG/Nicht-RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren',
@@ -672,17 +675,24 @@ constructor() {
 			en: '\x1b[31mWarning:\x1b[0m $$0 looks like a timestamp, did you forget \x1b[1m-n\x1b[0m or \x1b[1m--\x1b[0m in front of it?',
 			de: '\x1b[31mWarnung:\x1b[0m $$0 sieht wie ein Zeitstempel aus, vielleicht \x1b[1m-n\x1b[0m oder \x1b[1m--\x1b[0m davor vergessen?',
 			fr: '\x1b[31mAvertissement:\x1b[0m $$0 ressemble à un horodatage, oubliée \x1b[1m-n\x1b[0m ou \x1b[1m--\x1b[0m?',
+		},
+		renamed: {
+			en: '(renamed)',
+			de: '(umbenannt)',
+			fr: '(renomee)'
 		}
 	}
 };
 #mylang = 'en';
 #withcolours = true;
+#withpreview = true;
 /* node js: */
 #outdir = '';
 #ovwout = false;
 #typeflags = 0;
 #fromts = '0000';
 #connmsg = false;
+#renamefiles = false;
 // generic user input timestamp (any prefix)
 //           y      y     y     y      .      m     m     .      d      d      .      h     h      .      m     m      .      s     s
 #tsregex = /^[02-3]([0-9]([0-9]([0-9](([^0-9])[01]([0-9](([^0-9])[0123]([0-9](([^0-9])[012]([0-9](([^0-9])[0-5]([0-9](([^0-9])[0-5]([0-9])?)?)?)?)?)?)?)?)?)?)?)?)?$/ // actually const
@@ -1351,16 +1361,18 @@ setpvwait() {
 		const view = new DataView(contents);
 		let ti = new TIFFOut();
 		ti.addIfd(); /******************************************/
-		ti.addImageStrip(1, this.#buildpvarray(view, typ, w, h, ori, false), Math.floor(transp ? (h+31)/32:(w+31)/32), Math.floor(transp ? (w+31)/32: (h+31)/32));
-		ti.addEntry(258 , 'SHORT', [ 8 ]); /* BitsPerSample */
-		ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression - none */
-		ti.addEntry(262, 'SHORT', [ 2 ]); /* Photometric - RGB */
+		if (this.#withpreview) {
+			ti.addImageStrip(1, this.#buildpvarray(view, typ, w, h, ori, false), Math.floor(transp ? (h+31)/32:(w+31)/32), Math.floor(transp ? (w+31)/32: (h+31)/32));
+			ti.addEntry(258 , 'SHORT', [ 8 ]); /* BitsPerSample */
+			ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression - none */
+			ti.addEntry(262, 'SHORT', [ 2 ]); /* Photometric - RGB */
+			ti.addEntry(277, 'SHORT', [ 3 ]); /* Samples per Pixel */
+			ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config - chunky */
+		}
 		ti.addEntry(271, 'ASCII', 'ImBack'); /* Make */
 		ti.addEntry(50708, 'ASCII', 'ImBack' + ' ' + this.#types[typ]); /* Unique model */
 		ti.addEntry(272, 'ASCII', this.#types[typ]); /* Model */
 		ti.addEntry(274, 'SHORT', [ ori ]); /* Orientation */
-		ti.addEntry(277, 'SHORT', [ 3 ]); /* Samples per Pixel */
-		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config - chunky */
 		ti.addEntry(305, 'ASCII', 'imbraw2dng ' + this.#version); /* SW and version */
 		if (dateok) {
 			ti.addEntry(306, 'ASCII', datestr); /* datetime */
@@ -1377,8 +1389,10 @@ setpvwait() {
 		ti.addEntry(50932, 'ASCII', 'Generic ImB conv profile Sig'); /* Profile calibration signature */
 		ti.addEntry(50931, 'ASCII', 'Generic ImB conv profile Sig'); /* Camera calibration signature */
 		//ti.addEntry(50936, 'ASCII', 'Generic ImB conv profile'); /* Camera calibration name */
-		ti.addEntry(50971, 'ASCII', new Date(Date.now()).toISOString() ); /* Preview date time */
-		ti.addSubIfd(); /******************************************/
+		if (this.#withpreview) {
+			ti.addEntry(50971, 'ASCII', new Date(Date.now()).toISOString() ); /* Preview date time */
+			ti.addSubIfd(); /******************************************/
+		}
 		ti.addImageStrip(0, view, w, h);
 		ti.addEntry(258 , 'SHORT', [ 8 ]); /* BitsPerSample */
 		ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression - none */
@@ -1405,7 +1419,7 @@ setpvwait() {
 	reader.readAsArrayBuffer(f);
 }
 /* output one thing via browser or nodejs */
-#output1(name, type, okmsg, arr1) {
+#output1(name, type, okmsg, arr1, renameidx) {
 	if (document) {
 		let b = new Blob([ arr1 ], { type: type });
 		const outel = document.getElementById('result');
@@ -1434,6 +1448,27 @@ setpvwait() {
 
 		this.fs.writeFile(outfile, arr1, {encoding: null, flush: true, flag: this.#ovwout ? 'w' : 'wx' }, (err) => {
 				if (err) {
+					if (err.errno === -17 && this.#renamefiles) {
+						// try renaming
+						if (undefined !== renameidx) {
+							let newname = name;
+							const ldot = name.lastIndexOf('.');
+							const lunder = name.lastIndexOf('_');
+							newname = name.substring(0, lunder) + '_';
+							if (renameidx < 100) newname += '0';
+							if (renameidx < 10) newname += '0';
+							newname += renameidx;
+							newname += '.' + name.substring(ldot + 1);
+							this.#output1(newname, type, okmsg, arr1, renameidx + 1);
+						}
+						else {
+							let newname = name;
+							const ldot = name.lastIndexOf('.');
+							newname = name.substring(0, ldot) + '_001.' + name.substring(ldot + 1);
+							this.#output1(newname, type, okmsg, arr1, 2);
+						}
+						return;
+					}
 					this.#mappx('process.errsave', outfile);
 					this.#appendmsg(JSON.stringify(err));
 					this.#stats.error++;
@@ -1442,6 +1477,7 @@ setpvwait() {
 				}
 				else {
 					this.#mappx(okmsg + 'x', outfile);
+					if (undefined !== renameidx) this.#mappx('node.renamed');
 					this.#stats.ok++;
 					this.#appendmsg('');
 					this.#handlenext();
@@ -3096,6 +3132,9 @@ startnode() {
 				}
 				else if (v ==='-f') {
 					this.#ovwout = true;
+				}
+				else if (v ==='-r') {
+					this.#renamefiles = true;
 				}
 				else if (v ==='-R') {
 					if (!(this.#typeflags % 2)) this.#typeflags += 1;
