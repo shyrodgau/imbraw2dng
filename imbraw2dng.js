@@ -720,18 +720,6 @@ constructor() {
 		msgel.append(msg);
 	}
 }
-/* helper to read dng */
-#readshort(view, off) {
-	let res = view.getUint8(off);
-	res += (256 * view.getUint8(off+1));
-	return res;
-}
-/* helper to read dng */
-#readint(view, off) {
-	let res = this.#readshort(view, off);
-	res += (65536 * this.#readshort(view,off+2));
-	return res;
-}
 /* stupid helper */
 #appendnl() {
 	if (document) this.#appendmsg('<br>&nbsp;<br>');
@@ -791,9 +779,9 @@ fselected() {
 				else for (let i of f.filter(e => e.isFile())) {
 					const n = i.name;
 					if (n.substring(0,10).toUpperCase() === 'IMBRAW2DNG') continue;
-					if (((n.substring(n.length -4).toUpperCase() === '.RAW' || n.substring(n.length -4).toUpperCase() === '.DNG') && (this.#typeflags % 2)) ||
+					if (((n.substring(n.length -4).toUpperCase() === '.RAW') && (this.#typeflags % 2)) ||
 						((n.substring(n.length -5).toUpperCase() === '.JPEG' || n.substring(n.length -4).toUpperCase() === '.JPG') && ((this.#typeflags % 4) > 1)) ||
-						(n.substring(n.length -5).toUpperCase() !== '.JPEG' && n.substring(n.length -4).toUpperCase() !== '.JPG' && n.substring(n.length -4).toUpperCase() !== '.DNG' &&
+						(n.substring(n.length -5).toUpperCase() !== '.JPEG' && n.substring(n.length -4).toUpperCase() !== '.JPG' &&
 							n.substring(n.length -4).toUpperCase() !== '.RAW' && ((this.#typeflags % 8) > 3))) {
 						if (this.#comptime(i.name, this.#fromts))
 							already.push(i.path + this.pa.sep + i.name);
@@ -863,98 +851,6 @@ setpvwait() {
 	document.getElementById('previewwait').style['display'] = '';
 	document.getElementById('previewerr').style['display'] = 'none';
 	document.getElementById('preview').style['display'] = 'none';
-}
-/* handle dng like raw */
-#parseDng(f, onok, onerr) {
-	// blindly assumes that it is one of our own DNG
-	// interesting tags: orientation, datetime
-	if (undefined === f.data) {
-		const reader = f.imbackextension ? f : new FileReader();
-		reader.onload = (evt) => {
-			f.data = evt.target.result;
-			this.#parseDng(f, onok, onerr);
-		}
-		reader.onerror = (evt) => { onerr(f.name); };
-		reader.readAsArrayBuffer(f);
-		return;
-	}
-	const v = new DataView(f.data);
-	const ifd = this.#readint(v, 4);
-	const zz = this.#infos.findIndex((v, i, o) => v.size === ifd - 8);
-	const nent = this.#readshort(v, ifd);
-	let subifdstart = -1, rawstripstart = -1, datalen = -1;
-	let off = ifd+2;
-	if (this.#readshort(v, 2) !== 42 || this.#readshort(v,0) !== 18761 /* 0x4949 */ || zz === -1) {
-		// seek sub ifd then therein the stripoffsets
-		for (let k=0; k<((nent<50)? nent: 0); k++) {
-			let tag = this.#readshort(v, off);
-			if (tag === 330) {
-				subifdstart = this.#readint(v, off+8);
-				break;
-			}
-			off += 12;
-		}
-		if (-1 !== subifdstart) {
-			let subnent = this.#readshort(v, subifdstart);
-			off = subifdstart + 2;
-			for (let j=0; j<((subnent < 50)? subnent: 0); j++) {
-				let stag = this.#readshort(v, off);
-				if (stag === 273) {
-					rawstripstart = this.#readint(v, off+8);
-					break;
-				}
-				off += 12;
-			}
-			if (-1 !== rawstripstart) {
-				datalen = subifdstart - rawstripstart;
-				const zzz = this.#infos.findIndex((v, i, o) => v.size === datalen);
-				if (-1 === zzz) {
-					this.#mappx('main.file.dngimpnote');
-					return onerr(f.name);
-				}
-			}
-			else {
-				this.#mappx('main.file.dngimpnote');
-				return onerr(f.name);
-			}
-		}
-		else {
-			this.#mappx('main.file.dngimpnote');
-			return onerr(f.name);
-		}
-	}
-	else {
-		rawstripstart = 8;
-		datalen = ifd - 8;
-	}
-	let fx = {
-		imbackextension: true,
-		name: f.name + '_X.raw',
-		size: datalen,
-		data: f.data.slice(rawstripstart, datalen + rawstripstart)
-	};
-	off = ifd+2;
-	for (let k=0; k<((nent<50)? nent: 0); k++) {
-		let tag = this.#readshort(v, off);
-		if (tag === 274)
-			fx.rot = this.#readshort(v, off+8); // rotation handling has problems
-		else if (tag === 306) {
-			fx.datestr = '';
-			let xoff = this.#readint(v, off+8);
-			const len = this.#readshort(v, off+4)-1;
-			for (let j=0; j<len;j++)
-				fx.datestr += String.fromCharCode(v.getUint8(xoff++));
-		}
-		off += 12;
-	}
-	fx.readAsArrayBuffer = (fy) => {
-		fy.onload({
-				target: { result: fy.data }
-		});
-	};
-	setTimeout(() => {
-			onok(f.name, fx, fx.rot);
-	});
 }
 /* nodejs: file/filereader like interface for node js */
 #createFxNode(url, onok, onerr) {
@@ -1059,7 +955,7 @@ setpvwait() {
 	xhr.onload = (evt) => {
 		let len = JSON.parse(xhr.getResponseHeader('content-length'));
 		if (0 >= len) len=1;
-		if (notfirst && (url.substring(url.length -4).toUpperCase() === '.RAW' || url.substring(url.length -4).toUpperCase() === '.DNG')) {
+		if (notfirst && (url.substring(url.length -4).toUpperCase() === '.RAW')) {
 			this.#cache.push({ url: url, d: xhr.response, l: len });
 			if (this.#cache.length > this.maxcache) this.#cache.splice(0,1);
 		}
@@ -1161,14 +1057,10 @@ setpvwait() {
 				document.getElementById('jpegpreview').src = f;
 			}
 		}
-		else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW' && rawname.substring(rawname.length -4).toUpperCase() !== '.DNG') {
+		else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
 			/* no preview */
 			this.#qappx('main.file.nopreview', rawname);
 			this.setnopv();
-		}
-		else if (rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
-			this.#qappx('main.file',rawname);
-			this.#buildpreview(f, () => { this.setrawpv(); }, () => { this.setpverr(); });
 		}
 		else {
 			const zz = this.#infos.findIndex((v, i, o) => v.size === f.size);
@@ -1253,21 +1145,6 @@ setpvwait() {
 		return;
 	}
 	let rawname = this.#basename(f.name);
-	if (rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
-		this.#mappx('process.processing', rawname);
-		if (document) this.#appendmsg('<br>');
-		return this.#parseDng(f, 
-			(url, fx, rot) => {
-				this.#allfiles[this.#actnum] = fx;
-				this.#handleone(orientation ? orientation: rot);
-			}, (url) => {
-				this.#mappx('process.erraccess' + (!document ? 'x' : ''), url);
-				if (document) this.#appendnl();
-				else this.#appendmsg('');
-				this.#stats.error ++;
-				this.#handlenext();
-			});
-	}
 	if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
@@ -1656,15 +1533,6 @@ prevdef(ev) {
 		});
 		return;
 	}
-	if (f.name.substring(f.name.length -4).toUpperCase() === '.DNG') {
-		if (document) this.#appendmsg('<br>');
-		return this.#parseDng(f, 
-			(url, fx, rot) => {
-				this.#buildpreview(fx, onok, onerr, orientation ? orientation: rot, targ, afterload);
-			}, (url) => {
-				onerr(f);
-			});
-	}
 	const zz = this.#infos.findIndex((v, i, o) => v.size === f.size);
 	if (zz === -1) {
 		console.log('preview: unsupported size ' + f.size + ' of ' + f.name);
@@ -1828,7 +1696,7 @@ rot0() {
 		this.#mappx('onimback.strangename' + (document?'':'x'), rawname);
 		this.#appendnl();
 	}
-	if (rawname.substring(rawname.length -4).toUpperCase() === '.RAW' || rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
+	if (rawname.substring(rawname.length -4).toUpperCase() === '.RAW') {
 		if (null !== timest) {
 			if (timest < this.#earliestraw) this.#earliestraw = timest;
 			if (timest > this.#latestraw) this.#latestraw = timest;
@@ -3263,9 +3131,6 @@ class IFDOut {
 #imglen = 0;
 #data = new Uint8Array(20000000);
 #dyndata = [] ; //new Uint8Array(20000);
-/* position where the raw length / start offset must be placed in the private tags */
-rawlenpos = -1;
-rawoffpos = -1;
 /* add image data to ifd */
 addImageStrip(typ, view, width, height) {
 	this.#imgdata = view;
@@ -3467,10 +3332,6 @@ getData(offset) {
 			let parr = [ 0, 0, 0, 0 ];
 			TIFFOut.writeinttoout(parr, offset, 0);
 			this.#data.set(parr, ioff + 8);
-		} else if (i.xtag === 65042) {
-			this.rawlenpos = offset + ioff + 8;
-		} else if (i.xtag === 65420) {
-			this.rawoffpos = offset + ioff + 8;
 		} else if (undefined !== i.value) {
 			this.#data.set(i.value, ioff + 8);
 		} else {
@@ -3507,7 +3368,6 @@ class TIFFOut {
 #ifds = [];
 #currentifd = null;
 #data = new Uint8Array(20000000);
-#rawdatalen = -1;
 /* add an ifd */
 addIfd(issub) {
 	if (null !== this.#currentifd) {
@@ -3527,7 +3387,6 @@ addSubIfd() {
 /* add image data to current ifd */
 addImageStrip(typ, view, width, height) {
 	this.#currentifd.addImageStrip(typ, view, width, height);
-	if (0 === typ) this.#rawdatalen = view.byteLength;
 }
 /* add an entry to current ifd */
 addEntry(tag, type, data) {
@@ -3575,9 +3434,7 @@ getData() {
 	TIFFOut.writeshorttoout(this.#data, 42, 2);
 	let lastoffpos = 4;
 	let lastlen = 8;
-	let rawdatastart = -1; // for the private tags
 	for (const i of this.#ifds) {
-		if (i.issub) rawdatastart = lastlen; // raw data is at start of sub ifd
 		TIFFOut.writeinttoout(this.#data, i.getOffset() + lastlen, lastoffpos);
 		let d = i.getData(lastlen);
 		this.#data.set(d, lastlen);
@@ -3585,10 +3442,6 @@ getData() {
 		lastlen += d.length;
 	}
 	TIFFOut.writeinttoout(this.#data, 0, lastoffpos);
-	if (this.#ifds[0].rawoffpos !== -1 && this.#ifds[0].rawlenpos !== -1) {
-		TIFFOut.writeinttoout(this.#data, rawdatastart, this.#ifds[0].rawoffpos);
-		TIFFOut.writeinttoout(this.#data, this.#rawdatalen, this.#ifds[0].rawlenpos);
-	}
 	return this.#data.slice(0, lastlen);
 }
 /* Indentation in - end of class TIFFOut */
