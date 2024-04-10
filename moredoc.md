@@ -8,7 +8,7 @@ In here: [Installation](#installation) - [Internationalization](#internationaliz
 
 Quick doc: [here](https://shyrodgau.github.io/imbraw2dng/README)
 
-oder [AUF DEUTSCH](https://shyrodgau.github.io/imbraw2dng/README_de)
+oder [AUF DEUTSCH](https://shyrodgau.github.io/imbraw2dng/moredoc_de)
 
 
 ## Installation
