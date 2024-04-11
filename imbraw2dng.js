@@ -49,13 +49,14 @@ DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS 
 /* Main class */
 class ImBC {
 /* Indentation out */
-constructor() {
+constructor(bwflag) {
 	if (!document) {
 		this.fs = require('fs');
 		this.ht = require('http');
 		this.pa = require('path');
 		if (process.platform.substring(0,3) === 'win') this.#withcolours = false;
 	}
+	if (bwflag) this.#backward = true;
 }
 #version = "V3.5.6_71844f9"; // actually const
 #alllangs = [ 'de' , 'en', 'fr', 'ru', '00' ]; // actually const
@@ -72,6 +73,12 @@ constructor() {
 			en: 'ImB RAW to DNG converter',
 			fr: 'Convertisseur ImB RAW a DNG',
 			ru: 'Конвертер ImB RAW в DNG'
+		},
+		backw: {
+			title: 	{ en: 'ImB DNG to RAW back converter' },
+			generaladvice: { en: 'Only works for the exact original converted DNG.' },
+			selectdng: { en: 'Select orig. DNG' },
+			drophere: { en: 'Drop DNGs here' }
 		},
 		file: {
 			de: 'Datei',
@@ -524,6 +531,19 @@ constructor() {
 		}
 	},
 	node: {
+		backw: {
+			help: {
+				en: [ '\x1b[1mWelcome to imbdng2raw $$0 !', 'Usage: node $$0 [-l lang] [-d dir] [ [--] <files>* ]',
+				'Options:',
+				' -h - show this help',
+				' -l XX - where XX is a valid language code (currently: DE, EN, FR)',
+				'         Language can also be set by changing filename to imbraw2dng_XX.js .',
+				' -d dir - put output files into dir',
+				' -----',
+				' -- - treat rest of parameters as local files or dirs',
+				' <files-or-dirs> - process local files' ]
+			}
+		},
 		help: {
 			en: [ '\x1b[1mWelcome to imbraw2dng\x1b[0m $$0 !', 'Usage: node $$0 \x1b[1m[\x1b[0m-l lang\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-f\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-d dir\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-nc \x1b[1m|\x1b[0m -co\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-R\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-J\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-O\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-n yyyy_mm_dd-hh_mm_ss\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m \x1b[1m[\x1b[0m--\x1b[1m]\x1b[0m \x1b[1m<\x1b[0mfiles-or-dirs\x1b[1m>*\x1b[0m \x1b[1m]\x1b[0m',
 				'Options:',
@@ -605,6 +625,7 @@ constructor() {
 #mylang = 'en';
 #withcolours = true;
 #withpreview = true;
+#backward = false;
 /* node js: */
 #outdir = '';
 #ovwout = false;
@@ -715,7 +736,7 @@ constructor() {
 /* debug */
 #debugflag = false;
 /* primitive basename helper */
-#basename(n) {
+static basename(n) {
 	while (n.lastIndexOf("/") > -1) {
 		n = n.substring(n.lastIndexOf("/") + 1);
 	}
@@ -749,8 +770,8 @@ fselected() {
 	if (this.#actnum !== this.#allfiles.length) return;
     const stepprev = document.getElementById('steppreview');
     this.#stepmode = 0;
-	if (stepprev !== null && stepprev.checked) this.#stepmode = 1;
-	const el = document.getElementById('infile');
+	if (stepprev !== null && stepprev.checked && !this.#backward) this.#stepmode = 1;
+	const el = this.#backward ? document.getElementById('infileb') : document.getElementById('infile');
 	this.#totnum = el.files.length;
 	this.#actnum = 0;
 	this.#stats = { total: this.#totnum, skipped: 0, error: 0, ok: 0 };
@@ -762,11 +783,12 @@ fselected() {
 		document.getElementById('imbvisbrows').disabled = true;
 		document.getElementById('droptarget').style['display'] = 'none';
 		document.getElementById('infile').disabled = true;
+		document.getElementById('infileb').disabled = true;
 		this.#handleonex();
 	}
 }
 /* nodejs: handle given files/dirs recursive */
-#handlerecurse(already, index) {
+handlerecurse(already, index) {
 	if (!already) {
 		// initializsation
 		already = [];
@@ -814,7 +836,7 @@ fselected() {
 			// plain files simply go
 			already.push(d);
 		}
-		this.#handlerecurse(already, index + 1);
+		this.handlerecurse(already, index + 1);
 	});
 }
 /* continue with the next file if any */
@@ -842,6 +864,7 @@ fselected() {
 			document.getElementById('imbvisbrows').disabled = false;
 			document.getElementById('droptarget').style['display'] = '';
 			document.getElementById('infile').disabled = false;
+			document.getElementById('infileb').disabled = false;
 		}
 	}
 }
@@ -1036,7 +1059,7 @@ setpvwait() {
 			document.getElementById('forrest').style['display'] = '';
 		} else document.getElementById('forrest').style['display'] = 'none';
 	}
-	let rawname = this.#basename(f.url ? f.url : (f.name ? f.name : f));
+	let rawname = ImBC.basename(f.url ? f.url : (f.name ? f.name : f));
 	if (this.#stepmode === 2) {
 		// skip rest
 		this.shownormal();
@@ -1096,7 +1119,10 @@ setpvwait() {
 	}
 	else { // normal processing without question
 		this.shownormal();
-		this.#handleone(f.rot);
+		if (this.#backward)
+			this.#handleoneback();
+		else
+			this.#handleone(f.rot);
 	}
 }
 /* translation helper */
@@ -1141,6 +1167,81 @@ setpvwait() {
 	}
 	else console.log(this.#xl(key, arg0, arg1, arg2, arg3));
 }
+/* backward: actual processing function for one file */
+#handleoneback(fx) {
+	const f = (fx !== undefined) ? fx : this.#allfiles[this.#actnum];
+	if (undefined === f) {
+		this.#mappx('process.nothing');
+		this.#appendnl();
+		return this.#handlenext();
+	}
+	if (undefined === f.size) {
+		setTimeout(() => {
+		  this.#createFx(f, (url, fx, rot) => {
+				this.#allfiles[this.#actnum] = fx;
+				this.#handleoneback(fx);
+			}, (url) => {
+				this.#mappx('process.erraccess' + (!document ? 'x' : ''), url);
+				if (document) this.#appendnl();
+				else this.#appendmsg('');
+				this.#stats.error ++;
+				this.#handlenext();
+		  });
+		});
+		return;
+	}
+	let rawname = ImBC.basename(f.name);
+	if (rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
+		this.#parseDng(f, 
+			(name, fx) => {
+				this.#handleoneback(fx);
+			},
+			() => {
+				this.#appendmsg('Error reading DNG: ' + f.name);
+				this.#handlenext();
+				this.#stats.error++;
+			});
+		return;
+	}
+	else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
+		this.#appendmsg("[" + (1 + this.#actnum) + " / " + this.#totnum + "] ");
+		this.#appendmsg('Seems not to be DNG: ' + f.name);
+		this.#appendnl();
+		this.#stats.error++;
+		return this.#handlenext();
+	}
+	let w, h, mode = "??";
+	let typ = 0;
+	const zz = this.#infos.findIndex((v, i, o) => v.size === f.size);
+	if (zz !== -1) {
+		this.#appendmsg("[" + (1 + this.#actnum) + " / " + this.#totnum + "] ");
+		if (document) this.#appendmsg('<br>');
+		const reader = f.imbackextension ? f : new FileReader();
+		reader.onload = (evt) => {
+			const contents = evt.target.result;
+			const view = new DataView(contents);
+			const out = new Uint8Array(f.size);
+			for (let j=0; j<view.byteLength; j++) {
+				out[j] = view.getUint8(j);
+			}
+			this.#output1(rawname, 'application/octet-stream', 'process.converted', out);
+		}
+		reader.onerror = (evt) => {
+			console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
+			this.#appendmsg('Error processing or reading file ' +  f.name);
+			this.#appendnl();
+			this.#stats.error++;
+			this.#handlenext();
+		}
+		reader.readAsArrayBuffer(f);
+	} else {
+		this.#appendmsg("[" + (1 + this.#actnum) + " / " + this.#totnum + "] ");
+		this.#appendmsg('Size of raw data of ' + f.name + ' seems not to match known formats, ignoring...');
+		this.#appendnl();
+		this.#stats.error++;
+		this.#handlenext();
+	}
+}
 /* actual processing function for one file */
 #handleone(orientation) {
 	const f = this.#allfiles[this.#actnum];
@@ -1164,7 +1265,7 @@ setpvwait() {
 		});
 		return;
 	}
-	let rawname = this.#basename(f.name);
+	let rawname = ImBC.basename(f.name);
 	if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
@@ -1282,11 +1383,13 @@ setpvwait() {
 		ti.addIfd(); /******************************************/
 		if (this.#withpreview) {
 			ti.addImageStrip(1, this.#buildpvarray(view, typ, w, h, ori, false), Math.floor(transp ? (h+31)/32:(w+31)/32), Math.floor(transp ? (w+31)/32: (h+31)/32));
-			ti.addEntry(258 , 'SHORT', [ 8 ]); /* BitsPerSample */
+			ti.addEntry(258 , 'SHORT', [ 8, 8, 8 ]); /* BitsPerSample */
 			ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression - none */
 			ti.addEntry(262, 'SHORT', [ 2 ]); /* Photometric - RGB */
 			ti.addEntry(277, 'SHORT', [ 3 ]); /* Samples per Pixel */
 			ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config - chunky */
+			ti.addEntry(282, 'RATIONAL', [ 30, 1 ]); /* X resolution */
+			ti.addEntry(283, 'RATIONAL', [ 30, 1 ]); /* y resolution */
 		}
 		ti.addEntry(271, 'ASCII', 'ImBack'); /* Make */
 		ti.addEntry(50708, 'ASCII', 'ImBack' + ' ' + this.#types[typ]); /* Unique model */
@@ -1409,7 +1512,7 @@ drophandler(ev) {
 	if (this.#actnum !== this.#allfiles.length) return;
     const stepprev = document.getElementById('steppreview');
     this.#stepmode = 0;
-	if (stepprev !== null && stepprev.checked) this.#stepmode = 1;
+	if (stepprev !== null && stepprev.checked && !this.#backward) this.#stepmode = 1;
 	ev.preventDefault();
 	this.#allfiles = [];
 	this.#actnum = 0;
@@ -1434,6 +1537,7 @@ drophandler(ev) {
 	document.getElementById('imbvisbrows').disabled = true;
 	document.getElementById('droptarget').style['display'] = 'none';
 	document.getElementById('infile').disabled = true;
+	document.getElementById('infileb').disabled = true;
 	this.#handleonex();
 }
 /* browserdisplay: some handler on the drop rectangle */
@@ -1692,7 +1796,7 @@ skipthis() {
 		this.#mappx('process.skipped.remaining', this.#totnum - this.#actnum);
 		this.#stats.skipped += (this.#totnum - this.#actnum);
 	} else {
-		let rawname = this.#basename(this.#allfiles[this.#actnum].name ? this.#allfiles[this.#actnum].name : this.#allfiles[this.#actnum]);
+		let rawname = ImBC.basename(this.#allfiles[this.#actnum].name ? this.#allfiles[this.#actnum].name : this.#allfiles[this.#actnum]);
 		this.#mappx('process.skipped', rawname);
 		this.#appendnl();
 		this.#stats.skipped ++;
@@ -1738,7 +1842,7 @@ rot0() {
 }
 /* handle on entry from imb PHOTO/MOVIE listing page */
 #handle1imb(url) {
-	let rawname = this.#basename(url);
+	let rawname = ImBC.basename(url);
 	if (rawname.substring(0,10).toUpperCase() === 'IMBRAW2DNG') return;
 	let timestx = this.#fnregex.exec(rawname);
 	let timest = null, cl = '9999_99_99-99';
@@ -1945,7 +2049,7 @@ imbdoit() {
 			this.#appendnl();
 			const wc = this.#withcolours;
 			this.#withcolours = false;
-			alert(this.#subst(this.#xl0('onimback.invaltimex'), compval));
+			alert(this.subst(this.xl0('onimback.invaltimex'), compval));
 			this.#withcolours = wc;
 			return;
 		}
@@ -1954,7 +2058,7 @@ imbdoit() {
 	if ((document && document.getElementById('rpicfromimb').checked) ||
 		(this.#typeflags % 2)) {
 		for (const e of this.#rimbpics) {
-			let rawname = this.#basename(e);
+			let rawname = ImBC.basename(e);
 			if (this.#comptime(rawname, compval))
 				selecteds.push(e);
 		}
@@ -1962,7 +2066,7 @@ imbdoit() {
 	if ((document && document.getElementById('picfromimb').checked) ||
 		((this.#typeflags % 4) > 1)) {
 		for (const e of this.#imbpics) {
-			let rawname = this.#basename(e);
+			let rawname = ImBC.basename(e);
 			if (this.#comptime(rawname, compval))
 				selecteds.push(e);
 		}
@@ -1970,14 +2074,14 @@ imbdoit() {
 	if ((document && document.getElementById('movfromimb').checked) ||
 		((this.#typeflags % 8) > 3)) {
 		for (const e of this.#imbmovies) {
-			let rawname = this.#basename(e);
+			let rawname = ImBC.basename(e);
 			if (this.#comptime(rawname, compval))
 				selecteds.push(e);
 		}
 	}
 	selecteds.sort((a, b) => {
-		let ra = this.#basename(a);
-		let rb = this.#basename(b);
+		let ra = ImBC.basename(a);
+		let rb = ImBC.basename(b);
 		if (ra < rb) return -1;
 		else if (ra === rb) return 0;
 		else return 1;
@@ -2501,7 +2605,7 @@ topreccheck(force) {
 	e.entry.id = 'div_' + e.raw + '_X';
 	e.entry.classList.add('ee');
 	e.entry.classList.add(e.type);
-	let rawname = this.#basename(e.url);
+	let rawname = ImBC.basename(e.url);
 	e.entry.classList.add('ET_' + e.type + rawname.substring(0,12));
 	e.entry.classList.add('EY_' + rawname.substring(0,12));
 	const topline = document.createElement('div');
@@ -2774,8 +2878,8 @@ browserprocess() {
 		}
 	}
 	selecteds.sort((a, b) => {
-		let ra = this.#basename(a.url);
-		let rb = this.#basename(b.url);
+		let ra = ImBC.basename(a.url);
+		let rb = ImBC.basename(b.url);
 		if (ra < rb) return -1;
 		else if (ra === rb) return 0;
 		else return 1;
@@ -2799,9 +2903,9 @@ browserprocess() {
 	}
 }
 /* remove VT100 color escapes for windows */
-#rmesc(str) {
+rmesc(str) {
 	//console.log('RRR ' + str);
-	if (this.#withcolours) return (str);
+	if (this.#withcolours && !this.#backward) return (str);
 	let i = 0, j, k;
 	while ((j = str.substring(i).indexOf('\x1b')) !== -1) {
 		k = str.substring(i+j).indexOf('m');
@@ -2829,24 +2933,24 @@ browserprocess() {
 	return el;
 }
 /* get part of translation */
-#xl0(str, base) {
+xl0(str, base) {
 	if (undefined === base) base = this.#texts;
 	const i = str.indexOf('.');
 	if (i === -1) {
 		let r = base[str][this.#mylang];
 		if (undefined === r) r = base[str]['en'];
 		if (typeof r === 'string')
-			return this.#rmesc(r);
+			return this.rmesc(r);
 		else
 			return r;
 	}
 	else {
 		const e = base[str.substring(0,i)];
-		return this.#xl0(str.substring(i+1),e);
+		return this.xl0(str.substring(i+1),e);
 	}
 }
 /* substitute in translation */
-#subst(r, arg0, arg1, arg2, arg3, base) {
+subst(r, arg0, arg1, arg2, arg3, base) {
 	if (r.indexOf('$$0') !== -1 && arg0 !== undefined) {
 		r = r.substring(0, r.indexOf('$$0')) + arg0 + r.substring(r.indexOf('$$0') + 3);
 		if (r.indexOf('$$1') !== -1 && arg1 !== undefined) {
@@ -2859,7 +2963,7 @@ browserprocess() {
 			}
 		}
 	}
-	return this.#rmesc(r);
+	return this.rmesc(r);
 }
 /* translate one string with parameters */
 #xl(str, arg0, arg1, arg2, arg3, base) {
@@ -2885,7 +2989,7 @@ browserprocess() {
 	if (i === -1) {
 		let r = base[str][this.#mylang];
 		if (undefined === r) r = base[str]['en'];
-		return this.#subst(r, arg0, arg1, arg2, arg3);
+		return this.subst(r, arg0, arg1, arg2, arg3);
 	}
 	else {
 		const e = base[str.substring(0,i)];
@@ -2908,7 +3012,7 @@ xlateall() {
 	const h = document.querySelectorAll('*[data-myhrefxlkey]');
 	for (const e of h)
 		this.#xl1(e);
-	document.title = this.#xl0('main.title') + ' ' + this.#version;
+	document.title = (this.#backward ? this.xl0('main.backw.title') : this.xl0('main.title')) + ' ' + this.#version;
 }
 /* html dng preview checkbox handler */
 chgdngpreview() {
@@ -2921,7 +3025,7 @@ setlang() {
 	this.xlateall();
 }
 /* try lang from node param */
-#trylang(i) {
+trylang(i) {
 	let found = 0;
 	for (const l of this.#alllangs) {
 		if (i.toUpperCase() === l.toUpperCase()) {
@@ -2966,12 +3070,12 @@ querylang(name, offset) {
 }
 /* nodejs: show help */
 #help(caller) {
-	caller = this.#basename(caller);
-	let texts = this.#xl0('node.help');
-	console.log(this.#subst(texts[0], this.#version));
-	console.log(this.#subst(texts[1], caller));
+	caller = ImBC.basename(caller);
+	let texts = this.xl0('node.help');
+	console.log(this.subst(texts[0], this.#version));
+	console.log(this.subst(texts[1], caller));
 	for (let j=2; j<texts.length; j++) {
-		console.log(this.#rmesc(texts[j]));
+		console.log(this.rmesc(texts[j]));
 		if (this.#debugflag && j === 7) {
 			console.log(' \x1b[1m-CSV\x1b[0m - Translation CSV');
 		}
@@ -2996,7 +3100,7 @@ startnode() {
 				}
 				else if (flagging === 1) {
 					flagging = 0;
-					this.#trylang(v);
+					this.trylang(v);
 				}
 				else if (flagging === 2) {
 					flagging = 0;
@@ -3009,7 +3113,7 @@ startnode() {
 						datefound = true;
 					} else {
 						wanthelp = true;
-						console.log(this.#subst(this.#xl0('onimback.invaltimex'), v));
+						console.log(this.subst(this.xl0('onimback.invaltimex'), v));
 					}
 				}
 				else if (v.substring(0,4)==='-CSV' && this.#debugflag) {
@@ -3029,7 +3133,7 @@ startnode() {
 				else if (v.substring(0,2)==='-l') {
 					if (v.substring(2).length > 0) {
 						let l = v.substring(2);
-						this.#trylang(l);
+						this.trylang(l);
 					}
 					else
 						flagging=1;
@@ -3048,7 +3152,7 @@ startnode() {
 							datefound = true;
 						} else {
 							wanthelp = true;
-							console.log(this.#subst(this.#xl0('onimback.invaltimex'), v.substring(2)));
+							console.log(this.subst(this.xl0('onimback.invaltimex'), v.substring(2)));
 						}
 					}
 					else
@@ -3073,7 +3177,7 @@ startnode() {
 					if ((this.#typeflags % 8) < 4) this.#typeflags += 4;
 				}
 				else if (v.substring(0,1) === '-') {
-					console.log(this.#subst(this.#xl0('node.unkopt'), v));
+					console.log(this.subst(this.xl0('node.unkopt'), v));
 					wanthelp = true;
 				}
 				else {
@@ -3088,7 +3192,7 @@ startnode() {
 	});
 	if (wantxl) return;
 	else if (flagging) {
-		console.log(this.#xl0('node.missingval'));
+		console.log(this.xl0('node.missingval'));
 		wanthelp = true;
 	}
 	else if (datefound && 0 === this.#typeflags) this.#typeflags = 7;
@@ -3096,20 +3200,20 @@ startnode() {
 	if (wanthelp || (this.#typeflags === 0 && this.#totnum === 0)) {
 		this.#help(process.argv[1]);
 		console.log('');
-		console.log(this.#xl0('main.coloursyourrisk'));
+		console.log(this.xl0('main.coloursyourrisk'));
 		console.log('');
 		return;
 	}
 	else if (this.#totnum > 0) {
-		console.log(this.#subst(this.#xl0('node.help')[0], this.#version));
-		console.log(this.#xl0('main.coloursyourrisk'));
+		console.log(this.subst(this.xl0('node.help')[0], this.#version));
+		console.log(this.xl0('main.coloursyourrisk'));
 		console.log('');
 		if (this.#typeflags === 0) this.#typeflags = 7;
-		this.#handlerecurse();
+		this.handlerecurse();
 	}
 	else if (this.#typeflags > 0) {
-		console.log(this.#subst(this.#xl0('node.help')[0], this.#version));
-		console.log(this.#xl0('main.coloursyourrisk'));
+		console.log(this.subst(this.xl0('node.help')[0], this.#version));
+		console.log(this.xl0('main.coloursyourrisk'));
 		console.log('');
 		this.#checkimbnode();
 	}
@@ -3117,6 +3221,123 @@ startnode() {
 /* visual browser: change cache size (currently only visible in debug _00) */
 chgcache() {
 	this.#maxcache = document.getElementById('dbgcache').value;
+}
+/* accessor for backward class */
+pushfile(f) {
+	this.#allfiles.push(f);
+	this.#totnum++;
+}
+/* accessor for backward class */
+setoutdir(d) {
+	this.#outdir = d;
+}
+/* accessor for backward class */
+getversion() {
+	return this.#version;
+}
+/* backward: handle dng like raw */
+#parseDng(f, onok, onerr) {
+	// blindly assumes that it is one of our own DNG
+	// interesting tags: orientation, datetime
+	if (undefined === f.data) {
+		const reader = f.imbackextension ? f : new FileReader();
+		reader.onload = (evt) => {
+			f.data = evt.target.result;
+			this.#parseDng(f, onok, onerr);
+		}
+		reader.onerror = (evt) => { onerr(f.name); };
+		reader.readAsArrayBuffer(f);
+		return;
+	}
+	const v = new DataView(f.data);
+	const ifd = this.#readint(v, 4);
+	const zz = this.#infos.findIndex((v, i, o) => v.size === ifd - 8);
+	const nent = this.#readshort(v, ifd);
+	let subifdstart = -1, rawstripstart = -1, datalen = -1;
+	let off = ifd+2;
+	if (this.#readshort(v, 2) !== 42 || this.#readshort(v,0) !== 18761 /* 0x4949 */ || zz === -1) {
+		// seek sub ifd then therein the stripoffsets
+		for (let k=0; k<((nent<50)? nent: 0); k++) {
+			let tag = this.#readshort(v, off);
+			if (tag === 330) {
+				subifdstart = this.#readint(v, off+8);
+				break;
+			}
+			off += 12;
+		}
+		if (-1 !== subifdstart) {
+			let subnent = this.#readshort(v, subifdstart);
+			off = subifdstart + 2;
+			for (let j=0; j<((subnent < 50)? subnent: 0); j++) {
+				let stag = this.#readshort(v, off);
+				if (stag === 273) {
+					rawstripstart = this.#readint(v, off+8);
+					break;
+				}
+				off += 12;
+			}
+			if (-1 !== rawstripstart) {
+				datalen = subifdstart - rawstripstart;
+				const zzz = this.#infos.findIndex((v, i, o) => v.size === datalen);
+				if (-1 === zzz) {
+					this.#appendmsg('Works only for originally created DNGs.');
+					return onerr(f.name);
+				}
+			}
+			else {
+				this.#appendmsg('Works only for originally created DNGs.');
+				return onerr(f.name);
+			}
+		}
+		else {
+			this.#appendmsg('Works only for originally created DNGs.');
+			return onerr(f.name);
+		}
+	}
+	else {
+		rawstripstart = 8;
+		datalen = ifd - 8;
+	}
+	let fx = {
+		imbackextension: true,
+		name: f.name.substring(0, f.name.length - 4) + '.raw',
+		size: datalen,
+		data: f.data.slice(rawstripstart, datalen + rawstripstart)
+	};
+	off = ifd+2;
+	for (let k=0; k<((nent<50)? nent: 0); k++) {
+		let tag = this.#readshort(v, off);
+		if (tag === 274)
+			fx.rot = this.#readshort(v, off+8); // rotation handling has problems
+		else if (tag === 306) {
+			fx.datestr = '';
+			let xoff = this.#readint(v, off+8);
+			const len = this.#readshort(v, off+4)-1;
+			for (let j=0; j<len;j++)
+				fx.datestr += String.fromCharCode(v.getUint8(xoff++));
+		}
+		off += 12;
+	}
+	fx.readAsArrayBuffer = (fy) => {
+		fy.onload({
+				target: { result: fy.data }
+		});
+	};
+	setTimeout(() => {
+			onok(f.name, fx, fx.rot);
+	});
+}
+/* backward: helper to read dng */
+#readshort(view, off) {
+	let res = view.getUint8(off);
+	res += (256 * view.getUint8(off+1));
+	return res;
+}
+/* backward: helper to read dng */
+#readint(view, off) {
+	let res = this.#readshort(view, off);
+	res += (65536 * this.#readshort(view,off+2));
+	return res;
 }
 /* debug */
 #prgr(gr, indent) {
@@ -3272,60 +3493,46 @@ addEntry(tag, type, value) {
 		if (type === 'BYTE' || type === 'SBYTE' || type === 'UNDEFINED') {
 			for (let k=0; k<l; k++) this.#dyndata.push(value[k]);
 			this.#currentoff += l;
-			while (this.#currentoff % 4) { // alignment
+			if (this.#currentoff % 2) { // alignment
 				this.#dyndata.push(0); this.#currentoff++;
 			}
 		} else if (type === 'ASCII') {
 			for (let k=0; k<l-1; k++) this.#dyndata.push(value.charCodeAt(k) % 256);
 			this.#dyndata.push(0);
 			this.#currentoff += l;
-			while (this.#currentoff % 4) { // alignment
+			if (this.#currentoff % 2) { // alignment
 				this.#dyndata.push(0); this.#currentoff++;
 			}
 		} else if (type === 'LONG') {
 			for (let k = 0; k < l; k++) {
-				this.#dyndata.push(0); this.#dyndata.push(0); this.#dyndata.push(0); this.#dyndata.push(0);
 				TIFFOut.writeinttoout(this.#dyndata, value[k], this.#currentoff);
 				this.#currentoff += 4;
 			}
 		} else if (type === 'SLONG') {
 			for (let k = 0; k < l; k++) {
-				this.#dyndata.push(0); this.#dyndata.push(0); this.#dyndata.push(0); this.#dyndata.push(0);
 				if (value[k] < 0) TIFFOut.writeinttoout(this.#dyndata, (65536*65536)+value[k], this.#currentoff);
 				else TIFFOut.writeinttoout(this.#dyndata, value[k], this.#currentoff);
 				this.#currentoff += 4;
 			}
 		} else if (type === 'SHORT') {
 			for (let k = 0; k < l; k++) {
-				this.#dyndata.push(0); this.#dyndata.push(0);
-				TIFFOut.writeinttoout(this.#dyndata, value[k], this.#currentoff);
+				TIFFOut.writeshorttoout(this.#dyndata, value[k], this.#currentoff);
 				this.#currentoff += 2;
-			}
-			while (this.#currentoff % 4) { // alignment
-				this.#dyndata.push(0); this.#currentoff++;
 			}
 		} else if (type === 'SSHORT') {
 			for (let k = 0; k < l; k++) {
-				this.#dyndata.push(0); this.#dyndata.push(0);
 				if (value[k] < 0) TIFFOut.writeinttoout(this.#dyndata, 65536 + value[k], this.#currentoff);
-				else TIFFOut.writeinttoout(this.#dyndata, value[k], this.#currentoff);
+				else TIFFOut.writeshorttoout(this.#dyndata, value[k], this.#currentoff);
 				this.#currentoff += 2;
-			}
-			while (this.#currentoff % 4) { // alignment
-				this.#dyndata.push(0); this.#currentoff++;
 			}
 		} else if (type === 'RATIONAL') {
 			for (let k = 0; k < l; k++) {
-				this.#dyndata.push(0); this.#dyndata.push(0); this.#dyndata.push(0); this.#dyndata.push(0);
-				this.#dyndata.push(0); this.#dyndata.push(0); this.#dyndata.push(0); this.#dyndata.push(0);
 				TIFFOut.writeinttoout(this.#dyndata, value[2*k], this.#currentoff);
 				TIFFOut.writeinttoout(this.#dyndata, value[2*k + 1], this.#currentoff + 4);
 				this.#currentoff += 8;
 			}
 		} else if (type === 'SRATIONAL') {
 			for (let k = 0; k < l; k++) {
-				this.#dyndata.push(0); this.#dyndata.push(0); this.#dyndata.push(0); this.#dyndata.push(0);
-				this.#dyndata.push(0); this.#dyndata.push(0); this.#dyndata.push(0); this.#dyndata.push(0);
 				if (value[2*k] < 0) TIFFOut.writeinttoout(this.#dyndata, (65536*65536)+value[2*k], this.#currentoff);
 				else TIFFOut.writeinttoout(this.#dyndata, value[2*k], this.#currentoff);
 				if (value[2*k + 1] < 0) TIFFOut.writeinttoout(this.#dyndata, (65536*65536)+value[2*k + 1], this.#currentoff + 4);
@@ -3508,18 +3715,106 @@ createCamProf(name) {
 }
 /* Indentation in - end of class TIFFOut */
 }
+class ImBCR extends ImBC {
+/* Indentation out */
+#totnum = 0;
+constructor() {
+	super(true);
+}
+/* nodejs runup */
+startnode() {
+	let wanthelp = false, restisfiles = false, flagging = 0;
+	if (process.argv.length < 3) {
+		wanthelp = true;
+	}
+	process.argv.forEach((v,i) => {
+			if (i >= 2) {
+				if (v ==='--') {
+					restisfiles = true;
+				}
+				else if (restisfiles) {
+					super.pushfile(v);
+					this.#totnum ++;
+				}
+				else if (flagging === 1) {
+					flagging = 0;
+					super.trylang(v);
+				}
+				else if (flagging === 2) {
+					flagging = 0;
+					super.setoutdir(v);
+				}
+				else if (v.substring(0,2)==='-l') {
+					if (v.substring(2).length > 0) {
+						let l = v.substring(2);
+						super.trylang(l);
+					}
+					else
+						flagging=1;
+				}
+				else if (v.substring(0,2)==='-d') {
+					if (v.substring(2).length > 0) {
+						super.setoutdir(v.substring(2));
+					}
+					else
+						flagging=2;
+				}
+				else if (v ==='-h') {
+					wanthelp = true;
+				}
+				else if (v.substring(0,1) === '-') {
+					console.log(super.subst(super.xl0('node.unkopt'), v));
+					wanthelp = true;
+				}
+				else {
+					super.pushfile(v);
+					this.#totnum ++;
+				}
+			}
+	});
+	if (flagging) {
+		console.log(super.xl0('node.missingval'));
+		wanthelp = true;
+	}
+	else if (wanthelp) {
+		let caller = ImBC.basename(process.argv[1]);
+		let texts = this.xl0('node.backw.help');
+		console.log(super.subst(texts[0], super.getversion()));
+		console.log(super.subst(texts[1], caller));
+		for (let j=2; j<texts.length; j++) {
+			console.log(super.rmesc(texts[j]));
+		}
+	}
+	else if (this.#totnum > 0) {
+		console.log(super.subst(super.xl0('node.backw.help')[0], super.getversion()));
+		super.handlerecurse();
+	}
+}
+/* Indentation in - end of class ImBCR */
+}
 let imbc;
 /* onload of html body */
 function init() {
-	imbc = new ImBC();
+	let backw = false;
+	if (ImBC.basename(window.location.pathname.toUpperCase()).indexOf('IMBDNG2RAW') !== -1) {
+		backw = true;
+		imbc = new ImBCR();
+		for (const o of document.getElementsByClassName('onlywhenbackw')) o.style['display']='';
+		for (const o of document.getElementsByClassName('notwhenbackw')) o.style['display']='none';
+	}
+	else
+		imbc = new ImBC();
 	imbc.querylang(window.location.pathname);
 	imbc.xlateall();
-	imbc.checkimb();
+	if (!backw) imbc.checkimb();
 }
 /* node js handling main function */
 if (typeof process !== 'undefined') {
 	var document = undefined;
-	imbc = new ImBC();
+	if (ImBC.basename(process.argv[1].toUpperCase()).indexOf('IMBDNG2RAW') !== -1)
+		imbc = new ImBCR();
+	else
+		imbc = new ImBC();
 	imbc.querylang(process.argv[1], 6);
 	imbc.startnode();
 }
