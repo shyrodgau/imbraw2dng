@@ -147,361 +147,427 @@ constructor(bwflag) {
 	}
 	if (bwflag) this.#backward = true;
 }
-#version = "V3.5.6_71844f9"; // actually const
-#alllangs = [ 'de' , 'en', 'fr', 'ru', '00' ]; // actually const
+#version = "V3.5.7_dev"; // actually const
+#alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 #texts = { // actually const
-	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU' },
+	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
 	main: {
 		coloursyourrisk: {
 			de: 'Bei Farben bin ich raus! Eigenes Risiko, fraach mich net!',
 			en: 'About colurs, I am out! Own risk, do not ask me!',
-			fr: 'About colurs, I am out! Own risk, do not ask me!'
+			fr: 'About colurs, I am out! Own risk, do not ask me!',
+			ja: '色については、アウトです！ 自己責任ですので、私に尋ねないでください。'
 		},
 		title: {
 			de: 'ImB RAW nach DNG Konverter',
 			en: 'ImB RAW to DNG converter',
 			fr: 'Convertisseur ImB RAW a DNG',
-			ru: 'Конвертер ImB RAW в DNG'
+			ru: 'Конвертер ImB RAW в DNG',
+			ja: 'ImB RAW を DNG に変換'
 		},
-		backw: {
-			title: 	{ en: 'ImB DNG to RAW back converter' },
-			generaladvice: { en: 'Only works for the exact original converted DNG.' },
-			selectdng: { en: 'Select orig. DNG' },
-			drophere: { en: 'Drop DNGs here' }
-		},
+	    backw: {
+			   title:  { en: 'ImB DNG to RAW back converter' },
+			   generaladvice: { en: 'Only works for the exact original converted DNG.' },
+			   selectdng: { en: 'Select orig. DNG' },
+			   drophere: { en: 'Drop DNGs here' }
+	    },
 		file: {
 			de: 'Datei',
 			en: 'File',
 			fr: 'Fiche',
-			ru: 'файл'
+			ru: 'файл',
+			ja: 'ファイル'
 		},
 		help: {
 			de: '? Hilfe Doku',
 			en: '? Help Doc',
 			fr: '? Aide Doc',
-			ru: '? Помощь Док'
+			ru: '? Помощь Док',
+			ja: '? ヘルプ資料'
 		},
 		helplink: {
 			de: 'https://shyrodgau.github.io/imbraw2dng/README_de',
 			en: 'https://shyrodgau.github.io/imbraw2dng/',
 			fr: 'https://shyrodgau.github.io/imbraw2dng/',
+			ja: 'https://shyrodgau.github.io/imbraw2dng/'
 		},
 		generaladvice: {
 			de: 'Daten werden nur im Browser verarbeitet, nicht im \'Internet\'.<br>Kann sein, dass der Browser fragt, ob Sie zulassen wollen, dass mehrere Dateien heruntergeladen werden.<br>Dateien, die nicht oder unbekannte RAW-Dateien sind, werden 1:1 kopiert.',
 			en: 'Data processing is entirely in the browser, not in \'the internet\'<br>Browser may ask you if you want to allow downloading multiple files.<br>Not or unrecognized RAW Files simply will be copied.',
 			fr: 'L\'information est entièrement traitée dans le navigateur et non sur \'Internet\'<br>Le navigateur peux questionner que vous acceptez le téléchargement de beaucoup de fiches.<br>Fiches pas-RAW ou RAW inconnue sont copiée 1:1.',
-			ru: 'Данные обрабатываются только в браузере, а не в \'Интернете\'.<br>Браузер может спросить, хотите ли вы разрешить загрузку нескольких файлов.<br>Файлы, которые не являются или неизвестными файлами RAW, копируются 1:1.'
+			ru: 'Данные обрабатываются только в браузере, а не в \'Интернете\'.<br>Браузер может спросить, хотите ли вы разрешить загрузку нескольких файлов.<br>Файлы, которые не являются или неизвестными файлами RAW, копируются 1:1.',
+			ja: 'データ処理は完全にブラウザ内で行われ、\'インターネット\'では行われません。<br>ブラウザにより複数のファイルのダウンロードを許可するかを尋ねることがあります。<br>RAW ファイルが存在しない、または認識されない場合は、単純にコピーされます。'
 		},
 		drophere: {
 			de: 'Dateien von ImB hier ablegen: ',
 			en: 'Drop Files from ImB here: ',
 			fr: 'Posez fiches de ImB ici: ',
-			ru: 'Храните файлы из ImB здесь: '
+			ru: 'Храните файлы из ImB здесь: ',
+			ja: 'ここに ImB のファイルをドロップします。: '
 		},
 		selectraw: {
 			de: 'Oder diese Seite per WLAN <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/moredoc_de.md#gucken-auf-imback-selbst\'>direkt von ImB</a> verwenden.<br>Oder <tt>.RAW</tt> Datei(en) auswählen:',
 			en: 'Or use this page via Wifi <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/moredoc.md#browsing-on-the-imback\'>directly from ImB</a>.<br>Or select <tt>.RAW</tt> File(s):',
 			fr: 'Ou utiliez cette page <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/moredoc.md#browsing-on-the-imback\'>via Wifi sur ImB</a>.<br>Ou selectez <tt>.RAW</tt> fiche(s):',
-			ru: 'Или используйте эту страницу через Wi-Fi <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/moredoc.md#browsing-on-the-imback\'>прямо из ImB</a>.<br>Или выберите файл(ы) <tt>RAW</tt>:'
+			ru: 'Или используйте эту страницу через Wi-Fi <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/moredoc.md#browsing-on-the-imback\'>прямо из ImB</a>.<br>Или выберите файл(ы) <tt>RAW</tt>:',
+			ja: 'または、Wifi 経由で <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\'>ImB から直接</a>このページを使用します。<br> または、 <tt>.RAW</tt> ファイルを選択します。:'
 		},
 		stillcounting: {
 			de: '... zähle ... ',
 			en: '... counting ... ',
 			fr: '... compter ...',
-			ru: '... подсчет ...'
+			ru: '... подсчет ...',
+			ja: '... カウント中 ... '
 		},
 		types: {
 			rawpics: {
 				de: 'RAW Bilder',
 				en: 'RAW Pictures',
 				fr: 'RAW images',
+				ja: 'RAW 画像'
 			},
 			jpgpics: {
 				de: 'JPEG-Bilder',
 				en: 'JPEG Pictures',
-				fr: 'JPEG images'
+				fr: 'JPEG images',
+				ja: 'JPEG 画像'
 			},
 			other: {
 				de: 'Andere',
 				en: 'Other',
 				fr: 'Autre',
+				ja: 'その他'
 			},
 			notpic: {
 				de: 'Keine Bilder',
 				en: 'Not pictures',
-				fr: 'Pas images'
+				fr: 'Pas images',
+				ja: '画像ではない'
 			}
 		},
 		file: {
 			jpeg: {
 				de: 'Datei $$0 (JPEG)',
 				en: 'File $$0 (JPEG)',
-				fr: 'Fiche $$0 (JPEG)'
+				fr: 'Fiche $$0 (JPEG)',
+				ja: 'ファイル $$0 (JPEG)'
 			},
 			nopreview: {
 				de: 'Datei $$0<br>Nicht jpeg oder raw, keine Vorschau...',
 				en: 'File $$0<br>Not jpeg or raw, no preview...',
-				fr: 'Fiche $$0<br>Ni jpeg ni raw, pas de aperçu...'
+				fr: 'Fiche $$0<br>Ni jpeg ni raw, pas de aperçu...',
+				ja: 'ファイル $$0<br>jpeg または、raw 以外、プレビューなし...'
 			},
 			rawunknown: {
 				de: 'Datei $$0<br>Unerkannte RAW Dateigröße $$1, bitte Entwickler kontaktieren! Keine Vorschau...',
 				en: 'File $$0<br>Unknown raw size $$1, please contact developer! No preview...',
-				fr: 'Fiche $$0<br>taille de fiche $$1 non reconnue, contacter le développeur, pas de aperçu...' 
+				fr: 'Fiche $$0<br>taille de fiche $$1 non reconnue, contacter le développeur, pas de aperçu...',
+				ja: 'File $$0<br>不明な raw サイズ $$1, 開発者にお問い合わせください! プレビューなし...'
 			},
 			dngimpnote: {
 				de: 'Import eines DNG geht nur, wenn diese genau das hiermit erzeugte Original ist.',
 				en: 'Re-import of a DNG is only possible if this is exactly the original that was created here.',
-				fr: 'La réimportation d\'un DNG n\'est possible que s\'il s\'agit exactement de l\'original créé ici.'
+				fr: 'La réimportation d\'un DNG n\'est possible que s\'il s\'agit exactement de l\'original créé ici.',
+				ja: 'DNG の再インポートは、これがここで作成されたオリジナルである場合にのみ可能です。'
 			},
 			de: 'Datei $$0',
 			en: 'File $$0',
-			fr: 'Fiche $$0'
+			fr: 'Fiche $$0',
+			ja: 'ファイル $$0'
 		},
 		sort: {
 			de: 'Sortiere',
 			en: 'Sort:',
-			fr: 'Trier:'
+			fr: 'Trier:',
+			ja: 'ソート:'
 		},
 		or: {
 			de: 'Oder ',
 			en: 'Or ',
-			fr: 'Ou '
+			fr: 'Ou ',
+			ja: 'または '
 		},
 		log: {
 			de: 'Protokoll-Ausgabe:',
 			en: 'Message Log:',
-			fr: 'Journal des messages'
+			fr: 'Journal des messages',
+			ja: 'メッセージ ログ:'
 		},
 		selected: {
 			de: 'Ausgewählt',
 			en: 'Selected',
-			fr: 'Sélectionné(s)'
+			fr: 'Sélectionné(s)',
+			ja: '選択済み'
 		}
 	},
 	browser: {
 		bytype: {
 			de: 'nach Typ',
 			en: 'by type',
-			fr: 'par type'
+			fr: 'par type',
+			ja: '種類別'
 		},
 		olderfirst: {
 			de: 'Ältere nach oben',
 			en: 'Older first',
-			fr: 'Plus anciens ci-dessus'
+			fr: 'Plus anciens ci-dessus',
+			ja: '古い順'
 		},
 		selall: {
 			tooltip: {
 				de: 'Wenn Haken nicht gesetzt, wähle alles aus. Bei Klick wenn angehakt setze Auswahl auf Nichts.',
 				en: 'If not selected then select all. If it is selected and clicked then unselect all.',
-				fr: 'S\'il n\'est pas sélectionner, sélectionner tout. Au clic si sélectionné, vider la sélection'
+				fr: 'S\'il n\'est pas sélectionner, sélectionner tout. Au clic si sélectionné, vider la sélection',
+				ja: '選択されていない場合は、すべてを選択します。 選択してクリックした場合は、すべての選択を解除します。'
 			},
 			de: 'Alle de-/ oder selektieren',
 			en: 'De-/select all',
-			fr: 'De-/sélectionner tout'
+			fr: 'De-/sélectionner tout',
+			ja: 'すべての選択を解除'
 		},
 		procall: {
 			de: 'Alle ausgewählte kopieren/verarbeiten',
 			en: 'Copy/process all selected',
-			fr: 'Traiter les sélectionnés'
+			fr: 'Traiter les sélectionnés',
+			ja: '選択したものをすべてコピー/処理'
 		},
 		delall: {
 			de: 'Alle ausgewählte löschen',
 			en: 'Delete all selected',
-			fr: 'Supprimer les sélectionnés'
+			fr: 'Supprimer les sélectionnés',
+			ja: '選択したものをすべて削除'
 		}
 	},
 	onimback: {
 		connected: {
 			de: 'ImB Verbunden! ',
 			en: 'ImB Connected! ',
-			fr: 'ImB Connecté! '
+			fr: 'ImB Connecté! ',
+			ja: 'ImB 接続済み! '
 		},
 		dlconvert: {
 			de: 'Konvertiere / Lade herunter: ',
 			en: 'Download / convert: ',
-			fr: 'Telecharger / convertir'
+			fr: 'Telecharger / convertir',
+			ja: 'ダウンロード / 変換: '
 		},
 		totalnum: {
 			de: 'gesamt:',
 			en: 'total:',
-			fr: 'total:'
+			fr: 'total:',
+			ja: '合計:'
 		},
 		fromtime: {
 			de: 'ab Zeitstempel bzw. jünger als ',
 			en: 'from timestamp or younger than ',
-			fr: 'à partir de l\'horodatage ou plus jeune que '
+			fr: 'à partir de l\'horodatage ou plus jeune que ',
+			ja: 'タイムスタンプ以降またはそれより古い '
 		},
 		nullforall: {
 			de: '0000 oder leer für \'alle\'',
 			en: '0000 or empty for \'all\'',
-			fr: '0000 ou déposer pour \'tout\''
+			fr: '0000 ou déposer pour \'tout\'',
+			ja: '0000 または、 \'すべて\' 空 '
 		},
 		doit: {
 			de: 'Mach es',
 			en: 'Do it',
-			fr: 'Fais-le'
+			fr: 'Fais-le',
+			ja: '実行'
 		},
 		visual: {
 			de: 'Bild-Browser benutzen',
 			en: 'Use visual Picture Browser',
-			fr: 'Ou outilizer navigateur visuel des images'
+			fr: 'Ou outilizer navigateur visuel des images',
+			ja: 'ビジュアルな画像ブラウザを使用する'
 		},
 		errconnect: {
 			de: '\x1b[31mFEHLER\x1b[0m bei der Verbindung zu ImB auf $$0! Im ImB WLAN?',
 			en: '\x1b[31mERROR\x1b[0m connecting to ImB on $$0! In the ImB WiFi?',
-			fr: '\x1b[31mERREUR\x1b[0m lors de la connexion à imback. Dans le Wifi ImB?'
+			fr: '\x1b[31mERREUR\x1b[0m lors de la connexion à imback. Dans le Wifi ImB?',
+			ja: '\x1b[31mエラー\x1b[0m $$0 でImB に接続しています! ImB WiFi ですか?'
 		},
 		nomatch: {
 			de: 'Keine passenden Dateien gefunden. Kann vorübergehend sein.',
 			en: 'No matching files found. Might be temporary.',
-			fr: 'Aucun fiche correspondant trouvé. Peut-etre temporaire.'
+			fr: 'Aucun fiche correspondant trouvé. Peut-etre temporaire.',
+			ja: '一致するファイルが見つかりませんでした。 一時的なものかもしれません。'
 		},
 		strangename: {
 			de: '<b style=\'background-color:#ffdddd;\'>Warnung:</b> Komischer Dateiname: $$0',
 			en: '<b style=\'background-color:#ffdddd;\'>Warning:</b> Strange file name: $$0',
-			fr: '<b style=\'background-color:#ffdddd;\'>Avertissement:</b> Nom de fiche inhabituel: $$0'
+			fr: '<b style=\'background-color:#ffdddd;\'>Avertissement:</b> Nom de fiche inhabituel: $$0',
+			ja: '<b style=\'background-color:#ffdddd;\'>警告:</b> 無効なファイル名: $$0'
 		},
 		strangenamex: {
 			de: '\x1b[31mWarnung:\x1b[0m Komischer Dateiname: $$0',
 			en: '\x1b[31mWarning:\x1b[0m Strange file name: $$0',
-			fr: '\x1b[31mAvertissement:\x1b[0m Nom de fiche inhabituel: $$0'
+			fr: '\x1b[31mAvertissement:\x1b[0m Nom de fiche inhabituel: $$0',
+			ja: '\x1b[31m警告:\x1b[0m 無効なファイル名: $$0'
 		},
 		invaltime: {
 			de: '<b style=\'background-color:#ffdddd;\'>FEHLER:</b> Ungültiger Zeitstempel: $$0',
 			en: '<b style=\'background-color:#ffdddd;\'>ERROR:</b> Invalid timestamp: $$0',
-			fr: '<b style=\'background-color:#ffdddd;\'>ERREUR:</b> Horodatage invalide: $$0'
+			fr: '<b style=\'background-color:#ffdddd;\'>ERREUR:</b> Horodatage invalide: $$0',
+			ja: '<b style=\'background-color:#ffdddd;\'>エラー:</b> 無効なタイムスタンプ: $$0'
 		},
 		invaltimex: {
 			de: '\x1b[31mFEHLER:\x1b[0m Ungültiger Zeitstempel: $$0',
 			en: '\x1b[31mERROR:\x1b[0m Invalid timestamp: $$0',
-			fr: '\x1b[31mERREUR:\x1b[0m Horodatage invalide: $$0'
+			fr: '\x1b[31mERREUR:\x1b[0m Horodatage invalide: $$0',
+			ja: '\x1b[31mERROR:\x1b[0m 無効なタイムスタンプ: $$0'
 		},
 	},
 	process: {
 		singlestep: {
 			de: 'Einzelschritt mit Vorschau',
 			en: 'Single Step with preview',
-			fr: 'Seule étape avec aperçu'
+			fr: 'Seule étape avec aperçu',
+			ja: 'プレビューありでシングルステップ'
 		},
 		nothing: {
 			de: 'Nichts ausgewählt.. ?',
 			en: 'Nothing selected...?',
-			fr: 'Rien de sélectionné'
+			fr: 'Rien de sélectionné',
+			ja: '何も選択されていません...?'
 		},
 		erraccess: {
 			de: '<b>Fehler beim Zugriff auf $$0. ENTSCHLDIGUNG! </b>',
 			en: '<b>Error occured accessing $$0. SORRY! </b>',
-			fr: '<b>Erreur lors de l\'accès à $$0. DÉSOLÉE!</b>'
+			fr: '<b>Erreur lors de l\'accès à $$0. DÉSOLÉE!</b>',
+			ja: '<b>アクセス中にエラーが発生しました $$0. 申し訳ございません! </b>'
 		},
 		erraccessx: {
 			de: '\x1b[31mFEHLER\x1b[0m beim Zugriff auf $$0. ENTSCHLDIGUNG!',
 			en: '\x1b[31mERROR\x1b[0m occured accessing $$0. SORRY!',
-			fr: '\x1b[31mERREUR\x1b[0m lors de l\'accès à $$0. DÉSOLÉE!'
+			fr: '\x1b[31mERREUR\x1b[0m lors de l\'accès à $$0. DÉSOLÉE!',
+			ja: '\x1b[31mエラー\x1b[0m アクセス中に発生しました $$0. 申し訳ございません!'
 		},
 		notraw: {
 			de: 'Durchleitung weil nicht raw: $$0',
 			en: 'Passing through as not raw: $$0',
-			fr: 'Passage comme non RAW: $$0'
+			fr: 'Passage comme non RAW: $$0',
+			ja: 'RAW ではないのでスルー: $$0'
 		},
 		selectedn: {
 			de: '$$0 Datei(en) wurden ausgewählt.',
 			en: 'Got $$0 file(s) selected.',
-			fr: '$$0 fiche(s) sélectionné(s)'
+			fr: '$$0 fiche(s) sélectionné(s)',
+			ja: '$$0 ファイルが選択されました。'
 		},
 		copyok: {
 			de: '<b style=\'background-color:#ddffdd;\'>Fertig! Nach $$0 kopiert (Downloads-Ordner prüfen)</b>&nbsp;',
 			en: '<b style=\'background-color:#ddffdd;\'>Finished! Copied to $$0 (Check Downloads Folder)</b>&nbsp;',
-			fr: '<b style=\'background-color:#ddffdd;\'>Fini! Copié sur $$0 (Vérifier le dossier de téléchargements/Downloads)</b>&nbsp;'
+			fr: '<b style=\'background-color:#ddffdd;\'>Fini! Copié sur $$0 (Vérifier le dossier de téléchargements/Downloads)</b>&nbsp;',
+			ja: '<b style=\'background-color:#ddffdd;\'>終了! $$0 にコピーされました (ダウンロードフォルダーを確認)</b>&nbsp;'
 		},
 		copyokx: {
 			de: '\x1b[32mFertig!\x1b[0m Nach $$0 kopiert',
 			en: '\x1b[32mFinished!\x1b[0m Copied to $$0',
-			fr: '\x1b[32mFini!\x1b[0m Copié sur $$0'
+			fr: '\x1b[32mFini!\x1b[0m Copié sur $$0',
+			ja: '\x1b[32m終了!\x1b[0m $$0 にコピー'
 		},
 		errorreadingfile: {
 			de: '<b style=\'background-color:#ffdddd;\'>Fehler beim Lesen der Datei $$0. ENTSCHULDIGUNG! </b>',
 			en: '<b style=\'background-color:#ffdddd;\'>Error occured reading file $$0. SORRY! </b>',
-			fr: '<b style=\'background-color:#ffdddd;\'>Erreur de lecture du fiche $$0. DÉSOLÉE! </b>'
+			fr: '<b style=\'background-color:#ffdddd;\'>Erreur de lecture du fiche $$0. DÉSOLÉE! </b>',
+			ja: '<b style=\'background-color:#ffdddd;\'>ファイル $$0 の読み取り中にエラーが発生しました。 申し訳ございません! </b>'
 		},
 		errorreadingfilex: {
 			de: '\x1b[31mFEHLER\x1b[0m beim Lesen der Datei $$0. ENTSCHULDIGUNG!',
 			en: '\x1b[31mERROR\x1b[0m occured reading file $$0. SORRY!',
-			fr: '\x1b[31mERREUR\x1b[0m de lecture du fiche $$0. DÉSOLÉE!'
+			fr: '\x1b[31mERREUR\x1b[0m de lecture du fiche $$0. DÉSOLÉE!',
+			ja: '\x1b[31mエラー\x1b[0m ファイル $$0 の読み取り中に発生しました。 申し訳ございません!'
 		},
 		unknownsize: {
 			de: '<b style=\'background-color:#ffdddd;\'>[$$0] Entschuldigung, die Dateigröße <b>$$1</b> passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!</b>',
 			en: '<b style=\'background-color:#ffdddd;\'>[$$0] Sorry, file Size <b>$$1</b> does not match known formats. Please contact developer!</b>',
-			fr: '<b style=\'background-color:#ffdddd;\'>[$$0] Désolée, la taille du fiche $$1 ne correspond pas au format connu. Veuillez contacter le développeur</b>'
+			fr: '<b style=\'background-color:#ffdddd;\'>[$$0] Désolée, la taille du fiche $$1 ne correspond pas au format connu. Veuillez contacter le développeur</b>',
+			ja: '<b style=\'background-color:#ffdddd;\'>[$$0] 申し訳ありませんが、ファイルサイズ <b>$$1</b> は既知の形式と一致しません。開発者にお問い合わせください。</b>'
 		},
 		unknownsizex: {
 			de: '[$$0] \x1b[31mEntschuldigung, die Dateigröße $$1 passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!\x1b[0m',
 			en: '[$$0] \x1b[31mSorry, file Size $$1 does not match known formats. Please contact developer!\x1b[0m',
-			fr: '[$$0] \x1b[31mDésolée, la taille du fiche $$1 ne correspond pas au format connu. Veuillez contacter le développeur\x1b[0m'
+			fr: '[$$0] \x1b[31mDésolée, la taille du fiche $$1 ne correspond pas au format connu. Veuillez contacter le développeur\x1b[0m',
+			ja: '[$$0] \x1b[31m申し訳ありませんが、ファイルサイズ $$1 は既知の形式と一致しません。開発者にお問い合わせください。\x1b[0m'
 		},
 		processing: {
 			de: 'Verarbeite Datei: $$0 ',
 			en: 'Processing file: $$0',
-			fr: 'Je suis en train de traiter le fiche $$0'
+			fr: 'Je suis en train de traiter le fiche $$0',
+			ja: '処理中のファイル: $$0'
 		},
 		assuming: {
 			de: 'Annahme: $$0 $$1',
 			en: 'Assuming $$0 $$1',
-			fr: 'Hypothèse: $$0 $$1'
+			fr: 'Hypothèse: $$0 $$1',
+			ja: '認識 $$0 $$1'
 		},
 		datetime: {
 			de: 'Datum/Zeit: $$0',
 			en: 'Date/Time: $$0 ',
-			fr: 'Date/heure: $$0'
+			fr: 'Date/heure: $$0',
+			ja: '日付/時刻: $$0 '
 		},
 		orientation: {
 			de: 'Drehung: ',
 			en: 'Orientation: ',
-			fr: 'Rotation: '
+			fr: 'Rotation: ',
+			ja: '向き: '
 		},
 		converted: {
 			de: '<b style=\'background-color:#ddffdd;\'>Fertig! Nach $$0 konvertiert (Downloads-Ordner prüfen)</b>&nbsp;',
 			en: '<b style=\'background-color:#ddffdd;\'>Finished! Converted to $$0 (Check Downloads Folder)</b>&nbsp;',
-			fr: '<b style=\'background-color:#ddffdd;\'>Fini! Converti en $$0 (Vérifier le dossier de téléchargements/Downloads)</b>&nbsp;'
+			fr: '<b style=\'background-color:#ddffdd;\'>Fini! Converti en $$0 (Vérifier le dossier de téléchargements/Downloads)</b>&nbsp;',
+			ja: '<b style=\'background-color:#ddffdd;\'>終了! $$0 に変換されました (ダウンロードフォルダーを確認してください)</b>&nbsp;'
 		},
 		convertedx: {
 			de: '\x1b[32mFertig!\x1b[0m Nach $$0 konvertiert',
 			en: '\x1b[32mFinished!\x1b[0m Converted to $$0',
-			fr: '\x1b[32mFini!\x1b[0m Converti en $$0'
+			fr: '\x1b[32mFini!\x1b[0m Converti en $$0',
+			ja: '\x1b[32m終了!\x1b[0m $$0 に変換'
 		},
 		errsave: {
 			de: '\x1b[31mFEHLER!\x1b[0m Konnte Datei $$0 nicht speichern.',
 			en: '\x1b[31mERROR!\x1b[0m Could not write file $$0',
-			fr: '\x1b[31mERREUR\x1b[0m Impossible d\'écrire le fiche $$0.'
+			fr: '\x1b[31mERREUR\x1b[0m Impossible d\'écrire le fiche $$0.',
+			ja: '\x1b[31mエラー!\x1b[0m ファイル $$0 に書き込めませんでした'
 		},
 		droppedn: {
 			de: '$$0 Datei(en) wurden abgelegt.',
 			en: 'Got $$0 file(s) dropped.',
-			fr: '$$0 fiche(s) ont été stockés'
+			fr: '$$0 fiche(s) ont été stockés',
+			ja: '$$0 個のファイルがドロップされました。'
 		},
 		frombackn: {
 			de: '$$0 Datei(en) vom ImB zu verarbeiten.',
 			en: 'Got $$0 file(s) from ImB.',
-			fr: 'J\'ai reçu $$0 fiche(s) d\'ImB'
+			fr: 'J\'ai reçu $$0 fiche(s) d\'ImB',
+			ja: 'ImB から $$0 ファイルを取得しました。'
 		},
 		frombrowsern: {
 			de: '$$0 Datei(en) vom Bild-Browser zu verarbeiten.',
 			en: 'Got $$0 file(s) from Visual browser.',
-			fr: 'J\'ai obtenu $$ fiche(s) du navigateur visuel'
+			fr: 'J\'ai obtenu $$ fiche(s) du navigateur visuel',
+			ja: 'ビジュアル ブラウザから $$0 ファイルを取得しました。'
 		},
 		skipped: {
 			remaining: {
 				de: 'Verbleibende $$0 Dateien auf Anforderung übersprungen',
 				en: 'Skipping remaining $$0 images at your request',
-				fr: '$$0 fiches restants ignorés sur demande'
+				fr: '$$0 fiches restants ignorés sur demande',
+				ja: 'リクエストに応じてスキップ: $$0'
 			},
 			de: 'Auf Anforderung übersprungen: $$0',
 			en: 'Skipped at your request: $$0',
-			fr: 'Ignoré à votre demande: $$0'
+			fr: 'Ignoré à votre demande: $$0',
+			ja: 'リクエストに応じて残りの $$0 画像をスキップします'
 		},
 		totals: {
 			en: 'Total $$0, ok $$1, skipped $$2, Errors $$3',
 			de: 'Total $$0, ok $$1, übersprungen $$2, Fehler $$3',
-			fr: 'Total : $$0, ok :$$1, Ignoré : $$2, Erreur : $$3'
+			fr: 'Total : $$0, ok :$$1, Ignoré : $$2, Erreur : $$3',
+			ja: '合計 $$0、OK $$1、スキップ $$2、エラー $$3'
 		},
 		addpreview: {
 			en: 'Add preview thumbnail to DNG',
@@ -513,68 +579,81 @@ constructor(bwflag) {
 		err: {
 			de: 'Fehler bei Vorschau :-(',
 			en: 'Error with Preview :-(',
-			fr: 'Erreur dans l\'aperçu :-('
+			fr: 'Erreur dans l\'aperçu :-(',
+			ja: 'プレビューでのエラー :-('
 		},
 		rotcw: {
 			de: 'im Uhrzeigersinn drehen',
 			en: 'Rotate clockwise',
-			fr: 'tourner dans le sens des aiguilles d\'une montre'
+			fr: 'tourner dans le sens des aiguilles d\'une montre',
+			ja: '時計回りに回転'
 		},
 		rotccw: {
 			de: 'gegen den Uhrzeigersinn drehen',
 			en: 'rotate counterclockwise',
-			fr: 'tourner dans le sens inverse des aiguilles d\'une montre'
+			fr: 'tourner dans le sens inverse des aiguilles d\'une montre',
+			ja: '反時計回りに回転'
 		},
 		rot180: {
 			de: 'auf den Kopf',
 			en: 'Rotate 180°',
-			fr: 'retourné'
+			fr: 'retourné',
+			ja: '180°回転'
 		},
 		rotreset: {
 			de: 'Drehung zurücksetzen',
 			en: 'Reset',
 			fr: 'Réinitialiser la rotation',
+			ja: 'リセット',
 			tooltip: {
 				de: 'Ursprüngliche Bildausrichtung wiederherstellen',
 				en: 'Reset original image orientation',
-				fr: 'Restaurer l\'orientation originale de l\'image'
+				fr: 'Restaurer l\'orientation originale de l\'image',
+				ja: '元の画像の向きにリセット'
 			}
 		},
 		process: {
 			de: 'Kopieren/Konvertieren',
 			en: 'Copy/Convert',
-			fr: 'Copie/Convertir'
+			fr: 'Copie/Convertir',
+			ja: '元の画像の向きにリセット'
 		},
 		skip: {
 			de: 'Überspringen',
 			en: 'Skip',
-			fr: 'Sauter'
+			fr: 'Sauter',
+			ja: 'コピー/変換'
 		},
 		forall: {
 			de: 'Für alle weiteren das selbe',
 			en: 'Do this for all following',
-			fr: 'Faites ceci pour tous les suivants'
+			fr: 'Faites ceci pour tous les suivants',
+			ja: '以下のすべてに対してこれを実行します'
 		},
 		orients: {
 			none: {
 				de: 'keine',
 				en: 'none',
-				fr: 'aucune'
+				fr: 'aucune',
+				ja: 'なし'
 			},
 			upsidedown: {
 				de: '180°',
 				en: '180°',
+				ja: '180°',
 				fr: '180°'
 			},
 			clockwise: {
 				de: 'im Uhrzeigersinn',
 				en: 'clockwise',
-				fr: 'dans le sens des aiguilles d\'une montre'
+				fr: 'dans le sens des aiguilles d\'une montre',
+				ja: '時計回り'
 			},
 			counterclockwise: {
 				de: 'gegen den Uhrzeigersinn',
 				en: 'counterclockwise',
-				fr: 'dans le sens inverse des aiguilles d\'une montre'
+				fr: 'dans le sens inverse des aiguilles d\'une montre',
+				ja: '反時計回り'
 			}
 		}
 	},
@@ -582,14 +661,16 @@ constructor(bwflag) {
 		unknownsize: {
 			de: 'Unerkannte RAW-Dateigröße, Entwickler kontaktieren',
 			en: 'Unrecognized RAW file size, contact developer',
-			fr: 'La taille du fiche RAW ne correspond pas au format connu. Veuillez contacter le développeur'
+			fr: 'La taille du fiche RAW ne correspond pas au format connu. Veuillez contacter le développeur',
+			ja: '反時計回り'
 		},
 	},
 	selection: {
 		got: {
 			de: '$$0 Dateien wurden ausgewählt.',
 			en: 'Got $$0 files selected.',
-			fr: '$$0 dossiers ont été sélectionnés.'
+			fr: '$$0 dossiers ont été sélectionnés.',
+			ja: '$$0 ファイルが選択されました。'
 		},
 	},
 	del: {
@@ -597,42 +678,47 @@ constructor(bwflag) {
 			en: 'Deleting $$0 file(s) can not be undone! Are you sure you want to continue?',
 			de: 'Löschen von $$0 Datei(en) kann nicht rückgängig gemacht werden. Sicher damit weitermachen?',
 			fr: 'La suppression de $$0 fiche(s) est irréversible. Es-tu sur de vouloir continuer?',
+			ja: '$$0 ファイルを削除すると、元に戻すことはできません。 続行してもよろしいですか?',
 			ok: {
 				de: 'Ok',
 				en: 'Ok',
-				fr: 'Ok'
+				fr: 'Ok',
+				ja: 'はい'
 			},
 			cancel: {
 				de: 'Abbrechen',
 				en: 'Cancel',
-				fr: 'Annuler'
+				fr: 'Annuler',
+				ja: 'キャンセル'
 			}
 		},
 		nostatus: {
 			de: 'Der Status des Löschens kann nicht sicher geprüft werden. Bitte laden Sie die Seite nach dem Löschen neu.',
 			en: 'The status of the delete can not be checked safely. Reload the page after deleting.',
-			fr: 'Le statut de la suppression ne peut pas être vérifié avec certitude. Veuillez recharger la page après la suppression.'
+			fr: 'Le statut de la suppression ne peut pas être vérifié avec certitude. Veuillez recharger la page après la suppression.',
+			ja: '削除のステータスを安全に確認することはできません。 削除後はページを再読み込みしてください。'
 		},
 		reload: {
 			de: 'Bitte Seite neu laden.',
 			en: 'Please reload page.',
-			fr: 'Veuillez recharger la page.'
+			fr: 'Veuillez recharger la page.',
+			ja: 'ページをリロードしてください。'
 		}
 	},
 	node: {
-		backw: {
-			help: {
-				en: [ '\x1b[1mWelcome to imbdng2raw $$0 !', 'Usage: node $$0 [-l lang] [-d dir] [ [--] <files>* ]',
-				'Options:',
-				' -h - show this help',
-				' -l XX - where XX is a valid language code (currently: DE, EN, FR)',
-				'         Language can also be set by changing filename to imbraw2dng_XX.js .',
-				' -d dir - put output files into dir',
-				' -----',
-				' -- - treat rest of parameters as local files or dirs',
-				' <files-or-dirs> - process local files' ]
-			}
-		},
+	    backw: {
+			   help: {
+					   en: [ '\x1b[1mWelcome to imbdng2raw $$0 !', 'Usage: node $$0 [-l lang] [-d dir] [ [--] <files>* ]',
+					   'Options:',
+					   ' -h - show this help',
+					   ' -l XX - where XX is a valid language code (currently: DE, EN, FR)',
+					   '         Language can also be set by changing filename to imbraw2dng_XX.js .',
+					   ' -d dir - put output files into dir',
+					   ' -----',
+					   ' -- - treat rest of parameters as local files or dirs',
+					   ' <files-or-dirs> - process local files' ]
+			   }
+	    },
 		help: {
 			en: [ '\x1b[1mWelcome to imbraw2dng\x1b[0m $$0 !', 'Usage: node $$0 \x1b[1m[\x1b[0m-l lang\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-f\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-d dir\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-nc \x1b[1m|\x1b[0m -co\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-R\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-J\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-O\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-n yyyy_mm_dd-hh_mm_ss\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m \x1b[1m[\x1b[0m--\x1b[1m]\x1b[0m \x1b[1m<\x1b[0mfiles-or-dirs\x1b[1m>*\x1b[0m \x1b[1m]\x1b[0m',
 				'Options:',
@@ -687,22 +773,43 @@ constructor(bwflag) {
 				' \x1b[1m-n yyyy_mm_dd-hh_mm_ss\x1b[0m (oder beliebig langer Anfang davon) - nur Dateien neuer als dieser Zeitstempel von ImB oder übergebenen Verzeichnissen holen',
 				' -----',
 				' \x1b[1m--\x1b[0m - weitere Parameter als lokale Dateien oder Ordner betrachten',
-				' <dateien-oder-ordner> - lokale Dateien oder Ordner rekursiv (z.B. von der MicroSD Karte aus ImB) verarbeiten',]
+				' <dateien-oder-ordner> - lokale Dateien oder Ordner rekursiv (z.B. von der MicroSD Karte aus ImB) verarbeiten',],
+			ja: [
+				'\x1b[1mimbraw2dng へようこそ\x1b[0m $$0 !', 'Usage: node $$0 \x1b[1m[\x1b[0m-l lang\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-f\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-d dir\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-nc \x1b[1m|\x1b[0m -co\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-R\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-J\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-O\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-n yyyy_mm_dd-hh_mm_ss\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m \x1b[1m[\x1b[0m--\x1b[1m]\x1b[0m \x1b[1m<\x1b[0mfiles-or-dirs\x1b[1m>*\x1b[0m \x1b[1m]\x1b[0m',
+				'オプション:',
+				' \x1b[1m-h\x1b[0m - このヘルプを表示する',
+				' \x1b[1m-nc\x1b[0m - 色付きのテキストを使用しない',
+				' \x1b[1m-co\x1b[0m - 色付きのテキストを強制',
+				' \x1b[1m-l XX\x1b[0m - ここで、XX は有効な言語コードです (現在: DE、EN、FR、JA)',
+				'         ファイル名を imbraw2dng_XX.js に変更することで言語を設定することもできます。',
+				' \x1b[1m-d dir\x1b[0m - 出力ファイルを dir に置く',
+				' \x1b[1m-f\x1b[0m - 現在のファイルを上書きする',
+				' \x1b[1m-R\x1b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリからRAWを取得する',
+				' \x1b[1m-J\x1b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリからJPEGを取得する',
+				' \x1b[1m-O\x1b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリから非RAW/非JPEGを取得する',
+				' \x1b[1m-n yyyy_mmdd_hhmmss\x1b[0m (または任意の長さのプレフィックス) - ImB からこのタイムスタンプより新しいもののみを選択する',
+				' -----',
+				' \x1b[1m--\x1b[0m - 残りのパラメータをローカル ファイルまたはディレクトリとして扱う',
+				'<files-or-dirs> と -R/-J/-O/-n は同時に使用できません。'
+				]
 		},
 		unkopt: {
 			en: '\x1b[31mUnknown Option:\x1b[0m $$0',
 			de: '\x1b[31mUnbekannte Option:\x1b[0m $$0',
-			fr: '\x1b[31mOption inconnue:\x1b[0m $$0'
+			fr: '\x1b[31mOption inconnue:\x1b[0m $$0',
+			ja: '\x1b[31m最後のパラメータの値が欠落しています。\x1b[0m'
 		},
 		missingval: {
 			en: '\x1b[31mMissing value for last parameter.\x1b[0m',
 			de: '\x1b[31mFehlender Wert für letzten Parameter.\x1b[0m',
-			fr: '\x1b[31mValeur manquante pour le dernier paramètre.\x1b[0m'
+			fr: '\x1b[31mValeur manquante pour le dernier paramètre.\x1b[0m',
+			ja: '\x1b[31m最後のパラメータの値が欠落しています。\x1b[0m'
 		},
 		fnwarn: {
 			en: '\x1b[31mWarning:\x1b[0m $$0 looks like a timestamp, did you forget \x1b[1m-n\x1b[0m or \x1b[1m--\x1b[0m in front of it?',
 			de: '\x1b[31mWarnung:\x1b[0m $$0 sieht wie ein Zeitstempel aus, vielleicht \x1b[1m-n\x1b[0m oder \x1b[1m--\x1b[0m davor vergessen?',
 			fr: '\x1b[31mAvertissement:\x1b[0m $$0 ressemble à un horodatage, oubliée \x1b[1m-n\x1b[0m ou \x1b[1m--\x1b[0m?',
+			ja: '\x1b[31m警告:\x1b[0m $$0 lタイムスタンプのようですが、 \x1b[1m-n\x1b[0m または \x1b[1m--\x1b[0m 手前にあるのを忘れましたか?'
 		},
 		renamed: {
 			en: '(renamed)',
@@ -3914,7 +4021,7 @@ if (typeof process !== 'undefined') {
 <div style="font-weight:bold;"><span class="notwhenbackw" data-myxlkey='main.title'> </span><span class="onlywhenbackw" style="display:none;" data-myxlkey='main.backw.title'> </span> <span id="mainversion"> </span> - 
  <a target="_new" data-myhrefxlkey="main.helplink" data-myxlkey='main.help'></a>
 <select id="langsel" onchange="imbc.setlang()" value="en"><option value="de" onclick="imbc.setlang()">DE</option><option value="en" selected onclick="imbc.setlang()">EN</option>
-<option value="fr" onclick="imbc.setlang()">FR</option><!--option value="ru" onclick="imbc.setlang()">RU</option--></select></div>
+<option value="ja" onclick="imbc.setlang()">JA</option><option value="fr" onclick="imbc.setlang()">FR</option><!--option value="ru" onclick="imbc.setlang()">RU</option--></select></div>
 <br><div class="notwhenbackw"><span data-myxlkey="main.coloursyourrisk"> </span>&nbsp;<br></div>
 <!-- the normal display -->
 <div id="normal" style="margin-top: 0.5em;">

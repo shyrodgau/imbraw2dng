@@ -28,7 +28,7 @@ Das github Repository ist [hier](https://github.com/shyrodgau/imbraw2dng).
 
 ### Internationalisierung
 
-Im Moment werden die Sprachen Englisch (EN), Französisch (FR) und Deutsch (DE) unterstützt. Wenn man die HTML-Datei mit geändertem Namen
+Im Moment werden die Sprachen Englisch (EN), Japanisch (JA), Französisch (FR) und Deutsch (DE) unterstützt. Wenn man die HTML-Datei mit geändertem Namen
 als `imbraw2dng_XX.html` abspeichert, wobei `XX` das Sprachkürzel ist, öffnet sich die Seite direkt in dieser Sprache. Wenn
 du beim Übersetzen helfen magst, übersetze die Seite, die du gerade liest oder schau [hier](https://shyrodgau.github.io/imbraw2dng/translations.xls) und nimm Kontakt
 auf.
@@ -80,7 +80,7 @@ Optionen:
  -h - diesen Hilfetext zeigen
  -nc - keinen farbigen Text zeigen
  -co - farbigen Text zeigen
- -l XX - wo XX ein gültiger Sprachcode ist (derzeit: DE, EN, FR)
+ -l XX - wo XX ein gültiger Sprachcode ist (derzeit: DE, EN, FR, JA)
          Die Sprache kann auch durch Umbenennen in imbraw2dng_XX.js geändert werden.
  -d ordner - Ausgabedateien in diesen Ordner ablegen
  -f - existierende Dateien überschreiben

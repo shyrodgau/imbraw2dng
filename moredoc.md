@@ -29,7 +29,7 @@ The github repository itself can be found [here](https://github.com/shyrodgau/im
 
 ### Internationalization
 
-The current supported langauges are english (EN), french (FR) and german (DE). If you save the html file with a name change to `imbraw2dng_XX.html` where `XX` 
+The current supported langauges are english (EN), japanese (JA), french (FR) and german (DE). If you save the html file with a name change to `imbraw2dng_XX.html` where `XX` 
 is the language shortcut, it will open the page directly in that language. If you want to contribute to translating, translate what you are reading now or look 
 [here](https://shyrodgau.github.io/imbraw2dng/translations.xls) and get in contact!
 
@@ -69,7 +69,7 @@ Options:
  -h - show this help
  -nc - do not use coloured text
  -co - force coloured text
- -l XX - where XX is a valid language code (currently: DE, EN, FR)
+ -l XX - where XX is a valid language code (currently: DE, EN, FR, JA)
          Language can also be set by changing filename to imbraw2dng_XX.js .
  -d dir - put output files into dir
  -f - overwrite existing files
