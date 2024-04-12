@@ -23,7 +23,9 @@ int main (int argc, char **argv)
 		0.000,	0.625,	0.000,	// G
 		0.000,	0.000,	1.000	// B
 	};
-	static const float neutral[] = { 0.6, 1.0, 0.6 }; // TODO calibrate
+	static const float cam_id[] = { 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0 };
+	static const float neutral[] = { 1.0, 1.0, 1.0 }; // TODO calibrate
+	//static const float neutral[] = { 0.6, 1.0, 0.6 }; // TODO calibrate
 	long white=0x0ff;
 
 	int status=1, row;
@@ -103,6 +105,10 @@ int main (int argc, char **argv)
 		goto fail;
 	}
 
+	#define EXIFTAG_CAMERACALIBRATIONSIGNATURE 50931
+	#define EXIFTAG_PROFILECALIBRATIONSIGNATURE 50932
+	#define EXIFTAG_FORWARDMATRIX1 50964
+	#define EXIFTAG_FORWARDMATRIX2 50965
 	// make datetimeoriginal accessible
 	TIFFFieldInfo ti[] = { {
 		.field_tag = EXIFTAG_DATETIMEORIGINAL,
@@ -113,12 +119,52 @@ int main (int argc, char **argv)
 		.field_oktochange = 0,
 		.field_passcount = 0,
 		.field_name = "datetimeorig"
+	} ,
+	{
+		.field_tag = EXIFTAG_FORWARDMATRIX2,
+		.field_readcount = TIFF_VARIABLE,
+		.field_writecount = TIFF_VARIABLE,
+		.field_type = TIFF_SRATIONAL,
+		.field_bit = FIELD_CUSTOM,
+		.field_oktochange = 0,
+		.field_passcount = 0,
+		.field_name = "fwmatr2"
+	} ,
+	{
+		.field_tag = EXIFTAG_FORWARDMATRIX1,
+		.field_readcount = TIFF_VARIABLE,
+		.field_writecount = TIFF_VARIABLE,
+		.field_type = TIFF_SRATIONAL,
+		.field_bit = FIELD_CUSTOM,
+		.field_oktochange = 0,
+		.field_passcount = 0,
+		.field_name = "fwmatr1"
+	} ,
+	{
+		.field_tag = EXIFTAG_CAMERACALIBRATIONSIGNATURE,
+		.field_readcount = TIFF_VARIABLE,
+		.field_writecount = TIFF_VARIABLE,
+		.field_type = TIFF_ASCII,
+		.field_bit = FIELD_CUSTOM,
+		.field_oktochange = 0,
+		.field_passcount = 0,
+		.field_name = "camcalsig"
+	} ,
+	{
+		.field_tag = EXIFTAG_PROFILECALIBRATIONSIGNATURE,
+		.field_readcount = TIFF_VARIABLE,
+		.field_writecount = TIFF_VARIABLE,
+		.field_type = TIFF_ASCII,
+		.field_bit = FIELD_CUSTOM,
+		.field_oktochange = 0,
+		.field_passcount = 0,
+		.field_name = "profcamsig"
 	} };
 
 	if (!(tif = TIFFOpen (argv[2], "w"))) goto fail;
 	//fprintf(stderr, "Writing TIFF header...\n");
 
-	TIFFMergeFieldInfo(tif, ti, 1);
+	TIFFMergeFieldInfo(tif, ti, 3);
 
 	TIFFSetField (tif, TIFFTAG_SUBFILETYPE, 1);
 	TIFFSetField (tif, TIFFTAG_IMAGEWIDTH, HPIXELS );
@@ -134,19 +180,24 @@ int main (int argc, char **argv)
 	TIFFSetField (tif, TIFFTAG_SOFTWARE, "imbraw2dng");
 	//TIFFSetField (tif, TIFFTAG_DATETIME, datetime);
 	//TIFFSetField (tif, TIFFTAG_SUBIFD, 1, &sub_offset);
-	TIFFSetField (tif, TIFFTAG_DNGVERSION, "\001\001\0\0");
-	TIFFSetField (tif, TIFFTAG_DNGBACKWARDVERSION, "\001\0\0\0");
+	TIFFSetField (tif, TIFFTAG_DNGVERSION, "\001\002\0\0");
+	TIFFSetField (tif, TIFFTAG_DNGBACKWARDVERSION, "\001\002\0\0");
 	TIFFSetField (tif, TIFFTAG_UNIQUECAMERAMODEL, "ImBack");
 	TIFFSetField (tif, TIFFTAG_COLORMATRIX1, 9, cam_xyz);
-	//TIFFSetField (tif, TIFFTAG_COLORMATRIX2, 9, cam_xyz);
-	//TIFFSetField (tif, TIFFTAG_CAMERACALIBRATION1, 9, cam_xyz);
-	//TIFFSetField (tif, TIFFTAG_CAMERACALIBRATION2, 9, cam_xyz);
+	TIFFSetField (tif, TIFFTAG_COLORMATRIX2, 9, cam_xyz);
+	TIFFSetField (tif, TIFFTAG_CAMERACALIBRATION1, 9, cam_xyz);
+	TIFFSetField (tif, TIFFTAG_CAMERACALIBRATION2, 9, cam_xyz);
+	TIFFSetField (tif, EXIFTAG_FORWARDMATRIX1, 9, cam_xyz);
+	TIFFSetField (tif, EXIFTAG_FORWARDMATRIX2, 9, cam_xyz);
 	TIFFSetField (tif, TIFFTAG_ASSHOTNEUTRAL, 3, neutral);
+	TIFFSetField (tif, TIFFTAG_BASELINEEXPOSURE, 0);
 	TIFFSetField (tif, TIFFTAG_DATETIME, "2022:12:31 18:29:13");
+	TIFFSetField (tif, EXIFTAG_CAMERACALIBRATIONSIGNATURE, "imback");
+	TIFFSetField (tif, EXIFTAG_PROFILECALIBRATIONSIGNATURE, "imback");
 	TIFFSetField (tif, EXIFTAG_DATETIMEORIGINAL /*36867*/, "2022:12:31 18:29:13");
 	TIFFSetField (tif, TIFFTAG_ORIGINALRAWFILENAME, strlen(argv[1]), argv[1]);
-	//TIFFSetField (tif, TIFFTAG_CALIBRATIONILLUMINANT1, 21);
-	//TIFFSetField (tif, TIFFTAG_CALIBRATIONILLUMINANT2, 21);
+	TIFFSetField (tif, TIFFTAG_CALIBRATIONILLUMINANT1, 21);
+	TIFFSetField (tif, TIFFTAG_CALIBRATIONILLUMINANT2, 20);
 	//TIFFSetField (tif, TIFFTAG_ROWSPERSTRIP, 1);
 	//TIFFSetField (tif, TIFFTAG_ORIGINALRAWFILENAME, strlen(fname), fname);
 
