@@ -695,6 +695,8 @@ constructor(bwflag) {
 				'         ファイル名を imbraw2dng_XX.js に変更することで言語を設定することもできます。',
 				' \x1b[1m-d dir\x1b[0m - 出力ファイルを dir に置く',
 				' \x1b[1m-f\x1b[0m - 現在のファイルを上書きする',
+				' \x1b[1m-r\x1b[0m - rename output file, if already exists',
+				' \x1b[1m-np\x1b[0m - Do not add preview thumbnail to DNG',
 				' \x1b[1m-R\x1b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリからRAWを取得する',
 				' \x1b[1m-J\x1b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリからJPEGを取得する',
 				' \x1b[1m-O\x1b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリから非RAW/非JPEGを取得する',
