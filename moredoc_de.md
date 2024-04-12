@@ -9,7 +9,7 @@ Hier gibts: [Installation](#installation) - [Internationalisierung](#internation
 Kurz-Doku: [hier](https://shyrodgau.github.io/imbraw2dng/README_de)
 
 or [IN ENGLISH](https://shyrodgau.github.io/imbraw2dng/moredoc)  
-[日本語](https://shyrodgau.github.io/imbraw2dng/moredoc_ja)
+ [日本語](https://shyrodgau.github.io/imbraw2dng/moredoc_ja)
 
 ## Installation
 

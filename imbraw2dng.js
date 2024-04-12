@@ -3476,7 +3476,7 @@ getversion() {
 			for (let i=0; i< el['de'].length; i++) {
 				let out = key + '[' + i + '];';
 				for (const l of this.#alllangs) {
-					if (undefined !== el[l] && undefined !== undefined !== el[l][i]) {
+					if (undefined !== el[l] && undefined !== el[l][i]) {
 						let a = el[l][i];
 						let b = '"';
 						if (-1 !== a.indexOf('"')) b = '\'';
@@ -3486,7 +3486,7 @@ getversion() {
 				console.log(out);
 			}
 		}
-		} catch (e) { require('process').exit(); }
+		} catch (e) { if (!document) require('process').exit(); }
 	}
 	for (const ne of Object.keys(el).filter((k) => ((k !== 'en') && (k !== 'de') && (typeof(el[k]) !== 'string')))) {
 		this.#prxl(key + '.' + ne, el[ne]);
