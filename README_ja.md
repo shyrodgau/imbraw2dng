@@ -24,17 +24,17 @@ or [IN ENGLISH](https://shyrodgau.github.io/imbraw2dng/)
 
 `.../IMBACK` は ImB の Micro SD カード上のディレクトリで、USB (デバイス上の `大容量ストレージ` を選択します) 経由でアクセスするか、Micro SD カードを PC またはスマートフォンに挿入することでアクセスできます。
 
-1. ブラウザで [imbraw2dng.html](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) を開きます。 `.../IMBACK/PHOTO` および `.../IMBACK/MOVIE` フォルダーからファイルを青いフィールドにドラッグします。 [(詳細)](https://shyrodgau.github.io/imbraw2dng/moredoc#usage)
+1. ブラウザで [imbraw2dng_ja.html](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_ja.html) を開きます。 `.../IMBACK/PHOTO` および `.../IMBACK/MOVIE` フォルダーからファイルを青いフィールドにドラッグします。 [(詳細)](https://shyrodgau.github.io/imbraw2dng/moredoc_ja#使用法)
 
 1. ([imbraw2dng.html](https://raw.githubusercontent.com/shyrodgau/imbraw2dng/master/imbraw2dng_ja.html) を `.../IMBACK` フォルダに保存し、カードを取り出した後) 
 PC またはスマートフォンを ImB WiFi に接続し、ブラウザで ImB から [http://192.168.1.254/IMBACK/imbraw2dng_ja.html](http://192.168.1.254/IMBACK/imbraw2dng_ja.html) を開きます。
-[(詳細)](https://shyrodgau.github.io/imbraw2dng/moredoc#browsing-on-the-imback)
+[(詳細)](https://shyrodgau.github.io/imbraw2dng/moredoc_ja##imback-での閲覧)
 
-1. [imbraw2dng.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) をダウンロードし、 `node imbraw2dng.js .../IMBACK` を呼び出します。
-[(詳細)](https://shyrodgau.github.io/imbraw2dng/moredoc#command-line-using-nodejs)
+1. [imbraw2dng_ja.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_ja.js) をダウンロードし、 `node imbraw2dng_ja.js .../IMBACK` を呼び出します。
+[(詳細)](https://shyrodgau.github.io/imbraw2dng/moredoc_ja#nodejs-を使用したコマンドライン経由)
 
-1. PC を ImB の WiFi に接続し、 [imbraw2dng.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) ダウンロードし、`node imbraw2dng.js -R -J -O` を呼び出します。
-[(詳細)](https://shyrodgau.github.io/imbraw2dng/moredoc#command-line-using-nodejs)
+1. PC を ImB の WiFi に接続し、 [imbraw2dng_ja.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_ja.js) ダウンロードし、`node imbraw2dng_ja.js -R -J -O` を呼び出します。
+[(詳細)](https://shyrodgau.github.io/imbraw2dng/moredoc_ja#nodejs-を使用したコマンドライン経由)
 
 
 ## DNG の処理
