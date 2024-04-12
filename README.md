@@ -6,6 +6,7 @@ This is free software ([0-clause BSD-License](LICENSE.txt)) and not commercially
 Full doc: [here](https://shyrodgau.github.io/imbraw2dng/moredoc)
 
 oder [AUF DEUTSCH](https://shyrodgau.github.io/imbraw2dng/README_de)
+ [日本語](https://shyrodgau.github.io/imbraw2dng/README_ja)
 
 They are not really "B&W RAW" but actually the RAW sensor data that also contains the colour filtering (unfortunately only 8 bit deep..). 
 

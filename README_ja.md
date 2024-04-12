@@ -1,57 +1,58 @@
 <!-- SPDX-License-Identifier: 0BSD -->
-# imbraw2dng - RAW �t�@�C���� [I'mBack<sup>&reg;</sup>&nbsp;35mm/MF](https://imback.eu) ���� DNG �ɕϊ����� - �N�C�b�N �X�^�[�g
+# imbraw2dng - RAW ファイルを [I'mBack<sup>&reg;</sup>&nbsp;35mm/MF](https://imback.eu) から DNG に変換する - クイック スタート
 
-����͏��p�T�|�[�g�̂Ȃ��t���[ �\�t�g�E�F�A ([0-clause BSD-License](LICENSE.txt)) �ł��B
+これは商用サポートのないフリー ソフトウェア ([0-clause BSD-License](LICENSE.txt)) です。
 
-���̑��̃h�L�������g: [������](https://shyrodgau.github.io/imbraw2dng/moredoc_ja)
+その他のドキュメント: [こちら](https://shyrodgau.github.io/imbraw2dng/moredoc_ja)
 
-�܂��� [�h�C�c���](https://shyrodgau.github.io/imbraw2dng/README_de)
+oder [AUF DEUTSCH](https://shyrodgau.github.io/imbraw2dng/README_de)  
+or [IN ENGLISH](https://shyrodgau.github.io/imbraw2dng/)
 
-������ "���� RAW" �t�@�C���ł͂Ȃ��A�J���[ �t�B���^�����O���{���ꂽ���ۂ̐��̃Z���T�[ �f�[�^�ł� (�c�O�Ȃ��� 8 �r�b�g�݂̂ł�...)�B
+これらは "白黒 RAW" ファイルではなく、カラー フィルタリングが施された実際の生のセンサー データです (残念ながら 8 ビットのみです...)。
 
-���̃T�C�g�́A�g�ѓd�b�A�v���̕����I�ȋ@�\ (�ꍇ�ɂ���Ă͂���ȏ�A�܂� RAW �̕\��) ���T�|�[�g�ł���悤�ɂȂ�܂����B
+このサイトは、携帯電話アプリの部分的な機能 (場合によってはそれ以上、つまり RAW の表示) もサポートできるようになりました。
 
-�����_�ł́A35mm ("Angle medium"��"small"��) ����� I'm Back MF (����) �̌��݂̃t�@�[���E�F�A�œ��삷��悤�ł��B MF �ł͂��ׂẴA���O���ݒ肪�J�o�[����Ă���킯�ł͂���܂���B
-����炪�K�v�ŁA�����ł��菕���������ꍇ�́A���A�����������B
+現時点では、35mm ("Angle medium"と"small"も) および I'm Back MF (中判) の現在のファームウェアで動作するようです。 MF ではすべてのアングル設定がカバーされているわけではありません。
+それらが必要で、少しでも手助けしたい場合は、ご連絡ください。
 
-����A�C�f�A�́A[github ���|�W�g��](https://github.com/shyrodgau/imbraw2dng) �� "[���](https://github.com/shyrodgau/imbraw2dng/issues)" �܂��� "[�f�B�X�J�b�V����](https://github.com/shyrodgau/imbraw2dng/discussions)" �^�u 
-�A�܂��� [Facebook �� I'm Back Users �O���[�v](https://www.facebook.com/groups/1212628099691211) �ŁB
+問題やアイデアは、[github リポジトリ](https://github.com/shyrodgau/imbraw2dng) の "[問題](https://github.com/shyrodgau/imbraw2dng/issues)" または "[ディスカッション](https://github.com/shyrodgau/imbraw2dng/discussions)" タブ 
+、または [Facebook の I'm Back Users グループ](https://www.facebook.com/groups/1212628099691211) で。
 
-## ��{ ;tldr
+## 基本 ;tldr
 
-�ȉ��ł́A�R�s�[���� RAW �t�@�C���� DNG �`���ɕϊ����邱�Ƃɏœ_�𓖂Ă܂��B �u���E�U�Ŏg�p���邽�߂ɕK�v�ȃt�@�C���� 1 �����Anode.js �Ŏg�p���邽�߂ɕK�v�ȃt�@�C���� 1 �����ł��B
+以下では、コピー中に RAW ファイルを DNG 形式に変換することに焦点を当てます。 ブラウザで使用するために必要なファイルは 1 つだけ、node.js で使用するために必要なファイルは 1 つだけです。
 
-`.../IMBACK` �� ImB �� Micro SD �J�[�h��̃f�B���N�g���ŁAUSB (�f�o�C�X��� `��e�ʃX�g���[�W` ��I�����܂�) �o�R�ŃA�N�Z�X���邩�AMicro SD �J�[�h�� PC �܂��̓X�}�[�g�t�H���ɑ}�����邱�ƂŃA�N�Z�X�ł��܂��B
+`.../IMBACK` は ImB の Micro SD カード上のディレクトリで、USB (デバイス上の `大容量ストレージ` を選択します) 経由でアクセスするか、Micro SD カードを PC またはスマートフォンに挿入することでアクセスできます。
 
-1. �u���E�U�� [imbraw2dng.html](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) ���J���܂��B `.../IMBACK/PHOTO` ����� `.../IMBACK/MOVIE` �t�H���_�[����t�@�C������t�B�[���h�Ƀh���b�O���܂��B [(�ڍ�)](https://shyrodgau.github.io/imbraw2dng/moredoc#usage)
+1. ブラウザで [imbraw2dng.html](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) を開きます。 `.../IMBACK/PHOTO` および `.../IMBACK/MOVIE` フォルダーからファイルを青いフィールドにドラッグします。 [(詳細)](https://shyrodgau.github.io/imbraw2dng/moredoc#usage)
 
-1. ([imbraw2dng.html](https://raw.githubusercontent.com/shyrodgau/imbraw2dng/master/imbraw2dng.html) �� `.../IMBACK` �t�H���_�ɕۑ����A�J�[�h�����o������) 
-PC �܂��̓X�}�[�g�t�H���� ImB WiFi �ɐڑ����A�u���E�U�� ImB ���� [http://192.168.1.254/IMBACK/imbraw2dng.html](http://192.168.1.254/IMBACK/imbraw2dng.html) ���J���܂��B
-[(�ڍ�)](https://shyrodgau.github.io/imbraw2dng/moredoc#browsing-on-the-imback)
+1. ([imbraw2dng.html](https://raw.githubusercontent.com/shyrodgau/imbraw2dng/master/imbraw2dng_ja.html) を `.../IMBACK` フォルダに保存し、カードを取り出した後) 
+PC またはスマートフォンを ImB WiFi に接続し、ブラウザで ImB から [http://192.168.1.254/IMBACK/imbraw2dng_ja.html](http://192.168.1.254/IMBACK/imbraw2dng_ja.html) を開きます。
+[(詳細)](https://shyrodgau.github.io/imbraw2dng/moredoc#browsing-on-the-imback)
 
-1. [imbraw2dng.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) ���_�E�����[�h���A `node imbraw2dng.js .../IMBACK` ���Ăяo���܂��B
-[(�ڍ�)](https://shyrodgau.github.io/imbraw2dng/moredoc#command-line-using-nodejs)
+1. [imbraw2dng.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) をダウンロードし、 `node imbraw2dng.js .../IMBACK` を呼び出します。
+[(詳細)](https://shyrodgau.github.io/imbraw2dng/moredoc#command-line-using-nodejs)
 
-1. PC �� ImB �� WiFi �ɐڑ����A [imbraw2dng.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) �_�E�����[�h���A`node imbraw2dng.js -R -J -O` ���Ăяo���܂��B
-[(�ڍ�)](https://shyrodgau.github.io/imbraw2dng/moredoc#command-line-using-nodejs)
+1. PC を ImB の WiFi に接続し、 [imbraw2dng.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) ダウンロードし、`node imbraw2dng.js -R -J -O` を呼び出します。
+[(詳細)](https://shyrodgau.github.io/imbraw2dng/moredoc#command-line-using-nodejs)
 
 
-## DNG �̏���
+## DNG の処理
 
-����ɂ́Adarktable�Alightroom�Aufraw�Arawtherapee �Ȃǂ̂��C�ɓ���̃\�t�g�E�F�A���g�p���Ă��������B
+これには、darktable、lightroom、ufraw、rawtherapee などのお気に入りのソフトウェアを使用してください。
 
-�ʐ^�������ɂ��܂������Ƃ͊��� **���Ȃ�** �ł��������B�ׂẴv���O���������҂��邷�ׂĂ� DNG �Ɏ��߂邱�Ƃ͂ł������ɂ���܂���B 
-���Ԃ������āA�K�؂ȐF���擾���Ă���A�c����s���Ă��������B *DNG �Ɋւ���o����������A�܂��͋��͂��Ă����l��m���Ă�����́A���A�����������B* 
-�Ⴆ�΁ADarktable/RawSpeed �ɂ��Ă� [pixls.us �̃f�B�X�J�b�V����](https://discuss.pixls.us/t/converting-plain-raw-from-imback-to-dng/) �܂��́A 
-[Facebook ��I'm Back �f�W�^�� �o�b�N�J���҃O���[�v](https://www.facebook.com/groups/2812057398929350) �ɖ߂��Ă��������B
+写真がすぐにうまくいくとは期待 **しない** でください。べてのプログラムが期待するすべてを DNG に収めることはできそうにありません。 
+時間をかけて、適切な色を取得してから、残りを行ってください。 *DNG に関する経験がある方、または協力してくれる人を知っている方は、ご連絡ください。* 
+例えば、Darktable/RawSpeed についての [pixls.us のディスカッション](https://discuss.pixls.us/t/converting-plain-raw-from-imback-to-dng/) または、 
+[Facebook のI'm Back デジタル バック開発者グループ](https://www.facebook.com/groups/2812057398929350) に戻ってください。
 
-�摜�ɋ����΂܂��̓}�[���^�̐F�������������邱�Ƃ͂Ȃ��Ȃ�܂��B �������A�J���[ �L�����u���[�V����/�J���[ �}�g���b�N�X/�z���C�g �o�����X�ŏ��� **�ł��Ȃ�** ���̂�����ꍇ�́A�T���v���摜�������[����������܂���B
+画像に強い緑またはマゼンタの色合いが発生することはなくなります。 ただし、カラー キャリブレーション/カラー マトリックス/ホワイト バランスで除去 **できない** ものがある場合は、サンプル画像が興味深いかもしれません。
 
-**�F�ɂ��Ĉꌾ:** �F�ɂ��Ă͂܂������킩��܂���...
+**色について一言:** 色についてはまったくわかりません...
 
-�摜�̒����ɐԂ��_������ꍇ�́A�蓮�Ń��^�b�`���邩�A�_�[�N�e�[�u���Ŏ��̐ݒ���g�p���āA���̎���Ɏ蓮�ŉ~��z�u����K�v������܂��B
+画像の中央に赤い点がある場合は、手動でレタッチするか、ダークテーブルで次の設定を使用して、その周りに手動で円を配置する必要があります。
 
-�ŏ�����ԓ_�������ɂ́A���傫�ȍi�� (������ F �l) ���g�p���邩�A�ʏ�� PDLC �t�H�[�J�V���O �X�N���[���� I'm Back �̃t���l�� �X�N���[���܂��� Canon EG-xxx �t�H�[�J�V���O �X�N���[���ɐڑ����܂��B
+最初から赤点を避けるには、より大きな絞り (小さな F 値) を使用するか、通常の PDLC フォーカシング スクリーンを I'm Back のフレネル スクリーンまたは Canon EG-xxx フォーカシング スクリーンに接続します。
 
 ![darktable sample agains red circle](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_redcircle.png "darktable sample agains red circle")
 
