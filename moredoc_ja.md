@@ -60,7 +60,7 @@ HTML ファイル ( [国際化](#国際化) に応じて名前も変更) を ImB
 [imbraw2dng.js](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.js) を取得することで、コマンド ライン経由で変換を行うことができます。[国際化](#internationalization) に従った命名規則が適用されます。
 パラメータと呼び出しヘルプは、ノード `node imbraw2dng.js` で読み取ることができます。
 ```
-使用法: node imbraw2dng.js [-l lang] [-f] [-d dir] [-nc | -co] { [-R] [-J] [-O] [-n yyyy_mmdd_hhmmss] | [--] <files-or-dirs> }
+使用法: node imbraw2dng.js [-l lang] [-f | -r] [-d dir] [-nc | -co] [-np] [-cr copyright] [-R] [-J] [-O] [-n yyyy_mmdd_hhmmss] [ [--] <files-or-dirs>* ]
 オプション:
  -h - このヘルプを表示します
  -nc - 色付きのテキストを使用しません
@@ -69,6 +69,9 @@ HTML ファイル ( [国際化](#国際化) に応じて名前も変更) を ImB
          ファイル名を imbraw2dng_XX.js に変更することで言語を設定することもできます。
  -d dir - 出力ファイルを dir に置きます
  -f - 既存のファイルを上書きします
+ -r - rename output file, if already exists
+ -np - Do not add preview thumbnail to DNG
+ -cr 'copyright...' - add copyright to DNG
  -R - Wifi 経由で接続された ImB から RAW を取得します
  -J - Wifi 経由で接続されている ImB から JPEG を取得します
  -O - Wifi 経由で接続された ImB から非 RAW/非 JPEG を取得します
