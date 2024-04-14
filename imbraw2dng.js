@@ -49,7 +49,7 @@ DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS 
 /* Main class */
 class ImBC {
 /* Indentation out */
-constructor(bwflag) {
+constructor(jsflag, bwflag) {
 	if (!document) {
 		this.fs = require('fs');
 		this.ht = require('http');
@@ -57,6 +57,7 @@ constructor(bwflag) {
 		if (process.platform.substring(0,3) === 'win') this.#withcolours = false;
 	}
 	if (bwflag) this.#backward = true;
+	if (jsflag) this.#nodejs = true;
 }
 #version = "V3.5.9_dev"; // actually const
 #alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
@@ -745,6 +746,10 @@ constructor(bwflag) {
 			en: '(renamed)',
 			de: '(umbenannt)',
 			fr: '(renomee)'
+		},
+		readconfig: {
+			en: 'Config file $$0 read.',
+			de: 'Konfigurationsdatei $$0 eingelesen.',
 		}
 	}
 };
@@ -752,6 +757,7 @@ constructor(bwflag) {
 #withcolours = true;
 #withpreview = true;
 #backward = false;
+#nodejs = false;
 #copyright = '';
 /* node js: */
 #outdir = '';
@@ -1545,7 +1551,39 @@ setpvwait() {
 			ti.addEntry(36867, 'ASCII', datestr); /* Original date time */
 		}
 		ti.addEntry(50706, 'BYTE', [ 1, 2, 0, 0 ]); /* DNG Version */
-		if (this.#copyright != '') ti.addEntry(33432, 'ASCII', this.#copyright); /* copyright */
+		if (this.#copyright != '') {
+			// do UTF-8 bytes instead of ASCII
+			let bytes = new TextEncoder().encode(this.#copyright); //[];
+			/*for (let k=0; k<this.#copyright.length; k++) {
+				let b = this.#copyright.codePointAt(k);
+				if (b < 128) bytes.push(b);
+				else if (b < 2048) {
+					let hb = 192 + Math.floor(b / 64);
+					let lb = 128 + (b & 0x3f);
+					bytes.push(hb);
+					bytes.push(lb);
+				}
+				else if (b < 65536) {
+					let hb = 0xe0 + Math.floor(b / 4096);
+					let mb = 128 + ((b & 0xfc0) / 64);
+					let lb = 128 + (b & 0x3f);
+					bytes.push(hb);
+					bytes.push(mb);
+					bytes.push(lb);
+				}
+				else {
+					let hb = 0xf0 + Math.floor(b / 262144);
+					let mb = 0x80 + ((b & 0x3f000) / 4096);
+					let mlb = 0x80 + ((b & 0xfc0) / 64);
+					let lb = 0x80 + (b & 0x3f);
+					bytes.push(hb);
+					bytes.push(mb);
+					bytes.push(mlb);
+					bytes.push(lb);
+				}
+			}*/
+			ti.addEntry(33432, 'BYTE', bytes); /* copyright */
+		}
 		ti.addEntry(50707, 'BYTE', [ 1, 0, 0, 0 ]); /* DNG Backward Version */
 		ti.addEntry(50717, 'LONG', [ 255 ]); /* White level */
 		ti.addEntry(50721, 'SRATIONAL', [ 19624, 10000, -6105, 10000, -34134, 100000, -97877, 100000, 191614, 100000, 3345, 100000, 28687, 1000000, -14068, 100000, 1348676, 1000000 ]); /* Color Matrix 1 */
@@ -3203,6 +3241,9 @@ trylang(i) {
 	}
 	else if ('00' === this.#mylang)
 		this.#debugflag = true;
+	if (document) {
+		document.getElementById('langsel').value = l;
+	}
 }
 /* find language from filename or nodejs scriptfile */
 querylang(name, offset) {
@@ -3231,6 +3272,41 @@ querylang(name, offset) {
 	}
 	// followed by xlall anyway
 }
+/* nodejs: parse config */
+#parseconfig(data, fornode) {
+	const d = JSON.parse(data);
+	if (d.nc) this.#withcolours = false;
+	if (d.co) this.#withcolours = true;
+	if (d.np) this.#withpreview = false;
+	if (d.cr) this.#copyright = d.cr;
+	if (d.l) this.trylang(d.l);
+	if (d.d) this.#outdir = d.d;
+	if (d.f) this.#ovwout = true;
+	if (d.r) this.#renamefiles = true;
+	if (d.R && (!(this.#typeflags % 2))) this.#typeflags += 1;
+	if (d.J && ((this.#typeflags % 4) < 2)) this.#typeflags += 2;
+	if (d.O && ((this.#typeflags % 8) < 4)) this.#typeflags += 4;
+}
+/* nodejs: read config */
+#readconfig(callback, tryno) {
+	let xch = process.env.XDG_CONFIG_HOME ? process.env.XDG_CONFIG_HOME : (process.env.HOME ? process.env.HOME + this.pa.sep + '.config' : '.');
+	if (1 === tryno) xch = process.env.HOME ? process.env.HOME + this.pa.sep + '.config' : '.';
+	else if (2 === tryno) '.';
+	else if (tryno) return callback();
+	this.fs.readFile(xch + this.pa.sep + 'imbraw2dng.json', 'utf8',
+		(err, data) => {
+			//console.log(' READ: ' + xch + this.pa.sep + 'imbraw2dng.json' + ' ' + JSON.stringify(err) + ' ' + JSON.stringify(data));
+			if (!err) {
+				this.#parseconfig(data);
+				this.#mappx('node.readconfig', xch + this.pa.sep + 'imbraw2dng.json');
+				callback();
+			}
+			else if (!tryno) {
+				return this.#readconfig(callback, 1);
+			}
+			else return this.#readconfig(callback, tryno + 1);
+		});
+}
 /* nodejs: show help */
 #help(caller) {
 	caller = ImBC.basename(caller);
@@ -3245,7 +3321,8 @@ querylang(name, offset) {
 	}
 }
 /* nodejs runup */
-startnode() {
+startnode(notfirst) {
+	if (!notfirst) return this.#readconfig(() => this.startnode(true));
 	if (process.stdout.isTTY !== true) this.#withcolours = false;
 	let wanthelp = false, wantxl = false, flagging=0, datefound = false, restisfiles = false;
 	if (process.argv.length < 3) {
@@ -3390,6 +3467,28 @@ startnode() {
 		console.log(this.xl0('main.coloursyourrisk'));
 		console.log('');
 		this.#checkimbnode();
+	}
+}
+/* browserdisplay: initialize settings */
+initsettings() {
+	if (window.location.origin.startsWith('http') && window.localStorage) {
+		try {
+			let e = window.localStorage.getItem('imbraw2dng_json');
+			if (e) {
+				this.#parseconfig(e);
+				const copytext = document.getElementById('copytext');
+				const copycheck = document.getElementById('copycheck');
+				if (!this.#backward) {
+					if (copycheck !== null && copytext !== null && this.#copyright.length > 0) {
+						copycheck.checked = true;
+						copytext.value = this.#copyright;
+					}
+				}
+				this.xlateall();
+				const dngprev = document.getElementById('dngpreview');
+				if (dngprev) dngprev.checked = this.#withpreview;
+			}
+		} catch (e) { }
 	}
 }
 /* visual browser: change cache size (currently only visible in debug _00) */
@@ -3892,8 +3991,8 @@ createCamProf(name) {
 class ImBCR extends ImBC {
 /* Indentation out */
 #totnum = 0;
-constructor() {
-	super(true);
+constructor(jsflag) {
+	super(jsflag, true);
 }
 /* nodejs runup */
 startnode() {
@@ -3972,12 +4071,12 @@ function init() {
 	let backw = false;
 	if (ImBC.basename(window.location.pathname.toUpperCase()).indexOf('IMBDNG2RAW') !== -1) {
 		backw = true;
-		imbc = new ImBCR();
+		imbc = new ImBCR(false);
 		for (const o of document.getElementsByClassName('onlywhenbackw')) o.style['display']='';
 		for (const o of document.getElementsByClassName('notwhenbackw')) o.style['display']='none';
 	}
 	else {
-		imbc = new ImBC();
+		imbc = new ImBC(false);
 		imbc.chgcopycheck();
 	}
 	imbc.querylang(window.location.pathname);
@@ -3988,9 +4087,9 @@ function init() {
 if (typeof process !== 'undefined') {
 	var document = undefined;
 	if (ImBC.basename(process.argv[1].toUpperCase()).indexOf('IMBDNG2RAW') !== -1)
-		imbc = new ImBCR();
+		imbc = new ImBCR(true);
 	else
-		imbc = new ImBC();
+		imbc = new ImBC(true);
 	imbc.querylang(process.argv[1], 6);
 	imbc.startnode();
 }
