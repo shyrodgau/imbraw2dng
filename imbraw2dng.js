@@ -58,7 +58,7 @@ constructor(bwflag) {
 	}
 	if (bwflag) this.#backward = true;
 }
-#version = "V3.5.8_7c100b6"; // actually const
+#version = "V3.5.9_dev"; // actually const
 #alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 #texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -335,6 +335,10 @@ constructor(bwflag) {
 			en: 'Single Step with preview',
 			fr: 'Seule étape avec aperçu',
 			ja: 'プレビューありでシングルステップ'
+		},
+		addcopyright: {
+			en: 'Add copyright',
+			de: 'Copyright hinzufügen'
 		},
 		nothing: {
 			de: 'Nichts ausgewählt.. ?',
@@ -619,15 +623,24 @@ constructor(bwflag) {
 	node: {
 	    backw: {
 			   help: {
-					   en: [ '\x1b[1mWelcome to imbdng2raw $$0 !', 'Usage: node $$0 [-l lang] [-d dir] [ [--] <files>* ]',
+					   en: [ 'Welcome to imbdng2raw $$0 (BACKWARD!) !', 'Usage: node $$0 [-l lang] [-d dir] [ [--] <files>* ]',
 					   'Options:',
 					   ' -h - show this help',
-					   ' -l XX - where XX is a valid language code (currently: DE, EN, FR)',
-					   '         Language can also be set by changing filename to imbraw2dng_XX.js .',
+					   ' -l XX - where XX is a valid language code (currently: DE, EN, FR, JA)',
+					   '         Language can also be set by changing filename to imbdng2raw_XX.js .',
 					   ' -d dir - put output files into dir',
 					   ' -----',
 					   ' -- - treat rest of parameters as local files or dirs',
-					   ' <files-or-dirs> - process local files' ]
+					   ' <files> - process local files' ],
+					   de: [ 'Willkommen bei imbdng2raw $$0 (RÜCKWÄRTS!) !', 'Aufruf: node $$0 [-l sprache] [-d ordner] [ [--] <dateien>* ]',
+					   'Optionen:',
+						' -h - diesen Hilfetext zeigen',
+						' -l XX - wo XX ein gültiger Sprachcode ist (derzeit: DE, EN, FR, JA)',
+						'         Die Sprache kann auch durch Umbenennen in imbdng2raw_XX.js geändert werden.',
+						' -d ordner - Ausgabedateien in diesen Ordner ablegen',
+						' -----',
+						' -- - weitere Parameter als lokale Dateien oder Ordner betrachten',
+						' <dateien> - lokale Dateien verarbeiten',],
 			   }
 	    },
 		help: {
@@ -636,12 +649,13 @@ constructor(bwflag) {
 				' \x1b[1m-h\x1b[0m - show this help',
 				' \x1b[1m-nc\x1b[0m - do not use coloured text',
 				' \x1b[1m-co\x1b[0m - force coloured text',
-				' \x1b[1m-l XX\x1b[0m - where XX is a valid language code (currently: DE, EN, FR)',
+				' \x1b[1m-l XX\x1b[0m - where XX is a valid language code (currently: DE, EN, FR, JA)',
 				'         Language can also be set by changing filename to imbraw2dng_XX.js .',
 				' \x1b[1m-d dir\x1b[0m - put output files into dir',
 				' \x1b[1m-f\x1b[0m - overwrite existing files',
 				' \x1b[1m-r\x1b[0m - rename output file, if already exists',
 				' \x1b[1m-np\x1b[0m - Do not add preview thumbnail to DNG',
+				' \x1b[1m-cr \'copyright...\'\x1b[0m - add copyright to DNG',
 				' \x1b[1m-R\x1b[0m - get RAW from ImB connected via Wifi or from given directories',
 				' \x1b[1m-J\x1b[0m - get JPEG from ImB connected via Wifi or from given directories',
 				' \x1b[1m-O\x1b[0m - get non-RAW/non-JPEG from ImB connected via Wifi or from given directories',
@@ -654,12 +668,13 @@ constructor(bwflag) {
 				' \x1b[1m-h\x1b[0m - montrer cette aide',
 				' \x1b[1m-nc\x1b[0m - n\'utilisez pas de texte en couleur',
 				' \x1b[1m-co\x1b[0m - utilisez de texte en couleur',
-				' \x1b[1m-l XX\x1b[0m - quand XX est une code du langue valide (actuellement: DE, EN, FR)',
+				' \x1b[1m-l XX\x1b[0m - quand XX est une code du langue valide (actuellement: DE, EN, FR, JA)',
 				'         La langue peut également être définie en changeant le nom du fiche en imbraw2dng_XX.js .',
 				' \x1b[1m-d repertoire\x1b[0m - mettre les fiches de sortie dans le répertoire',
 				' \x1b[1m-f\x1b[0m - écraser les fiches existants',
 				' \x1b[1m-r\x1b[0m - quand fiche existe, renommer le résultat',
 				' \x1b[1m-np\x1b[0m - Pas petite image d\'aperçu en DNG',
+				' \x1b[1m-cr \'copyright...\'\x1b[0m - add copyright to DNG',
 				' \x1b[1m-R\x1b[0m - obtenez RAW d\'ImB connecté via Wifi ou repertoires donnés',
 				' \x1b[1m-J\x1b[0m - obtenez JPEG d\'ImB connecté via Wifi ou repertoires donnés',
 				' \x1b[1m-O\x1b[0m - obtenez du non-RAW/non-JPEG d\'ImB connecté via Wifi ou repertoires donnés',
@@ -672,12 +687,13 @@ constructor(bwflag) {
 				' \x1b[1m-h\x1b[0m - diesen Hilfetext zeigen',
 				' \x1b[1m-nc\x1b[0m - keinen farbigen Text zeigen',
 				' \x1b[1m-co\x1b[0m - farbigen Text zeigen',
-				' \x1b[1m-l XX\x1b[0m - wo XX ein gültiger Sprachcode ist (derzeit: DE, EN, FR)',
+				' \x1b[1m-l XX\x1b[0m - wo XX ein gültiger Sprachcode ist (derzeit: DE, EN, FR, JA)',
 				'         Die Sprache kann auch durch Umbenennen in imbraw2dng_XX.js geändert werden.',
 				' \x1b[1m-d ordner\x1b[0m - Ausgabedateien in diesen Ordner ablegen',
 				' \x1b[1m-f\x1b[0m - existierende Dateien überschreiben',
 				' \x1b[1m-r\x1b[0m - Ausgabedatei umbenennen, falls schon existiert',
 				' \x1b[1m-np\x1b[0m - Kein kleines Vorschaubild im DNG',
+				' \x1b[1m-cr \'copyright...\'\x1b[0m - copyright dem DNG hinzufügen',
 				' \x1b[1m-R\x1b[0m - RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen konvertieren',
 				' \x1b[1m-J\x1b[0m - JPEG von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren',
 				' \x1b[1m-O\x1b[0m - Nicht-JPEG/Nicht-RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren',
@@ -697,6 +713,7 @@ constructor(bwflag) {
 				' \x1b[1m-f\x1b[0m - 現在のファイルを上書きする',
 				' \x1b[1m-r\x1b[0m - rename output file, if already exists',
 				' \x1b[1m-np\x1b[0m - Do not add preview thumbnail to DNG',
+				' \x1b[1m-cr \'copyright...\'\x1b[0m - add copyright to DNG',
 				' \x1b[1m-R\x1b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリからRAWを取得する',
 				' \x1b[1m-J\x1b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリからJPEGを取得する',
 				' \x1b[1m-O\x1b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリから非RAW/非JPEGを取得する',
@@ -735,6 +752,7 @@ constructor(bwflag) {
 #withcolours = true;
 #withpreview = true;
 #backward = false;
+#copyright = '';
 /* node js: */
 #outdir = '';
 #ovwout = false;
@@ -874,12 +892,29 @@ static basename(n) {
 #appendnl() {
 	if (document) this.#appendmsg('<br>&nbsp;<br>');
 }
+/* browserdisplay: copyright checkbox change */
+chgcopycheck() {
+    const copytext = document.getElementById('copytext');
+    const copycheck = document.getElementById('copycheck');
+    if (null !== copytext) {
+    	if (null !== copycheck && copycheck.checked)
+    		copytext.style['display'] = '';
+    	else
+    		copytext.style['display'] = 'none';
+    }
+}
 /* browserdisplay: handler for file selection input */
 fselected() {
 	if (this.#actnum !== this.#allfiles.length) return;
     const stepprev = document.getElementById('steppreview');
     this.#stepmode = 0;
-	if (stepprev !== null && stepprev.checked && !this.#backward) this.#stepmode = 1;
+    const copytext = document.getElementById('copytext');
+    const copycheck = document.getElementById('copycheck');
+    if (!this.#backward) {
+    	if (stepprev !== null && stepprev.checked) this.#stepmode = 1;
+    	this.#copyright = '';
+    	if (copycheck !== null && copycheck.checked && copytext !== null && copytext.value !== '') this.#copyright = copytext.value;
+    }
 	const el = this.#backward ? document.getElementById('infileb') : document.getElementById('infile');
 	this.#totnum = el.files.length;
 	this.#actnum = 0;
@@ -1510,6 +1545,7 @@ setpvwait() {
 			ti.addEntry(36867, 'ASCII', datestr); /* Original date time */
 		}
 		ti.addEntry(50706, 'BYTE', [ 1, 2, 0, 0 ]); /* DNG Version */
+		if (this.#copyright != '') ti.addEntry(33432, 'ASCII', this.#copyright); /* copyright */
 		ti.addEntry(50707, 'BYTE', [ 1, 0, 0, 0 ]); /* DNG Backward Version */
 		ti.addEntry(50717, 'LONG', [ 255 ]); /* White level */
 		ti.addEntry(50721, 'SRATIONAL', [ 19624, 10000, -6105, 10000, -34134, 100000, -97877, 100000, 191614, 100000, 3345, 100000, 28687, 1000000, -14068, 100000, 1348676, 1000000 ]); /* Color Matrix 1 */
@@ -1621,7 +1657,13 @@ drophandler(ev) {
 	if (this.#actnum !== this.#allfiles.length) return;
     const stepprev = document.getElementById('steppreview');
     this.#stepmode = 0;
-	if (stepprev !== null && stepprev.checked && !this.#backward) this.#stepmode = 1;
+    const copytext = document.getElementById('copytext');
+    const copycheck = document.getElementById('copycheck');
+    if (!this.#backward) {
+    	if (stepprev !== null && stepprev.checked) this.#stepmode = 1;
+    	this.#copyright = '';
+    	if (copycheck !== null && copycheck.checked && copytext !== null && copytext.value !== '') this.#copyright = copytext.value;
+    }
 	ev.preventDefault();
 	this.#allfiles = [];
 	this.#actnum = 0;
@@ -2199,6 +2241,12 @@ imbdoit() {
 	if (document) {
 		const stepprev = document.getElementById('steppreview');
 		if (stepprev !== null && stepprev.checked) this.#stepmode = 1;
+		const copytext = document.getElementById('copytext');
+		const copycheck = document.getElementById('copycheck');
+		if (!this.#backward) {
+			this.#copyright = '';
+			if (copycheck !== null && copycheck.checked && copytext !== null && copytext.value !== '') this.#copyright = copytext.value;
+		}
 	}
 	this.#totnum = selecteds.length;
 	this.#stats = { total: this.#totnum, skipped: 0, error: 0, ok: 0 };
@@ -2994,6 +3042,12 @@ browserprocess() {
 		else return 1;
 	});
     this.#stepmode = 0;
+    const copytext = document.getElementById('copytext');
+    const copycheck = document.getElementById('copycheck');
+    if (!this.#backward) {
+    	this.#copyright = '';
+    	if (copycheck !== null && copycheck.checked && copytext !== null && copytext.value !== '') this.#copyright = copytext.value;
+    }
 	this.#totnum = selecteds.length;
 	this.#stats = { total: this.#totnum, skipped: 0, error: 0, ok: 0 };
 	this.#actnum = 0;
@@ -3225,6 +3279,10 @@ startnode() {
 						console.log(this.subst(this.xl0('onimback.invaltimex'), v));
 					}
 				}
+				else if (flagging === 4) {
+					flagging = 0;
+					this.#copyright = v;
+				}
 				else if (v.substring(0,4)==='-CSV' && this.#debugflag) {
 					for (const el of Object.keys(this.#texts))
 						this.#prxl(el, this.#texts[el]);
@@ -3238,6 +3296,13 @@ startnode() {
 				}
 				else if (v ==='-np') {
 					this.#withpreview = false;
+				}
+				else if (v.substring(0,3)==='-cr') {
+					if (v.substring(3).length > 0) {
+						this.#copyright = v.substring(3);
+					}
+					else
+						flagging=4;
 				}
 				else if (v.substring(0,2)==='-l') {
 					if (v.substring(2).length > 0) {
@@ -3911,8 +3976,10 @@ function init() {
 		for (const o of document.getElementsByClassName('onlywhenbackw')) o.style['display']='';
 		for (const o of document.getElementsByClassName('notwhenbackw')) o.style['display']='none';
 	}
-	else
+	else {
 		imbc = new ImBC();
+		imbc.chgcopycheck();
+	}
 	imbc.querylang(window.location.pathname);
 	imbc.xlateall();
 	if (!backw) imbc.checkimb();
