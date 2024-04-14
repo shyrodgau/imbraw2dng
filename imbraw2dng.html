@@ -337,6 +337,22 @@ constructor(jsflag, bwflag) {
 			en: 'Delete all selected',
 			fr: 'Supprimer les sélectionnés',
 			ja: '選択したものをすべて削除'
+		},
+		settingsset: {
+			en: 'Settings are set for source $$0',
+			de: 'Voreinstellungen für $$0 gespeichert'
+		},
+		prefnotfile: {
+			en: 'Preferences not possible for file:// URLs',
+			de: 'Voreinstellungen für file:// URLs nicht möglich'
+		},
+		setfrom: {
+			en: 'Set new prefereneces ',
+			de: 'Voreinstellungen setzen '
+		},
+		forurl: {
+			en: ' for URL $$0',
+			de: ' für URL $$0'
 		}
 	},
 	onimback: {
@@ -3576,8 +3592,24 @@ initsettings() {
 				this.xlateall();
 				const dngprev = document.getElementById('dngpreview');
 				if (dngprev) dngprev.checked = this.#withpreview;
+				document.getElementById('onlyhttp').style['display'] = 'none';
+				document.getElementById('setsettings').style['display'] = '';
+				document.getElementById('settingsset').style['display'] = '';
+				document.getElementByid('settingsset').setAttribute('data-myxlarg0',window.location.origin);
+			} else {
+				document.getElementById('onlyhttp').style['display'] = 'none';
+				document.getElementById('setsettings').style['display'] = '';
+				document.getElementById('settingsset').style['display'] = 'none';
 			}
-		} catch (e) { }
+		} catch (e) {
+			document.getElementById('onlyhttp').style['display'] = '';
+			document.getElementById('setsettings').style['display'] = 'none';
+			document.getElementById('settingsset').style['display'] = 'none';
+		}
+	} else {
+		document.getElementById('onlyhttp').style['display'] = '';
+		document.getElementById('setsettings').style['display'] = 'none';
+		document.getElementById('settingsset').style['display'] = 'none';
 	}
 }
 /* visual browser: change cache size (currently only visible in debug _00) */
@@ -4167,6 +4199,7 @@ function init() {
 	else {
 		imbc = new ImBC(false);
 		imbc.chgcopycheck();
+		imbc.initsettings();
 	}
 	imbc.querylang(window.location.pathname);
 	imbc.xlateall();
@@ -4196,11 +4229,14 @@ if (typeof process !== 'undefined') {
 <div><input class="notwhenbackw" type="checkbox" id="steppreview" checked><label class="notwhenbackw" for="steppreview" data-myxlkey="process.singlestep"></label></div>
 <div><input class="notwhenbackw" type="checkbox" id="dngpreview" checked onchange="imbc.chgdngpreview()"><label class="notwhenbackw" for="dngpreview" data-myxlkey="process.addpreview"></label></div>
 <div><input class="notwhenbackw" type="checkbox" id="copycheck"onchange="imbc.chgcopycheck()"><label class="notwhenbackw" for="copycheck" data-myxlkey="process.addcopyright"></label> <input class="notwhenbackw" type="text" id="copytext"></input></div>
-<div class="notwhenbackw" style="margin-top: 0.5em;" data-myxlkey="main.generaladvice"></div>
-<div class="onlywhenbackw" style="margin-top: 0.5em;display:none;" data-myxlkey="main.backw.generaladvice"></div>
 <div class="notwhenbackw">
+<span id="onlyhttp" data-myxlkey="browser.prefnotfile"></span>
+<span id="settingsset" data-myxlkey="browser.settingsset"></span>
+<span id="setsettings"><input type="button" data-myvalxlkey="browser.setfrom"></input>&#xa0;<span data-myxlkey="browser.forurl"></span></span>
 <!-- here goes the save preferences .. -->
 </div>
+<div class="notwhenbackw" style="margin-top: 0.5em;" data-myxlkey="main.generaladvice"></div>
+<div class="onlywhenbackw" style="margin-top: 0.5em;display:none;" data-myxlkey="main.backw.generaladvice"></div>
 <!-- connected ! -->
 <div id="onimback" style="background-color:#ffffbb;border: 5px solid #ffff88;border-radius: 10px;width:fit-content;padding:1em;display:none;"><div style="font-size:133%;" data-myxlkey="onimback.connected">&nbsp;<br></div>
 <span data-myxlkey="onimback.dlconvert"></span><br>

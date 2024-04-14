@@ -248,6 +248,22 @@ constructor(jsflag, bwflag) {
 			en: 'Delete all selected',
 			fr: 'Supprimer les sélectionnés',
 			ja: '選択したものをすべて削除'
+		},
+		settingsset: {
+			en: 'Settings are set for source $$0',
+			de: 'Voreinstellungen für $$0 gespeichert'
+		},
+		prefnotfile: {
+			en: 'Preferences not possible for file:// URLs',
+			de: 'Voreinstellungen für file:// URLs nicht möglich'
+		},
+		setfrom: {
+			en: 'Set new prefereneces ',
+			de: 'Voreinstellungen setzen '
+		},
+		forurl: {
+			en: ' for URL $$0',
+			de: ' für URL $$0'
 		}
 	},
 	onimback: {
@@ -3487,8 +3503,24 @@ initsettings() {
 				this.xlateall();
 				const dngprev = document.getElementById('dngpreview');
 				if (dngprev) dngprev.checked = this.#withpreview;
+				document.getElementById('onlyhttp').style['display'] = 'none';
+				document.getElementById('setsettings').style['display'] = '';
+				document.getElementById('settingsset').style['display'] = '';
+				document.getElementByid('settingsset').setAttribute('data-myxlarg0',window.location.origin);
+			} else {
+				document.getElementById('onlyhttp').style['display'] = 'none';
+				document.getElementById('setsettings').style['display'] = '';
+				document.getElementById('settingsset').style['display'] = 'none';
 			}
-		} catch (e) { }
+		} catch (e) {
+			document.getElementById('onlyhttp').style['display'] = '';
+			document.getElementById('setsettings').style['display'] = 'none';
+			document.getElementById('settingsset').style['display'] = 'none';
+		}
+	} else {
+		document.getElementById('onlyhttp').style['display'] = '';
+		document.getElementById('setsettings').style['display'] = 'none';
+		document.getElementById('settingsset').style['display'] = 'none';
 	}
 }
 /* visual browser: change cache size (currently only visible in debug _00) */
@@ -4078,6 +4110,7 @@ function init() {
 	else {
 		imbc = new ImBC(false);
 		imbc.chgcopycheck();
+		imbc.initsettings();
 	}
 	imbc.querylang(window.location.pathname);
 	imbc.xlateall();
