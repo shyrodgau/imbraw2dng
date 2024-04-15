@@ -144,11 +144,12 @@ constructor(jsflag, bwflag) {
 		this.ht = require('http');
 		this.pa = require('path');
 		if (process.platform.substring(0,3) === 'win') this.#withcolours = false;
+		if (process.stdout.isTTY !== true) this.#withcolours = false;
 	}
 	if (bwflag) this.#backward = true;
 	if (jsflag) this.#nodejs = true;
 }
-#version = "V3.6.0_039c9b4"; // actually const
+#version = "V3.6.1_dev"; // actually const
 #alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 #texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -399,10 +400,10 @@ constructor(jsflag, bwflag) {
 			ja: 'ビジュアルな画像ブラウザを使用する'
 		},
 		errconnect: {
-			de: '\x1b[31mFEHLER\x1b[0m bei der Verbindung zu ImB auf $$0! Im ImB WLAN?',
-			en: '\x1b[31mERROR\x1b[0m connecting to ImB on $$0! In the ImB WiFi?',
-			fr: '\x1b[31mERREUR\x1b[0m lors de la connexion à imback. Dans le Wifi ImB?',
-			ja: '\x1b[31mエラー\x1b[0m $$0 でImB に接続しています! ImB WiFi ですか?'
+			de: '\u001b[31mFEHLER\u001b[0m bei der Verbindung zu ImB auf $$0! Im ImB WLAN?',
+			en: '\u001b[31mERROR\u001b[0m connecting to ImB on $$0! In the ImB WiFi?',
+			fr: '\u001b[31mERREUR\u001b[0m lors de la connexion à imback. Dans le Wifi ImB?',
+			ja: '\u001b[31mエラー\u001b[0m $$0 でImB に接続しています! ImB WiFi ですか?'
 		},
 		nomatch: {
 			de: 'Keine passenden Dateien gefunden. Kann vorübergehend sein.',
@@ -417,10 +418,10 @@ constructor(jsflag, bwflag) {
 			ja: '<b style=\'background-color:#ffdddd;\'>警告:</b> 無効なファイル名: $$0'
 		},
 		strangenamex: {
-			de: '\x1b[31mWarnung:\x1b[0m Komischer Dateiname: $$0',
-			en: '\x1b[31mWarning:\x1b[0m Strange file name: $$0',
-			fr: '\x1b[31mAvertissement:\x1b[0m Nom de fiche inhabituel: $$0',
-			ja: '\x1b[31m警告:\x1b[0m 無効なファイル名: $$0'
+			de: '\u001b[31mWarnung:\u001b[0m Komischer Dateiname: $$0',
+			en: '\u001b[31mWarning:\u001b[0m Strange file name: $$0',
+			fr: '\u001b[31mAvertissement:\u001b[0m Nom de fiche inhabituel: $$0',
+			ja: '\u001b[31m警告:\u001b[0m 無効なファイル名: $$0'
 		},
 		invaltime: {
 			de: '<b style=\'background-color:#ffdddd;\'>FEHLER:</b> Ungültiger Zeitstempel: $$0',
@@ -429,10 +430,10 @@ constructor(jsflag, bwflag) {
 			ja: '<b style=\'background-color:#ffdddd;\'>エラー:</b> 無効なタイムスタンプ: $$0'
 		},
 		invaltimex: {
-			de: '\x1b[31mFEHLER:\x1b[0m Ungültiger Zeitstempel: $$0',
-			en: '\x1b[31mERROR:\x1b[0m Invalid timestamp: $$0',
-			fr: '\x1b[31mERREUR:\x1b[0m Horodatage invalide: $$0',
-			ja: '\x1b[31mERROR:\x1b[0m 無効なタイムスタンプ: $$0'
+			de: '\u001b[31mFEHLER:\u001b[0m Ungültiger Zeitstempel: $$0',
+			en: '\u001b[31mERROR:\u001b[0m Invalid timestamp: $$0',
+			fr: '\u001b[31mERREUR:\u001b[0m Horodatage invalide: $$0',
+			ja: '\u001b[31mERROR:\u001b[0m 無効なタイムスタンプ: $$0'
 		},
 	},
 	process: {
@@ -459,10 +460,10 @@ constructor(jsflag, bwflag) {
 			ja: '<b>アクセス中にエラーが発生しました $$0. 申し訳ございません! </b>'
 		},
 		erraccessx: {
-			de: '\x1b[31mFEHLER\x1b[0m beim Zugriff auf $$0. ENTSCHLDIGUNG!',
-			en: '\x1b[31mERROR\x1b[0m occured accessing $$0. SORRY!',
-			fr: '\x1b[31mERREUR\x1b[0m lors de l\'accès à $$0. DÉSOLÉE!',
-			ja: '\x1b[31mエラー\x1b[0m アクセス中に発生しました $$0. 申し訳ございません!'
+			de: '\u001b[31mFEHLER\u001b[0m beim Zugriff auf $$0. ENTSCHLDIGUNG!',
+			en: '\u001b[31mERROR\u001b[0m occured accessing $$0. SORRY!',
+			fr: '\u001b[31mERREUR\u001b[0m lors de l\'accès à $$0. DÉSOLÉE!',
+			ja: '\u001b[31mエラー\u001b[0m アクセス中に発生しました $$0. 申し訳ございません!'
 		},
 		notraw: {
 			de: 'Durchleitung weil nicht raw: $$0',
@@ -483,10 +484,10 @@ constructor(jsflag, bwflag) {
 			ja: '<b style=\'background-color:#ddffdd;\'>終了! $$0 にコピーされました (ダウンロードフォルダーを確認)</b>&nbsp;'
 		},
 		copyokx: {
-			de: '\x1b[32mFertig!\x1b[0m Nach $$0 kopiert',
-			en: '\x1b[32mFinished!\x1b[0m Copied to $$0',
-			fr: '\x1b[32mFini!\x1b[0m Copié sur $$0',
-			ja: '\x1b[32m終了!\x1b[0m $$0 にコピー'
+			de: '\u001b[32mFertig!\u001b[0m Nach $$0 kopiert',
+			en: '\u001b[32mFinished!\u001b[0m Copied to $$0',
+			fr: '\u001b[32mFini!\u001b[0m Copié sur $$0',
+			ja: '\u001b[32m終了!\u001b[0m $$0 にコピー'
 		},
 		errorreadingfile: {
 			de: '<b style=\'background-color:#ffdddd;\'>Fehler beim Lesen der Datei $$0. ENTSCHULDIGUNG! </b>',
@@ -495,10 +496,10 @@ constructor(jsflag, bwflag) {
 			ja: '<b style=\'background-color:#ffdddd;\'>ファイル $$0 の読み取り中にエラーが発生しました。 申し訳ございません! </b>'
 		},
 		errorreadingfilex: {
-			de: '\x1b[31mFEHLER\x1b[0m beim Lesen der Datei $$0. ENTSCHULDIGUNG!',
-			en: '\x1b[31mERROR\x1b[0m occured reading file $$0. SORRY!',
-			fr: '\x1b[31mERREUR\x1b[0m de lecture du fiche $$0. DÉSOLÉE!',
-			ja: '\x1b[31mエラー\x1b[0m ファイル $$0 の読み取り中に発生しました。 申し訳ございません!'
+			de: '\u001b[31mFEHLER\u001b[0m beim Lesen der Datei $$0. ENTSCHULDIGUNG!',
+			en: '\u001b[31mERROR\u001b[0m occured reading file $$0. SORRY!',
+			fr: '\u001b[31mERREUR\u001b[0m de lecture du fiche $$0. DÉSOLÉE!',
+			ja: '\u001b[31mエラー\u001b[0m ファイル $$0 の読み取り中に発生しました。 申し訳ございません!'
 		},
 		unknownsize: {
 			de: '<b style=\'background-color:#ffdddd;\'>[$$0] Entschuldigung, die Dateigröße <b>$$1</b> passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!</b>',
@@ -507,10 +508,10 @@ constructor(jsflag, bwflag) {
 			ja: '<b style=\'background-color:#ffdddd;\'>[$$0] 申し訳ありませんが、ファイルサイズ <b>$$1</b> は既知の形式と一致しません。開発者にお問い合わせください。</b>'
 		},
 		unknownsizex: {
-			de: '[$$0] \x1b[31mEntschuldigung, die Dateigröße $$1 passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!\x1b[0m',
-			en: '[$$0] \x1b[31mSorry, file Size $$1 does not match known formats. Please contact developer!\x1b[0m',
-			fr: '[$$0] \x1b[31mDésolée, la taille du fiche $$1 ne correspond pas au format connu. Veuillez contacter le développeur\x1b[0m',
-			ja: '[$$0] \x1b[31m申し訳ありませんが、ファイルサイズ $$1 は既知の形式と一致しません。開発者にお問い合わせください。\x1b[0m'
+			de: '[$$0] \u001b[31mEntschuldigung, die Dateigröße $$1 passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!\u001b[0m',
+			en: '[$$0] \u001b[31mSorry, file Size $$1 does not match known formats. Please contact developer!\u001b[0m',
+			fr: '[$$0] \u001b[31mDésolée, la taille du fiche $$1 ne correspond pas au format connu. Veuillez contacter le développeur\u001b[0m',
+			ja: '[$$0] \u001b[31m申し訳ありませんが、ファイルサイズ $$1 は既知の形式と一致しません。開発者にお問い合わせください。\u001b[0m'
 		},
 		processing: {
 			de: 'Verarbeite Datei: $$0 ',
@@ -543,16 +544,16 @@ constructor(jsflag, bwflag) {
 			ja: '<b style=\'background-color:#ddffdd;\'>終了! $$0 に変換されました (ダウンロードフォルダーを確認してください)</b>&nbsp;'
 		},
 		convertedx: {
-			de: '\x1b[32mFertig!\x1b[0m Nach $$0 konvertiert',
-			en: '\x1b[32mFinished!\x1b[0m Converted to $$0',
-			fr: '\x1b[32mFini!\x1b[0m Converti en $$0',
-			ja: '\x1b[32m終了!\x1b[0m $$0 に変換'
+			de: '\u001b[32mFertig!\u001b[0m Nach $$0 konvertiert',
+			en: '\u001b[32mFinished!\u001b[0m Converted to $$0',
+			fr: '\u001b[32mFini!\u001b[0m Converti en $$0',
+			ja: '\u001b[32m終了!\u001b[0m $$0 に変換'
 		},
 		errsave: {
-			de: '\x1b[31mFEHLER!\x1b[0m Konnte Datei $$0 nicht speichern.',
-			en: '\x1b[31mERROR!\x1b[0m Could not write file $$0',
-			fr: '\x1b[31mERREUR\x1b[0m Impossible d\'écrire le fiche $$0.',
-			ja: '\x1b[31mエラー!\x1b[0m ファイル $$0 に書き込めませんでした'
+			de: '\u001b[31mFEHLER!\u001b[0m Konnte Datei $$0 nicht speichern.',
+			en: '\u001b[31mERROR!\u001b[0m Could not write file $$0',
+			fr: '\u001b[31mERREUR\u001b[0m Impossible d\'écrire le fiche $$0.',
+			ja: '\u001b[31mエラー!\u001b[0m ファイル $$0 に書き込めませんでした'
 		},
 		droppedn: {
 			de: '$$0 Datei(en) wurden abgelegt.',
@@ -750,102 +751,102 @@ constructor(jsflag, bwflag) {
 			   }
 	    },
 		help: {
-			en: [ '\x1b[1mWelcome to imbraw2dng\x1b[0m $$0 !', 'Usage: node $$0 \x1b[1m[\x1b[0m-l lang\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-f\x1b[1m | \x1b[0m-r\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-d dir\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-nc \x1b[1m|\x1b[0m -co\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-np\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-cr copyright\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-R\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-J\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-O\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-n yyyy_mm_dd-hh_mm_ss\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m \x1b[1m[\x1b[0m--\x1b[1m]\x1b[0m \x1b[1m<\x1b[0mfiles-or-dirs\x1b[1m>*\x1b[0m \x1b[1m]\x1b[0m',
+			en: [ '\u001b[1mWelcome to imbraw2dng\u001b[0m $$0 !', 'Usage: node $$0 \u001b[1m[\u001b[0m-l lang\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-d dir\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr copyright\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n yyyy_mm_dd-hh_mm_ss\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mfiles-or-dirs\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m',
 				'Options:',
-				' \x1b[1m-h\x1b[0m - show this help',
-				' \x1b[1m-nc\x1b[0m - do not use coloured text',
-				' \x1b[1m-co\x1b[0m - force coloured text',
-				' \x1b[1m-l XX\x1b[0m - where XX is a valid language code (currently: DE, EN, FR, JA)',
+				' \u001b[1m-h\u001b[0m - show this help',
+				' \u001b[1m-nc\u001b[0m - do not use coloured text',
+				' \u001b[1m-co\u001b[0m - force coloured text',
+				' \u001b[1m-l XX\u001b[0m - where XX is a valid language code (currently: DE, EN, FR, JA)',
 				'         Language can also be set by changing filename to imbraw2dng_XX.js .',
-				' \x1b[1m-d dir\x1b[0m - put output files into dir',
-				' \x1b[1m-f\x1b[0m - overwrite existing files',
-				' \x1b[1m-r\x1b[0m - rename output file, if already exists',
-				' \x1b[1m-np\x1b[0m - Do not add preview thumbnail to DNG',
-				' \x1b[1m-cr \'copyright...\'\x1b[0m - add copyright to DNG',
-				' \x1b[1m-R\x1b[0m - get RAW from ImB connected via Wifi or from given directories',
-				' \x1b[1m-J\x1b[0m - get JPEG from ImB connected via Wifi or from given directories',
-				' \x1b[1m-O\x1b[0m - get non-RAW/non-JPEG from ImB connected via Wifi or from given directories',
-				' \x1b[1m-n yyyy_mm_dd-hh_mm_ss\x1b[0m (or prefix of any length) - select only newer than this timestamp from ImB or from given directories',
+				' \u001b[1m-d dir\u001b[0m - put output files into dir',
+				' \u001b[1m-f\u001b[0m - overwrite existing files',
+				' \u001b[1m-r\u001b[0m - rename output file, if already exists',
+				' \u001b[1m-np\u001b[0m - Do not add preview thumbnail to DNG',
+				' \u001b[1m-cr \'copyright...\'\u001b[0m - add copyright to DNG',
+				' \u001b[1m-R\u001b[0m - get RAW from ImB connected via Wifi or from given directories',
+				' \u001b[1m-J\u001b[0m - get JPEG from ImB connected via Wifi or from given directories',
+				' \u001b[1m-O\u001b[0m - get non-RAW/non-JPEG from ImB connected via Wifi or from given directories',
+				' \u001b[1m-n yyyy_mm_dd-hh_mm_ss\u001b[0m (or prefix of any length) - select only newer than this timestamp from ImB or from given directories',
 				' -----',
-				' \x1b[1m--\x1b[0m - treat rest of parameters as local files or dirs',
+				' \u001b[1m--\u001b[0m - treat rest of parameters as local files or dirs',
 				' <files-or-dirs> - process local files or directories recursively, e.g. on MicroSD from ImB',],
-			fr: [ '\x1b[1mBienvenu a imbraw2dng\x1b[0m $$0 !', 'Operation: node $$0 \x1b[1m[\x1b[0m-l lang\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-f\x1b[1m | \x1b[0m-r\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-d repertoire\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-nc \x1b[1m|\x1b[0m -co\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-np\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-cr copyright\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-R\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-J\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-O\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-n yyyy_mm_dd-hh_mm_ss\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m \x1b[1m[\x1b[0m--\x1b[1m]\x1b[0m \x1b[1m<\x1b[0mfiches-ou-repertoires\x1b[1m>*\x1b[0m \x1b[1m]\x1b[0m',
+			fr: [ '\u001b[1mBienvenu a imbraw2dng\u001b[0m $$0 !', 'Operation: node $$0 \u001b[1m[\u001b[0m-l lang\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-d repertoire\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr copyright\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n yyyy_mm_dd-hh_mm_ss\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mfiches-ou-repertoires\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m',
 				'Choix:',
-				' \x1b[1m-h\x1b[0m - montrer cette aide',
-				' \x1b[1m-nc\x1b[0m - n\'utilisez pas de texte en couleur',
-				' \x1b[1m-co\x1b[0m - utilisez de texte en couleur',
-				' \x1b[1m-l XX\x1b[0m - quand XX est une code du langue valide (actuellement: DE, EN, FR, JA)',
+				' \u001b[1m-h\u001b[0m - montrer cette aide',
+				' \u001b[1m-nc\u001b[0m - n\'utilisez pas de texte en couleur',
+				' \u001b[1m-co\u001b[0m - utilisez de texte en couleur',
+				' \u001b[1m-l XX\u001b[0m - quand XX est une code du langue valide (actuellement: DE, EN, FR, JA)',
 				'         La langue peut également être définie en changeant le nom du fiche en imbraw2dng_XX.js .',
-				' \x1b[1m-d repertoire\x1b[0m - mettre les fiches de sortie dans le répertoire',
-				' \x1b[1m-f\x1b[0m - écraser les fiches existants',
-				' \x1b[1m-r\x1b[0m - quand fiche existe, renommer le résultat',
-				' \x1b[1m-np\x1b[0m - Pas petite image d\'aperçu en DNG',
-				' \x1b[1m-cr \'copyright...\'\x1b[0m - add copyright to DNG',
-				' \x1b[1m-R\x1b[0m - obtenez RAW d\'ImB connecté via Wifi ou repertoires donnés',
-				' \x1b[1m-J\x1b[0m - obtenez JPEG d\'ImB connecté via Wifi ou repertoires donnés',
-				' \x1b[1m-O\x1b[0m - obtenez du non-RAW/non-JPEG d\'ImB connecté via Wifi ou repertoires donnés',
-				' \x1b[1m-n yyyy_mm_dd-hh_mm_ss\x1b[0m (ou préfixe de n\'importe quelle longueur) - sélectionnez uniquement plus récent que cet horodatage d\'ImB ou repertoires donnés',
+				' \u001b[1m-d repertoire\u001b[0m - mettre les fiches de sortie dans le répertoire',
+				' \u001b[1m-f\u001b[0m - écraser les fiches existants',
+				' \u001b[1m-r\u001b[0m - quand fiche existe, renommer le résultat',
+				' \u001b[1m-np\u001b[0m - Pas petite image d\'aperçu en DNG',
+				' \u001b[1m-cr \'copyright...\'\u001b[0m - add copyright to DNG',
+				' \u001b[1m-R\u001b[0m - obtenez RAW d\'ImB connecté via Wifi ou repertoires donnés',
+				' \u001b[1m-J\u001b[0m - obtenez JPEG d\'ImB connecté via Wifi ou repertoires donnés',
+				' \u001b[1m-O\u001b[0m - obtenez du non-RAW/non-JPEG d\'ImB connecté via Wifi ou repertoires donnés',
+				' \u001b[1m-n yyyy_mm_dd-hh_mm_ss\u001b[0m (ou préfixe de n\'importe quelle longueur) - sélectionnez uniquement plus récent que cet horodatage d\'ImB ou repertoires donnés',
 				' -----',
-				' \x1b[1m--\x1b[0m - traiter le reste des paramètres comme des fiches ou des répertoires locaux',
+				' \u001b[1m--\u001b[0m - traiter le reste des paramètres comme des fiches ou des répertoires locaux',
 			' <fiches-ou-repertoires> - traiter des fiches ou des répertoires locaux de manière récursive, par exemple sur MicroSD d\'ImB',],
-			de: [ '\x1b[1mWillkommen bei imbraw2dng\x1b[0m $$0 !', 'Aufruf: node $$0 \x1b[1m[\x1b[0m-l sprache\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-f\x1b[1m | \x1b[0m-r\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-d ordner\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-nc \x1b[1m|\x1b[0m -co\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-np\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-cr copyright\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-R\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-J\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-O\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-n yyyy_mm_dd-hh_mm_ss\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m \x1b[1m[\x1b[0m--\x1b[1m]\x1b[0m \x1b[1m<\x1b[0mdateien-oder-ordner\x1b[1m>*\x1b[0m \x1b[1m]\x1b[0m',
+			de: [ '\u001b[1mWillkommen bei imbraw2dng\u001b[0m $$0 !', 'Aufruf: node $$0 \u001b[1m[\u001b[0m-l sprache\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-d ordner\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr copyright\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n yyyy_mm_dd-hh_mm_ss\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mdateien-oder-ordner\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m',
 				'Optionen:',
-				' \x1b[1m-h\x1b[0m - diesen Hilfetext zeigen',
-				' \x1b[1m-nc\x1b[0m - keinen farbigen Text zeigen',
-				' \x1b[1m-co\x1b[0m - farbigen Text zeigen',
-				' \x1b[1m-l XX\x1b[0m - wo XX ein gültiger Sprachcode ist (derzeit: DE, EN, FR, JA)',
+				' \u001b[1m-h\u001b[0m - diesen Hilfetext zeigen',
+				' \u001b[1m-nc\u001b[0m - keinen farbigen Text zeigen',
+				' \u001b[1m-co\u001b[0m - farbigen Text zeigen',
+				' \u001b[1m-l XX\u001b[0m - wo XX ein gültiger Sprachcode ist (derzeit: DE, EN, FR, JA)',
 				'         Die Sprache kann auch durch Umbenennen in imbraw2dng_XX.js geändert werden.',
-				' \x1b[1m-d ordner\x1b[0m - Ausgabedateien in diesen Ordner ablegen',
-				' \x1b[1m-f\x1b[0m - existierende Dateien überschreiben',
-				' \x1b[1m-r\x1b[0m - Ausgabedatei umbenennen, falls schon existiert',
-				' \x1b[1m-np\x1b[0m - Kein kleines Vorschaubild im DNG',
-				' \x1b[1m-cr \'copyright...\'\x1b[0m - copyright dem DNG hinzufügen',
-				' \x1b[1m-R\x1b[0m - RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen konvertieren',
-				' \x1b[1m-J\x1b[0m - JPEG von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren',
-				' \x1b[1m-O\x1b[0m - Nicht-JPEG/Nicht-RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren',
-				' \x1b[1m-n yyyy_mm_dd-hh_mm_ss\x1b[0m (oder beliebig langer Anfang davon) - nur Dateien neuer als dieser Zeitstempel von ImB oder übergebenen Verzeichnissen holen',
+				' \u001b[1m-d ordner\u001b[0m - Ausgabedateien in diesen Ordner ablegen',
+				' \u001b[1m-f\u001b[0m - existierende Dateien überschreiben',
+				' \u001b[1m-r\u001b[0m - Ausgabedatei umbenennen, falls schon existiert',
+				' \u001b[1m-np\u001b[0m - Kein kleines Vorschaubild im DNG',
+				' \u001b[1m-cr \'copyright...\'\u001b[0m - copyright dem DNG hinzufügen',
+				' \u001b[1m-R\u001b[0m - RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen konvertieren',
+				' \u001b[1m-J\u001b[0m - JPEG von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren',
+				' \u001b[1m-O\u001b[0m - Nicht-JPEG/Nicht-RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren',
+				' \u001b[1m-n yyyy_mm_dd-hh_mm_ss\u001b[0m (oder beliebig langer Anfang davon) - nur Dateien neuer als dieser Zeitstempel von ImB oder übergebenen Verzeichnissen holen',
 				' -----',
-				' \x1b[1m--\x1b[0m - weitere Parameter als lokale Dateien oder Ordner betrachten',
+				' \u001b[1m--\u001b[0m - weitere Parameter als lokale Dateien oder Ordner betrachten',
 				' <dateien-oder-ordner> - lokale Dateien oder Ordner rekursiv (z.B. von der MicroSD Karte aus ImB) verarbeiten',],
 			ja: [
-				'\x1b[1mimbraw2dng へようこそ\x1b[0m $$0 !', 'Usage: node $$0 \x1b[1m[\x1b[0m-l lang\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-f\x1b[1m | \x1b[0m-r\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-d dir\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-nc \x1b[1m|\x1b[0m -co\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-np\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-cr copyright\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-R\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-J\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-O\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m-n yyyy_mm_dd-hh_mm_ss\x1b[1m]\x1b[0m \x1b[1m[\x1b[0m \x1b[1m[\x1b[0m--\x1b[1m]\x1b[0m \x1b[1m<\x1b[0mfiles-or-dirs\x1b[1m>*\x1b[0m \x1b[1m]\x1b[0m',
+				'\u001b[1mimbraw2dng へようこそ\u001b[0m $$0 !', 'Usage: node $$0 \u001b[1m[\u001b[0m-l lang\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-d dir\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr copyright\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n yyyy_mm_dd-hh_mm_ss\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mfiles-or-dirs\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m',
 				'オプション:',
-				' \x1b[1m-h\x1b[0m - このヘルプを表示する',
-				' \x1b[1m-nc\x1b[0m - 色付きのテキストを使用しない',
-				' \x1b[1m-co\x1b[0m - 色付きのテキストを強制',
-				' \x1b[1m-l XX\x1b[0m - ここで、XX は有効な言語コードです (現在: DE、EN、FR、JA)',
+				' \u001b[1m-h\u001b[0m - このヘルプを表示する',
+				' \u001b[1m-nc\u001b[0m - 色付きのテキストを使用しない',
+				' \u001b[1m-co\u001b[0m - 色付きのテキストを強制',
+				' \u001b[1m-l XX\u001b[0m - ここで、XX は有効な言語コードです (現在: DE、EN、FR、JA)',
 				'         ファイル名を imbraw2dng_XX.js に変更することで言語を設定することもできます。',
-				' \x1b[1m-d dir\x1b[0m - 出力ファイルを dir に置く',
-				' \x1b[1m-f\x1b[0m - 現在のファイルを上書きする',
-				' \x1b[1m-r\x1b[0m - rename output file, if already exists',
-				' \x1b[1m-np\x1b[0m - Do not add preview thumbnail to DNG',
-				' \x1b[1m-cr \'copyright...\'\x1b[0m - add copyright to DNG',
-				' \x1b[1m-R\x1b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリからRAWを取得する',
-				' \x1b[1m-J\x1b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリからJPEGを取得する',
-				' \x1b[1m-O\x1b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリから非RAW/非JPEGを取得する',
-				' \x1b[1m-n yyyy_mmdd_hhmmss\x1b[0m (または任意の長さのプレフィックス) - ImB からこのタイムスタンプより新しいもののみを選択する',
+				' \u001b[1m-d dir\u001b[0m - 出力ファイルを dir に置く',
+				' \u001b[1m-f\u001b[0m - 現在のファイルを上書きする',
+				' \u001b[1m-r\u001b[0m - rename output file, if already exists',
+				' \u001b[1m-np\u001b[0m - Do not add preview thumbnail to DNG',
+				' \u001b[1m-cr \'copyright...\'\u001b[0m - add copyright to DNG',
+				' \u001b[1m-R\u001b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリからRAWを取得する',
+				' \u001b[1m-J\u001b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリからJPEGを取得する',
+				' \u001b[1m-O\u001b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリから非RAW/非JPEGを取得する',
+				' \u001b[1m-n yyyy_mmdd_hhmmss\u001b[0m (または任意の長さのプレフィックス) - ImB からこのタイムスタンプより新しいもののみを選択する',
 				' -----',
-				' \x1b[1m--\x1b[0m - 残りのパラメータをローカル ファイルまたはディレクトリとして扱う',
+				' \u001b[1m--\u001b[0m - 残りのパラメータをローカル ファイルまたはディレクトリとして扱う',
 				'<files-or-dirs> と -R/-J/-O/-n は同時に使用できません。'
 				]
 		},
 		unkopt: {
-			en: '\x1b[31mUnknown Option:\x1b[0m $$0',
-			de: '\x1b[31mUnbekannte Option:\x1b[0m $$0',
-			fr: '\x1b[31mOption inconnue:\x1b[0m $$0',
-			ja: '\x1b[31m最後のパラメータの値が欠落しています。\x1b[0m'
+			en: '\u001b[31mUnknown Option:\u001b[0m $$0',
+			de: '\u001b[31mUnbekannte Option:\u001b[0m $$0',
+			fr: '\u001b[31mOption inconnue:\u001b[0m $$0',
+			ja: '\u001b[31m最後のパラメータの値が欠落しています。\u001b[0m'
 		},
 		missingval: {
-			en: '\x1b[31mMissing value for last parameter.\x1b[0m',
-			de: '\x1b[31mFehlender Wert für letzten Parameter.\x1b[0m',
-			fr: '\x1b[31mValeur manquante pour le dernier paramètre.\x1b[0m',
-			ja: '\x1b[31m最後のパラメータの値が欠落しています。\x1b[0m'
+			en: '\u001b[31mMissing value for last parameter.\u001b[0m',
+			de: '\u001b[31mFehlender Wert für letzten Parameter.\u001b[0m',
+			fr: '\u001b[31mValeur manquante pour le dernier paramètre.\u001b[0m',
+			ja: '\u001b[31m最後のパラメータの値が欠落しています。\u001b[0m'
 		},
 		fnwarn: {
-			en: '\x1b[31mWarning:\x1b[0m $$0 looks like a timestamp, did you forget \x1b[1m-n\x1b[0m or \x1b[1m--\x1b[0m in front of it?',
-			de: '\x1b[31mWarnung:\x1b[0m $$0 sieht wie ein Zeitstempel aus, vielleicht \x1b[1m-n\x1b[0m oder \x1b[1m--\x1b[0m davor vergessen?',
-			fr: '\x1b[31mAvertissement:\x1b[0m $$0 ressemble à un horodatage, oubliée \x1b[1m-n\x1b[0m ou \x1b[1m--\x1b[0m?',
-			ja: '\x1b[31m警告:\x1b[0m $$0 lタイムスタンプのようですが、 \x1b[1m-n\x1b[0m または \x1b[1m--\x1b[0m 手前にあるのを忘れましたか?'
+			en: '\u001b[31mWarning:\u001b[0m $$0 looks like a timestamp, did you forget \u001b[1m-n\u001b[0m or \u001b[1m--\u001b[0m in front of it?',
+			de: '\u001b[31mWarnung:\u001b[0m $$0 sieht wie ein Zeitstempel aus, vielleicht \u001b[1m-n\u001b[0m oder \u001b[1m--\u001b[0m davor vergessen?',
+			fr: '\u001b[31mAvertissement:\u001b[0m $$0 ressemble à un horodatage, oubliée \u001b[1m-n\u001b[0m ou \u001b[1m--\u001b[0m?',
+			ja: '\u001b[31m警告:\u001b[0m $$0 lタイムスタンプのようですが、 \u001b[1m-n\u001b[0m または \u001b[1m--\u001b[0m 手前にあるのを忘れましたか?'
 		},
 		renamed: {
 			en: '(renamed)',
@@ -853,8 +854,12 @@ constructor(jsflag, bwflag) {
 			fr: '(renomee)'
 		},
 		readconfig: {
-			en: 'Config file $$0 read.',
-			de: 'Konfigurationsdatei $$0 eingelesen.',
+			en: '\u001b[2mConfig file $$0 read.\u001b[0m',
+			de: '\u001b[2mKonfigurationsdatei $$0 eingelesen.\u001b[0m',
+		},
+		noconfig: {
+			de: '\u001b[2mKeine json Konfigurationsdatei gefunden, gesucht: $$0\u001b[0m',
+			en: '\u001b[2mNo json config file found, searched: $$0\u001b[0m'
 		}
 	}
 };
@@ -865,9 +870,11 @@ constructor(jsflag, bwflag) {
 #nodejs = false;
 #copyright = '';
 /* node js: */
+#configfiles = [ './.imbraw2dng.json' ];
 #outdir = '';
 #ovwout = false;
 #typeflags = 0;
+#ptypeflags = 0; // from preferences
 #fromts = '0000';
 #connmsg = false;
 #renamefiles = false;
@@ -2248,7 +2255,7 @@ rot0() {
 			}
 			let b = '';
 			res.on('data', (chunk) => {
-				if (!this.#connmsg) console.log('\x1b[32m' + this.#xl('onimback.connected') + '\x1b[0m');
+				if (!this.#connmsg) console.log(this.rmesc('\u001b[32m' + this.#xl('onimback.connected') + '\u001b[0m'));
 				this.#connmsg = true;
 				b += chunk;
 			});
@@ -3214,11 +3221,11 @@ rmesc(str) {
 	//console.log('RRR ' + str);
 	if (this.#withcolours && !this.#backward) return (str);
 	let i = 0, j, k;
-	while ((j = str.substring(i).indexOf('\x1b')) !== -1) {
+	while ((j = str.substring(i).indexOf('\u001b')) !== -1) {
 		k = str.substring(i+j).indexOf('m');
 		if (j !== -1 && k !== -1) {
 			str = str.substring(0, i+j) + str.substring(i+j+k+1);
-			i += (k+j-1);
+			i += j;
 		} else i++;
 	}
 	return str;
@@ -3395,24 +3402,39 @@ querylang(name, offset) {
 	if (d.d) this.#outdir = d.d;
 	if (d.f) this.#ovwout = true;
 	if (d.r) this.#renamefiles = true;
-	if (d.R && (!(this.#typeflags % 2))) this.#typeflags += 1;
-	if (d.J && ((this.#typeflags % 4) < 2)) this.#typeflags += 2;
-	if (d.O && ((this.#typeflags % 8) < 4)) this.#typeflags += 4;
+	if (d.R && (!(this.#ptypeflags % 2))) this.#ptypeflags += 1;
+	if (d.J && ((this.#ptypeflags % 4) < 2)) this.#ptypeflags += 2;
+	if (d.O && ((this.#ptypeflags % 8) < 4)) this.#ptypeflags += 4;
 	if (!this.#nodejs && d.step) this.#stepmode = 1;
 	else this.#stepmode = 0;
 }
 /* nodejs: read config */
 #readconfig(callback, tryno) {
-	let xch = process.env.XDG_CONFIG_HOME ? process.env.XDG_CONFIG_HOME : (process.env.HOME ? process.env.HOME + this.pa.sep + '.config' : '.');
-	if (1 === tryno) xch = process.env.HOME ? process.env.HOME + this.pa.sep + '.config' : '.';
-	else if (2 === tryno) xch = '.';
-	else if (tryno) return callback();
-	this.fs.readFile(xch + this.pa.sep + 'imbraw2dng.json', 'utf8',
+	let xch, dotflag;
+	if (undefined === tryno) {
+		xch = '.';
+		dotflag = true;
+	}
+	else if (1 === tryno && process.env.HOME) {
+		xch = process.env.HOME + this.pa.sep + '.config';
+		dotflag = false;
+		this.#configfiles.push(process.env.HOME + this.pa.sep + '.config' + this.pa.sep + 'imbraw2dng.json');
+	}
+	else if (2 === tryno && process.env.XDG_CONFIG_HOME) {
+		xch = process.env.XDG_CONFIG_HOME;
+		dotflag = false;
+		this.#configfiles.push(process.env.XDG_CONFIG_HOME + this.pa.sep + 'imbraw2dng.json');
+	}
+	else {
+		this.#mappx('node.noconfig', JSON.stringify(this.#configfiles));
+		return callback();
+	}
+	this.fs.readFile(xch + this.pa.sep + (dotflag ? '.' : '' ) + 'imbraw2dng.json', 'utf8',
 		(err, data) => {
 			//console.log(' READ: ' + xch + this.pa.sep + 'imbraw2dng.json' + ' ' + JSON.stringify(err) + ' ' + JSON.stringify(data));
 			if (!err) {
 				this.#parseconfig(data);
-				this.#mappx('node.readconfig', xch + this.pa.sep + 'imbraw2dng.json');
+				this.#mappx('node.readconfig', xch + this.pa.sep + (dotflag ? '.' : '' ) + 'imbraw2dng.json');
 				callback();
 			}
 			else if (!tryno) {
@@ -3430,14 +3452,13 @@ querylang(name, offset) {
 	for (let j=2; j<texts.length; j++) {
 		console.log(this.rmesc(texts[j]));
 		if (this.#debugflag && j === 7) {
-			console.log(' \x1b[1m-CSV\x1b[0m - Translation CSV');
+			console.log(' \u001b[1m-CSV\u001b[0m - Translation CSV');
 		}
 	}
 }
 /* nodejs runup */
 startnode(notfirst) {
 	if (!notfirst) return this.#readconfig(() => this.startnode(true));
-	if (process.stdout.isTTY !== true) this.#withcolours = false;
 	let wanthelp = false, wantxl = false, flagging=0, datefound = false, restisfiles = false;
 	if (process.argv.length < 3) {
 		wanthelp = true;
@@ -3560,7 +3581,10 @@ startnode(notfirst) {
 		console.log(this.xl0('node.missingval'));
 		wanthelp = true;
 	}
-	else if (datefound && 0 === this.#typeflags) this.#typeflags = 7;
+	else if (datefound && 0 === this.#typeflags) {
+		if (0 === this.#ptypeflags) this.#typeflags = 7;
+		else this.#typeflags = this.#ptypeflags;
+	}
 
 	if (wanthelp || (this.#typeflags === 0 && this.#totnum === 0)) {
 		this.#help(process.argv[1]);
