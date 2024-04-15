@@ -1555,8 +1555,9 @@ setpvwait() {
 		const contents = evt.target.result;
 		const view = new DataView(contents);
 		let ti = new TIFFOut();
-		ti.addIfd(); /******************************************/
+		ti.addIfd(); /* **************************************** */
 		if (this.#withpreview) {
+			/* **** PREVIEW image **** */
 			ti.addImageStrip(1, this.#buildpvarray(view, typ, w, h, ori, false), Math.floor(transp ? (h+31)/32:(w+31)/32), Math.floor(transp ? (w+31)/32: (h+31)/32));
 			ti.addEntry(258 , 'SHORT', [ 8, 8, 8 ]); /* BitsPerSample */
 			ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression - none */
@@ -1583,6 +1584,7 @@ setpvwait() {
 		}
 		ti.addEntry(50707, 'BYTE', [ 1, 2, 0, 0 ]); /* DNG Backward Version */
 		ti.addEntry(50717, 'LONG', [ 255 ]); /* White level */
+		/* **** TODOs: **** */
 		ti.addEntry(50721, 'SRATIONAL', [ 19624, 10000, -6105, 10000, -34134, 100000, -97877, 100000, 191614, 100000, 3345, 100000, 28687, 1000000, -14068, 100000, 1348676, 1000000 ]); /* Color Matrix 1 */
 		ti.addEntry(50964, 'SRATIONAL', [ 7161, 10000, 10093, 100000, 14719, 100000, 25819, 100000, 72494, 100000, 16875, 1000000, 0, 1000000, 5178, 100000, 77342, 100000 ]); /* Forward Matrix 1 */
 		ti.addEntry(50778, 'SHORT', [ 23 ]); /* Calibration Illuminant 1 - D50 */
@@ -1590,11 +1592,12 @@ setpvwait() {
 		ti.addEntry(50827, 'BYTE', rawnamearr); /* Raw file name */
 		ti.addEntry(50932, 'ASCII', 'Generic ImB conv profile Sig'); /* Profile calibration signature */
 		ti.addEntry(50931, 'ASCII', 'Generic ImB conv profile Sig'); /* Camera calibration signature */
-		//ti.addEntry(50936, 'ASCII', 'Generic ImB conv profile'); /* Camera calibration name */
+		//ti.addEntry(50936, 'ASCII', 'Generic ImB neutral'); /* Camera calibration name */
 		if (this.#withpreview) {
 			ti.addEntry(50971, 'ASCII', new Date(Date.now()).toISOString() ); /* Preview date time */
-			ti.addSubIfd(); /******************************************/
+			ti.addSubIfd(); /* **************************************** */
 		}
+		/* **** RAW image **** */
 		ti.addImageStrip(0, view, w, h);
 		ti.addEntry(258 , 'SHORT', [ 8 ]); /* BitsPerSample */
 		ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression - none */
@@ -1603,11 +1606,11 @@ setpvwait() {
 		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config - chunky */
 		ti.addEntry(33421, 'SHORT', [ 2, 2 ]); /* CFA Repeat Pattern Dim */
 		ti.addEntry(33422, 'BYTE', (typ > 1) ? [ 2, 1, 1, 0 ] : [ 1, 0, 2, 1 ]); /* CFA Pattern dep. on MF/35mm*/
-		//ti.createCamProf('test1'); /******************************************/
+		//ti.createCamProf('Generic ImB darker'); /* **************************************** */
 		//ti.addEntry(50941, 'LONG', [ 3 ]); /* profile embed policy */
 		//ti.addEntry(50932, 'ASCII', 'Generic ImB conv profile Sig'); /* Profile calibration signature */
-		//ti.createCamProf('test2');
-		//ti.addEntry(50941, 'LONG', [ 1 ]); /* profile embed policy */
+		//ti.createCamProf('Generic ImB brighter');
+		//ti.addEntry(50941, 'LONG', [ 3 ]); /* profile embed policy */
 		//ti.addEntry(50932, 'ASCII', 'Generic ImB conv profile Sig'); /* Profile calibration signature */
 		this.#output1(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted', ti.getData());
 	};
