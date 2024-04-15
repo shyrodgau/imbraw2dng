@@ -13,7 +13,7 @@ oder [AUF DEUTSCH](https://shyrodgau.github.io/imbraw2dng/moredoc_de)
 
 ## インストール
 
-現在のバージョンは [V3.5.6_bd9294c - save preferences](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.5.6_bd9294c). 
+現在のバージョンは [V3.6.0_039c9b4 - save preferences](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.6.0_039c9b4). 
 注: エラーが見つかった場合、新しい翻訳が提供された場合、または新しい画像形式が追加された場合は、さらに開発を進めます。
 
 ファイル [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.html) fを PC にコピーするか、 

@@ -60,7 +60,7 @@ constructor(jsflag, bwflag) {
 	if (bwflag) this.#backward = true;
 	if (jsflag) this.#nodejs = true;
 }
-#version = "V3.5.6_bd9294c"; // actually const
+#version = "V3.6.0_039c9b4"; // actually const
 #alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 #texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
