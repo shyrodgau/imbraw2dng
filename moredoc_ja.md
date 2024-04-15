@@ -81,6 +81,8 @@ HTML ファイル ( [国際化](#国際化) に応じて名前も変更) を ImB
  <files-or-dirs> と -R/-J/-O/-n は同時に使用できません。
 ```
 
+About configuration see [imbraw2dng.json](imbraw2dng.json).
+
 ## どのように動作するか
 
 DNG は TIFF に似た形式で、主に元の画像のスキャンラインの周囲の定数データで構成されます。 データは、画像の幅、高さ 

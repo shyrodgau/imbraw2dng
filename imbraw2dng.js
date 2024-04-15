@@ -61,7 +61,7 @@ constructor(jsflag, bwflag) {
 	if (bwflag) this.#backward = true;
 	if (jsflag) this.#nodejs = true;
 }
-#version = "V3.6.1_dev"; // actually const
+#version = "V3.6.2_dev"; // actually const
 #alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 #texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -783,6 +783,7 @@ constructor(jsflag, bwflag) {
 #copyright = '';
 /* node js: */
 #configfiles = [ './.imbraw2dng.json' ];
+#configloaded = '';
 #outdir = '';
 #ovwout = false;
 #typeflags = 0;
@@ -3313,7 +3314,6 @@ querylang(name, offset) {
 		this.#configfiles.push(process.env.XDG_CONFIG_HOME + this.pa.sep + 'imbraw2dng.json');
 	}
 	else {
-		this.#mappx('node.noconfig', JSON.stringify(this.#configfiles));
 		return callback();
 	}
 	this.fs.readFile(xch + this.pa.sep + (dotflag ? '.' : '' ) + 'imbraw2dng.json', 'utf8',
@@ -3321,7 +3321,7 @@ querylang(name, offset) {
 			//console.log(' READ: ' + xch + this.pa.sep + 'imbraw2dng.json' + ' ' + JSON.stringify(err) + ' ' + JSON.stringify(data));
 			if (!err) {
 				this.#parseconfig(data);
-				this.#mappx('node.readconfig', xch + this.pa.sep + (dotflag ? '.' : '' ) + 'imbraw2dng.json');
+				this.#configloaded = (xch + this.pa.sep + (dotflag ? '.' : '' ) + 'imbraw2dng.json');
 				callback();
 			}
 			else if (!tryno) {
@@ -3329,6 +3329,14 @@ querylang(name, offset) {
 			}
 			else return this.#readconfig(callback, tryno + 1);
 		});
+}
+/* nodejs: config info */
+#configinfo() {
+	if ('' !== this.#configloaded)
+		this.#mappx('node.readconfig', this.#configloaded);
+	else
+		this.#mappx('node.noconfig', JSON.stringify(this.#configfiles));
+	console.log('');
 }
 /* nodejs: show help */
 #help(caller) {
@@ -3478,12 +3486,14 @@ startnode(notfirst) {
 		console.log('');
 		console.log(this.xl0('main.coloursyourrisk'));
 		console.log('');
+		this.#configinfo();
 		return;
 	}
 	else if (this.#totnum > 0) {
 		console.log(this.subst(this.xl0('node.help')[0], this.#version));
 		console.log(this.xl0('main.coloursyourrisk'));
 		console.log('');
+		this.#configinfo();
 		if (this.#typeflags === 0) this.#typeflags = 7;
 		this.handlerecurse();
 	}
@@ -3491,6 +3501,7 @@ startnode(notfirst) {
 		console.log(this.subst(this.xl0('node.help')[0], this.#version));
 		console.log(this.xl0('main.coloursyourrisk'));
 		console.log('');
+		this.#configinfo();
 		this.#checkimbnode();
 	}
 }
@@ -3766,7 +3777,7 @@ dodebug() {
 }
 /* indentation in - end of class ImBC */
 };
-/* Tiff helper classes */
+/* Tiff IFD helper class */
 class IFDOut {
 /* Indentation out */
 #entrys = [];
@@ -3967,6 +3978,7 @@ getNextIfdPosOffset() {
 }
 /* Indentation in - end of class IFD */
 };
+/* main TIFF class */
 class TIFFOut {
 /* Indentation out */
 #ifds = [];
@@ -4078,6 +4090,7 @@ createCamProf(name) {
 }
 /* Indentation in - end of class TIFFOut */
 }
+/* Class for backward DNG to RAW */
 class ImBCR extends ImBC {
 /* Indentation out */
 #totnum = 0;
@@ -4155,6 +4168,7 @@ startnode() {
 }
 /* Indentation in - end of class ImBCR */
 }
+/* outside of classes: */
 let imbc;
 /* onload of html body */
 function init() {

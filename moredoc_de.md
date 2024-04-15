@@ -97,6 +97,8 @@ Optionen:
  <dateien-oder-ordner> - lokale Dateien oder Ordner rekursiv (z.B. von der MicroSD Karte aus ImB) verarbeiten
 ```
 
+Bezüglich Konfigurierbarkeit siehe [imbraw2dng.json](imbraw2dng.json).
+
 ## Wie funktioniert es?
 
 DNG ist ein auf TIFF basierendes Dateiformat, das hauptsächlich konstante Daten um die ursprünglichen Bilddaten herum hat. Die Unterschiede hängen 

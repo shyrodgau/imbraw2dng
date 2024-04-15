@@ -86,6 +86,8 @@ Options:
  <files-or-dirs> - process local files or directories recursively, e.g. on MicroSD from ImB
 ```
 
+About configuration see [imbraw2dng.json](imbraw2dng.json).
+
 ## How does it work?
 
 DNG is a TIFF-like format and consists mainly of constant data around the original image scanlines. The data varies depending on width, height 
