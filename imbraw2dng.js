@@ -925,6 +925,7 @@ chgcopycheck() {
     	else
     		copytext.style['display'] = 'none';
     }
+    this.dirtysettings();
 }
 /* browserdisplay: handler for file selection input */
 fselected() {
@@ -3236,31 +3237,36 @@ xlateall() {
 chgdngpreview() {
     const dngprev = document.getElementById('dngpreview');
     this.#withpreview = (dngprev !== null && dngprev.checked);
+    this.dirtysettings();
 }
 /* translate html for new language */
 setlang() {
+	if (this.#mylang !== document.getElementById('langsel').value) this.dirtysettings();
 	this.#mylang = document.getElementById('langsel').value;
 	this.xlateall();
 }
 /* try lang from node param */
 trylang(i) {
-	let found = 0;
+	let found = 0, langchg = false;
 	for (const l of this.#alllangs) {
 		if (i.toUpperCase() === l.toUpperCase()) {
+			if (this.#mylang !== l) langchg = true;
 			this.#mylang = l;
 			found = 1;
 			break;
 		}
 	}
 	if (!found) {
+		if (this.#mylang !== 'en') langchg = true;
 		this.#mylang = 'en';
 		console.log('Unknown language: ' + i);
 	}
 	else if ('00' === this.#mylang)
 		this.#debugflag = true;
 	if (document) {
-		document.getElementById('langsel').value = l;
+		document.getElementById('langsel').value = i.toLowerCase();
 	}
+	if (langchg) this.dirtysettings();
 }
 /* find language from filename or nodejs scriptfile */
 querylang(name, offset) {
@@ -3295,7 +3301,8 @@ querylang(name, offset) {
 	if (d.nc) this.#withcolours = false;
 	if (d.co) this.#withcolours = true;
 	if (d.np) this.#withpreview = false;
-	if (d.cr) this.#copyright = d.cr;
+	else this.#withpreview = true;
+	if (undefined !== d.cr) this.#copyright = d.cr;
 	if (d.l) this.trylang(d.l);
 	if (d.d) this.#outdir = d.d;
 	if (d.f) this.#ovwout = true;
@@ -3303,6 +3310,8 @@ querylang(name, offset) {
 	if (d.R && (!(this.#typeflags % 2))) this.#typeflags += 1;
 	if (d.J && ((this.#typeflags % 4) < 2)) this.#typeflags += 2;
 	if (d.O && ((this.#typeflags % 8) < 4)) this.#typeflags += 4;
+	if (!this.#nodejs && d.step) this.#stepmode = 1;
+	else this.#stepmode = 0;
 }
 /* nodejs: read config */
 #readconfig(callback, tryno) {
@@ -3486,6 +3495,46 @@ startnode(notfirst) {
 		this.#checkimbnode();
 	}
 }
+/* browserdisplay: settings are dirty */
+dirtysettings() {
+	if (!this.#nodejs && window.location.origin.startsWith('http') && window.localStorage) {
+		document.getElementById('onlyhttp').style['display'] = 'none';
+		document.getElementById('setsettings').style['display'] = '';
+		document.getElementById('settingsset').style['display'] = 'none';
+		document.getElementById('settingsset').setAttribute('data-myxlarg0',window.location.origin);
+		document.getElementById('setsettingsurl').setAttribute('data-myxlarg0',window.location.origin);
+	}
+}
+/* browserdisplay: save settings */
+savesettings() {
+	if (window.location.origin.startsWith('http') && window.localStorage) {
+		try {
+			const copytext = document.getElementById('copytext');
+			const copycheck = document.getElementById('copycheck');
+			let copyval = ''
+			if (copycheck !== null && copytext !== null && copycheck.checked) {
+				copyval = copytext.value;
+			}
+			let stepmode = 0;
+			const stepprev = document.getElementById('steppreview');
+			if (stepprev !== null && stepprev.checked) stepmode = 1;
+			window.localStorage.setItem('imbraw2dng_json', JSON.stringify(
+				{
+					'cr': copyval,
+					'np': document.getElementById('dngpreview') ? !document.getElementById('dngpreview').checked : false,
+					'l': this.#mylang,
+					'step': stepmode,
+					'version': this.#version,
+					'loca': window.location.origin
+				}
+			));
+		}
+		catch (e) {
+			console.log(JSON.stringify(e));
+		}
+		this.initsettings();
+	}
+}
 /* browserdisplay: initialize settings */
 initsettings() {
 	if (window.location.origin.startsWith('http') && window.localStorage) {
@@ -3495,34 +3544,41 @@ initsettings() {
 				this.#parseconfig(e);
 				const copytext = document.getElementById('copytext');
 				const copycheck = document.getElementById('copycheck');
+				const stepprev = document.getElementById('steppreview');
 				if (!this.#backward) {
-					if (copycheck !== null && copytext !== null && this.#copyright.length > 0) {
-						copycheck.checked = true;
+					if (copycheck !== null && copytext !== null) {
+						copycheck.checked = (this.#copyright.length > 0);
 						copytext.value = this.#copyright;
+						copytext.style['display'] = (this.#copyright.length > 0) ? '' : 'none';
 					}
+					if (stepprev !== null) stepprev.checked = (this.#stepmode===1);
 				}
-				this.xlateall();
 				const dngprev = document.getElementById('dngpreview');
 				if (dngprev) dngprev.checked = this.#withpreview;
 				document.getElementById('onlyhttp').style['display'] = 'none';
-				document.getElementById('setsettings').style['display'] = '';
+				document.getElementById('setsettings').style['display'] = 'none';
 				document.getElementById('settingsset').style['display'] = '';
-				document.getElementByid('settingsset').setAttribute('data-myxlarg0',window.location.origin);
+				document.getElementById('settingsset').setAttribute('data-myxlarg0',window.location.origin);
+				document.getElementById('setsettingsurl').setAttribute('data-myxlarg0',window.location.origin);
 			} else {
 				document.getElementById('onlyhttp').style['display'] = 'none';
 				document.getElementById('setsettings').style['display'] = '';
 				document.getElementById('settingsset').style['display'] = 'none';
+				document.getElementById('settingsset').setAttribute('data-myxlarg0',window.location.origin);
+				document.getElementById('setsettingsurl').setAttribute('data-myxlarg0',window.location.origin);
 			}
 		} catch (e) {
 			document.getElementById('onlyhttp').style['display'] = '';
 			document.getElementById('setsettings').style['display'] = 'none';
 			document.getElementById('settingsset').style['display'] = 'none';
+			this.xlateall();
 		}
 	} else {
 		document.getElementById('onlyhttp').style['display'] = '';
 		document.getElementById('setsettings').style['display'] = 'none';
 		document.getElementById('settingsset').style['display'] = 'none';
 	}
+	this.xlateall();
 }
 /* visual browser: change cache size (currently only visible in debug _00) */
 chgcache() {
