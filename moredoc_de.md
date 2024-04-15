@@ -13,7 +13,7 @@ or [IN ENGLISH](https://shyrodgau.github.io/imbraw2dng/moredoc)
 
 ## Installation
 
-Die aktuelle Version ist [V3.5.8_7c100b6 - mit Japanisch](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.5.8_7c100b6). 
+Die aktuelle Version ist [V3.5.6_bd9294c - speicherbare Voreinstellungen](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.5.6_bd9294c). 
 Anmerkung: Weiterentwicklung wenn Fehler gefunden, neue Übersetzung beigesteuert, oder neues Bildformat.
 
 Die Datei [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.html) auf den PC kopieren oder aus der 
