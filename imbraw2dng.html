@@ -3396,7 +3396,7 @@ querylang(name, offset) {
 #readconfig(callback, tryno) {
 	let xch = process.env.XDG_CONFIG_HOME ? process.env.XDG_CONFIG_HOME : (process.env.HOME ? process.env.HOME + this.pa.sep + '.config' : '.');
 	if (1 === tryno) xch = process.env.HOME ? process.env.HOME + this.pa.sep + '.config' : '.';
-	else if (2 === tryno) '.';
+	else if (2 === tryno) xch = '.';
 	else if (tryno) return callback();
 	this.fs.readFile(xch + this.pa.sep + 'imbraw2dng.json', 'utf8',
 		(err, data) => {
@@ -3948,6 +3948,8 @@ getData(offset) {
 		for (let z=0; z<this.#imgdata.length; z++)
 			this.#data[ioff++] = this.#imgdata[z];
 	}
+	while (ioff < this.#imglen)
+		this.#data[ioff++] = 0;
 	TIFFOut.writeshorttoout(this.#data, this.#entrys.length, ioff);
 	ioff += 2;
 	for (const i of this.#entrys.sort(function(a,b) { return a.xtag - b.xtag; })) {
@@ -4229,7 +4231,7 @@ if (typeof process !== 'undefined') {
 <div><input class="notwhenbackw" type="checkbox" id="steppreview" checked><label class="notwhenbackw" for="steppreview" data-myxlkey="process.singlestep"></label></div>
 <div><input class="notwhenbackw" type="checkbox" id="dngpreview" checked onchange="imbc.chgdngpreview()"><label class="notwhenbackw" for="dngpreview" data-myxlkey="process.addpreview"></label></div>
 <div><input class="notwhenbackw" type="checkbox" id="copycheck"onchange="imbc.chgcopycheck()"><label class="notwhenbackw" for="copycheck" data-myxlkey="process.addcopyright"></label> <input class="notwhenbackw" type="text" id="copytext"></input></div>
-<div class="notwhenbackw">
+<div style="display:none;">
 <span id="onlyhttp" data-myxlkey="browser.prefnotfile"></span>
 <span id="settingsset" data-myxlkey="browser.settingsset"></span>
 <span id="setsettings"><input type="button" data-myvalxlkey="browser.setfrom"></input>&#xa0;<span data-myxlkey="browser.forurl"></span></span>

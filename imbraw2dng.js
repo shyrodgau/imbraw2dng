@@ -10,7 +10,7 @@ Based on work by Michele Asciutti.
 
 https://github.com/shyrodgau/imbraw2dng
 
-Usage: node imbraw2dng.js [-l lang] [-f] [-d dir] [-nc | -co] [-R] [-J] [-O] [-n yyyy_mm_dd-hh_mm_ss] [ [--] <files-or-dirs>* ]
+Usage: node imbraw2dng.js [-l lang] [-f] [-d dir] [-nc | -co] [-np] [-cr copyright] [-R] [-J] [-O] [-n yyyy_mm_dd-hh_mm_ss] [ [--] <files-or-dirs>* ]
 Options:
  -h - show this help
  -nc - do not use coloured text
@@ -21,6 +21,7 @@ Options:
  -f - overwrite existing files
  -r - rename output file, if already exists
  -np - Do not add preview thumbnail to DNG
+ -cr 'copyright...' - add copyright to DNG
  -R - get RAW from ImB connected via Wifi or from given directories
  -J - get JPEG from ImB connected via Wifi or from given directories
  -O - get non-RAW/non-JPEG from ImB connected via Wifi or from given directories
@@ -3307,7 +3308,7 @@ querylang(name, offset) {
 #readconfig(callback, tryno) {
 	let xch = process.env.XDG_CONFIG_HOME ? process.env.XDG_CONFIG_HOME : (process.env.HOME ? process.env.HOME + this.pa.sep + '.config' : '.');
 	if (1 === tryno) xch = process.env.HOME ? process.env.HOME + this.pa.sep + '.config' : '.';
-	else if (2 === tryno) '.';
+	else if (2 === tryno) xch = '.';
 	else if (tryno) return callback();
 	this.fs.readFile(xch + this.pa.sep + 'imbraw2dng.json', 'utf8',
 		(err, data) => {
@@ -3859,6 +3860,8 @@ getData(offset) {
 		for (let z=0; z<this.#imgdata.length; z++)
 			this.#data[ioff++] = this.#imgdata[z];
 	}
+	while (ioff < this.#imglen)
+		this.#data[ioff++] = 0;
 	TIFFOut.writeshorttoout(this.#data, this.#entrys.length, ioff);
 	ioff += 2;
 	for (const i of this.#entrys.sort(function(a,b) { return a.xtag - b.xtag; })) {
