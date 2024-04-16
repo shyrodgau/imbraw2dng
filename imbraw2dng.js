@@ -911,18 +911,13 @@ static basename(n) {
 	}
 	else console.log(msg);
 }
-/* helper to append message */
-#appendmsgx(msg) {
-	if (document) {
-		const msgel = document.getElementById('outmsg');
-		const xmsg = document.getElementById('xmsg');
-		xmsg.style["display"] = "";
-		msgel.append(msg);
-	}
-}
 /* stupid helper */
-#appendnl() {
-	if (document) this.#appendmsg('<br>&nbsp;<br>');
+#appendnl(what) {
+	if (document) {
+		this.#appendmsg('<br>');
+		if (false !== what) this.#appendmsg('&nbsp;<br>');
+	}
+	else if (what) console.log('');
 }
 /* browserdisplay: copyright checkbox change */
 chgcopycheck() {
@@ -1030,11 +1025,9 @@ handlerecurse(already, index) {
 		} else*/ 
 			this.shownormal();
 		if (this.#stats.total > 0) {
-			if (document) this.#appendnl();
-			else this.#appendmsg('');
+			this.#appendnl(true);
 			this.#mappx('process.totals', this.#stats.total, this.#stats.ok, this.#stats.skipped, this.#stats.error);
-			if (document) this.#appendnl();
-			else this.#appendmsg('');
+			this.#appendnl(true);
 		}
 		if (document) {
 			document.getElementById('imbdoit').disabled = false;
@@ -1358,8 +1351,7 @@ setpvwait() {
 				this.#handleoneback(fx);
 			}, (url) => {
 				this.#mappx('process.erraccess' + (!document ? 'x' : ''), url);
-				if (document) this.#appendnl();
-				else this.#appendmsg('');
+				this.#appendnl(true);
 				this.#stats.error ++;
 				this.#handlenext();
 		  });
@@ -1391,7 +1383,7 @@ setpvwait() {
 	const zz = this.#infos.findIndex((v, i, o) => v.size === f.size);
 	if (zz !== -1) {
 		this.#appendmsg("[" + (1 + this.#actnum) + " / " + this.#totnum + "] ");
-		if (document) this.#appendmsg('<br>');
+		this.#appendnl(false);
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
 			const contents = evt.target.result;
@@ -1433,8 +1425,7 @@ setpvwait() {
 				this.#handleone(rot ? rot: orientation);
 			}, (url) => {
 				this.#mappx('process.erraccess' + (!document ? 'x' : ''), url);
-				if (document) this.#appendnl();
-				else this.#appendmsg('');
+				this.#appendnl(true);
 				this.#stats.error ++;
 				this.#handlenext();
 		  });
@@ -1449,7 +1440,7 @@ setpvwait() {
 				this.#appendmsg("[" + (1 + this.#actnum) + " / " + this.#totnum + "] ");
 			}
 			this.#mappx('process.notraw',rawname);
-			if (document) this.#appendmsg('<br>');
+			this.#appendnl(false);
 			const contents = evt.target.result;
 			const view = new DataView(contents);
 			const out = new Uint8Array(f.size);
@@ -1476,7 +1467,7 @@ setpvwait() {
 			this.#appendmsg("[" + (1 + this.#actnum) + " / " + this.#totnum + "] ");
 		}
 		this.#mappx('process.unknownsize' + (!document ? 'x' : ''), f.name, f.size);
-		if (document) this.#appendmsg('<br>');
+		this.#appendnl(false);
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
 			const contents = evt.target.result;
@@ -1535,20 +1526,20 @@ setpvwait() {
 			this.#appendmsg("[" + (1 + this.#actnum) + " / " + this.#totnum + "] ");
 		}
 		this.#mappx('process.processing', rawname);
-		if (document) this.#appendmsg('<br>');
+		this.#appendnl(false);
 		this.#mappx('process.assuming', this.#types[typ], mode);
-		if (document) this.#appendmsg('<br>');
+		this.#appendnl(false);
 		if (dateok) {
 			this.#mappx('process.datetime', datestr);
-			if (document) this.#appendmsg('<br>');
+			this.#appendnl(false);
 		}
 		let ori = orientation ? orientation : 1;
 		let transp = false;
 		if (ori !== 1) {
 			this.#mappx('process.orientation');
 			if (document) {
-				this.#appendmsgx(this.#genspan('preview.orients.' + this.#orients[ori]));
-				this.#appendmsg('<br>');
+				this.#appendmsg(this.#genspan('preview.orients.' + this.#orients[ori]));
+				this.#appendnl(false);
 			}
 			if (ori === 6 || ori === 8) transp = true;
 		}
@@ -2292,8 +2283,7 @@ imbdoit() {
 	this.#actnum = 0;
 	this.#allfiles = selecteds;
 	this.#mappx('process.frombackn', this.#totnum);
-	if (document) this.#appendnl();
-	else this.#appendmsg('');
+	this.#appendnl(true);
 	if (document && this.#totnum > 0) {
 		document.getElementById('imbdoit').disabled = true;
 		document.getElementById('imbvisbrows').disabled = true;
