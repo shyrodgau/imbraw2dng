@@ -444,10 +444,10 @@ constructor(jsflag, bwflag) {
 			ja: '日付/時刻: $$0 '
 		},
 		orientation: {
-			de: 'Drehung: ',
-			en: 'Orientation: ',
-			fr: 'Rotation: ',
-			ja: '向き: '
+			de: 'Drehung: $$0',
+			en: 'Orientation: $$0',
+			fr: 'Rotation: $$0',
+			ja: '向き: $$0'
 		},
 		converted: {
 			de: '<b style=\'background-color:#ddffdd;\'>Fertig! Nach $$0 konvertiert (Downloads-Ordner prüfen)</b>&nbsp;',
@@ -950,7 +950,6 @@ fselected() {
 	this.#allfiles = el.files;
 	if (this.#totnum > 0) {
 		this.#mappx('process.selectedn', this.#totnum);
-		this.#appendnl();
 		document.getElementById('imbdoit').disabled = true;
 		document.getElementById('imbvisbrows').disabled = true;
 		document.getElementById('droptarget').style['display'] = 'none';
@@ -1333,6 +1332,7 @@ setpvwait() {
 		const xmsg = document.getElementById('xmsg');
 		xmsg.style["display"] = "";
 		msgel.append(s);
+		this.#appendnl(false);
 	}
 	else console.log(this.#xl(key, arg0, arg1, arg2, arg3));
 }
@@ -1341,7 +1341,6 @@ setpvwait() {
 	const f = (fx !== undefined) ? fx : this.#allfiles[this.#actnum];
 	if (undefined === f) {
 		this.#mappx('process.nothing');
-		this.#appendnl();
 		return this.#handlenext();
 	}
 	if (undefined === f.size) {
@@ -1374,7 +1373,7 @@ setpvwait() {
 	else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
 		this.#appendmsg("[" + (1 + this.#actnum) + " / " + this.#totnum + "] ");
 		this.#appendmsg('Seems not to be DNG: ' + f.name);
-		this.#appendnl();
+		this.#appendnl(true);
 		this.#stats.error++;
 		return this.#handlenext();
 	}
@@ -1415,7 +1414,6 @@ setpvwait() {
 	const f = (this.#debugflag && this.#useraw) ? this.#useraw : this.#allfiles[this.#actnum];
 	if (undefined === f) {
 		this.#mappx('process.nothing');
-		this.#appendnl();
 		return this.#handlenext();
 	}
 	if (undefined === f.size) {
@@ -1440,7 +1438,6 @@ setpvwait() {
 				this.#appendmsg("[" + (1 + this.#actnum) + " / " + this.#totnum + "] ");
 			}
 			this.#mappx('process.notraw',rawname);
-			this.#appendnl(false);
 			const contents = evt.target.result;
 			const view = new DataView(contents);
 			const out = new Uint8Array(f.size);
@@ -1452,7 +1449,6 @@ setpvwait() {
 		reader.onerror = (evt) => {
 			console.log('Non-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
 			this.#mappx('process.errorreadingfile' + (!document ? 'x' : ''), f.name);
-			this.#appendnl();
 			this.#stats.error++;
 			this.#handlenext();
 		}
@@ -1467,7 +1463,6 @@ setpvwait() {
 			this.#appendmsg("[" + (1 + this.#actnum) + " / " + this.#totnum + "] ");
 		}
 		this.#mappx('process.unknownsize' + (!document ? 'x' : ''), f.name, f.size);
-		this.#appendnl(false);
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
 			const contents = evt.target.result;
@@ -1481,7 +1476,6 @@ setpvwait() {
 		reader.onerror = (evt) => {
 			console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
 			this.#mappx('process.errorreadingfile' + (!document ? 'x' : ''), f.name);
-			this.#appendnl();
 			this.#stats.error++;
 			this.#handlenext();
 		}
@@ -1526,21 +1520,14 @@ setpvwait() {
 			this.#appendmsg("[" + (1 + this.#actnum) + " / " + this.#totnum + "] ");
 		}
 		this.#mappx('process.processing', rawname);
-		this.#appendnl(false);
 		this.#mappx('process.assuming', this.#types[typ], mode);
-		this.#appendnl(false);
 		if (dateok) {
 			this.#mappx('process.datetime', datestr);
-			this.#appendnl(false);
 		}
 		let ori = orientation ? orientation : 1;
 		let transp = false;
 		if (ori !== 1) {
-			this.#mappx('process.orientation');
-			if (document) {
-				this.#appendmsg(this.#genspan('preview.orients.' + this.#orients[ori]));
-				this.#appendnl(false);
-			}
+			this.#mappx('process.orientation', this.xl0('preview.orients.' + this.#orients[ori]));
 			if (ori === 6 || ori === 8) transp = true;
 		}
 		/* Here comes the actual building of the DNG */
@@ -1609,7 +1596,6 @@ setpvwait() {
 	reader.onerror = (evt) => {
 		console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
 		this.#mappx('process.errorreadingfile' + (!document ? 'x' : ''), f.name);
-		this.#appendnl();
 		this.#stats.error++;
 		this.#handlenext();
 	};
@@ -1625,7 +1611,7 @@ setpvwait() {
 		outel.href = thisurl;
 		outel.click();
 		this.#mappx(okmsg, name);
-		this.#appendnl();
+		this.#appendnl(true);
 		const ie = this.#imbeles.find((v) => v.raw.substring(0, v.raw.length - 3) === name.substring(0, name.length - 3));
 		if (ie) {
 			ie.wasselected = true;
@@ -1633,7 +1619,6 @@ setpvwait() {
 				ie.entry.classList.add('picprocd');
 		}
 		this.#stats.ok++;
-		this.#appendmsg('');
 		this.#handlenext();
 	} 
 	else {
@@ -1713,7 +1698,7 @@ drophandler(ev) {
 	}
 	this.#stats = { total: this.#totnum, skipped: 0, error: 0, ok: 0 };
 	this.#mappx('process.droppedn', this.#totnum);
-	this.#appendnl();
+	this.#appendnl(true);
 	document.getElementById('imbdoit').disabled = true;
 	document.getElementById('imbvisbrows').disabled = true;
 	document.getElementById('droptarget').style['display'] = 'none';
@@ -1979,7 +1964,6 @@ skipthis() {
 	} else {
 		let rawname = ImBC.basename(this.#allfiles[this.#actnum].name ? this.#allfiles[this.#actnum].name : this.#allfiles[this.#actnum]);
 		this.#mappx('process.skipped', rawname);
-		this.#appendnl();
 		this.#stats.skipped ++;
 	}
 	this.shownormal();
@@ -2032,7 +2016,6 @@ rot0() {
 		cl = timestx[1] + '_' + timestx[3] + '_' + timestx[5] + '-' + timestx[7];
 	} else {
 		this.#mappx('onimback.strangename' + (document?'':'x'), rawname);
-		this.#appendnl();
 	}
 	if (rawname.substring(rawname.length -4).toUpperCase() === '.RAW') {
 		if (null !== timest) {
@@ -2209,7 +2192,6 @@ checkimb(type) {
 	const res = this.#fnregex.exec(fname);
 	if (res === null) {
 		this.#mappx('onimback.strangename'+ (document?'':'x'), fname);
-		this.#appendnl();
 		return (compts === '0000');
 	} else {
 		const ts = res[1] + '_' + res[3] + '_' + res[5] + '-' + res[7] + '_' + res[9] + '_' + res[11];
@@ -2227,7 +2209,6 @@ imbdoit() {
 		compval = document.getElementById('imbstartts').value;
 		if (null === this.#tsregex.exec(compval)) {
 			this.#mappx('onimback.invaltime', compval);
-			this.#appendnl();
 			const wc = this.#withcolours;
 			this.#withcolours = false;
 			alert(this.subst(this.xl0('onimback.invaltimex'), compval));
@@ -3101,7 +3082,6 @@ browserprocess() {
 	this.#allfiles = selecteds;
 	if (this.#totnum > 0) {
 		this.#mappx('process.frombrowsern', this.#totnum);
-		this.#appendnl();
 		document.getElementById('imbdoit').disabled = true;
 		document.getElementById('imbvisbrows').disabled = true;
 		document.getElementById('droptarget').style['display'] = 'none';
