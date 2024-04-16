@@ -776,12 +776,12 @@ constructor(jsflag, bwflag) {
 	}
 };
 #mylang = 'en';
-#withcolours = true;
 #withpreview = true;
 #backward = false;
 #nodejs = false;
 #copyright = '';
 /* node js: */
+#withcolours = true;
 #configfiles = [ './.imbraw2dng.json' ];
 #configloaded = '';
 #outdir = '';
@@ -889,6 +889,7 @@ constructor(jsflag, bwflag) {
 #earliestraw='9999';
 #latestraw='0000';
 #loaderrunning=false; // currently handled browser raw preview download
+#fromvisbrows = false;
 /* deleting */
 #deletephase = 0;
 /* debug */
@@ -1011,18 +1012,40 @@ handlerecurse(already, index) {
 	});
 }
 /* continue with the next file if any */
-#handlenext() {
+#handlenext(fromloop) {
+	if (fromloop) {
+		if (this.#debugflag) console.log('HN fl an ' + this.#actnum + ' aflen ' + this.#allfiles.length);
+		if (this.#actnum >= this.#allfiles.length - 1) {
+			this.#actnum = 0;
+			this.#allfiles = [];
+			document.getElementById('imbdoit').disabled = false;
+			document.getElementById('imbvisbrows').disabled = false;
+			document.getElementById('droptarget').style['display'] = '';
+			document.getElementById('infile').disabled = false;
+			document.getElementById('infileb').disabled = false;
+			if (this.#fromvisbrows) {
+				this.#fromvisbrows = false;
+				setTimeout(() => {
+						this.showbrowser();
+						this.#startloadimg();
+				}, 1000);
+			} else {
+				this.shownormal();
+			}
+		}
+		else {
+			this.#actnum++;
+		}
+		this.#loadnextimg();
+		return; 
+	}
 	if (this.#actnum < this.#allfiles.length - 1) {
 		this.#actnum++;
 		this.#handleonex();
 	} else {
 		this.#actnum = 0;
 		this.#allfiles = [];
-		/*if (this.fromvisbrows) {
-			this.fromvisbrows = false;
-			this.showbrowser();
-		} else*/ 
-			this.shownormal();
+		this.shownormal();
 		if (this.#stats.total > 0) {
 			this.#appendnl(true);
 			this.#mappx('process.totals', this.#stats.total, this.#stats.ok, this.#stats.skipped, this.#stats.error);
@@ -1410,22 +1433,24 @@ setpvwait() {
 	}
 }
 /* actual processing function for one file */
-#handleone(orientation) {
+#handleone(orientation, fromloop) {
 	const f = (this.#debugflag && this.#useraw) ? this.#useraw : this.#allfiles[this.#actnum];
 	if (undefined === f) {
 		this.#mappx('process.nothing');
-		return this.#handlenext();
+		return this.#handlenext(fromloop);
 	}
 	if (undefined === f.size) {
 		setTimeout(() => {
 		  this.#createFx(f, (url, fx, rot) => {
+		  		  if (fx === undefined)
+		  		  	  console.log('xx');
 				this.#allfiles[this.#actnum] = fx;
-				this.#handleone(rot ? rot: orientation);
+				this.#handleone(rot ? rot: orientation, fromloop);
 			}, (url) => {
 				this.#mappx('process.erraccess' + (!document ? 'x' : ''), url);
 				this.#appendnl(true);
 				this.#stats.error ++;
-				this.#handlenext();
+				this.#handlenext(undefined, fromloop);
 		  });
 		});
 		return;
@@ -1450,7 +1475,7 @@ setpvwait() {
 			console.log('Non-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
 			this.#mappx('process.errorreadingfile' + (!document ? 'x' : ''), f.name);
 			this.#stats.error++;
-			this.#handlenext();
+			this.#handlenext(fromloop);
 		}
 		reader.readAsArrayBuffer(f);
 		return;
@@ -1477,7 +1502,7 @@ setpvwait() {
 			console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
 			this.#mappx('process.errorreadingfile' + (!document ? 'x' : ''), f.name);
 			this.#stats.error++;
-			this.#handlenext();
+			this.#handlenext(fromloop);
 		}
 		reader.readAsArrayBuffer(f);
 		return;
@@ -1519,6 +1544,13 @@ setpvwait() {
 		if (this.#totnum > 1) {
 			this.#appendmsg("[" + (1 + this.#actnum) + " / " + this.#totnum + "] ");
 		}
+		/*if (fromloop) {
+			// afterload
+			if (this.#debugflag) console.log('Alxx li dl ' + rawname + ' ' + this.#actnum);
+			this.#loaderrunning = '1';
+			this.#actnum++;
+			this.#loadnextimg();
+		}*/
 		this.#mappx('process.processing', rawname);
 		this.#mappx('process.assuming', this.#types[typ], mode);
 		if (dateok) {
@@ -1591,18 +1623,18 @@ setpvwait() {
 		//ti.createCamProf('Generic ImB brighter');
 		//ti.addEntry(50941, 'LONG', [ 3 ]); /* profile embed policy */
 		//ti.addEntry(50932, 'ASCII', 'Generic ImB conv profile Sig'); /* Profile calibration signature */
-		this.#output1(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted', ti.getData());
+		this.#output1(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted', ti.getData(), fromloop);
 	};
 	reader.onerror = (evt) => {
 		console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
 		this.#mappx('process.errorreadingfile' + (!document ? 'x' : ''), f.name);
 		this.#stats.error++;
-		this.#handlenext();
+		this.#handlenext(fromloop);
 	};
 	reader.readAsArrayBuffer(f);
 }
 /* output one thing via browser or nodejs */
-#output1(name, type, okmsg, arr1, renameidx) {
+#output1(name, type, okmsg, arr1, fromloop, renameidx) {
 	if (document) {
 		let b = new Blob([ arr1 ], { type: type });
 		const outel = document.getElementById('result');
@@ -1619,7 +1651,7 @@ setpvwait() {
 				ie.entry.classList.add('picprocd');
 		}
 		this.#stats.ok++;
-		this.#handlenext();
+		this.#handlenext(fromloop);
 	} 
 	else {
 		let outfile;
@@ -1641,13 +1673,13 @@ setpvwait() {
 							if (renameidx < 10) newname += '0';
 							newname += renameidx;
 							newname += '.' + name.substring(ldot + 1);
-							this.#output1(newname, type, okmsg, arr1, renameidx + 1);
+							this.#output1(newname, type, okmsg, arr1, fromloop, renameidx + 1);
 						}
 						else {
 							let newname = name;
 							const ldot = name.lastIndexOf('.');
 							newname = name.substring(0, ldot) + '_001.' + name.substring(ldot + 1);
-							this.#output1(newname, type, okmsg, arr1, 2);
+							this.#output1(newname, type, okmsg, arr1, fromloop, 2);
 						}
 						return;
 					}
@@ -1655,14 +1687,14 @@ setpvwait() {
 					this.#appendmsg(JSON.stringify(err));
 					this.#stats.error++;
 					this.#appendmsg('');
-					this.#handlenext();
+					this.#handlenext(fromloop);
 				}
 				else {
 					this.#mappx(okmsg + 'x', outfile);
 					if (undefined !== renameidx) this.#mappx('node.renamed');
 					this.#stats.ok++;
 					this.#appendmsg('');
-					this.#handlenext();
+					this.#handlenext(fromloop);
 				}
 		});
 	}
@@ -2016,6 +2048,7 @@ rot0() {
 		cl = timestx[1] + '_' + timestx[3] + '_' + timestx[5] + '-' + timestx[7];
 	} else {
 		this.#mappx('onimback.strangename' + (document?'':'x'), rawname);
+		this.#appendnl(true);
 	}
 	if (rawname.substring(rawname.length -4).toUpperCase() === '.RAW') {
 		if (null !== timest) {
@@ -2284,6 +2317,7 @@ showbrowser() {
 	norm.style['display'] = 'none';
 	window.onscroll = () => this.#startloadimg();
 	window.onresize = () => this.#startloadimg();
+	this.#startloadimg();
 }
 /* visual browser: create the wait dots */
 #createwait(el) {
@@ -2467,6 +2501,7 @@ buildtree() {
 		document.getElementById('browser').append(e.entry);
 		this.#addsorted(e);
 	}
+	this.xlateall();
 }
 /* visual browser: find next to load */
 #findnexttoload(alsooutside) {
@@ -2800,7 +2835,7 @@ topreccheck(force) {
 		rotbtn.classList.add('disabled');
 		rotbtn.append('\u21b7');
 		rotbtn.classList.add('biggiebtn');
-		rotbtn.style['left'] = '4em';
+		rotbtn.style['left'] = '2.4em';
 		rotbtn.onclick = () => {
 			if (!this.#debugflag && rotbtn.classList.contains('disabled')) return;
 			let j = this.#oriecw.indexOf(e.rot);
@@ -2808,7 +2843,7 @@ topreccheck(force) {
 			e.rot = this.#oriecw[j];
 			e.preview.style['display'] = 'none';
 			e.entry.querySelector('.eepvw').style['display'] = '';
-			//this.#startloadimg();
+			this.#startloadimg();
 		};
 	}
 	const dlbtn = document.createElement('span');
@@ -2820,19 +2855,20 @@ topreccheck(force) {
 		dlbtn.onclick = (ev) => {
 			if (!this.#debugflag && dlbtn.classList.contains('disabled')) return;
 			if (this.#actnum !== this.#allfiles.length) return;
-			let selecteds = [ e.url ];
+			let selecteds = [ e ];
+			this.#fromvisbrows = true;
 			this.#stepmode = 0;
 			this.#totnum = 1;
 			this.#stats = { total: this.#totnum, skipped: 0, error: 0, ok: 0 };
 			this.#actnum = 0;
 			this.#allfiles = selecteds;
+			this.#startloadimg();
 			document.getElementById('imbdoit').disabled = true;
 			document.getElementById('imbvisbrows').disabled = true;
 			document.getElementById('droptarget').style['display'] = 'none';
-			document.getElementById('infile').disabled = true
-			//this.fromvisbrows = true;
+			document.getElementById('infile').disabled = true;
 			this.shownormal();
-			this.#handleone(e.rot);
+			//this.#handleone(e.rot);
 			e.entry.classList.add('picprocd');
 		};
 	} else {
@@ -2850,7 +2886,7 @@ topreccheck(force) {
 	else {
 		bigbtn = document.createElement('span');
 		bigbtn.classList.add('biggiebtn');
-		bigbtn.style['left'] = '2em';
+		bigbtn.style['left'] = '0.4em';
 		bigbtn.style['margin-top'] = '-0.5em';
 		bigbtn.innerHTML = '\u26f6';
 		bigbtn.classList.add('disabled');
@@ -2879,7 +2915,7 @@ topreccheck(force) {
 		e.entry.append(e.preview);
 		e.entry.append(bigbtn);
 		dlbtn.classList.add('biggiebtn');
-		dlbtn.style['left'] = '3.3em';
+		dlbtn.style['left'] = '1.7em';
 		dlbtn.style['margin-top'] = '-0.1em';
 		e.entry.append(dlbtn);
 		e.entry.append(rotbtn);
@@ -2895,10 +2931,10 @@ topreccheck(force) {
 		}
 		e.entry.append(e.preview);
 		dlbtn.classList.add('biggiebtn');
-		dlbtn.style['left'] = '3.3em';
+		dlbtn.style['left'] = '1.7em';
 		dlbtn.style['margin-top'] = '-0.1em';
 		e.entry.append(dlbtn);
-		e.entry.appdend(bigbtn);
+		e.entry.append(bigbtn);
 		this.#createwait(e);
 	} else {
 		e.preview = document.createElement('div');
@@ -2908,7 +2944,7 @@ topreccheck(force) {
 	}
 }
 /* visual browser: image loader call */
-#loadimg(url, type, to) {
+#loadimg(url, type, to, rot) {
 	if (to.entry.querySelector('.eepvx')
 			|| (to.entry.querySelector('.eepvw')?.style['display'] === 'none' && to.entry.querySelector('.errimg')?.style['display'] === 'none')
 			|| (type === 'oth')) {
@@ -2940,13 +2976,15 @@ topreccheck(force) {
 		to.preview.src = url;
 	}
 	else if (type === 'RAW') {
+		let afterloadcalled = false;
+		if (this.#debugflag) console.log('li raw start bpv ' + url);
 		this.#buildpreview((this.#debugflag && this.#useraw) ? this.#useraw : url, () => { /* on ok: */
 			to.entry.querySelector('.eepvw').style['display'] = 'none';
 			to.entry.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.remove('disabled') });
 			to.entry.querySelector('.dlbtn').classList.remove('disabled');
 			to.preview.style['display'] = '';
 			if (this.#debugflag) console.log('ldr r f ' + to.raw);
-			if (this.#loaderrunning === url) {
+			if (!afterloadcalled) {
 				if (this.#debugflag) console.log('ldr r e lnx ' + to.raw);
 				this.#loadnextimg();
 			} // else the afterload had already been called
@@ -2960,7 +2998,7 @@ topreccheck(force) {
 			to.entry.querySelector('.dlbtn').classList.add['disabled'];
 			to.nonewerr = true;
 			if (this.#debugflag) console.log('ldr r e ' + to.raw);
-			if (this.#loaderrunning === url) {
+			if (!afterloadcalled) {
 				if (this.#debugflag) console.log('ldr r e lnx ' + to.raw);
 				this.#loadnextimg();
 			} // else the afterload had already been called
@@ -2972,12 +3010,32 @@ topreccheck(force) {
 			// invalidate url for err callback
 			this.#loaderrunning = '1';
 			this.#loadnextimg();
+			afterloadcalled = true;
 		});
+		if (this.#debugflag) console.log('li raw end bpv ' + url);
 	}
 }
-/* visual browser: load next from todo list */
+/* visual browser or from imback: load next from todo list */
 #loadnextimg() {
-	let e = this.#findnexttoload();
+	if (this.#debugflag) console.log('L  N  I');
+	let e;
+	if (this.#allfiles.length > 0 && this.#actnum <= this.#allfiles.length - 1) {
+		e = this.#allfiles[this.#actnum];
+		this.#loaderrunning = e.url;
+		window.setTimeout(() => {
+			if (this.#debugflag) console.log('NN li dl ' + e.url + ' ' + this.#actnum);
+			if (undefined === e.url) {
+				console.log('x');
+				this.#allfiles[this.#actnum] = e;
+				this.#handleone(undefined, true);
+			} else {
+				this.#allfiles[this.#actnum] = e.url;
+				this.#handleone(e.rot, true);
+			}
+		}, 33);
+		return;
+	}
+	e = this.#findnexttoload();
 	if (!e) e = this.#findnexttoload(true);
 	if (!e) {
 		this.#loaderrunning = false;
@@ -3086,7 +3144,8 @@ browserprocess() {
 		document.getElementById('imbvisbrows').disabled = true;
 		document.getElementById('droptarget').style['display'] = 'none';
 		document.getElementById('infile').disabled = true
-		this.#handleonex();
+		this.shownormal();
+		this.#startloadimg();
 		this.topreccheck(false);
 	} else {
 		this.shownormal();
