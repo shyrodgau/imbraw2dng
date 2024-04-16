@@ -893,6 +893,7 @@ constructor(jsflag, bwflag) {
 #deletephase = 0;
 /* debug */
 #debugflag = false;
+#useraw = null;
 /* primitive basename helper */
 static basename(n) {
 	while (n.lastIndexOf("/") > -1) {
@@ -1046,30 +1047,30 @@ handlerecurse(already, index) {
 }
 /* preview: switch preview config to jpeg img */
 setjpegpv() {
-	document.getElementById('jpegpreview').style['display'] = '';
-	document.getElementById('rotations').style['display'] = 'none';
-	document.getElementById('continues').style['display']='';
 	document.getElementById('previewwait').style['display'] = 'none';
 	document.getElementById('previewerr').style['display'] = 'none';
 	document.getElementById('preview').style['display'] = 'none';
+	document.getElementById('rotations').style['display'] = 'none';
+	document.getElementById('jpegpreview').style['display'] = '';
+	document.getElementById('continues').style['display']='';
 }
 /* preview: switch preview config to err */
 setpverr() {
 	document.getElementById('jpegpreview').style['display'] = 'none';
 	document.getElementById('rotations').style['display'] = 'none';
-	document.getElementById('continues').style['display']='';
 	document.getElementById('previewwait').style['display'] = 'none';
-	document.getElementById('previewerr').style['display'] = '';
 	document.getElementById('preview').style['display'] = 'none';
+	document.getElementById('continues').style['display']='';
+	document.getElementById('previewerr').style['display'] = '';
 }
 /* preview: switch preview config to wait */
 setpvwait() {
 	document.getElementById('jpegpreview').style['display'] = 'none';
 	document.getElementById('rotations').style['display'] = 'none';
 	document.getElementById('continues').style['display']='none';
-	document.getElementById('previewwait').style['display'] = '';
 	document.getElementById('previewerr').style['display'] = 'none';
 	document.getElementById('preview').style['display'] = 'none';
+	document.getElementById('previewwait').style['display'] = '';
 }
 /* nodejs: file/filereader like interface for node js */
 #createFxNode(url, onok, onerr) {
@@ -1174,7 +1175,7 @@ setpvwait() {
 	xhr.onload = (evt) => {
 		let len = JSON.parse(xhr.getResponseHeader('content-length'));
 		if (0 >= len) len=1;
-		if (notfirst && (url.substring(url.length -4).toUpperCase() === '.RAW')) {
+		if (notfirst && (url.substring(url.length -4).toUpperCase() === '.RAW') && len > 10000) {
 			this.#cache.push({ url: url, d: xhr.response, l: len });
 			if (this.#cache.length > this.maxcache) this.#cache.splice(0,1);
 		}
@@ -1227,7 +1228,7 @@ setpvwait() {
 }
 /* main handler function for one file */
 #handleonex() {
-	const f = this.#allfiles[this.#actnum];
+	const f = (this.#debugflag && this.#useraw) ? this.#useraw : this.#allfiles[this.#actnum];
 	this.#currentrot = 1;
 	if (undefined !== document) {
 		document.getElementById('doforall').checked = false;
@@ -1245,7 +1246,6 @@ setpvwait() {
 		// show preview and ask for rotation, skip, save
 		// then (in handler) set mode, call handleone (if save) or handlenext (if skip)
 		this.showquestion();
-		const f = this.#allfiles[this.#actnum];
 		if (undefined === f) {
 			return;
 		}
@@ -1420,7 +1420,7 @@ setpvwait() {
 }
 /* actual processing function for one file */
 #handleone(orientation) {
-	const f = this.#allfiles[this.#actnum];
+	const f = (this.#debugflag && this.#useraw) ? this.#useraw : this.#allfiles[this.#actnum];
 	if (undefined === f) {
 		this.#mappx('process.nothing');
 		this.#appendnl();
@@ -1929,21 +1929,21 @@ prevdef(ev) {
 }
 /* preview: raw preview okay */
 setrawpv() {
-	document.getElementById('preview').style['display'] = '';
-	document.getElementById('rotations').style['display'] = '';
-	document.getElementById('continues').style['display']='';
 	document.getElementById('previewwait').style['display'] = 'none';
 	document.getElementById('previewerr').style['display'] = 'none';
 	document.getElementById('jpegpreview').style['display'] = 'none';
+	document.getElementById('preview').style['display'] = '';
+	document.getElementById('rotations').style['display'] = '';
+	document.getElementById('continues').style['display']='';
 }
 /* preview: no preview in question */
 setnopv() {
 	document.getElementById('preview').style['display'] = 'none';
 	document.getElementById('rotations').style['display'] = 'none';
-	document.getElementById('continues').style['display']='';
 	document.getElementById('previewwait').style['display'] = 'none';
 	document.getElementById('previewerr').style['display'] = 'none';
 	document.getElementById('jpegpreview').style['display'] = 'none';
+	document.getElementById('continues').style['display']='';
 }
 /* browserdisplay: show the preview question skip/process */
 showquestion() {
@@ -2030,7 +2030,7 @@ rot0() {
 	this.#currentrot = 1;
 	this.#buildpreview(this.#allfiles[this.#actnum], () => { this.setrawpv(); }, () => { this.setpverr(); }, 1);
 }
-/* handle on entry from imb PHOTO/MOVIE listing page */
+/* handle one entry from imb PHOTO/MOVIE listing page */
 #handle1imb(url) {
 	let rawname = ImBC.basename(url);
 	if (rawname.substring(0,10).toUpperCase() === 'IMBRAW2DNG') return;
@@ -2821,13 +2821,15 @@ topreccheck(force) {
 	texttit.append(check);
 	texttit.append(rawname);
 	topline.append(texttit);
+	let rotbtn;
 	if (e.type === 'RAW') {
 		e.rot = 1;
-		const rotbtn = document.createElement('span');
+		rotbtn = document.createElement('span');
 		rotbtn.id = 'rot_b_' + e.raw + '_Y';
-		rotbtn.classList.add('rotbtn');
 		rotbtn.classList.add('disabled');
 		rotbtn.append('\u21b7');
+		rotbtn.classList.add('biggiebtn');
+		rotbtn.style['left'] = '4em';
 		rotbtn.onclick = () => {
 			if (!this.#debugflag && rotbtn.classList.contains('disabled')) return;
 			let j = this.#oriecw.indexOf(e.rot);
@@ -2835,9 +2837,8 @@ topreccheck(force) {
 			e.rot = this.#oriecw[j];
 			e.preview.style['display'] = 'none';
 			e.entry.querySelector('.eepvw').style['display'] = '';
-			this.#startloadimg();
+			//this.#startloadimg();
 		};
-		topline.append(rotbtn);
 	}
 	const dlbtn = document.createElement('span');
 	dlbtn.id = 'dl_b_' + e.raw;
@@ -2873,7 +2874,19 @@ topreccheck(force) {
 			e.entry.classList.add('picprocd');
 		};
 	}
-	topline.append(dlbtn);
+	let bigbtn;
+	if (e.type === 'oth') topline.append(dlbtn);
+	else {
+		bigbtn = document.createElement('span');
+		bigbtn.classList.add('biggiebtn');
+		bigbtn.style['left'] = '2em';
+		bigbtn.style['margin-top'] = '-0.5em';
+		bigbtn.innerHTML = '\u26f6';
+		bigbtn.classList.add('disabled');
+		bigbtn.onclick = (ev) => {
+			e.preview.classList.add('biggie');
+		};
+	}
 	
 	e.entry.append(topline);
 	// rotate button if raw
@@ -2889,13 +2902,16 @@ topreccheck(force) {
 		e.preview.classList.add('eewait');
 		e.preview.style['display'] = 'none';
 		e.preview.style['height'] = '120px';
-		e.preview.onmouseover = (ev) => {
-			e.preview.classList.add('biggie');
-		}
 		e.preview.onmouseout = (ev) => {
 			e.preview.classList.remove('biggie');
 		}
 		e.entry.append(e.preview);
+		e.entry.append(bigbtn);
+		dlbtn.classList.add('biggiebtn');
+		dlbtn.style['left'] = '3.3em';
+		dlbtn.style['margin-top'] = '-0.1em';
+		e.entry.append(dlbtn);
+		e.entry.append(rotbtn);
 		this.#createwait(e);
 	} else if (e.type === 'JPG') {
 		e.preview = document.createElement('img');
@@ -2903,13 +2919,15 @@ topreccheck(force) {
 		e.preview.classList.add('eewait');
 		e.preview.style['display'] = 'none';
 		e.preview.style['height'] = '120px';
-		e.preview.onmouseover = (ev) => {
-			e.preview.classList.add('biggie');
-		}
 		e.preview.onmouseout = (ev) => {
 			e.preview.classList.remove('biggie');
 		}
 		e.entry.append(e.preview);
+		dlbtn.classList.add('biggiebtn');
+		dlbtn.style['left'] = '3.3em';
+		dlbtn.style['margin-top'] = '-0.1em';
+		e.entry.append(dlbtn);
+		e.entry.appdend(bigbtn);
 		this.#createwait(e);
 	} else {
 		e.preview = document.createElement('div');
@@ -2951,9 +2969,9 @@ topreccheck(force) {
 		to.preview.src = url;
 	}
 	else if (type === 'RAW') {
-		this.#buildpreview(url, () => { /* on ok: */
+		this.#buildpreview((this.#debugflag && this.#useraw) ? this.#useraw : url, () => { /* on ok: */
 			to.entry.querySelector('.eepvw').style['display'] = 'none';
-			to.entry.querySelector('.rotbtn').classList.remove('disabled');
+			to.entry.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.remove('disabled') });
 			to.entry.querySelector('.dlbtn').classList.remove('disabled');
 			to.preview.style['display'] = '';
 			if (this.#debugflag) console.log('ldr r f ' + to.raw);
@@ -2967,7 +2985,7 @@ topreccheck(force) {
 		}, () => { /* on err: */
 			to.entry.querySelector('.eepvw').style['display'] = 'none';
 			to.entry.querySelector('.errimg').style['display'] = '';
-			to.entry.querySelector('.rotbtn').classList.add['disabled'];
+			to.entry.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
 			to.entry.querySelector('.dlbtn').classList.add['disabled'];
 			to.nonewerr = true;
 			if (this.#debugflag) console.log('ldr r e ' + to.raw);
@@ -3774,6 +3792,10 @@ dodebug() {
 		this.#aftercheck();
 	};
 	fr.readAsText(document.getElementById('dbgfsel').files[0]);
+}
+/* only debug - use local img instead of from imb */
+replraw() {
+	this.#useraw = document.getElementById('dbgreplraw').files[0];
 }
 /* indentation in - end of class ImBC */
 };
