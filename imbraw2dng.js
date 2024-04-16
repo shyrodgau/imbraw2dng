@@ -61,7 +61,7 @@ constructor(jsflag, bwflag) {
 	if (bwflag) this.#backward = true;
 	if (jsflag) this.#nodejs = true;
 }
-#version = "V3.6.3_dev"; // actually const
+#version = "V3.6.3_e43ba66"; // actually const
 #alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 #texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -2935,7 +2935,6 @@ topreccheck(force) {
 		dlbtn.style['left'] = '1.7em';
 		dlbtn.style['margin-top'] = '-0.1em';
 		e.entry.append(dlbtn);
-		e.entry.append(bigbtn);
 		this.#createwait(e);
 	} else {
 		e.preview = document.createElement('div');
@@ -2961,6 +2960,7 @@ topreccheck(force) {
 			to.entry.querySelector('.eepvw').style['display'] = 'none';
 			to.preview.style['display'] = '';
 			to.preview.style['width'] = to.preview.woidth * (120 / to.preview.height);
+			to.entry.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.remove('disabled') });
 			to.entry.querySelector('.dlbtn').classList.remove('disabled');
 			if (this.#debugflag) console.log('ldr j f lnx ' + to.raw);
 			this.#loadnextimg();
@@ -2969,6 +2969,7 @@ topreccheck(force) {
 			console.log('JPEG preview load error for ' + url + ' ' + JSON.stringify(ev));
 			to.entry.querySelector('.eepvw').style['display'] = 'none';
 			to.entry.querySelector('.errimg').style['display'] = '';
+			to.entry.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
 			to.entry.querySelector('.dlbtn').classList.add('disabled');
 			if (this.#debugflag) console.log('ldr j e lnx ' + to.raw);
 			to.nonewerr = true;
