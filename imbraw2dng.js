@@ -61,7 +61,7 @@ constructor(jsflag, bwflag) {
 	if (bwflag) this.#backward = true;
 	if (jsflag) this.#nodejs = true;
 }
-#version = "V3.6.2_dev"; // actually const
+#version = "V3.6.3_dev"; // actually const
 #alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 #texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -2930,6 +2930,7 @@ topreccheck(force) {
 			e.preview.classList.remove('biggie');
 		}
 		e.entry.append(e.preview);
+		e.entry.append(bigbtn);
 		dlbtn.classList.add('biggiebtn');
 		dlbtn.style['left'] = '1.7em';
 		dlbtn.style['margin-top'] = '-0.1em';
