@@ -78,7 +78,7 @@ Options:
  -np - Do not add preview thumbnail to DNG
  -cr 'copyright...' - add copyright to DNG
  -fla, -flx - add multiple images to fake long exposure, flx scales down
-  -R - get RAW from ImB connected via Wifi or from given directories
+ -R - get RAW from ImB connected via Wifi or from given directories
  -J - get JPEG from ImB connected via Wifi or from given directories
  -O - get non-RAW/non-JPEG from ImB connected via Wifi or from given directories
  -n yyyy_mm_dd-hh_mm_ss (or prefix of any length) - select only newer than this timestamp from ImB or from given directories
