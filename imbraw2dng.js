@@ -61,7 +61,7 @@ constructor(jsflag, bwflag) {
 	if (bwflag) this.#backward = true;
 	if (jsflag) this.#nodejs = true;
 }
-#version = "V3.6.3_e43ba66"; // actually const
+#version = "V3.6.4_dev"; // actually const
 #alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 #texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -212,6 +212,18 @@ constructor(jsflag, bwflag) {
 			en: 'Selected',
 			fr: 'Sélectionné(s)',
 			ja: '選択済み'
+		},
+		fakelong: {
+			en: 'Fake long exposure by adding up all',
+			de: 'Langzeitbelichtung durch Addieren simulieren',
+			scale: {
+				en: 'Scale values down',
+				de: 'Werte dabei herunterskalieren'
+			},
+			added: {
+				en: 'Added picture $$0',
+				de: 'Bild $$0 hinzugefügt'
+			}
 		}
 	},
 	browser: {
@@ -663,7 +675,11 @@ constructor(jsflag, bwflag) {
 			   }
 	    },
 		help: {
-			en: [ '\u001b[1mWelcome to imbraw2dng\u001b[0m $$0 !', 'Usage: node $$0 \u001b[1m[\u001b[0m-l lang\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-d dir\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr copyright\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n yyyy_mm_dd-hh_mm_ss\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mfiles-or-dirs\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m',
+			en: [ '\u001b[1mWelcome to imbraw2dng\u001b[0m $$0 !', 'Usage: node $$0 \u001b[1m[\u001b[0m-l lang\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-d dir\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr copyright\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n yyyy_mm_dd-hh_mm_ss\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \
+\u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mfiles-or-dirs\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m',
 				'Options:',
 				' \u001b[1m-h\u001b[0m - show this help',
 				' \u001b[1m-nc\u001b[0m - do not use coloured text',
@@ -675,6 +691,7 @@ constructor(jsflag, bwflag) {
 				' \u001b[1m-r\u001b[0m - rename output file, if already exists',
 				' \u001b[1m-np\u001b[0m - Do not add preview thumbnail to DNG',
 				' \u001b[1m-cr \'copyright...\'\u001b[0m - add copyright to DNG',
+				' \u001b[1m-fla\u001b[0m, \u001b[1m-flx\u001b[0m - add multiple images to fake long exposure, flx scales down',
 				' \u001b[1m-R\u001b[0m - get RAW from ImB connected via Wifi or from given directories',
 				' \u001b[1m-J\u001b[0m - get JPEG from ImB connected via Wifi or from given directories',
 				' \u001b[1m-O\u001b[0m - get non-RAW/non-JPEG from ImB connected via Wifi or from given directories',
@@ -682,7 +699,11 @@ constructor(jsflag, bwflag) {
 				' -----',
 				' \u001b[1m--\u001b[0m - treat rest of parameters as local files or dirs',
 				' <files-or-dirs> - process local files or directories recursively, e.g. on MicroSD from ImB',],
-			fr: [ '\u001b[1mBienvenu a imbraw2dng\u001b[0m $$0 !', 'Operation: node $$0 \u001b[1m[\u001b[0m-l lang\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-d repertoire\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr copyright\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n yyyy_mm_dd-hh_mm_ss\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mfiches-ou-repertoires\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m',
+			fr: [ '\u001b[1mBienvenu a imbraw2dng\u001b[0m $$0 !', 'Operation: node $$0 \u001b[1m[\u001b[0m-l lang\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-d repertoire\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr copyright\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n yyyy_mm_dd-hh_mm_ss\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \
+\u001b[1m[\u001b[0m \u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mfiches-ou-repertoires\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m',
 				'Choix:',
 				' \u001b[1m-h\u001b[0m - montrer cette aide',
 				' \u001b[1m-nc\u001b[0m - n\'utilisez pas de texte en couleur',
@@ -694,6 +715,7 @@ constructor(jsflag, bwflag) {
 				' \u001b[1m-r\u001b[0m - quand fiche existe, renommer le résultat',
 				' \u001b[1m-np\u001b[0m - Pas petite image d\'aperçu en DNG',
 				' \u001b[1m-cr \'copyright...\'\u001b[0m - add copyright to DNG',
+				' \u001b[1m-fla\u001b[0m, \u001b[1m-flx\u001b[0m - add multiple images to fake long exposure, flx scales down',
 				' \u001b[1m-R\u001b[0m - obtenez RAW d\'ImB connecté via Wifi ou repertoires donnés',
 				' \u001b[1m-J\u001b[0m - obtenez JPEG d\'ImB connecté via Wifi ou repertoires donnés',
 				' \u001b[1m-O\u001b[0m - obtenez du non-RAW/non-JPEG d\'ImB connecté via Wifi ou repertoires donnés',
@@ -701,7 +723,11 @@ constructor(jsflag, bwflag) {
 				' -----',
 				' \u001b[1m--\u001b[0m - traiter le reste des paramètres comme des fiches ou des répertoires locaux',
 			' <fiches-ou-repertoires> - traiter des fiches ou des répertoires locaux de manière récursive, par exemple sur MicroSD d\'ImB',],
-			de: [ '\u001b[1mWillkommen bei imbraw2dng\u001b[0m $$0 !', 'Aufruf: node $$0 \u001b[1m[\u001b[0m-l sprache\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-d ordner\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr copyright\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n yyyy_mm_dd-hh_mm_ss\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mdateien-oder-ordner\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m',
+			de: [ '\u001b[1mWillkommen bei imbraw2dng\u001b[0m $$0 !', 'Aufruf: node $$0 \u001b[1m[\u001b[0m-l sprache\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-d ordner\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr copyright\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n yyyy_mm_dd-hh_mm_ss\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \
+\u001b[1m[\u001b[0m \u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mdateien-oder-ordner\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m',
 				'Optionen:',
 				' \u001b[1m-h\u001b[0m - diesen Hilfetext zeigen',
 				' \u001b[1m-nc\u001b[0m - keinen farbigen Text zeigen',
@@ -713,6 +739,7 @@ constructor(jsflag, bwflag) {
 				' \u001b[1m-r\u001b[0m - Ausgabedatei umbenennen, falls schon existiert',
 				' \u001b[1m-np\u001b[0m - Kein kleines Vorschaubild im DNG',
 				' \u001b[1m-cr \'copyright...\'\u001b[0m - copyright dem DNG hinzufügen',
+				' \u001b[1m-fla\u001b[0m, \u001b[1m-flx\u001b[0m - mehrere Bilder als Langzeitbelichtung aufaddieren, flx skaliert dabei herunter',
 				' \u001b[1m-R\u001b[0m - RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen konvertieren',
 				' \u001b[1m-J\u001b[0m - JPEG von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren',
 				' \u001b[1m-O\u001b[0m - Nicht-JPEG/Nicht-RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren',
@@ -721,7 +748,11 @@ constructor(jsflag, bwflag) {
 				' \u001b[1m--\u001b[0m - weitere Parameter als lokale Dateien oder Ordner betrachten',
 				' <dateien-oder-ordner> - lokale Dateien oder Ordner rekursiv (z.B. von der MicroSD Karte aus ImB) verarbeiten',],
 			ja: [
-				'\u001b[1mimbraw2dng へようこそ\u001b[0m $$0 !', 'Usage: node $$0 \u001b[1m[\u001b[0m-l lang\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-d dir\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr copyright\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n yyyy_mm_dd-hh_mm_ss\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mfiles-or-dirs\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m',
+				'\u001b[1mimbraw2dng へようこそ\u001b[0m $$0 !', 'Usage: node $$0 \u001b[1m[\u001b[0m-l lang\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-d dir\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr copyright\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n yyyy_mm_dd-hh_mm_ss\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \
+\u001b[1m[\u001b[0m \u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mfiles-or-dirs\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m',
 				'オプション:',
 				' \u001b[1m-h\u001b[0m - このヘルプを表示する',
 				' \u001b[1m-nc\u001b[0m - 色付きのテキストを使用しない',
@@ -733,6 +764,7 @@ constructor(jsflag, bwflag) {
 				' \u001b[1m-r\u001b[0m - rename output file, if already exists',
 				' \u001b[1m-np\u001b[0m - Do not add preview thumbnail to DNG',
 				' \u001b[1m-cr \'copyright...\'\u001b[0m - add copyright to DNG',
+				' \u001b[1m-fla\u001b[0m, \u001b[1m-flx\u001b[0m - add multiple images to fake long exposure, flx scales down',
 				' \u001b[1m-R\u001b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリからRAWを取得する',
 				' \u001b[1m-J\u001b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリからJPEGを取得する',
 				' \u001b[1m-O\u001b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリから非RAW/非JPEGを取得する',
@@ -780,6 +812,10 @@ constructor(jsflag, bwflag) {
 #backward = false;
 #nodejs = false;
 #copyright = '';
+// fake long exposure:
+#addimgs = [];
+#addall = false;
+#addscaleall = false;
 /* node js: */
 #withcolours = true;
 #configfiles = [ './.imbraw2dng.json' ];
@@ -1544,13 +1580,35 @@ setpvwait() {
 		if (this.#totnum > 1) {
 			this.#appendmsg("[" + (1 + this.#actnum) + " / " + this.#totnum + "] ");
 		}
-		/*if (fromloop) {
-			// afterload
-			if (this.#debugflag) console.log('Alxx li dl ' + rawname + ' ' + this.#actnum);
-			this.#loaderrunning = '1';
-			this.#actnum++;
-			this.#loadnextimg();
-		}*/
+		const contents = evt.target.result;
+		const view = new DataView(contents);
+		if (this.#addall) {
+			this.#addimgs.push(view);
+			this.#mappx('main.fakelong.added', rawname);
+			if (this.#actnum === this.#totnum - 1) {
+				this.#appendnl(true);
+				let npic = this.#addimgs.length;
+				for (let j=0; j < w*h; j++) {
+					let res = 0;
+					for (const k of this.#addimgs) {
+						try {
+							res += k.getUint8(j);
+						} catch (e) { }
+					}
+					if (this.#addscaleall) {
+						res = Math.floor(res / npic);
+					}
+					if (res > 255) {
+						view.setUint8(j, 255);
+					}
+					else view.setUint8(j, res);
+				}
+				this.#addimgs = [];
+			}
+			else {
+				return this.#handlenext(fromloop);
+			}
+		}
 		this.#mappx('process.processing', rawname);
 		this.#mappx('process.assuming', this.#types[typ], mode);
 		if (dateok) {
@@ -1563,11 +1621,10 @@ setpvwait() {
 			if (ori === 6 || ori === 8) transp = true;
 		}
 		/* Here comes the actual building of the DNG */
-		const contents = evt.target.result;
-		const view = new DataView(contents);
 		let ti = new TIFFOut();
 		ti.addIfd(); /* **************************************** */
 		if (this.#withpreview) {
+			this.#mappx('process.addpreview');
 			/* **** PREVIEW image **** */
 			ti.addImageStrip(1, this.#buildpvarray(view, typ, w, h, ori, false), Math.floor(transp ? (h+31)/32:(w+31)/32), Math.floor(transp ? (w+31)/32: (h+31)/32));
 			ti.addEntry(258 , 'SHORT', [ 8, 8, 8 ]); /* BitsPerSample */
@@ -1736,6 +1793,14 @@ drophandler(ev) {
 	document.getElementById('droptarget').style['display'] = 'none';
 	document.getElementById('infile').disabled = true;
 	document.getElementById('infileb').disabled = true;
+	if (document.getElementById('fakelongexpadd')?.checked) {
+		this.#addall = true;
+		this.#addscaleall = document.getElementById('fakelongexpscale')?.checked;
+		if (document.getElementById('fakelongexpadd')) document.getElementById('fakelongexpadd').checked = false;
+	} else {
+		this.#addall = false;
+		this.#addscaleall = false;
+	}
 	this.#handleonex();
 }
 /* browserdisplay: some handler on the drop rectangle */
@@ -2843,6 +2908,8 @@ topreccheck(force) {
 			e.rot = this.#oriecw[j];
 			e.preview.style['display'] = 'none';
 			e.entry.querySelector('.eepvw').style['display'] = '';
+			e.entry.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
+			e.entry.querySelector('.dlbtn').classList.add('disabled');
 			this.#startloadimg();
 		};
 	}
@@ -2881,7 +2948,7 @@ topreccheck(force) {
 			e.entry.classList.add('picprocd');
 		};
 	}
-	let bigbtn;
+	let bigbtn, biggiediv;
 	if (e.type === 'oth') topline.append(dlbtn);
 	else {
 		bigbtn = document.createElement('span');
@@ -2893,6 +2960,10 @@ topreccheck(force) {
 		bigbtn.onclick = (ev) => {
 			e.preview.classList.add('biggie');
 		};
+		biggiediv = document.createElement('div');
+		biggiediv.classList.add('biggiebtn');
+		biggiediv.append(bigbtn);
+		biggiediv.append(dlbtn);
 	}
 	
 	e.entry.append(topline);
@@ -2913,12 +2984,11 @@ topreccheck(force) {
 			e.preview.classList.remove('biggie');
 		}
 		e.entry.append(e.preview);
-		e.entry.append(bigbtn);
 		dlbtn.classList.add('biggiebtn');
 		dlbtn.style['left'] = '1.7em';
 		dlbtn.style['margin-top'] = '-0.1em';
-		e.entry.append(dlbtn);
-		e.entry.append(rotbtn);
+		biggiediv.append(rotbtn);
+		e.entry.append(biggiediv);
 		this.#createwait(e);
 	} else if (e.type === 'JPG') {
 		e.preview = document.createElement('img');
@@ -2930,11 +3000,10 @@ topreccheck(force) {
 			e.preview.classList.remove('biggie');
 		}
 		e.entry.append(e.preview);
-		e.entry.append(bigbtn);
+		e.entry.append(biggiediv);
 		dlbtn.classList.add('biggiebtn');
 		dlbtn.style['left'] = '1.7em';
 		dlbtn.style['margin-top'] = '-0.1em';
-		e.entry.append(dlbtn);
 		this.#createwait(e);
 	} else {
 		e.preview = document.createElement('div');
@@ -3443,6 +3512,14 @@ startnode(notfirst) {
 					for (const el of Object.keys(this.#texts))
 						this.#prxl(el, this.#texts[el]);
 					wantxl = true;
+				}
+				else if (v ==='-fla') {
+					this.#addall = true;
+					this.#addscaleall = false;
+				}
+				else if (v ==='-flx') {
+					this.#addall = true;
+					this.#addscaleall = true;
 				}
 				else if (v ==='-nc') {
 					this.#withcolours = false;
