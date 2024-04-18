@@ -478,7 +478,7 @@ static parseDng(f, onok, onerr) {
 handleone(fx) {
 	const f = (fx !== undefined) ? fx : this.imbc.allfiles[this.imbc.actnum];
 	if (undefined === f) {
-		this.imbc.appmsg(this.imbc.xl('process.nothing'), true);
+		this.imbc.appmsgxl(true, 'process.nothing');
 		return this.imbc.handlenext();
 	}
 	if (undefined === f.size) {
@@ -487,7 +487,7 @@ handleone(fx) {
 				this.imbc.allfiles[this.imbc.actnum] = fx;
 				this.handleone(fx);
 			}, (url) => {
-				this.imbc.appmsg(this.imbc.xl('process.erraccess' + (!document ? 'x' : ''), url), true);
+				this.imbc.appmsgxl(true, 'process.erraccess' + (!document ? 'x' : ''), url);
 				this.imbc.stats.error ++;
 				this.imbc.handlenext();
 		  });
@@ -501,7 +501,7 @@ handleone(fx) {
 				this.handleone(fx);
 			},
 			() => {
-				this.appmsg('Error reading DNG: ' + f.name);
+				this.imbc.appmsg('Error reading DNG: ' + f.name);
 				this.imbc.handlenext();
 				this.imbc.stats.error++;
 			});
@@ -1412,7 +1412,7 @@ static basename(n) {
 static comptime(fname, compts) {
 	const res = ImBCBase.fnregex.exec(fname);
 	if (res === null) {
-		this.appmsg(this.xl('onimback.strangename'+ (document?'':'x'), fname));
+		this.appmsgxl(0, 'onimback.strangename'+ (document?'':'x'), fname);
 		return (compts === '0000');
 	} else {
 		const ts = res[1] + '_' + res[3] + '_' + res[5] + '-' + res[7] + '_' + res[9] + '_' + res[11];
@@ -1423,7 +1423,7 @@ static comptime(fname, compts) {
 }
 /* ImBCBase: translated append to main log */
 mappx(nlflag, key, arg0, arg1, arg2, arg3) {
-	this.appmsg(this.xl(key, arg0, arg1, arg2, arg3), (nlflag === 0) ? undefined : nlflag );
+	this.appmsgxl((nlflag === 0) ? undefined : nlflag, key, arg0, arg1, arg2, arg3);
 }
 /* ImBCBase: get part of translation */
 xl0(str, base) {
@@ -2053,14 +2053,15 @@ writefile(name, type, okmsg, arr1, fromloop, renameidx) {
 					}
 					return;
 				}
-				this.appmsg(this.xl('process.errsave', outfile));
+				this.appmsgxl(0, 'process.errsave', outfile);
 				this.appmsg(JSON.stringify(err), true);
 				this.stats.error++;
 				this.handlenext(fromloop);
 			}
 			else {
-				this.appmsg(this.xl(okmsg + 'x', outfile));
-				if (undefined !== renameidx) this.appmsg(this.xl('node.renamed'), true);
+				this.appmsgxl(0, okmsg + 'x', outfile);
+				if (undefined !== renameidx) this.appmsgxl(true, 'node.renamed');
+				else this.appmsg('');
 				this.stats.ok++;
 				this.handlenext(fromloop);
 			}
@@ -2075,6 +2076,10 @@ appmsg(msg, opt) {
 		this.#strbuff = '';
 	}
 	if (opt === true) console.log('');
+}
+/* ImBCNodeOut: output function to main log */
+appmsgxl(opt, msg, arg0, arg1, arg2, arg3) {
+	this.appmsg(this.xl(msg, arg0, arg1, arg2, arg3), opt);
 }
 /* ImBCNodeOut: remove VT100 color escapes for windows */
 rmesc(str) {
@@ -2105,7 +2110,7 @@ handlerecurse(already, index, typeflags, fromts) {
 		this.allfiles = already;
 		this.stats.total = this.totnum = already.length;
 		if (this.totnum > 0) this.handleonex();
-		else this.appmsg(this.xl('onimback.nomatch'), true);
+		else this.appmsgxl(true, 'onimback.nomatch');
 		return;
 	}
 	this.fs.stat(d, (err, stat) => {
@@ -2422,6 +2427,7 @@ checkimb(type, found) {
 /* ImBCNode: nodejs runup */
 startnode(notfirst) {
 	if (!notfirst) return this.readconfig(() => this.startnode(true));
+	this.querylang(process.argv[1], 6);
 	let wanthelp = false, wantxl = false, flagging=0, datefound = false, restisfiles = false;
 	if (process.argv.length < 3) {
 		wanthelp = true;
@@ -2438,7 +2444,7 @@ startnode(notfirst) {
 				}
 				else if (flagging === 1) {
 					flagging = 0;
-					this.trylang(v);
+					this.findlang(v);
 				}
 				else if (flagging === 2) {
 					flagging = 0;
@@ -2490,7 +2496,7 @@ startnode(notfirst) {
 				else if (v.substring(0,2)==='-l') {
 					if (v.substring(2).length > 0) {
 						let l = v.substring(2);
-						this.trylang(l);
+						this.findlang(l);
 					}
 					else
 						flagging=1;
@@ -2678,33 +2684,12 @@ handlenext(fromloop) {
 /* *************************************** Main class for nodejs, backward E N D *************************************** */
 /* outside of classes: */
 let imbc;
-/* onload of html body */
-function init() {
-	let backw = false;
-	if (ImBCBase.basename(window.location.pathname.toUpperCase()).indexOf('IMBDNG2RAW') !== -1) {
-		backw = true;
-		imbc = new ImBCHtmlBackw();
-		for (const o of document.getElementsByClassName('onlywhenbackw')) o.style['display']='';
-		for (const o of document.getElementsByClassName('notwhenbackw')) o.style['display']='none';
-	}
-	else {
-		imbc = new ImBCHtml();
-		imbc.chgcopycheck();
-		imbc.initsettings();
-	}
-	imbc.querylang(window.location.pathname);
-	imbc.xlateall();
-	if (!backw) imbc.checkimb();
-}
 /* node js handling main function */
-if (typeof process !== 'undefined') {
-	var document = undefined;
-	if (ImBCBase.basename(process.argv[1].toUpperCase()).indexOf('IMBDNG2RAW') !== -1) {
-		imbc = new ImBCNodeBackw();
-	}
-	else {
-		imbc = new ImBCNode();
-	}
-	imbc.querylang(process.argv[1], 6);
-	imbc.startnode();
+var document = undefined;
+if (ImBCBase.basename(process.argv[1].toUpperCase()).indexOf('IMBDNG2RAW') !== -1) {
+	imbc = new ImBCNodeBackw();
 }
+else {
+	imbc = new ImBCNode();
+}
+imbc.startnode();

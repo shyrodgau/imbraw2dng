@@ -134,7 +134,7 @@ span.biggiebtn { position: absolute; top: -0.2em; font-weight:bold; font-size:12
 	padding-top: 0.1em;
 }
 </style>
-<!-- javascript code identical to imbraw2dng.js -->
+<!-- javascript code identical to imbraw2dng.js  for the classes IFDOut, TIFFOut, ImBCBase, ImBCBackw. -->
 <script type="text/javascript" language="javascript">
 "use strict;"
 /* *************************************** IFDOut *************************************** */
@@ -567,7 +567,7 @@ static parseDng(f, onok, onerr) {
 handleone(fx) {
 	const f = (fx !== undefined) ? fx : this.imbc.allfiles[this.imbc.actnum];
 	if (undefined === f) {
-		this.imbc.appmsg(this.imbc.xl('process.nothing'), true);
+		this.imbc.appmsgxl(true, 'process.nothing');
 		return this.imbc.handlenext();
 	}
 	if (undefined === f.size) {
@@ -576,7 +576,7 @@ handleone(fx) {
 				this.imbc.allfiles[this.imbc.actnum] = fx;
 				this.handleone(fx);
 			}, (url) => {
-				this.imbc.appmsg(this.imbc.xl('process.erraccess' + (!document ? 'x' : ''), url), true);
+				this.imbc.appmsgxl(true, 'process.erraccess' + (!document ? 'x' : ''), url);
 				this.imbc.stats.error ++;
 				this.imbc.handlenext();
 		  });
@@ -590,7 +590,7 @@ handleone(fx) {
 				this.handleone(fx);
 			},
 			() => {
-				this.appmsg('Error reading DNG: ' + f.name);
+				this.imbc.appmsg('Error reading DNG: ' + f.name);
 				this.imbc.handlenext();
 				this.imbc.stats.error++;
 			});
@@ -1501,7 +1501,7 @@ static basename(n) {
 static comptime(fname, compts) {
 	const res = ImBCBase.fnregex.exec(fname);
 	if (res === null) {
-		this.appmsg(this.xl('onimback.strangename'+ (document?'':'x'), fname));
+		this.appmsgxl(0, 'onimback.strangename'+ (document?'':'x'), fname);
 		return (compts === '0000');
 	} else {
 		const ts = res[1] + '_' + res[3] + '_' + res[5] + '-' + res[7] + '_' + res[9] + '_' + res[11];
@@ -1512,7 +1512,7 @@ static comptime(fname, compts) {
 }
 /* ImBCBase: translated append to main log */
 mappx(nlflag, key, arg0, arg1, arg2, arg3) {
-	this.appmsg(this.xl(key, arg0, arg1, arg2, arg3), (nlflag === 0) ? undefined : nlflag );
+	this.appmsgxl((nlflag === 0) ? undefined : nlflag, key, arg0, arg1, arg2, arg3);
 }
 /* ImBCBase: get part of translation */
 xl0(str, base) {
@@ -2111,7 +2111,7 @@ writefile(name, type, okmsg, arr1, fromloop, renameidx) {
 	const thisurl = URL.createObjectURL(b);
 	outel.href = thisurl;
 	outel.click();
-	this.appmsg(this.xl(okmsg, name), true);
+	this.appmsgxl(true, okmsg, name);
 	const ie = this.imbeles.find((v) => v.raw.substring(0, v.raw.length - 3) === name.substring(0, name.length - 3));
 	if (ie) {
 		ie.wasselected = true;
@@ -2125,6 +2125,24 @@ writefile(name, type, okmsg, arr1, fromloop, renameidx) {
 appmsg(msg, opt) {
 	const s = document.createElement('span');
 	s.innerHTML = msg;
+	this.#dispcnt++;
+	s.id = 'mappx_' + this.#dispcnt;
+	const msgel = document.getElementById('outmsg');
+	const xmsg = document.getElementById('xmsg');
+	xmsg.style["display"] = "";
+	msgel.append(s);
+	const ll = document.getElementById('mappx_' + this.#dispcnt);
+	if (ll) {
+		ll.scrollIntoView(false, { block: 'nearest' });
+	}
+	if (opt !== false)
+		msgel.innerHTML += '<br>';
+	if (opt === true)
+		msgel.innerHTML += '<br>&nbsp;<br>';
+}
+/* ImBCHtmlOut: output function to main log */
+appmsgxl(opt, msg, arg0, arg1, arg2, arg3) {
+	const s = this.genspan(msg, arg0, arg1, arg2, arg3);
 	this.#dispcnt++;
 	s.id = 'mappx_' + this.#dispcnt;
 	const msgel = document.getElementById('outmsg');
@@ -2395,7 +2413,7 @@ fselected() {
 	this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
 	this.allfiles = el.files;
 	if (this.totnum > 0) {
-		this.appmsg(this.xl('process.selectedn', this.totnum), true);
+		this.appmsgxl(true, 'process.selectedn', this.totnum);
 		document.getElementById('imbdoit').disabled = true;
 		document.getElementById('imbvisbrows').disabled = true;
 		document.getElementById('droptarget').style['display'] = 'none';
@@ -2466,7 +2484,7 @@ showbrowser() {
 	el.entry.append(waitdiv);
 }
 /* ImBCHtml: visual browser: prepare the browser display, group the stuff */
-#aftercheck() {
+aftercheck() {
 	document.getElementById('piccnt').innerHTML = '' + this.imbpics.length;
 	if (this.earliestjpg.length > 4) {
 		document.getElementById('picinterval').innerHTML += '(';
@@ -2543,8 +2561,8 @@ showbrowser() {
 		}
 		this.typedclasses.splice(this.typedclasses.findIndex((v,i,o) => v === x), 1, cl);
 	}
-	this.higherclasses(this.untypedclasses, 10, 5);
-	this.higherclasses(this.typedclasses, 13, 5);
+	this.#higherclasses(this.untypedclasses, 10, 5);
+	this.#higherclasses(this.typedclasses, 13, 5);
 	// top type classes here
 	for (const u of this.typedclasses.filter((o) => o.level === 2)) {
 		if (u.ischild) continue;
@@ -3528,11 +3546,11 @@ skipthis() {
 		this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
 	}
 	if (document.getElementById('doforall').checked) {
-		this.appmsg(this.xl('process.skipped.remaining', this.totnum - this.actnum), true);
+		this.appmsgxl(true, 'process.skipped.remaining', this.totnum - this.actnum);
 		this.stats.skipped += (this.totnum - this.actnum);
 	} else {
 		let rawname = ImBCBase.basename(this.allfiles[this.actnum].name ? this.allfiles[this.actnum].name : this.allfiles[this.actnum]);
-		this.appmsg(this.xl('process.skipped', rawname), true);
+		this.appmsgxl(true, 'process.skipped', rawname);
 		this.stats.skipped ++;
 	}
 	this.shownormal();
@@ -3805,7 +3823,7 @@ fselected() {
 	this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
 	this.allfiles = el.files;
 	if (this.totnum > 0) {
-		this.appmsg(this.xl('process.selectedn', this.totnum), true);
+		this.appmsgxl(true, 'process.selectedn', this.totnum);
 		document.getElementById('imbdoit').disabled = true;
 		document.getElementById('droptarget').style['display'] = 'none';
 		document.getElementById('infileb').disabled = true;
@@ -3886,18 +3904,6 @@ function init() {
 	imbc.querylang(window.location.pathname);
 	imbc.xlateall();
 	if (!backw) imbc.checkimb();
-}
-/* node js handling main function */
-if (typeof process !== 'undefined') {
-	var document = undefined;
-	if (ImBCBase.basename(process.argv[1].toUpperCase()).indexOf('IMBDNG2RAW') !== -1) {
-		imbc = new ImBCNodeBackw();
-	}
-	else {
-		imbc = new ImBCNode();
-	}
-	imbc.querylang(process.argv[1], 6);
-	imbc.startnode();
 }
 </script>
 </head>
