@@ -2096,13 +2096,13 @@ handle1imb(url) {
 /* *************************************** Main class E N D *************************************** */
 /* *************************************** HTML helper class *************************************** */
 class ImBCHtmlOut extends ImBCBase {
-	// current preview image
-	currentrot = 1; // see oriecw above
-	stepmode = 1;
-	#dispcnt = 1;
-	constructor() {
-		super();
-	}
+// current preview image
+currentrot = 1; // see oriecw above
+stepmode = 1;
+#dispcnt = 1;
+constructor() {
+	super();
+}
 /* ImBCHtmlOut: output one thing via browser */
 writefile(name, type, okmsg, arr1, fromloop, renameidx) {
 	let b = new Blob([ arr1 ], { type: type });
@@ -2375,16 +2375,17 @@ showlastmsg() {
 /* *************************************** HTML helper class E N D *************************************** */
 /* *************************************** Main class for HTML, forward *************************************** */
 class ImBCHtml extends ImBCHtmlOut {
-	constructor() {
-		super();
-	}
-	// from the back itself
-	#maxcache = 30; // max. length of cache for already downloaded raw data - you may increase or decrease this
-	#cache = []; // actual cache buffer
-	#loaderrunning=false; // currently handled browser raw preview download
-	#fromvisbrows = false;
-	/* deleting */
-	#deletephase = 0;
+constructor() {
+	super();
+}
+// from the back itself
+#maxcache = 30; // max. length of cache for already downloaded raw data - you may increase or decrease this
+#cache = []; // actual cache buffer
+#loaderrunning=false; // currently handled browser raw preview download
+#fromvisbrows = false;
+/* deleting */
+#deletephase = 0;
+
 /* ImBCHtml: browserdisplay: copyright checkbox change */
 chgcopycheck() {
     const copytext = document.getElementById('copytext');
@@ -3809,10 +3810,10 @@ resolver(url, onok, onerr, notfirst) {
 /* *************************************** Main class for HTML, forward E N D *************************************** */
 /* *************************************** Main class for HTML, backward *************************************** */
 class ImBCHtmlBackw extends ImBCHtmlOut {
-	constructor() {
-		super();
-		this.imbcb = new ImBCBackw(this);
-	}
+constructor() {
+	super();
+	this.imbcb = new ImBCBackw(this);
+}
 /* ImBCHtmlBackw: browserdisplay: handler for file selection input */
 fselected() {
 	if (this.actnum !== this.allfiles.length) return;

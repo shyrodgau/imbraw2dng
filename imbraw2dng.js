@@ -2007,21 +2007,22 @@ handle1imb(url) {
 /* *************************************** Main class E N D *************************************** */
 /* *************************************** Node js helper class *************************************** */
 class ImBCNodeOut extends ImBCBase {
-	configfiles = [ './.imbraw2dng.json' ];
-	outdir = '.';
-	renamefiles = false;
-	withcolors = true;
-	ovwout = false;
-	ptypeflags = 0; // from preferences
-	#strbuff = '';
-	constructor() {
-		super();
-		this.fs = require('fs');
-		this.ht = require('http');
-		this.pa = require('path');
-		if (process.platform.substring(0,3) === 'win') this.withcolours = false;
-		if (process.stdout.isTTY !== true) this.withcolours = false;
-	}
+configfiles = [ './.imbraw2dng.json' ];
+outdir = '.';
+renamefiles = false;
+withcolors = true;
+ovwout = false;
+ptypeflags = 0; // from preferences
+#strbuff = '';
+constructor() {
+	super();
+	this.fs = require('fs');
+	this.ht = require('http');
+	this.pa = require('path');
+	if (process.platform.substring(0,3) === 'win') this.withcolours = false;
+	if (process.stdout.isTTY !== true) this.withcolours = false;
+}
+
 /* ImBCNodeOut: output one thing via nodejs */
 writefile(name, type, okmsg, arr1, fromloop, renameidx) {
 	let outfile;
@@ -2331,14 +2332,14 @@ parseconfig(data, fornode) {
 /* *************************************** Node js helper class E N D *************************************** */
 /* *************************************** Main class for nodejs, forward *************************************** */
 class ImBCNode extends ImBCNodeOut {
-	constructor() {
-		super();
-	}
-	/* node js: */
-	#configloaded = '';
-	#typeflags = 0;
-	#fromts = '0000';
-	#connmsg = false;
+constructor() {
+	super();
+}
+/* node js: */
+#configloaded = '';
+#typeflags = 0;
+#fromts = '0000';
+#connmsg = false;
 
 /* ImBCNode: continue with the next file if any */
 handlenext(fromloop) {
@@ -2591,12 +2592,11 @@ startnode(notfirst) {
 /* *************************************** Main class for nodejs, forward E N D *************************************** */
 /* *************************************** Main class for nodejs, backward *************************************** */
 class ImBCNodeBackw extends ImBCNodeOut {
-	constructor() {
-		super();
-		this.imbcb = new ImBCBackw(this);
-		this.withcolours = false;
-	}
-
+constructor() {
+	super();
+	this.imbcb = new ImBCBackw(this);
+	this.withcolours = false;
+}
 /* ImBCNodeBackw: nodejs runup */
 startnode() {
 	let wanthelp = false, restisfiles = false, flagging = 0;
