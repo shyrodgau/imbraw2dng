@@ -546,7 +546,7 @@ handleone(fx) {
 /* *************************************** Backward helper class E N D *************************************** */
 /* *************************************** Main class *************************************** */
 class ImBCBase {
-static version = "V3.6.4_dev"; // actually const
+static version = "V3.6.8_newclassdev"; // actually const
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
