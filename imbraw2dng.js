@@ -2013,6 +2013,8 @@ renamefiles = false;
 withcolors = true;
 ovwout = false;
 ptypeflags = 0; // from preferences
+typeflags = 0;
+fromts = '0000';
 #strbuff = '';
 constructor() {
 	super();
@@ -2097,7 +2099,7 @@ rmesc(str) {
 	return str;
 }
 /* ImBCNodeOut: nodejs: handle given files/dirs recursive */
-handlerecurse(already, index, typeflags, fromts) {
+handlerecurse(already, index) {
 	if (!already) {
 		// initializsation
 		already = [];
@@ -2130,11 +2132,11 @@ handlerecurse(already, index, typeflags, fromts) {
 				else for (let i of f.filter(e => e.isFile())) {
 					const n = i.name;
 					if (n.substring(0,10).toUpperCase() === 'IMBRAW2DNG') continue;
-					if (((n.substring(n.length -4).toUpperCase() === '.RAW') && (typeflags % 2)) ||
-						((n.substring(n.length -5).toUpperCase() === '.JPEG' || n.substring(n.length -4).toUpperCase() === '.JPG') && ((typeflags % 4) > 1)) ||
+					if (((n.substring(n.length -4).toUpperCase() === '.RAW') && (this.typeflags % 2)) ||
+						((n.substring(n.length -5).toUpperCase() === '.JPEG' || n.substring(n.length -4).toUpperCase() === '.JPG') && ((this.typeflags % 4) > 1)) ||
 						(n.substring(n.length -5).toUpperCase() !== '.JPEG' && n.substring(n.length -4).toUpperCase() !== '.JPG' &&
-							n.substring(n.length -4).toUpperCase() !== '.RAW' && ((typeflags % 8) > 3))) {
-						if (this.comptime(i.name, fromts))
+							n.substring(n.length -4).toUpperCase() !== '.RAW' && ((this.typeflags % 8) > 3))) {
+						if (this.comptime(i.name, this.fromts))
 							already.push(i.path + this.pa.sep + i.name);
 					}
 					//console.log(i);
@@ -2242,21 +2244,21 @@ imbdoit() {
 	}
 	if ((this.typeflags % 4) > 1) {
 		for (const e of this.imbpics) {
-			let rawname = basename(e);
+			let rawname = ImBCBase.basename(e);
 			if (this.comptime(rawname, compval))
 				selecteds.push(e);
 		}
 	}
 	if ((this.typeflags % 8) > 3) {
 		for (const e of this.imbmovies) {
-			let rawname = basename(e);
+			let rawname = ImBCBase.basename(e);
 			if (this.comptime(rawname, compval))
 				selecteds.push(e);
 		}
 	}
 	selecteds.sort((a, b) => {
-		let ra = basename(a);
-		let rb = basename(b);
+		let ra = ImBCBase.basename(a);
+		let rb = ImBCBase.basename(b);
 		if (ra < rb) return -1;
 		else if (ra === rb) return 0;
 		else return 1;
@@ -2337,8 +2339,6 @@ constructor() {
 }
 /* node js: */
 #configloaded = '';
-#typeflags = 0;
-#fromts = '0000';
 #connmsg = false;
 
 /* ImBCNode: continue with the next file if any */
@@ -2360,7 +2360,7 @@ checkimb(type, found) {
 	//let subdir = '';
 	let subdir = 'PHOTO';
 	if (type) subdir='MOVIE';
-	//this.ht.get('http://127.0.0.1:8000/PHOTO.html' + subdir, (res) => {
+	//this.ht.get('http://127.0.0.1:8000/PHOTO.html', (res) => {
 	this.ht.get('http://192.168.1.254/IMBACK/' + subdir, (res) => {
 			let err = false;
 			if (res.statusCode !== 200 || !/^text\/html/.test(res.headers['content-type'])) {
@@ -2454,7 +2454,7 @@ startnode(notfirst) {
 				else if (flagging === 3) {
 					flagging = 0;
 					if (null !== ImBCBase.tsregex.exec(v)) {
-						this.#fromts = v;
+						this.fromts = v;
 						datefound = true;
 					} else {
 						wanthelp = true;
@@ -2512,7 +2512,7 @@ startnode(notfirst) {
 				else if (v.substring(0,2)==='-n') {
 					if (v.substring(2).length > 0) {
 						if (null !== ImBCBase.tsregex.exec(v.substring(2))) {
-							this.#fromts = v.substring(2);
+							this.fromts = v.substring(2);
 							datefound = true;
 						} else {
 							wanthelp = true;
@@ -2532,13 +2532,13 @@ startnode(notfirst) {
 					this.renamefiles = true;
 				}
 				else if (v ==='-R') {
-					if (!(this.#typeflags % 2)) this.#typeflags += 1;
+					if (!(this.typeflags % 2)) this.typeflags += 1;
 				}
 				else if (v ==='-J') {
-					if ((this.#typeflags % 4) < 2) this.#typeflags += 2;
+					if ((this.typeflags % 4) < 2) this.typeflags += 2;
 				}
 				else if (v ==='-O') {
-					if ((this.#typeflags % 8) < 4) this.#typeflags += 4;
+					if ((this.typeflags % 8) < 4) this.typeflags += 4;
 				}
 				else if (v.substring(0,1) === '-') {
 					console.log(ImBCBase.subst(this.xl0('node.unkopt'), v));
@@ -2559,12 +2559,12 @@ startnode(notfirst) {
 		console.log(this.xl0('node.missingval'));
 		wanthelp = true;
 	}
-	else if (datefound && 0 === this.#typeflags) {
-		if (0 === this.ptypeflags) this.#typeflags = 7;
-		else this.#typeflags = this.ptypeflags;
+	else if (datefound && 0 === this.typeflags) {
+		if (0 === this.ptypeflags) this.typeflags = 7;
+		else this.typeflags = this.ptypeflags;
 	}
 
-	if (wanthelp || (this.#typeflags === 0 && this.totnum === 0)) {
+	if (wanthelp || (this.typeflags === 0 && this.totnum === 0)) {
 		this.#help(process.argv[1]);
 		console.log('');
 		console.log(this.xl0('main.coloursyourrisk'));
@@ -2577,10 +2577,10 @@ startnode(notfirst) {
 		console.log(this.xl0('main.coloursyourrisk'));
 		console.log('');
 		this.configinfo();
-		if (this.#typeflags === 0) this.#typeflags = 7;
+		if (this.typeflags === 0) this.typeflags = 7;
 		this.handlerecurse();
 	}
-	else if (this.#typeflags > 0) {
+	else if (this.typeflags > 0) {
 		console.log(ImBCBase.subst(this.xl0('node.help')[0], ImBCBase.version));
 		console.log(this.xl0('main.coloursyourrisk'));
 		console.log('');
