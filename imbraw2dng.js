@@ -554,6 +554,36 @@ static version = "V3.6.8_newclassdev"; // actually const
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
+	words: {
+		error: {
+			de: '\u001b[31m\u001b[1mFEHLER:\u001b[0m ',
+			en: '\u001b[31m\u001b[1mERROR:\u001b[0m ',
+			fr: '\u001b[31m\u001b[1mERREUR:\u001b[0m ',
+			ja: '\u001b[31m\u001b[1mエラー:\u001b[0m ',
+			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
+		},
+		warning: {
+			de: '\u001b[31mWarnung:\u001b[0m ',
+			en: '\u001b[31mWarning:\u001b[0m ',
+			fr: '\u001b[31mAvertissement:\u001b[0m ',
+			ja: '\u001b[31m警告:\u001b[0m',
+			htmlstyle: [ [ 'background-color','#ffdddd' ] ]
+		},
+		finished: {
+			de: '\u001b[32m\u001b[1mFertig!\u001b[0m' ,
+			en: '\u001b[32m\u001b[1mFinished!\u001b[0m ',
+			fr: '\u001b[32m\u001b[1mFini!\u001b[0m ',
+			ja: '\u001b[32m\u001b[1m終了!\u001b[0m ',
+			htmlstyle: [ [ 'background-color','#ddffdd' ], [ 'font-weight', 'bold' ] ]
+		},
+		sorryerr: {
+			de: '\u001b[31mENTSCHULDIGUNG! FEHLER:\u001b[0m ',
+			en: '\u001b[31mSORRY! ERROR:\u001b[0m  ',
+			fr: '\u001b[31mDÉSOLÉE! ERREUR:\u001b[0m ',
+			ja: '\u001b[31m申し訳ございません! エラー:\u001b[0m  ',
+			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
+		}
+	},
 	main: {
 		coloursyourrisk: {
 			de: 'Bei Farben bin ich raus! Eigenes Risiko, fraach mich net!',
@@ -825,16 +855,10 @@ static texts = { // actually const
 			ja: '一致するファイルが見つかりませんでした。 一時的なものかもしれません。'
 		},
 		strangename: {
-			de: '<b style=\'background-color:#ffdddd;\'>Warnung:</b> Komischer Dateiname: $$0',
-			en: '<b style=\'background-color:#ffdddd;\'>Warning:</b> Strange file name: $$0',
-			fr: '<b style=\'background-color:#ffdddd;\'>Avertissement:</b> Nom de fiche inhabituel: $$0',
-			ja: '<b style=\'background-color:#ffdddd;\'>警告:</b> 無効なファイル名: $$0'
-		},
-		strangenamex: {
-			de: '\u001b[31mWarnung:\u001b[0m Komischer Dateiname: $$0',
-			en: '\u001b[31mWarning:\u001b[0m Strange file name: $$0',
-			fr: '\u001b[31mAvertissement:\u001b[0m Nom de fiche inhabituel: $$0',
-			ja: '\u001b[31m警告:\u001b[0m 無効なファイル名: $$0'
+			de: 'Komischer Dateiname: $$0',
+			en: 'Strange file name: $$0',
+			fr: 'Nom de fiche inhabituel: $$0',
+			ja: '無効なファイル名: $$0'
 		},
 		invaltime: {
 			de: '<b style=\'background-color:#ffdddd;\'>FEHLER:</b> Ungültiger Zeitstempel: $$0',
@@ -867,13 +891,13 @@ static texts = { // actually const
 			ja: '何も選択されていません...?'
 		},
 		erraccess: {
-			de: '<b>Fehler beim Zugriff auf $$0. ENTSCHLDIGUNG! </b>',
+			de: '<b>Fehler beim Zugriff auf $$0. ENTSCHULDIGUNG! </b>',
 			en: '<b>Error occured accessing $$0. SORRY! </b>',
 			fr: '<b>Erreur lors de l\'accès à $$0. DÉSOLÉE!</b>',
 			ja: '<b>アクセス中にエラーが発生しました $$0. 申し訳ございません! </b>'
 		},
 		erraccessx: {
-			de: '\u001b[31mFEHLER\u001b[0m beim Zugriff auf $$0. ENTSCHLDIGUNG!',
+			de: '\u001b[31mFEHLER\u001b[0m beim Zugriff auf $$0. ENTSCHULDIGUNG!',
 			en: '\u001b[31mERROR\u001b[0m occured accessing $$0. SORRY!',
 			fr: '\u001b[31mERREUR\u001b[0m lors de l\'accès à $$0. DÉSOLÉE!',
 			ja: '\u001b[31mエラー\u001b[0m アクセス中に発生しました $$0. 申し訳ございません!'
@@ -1317,9 +1341,6 @@ allfiles = [];
 imbpics = [];  // found jpegs
 rimbpics = []; // found raws
 imbmovies = []; // found other
-imbeles = [];  // elements for files for visual browser
-typedclasses = [];  // elements for groups w/o type for visual browser
-untypedclasses = []; // elements for groups with type for visual browser
 earliestmov = '9999';  // upper/lower bounds of dates for types
 latestmov='0000';
 earliestjpg='9999';
@@ -1417,7 +1438,8 @@ static basename(n) {
 comptime(fname, compts) {
 	const res = ImBCBase.fnregex.exec(fname);
 	if (res === null) {
-		this.appmsgxl(0, 'onimback.strangename'+ (document?'':'x'), fname);
+		this.appmsgxl(false, 'words.warning');
+		this.appmsgxl(0, 'onimback.strangename', fname);
 		return (compts === '0000');
 	} else {
 		const ts = res[1] + '_' + res[3] + '_' + res[5] + '-' + res[7] + '_' + res[9] + '_' + res[11];
@@ -1430,6 +1452,19 @@ comptime(fname, compts) {
 mappx(nlflag, key, arg0, arg1, arg2, arg3) {
 	this.appmsgxl((nlflag === 0) ? undefined : nlflag, key, arg0, arg1, arg2, arg3);
 }
+/* ImBCBase: remove VT100 color escapes for html or windows */
+rmesc(str) {
+	if (!document && this.withcolours) return (str);
+	let i = 0, j, k;
+	while ((j = str.substring(i).indexOf('\u001b')) !== -1) {
+		k = str.substring(i+j).indexOf('m');
+		if (j !== -1 && k !== -1) {
+			str = str.substring(0, i+j) + str.substring(i+j+k+1);
+			i += j;
+		} else i++;
+	}
+	return str;
+}
 /* ImBCBase: get part of translation */
 xl0(str, base) {
 	if (undefined === base) base = ImBCBase.texts;
@@ -1437,7 +1472,14 @@ xl0(str, base) {
 	if (i === -1) {
 		let r = base[str][this.mylang];
 		if (undefined === r) r = base[str]['en'];
-		return r;
+		if (typeof r === 'string')
+			return this.rmesc(r);
+		else {
+			let res = [];
+			for (const e of r)
+				res.push(this.rmesc(e));
+			return res;
+		}
 	}
 	else {
 		const e = base[str.substring(0,i)];
@@ -1445,7 +1487,7 @@ xl0(str, base) {
 	}
 }
 /* ImBCBase: substitute in translation */
-static subst(r, arg0, arg1, arg2, arg3, base) {
+subst(r, arg0, arg1, arg2, arg3, base) {
 	if (r.indexOf('$$0') !== -1 && arg0 !== undefined) {
 		r = r.substring(0, r.indexOf('$$0')) + arg0 + r.substring(r.indexOf('$$0') + 3);
 		if (r.indexOf('$$1') !== -1 && arg1 !== undefined) {
@@ -1458,7 +1500,7 @@ static subst(r, arg0, arg1, arg2, arg3, base) {
 			}
 		}
 	}
-	return r;
+	return this.rmesc(r);
 }
 /* ImBCBase: translate one string with parameters */
 xl(str, arg0, arg1, arg2, arg3, base) {
@@ -1484,7 +1526,7 @@ xl(str, arg0, arg1, arg2, arg3, base) {
 	if (i === -1) {
 		let r = base[str][this.mylang];
 		if (undefined === r) r = base[str]['en'];
-		return ImBCBase.subst(r, arg0, arg1, arg2, arg3);
+		return this.rmesc(this.subst(r, arg0, arg1, arg2, arg3));
 	}
 	else {
 		const e = base[str.substring(0,i)];
@@ -1500,7 +1542,7 @@ querylang(name, offset) {
 			this.mylang = l;
 			if ('00' === l) {
 				this.debugflag = true;
-				if (document) {
+				if (document) { // translation output into browser log
 					for (const el of Object.keys(ImBCBase.texts))
 						this.prxl(el, ImBCBase.texts[el]);
 					document.getElementById('langsel').innerHTML += '<option value="00" onclick="imbc.setlang()">00</option></select>';
@@ -1930,7 +1972,8 @@ handle1imb(url) {
 		timest = timestx[1] + '_' + timestx[3] + '_' + timestx[5] + '-' + timestx[7] + '_' + timestx[9] + '_' + timestx[11];
 		cl = timestx[1] + '_' + timestx[3] + '_' + timestx[5] + '-' + timestx[7];
 	} else {
-		this.mappx(true, 'onimback.strangename' + (document?'':'x'), rawname);
+		this.mappx(false, 'words.warning');
+		this.mappx(true, 'onimback.strangename', rawname);
 	}
 	if (rawname.substring(rawname.length -4).toUpperCase() === '.RAW') {
 		if (null !== timest) {
@@ -1938,7 +1981,7 @@ handle1imb(url) {
 			if (timest > this.latestraw) this.latestraw = timest;
 		}
 		this.rimbpics.push(url);
-		if (document) {
+		if (this.imbeles && this.typedclasses) {
 			this.imbeles.push({
 					type: 'RAW',
 					url: url,
@@ -1963,7 +2006,7 @@ handle1imb(url) {
 			if (timest > this.latestjpg) this.latestjpg = timest;
 		}
 		this.imbpics.push(url);
-		if (document) {
+		if (this.imbeles && this.typedclasses) {
 			this.imbeles.push({
 					type: 'JPG',
 					url: url,
@@ -1988,7 +2031,7 @@ handle1imb(url) {
 			if (timest > this.latestmov) this.latestmov = timest;
 		}
 		this.imbmovies.push(url);
-		if (document) {
+		if (this.imbeles && this.typedclasses) {
 			this.imbeles.push({
 					type: 'oth',
 					url: url,
@@ -2093,20 +2136,6 @@ appmsg(msg, opt) {
 /* ImBCNodeOut: output function to main log */
 appmsgxl(opt, msg, arg0, arg1, arg2, arg3) {
 	this.appmsg(this.xl(msg, arg0, arg1, arg2, arg3), opt);
-}
-/* ImBCNodeOut: remove VT100 color escapes for windows */
-rmesc(str) {
-	//console.log('RRR ' + str);
-	if (this.withcolours) return (str);
-	let i = 0, j, k;
-	while ((j = str.substring(i).indexOf('\u001b')) !== -1) {
-		k = str.substring(i+j).indexOf('m');
-		if (j !== -1 && k !== -1) {
-			str = str.substring(0, i+j) + str.substring(i+j+k+1);
-			i += j;
-		} else i++;
-	}
-	return str;
 }
 /* ImBCNodeOut: nodejs: handle given files/dirs recursive */
 handlerecurse(already, index) {
@@ -2428,8 +2457,8 @@ checkimb(type, found) {
 #help(caller) {
 	caller = ImBCBase.basename(caller);
 	let texts = this.xl0('node.help');
-	console.log(ImBCBase.subst(texts[0], ImBCBase.version));
-	console.log(ImBCBase.subst(texts[1], caller));
+	console.log(this.subst(texts[0], ImBCBase.version));
+	console.log(this.subst(texts[1], caller));
 	for (let j=2; j<texts.length; j++) {
 		console.log(this.rmesc(texts[j]));
 		if (this.debugflag && j === 7) {
@@ -2470,7 +2499,7 @@ startnode(notfirst) {
 						datefound = true;
 					} else {
 						wanthelp = true;
-						console.log(ImBCBase.subst(this.xl0('onimback.invaltimex'), v));
+						console.log(this.subst(this.xl0('onimback.invaltimex'), v));
 					}
 				}
 				else if (flagging === 4) {
@@ -2528,7 +2557,7 @@ startnode(notfirst) {
 							datefound = true;
 						} else {
 							wanthelp = true;
-							console.log(ImBCBase.subst(this.xl0('onimback.invaltimex'), v.substring(2)));
+							console.log(this.subst(this.xl0('onimback.invaltimex'), v.substring(2)));
 						}
 					}
 					else
@@ -2553,7 +2582,7 @@ startnode(notfirst) {
 					if ((this.typeflags % 8) < 4) this.typeflags += 4;
 				}
 				else if (v.substring(0,1) === '-') {
-					console.log(ImBCBase.subst(this.xl0('node.unkopt'), v));
+					console.log(this.subst(this.xl0('node.unkopt'), v));
 					wanthelp = true;
 				}
 				else {
@@ -2585,7 +2614,7 @@ startnode(notfirst) {
 		return;
 	}
 	else if (this.totnum > 0) {
-		console.log(ImBCBase.subst(this.xl0('node.help')[0], ImBCBase.version));
+		console.log(this.subst(this.xl0('node.help')[0], ImBCBase.version));
 		console.log(this.xl0('main.coloursyourrisk'));
 		console.log('');
 		this.configinfo();
@@ -2593,7 +2622,7 @@ startnode(notfirst) {
 		this.handlerecurse();
 	}
 	else if (this.typeflags > 0) {
-		console.log(ImBCBase.subst(this.xl0('node.help')[0], ImBCBase.version));
+		console.log(this.subst(this.xl0('node.help')[0], ImBCBase.version));
 		console.log(this.xl0('main.coloursyourrisk'));
 		console.log('');
 		this.configinfo();
@@ -2653,7 +2682,7 @@ startnode() {
 					wanthelp = true;
 				}
 				else if (v.substring(0,1) === '-') {
-					console.log(ImBCBase.subst(this.xl0('node.unkopt'), v));
+					console.log(this.subst(this.xl0('node.unkopt'), v));
 					wanthelp = true;
 				}
 				else {
@@ -2669,14 +2698,14 @@ startnode() {
 	else if (wanthelp) {
 		let caller = ImBCBase.basename(process.argv[1]);
 		let texts = this.xl0('node.backw.help');
-		console.log(ImBCBase.subst(texts[0], ImBCBase.version));
-		console.log(ImBCBase.subst(texts[1], caller));
+		console.log(this.subst(texts[0], ImBCBase.version));
+		console.log(this.subst(texts[1], caller));
 		for (let j=2; j<texts.length; j++) {
 			console.log(this.rmesc(texts[j]));
 		}
 	}
 	else if (this.totnum > 0) {
-		console.log(ImBCBase.subst(this.xl0('node.backw.help')[0], ImBCBase.version));
+		console.log(this.subst(this.xl0('node.backw.help')[0], ImBCBase.version));
 		this.handlerecurse();
 	}
 }
