@@ -749,7 +749,7 @@ static texts = { // actually const
 			ja: '選択したものをすべて削除'
 		},
 		settingsset: {
-			en: 'Settings are set for source $$0',
+			en: 'Preferences are set for source $$0',
 			de: 'Voreinstellungen für $$0 gespeichert'
 		},
 		prefnotfile: {
@@ -1409,7 +1409,7 @@ static basename(n) {
 	return n;
 }
 /* ImBCBase: compare timestamp */
-static comptime(fname, compts) {
+comptime(fname, compts) {
 	const res = ImBCBase.fnregex.exec(fname);
 	if (res === null) {
 		this.appmsgxl(0, 'onimback.strangename'+ (document?'':'x'), fname);
@@ -2585,7 +2585,7 @@ startnode(notfirst) {
 		console.log(this.xl0('main.coloursyourrisk'));
 		console.log('');
 		this.configinfo();
-		this.checkimbnode();
+		this.checkimb();
 	}
 }
 }

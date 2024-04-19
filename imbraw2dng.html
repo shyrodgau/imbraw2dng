@@ -838,7 +838,7 @@ static texts = { // actually const
 			ja: '選択したものをすべて削除'
 		},
 		settingsset: {
-			en: 'Settings are set for source $$0',
+			en: 'Preferences are set for source $$0',
 			de: 'Voreinstellungen für $$0 gespeichert'
 		},
 		prefnotfile: {
@@ -1498,7 +1498,7 @@ static basename(n) {
 	return n;
 }
 /* ImBCBase: compare timestamp */
-static comptime(fname, compts) {
+comptime(fname, compts) {
 	const res = ImBCBase.fnregex.exec(fname);
 	if (res === null) {
 		this.appmsgxl(0, 'onimback.strangename'+ (document?'':'x'), fname);
@@ -3613,7 +3613,7 @@ handlenext(fromloop) {
 				this.fromvisbrows = false;
 				setTimeout(() => {
 						this.showbrowser();
-						this.startloadimg();
+						this.#startloadimg();
 				}, 1000);
 			} else {
 				this.shownormal();
@@ -3622,7 +3622,7 @@ handlenext(fromloop) {
 		else {
 			this.actnum++;
 		}
-		this.loadnextimg();
+		this.#loadnextimg();
 		return;
 	}
 	if (this.actnum < this.allfiles.length - 1) {
@@ -3774,7 +3774,7 @@ resolver(url, onok, onerr, notfirst) {
 			window.setTimeout(() => {
 					onok(url, fx, rot);
 			});
-		} else this.createFx(e, onok, onerr, len);
+		} else this.resolver(e, onok, onerr, len);
 	};
 	xhr.onerror = (evt, typ) => {
 		if (undefined === typ) typ = 'err';
