@@ -489,6 +489,7 @@ handleone(fx) {
 				this.imbc.allfiles[this.imbc.actnum] = fx;
 				this.handleone(fx);
 			}, (url) => {
+				this.imbc.mappx(false, 'words.sorryerr');
 				this.imbc.appmsgxl(true, 'process.erraccess' + (!document ? 'x' : ''), url);
 				this.imbc.stats.error ++;
 				this.imbc.handlenext();
@@ -570,7 +571,7 @@ static texts = { // actually const
 			htmlstyle: [ [ 'background-color','#ffdddd' ] ]
 		},
 		finished: {
-			de: '\u001b[32m\u001b[1mFertig!\u001b[0m' ,
+			de: '\u001b[32m\u001b[1mFertig!\u001b[0m ',
 			en: '\u001b[32m\u001b[1mFinished!\u001b[0m ',
 			fr: '\u001b[32m\u001b[1mFini!\u001b[0m ',
 			ja: '\u001b[32m\u001b[1m終了!\u001b[0m ',
@@ -581,6 +582,13 @@ static texts = { // actually const
 			en: '\u001b[31mSORRY! ERROR:\u001b[0m  ',
 			fr: '\u001b[31mDÉSOLÉE! ERREUR:\u001b[0m ',
 			ja: '\u001b[31m申し訳ございません! エラー:\u001b[0m  ',
+			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
+		},
+		sorryerr: {
+			de: '\u001b[31mENTSCHULDIGUNG!\u001b[0m ',
+			en: '\u001b[31mSORRY!\u001b[0m  ',
+			fr: '\u001b[31mDÉSOLÉE!\u001b[0m ',
+			ja: '\u001b[31m申し訳ございません!\u001b[0m  ',
 			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
 		}
 	},
@@ -861,16 +869,10 @@ static texts = { // actually const
 			ja: '無効なファイル名: $$0'
 		},
 		invaltime: {
-			de: '<b style=\'background-color:#ffdddd;\'>FEHLER:</b> Ungültiger Zeitstempel: $$0',
-			en: '<b style=\'background-color:#ffdddd;\'>ERROR:</b> Invalid timestamp: $$0',
-			fr: '<b style=\'background-color:#ffdddd;\'>ERREUR:</b> Horodatage invalide: $$0',
-			ja: '<b style=\'background-color:#ffdddd;\'>エラー:</b> 無効なタイムスタンプ: $$0'
-		},
-		invaltimex: {
-			de: '\u001b[31mFEHLER:\u001b[0m Ungültiger Zeitstempel: $$0',
-			en: '\u001b[31mERROR:\u001b[0m Invalid timestamp: $$0',
-			fr: '\u001b[31mERREUR:\u001b[0m Horodatage invalide: $$0',
-			ja: '\u001b[31mERROR:\u001b[0m 無効なタイムスタンプ: $$0'
+			de: 'Ungültiger Zeitstempel: $$0',
+			en: 'Invalid timestamp: $$0',
+			fr: 'Horodatage invalide: $$0',
+			ja: '無効なタイムスタンプ: $$0'
 		},
 	},
 	process: {
@@ -914,41 +916,29 @@ static texts = { // actually const
 			fr: '$$0 fiche(s) sélectionné(s)',
 			ja: '$$0 ファイルが選択されました。'
 		},
-		copyok: {
-			de: '<b style=\'background-color:#ddffdd;\'>Fertig! Nach $$0 kopiert (Downloads-Ordner prüfen)</b>&nbsp;',
-			en: '<b style=\'background-color:#ddffdd;\'>Finished! Copied to $$0 (Check Downloads Folder)</b>&nbsp;',
-			fr: '<b style=\'background-color:#ddffdd;\'>Fini! Copié sur $$0 (Vérifier le dossier de téléchargements/Downloads)</b>&nbsp;',
-			ja: '<b style=\'background-color:#ddffdd;\'>終了! $$0 にコピーされました (ダウンロードフォルダーを確認)</b>&nbsp;'
+		copyokcheckdl: {
+			de: 'Nach $$0 kopiert (Downloads-Ordner prüfen)</b>&nbsp;',
+			en: 'Copied to $$0 (Check Downloads Folder)</b>&nbsp;',
+			fr: 'Copié sur $$0 (Vérifier le dossier de téléchargements/Downloads)</b>&nbsp;',
+			ja: '$$0 にコピーされました (ダウンロードフォルダーを確認)</b>&nbsp;'
 		},
-		copyokx: {
-			de: '\u001b[32mFertig!\u001b[0m Nach $$0 kopiert',
-			en: '\u001b[32mFinished!\u001b[0m Copied to $$0',
-			fr: '\u001b[32mFini!\u001b[0m Copié sur $$0',
-			ja: '\u001b[32m終了!\u001b[0m $$0 にコピー'
+		copyok: {
+			de: 'Nach $$0 kopiert',
+			en: 'Copied to $$0',
+			fr: 'Copié sur $$0',
+			ja: '$$0 にコピー'
 		},
 		errorreadingfile: {
-			de: '<b style=\'background-color:#ffdddd;\'>Fehler beim Lesen der Datei $$0. ENTSCHULDIGUNG! </b>',
-			en: '<b style=\'background-color:#ffdddd;\'>Error occured reading file $$0. SORRY! </b>',
-			fr: '<b style=\'background-color:#ffdddd;\'>Erreur de lecture du fiche $$0. DÉSOLÉE! </b>',
-			ja: '<b style=\'background-color:#ffdddd;\'>ファイル $$0 の読み取り中にエラーが発生しました。 申し訳ございません! </b>'
-		},
-		errorreadingfilex: {
-			de: '\u001b[31mFEHLER\u001b[0m beim Lesen der Datei $$0. ENTSCHULDIGUNG!',
-			en: '\u001b[31mERROR\u001b[0m occured reading file $$0. SORRY!',
-			fr: '\u001b[31mERREUR\u001b[0m de lecture du fiche $$0. DÉSOLÉE!',
-			ja: '\u001b[31mエラー\u001b[0m ファイル $$0 の読み取り中に発生しました。 申し訳ございません!'
+			de: 'beim Lesen der Datei $$0',
+			en: 'occured reading file $$0',
+			fr: 'de lecture du fiche $$0',
+			ja: 'ファイル $$0 の読み取り中にエラーが発生しました。 '
 		},
 		unknownsize: {
-			de: '<b style=\'background-color:#ffdddd;\'>[$$0] Entschuldigung, die Dateigröße <b>$$1</b> passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!</b>',
-			en: '<b style=\'background-color:#ffdddd;\'>[$$0] Sorry, file Size <b>$$1</b> does not match known formats. Please contact developer!</b>',
-			fr: '<b style=\'background-color:#ffdddd;\'>[$$0] Désolée, la taille du fiche $$1 ne correspond pas au format connu. Veuillez contacter le développeur</b>',
-			ja: '<b style=\'background-color:#ffdddd;\'>[$$0] 申し訳ありませんが、ファイルサイズ <b>$$1</b> は既知の形式と一致しません。開発者にお問い合わせください。</b>'
-		},
-		unknownsizex: {
-			de: '[$$0] \u001b[31mEntschuldigung, die Dateigröße $$1 passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!\u001b[0m',
-			en: '[$$0] \u001b[31mSorry, file Size $$1 does not match known formats. Please contact developer!\u001b[0m',
-			fr: '[$$0] \u001b[31mDésolée, la taille du fiche $$1 ne correspond pas au format connu. Veuillez contacter le développeur\u001b[0m',
-			ja: '[$$0] \u001b[31m申し訳ありませんが、ファイルサイズ $$1 は既知の形式と一致しません。開発者にお問い合わせください。\u001b[0m'
+			de: 'Die Dateigröße <b>$$1</b> passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!',
+			en: 'File Size <b>$$1</b> does not match known formats. Please contact developer!',
+			fr: 'La taille du fiche $$1 ne correspond pas au format connu. Veuillez contacter le développeur',
+			ja: 'が、ファイルサイズ <b>$$1</b> は既知の形式と一致しません。開発者にお問い合わせください。'
 		},
 		processing: {
 			de: 'Verarbeite Datei: $$0 ',
@@ -974,17 +964,17 @@ static texts = { // actually const
 			fr: 'Rotation: $$0',
 			ja: '向き: $$0'
 		},
-		converted: {
-			de: '<b style=\'background-color:#ddffdd;\'>Fertig! Nach $$0 konvertiert (Downloads-Ordner prüfen)</b>&nbsp;',
-			en: '<b style=\'background-color:#ddffdd;\'>Finished! Converted to $$0 (Check Downloads Folder)</b>&nbsp;',
-			fr: '<b style=\'background-color:#ddffdd;\'>Fini! Converti en $$0 (Vérifier le dossier de téléchargements/Downloads)</b>&nbsp;',
-			ja: '<b style=\'background-color:#ddffdd;\'>終了! $$0 に変換されました (ダウンロードフォルダーを確認してください)</b>&nbsp;'
+		convertedcheckdl: {
+			de: 'Nach $$0 konvertiert (Downloads-Ordner prüfen)',
+			en: 'Converted to $$0 (Check Downloads Folder)',
+			fr: 'Converti en $$0 (Vérifier le dossier de téléchargements/Downloads)',
+			ja: '$$0 に変換されました (ダウンロードフォルダーを確認してください)'
 		},
-		convertedx: {
-			de: '\u001b[32mFertig!\u001b[0m Nach $$0 konvertiert',
-			en: '\u001b[32mFinished!\u001b[0m Converted to $$0',
-			fr: '\u001b[32mFini!\u001b[0m Converti en $$0',
-			ja: '\u001b[32m終了!\u001b[0m $$0 に変換'
+		converted: {
+			de: 'Nach $$0 konvertiert',
+			en: 'Converted to $$0',
+			fr: 'Converti en $$0',
+			ja: '$$0 に変換'
 		},
 		errsave: {
 			de: '\u001b[31mFEHLER!\u001b[0m Konnte Datei $$0 nicht speichern.',
@@ -1629,7 +1619,8 @@ handleone(orientation, fromloop) {
 				this.allfiles[this.actnum] = fx;
 				this.handleone(rot ? rot: orientation, fromloop);
 			}, (url) => {
-				this.mappx(true, 'process.erraccess' + (!document ? 'x' : ''), url);
+				this.mappx(false, 'words.sorryerr');
+				this.mappx(true, 'process.erraccess', url);
 				this.stats.error ++;
 				this.handlenext(fromloop);
 		  });
@@ -1650,11 +1641,12 @@ handleone(orientation, fromloop) {
 			for (let j=0; j<contents.byteLength; j++) {
 				out[j] = view.getUint8(j);
 			}
-			this.writefile(rawname, 'application/octet-stream', 'process.copyok', out, fromloop);
+			this.writefile(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out, fromloop);
 		}
 		reader.onerror = (evt) => {
 			console.log('Non-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
-			this.mappx(true, 'process.errorreadingfile' + (!document ? 'x' : ''), f.name);
+			this.mappx(false, 'words.sorryerr');
+			this.mappx(true, 'process.errorreadingfile', f.name);
 			this.stats.error++;
 			this.handlenext(fromloop);
 		}
@@ -1668,7 +1660,9 @@ handleone(orientation, fromloop) {
 		if (this.totnum > 1) {
 			this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
 		}
-		this.mappx(0, 'process.unknownsize' + (!document ? 'x' : ''), f.name, f.size);
+		this.appmsg('[' + f.name + '] ', false);
+		this.mappx(false, 'words.sorry');
+		this.mappx(0, 'process.unknownsize', f.size);
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
 			const contents = evt.target.result;
@@ -1677,11 +1671,12 @@ handleone(orientation, fromloop) {
 			for (let j=0; j<view.byteLength; j++) {
 				out[j] = view.getUint8(j);
 			}
-			this.writefile(rawname, 'application/octet-stream', 'process.copyok', out, fromloop);
+			this.writefile(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out, fromloop);
 		}
 		reader.onerror = (evt) => {
 			console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
-			this.mappx(true, 'process.errorreadingfile' + (!document ? 'x' : ''), f.name);
+			this.mappx(false, 'words.sorryerr');
+			this.mappx(true, 'process.errorreadingfile', f.name);
 			this.stats.error++;
 			this.handlenext(fromloop);
 		}
@@ -1820,11 +1815,12 @@ handleone(orientation, fromloop) {
 		//ti.createCamProf('Generic ImB brighter');
 		//ti.addEntry(50941, 'LONG', [ 3 ]); /* profile embed policy */
 		//ti.addEntry(50932, 'ASCII', 'Generic ImB conv profile Sig'); /* Profile calibration signature */
-		this.writefile(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted', ti.getData(), fromloop);
+		this.writefile(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted' + (this.checkdlfolder ? 'checkdl' : ''), ti.getData(), fromloop);
 	};
 	reader.onerror = (evt) => {
 		console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
-		this.mappx(true, 'process.errorreadingfile' + (!document ? 'x' : ''), f.name);
+		this.mappx(false, 'words.sorryerr');
+		this.mappx(true, 'process.errorreadingfile', f.name);
 		this.stats.error++;
 		this.handlenext(fromloop);
 	};
@@ -2157,7 +2153,8 @@ handlerecurse(already, index) {
 	}
 	this.fs.stat(d, (err, stat) => {
 		if (err) {
-			console.log(this.xl('process.erraccessx', d));
+			this.mappx(false, 'words.sorryerr');
+			this.mappx(1, 'process.erraccess', d);
 			console.log(JSON.stringify(err));
 			console.log('');
 		}
@@ -2165,7 +2162,8 @@ handlerecurse(already, index) {
 			// recurse into
 			this.fs.readdir(d, { withFileTypes: true, recursive: true }, (err2, f) => {
 				if (err2) {
-					console.log(this.xl('process.erraccessx', d));
+					this.mappx(false, 'words.sorryerr');
+					this.mappx(1, 'process.erraccess', d);
 					console.log(JSON.stringify(err2));
 				}
 				else for (let i of f.filter(e => e.isFile())) {
