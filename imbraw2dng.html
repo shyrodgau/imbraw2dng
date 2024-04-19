@@ -141,6 +141,8 @@ span.biggiebtn { position: absolute; top: -0.2em; font-weight:bold; font-size:12
 /* Tiff IFD helper class */
 class IFDOut {
 /* Indentation out */
+camprofptr = -1; // first of the pointers, they are sequential, accessed by TIFFOut
+// rest is private:
 #entrys = [];
 #currentoff = 0;
 // imgdata can be view or array
@@ -148,7 +150,6 @@ class IFDOut {
 #imglen = 0;
 #data = new Uint8Array(20000000);
 #dyndata = [] ; //new Uint8Array(20000);
-camprofptr = -1; // first of the pointers, they are sequential, accessed by TIFFOut
 /* IFDOut: add image data to ifd */
 addImageStrip(typ, view, width, height) {
 	this.#imgdata = view;
@@ -456,6 +457,7 @@ createCamProf(name) {
 /* *************************************** TIFFOut E N D *************************************** */
 /* *************************************** Backward helper class *************************************** */
 class ImBCBackw {
+/* Indentation out */
 constructor (imbcout) {
 	this.imbc = imbcout;
 }
@@ -631,10 +633,12 @@ handleone(fx) {
 		this.imbc.handlenext();
 	}
 }
+/* Indentation in - end of class ImBCBackw */
 }
 /* *************************************** Backward helper class E N D *************************************** */
 /* *************************************** Main class *************************************** */
 class ImBCBase {
+/* Indentation out */
 static version = "V3.6.8_newclassdev"; // actually const
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
@@ -1382,6 +1386,7 @@ static texts = { // actually const
 	}
 };
 
+// ImBCBase: generic data
 mylang = 'en';
 withpreview = true;
 copyright = '';
@@ -2092,13 +2097,17 @@ handle1imb(url) {
 		}
 	}
 }
+/* Indentation in - end of class ImBCBase */
 }
 /* *************************************** Main class E N D *************************************** */
 /* *************************************** HTML helper class *************************************** */
 class ImBCHtmlOut extends ImBCBase {
+/* Indentation out */
 // current preview image
 currentrot = 1; // see oriecw above
+// single-step/process all/skip all
 stepmode = 1;
+// bottom most text index
 #dispcnt = 1;
 constructor() {
 	super();
@@ -2279,7 +2288,6 @@ imbdoit() {
 		compval = document.getElementById('imbstartts').value;
 		if (null === ImBCBase.tsregex.exec(compval)) {
 			this.mappx(0, 'onimback.invaltime', compval);
-			this.withcolours = false;
 			alert(ImBCBase.subst(this.xl('onimback.invaltimex'), compval));
 			return;
 		}
@@ -2371,10 +2379,12 @@ showlastmsg() {
 		ll.scrollIntoView(false, { block: 'nearest' });
 	}
 }
+/* Indentation in - end of class ImBCHtmlOut */
 }
 /* *************************************** HTML helper class E N D *************************************** */
 /* *************************************** Main class for HTML, forward *************************************** */
 class ImBCHtml extends ImBCHtmlOut {
+/* Indentation out */
 constructor() {
 	super();
 }
@@ -3806,10 +3816,12 @@ resolver(url, onok, onerr, notfirst) {
 		});
 	}
 }
+/* Indentation in - end of class ImBCHtml */
 }
 /* *************************************** Main class for HTML, forward E N D *************************************** */
 /* *************************************** Main class for HTML, backward *************************************** */
 class ImBCHtmlBackw extends ImBCHtmlOut {
+/* Indentation out */
 constructor() {
 	super();
 	this.imbcb = new ImBCBackw(this);
@@ -3884,6 +3896,7 @@ handlenext(fromloop) {
 		document.getElementById('infileb').disabled = false;
 	}
 }
+/* Indentation in - end of class ImBCHtmlBackw */
 }
 /* *************************************** Main class for HTML, backward E N D *************************************** */
 /* outside of classes: */

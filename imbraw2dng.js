@@ -52,6 +52,8 @@ DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS 
 /* Tiff IFD helper class */
 class IFDOut {
 /* Indentation out */
+camprofptr = -1; // first of the pointers, they are sequential, accessed by TIFFOut
+// rest is private:
 #entrys = [];
 #currentoff = 0;
 // imgdata can be view or array
@@ -59,7 +61,6 @@ class IFDOut {
 #imglen = 0;
 #data = new Uint8Array(20000000);
 #dyndata = [] ; //new Uint8Array(20000);
-camprofptr = -1; // first of the pointers, they are sequential, accessed by TIFFOut
 /* IFDOut: add image data to ifd */
 addImageStrip(typ, view, width, height) {
 	this.#imgdata = view;
@@ -367,6 +368,7 @@ createCamProf(name) {
 /* *************************************** TIFFOut E N D *************************************** */
 /* *************************************** Backward helper class *************************************** */
 class ImBCBackw {
+/* Indentation out */
 constructor (imbcout) {
 	this.imbc = imbcout;
 }
@@ -542,10 +544,12 @@ handleone(fx) {
 		this.imbc.handlenext();
 	}
 }
+/* Indentation in - end of class ImBCBackw */
 }
 /* *************************************** Backward helper class E N D *************************************** */
 /* *************************************** Main class *************************************** */
 class ImBCBase {
+/* Indentation out */
 static version = "V3.6.8_newclassdev"; // actually const
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
@@ -1293,6 +1297,7 @@ static texts = { // actually const
 	}
 };
 
+// ImBCBase: generic data
 mylang = 'en';
 withpreview = true;
 copyright = '';
@@ -2003,18 +2008,23 @@ handle1imb(url) {
 		}
 	}
 }
+/* Indentation in - end of class ImBCBase */
 }
 /* *************************************** Main class E N D *************************************** */
 /* *************************************** Node js helper class *************************************** */
 class ImBCNodeOut extends ImBCBase {
-configfiles = [ './.imbraw2dng.json' ];
+/* Indentation out */
+// generic data
 outdir = '.';
 renamefiles = false;
 withcolors = true;
 ovwout = false;
-ptypeflags = 0; // from preferences
 typeflags = 0;
 fromts = '0000';
+ptypeflags = 0; // from preferences
+// tried configfiles
+#configfiles = [ './.imbraw2dng.json' ];
+// string buffer for concatenating one line of output
 #strbuff = '';
 constructor() {
 	super();
@@ -2282,12 +2292,12 @@ readconfig(callback, tryno) {
 	else if (1 === tryno && process.env.HOME) {
 		xch = process.env.HOME + this.pa.sep + '.config';
 		dotflag = false;
-		this.configfiles.push(process.env.HOME + this.pa.sep + '.config' + this.pa.sep + 'imbraw2dng.json');
+		this.#configfiles.push(process.env.HOME + this.pa.sep + '.config' + this.pa.sep + 'imbraw2dng.json');
 	}
 	else if (2 === tryno && process.env.XDG_CONFIG_HOME) {
 		xch = process.env.XDG_CONFIG_HOME;
 		dotflag = false;
-		this.configfiles.push(process.env.XDG_CONFIG_HOME + this.pa.sep + 'imbraw2dng.json');
+		this.#configfiles.push(process.env.XDG_CONFIG_HOME + this.pa.sep + 'imbraw2dng.json');
 	}
 	else {
 		return callback();
@@ -2311,7 +2321,7 @@ configinfo() {
 	if ('' !== this.configloaded)
 		this.mappx(true, 'node.readconfig', this.configloaded);
 	else
-		this.mappx(true, 'node.noconfig', JSON.stringify(this.configfiles));
+		this.mappx(true, 'node.noconfig', JSON.stringify(this.#configfiles));
 }
 /* ImBCNodeOut: nodejs: parse config */
 parseconfig(data, fornode) {
@@ -2330,10 +2340,12 @@ parseconfig(data, fornode) {
 	if (d.O && ((this.ptypeflags % 8) < 4)) this.ptypeflags += 4;
 	this.stepmode = 0;
 }
+/* Indentation in - end of class ImBCNodeOut */
 }
 /* *************************************** Node js helper class E N D *************************************** */
 /* *************************************** Main class for nodejs, forward *************************************** */
 class ImBCNode extends ImBCNodeOut {
+/* Indentation out */
 constructor() {
 	super();
 }
@@ -2588,10 +2600,12 @@ startnode(notfirst) {
 		this.checkimb();
 	}
 }
+/* Indentation in - end of class ImBCNode */
 }
 /* *************************************** Main class for nodejs, forward E N D *************************************** */
 /* *************************************** Main class for nodejs, backward *************************************** */
 class ImBCNodeBackw extends ImBCNodeOut {
+/* Indentation out */
 constructor() {
 	super();
 	this.imbcb = new ImBCBackw(this);
@@ -2680,6 +2694,7 @@ handlenext(fromloop) {
 		}
 	}
 }
+/* Indentation in - end of class ImBCNodeBackw */
 }
 /* *************************************** Main class for nodejs, backward E N D *************************************** */
 /* outside of classes: */
