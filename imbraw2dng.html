@@ -579,7 +579,7 @@ handleone(fx) {
 				this.handleone(fx);
 			}, (url) => {
 				this.imbc.mappx(false, 'words.sorryerr');
-				this.imbc.appmsgxl(true, 'process.erraccess' + (!document ? 'x' : ''), url);
+				this.imbc.appmsgxl(true, 'process.erraccess', url);
 				this.imbc.stats.error ++;
 				this.imbc.handlenext();
 		  });
@@ -667,13 +667,13 @@ static texts = { // actually const
 			htmlstyle: [ [ 'background-color','#ddffdd' ], [ 'font-weight', 'bold' ] ]
 		},
 		sorryerr: {
-			de: '\u001b[31mENTSCHULDIGUNG! FEHLER:\u001b[0m ',
-			en: '\u001b[31mSORRY! ERROR:\u001b[0m  ',
-			fr: '\u001b[31mDÉSOLÉE! ERREUR:\u001b[0m ',
-			ja: '\u001b[31m申し訳ございません! エラー:\u001b[0m  ',
+			de: '\u001b[31m\u001b[1mENTSCHULDIGUNG! FEHLER:\u001b[0m ',
+			en: '\u001b[31m\u001b[1mSORRY! ERROR:\u001b[0m  ',
+			fr: '\u001b[31m\u001b[1mDÉSOLÉE! ERREUR:\u001b[0m ',
+			ja: '\u001b[31m\u001b[1m申し訳ございません! エラー:\u001b[0m  ',
 			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
 		},
-		sorryerr: {
+		sorry: {
 			de: '\u001b[31mENTSCHULDIGUNG!\u001b[0m ',
 			en: '\u001b[31mSORRY!\u001b[0m  ',
 			fr: '\u001b[31mDÉSOLÉE!\u001b[0m ',
@@ -982,16 +982,10 @@ static texts = { // actually const
 			ja: '何も選択されていません...?'
 		},
 		erraccess: {
-			de: '<b>Fehler beim Zugriff auf $$0. ENTSCHULDIGUNG! </b>',
-			en: '<b>Error occured accessing $$0. SORRY! </b>',
-			fr: '<b>Erreur lors de l\'accès à $$0. DÉSOLÉE!</b>',
-			ja: '<b>アクセス中にエラーが発生しました $$0. 申し訳ございません! </b>'
-		},
-		erraccessx: {
-			de: '\u001b[31mFEHLER\u001b[0m beim Zugriff auf $$0. ENTSCHULDIGUNG!',
-			en: '\u001b[31mERROR\u001b[0m occured accessing $$0. SORRY!',
-			fr: '\u001b[31mERREUR\u001b[0m lors de l\'accès à $$0. DÉSOLÉE!',
-			ja: '\u001b[31mエラー\u001b[0m アクセス中に発生しました $$0. 申し訳ございません!'
+			de: 'beim Zugriff auf $$0.',
+			en: 'occured accessing $$0.',
+			fr: 'lors de l\'accès à $$0.',
+			ja: '>アクセス中にエラーが発生しました $$0.'
 		},
 		notraw: {
 			de: 'Durchleitung weil nicht raw: $$0',
@@ -1102,9 +1096,9 @@ static texts = { // actually const
 			ja: 'リクエストに応じて残りの $$0 画像をスキップします'
 		},
 		totals: {
-			en: 'Total $$0, ok $$1, skipped $$2, Errors $$3',
-			de: 'Total $$0, ok $$1, übersprungen $$2, Fehler $$3',
-			fr: 'Total : $$0, ok :$$1, Ignoré : $$2, Erreur : $$3',
+			en: 'Total: $$0, ok: $$1, skipped: $$2, Errors: $$3',
+			de: 'Total: $$0, ok $$1, übersprungen: $$2, Fehler: $$3',
+			fr: 'Total: $$0, ok: $$1, Ignoré: $$2, Erreur: $$3',
 			ja: '合計 $$0、OK $$1、スキップ $$2、エラー $$3'
 		},
 		addpreview: {
