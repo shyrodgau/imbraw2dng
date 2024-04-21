@@ -47,7 +47,6 @@ DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS 
 
 ***************************************************** 
 */
-
 "use strict;"
 /* *************************************** IFDOut *************************************** */
 /* Tiff IFD helper class */
@@ -81,31 +80,19 @@ addEntry(tag, type, value) {
 	else if (type === 'RATIONAL' || type === 'SRATIONAL') l /= 2;
 	if (tag === 273 || tag === 330) { /* special cases */
 		let e = {
-			xtag: tag,
-			tag: [ 0, 0 ],
-			xtype: x.t,
-			type: [ 0, 0 ],
-			xcount: l,
-			count: [ 0, 0, 0, 0 ],
+			tag: tag,
+			type: x.t,
+			count: l,
 			ptr: value[0]
 		};
-		TIFFOut.writeshorttoout(e.tag, tag, 0);
-		TIFFOut.writeshorttoout(e.type, x.t, 0);
-		TIFFOut.writeinttoout(e.count, l, 0);
 		this.#entrys.push(e);
 	} else if (l * x.l <= 4) { /* fits into data */
 		let e = {
-			xtag: tag,
-			tag: [ 0, 0 ],
-			xtype: x.t,
-			type: [ 0, 0 ],
-			xcount: l,
-			count: [ 0, 0, 0, 0 ],
+			tag: tag,
+			type: x.t,
+			count: l,
 			value: [ 0, 0, 0, 0 ]
 		};
-		TIFFOut.writeshorttoout(e.tag, tag, 0);
-		TIFFOut.writeshorttoout(e.type, x.t, 0);
-		TIFFOut.writeinttoout(e.count, l, 0);
 		if (type === 'BYTE' || type === 'SBYTE' || type === 'UNDEFINED') {
 			for (let k=0; k<l; k++) e.value[k] = value[k];
 		} else if (type === 'ASCII') {
@@ -118,24 +105,22 @@ addEntry(tag, type, value) {
 			TIFFOut.writeshorttoout(e.value, value[0], 0);
 			if (l === 2) TIFFOut.writeshorttoout(e.value, value[1], 2);
 		} else if (type === 'SSHORT') {
-			TIFFOut.writeshorttoout(e.value, 65536-value[0], 0);
-			if (l === 2) TIFFOut.writeshorttoout(e.value, 65536+value[1], 2);
+			if (value[0] < 0) TIFFOut.writeshorttoout(e.value, 65536+value[0], 0);
+			else TIFFOut.writeshorttoout(e.value, value[0], 0);
+			if (l === 2) {
+				if (value[1] < 0) TIFFOut.writeshorttoout(e.value, 65536+value[1], 2);
+				else TIFFOut.writeshorttoout(e.value, value[1], 2);
+			}
 		}
 		this.#entrys.push(e);
 	}
 	else { /* data accessed via pointer */
 		let e = {
-			xtag: tag,
-			tag: [ 0, 0 ],
-			xtype: x.t,
-			type: [ 0, 0 ],
-			xcount: l,
-			count: [ 0, 0, 0, 0 ],
+			tag: tag,
+			type: x.t,
+			count: l,
 			ptr: this.#currentoff
 		};
-		TIFFOut.writeshorttoout(e.tag, tag, 0);
-		TIFFOut.writeshorttoout(e.type, x.t, 0);
-		TIFFOut.writeinttoout(e.count, l, 0);
 		if (type === 'BYTE' || type === 'SBYTE' || type === 'UNDEFINED') {
 			for (let k=0; k<l; k++) this.#dyndata.push(value[k]);
 			this.#currentoff += l;
@@ -204,15 +189,19 @@ getData(offset) {
 		this.#data[ioff++] = 0;
 	TIFFOut.writeshorttoout(this.#data, this.#entrys.length, ioff);
 	ioff += 2;
-	for (const i of this.#entrys.sort(function(a,b) { return a.xtag - b.xtag; })) {
-		this.#data.set(i.tag, ioff);
-		this.#data.set(i.type, ioff + 2);
-		this.#data.set(i.count, ioff + 4);
-		if (i.xtag === 273) { /* strip offsets is set here, subifd (-2) and private stuff outside */
+	for (const i of this.#entrys.sort((a,b) => a.tag - b.tag )) {
+		let parr = [ 0, 0, 0, 0 ];
+		TIFFOut.writeshorttoout(parr, i.tag, 0);
+		this.#data.set(parr, ioff);
+		TIFFOut.writeshorttoout(parr, i.type, 0);
+		this.#data.set(parr, ioff+2);
+		TIFFOut.writeinttoout(parr, i.count, 0);
+		this.#data.set(parr, ioff+4);
+		if (i.tag === 273) { /* strip offsets is set here, subifd (-2) and private stuff outside */
 			let parr = [ 0, 0, 0, 0 ];
 			TIFFOut.writeinttoout(parr, offset, 0);
 			this.#data.set(parr, ioff + 8);
-		} else if (i.xtag === 50933) { // camera profiles
+		} else if (i.tag === 50933) { // camera profiles
 			if (undefined !== i.value) // only one, profile ptr fits into value
 				this.camprofptr = offset + ioff + 8;
 			else {			// more than one, dereference
@@ -244,7 +233,7 @@ getOffset() {
 /* IFDOut: if has sub ifd, then return that */
 getNextIfdPosOffset() {
 	if (this.hassub) {
-		const i = this.#entrys.findIndex(v => v.xtag === 330);
+		const i = this.#entrys.findIndex(v => v.tag === 330);
 		return this.#imglen + 2 + (12 * i) + 8;
 	} else {
 		return this.#imglen + 2 + (12 * this.#entrys.length);
@@ -2106,7 +2095,7 @@ writefile(name, type, okmsg, arr1, fromloop, renameidx) {
 				this.handlenext(fromloop);
 			}
 			else {
-				this.appmsgxl(0, okmsg + 'x', outfile);
+				this.appmsgxl(0, okmsg, outfile);
 				if (undefined !== renameidx) this.appmsgxl(true, 'node.renamed');
 				else this.appmsg('');
 				this.stats.ok++;
@@ -2451,6 +2440,8 @@ checkimb(type, found) {
 	caller = ImBCBase.basename(caller);
 	let texts = this.xl0('node.help');
 	console.log(this.subst(texts[0], ImBCBase.version));
+	console.log('\u001b[1mNew! Internal Overwork, please report errors to me... & Japanese translation thanks to Sadami Inoue!\u001b[0m');
+	console.log('');
 	console.log(this.subst(texts[1], caller));
 	for (let j=2; j<texts.length; j++) {
 		console.log(this.rmesc(texts[j]));
@@ -2492,7 +2483,8 @@ startnode(notfirst) {
 						datefound = true;
 					} else {
 						wanthelp = true;
-						console.log(this.subst(this.xl0('onimback.invaltimex'), v));
+						this.mappx(false, 'words.error');
+						this.mappx(true, 'onimback.invaltime', v);
 					}
 				}
 				else if (flagging === 4) {
@@ -2550,7 +2542,8 @@ startnode(notfirst) {
 							datefound = true;
 						} else {
 							wanthelp = true;
-							console.log(this.subst(this.xl0('onimback.invaltimex'), v.substring(2)));
+							this.mappx(false, 'words.error');
+							this.mappx(true, 'onimback.invaltime', v.substring(2));
 						}
 					}
 					else
@@ -2600,7 +2593,6 @@ startnode(notfirst) {
 
 	if (wanthelp || (this.typeflags === 0 && this.totnum === 0)) {
 		this.#help(process.argv[1]);
-		console.log('');
 		console.log(this.xl0('main.coloursyourrisk'));
 		console.log('');
 		this.configinfo();
@@ -2608,6 +2600,10 @@ startnode(notfirst) {
 	}
 	else if (this.totnum > 0) {
 		console.log(this.subst(this.xl0('node.help')[0], ImBCBase.version));
+		console.log('\u001b[1mNew! Internal Overwork, please report errors to me...& Japanese translation thanks to Sadami Inoue!\u001b[0m');
+		console.log('');
+		console.log('\u001b[1mNew! Internal Overwork, please report errors to me...& Japanese translation thanks to Sadami Inoue!\u001b[0m');
+		console.log('');
 		console.log(this.xl0('main.coloursyourrisk'));
 		console.log('');
 		this.configinfo();
@@ -2616,6 +2612,8 @@ startnode(notfirst) {
 	}
 	else if (this.typeflags > 0) {
 		console.log(this.subst(this.xl0('node.help')[0], ImBCBase.version));
+		console.log('\u001b[1mNew! Internal Overwork, please report errors to me...& Japanese translation thanks to Sadami Inoue!\u001b[0m');
+		console.log('');
 		console.log(this.xl0('main.coloursyourrisk'));
 		console.log('');
 		this.configinfo();

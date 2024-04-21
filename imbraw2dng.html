@@ -169,31 +169,19 @@ addEntry(tag, type, value) {
 	else if (type === 'RATIONAL' || type === 'SRATIONAL') l /= 2;
 	if (tag === 273 || tag === 330) { /* special cases */
 		let e = {
-			xtag: tag,
-			tag: [ 0, 0 ],
-			xtype: x.t,
-			type: [ 0, 0 ],
-			xcount: l,
-			count: [ 0, 0, 0, 0 ],
+			tag: tag,
+			type: x.t,
+			count: l,
 			ptr: value[0]
 		};
-		TIFFOut.writeshorttoout(e.tag, tag, 0);
-		TIFFOut.writeshorttoout(e.type, x.t, 0);
-		TIFFOut.writeinttoout(e.count, l, 0);
 		this.#entrys.push(e);
 	} else if (l * x.l <= 4) { /* fits into data */
 		let e = {
-			xtag: tag,
-			tag: [ 0, 0 ],
-			xtype: x.t,
-			type: [ 0, 0 ],
-			xcount: l,
-			count: [ 0, 0, 0, 0 ],
+			tag: tag,
+			type: x.t,
+			count: l,
 			value: [ 0, 0, 0, 0 ]
 		};
-		TIFFOut.writeshorttoout(e.tag, tag, 0);
-		TIFFOut.writeshorttoout(e.type, x.t, 0);
-		TIFFOut.writeinttoout(e.count, l, 0);
 		if (type === 'BYTE' || type === 'SBYTE' || type === 'UNDEFINED') {
 			for (let k=0; k<l; k++) e.value[k] = value[k];
 		} else if (type === 'ASCII') {
@@ -206,24 +194,22 @@ addEntry(tag, type, value) {
 			TIFFOut.writeshorttoout(e.value, value[0], 0);
 			if (l === 2) TIFFOut.writeshorttoout(e.value, value[1], 2);
 		} else if (type === 'SSHORT') {
-			TIFFOut.writeshorttoout(e.value, 65536-value[0], 0);
-			if (l === 2) TIFFOut.writeshorttoout(e.value, 65536+value[1], 2);
+			if (value[0] < 0) TIFFOut.writeshorttoout(e.value, 65536+value[0], 0);
+			else TIFFOut.writeshorttoout(e.value, value[0], 0);
+			if (l === 2) {
+				if (value[1] < 0) TIFFOut.writeshorttoout(e.value, 65536+value[1], 2);
+				else TIFFOut.writeshorttoout(e.value, value[1], 2);
+			}
 		}
 		this.#entrys.push(e);
 	}
 	else { /* data accessed via pointer */
 		let e = {
-			xtag: tag,
-			tag: [ 0, 0 ],
-			xtype: x.t,
-			type: [ 0, 0 ],
-			xcount: l,
-			count: [ 0, 0, 0, 0 ],
+			tag: tag,
+			type: x.t,
+			count: l,
 			ptr: this.#currentoff
 		};
-		TIFFOut.writeshorttoout(e.tag, tag, 0);
-		TIFFOut.writeshorttoout(e.type, x.t, 0);
-		TIFFOut.writeinttoout(e.count, l, 0);
 		if (type === 'BYTE' || type === 'SBYTE' || type === 'UNDEFINED') {
 			for (let k=0; k<l; k++) this.#dyndata.push(value[k]);
 			this.#currentoff += l;
@@ -292,15 +278,19 @@ getData(offset) {
 		this.#data[ioff++] = 0;
 	TIFFOut.writeshorttoout(this.#data, this.#entrys.length, ioff);
 	ioff += 2;
-	for (const i of this.#entrys.sort(function(a,b) { return a.xtag - b.xtag; })) {
-		this.#data.set(i.tag, ioff);
-		this.#data.set(i.type, ioff + 2);
-		this.#data.set(i.count, ioff + 4);
-		if (i.xtag === 273) { /* strip offsets is set here, subifd (-2) and private stuff outside */
+	for (const i of this.#entrys.sort((a,b) => a.tag - b.tag )) {
+		let parr = [ 0, 0, 0, 0 ];
+		TIFFOut.writeshorttoout(parr, i.tag, 0);
+		this.#data.set(parr, ioff);
+		TIFFOut.writeshorttoout(parr, i.type, 0);
+		this.#data.set(parr, ioff+2);
+		TIFFOut.writeinttoout(parr, i.count, 0);
+		this.#data.set(parr, ioff+4);
+		if (i.tag === 273) { /* strip offsets is set here, subifd (-2) and private stuff outside */
 			let parr = [ 0, 0, 0, 0 ];
 			TIFFOut.writeinttoout(parr, offset, 0);
 			this.#data.set(parr, ioff + 8);
-		} else if (i.xtag === 50933) { // camera profiles
+		} else if (i.tag === 50933) { // camera profiles
 			if (undefined !== i.value) // only one, profile ptr fits into value
 				this.camprofptr = offset + ioff + 8;
 			else {			// more than one, dereference
@@ -332,7 +322,7 @@ getOffset() {
 /* IFDOut: if has sub ifd, then return that */
 getNextIfdPosOffset() {
 	if (this.hassub) {
-		const i = this.#entrys.findIndex(v => v.xtag === 330);
+		const i = this.#entrys.findIndex(v => v.tag === 330);
 		return this.#imglen + 2 + (12 * i) + 8;
 	} else {
 		return this.#imglen + 2 + (12 * this.#entrys.length);
@@ -3425,8 +3415,7 @@ savesettings() {
 }
 /* ImBCHtml: try lang from node param */
 trylang(i) {
-	this.findlang(i);
-	document.getElementById('langsel').value = i.toLowerCase();
+	document.getElementById('langsel').value = this.findlang(i);
 }
 /* ImBCHtml: debug */
 #prgr(gr, indent) {
@@ -3985,7 +3974,7 @@ function init() {
 <div style="font-weight:bold;"><span class="notwhenbackw" data-myxlkey='main.title'> </span><span class="onlywhenbackw" style="display:none;" data-myxlkey='main.backw.title'> </span> <span id="mainversion"> </span> - 
  <a target="_new" data-myhrefxlkey="main.helplink" data-myxlkey='main.help'></a>
 <select id="langsel" onchange="imbc.setlang()" value="en"><option value="de" onclick="imbc.setlang()">DE</option><option value="en" selected onclick="imbc.setlang()">EN</option>
-<option value="ja" onclick="imbc.setlang()">JA</option><option value="fr" onclick="imbc.setlang()">FR</option><!--option value="ru" onclick="imbc.setlang()">RU</option--></select> <span class="notwhenbackw"> New! <a href="imbraw2dng_ja.html">Japanese translation</a> thanks to Sadami Inoue!</span></div>
+<option value="ja" onclick="imbc.setlang()">JA</option><option value="fr" onclick="imbc.setlang()">FR</option><!--option value="ru" onclick="imbc.setlang()">RU</option--></select> <span class="notwhenbackw"> New! Internal Overwork, please report errors to me... &amp; <a href="imbraw2dng_ja.html">Japanese translation</a> thanks to Sadami Inoue!</span></div>
 <br><div class="notwhenbackw"><span data-myxlkey="main.coloursyourrisk"> </span>&nbsp;<!--b style="background-color:#888888; text-shadow: 0.07em 0.12em 0 #FFFFFF;font-size:200%;">&#x26f6; &#x1f5d1; &#x2715;</b-->&nbsp;<br></div>
 <!-- the normal display -->
 <div id="normal" style="margin-top: 0.5em;">
