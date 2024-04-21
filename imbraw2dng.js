@@ -541,7 +541,7 @@ handleone(fx) {
 /* *************************************** Main class *************************************** */
 class ImBCBase {
 /* Indentation out */
-static version = "V3.7.0_8292ba6"; // actually const
+static version = "V3.7.1_dev"; // actually const
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -1301,9 +1301,10 @@ withpreview = true;
 copyright = '';
 
 // ImBCBase: fake long exposure:
-addimgs = [];
+#addimgs = [];
 addall = false;
 addscaleall = false;
+#historystring = '';
 
 /* ImBCBase: For processing several files */
 totnum=0;
@@ -1702,14 +1703,22 @@ handleone(orientation, fromloop) {
 		const contents = evt.target.result;
 		const view = new DataView(contents);
 		if (this.addall) {
-			this.addimgs.push(view);
+			if (this.#addimgs.length === 0 && this.addscaleall)
+				this.#historystring='(';
+			else if (this.#addimgs.length === 0)
+				this.#historystring='';
+			this.#addimgs.push(view);
 			this.mappx(0, 'main.fakelong.added', rawname);
+			if (this.#historystring.length < 2)
+				this.#historystring += rawname;
+			else
+				this.#historystring += ('+' + rawname);
 			if (this.actnum === this.totnum - 1) {
 				this.appmsg('', true);
-				let npic = this.addimgs.length;
+				let npic = this.#addimgs.length;
 				for (let j=0; j < w*h; j++) {
 					let res = 0;
-					for (const k of this.addimgs) {
+					for (const k of this.#addimgs) {
 						try {
 							res += k.getUint8(j);
 						} catch (e) { }
@@ -1722,7 +1731,10 @@ handleone(orientation, fromloop) {
 					}
 					else view.setUint8(j, res);
 				}
-				this.addimgs = [];
+				if (this.addscaleall) {
+					this.#historystring += (')/' + npic);
+				}
+				this.#addimgs = [];
 			}
 			else {
 				return this.handlenext(fromloop);
@@ -1759,6 +1771,9 @@ handleone(orientation, fromloop) {
 		ti.addEntry(272, 'ASCII', ImBCBase.types[typ]); /* Model */
 		ti.addEntry(274, 'SHORT', [ ori ]); /* Orientation */
 		ti.addEntry(305, 'ASCII', 'imbraw2dng ' + ImBCBase.version); /* SW and version */
+		if (this.#historystring.length)
+			ti.addEntry(37395, 'ASCII', this.#historystring); /* image history */
+		this.#historystring = '';
 		if (dateok) {
 			ti.addEntry(306, 'ASCII', datestr); /* datetime */
 			ti.addEntry(36867, 'ASCII', datestr); /* Original date time */
@@ -2600,8 +2615,6 @@ startnode(notfirst) {
 	}
 	else if (this.totnum > 0) {
 		console.log(this.subst(this.xl0('node.help')[0], ImBCBase.version));
-		console.log('\u001b[1mNew! Internal Overwork, please report errors to me...& Japanese translation thanks to Sadami Inoue!\u001b[0m');
-		console.log('');
 		console.log('\u001b[1mNew! Internal Overwork, please report errors to me...& Japanese translation thanks to Sadami Inoue!\u001b[0m');
 		console.log('');
 		console.log(this.xl0('main.coloursyourrisk'));
