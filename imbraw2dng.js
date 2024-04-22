@@ -377,7 +377,6 @@ static readint(view, off) {
 /* ImBCBackw: backward: handle dng like raw */
 static parseDng(f, onok, onerr) {
 	// blindly assumes that it is one of our own DNG
-	// interesting tags: orientation, datetime
 	if (undefined === f.data) {
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
@@ -443,7 +442,7 @@ static parseDng(f, onok, onerr) {
 		size: datalen,
 		data: f.data.slice(rawstripstart, datalen + rawstripstart)
 	};
-	off = ifd+2;
+	/*off = ifd+2;
 	for (let k=0; k<((nent<50)? nent: 0); k++) {
 		let tag = ImBCBackw.readshort(v, off);
 		if (tag === 274)
@@ -456,7 +455,7 @@ static parseDng(f, onok, onerr) {
 				fx.datestr += String.fromCharCode(v.getUint8(xoff++));
 		}
 		off += 12;
-	}
+	}*/
 	fx.readAsArrayBuffer = (fy) => {
 		fy.onload({
 				target: { result: fy.data }
@@ -1613,7 +1612,7 @@ handleone(orientation, fromloop) {
 		return;
 	}
 	let rawname = ImBCBase.basename(f.name);
-	if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
+	if (rawname.substring(rawname.length - 4).toUpperCase() !== '.RAW') {
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
 			if (this.totnum > 1) {
@@ -1677,11 +1676,11 @@ handleone(orientation, fromloop) {
 	}
 	const rawnamearr = new TextEncoder().encode(rawname);
 	let datestr="", dateok = false;
-	// date?
+	/*// date?
 	if (undefined !== f.datestr) {
 		datestr = f.datestr;
 		dateok = true;
-	}
+	}*/
 	let res = ImBCBase.fnregexx.exec(rawname);
 	if (res !== null && !dateok) {
 		const yr = Number.parseInt(res[1]);
@@ -1757,7 +1756,9 @@ handleone(orientation, fromloop) {
 		if (this.withpreview) {
 			this.mappx(0, 'process.addpreview');
 			/* **** PREVIEW image **** */
-			ti.addImageStrip(1, ImBCBase.buildpvarray(view, typ, w, h, ori, false), Math.floor(transp ? (h+31)/32:(w+31)/32), Math.floor(transp ? (w+31)/32: (h+31)/32));
+			let scale = 32;
+			if (w <= 4096 && h <= 4096) scale=16;
+			ti.addImageStrip(1, ImBCBase.buildpvarray(view, typ, w, h, ori, scale), Math.floor(transp ? (h+scale-1)/scale:(w+scale-1)/scale), Math.floor(transp ? (w+scale-1)/scale: (h+scale-1)/scale));
 			ti.addEntry(258 , 'SHORT', [ 8, 8, 8 ]); /* BitsPerSample */
 			ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression - none */
 			ti.addEntry(262, 'SHORT', [ 2 ]); /* Photometric - RGB */
@@ -1882,10 +1883,10 @@ static getPix(x, y, w, view, typ) {
 	return outrgb;
 }
 /* ImBCBase: build preview in array */
-static buildpvarray(view, typ, w, h, orientation, withalpha) {
-	const sfact = withalpha ? 8 : 32;
-	const w8 = Math.floor((w+(sfact -1))/sfact) - (withalpha ? 1 : 0);
-	const h8 = Math.floor((h+(sfact -1))/sfact) - (withalpha ? 1 : 0);
+static buildpvarray(view, typ, w, h, orientation, scale) {
+	const sfact = scale ? scale : 8;
+	const w8 = Math.floor((w+(sfact -1))/sfact) - (scale ? 0 : 1);
+	const h8 = Math.floor((h+(sfact -1))/sfact) - (scale ? 0 : 1);
 	let minred=255, minblue = 255, mingreen = 255, maxred = 0, maxblue = 0, maxgreen = 0, allmin = 255, allmax = 0;
 	let outpix = [];
 	let rowiterstart, rowiterend;
@@ -1932,11 +1933,11 @@ static buildpvarray(view, typ, w, h, orientation, withalpha) {
 			if (a[2] < minblue) minblue = a[2];
 			if (a[2] > allmax) allmax = a[2];
 			if (a[2] < allmin) allmin = a[2];
-			if (withalpha) outpix.push(255);
+			if (!scale) outpix.push(255);
 		}
 	}
 	const fact = 255 / (allmax - allmin);
-	const o = withalpha ? 4 : 3;
+	const o = scale ? 3 : 4;
 	for (let i = 0; i < h8; i++) {
 		for (let j=0; j< w8; j++) {
 			if ((outpix[o*((i * w8) + j)] > 250) &&
@@ -2717,7 +2718,7 @@ startnode() {
 handlenext(fromloop) {
 	if (this.actnum < this.allfiles.length - 1) {
 		this.actnum++;
-		this.imbcb.handleonex();
+		this.handleonex();
 	} else {
 		this.actnum = 0;
 		this.allfiles = [];
