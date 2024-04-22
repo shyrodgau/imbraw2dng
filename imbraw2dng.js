@@ -540,7 +540,7 @@ handleone(fx) {
 /* *************************************** Main class *************************************** */
 class ImBCBase {
 /* Indentation out */
-static version = "V3.7.1_a182a40"; // actually const
+static version = "V3.7.2_dev"; // actually const
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -2111,6 +2111,7 @@ writefile(name, type, okmsg, arr1, fromloop, renameidx) {
 				this.handlenext(fromloop);
 			}
 			else {
+				this.appmsgxl(false, 'words.finished');
 				this.appmsgxl(0, okmsg, outfile);
 				if (undefined !== renameidx) this.appmsgxl(true, 'node.renamed');
 				else this.appmsg('');
