@@ -2014,9 +2014,13 @@ handleone(orientation, fromloop) {
 		}
 		ti.addEntry(50706, 'BYTE', [ 1, 2, 0, 0 ]); /* DNG Version */
 		if (this.copyright != '') {
-			// do UTF-8 bytes instead of ASCII
+			// do UTF-8 bytes instead of ASCII if necessary
 			let bytes = new TextEncoder().encode(this.copyright);
-			ti.addEntry(33432, 'BYTE', bytes); /* copyright */
+			//console.log('cr str ' + this.copyright.length + ' bytes ' + bytes.length);
+			if (bytes.length === this.copyright.length)
+				ti.addEntry(33432, 'ASCII', this.copyright); /* copyright */
+			else
+				ti.addEntry(33432, 'BYTE', bytes); /* copyright */
 		}
 		// do we have exifdata ?
 		let cand = [];
