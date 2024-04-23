@@ -61,7 +61,7 @@ div#xmsg {
 	display: inline-block;
 	z-index: 10;
 }
-
+/*div[data-state='load'] { background-color: black;}*/
 @keyframes blinker {
   50% {
     opacity: 0;
@@ -88,15 +88,16 @@ div#xmsg {
 .ggclosed > .gg, .ggclosed .igtype { display: none !important; }
 .ggttminus, .ggttplus { cursor: pointer; display: inline-block; width: 1.9em; font-weight:normal !important; }
 .biggiebtn:not(.disabled), .dlbtn:not(.disabled) { cursor: pointer; }
-.biggiebtn.disabled, .dlbtn.disabled { display: none; }
-/*.dlbtn { vertical-align: bottom; font-size: 150%; font-weight: bold; }*/
+.dlbtn.biggiebtn { left: 1.5em; margin-top: -0.1em; }
+.biggiebtn.disabled { display: none; }
+.dlbtn:not(.biggiebtn) { vertical-align: bottom; font-weight: bold; }
 .igtype { border: 2px solid yellow; border-radius: 5px; display: flex; flex-flow: wrap;background-color: #ffe6da;border-top: 0; padding:0.5em;}
-.ee { border: 2px solid gray; border-radius: 5px; margin: 2px; width: fit-content; display: flex; flex-direction: column; padding: 0.3em;position: relative; }
+.onepic { border: 2px solid gray; border-radius: 5px; margin: 2px; width: fit-content; display: flex; flex-direction: column; padding: 0.3em;position: relative; }
 .eepvx { color: #777777; font-size: 100px; align-self: center; font-weight: bold; }
 .errimg { color: red; font-size: 100px; align-self: center; font-weight: bold; }
-.eepvw { color: #444444; font-size: 100px; align-self: center; font-weight: bold; }
-.eeraw, .eeimg { align-self: center; }
-.ee > :nth-child(1) { margin-top: -0.2em; margin-bottom: 0.1em;}
+.waitdiv { color: #444444; font-size: 100px; align-self: center; font-weight: bold; }
+.eeraw, .eejpg { align-self: center; }
+.onepic > :nth-child(1) { margin-top: -0.2em; margin-bottom: 0.1em;}
 #previewwait {
 	scale: 500%;
 	margin-left: 250px;
@@ -109,10 +110,14 @@ div#xmsg {
 	width: 2em;
 	text-align: end;
 }
-div.biggiebtn { position: absolute; top: 1.5em; left: 0.1em; height: 1em; width: 4em; background-color: rgba(200,200,180,0.4); }
-span.biggiebtn { position: absolute; top: -0.2em; font-weight:bold; font-size:120%; text-shadow: 0.1em 0.07em 0 white; z-index: 900;}
-.biggie { scale: 3; position: absolute; z-index: 999; }
-.etit { z-index: 90; font-size: 80%; }
+.btnsrow { position: absolute; top: 1.5em; left: 0.1em; height: 1em; width: 4em; background-color: rgba(200,200,180,0.4); }
+.oth_CL .btnsrow, div[data-state='load'] .btnsrow, div[data-state='wait'] .btnsrow, div[data-state='err'] .btnsrow { display: none; }
+.JPG_CL .btnsrow { width: 3em; }
+.JPG_CL .rotbtn { display: none; }
+.JPG_CL .eepvx, .JPG_CL .eeraw, .oth_CL .eeraw, .oth_CL .eejpg, .RAW_CL .eepvx, .RAW_CL .eejpg { display: none; }
+.biggiebtn { position: absolute; top: -0.2em; font-weight:bold; font-size:120%; text-shadow: 0.1em 0.07em 0 white; z-index: 900;}
+.picbig { scale: 3; position: absolute; z-index: 999; border: 3px solid white; left: 66%;}
+.pictitle { z-index: 90; font-size: 80%; }
 .picdeleted:before {
 	content: '\1f6c7';
 	position: relative;
@@ -2142,7 +2147,7 @@ handle1imb(url) {
 /* *************************************** HTML helper class *************************************** */
 class ImBCHtmlOut extends ImBCBase {
 /* Indentation out */
-// ImBCBase: from the back itself
+// ImBCHtmlOut: from the back itself
 untypedclasses = []; // elements for groups with type for visual browser
 typedclasses = []; // elements for groups with type for visual browser
 imbeles = [];
@@ -2542,24 +2547,6 @@ showbrowser() {
 	window.onresize = () => this.#startloadimg();
 	this.#startloadimg();
 }
-/* ImBCHtml: visual browser: create the wait dots */
-#createwait(el) {
-	const waitdiv = document.createElement('div');
-	waitdiv.classList.add('eepvw');
-	const d1 = document.createElement('span');
-	d1.classList.add('blink');
-	d1.append('.');
-	waitdiv.append(d1);
-	const d2 = document.createElement('span');
-	d2.classList.add('blink2');
-	d2.append('.');
-	waitdiv.append(d2);
-	const d3 = document.createElement('span');
-	d3.classList.add('blink3');
-	d3.append('.');
-	waitdiv.append(d3);
-	el.entry.append(waitdiv);
-}
 /* ImBCHtml: visual browser: prepare the browser display, group the stuff */
 aftercheck() {
 	document.getElementById('piccnt').innerHTML = '' + this.imbpics.length;
@@ -2734,12 +2721,9 @@ buildtree() {
 		const p = e.entry;
 		if (!p.parentElement) continue;
 		// not waiting or error at all?
-		if (p.querySelector('.eepvx')) continue;
+		if (e.type === 'oth') continue;
 		if (e.nonewerr) continue;
-		let nwaitandnerr = true;
-		if (p.querySelector('.eepvw') && p.querySelector('.eepvw').style['display'] !== 'none') nwaitandnerr = false;
-		if (p.querySelector('.errimg') && p.querySelector('.errimg').style['display'] !== 'none') nwaitandnerr = false;
-		if (nwaitandnerr) continue;
+		if (p.attributes.getNamedItem('data-state').value !== 'err' && p.attributes.getNamedItem('data-state').value !== 'wait') continue;
 		let dispno = false;
 		let f = p.parentElement;
 		while (f) {
@@ -2760,7 +2744,7 @@ buildtree() {
 		if (rect.top < window.innerHeight && rect.bottom > 0 && rect.width > 0)
 			return e;
 		if (alsooutside && rect.bottom > 0 && rect.width > 0)
-			if ((p.querySelector('.eepvw') && p.querySelector('.eepvw').style['display'] !== 'none') ||
+			if ((p.querySelector('.waitdiv') && p.querySelector('.waitdiv').style['display'] !== 'none') ||
 				(p.querySelector('.errimg') && p.querySelector('.errimg').style['display'] !== 'none'))
 			return e;
 	}
@@ -2808,27 +2792,29 @@ buildtree() {
 }
 /* ImBCHtml: visual browser: recursive fold close */
 #doclose(gr, recurse) {
-	gr.entry.querySelector('.ggtt').classList.add('ggttclosed');
-	gr.entry.querySelector('.ggtt').classList.remove('ggttopen');
-	gr.entry.classList.add('ggclosed');
-	gr.entry.classList.remove('ggopen');
+	const e = gr.entry;
+	e.querySelector('.ggtt').classList.add('ggttclosed');
+	e.querySelector('.ggtt').classList.remove('ggttopen');
+	e.classList.add('ggclosed');
+	e.classList.remove('ggopen');
 	if (recurse && gr.smembers)
-		for (const e of gr.smembers) this.#doclose(e, recurse);
+		for (const m of gr.smembers) this.#doclose(m, recurse);
 }
 /* ImBCHtml: visual browser: recursive fold open */
 #doopen(gr, recurse, nontop) {
-	gr.entry.querySelector('.ggtt').classList.remove('ggttclosed');
-	gr.entry.querySelector('.ggtt').classList.add('ggttopen');
-	gr.entry.classList.remove('ggclosed');
-	gr.entry.classList.add('ggopen');
+	const e = gr.entry;
+	e.querySelector('.ggtt').classList.remove('ggttclosed');
+	e.querySelector('.ggtt').classList.add('ggttopen');
+	e.classList.remove('ggclosed');
+	e.classList.add('ggopen');
 	if (recurse && gr.smembers)
-		for (const e of gr.smembers) this.#doopen(e, recurse, true);
+		for (const m of gr.smembers) this.#doopen(m, recurse, true);
 	if (gr.fmembers) {
-		for (const e of gr.fmembers) {
-			if (e.entry) e.entry.remove();
+		for (const m of gr.fmembers) {
+			if (m.entry) m.entry.remove();
 		}
 	}
-	if (gr.fmembers && !gr.entry.querySelector('.ee'))
+	if (gr.fmembers && !e.querySelector('.onepic'))
 		this.#addimgsorted(gr);
 	if (nontop !== true) this.#startloadimg();
 }
@@ -2860,30 +2846,19 @@ topreccheck(force) {
 /* ImBCHtml: visual browser: text and controls on top of a group */
 #buildtitle(gr) {
 	let t = '', s = gr.title;
-	const d = document.createElement('div');
-	d.classList.add('ggtt');
-	d.classList.add('ggttclosed');
-	const pluss = document.createElement('span');
-	pluss.classList.add('ggttplus');
-	pluss.append('[+]');
+	const d = document.querySelector('#titlet').content.querySelector('.titletop').cloneNode(true); //document.createElement('div');
+	const pluss = d.querySelector('.ggttp');
 	pluss.onclick = () => {
 		this.#doopen(gr, false);
 	};
-	d.append(pluss);
-	const pluspluss = document.createElement('span');
-	pluspluss.classList.add('ggttplus');
+	const pluspluss = d.querySelector('.ggttpp');
 	if (gr.haschildren) {
-		pluspluss.append('[++]');
+		pluspluss.innerHTML = '[++]';
 		pluspluss.onclick = () => {
 			this.#doopen(gr, true);
 		};
 	}
-	else
-		pluspluss.append(' ');
-	d.append(pluspluss);
-	const minuss = document.createElement('span');
-	minuss.classList.add('ggttminus');
-	minuss.append('[‒]');
+	const minuss = d.querySelector('.ggttm');
 	minuss.onclick = () => {
 		d.classList.remove('ggttopen');
 		d.classList.add('ggttclosed');
@@ -2891,59 +2866,30 @@ topreccheck(force) {
 		d.parentElement.classList.add('ggclosed');
 		this.#startloadimg();
 	};
-	d.append(minuss);
-	const nixs = document.createElement('span');
-	nixs.classList.add('ggttminus');
-	nixs.append(' ');
-	d.append(nixs);
+	const sp = d.querySelector('.gtype');
 	if (s.startsWith('JPG') || s.startsWith('RAW')) {
-		const sp = document.createElement('span');
-		sp.classList.add('gtype');
 		sp.append(' ' + s.substring(0,3) + ': ');
-		sp.style['display'] = 'none';
-		d.append(sp);
 		s = s.substring(3);
 	} else if (s.startsWith('oth')) {
-		const sp = this.genspan('main.types.notpic');
-		sp.classList.add('gtype');
-		sp.style['display'] = 'none';
-		d.append(sp);
+		sp.setAttribute('data-myxlkey', 'main.types.notpic');
 		s = s.substring(3);
 	}
 	if (s.length > 0) t += (' ' + s);
-	const tit = document.createElement('span');
-	tit.classList.add('grtit');
+	const tit = d.querySelector('.grtit');
 	tit.append(t);
-	d.append(tit);
-	d.append(' - ');
-	d.append(this.genspan('main.selected'));
-	d.append(': ');
-	const selno = document.createElement('span');
-	selno.id = 'SEL_' + gr.title;
-	selno.classList.add('selnumber');
-	selno.append('0');
-	d.append(selno);
-	d.append(' / ');
-	const totno = document.createElement('span');
-	totno.id = 'TOT_' + gr.title;
+	const selno = d.querySelector('.selnumber');
+	//selno.id = 'SEL_' + gr.title;
+	const totno = d.querySelector('.totno');
+	//totno.id = 'TOT_' + gr.title;
 	totno.append('' + this.#countfiles(gr));
-	d.append(totno);
-	d.append(' - ');
-	const texttit = document.createElement('label');
-	const cb = document.createElement('input');
-	cb.type = 'checkbox';
-	cb.checked = false;
-	cb.classList.add('selcb');
+	const texttit = d.querySelector('label');
+	const cb = d.querySelector('.selcb');
 	cb.id = 'SELC_' + gr.title;
-	cb.classList.add('selcb');
 	texttit.htmlFor = cb.id;
-	texttit.append(cb);
-	texttit.append(this.#genspantitle('browser.selall.tooltip', 'browser.selall'));
 	cb.onclick = (ev) => {
 		if (cb.checked) this.#reccheck(true, gr);
 		else this.#reccheck(false, gr);
 	};
-	d.append(texttit);
 
 	gr.entry.append(d);
 	if (!gr.haschildren) {
@@ -2967,10 +2913,11 @@ topreccheck(force) {
 				smembers: []
 			};
 			cl.entry = document.createElement('div');
-			cl.entry.id = 'gg_' + u.title.substring(0,len) + '_X';
-			cl.entry.classList.add('gg');
-			cl.entry.classList.add('ggclosed');
-			cl.entry.classList.add('gl' + (curlevel - 1));
+			const ce = cl.entry;
+			ce.id = 'gg_' + u.title.substring(0,len) + '_X';
+			ce.classList.add('gg');
+			ce.classList.add('ggclosed');
+			ce.classList.add('gl' + (curlevel - 1));
 			for (const x of arr.filter((o) => u.title.substring(0,len) === o.title.substring(0,len))) {
 				x.ischild = true;
 				// todo: sort when open
@@ -3025,58 +2972,51 @@ topreccheck(force) {
 }
 /* ImBCHtml: visual browser: fill a html div into an imbele */
 #displaydiv(e) {
-	e.entry = document.createElement('div');
-	if (e.wasselected) e.entry.classList.add('picprocd');
-	e.entry.id = 'div_' + e.raw + '_X';
-	e.entry.classList.add('ee');
-	e.entry.classList.add(e.type);
+	let x = document.querySelector('#onepict');
+	e.entry = document.querySelector('#onepict').content.querySelector('.onepic').cloneNode(true);
+	const ne = e.entry;
+	if (e.wasselected) ne.classList.add('picprocd');
+	ne.id = 'div_' + e.raw + '_X';
+	ne.classList.add(e.type + '_CL');
 	let rawname = ImBCBase.basename(e.url);
-	e.entry.classList.add('ET_' + e.type + rawname.substring(0,12));
-	e.entry.classList.add('EY_' + rawname.substring(0,12));
-	const topline = document.createElement('div');
-	const texttit = document.createElement('label');
-	texttit.classList.add('etit');
-	const check = document.createElement('input');
-	check.type = 'checkbox';
-	check.name = 'cb_sel_' + e.raw + '_X';
+	//e.entry.classList.add('ET_' + e.type + rawname.substring(0,12));
+	//e.entry.classList.add('EY_' + rawname.substring(0,12));
+	const topline = ne.querySelector('.pictitle');
+	const check = ne.querySelector('.pictitle input');
+	//check.name = 'cb_sel_' + e.raw + '_X';
 	check.id = 'cb_sel_' + e.raw + '_X';
-	check.classList.add('selcb');
 	check.checked = e.selected;
 	check.onclick = () => {
 		e.selected = check.checked;
 		this.#updateselections();
 	};
-	texttit.htmlFor = check.id;
-	texttit.append(check);
-	texttit.append(rawname);
-	topline.append(texttit);
-	let rotbtn;
+	topline.htmlFor = check.id;
+	topline.append(rawname);
+	const dlbtn = ne.querySelector('.dlbtn');
+	if (e.type === 'oth') {
+		topline.append(dlbtn);
+		dlbtn.classList.remove('disabled');
+		dlbtn.classList.remove('biggiebtn');
+		ne.querySelector('.waitdiv').style['display'] = 'none';
+		ne.setAttribute('data-state', 'ok');
+	}
+	let rotbtn = ne.querySelector('.rotbtn');
 	if (e.type === 'RAW') {
 		e.rot = 1;
-		rotbtn = document.createElement('span');
-		rotbtn.id = 'rot_b_' + e.raw + '_Y';
+		//rotbtn.id = 'rot_b_' + e.raw + '_Y';
 		rotbtn.classList.add('disabled');
-		rotbtn.append('\u21b7');
-		rotbtn.classList.add('biggiebtn');
-		rotbtn.style['left'] = '2.4em';
 		rotbtn.onclick = () => {
 			if (!this.debugflag && rotbtn.classList.contains('disabled')) return;
 			let j = ImBCBase.oriecw.indexOf(e.rot);
 			j = ((j + 1) % 4);
 			e.rot = ImBCBase.oriecw[j];
 			e.preview.style['display'] = 'none';
-			e.entry.querySelector('.eepvw').style['display'] = '';
-			e.entry.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
-			e.entry.querySelector('.dlbtn').classList.add('disabled');
+			ne.querySelector('.waitdiv').style['display'] = '';
+			ne.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
+			ne.querySelector('.dlbtn').classList.add('disabled');
+			ne.setAttribute('data-state', 'wait');
 			this.#startloadimg();
 		};
-	}
-	const dlbtn = document.createElement('span');
-	dlbtn.id = 'dl_b_' + e.raw;
-	dlbtn.classList.add('dlbtn');
-	if (e.type !== 'oth') dlbtn.classList.add('disabled');
-	dlbtn.append('\u2193');
-	if (e.type === 'RAW') {
 		dlbtn.onclick = (ev) => {
 			if (!this.debugflag && dlbtn.classList.contains('disabled')) return;
 			if (this.actnum !== this.allfiles.length) return;
@@ -3094,110 +3034,75 @@ topreccheck(force) {
 			document.getElementById('infile').disabled = true;
 			this.shownormal();
 			//this.#handleone(e.rot);
-			e.entry.classList.add('picprocd');
+			ne.classList.add('picprocd');
 		};
-	} else {
+	}
+	//dlbtn.id = 'dl_b_' + e.raw;
+	else {
 		dlbtn.onclick = (ev) => {
 			if (!this.debugflag && dlbtn.classList.contains('disabled')) return;
 			const outel = document.getElementById('result');
 			outel.download = rawname;
 			outel.href = e.url;
 			outel.click();
-			e.entry.classList.add('picprocd');
+			ne.classList.add('picprocd');
 		};
 	}
-	let bigbtn, biggiediv;
-	if (e.type === 'oth') topline.append(dlbtn);
-	else {
-		bigbtn = document.createElement('span');
-		bigbtn.classList.add('biggiebtn');
-		bigbtn.style['left'] = '0.4em';
-		bigbtn.style['margin-top'] = '-0.5em';
-		bigbtn.innerHTML = '\u26f6';
-		bigbtn.classList.add('disabled');
-		bigbtn.onclick = (ev) => {
-			e.preview.classList.add('biggie');
-		};
-		biggiediv = document.createElement('div');
-		biggiediv.classList.add('biggiebtn');
-		biggiediv.append(bigbtn);
-		biggiediv.append(dlbtn);
-	}
+	let bigbtn = ne.querySelector('.bigbtn')
+	bigbtn.classList.add('disabled');
+	bigbtn.onclick = (ev) => {
+		e.preview.classList.add('picbig');
+	};
 	
-	e.entry.append(topline);
-	// rotate button if raw
-
-	const errdiv = document.createElement('div');
-	errdiv.classList.add('errimg');
-	errdiv.append('X');
-	errdiv.style['display'] = 'none';
-	e.entry.append(errdiv);
 	if (e.type === 'RAW') {
-		e.preview = document.createElement('canvas');
-		e.preview.classList.add('eeraw');
-		e.preview.classList.add('eewait');
+		ne.setAttribute('data-state', 'wait');
+		e.preview = ne.querySelector('.eeraw');
+		//e.preview.classList.add('eewait');
 		e.preview.style['display'] = 'none';
-		e.preview.style['height'] = '120px';
 		e.preview.onmouseout = (ev) => {
-			e.preview.classList.remove('biggie');
+			e.preview.classList.remove('picbig');
 		}
-		e.entry.append(e.preview);
-		dlbtn.classList.add('biggiebtn');
-		dlbtn.style['left'] = '1.7em';
-		dlbtn.style['margin-top'] = '-0.1em';
-		biggiediv.append(rotbtn);
-		e.entry.append(biggiediv);
-		this.#createwait(e);
 	} else if (e.type === 'JPG') {
-		e.preview = document.createElement('img');
-		e.preview.classList.add('eeimg');
-		e.preview.classList.add('eewait');
+		e.preview = ne.querySelector('.eejpg');
+		ne.setAttribute('data-state', 'wait');
+		//e.preview.classList.add('eewait');
 		e.preview.style['display'] = 'none';
-		e.preview.style['height'] = '120px';
 		e.preview.onmouseout = (ev) => {
-			e.preview.classList.remove('biggie');
+			e.preview.classList.remove('picbig');
 		}
-		e.entry.append(e.preview);
-		e.entry.append(biggiediv);
-		dlbtn.classList.add('biggiebtn');
-		dlbtn.style['left'] = '1.7em';
-		dlbtn.style['margin-top'] = '-0.1em';
-		this.#createwait(e);
-	} else {
-		e.preview = document.createElement('div');
-		e.preview.classList.add('eepvx');
-		e.preview.append('?');
-		e.entry.append(e.preview);
 	}
 }
 /* ImBCHtml: visual browser: image loader call */
 #loadimg(url, type, to, rot) {
-	if (to.entry.querySelector('.eepvx')
-			|| (to.entry.querySelector('.eepvw')?.style['display'] === 'none' && to.entry.querySelector('.errimg')?.style['display'] === 'none')
+	const e = to.entry;
+	if ((e.attributes.getNamedItem('data-state').value !== 'err' && e.attributes.getNamedItem('data-state').value !== 'wait')
 			|| (type === 'oth')) {
 		if (this.debugflag) console.log('ldr aa lnx ' + to.raw);
 		this.#loadnextimg();
 		return;
 	}
-	to.entry.querySelector('.errimg').style['display'] = 'none';
-	to.entry.querySelector('.eepvw').style['display'] = '';
+	e.setAttribute('data-state', 'load');
+	e.querySelector('.errimg').style['display'] = 'none';
+	e.querySelector('.waitdiv').style['display'] = '';
 	to.preview.style['display'] = 'none';
 	if (type === 'JPG') {
 		to.preview.onload = (ev) => {
-			to.entry.querySelector('.eepvw').style['display'] = 'none';
+			e.setAttribute('data-state', 'ok');
+			e.querySelector('.waitdiv').style['display'] = 'none';
 			to.preview.style['display'] = '';
 			to.preview.style['width'] = to.preview.woidth * (120 / to.preview.height);
-			to.entry.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.remove('disabled') });
-			to.entry.querySelector('.dlbtn').classList.remove('disabled');
+			e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.remove('disabled') });
+			e.querySelector('.dlbtn').classList.remove('disabled');
 			if (this.debugflag) console.log('ldr j f lnx ' + to.raw);
 			this.#loadnextimg();
 		};
 		to.preview.onerror = (ev) => {
+			e.setAttribute('data-state', 'err');
 			console.log('JPEG preview load error for ' + url + ' ' + JSON.stringify(ev));
-			to.entry.querySelector('.eepvw').style['display'] = 'none';
-			to.entry.querySelector('.errimg').style['display'] = '';
-			to.entry.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
-			to.entry.querySelector('.dlbtn').classList.add('disabled');
+			e.querySelector('.waitdiv').style['display'] = 'none';
+			e.querySelector('.errimg').style['display'] = '';
+			e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
+			e.querySelector('.dlbtn').classList.add('disabled');
 			if (this.debugflag) console.log('ldr j e lnx ' + to.raw);
 			to.nonewerr = true;
 			this.#loadnextimg();
@@ -3208,9 +3113,10 @@ topreccheck(force) {
 		let afterloadcalled = false;
 		if (this.debugflag) console.log('li raw start bpv ' + url);
 		this.buildpreview((this.debugflag && this.useraw) ? this.useraw : url, () => { /* on ok: */
-			to.entry.querySelector('.eepvw').style['display'] = 'none';
-			to.entry.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.remove('disabled') });
-			to.entry.querySelector('.dlbtn').classList.remove('disabled');
+			e.setAttribute('data-state', 'ok');
+			e.querySelector('.waitdiv').style['display'] = 'none';
+			e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.remove('disabled') });
+			e.querySelector('.dlbtn').classList.remove('disabled');
 			to.preview.style['display'] = '';
 			if (this.debugflag) console.log('ldr r f ' + to.raw);
 			if (!afterloadcalled) {
@@ -3221,10 +3127,11 @@ topreccheck(force) {
 				console.log('ldr r ff lnyy ' + to.raw);
 			}
 		}, () => { /* on err: */
-			to.entry.querySelector('.eepvw').style['display'] = 'none';
-			to.entry.querySelector('.errimg').style['display'] = '';
-			to.entry.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
-			to.entry.querySelector('.dlbtn').classList.add['disabled'];
+			e.setAttribute('data-state', 'err');
+			e.querySelector('.waitdiv').style['display'] = 'none';
+			e.querySelector('.errimg').style['display'] = '';
+			e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
+			e.querySelector('.dlbtn').classList.add['disabled'];
 			to.nonewerr = true;
 			if (this.debugflag) console.log('ldr r e ' + to.raw);
 			if (!afterloadcalled) {
@@ -4075,5 +3982,39 @@ Replaceraw: <input type="file" onchange="imbc.replraw()" accept=".raw,.RAW" id="
 </div>
 <!-- this is invisible -->
 <a style="display: none;" id="result">x</a>
+<!-- templates -->
+<template id="onepict">
+	<div class="onepic">
+		<div class="labelholder">
+			<label class="pictitle">
+				<input type="checkbox" class="selcb">
+			</label>
+		</div>
+		<div class="errimg" style="display:none;">X</div>
+		<img class="eejpg" style="display:none; height: 120px;">
+		<div class="eepvx">?</div>
+		<canvas class="eeraw" style="height: 120px; display:none;"></canvas>
+		<div class="waitdiv">
+			<span class="blink">.</span><span class="blink2">.</span><span class="blink3">.</span>
+		</div>
+		<div class="btnsrow">
+			<span class="biggiebtn bigbtn" style="left: 0.4em; margin-top: -0.5em;">⛶</span>
+			<span class="dlbtn biggiebtn" style="font-size: 133%;">↓</span>
+			<span class="biggiebtn rotbtn" style="left: 2.4em;">↷</span>
+		</div>
+	</div>
+</template>
+<template id="titlet">
+	<div class="ggtt ggttclosed titletop">
+		<span class="ggttplus ggttp">[+]</span><span class="ggttplus ggttpp"></span><span class="ggttminus ggttm">[‒]</span><span class="ggttminus ggttmm"> </span>
+		<span class="gtype" style="display: none;"></span><span class="grtit"></span> - 
+		<span data-myxlkey="main.selected"></span>: 
+		<span class="selnumber">0</span> / <span class="totno"></span> - 
+		<label>
+			<input type="checkbox" class="selcb">
+			<span data-myxlkey="browser.selall" data-mytitlexlkey="browser.selall.tooltip"></span>
+		</label>
+	</div>
+</template>
 </body>
 </html>
