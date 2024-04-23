@@ -1,13 +1,14 @@
 {
-	"COMMENT1": "The keys are the options without leading -. Supported keys in here: r, f, R, J, O, np, nc, co, l, cr, d",
+	"COMMENT1": "This is the configuration file for the node.js version imbraw2dng.js",
 	"COMMENT2": "This file can be edited and placed in the directory where you run node imbraw2dng.js but renamed '.imbraw2dng.json'",
 	"COMMENT3": "Or it can be placed in the home directory but renamed '.imbraw2dng.json'",
 	"COMMENT4": "Or it can be placed in ${XDG_CONFIG_HOME}/.config/imbraw2dng.json",
+	"COMMENT5": "The keys are the options without leading -. Supported keys in here: r, f, R, J, O, np, nc, co, l, cr, d",
 	"r": "options without value (r, f, R, J, O, np, nc, co) can have any trueish value",
 	"R": "options without value (r, f, R, J, O, np, nc, co) can have any trueish value",
-	"COMMENT5": "For options that take a value (-l, -cr, -d), the value must be errm well the value for the key",
+	"COMMENT6": "For options that take a value (-l, -cr, -d), the value must be errm well the value for the key",
 	"l": "de",
 	"cr": "any UTF-8 string for copyright",
 	"d": "/use/your/preferred/target/directory",
-	"COMMENT6": "Unsupported options in here are -n -h -fla -flx --"
+	"COMMENT7": "Unsupported options in here are -n -h -fla -flx --"
 }
