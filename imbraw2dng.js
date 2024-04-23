@@ -53,6 +53,7 @@ DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS 
 class IFDOut {
 /* Indentation out */
 camprofptr = -1; // first of the pointers, they are sequential, accessed by TIFFOut
+exifdataptr = -1; // the exif ifd, pointers therein must be adjusted
 // rest is private:
 #entrys = [];
 #currentoff = 0;
@@ -78,7 +79,7 @@ addEntry(tag, type, value) {
 	let l = value.length;
 	if (type === 'ASCII') l++;
 	else if (type === 'RATIONAL' || type === 'SRATIONAL') l /= 2;
-	if (tag === 273 || tag === 330) { /* special cases */
+	if (tag === 273 || tag === 330 || tag === 34665) { /* special cases */
 		let e = {
 			tag: tag,
 			type: x.t,
@@ -197,10 +198,12 @@ getData(offset) {
 		this.#data.set(parr, ioff+2);
 		TIFFOut.writeinttoout(parr, i.count, 0);
 		this.#data.set(parr, ioff+4);
-		if (i.tag === 273) { /* strip offsets is set here, subifd (-2) and private stuff outside */
+		if (i.tag === 273) { /* strip offsets is set here, subifd (-2), exififd and private stuff outside */
 			let parr = [ 0, 0, 0, 0 ];
 			TIFFOut.writeinttoout(parr, offset, 0);
 			this.#data.set(parr, ioff + 8);
+		} else if (i.tag === 34665) { /* exififd */
+			this.exifdataptr = offset + ioff + 8;
 		} else if (i.tag === 50933) { // camera profiles
 			if (undefined !== i.value) // only one, profile ptr fits into value
 				this.camprofptr = offset + ioff + 8;
@@ -250,6 +253,7 @@ class TIFFOut {
 #cameraprofiles = [];
 #currentifd = null;
 #data = new Uint8Array(20000000);
+#exifdata = null;
 /* TIFFOut: add an ifd  (will set this as current IFD) */
 addIfd(issub) {
 	if (null !== this.#currentifd) {
@@ -265,6 +269,11 @@ addSubIfd() {
 		this.#currentifd.addEntry(330, 'LONG', [ 0xFFFFFFFE ]); /* subifd, special */
 	}
 	this.addIfd(true);
+}
+/* TIFFOut: add exif ifd */
+addExifIfd(data) {
+	this.#currentifd.addEntry(34665, 'LONG', [ 0 ]); /* Exif ifd */
+	this.#exifdata = data;
 }
 /* TIFFOut: add image data to current ifd */
 addImageStrip(typ, view, width, height) {
@@ -289,8 +298,9 @@ static types = [
 	{ n: 'SSHORT', t: 8, l: 2 },
 	{ n: 'SLONG', t: 9, l: 4 },
 	{ n: 'SRATIONAL', t: 10, l: 8 },
-	//{ n: 'FLOAT', t: 11, l: 4 },
-	//{ n: 'DOUBLE', t: 12, l: 8 },
+	// currently only for parsing exif:
+	{ n: 'FLOAT', t: 11, l: 4 },
+	{ n: 'DOUBLE', t: 12, l: 8 },
 ];
 /* TIFFOut: map string type to tiff id */
 static tToNum(type) {
@@ -336,6 +346,41 @@ getData() {
 			lastlen += cpd.length;
 		}
 	}
+	if (-1 !== this.#ifds[0].exifdataptr && this.#exifdata !== null) {
+		TIFFOut.writeinttoout(this.#data, lastlen, this.#ifds[0].exifdataptr);
+		let lastbase = lastlen, eoff = lastlen+2, aoff = 2;
+		let nent = TIFFOut.readshorta(this.#exifdata,0);
+		TIFFOut.writeshorttoout(this.#data, nent, lastlen);
+		lastlen += 2;
+		for (let j = 0; j < nent; j++) {
+			let tag = TIFFOut.readshorta(this.#exifdata, aoff+0);
+			let typ = TIFFOut.readshorta(this.#exifdata, aoff+2);
+			let num = TIFFOut.readinta(this.#exifdata, aoff+4);
+			let addr = TIFFOut.readinta(this.#exifdata, aoff+8);
+			aoff += 12;
+			let ee = TIFFOut.types.find(e => e.t === typ);
+			if (undefined === ee) {
+				console.log('EXIFOUT: TYP NOT FOUND ' + typ);
+				continue;
+			}
+			TIFFOut.writeshorttoout(this.#data, tag, lastlen);
+			lastlen += 2;
+			TIFFOut.writeshorttoout(this.#data, typ, lastlen);
+			lastlen += 2;
+			TIFFOut.writeinttoout(this.#data, num, lastlen);
+			lastlen += 4;
+			if (ee.l * num <= 4) {
+				TIFFOut.writeinttoout(this.#data, addr, lastlen);
+			}
+			else {
+				// correct the addresse
+				TIFFOut.writeinttoout(this.#data, addr + lastbase, lastlen);
+			}
+			lastlen += 4;
+		}
+		for (let k = aoff; k<this.#exifdata.length; k++)
+			this.#data[lastlen++] = this.#exifdata[k];
+	}
 	return this.#data.slice(0, lastlen);
 }
 // TIFFOut: add extra camera profile (will set this as current IFD), must go behind all other IFDs
@@ -353,6 +398,30 @@ createCamProf(name) {
 	camprofbuf.set(d, 8);
 	return camprofbuf.slice(0, 8 + d.length);
 }
+/* TIFFOut: helper to read dng or exif */
+static readshort(view, off) {
+	let res = view.getUint8(off);
+	res += (256 * view.getUint8(off+1));
+	return res;
+}
+/* TIFFOut: helper to read dng or exif */
+static readint(view, off) {
+	let res = TIFFOut.readshort(view, off);
+	res += (65536 * TIFFOut.readshort(view,off+2));
+	return res;
+}
+/* TIFFOut: helper to read dng or exif */
+static readshorta(arr, off) {
+	let res = arr[off];
+	res += (256 * arr[off+1]);
+	return res;
+}
+/* TIFFOut: helper to read dng or exif */
+static readinta(arr, off) {
+	let res = TIFFOut.readshorta(arr, off);
+	res += (65536 * TIFFOut.readshorta(arr,off+2));
+	return res;
+}
 /* Indentation in - end of class TIFFOut */
 }
 /* *************************************** TIFFOut E N D *************************************** */
@@ -361,18 +430,6 @@ class ImBCBackw {
 /* Indentation out */
 constructor (imbcout) {
 	this.imbc = imbcout;
-}
-/* ImBCBackw: backward: helper to read dng */
-static readshort(view, off) {
-	let res = view.getUint8(off);
-	res += (256 * view.getUint8(off+1));
-	return res;
-}
-/* ImBCBackw: backward: helper to read dng */
-static readint(view, off) {
-	let res = ImBCBackw.readshort(view, off);
-	res += (65536 * ImBCBackw.readshort(view,off+2));
-	return res;
 }
 /* ImBCBackw: backward: handle dng like raw */
 static parseDng(f, onok, onerr) {
@@ -388,28 +445,28 @@ static parseDng(f, onok, onerr) {
 		return;
 	}
 	const v = new DataView(f.data);
-	const ifd = ImBCBackw.readint(v, 4);
+	const ifd = TIFFOut.readint(v, 4);
 	const zz = ImBCBase.infos.findIndex((v, i, o) => v.size === ifd - 8);
-	const nent = ImBCBackw.readshort(v, ifd);
+	const nent = TIFFOut.readshort(v, ifd);
 	let subifdstart = -1, rawstripstart = -1, datalen = -1;
 	let off = ifd+2;
-	if (ImBCBackw.readshort(v, 2) !== 42 || ImBCBackw.readshort(v,0) !== 18761 /* 0x4949 */ || zz === -1) {
+	if (TIFFOut.readshort(v, 2) !== 42 || TIFFOut.readshort(v,0) !== 18761 /* 0x4949 */ || zz === -1) {
 		// seek sub ifd then therein the stripoffsets
 		for (let k=0; k<((nent<50)? nent: 0); k++) {
-			let tag = ImBCBackw.readshort(v, off);
+			let tag = TIFFOut.readshort(v, off);
 			if (tag === 330) {
-				subifdstart = ImBCBackw.readint(v, off+8);
+				subifdstart = TIFFOut.readint(v, off+8);
 				break;
 			}
 			off += 12;
 		}
 		if (-1 !== subifdstart) {
-			let subnent = ImBCBackw.readshort(v, subifdstart);
+			let subnent = TIFFOut.readshort(v, subifdstart);
 			off = subifdstart + 2;
 			for (let j=0; j<((subnent < 50)? subnent: 0); j++) {
-				let stag = ImBCBackw.readshort(v, off);
+				let stag = TIFFOut.readshort(v, off);
 				if (stag === 273) {
-					rawstripstart = ImBCBackw.readint(v, off+8);
+					rawstripstart = TIFFOut.readint(v, off+8);
 					break;
 				}
 				off += 12;
@@ -1005,6 +1062,10 @@ static texts = { // actually const
 			en: 'Add preview thumbnail to DNG',
 			de: 'Kleines Vorschaubild im DNG',
 			fr: 'Petite image d\'aperçu en DNG'
+		},
+		addexif: {
+			en: 'Add EXIF data from $$0',
+			de: 'Gebe EXIF Daten von $$0 dazu'
 		}
 	},
 	preview: {
@@ -1298,6 +1359,8 @@ static texts = { // actually const
 mylang = 'en';
 withpreview = true;
 copyright = '';
+// { name: 'xxx.jpg', data: array-ifd... }
+#exififds = [];
 
 // ImBCBase: fake long exposure:
 #addimgs = [];
@@ -1323,15 +1386,15 @@ earliestraw='9999';
 latestraw='0000';
 
 // generic user input timestamp (any prefix)
-//           y      y     y     y      .      m     m     .      d      d      .      h     h      .      m     m      .      s     s
+//                  y      y     y     y      .      m     m     .      d      d      .      h     h      .      m     m      .      s     s
 static tsregex = /^[02-3]([0-9]([0-9]([0-9](([^0-9])[01]([0-9](([^0-9])[0123]([0-9](([^0-9])[012]([0-9](([^0-9])[0-5]([0-9](([^0-9])[0-5]([0-9])?)?)?)?)?)?)?)?)?)?)?)?)?$/ // actually const
 /* ImBCBase: Data for the Imback variants and exif stuff */
 // generic imb filename format
-//            y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s            EXT
+//                   y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s     EXT
 static fnregex = /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])(.*[.])([^.]*)$/ // actually const
 // generic imb filename format, only timestamp
-//             y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s
-static fnregexx = /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])/ // actually const
+//                    y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s      .        n
+static fnregexx = /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-9]*)/ // actually const
 static orients = [ '', 'none', '', 'upsidedown', '', '', 'clockwise', '', 'counterclockwise' ]; // actually const
 static oriecw = [ 1, 6, 3, 8 ]; // clockwise indices // actually const
 static types = [ "unknown", "ImB35mm", "MF 6x7 ", "MF6x4.5", "MF 6x6 " ]; // all length 7, actually const
@@ -1590,6 +1653,90 @@ findlang(i) {
 		this.debugflag = true;
 	return this.mylang;
 }
+/* ImBCBase: extract exif from jpeg */
+xexif(name, view) {
+	if (view.getUint8(0) !== 0xff) return;
+	if (view.getUint8(1) !== 0xd8) return;
+	if (view.getUint8(2) !== 0xff) return; /* APP1 */
+	if (view.getUint8(3) !== 0xe1) return;
+	if (view.getUint8(6) !== 0x45) return; /* E */
+	if (view.getUint8(7) !== 0x78) return; /* x */
+	if (view.getUint8(8) !== 0x69) return; /* i */
+	if (view.getUint8(9) !== 0x66) return; /* f */
+	if (view.getUint8(12) !== 0x49) return; /* I */
+	if (view.getUint8(13) !== 0x49) return; /* I */
+	if (view.getUint8(14) !== 0x2a) return; /* magic */
+	if (view.getUint8(15) !== 0x00) return; /* magic */
+	let baseoff = 12, off = 12+4+4+2, exifoff = -1;
+	let nent = TIFFOut.readshort(view, 12+4+4);
+	for (let j=0; j<nent; j++) {
+		let tag = TIFFOut.readshort(view, off);
+		if (tag === 34665) {
+			exifoff = TIFFOut.readint(view, off+8);
+			break;
+		}
+		off += 12;
+	}
+	if (exifoff === -1) return;
+	// but how long is it?
+	let maxdat = 0;
+	off = exifoff + baseoff;
+	nent = TIFFOut.readshort(view, off);
+	off += 2;
+	for (let j=0; j<nent; j++) {
+		// seek end of data for tags
+		let typ = TIFFOut.readshort(view, off+2);
+		let num = TIFFOut.readint(view, off+4);
+		let addr = TIFFOut.readint(view, off+8);
+		off += 12;
+		let ee = TIFFOut.types.find(e => e.t === typ);
+		if (undefined === ee) {
+			console.log('EXIF: TYP NOT FOUND ' + typ);
+			continue;
+		}
+		if (ee.l * num <= 4)
+			continue;
+		if (addr < exifoff) {
+			console.log('EXIF OFFSET BEFORE IFD');
+			continue;
+		}
+		if (addr + ee.l * num > maxdat) maxdat = addr + ee.l * num;
+		// we correct the addresses so that 0 is start of exif ifd
+		addr = addr - exifoff;
+		view.setUint8(off-4, addr % 256);
+		addr = Math.floor(addr / 256);
+		view.setUint8(off-3, addr % 256);
+		addr = Math.floor(addr / 256);
+		view.setUint8(off-2, addr % 256);
+		addr = Math.floor(addr / 256);
+		view.setUint8(off-1, addr % 256);
+		addr = Math.floor(addr / 256);
+	}
+	if (maxdat === 0) maxdat = off;
+	if (maxdat - off > 10000) return;
+	let na = [];
+	for (let z = baseoff+exifoff; z<maxdat; z++)
+		na.push(view.getUint8(z));
+	this.#exififds.push( { name: name, data: na } );
+}
+/* ImBCBase: time values from filename */
+static nametotime(name) {
+	let res = ImBCBase.fnregexx.exec(name);
+	if (res !== null) {
+		const yr = Number.parseInt(res[1]);
+		const mon = Number.parseInt(res[3]);
+		const day = Number.parseInt(res[5]);
+		const hr = Number.parseInt(res[7]);
+		const min = Number.parseInt(res[9]);
+		const sec = Number.parseInt(res[11]);
+		const nn = Number.parseInt(res[13]);
+		const dd = new Date(yr, mon -1, day, hr, min, sec);
+		const datestr = "" + yr + ":" + ((mon < 10) ? "0":"") + mon + ":" + ((day < 10) ? "0":"") + day + " "+
+			((hr < 10) ? "0":"") + hr + ":" + ((min < 10) ? "0":"") + min + ":" + ((sec < 10) ? "0":"") + sec;
+		return { date: dd, datestr: datestr, nn: nn, yr: yr, mon: mon, day: day, hr: hr, min: min, sec: sec }
+	}
+	else return {};
+}
 /* ImBCBase: actual processing function for one file */
 handleone(orientation, fromloop) {
 	const f = (this.debugflag && this.useraw) ? this.useraw : this.allfiles[this.actnum];
@@ -1625,6 +1772,7 @@ handleone(orientation, fromloop) {
 			for (let j=0; j<contents.byteLength; j++) {
 				out[j] = view.getUint8(j);
 			}
+			if (rawname.substring(rawname.length - 4).toUpperCase() === '.JPG') this.xexif(rawname, view);
 			this.writefile(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out, fromloop);
 		}
 		reader.onerror = (evt) => {
@@ -1675,24 +1823,15 @@ handleone(orientation, fromloop) {
 		typ = ImBCBase.infos[zz].typ;
 	}
 	const rawnamearr = new TextEncoder().encode(rawname);
-	let datestr="", dateok = false;
+	let dateok = false;
 	/*// date?
 	if (undefined !== f.datestr) {
 		datestr = f.datestr;
 		dateok = true;
 	}*/
-	let res = ImBCBase.fnregexx.exec(rawname);
-	if (res !== null && !dateok) {
-		const yr = Number.parseInt(res[1]);
-		const mon = Number.parseInt(res[3]);
-		const day = Number.parseInt(res[5]);
-		const hr = Number.parseInt(res[7]);
-		const min = Number.parseInt(res[9]);
-		const sec = Number.parseInt(res[11]);
-		datestr = "" + yr + ":" + ((mon < 10) ? "0":"") + mon + ":" + ((day < 10) ? "0":"") + day + " "+
-			((hr < 10) ? "0":"") + hr + ":" + ((min < 10) ? "0":"") + min + ":" + ((sec < 10) ? "0":"") + sec;
-		dateok = true;
-	}
+	let { date, datestr, nn } = ImBCBase.nametotime(rawname);
+	if (date && datestr) dateok = true;
+	else datestr = '';
 
 	const reader = f.imbackextension ? f : new FileReader();
 	reader.onload = (evt) => {
@@ -1784,6 +1923,25 @@ handleone(orientation, fromloop) {
 			// do UTF-8 bytes instead of ASCII
 			let bytes = new TextEncoder().encode(this.copyright);
 			ti.addEntry(33432, 'BYTE', bytes); /* copyright */
+		}
+		// do we have exifdata ?
+		let cand = [];
+		if (dateok) {
+			let odate = date, onn = nn;
+			for (const e of this.#exififds) {
+				let { date, nn } = ImBCBase.nametotime(e.name);
+				if (date) {
+					//console.log('DGT ' + date.getTime() + ' OGT ' + odate.getTime() + ' nn ' + nn + ' onn ' + onn);
+					if (Math.abs(date.getTime() - odate.getTime()) < 5000 && Math.abs(nn -onn) < 2) {
+						cand.push( { e: e, td: date.getTime() - odate.getTime() });
+					}
+				}
+			}
+			if (cand.length) {
+				let e =  cand.sort((a, b) => a.td - b.td)[0].e;
+				this.mappx(0, 'process.addexif', e.name);
+				ti.addExifIfd(e.data);
+			}
 		}
 		ti.addEntry(50707, 'BYTE', [ 1, 2, 0, 0 ]); /* DNG Backward Version */
 		ti.addEntry(50717, 'LONG', [ 255 ]); /* White level */
