@@ -102,7 +102,7 @@ About colours, please also read [Processing the DNG](README#processing-the-dng).
 If you ever need to revert the original RAW from the DNG (e.g. to do the conversion again with a never version), this is possbile using [imbdng2raw.html](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html)
 
 The EXIF data in the JPEG files from ImB is of limited use, but if you would like to add it to your DNG files, this is possible. Process the JPEG first and then the corresponding RAW. 
-Corresponding is defined as: time difference < 5 sec and counter (last part of filename) difference 1.
+Corresponding is defined as: time difference < 5 sec and counter (last part of filename) difference 1. It is not neccessary to be directly consecutive, first all JPEGs and then the RAWs should do it.
 
 If you want to simulate a long "Long exposure" by several shorter ones to avoid the specific noise, you can do so by using the `-fla`/`-flx` parameters on node.js. 
 Or set the checkbox below the blue field on the HTML page and then drag and drop the RAW-files you want to stack up together into the blue field.

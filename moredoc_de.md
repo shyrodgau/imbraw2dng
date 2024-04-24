@@ -112,10 +112,10 @@ Bezüglich Farben, bitte [Verarbeitung des DNG](README_de#verarbeitung-des-dng) 
 
 ## Mehr Tricks und Details
 
-Falls jemals das Origina-RAW wieder benötigt wird (z.B. um es mit einer neueren Version nochmal zu konvertieren), ist das mit [imbdng2raw.html](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html) möglich.
+Falls jemals das Original-RAW wieder benötigt wird (z.B. um es mit einer neueren Version nochmal zu konvertieren), ist das mit [imbdng2raw.html](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html) möglich.
 
 Die EXIF Daten in den JPEG Bildern von ImB sind nur eingeschränkt nützlich, aber wenn sie in den DNG Dateien drin gewünscht werden, ist das möglich. Zuerst das JPEG und dann das passende RAW verarbeiten.
-"Passend" ist definiert als: Zeitunterschied < 5 sec. und Unterschied des Zähler (letzter Teil des Dateinamens) eins.
+"Passend" ist definiert als: Zeitunterschied < 5 sec. und Unterschied des Zähler (letzter Teil des Dateinamens) eins. Muss nicht direkt aufeinanderfolgend sein, erst alle JPEGs und dann die RAWs sollte tun.
 
 Wenn du eine lange Aufnahme durch mehrere kürzere simulieren willst, und das spezifische Rauschen zu vermeiden, geht das bei node.js mit den `-fla`/`-flx` Parametern.
 Oder im HTML das Häkchen unter dem blauen Bereich setzen und dann die aufzuaddierenden RAW-Dateien zusammen in das blaue Feld ziehen und ablegen.
