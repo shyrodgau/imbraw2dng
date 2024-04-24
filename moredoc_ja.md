@@ -4,7 +4,7 @@
 これは商用サポートのないフリー ソフトウェア ([0-clause BSD-License](LICENSE.txt)) です。
 
 ここでは: [インストール](#インストール) - [国際化](#国際化) - を見つけることができます。
-[使用法](#使用法) - [ImBack での閲覧](#imback-での閲覧) - [node.js を使用したコマンドライン経由](#nodejs-を使用したコマンドライン経由) - [どのように動作するか？](#どのように動作するか)
+[使用法](#使用法) - [ImBack での閲覧](#imback-での閲覧) - [node.js を使用したコマンドライン経由](#nodejs-を使用したコマンドライン経由) - [どのように動作するか？](#どのように動作するか) - [A lot more tricks and details](#a-lot-more-tricks-and-details)
 
 簡易ドキュメント: [こちら](https://shyrodgau.github.io/imbraw2dng/README_ja)
 
@@ -13,7 +13,7 @@ oder [AUF DEUTSCH](https://shyrodgau.github.io/imbraw2dng/moredoc_de)
 
 ## インストール
 
-現在のバージョンは [V3.6.0_039c9b4 - save preferences](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.6.0_039c9b4). 
+現在のバージョンは [V3.7.3_615a7f5 - can add jpeg's EXIF to DNG](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.7.3_615a7f5). 
 注: エラーが見つかった場合、新しい翻訳が提供された場合、または新しい画像形式が追加された場合は、さらに開発を進めます。
 
 ファイル [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.html) fを PC にコピーするか、 
@@ -91,3 +91,16 @@ DNG は TIFF に似た形式で、主に元の画像のスキャンラインの�
 ファイル名の日付が有効であると思われる場合は、その日付にタグ (EXIFTAG_DATETIMEORIGINAL、TIFFTAG_DATETIME) が追加されます。 MF ImB からのものである場合、カラー フィルター アレイは異なります。
 
 色については、[DNGの処理](README_ja#DNG-の処理)もお読みください。
+
+
+## A lot more tricks and details
+
+If you ever need to revert the original RAW from the DNG (e.g. to do the conversion again with a never version), this is possbile using [imbdng2raw.html](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html)
+
+The EXIF data in the JPEG files from ImB is of limited use, but if you would like to add it to your DNG files, this is possible. Process the JPEG first and then the corresponding RAW. 
+Corresponding is defined as: time difference < 5 sec and counter (last part of filename) difference 1.
+
+If you want to simulate a long "Long exposure" by several shorter ones to avoid the specific noise, you can do so by using the `-fla`/`-flx` parameters on node.js. 
+Or set the checkbox below the blue field on the HTML page and then drag and drop the RAW-files you want to stack up together into the blue field.
+
+Your preferred settings can be saved in a configuration file for node.js (see above) or in the browser when you load it from a web server (internet or from ImB).

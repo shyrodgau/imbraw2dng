@@ -4,7 +4,7 @@
 Dies ist freie Software ([0-Klausel-BSD-Lizenz](LICENSE.txt)) ohne kommerzielle Unterstützung.
 
 Hier gibts: [Installation](#installation) - [Internationalisierung](#internationalisierung) -    
-[Benutzung](#benutzung) - [Gucken auf ImBack selbst](#gucken-auf-imback-selbst) - [Per Kommandozeile mit node.js](#kommandozeile-mit-nodejs) - [Wie funktioniert es](#wie-funktioniert-es)
+[Benutzung](#benutzung) - [Gucken auf ImBack selbst](#gucken-auf-imback-selbst) - [Per Kommandozeile mit node.js](#kommandozeile-mit-nodejs) - [Wie funktioniert es](#wie-funktioniert-es) - [Mehr Tricks und Details](#mehr-tricks-und-details)
 
 Kurz-Doku: [hier](https://shyrodgau.github.io/imbraw2dng/README_de)
 
@@ -13,7 +13,7 @@ or [IN ENGLISH](https://shyrodgau.github.io/imbraw2dng/moredoc)
 
 ## Installation
 
-Die aktuelle Version ist [V3.6.0_039c9b4 - speicherbare Voreinstellungen](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.6.0_039c9b4). 
+Die aktuelle Version ist [V3.7.3_615a7f5 - EXIF vom JPEG kann ins RAW](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.7.3_615a7f5). 
 Anmerkung: Weiterentwicklung wenn Fehler gefunden, neue Übersetzung beigesteuert, oder neues Bildformat.
 
 Die Datei [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.html) auf den PC kopieren oder aus der 
@@ -109,4 +109,15 @@ eingebaut. Bei Dateien von MF ist die Farbfilter-Matrix (Color Filter Array) and
 
 Bezüglich Farben, bitte [Verarbeitung des DNG](README_de#verarbeitung-des-dng) lesen.
 
+
+## Mehr Tricks und Details
+
 Falls jemals das Origina-RAW wieder benötigt wird (z.B. um es mit einer neueren Version nochmal zu konvertieren), ist das mit [imbdng2raw.html](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html) möglich.
+
+Die EXIF Daten in den JPEG Bildern von ImB sind nur eingeschränkt nützlich, aber wenn sie in den DNG Dateien drin gewünscht werden, ist das möglich. Zuerst das JPEG und dann das passende RAW verarbeiten.
+"Passend" ist definiert als: Zeitunterschied < 5 sec. und Unterschied des Zähler (letzter Teil des Dateinamens) eins.
+
+Wenn du eine lange Aufnahme durch mehrere kürzere simulieren willst, und das spezifische Rauschen zu vermeiden, geht das bei node.js mit den `-fla`/`-flx` Parametern.
+Oder im HTML das Häkchen unter dem blauen Bereich setzen und dann die aufzuaddierenden RAW-Dateien zusammen in das blaue Feld ziehen und ablegen.
+
+Persönliche Voreinstellungen können für node.js in einer Konfigurationsdatei (siehe oben) gespeichert werden, oder im Webbrowser falls die Seite vom Netz geladen wurde (Internet oder von ImB).
