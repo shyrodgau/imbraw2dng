@@ -266,7 +266,7 @@ addEntry(tag, type, value) {
 				this.#currentoff += 8;
 			}
 		}
-		//console.log('After ptr tag ' + tag +  ' type ' + type + ' * ' + l + ' :' + this.#currentoff);
+		else console.log('IFD trying to write unknown typ ' + type);
 		this.#entrys.push(e);
 	}
 }
@@ -1741,7 +1741,7 @@ findlang(i) {
 }
 /* ImBCBase: extract exif from jpeg */
 xexif(name, view) {
-	if (view.getUint8(0) !== 0xff) return;
+	if (view.getUint8(0) !== 0xff) return; /* JFIF */
 	if (view.getUint8(1) !== 0xd8) return;
 	if (view.getUint8(2) !== 0xff) return; /* APP1 */
 	if (view.getUint8(3) !== 0xe1) return;
@@ -1982,7 +1982,7 @@ handleone(orientation, fromloop) {
 			this.mappx(0, 'process.addpreview');
 			/* **** PREVIEW image **** */
 			let scale = 32;
-			if (w <= 4096 && h <= 4096) scale=16;
+			if (w < 4096 && h < 4096) scale=16;
 			ti.addImageStrip(1, ImBCBase.buildpvarray(view, typ, w, h, ori, scale), Math.floor(transp ? (h+scale-1)/scale:(w+scale-1)/scale), Math.floor(transp ? (w+scale-1)/scale: (h+scale-1)/scale));
 			ti.addEntry(258 , 'SHORT', [ 8, 8, 8 ]); /* BitsPerSample */
 			ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression - none */
@@ -2003,20 +2003,7 @@ handleone(orientation, fromloop) {
 		if (dateok) {
 			ti.addEntry(306, 'ASCII', datestr); /* datetime */
 			ti.addEntry(36867, 'ASCII', datestr); /* Original date time */
-		}
-		ti.addEntry(50706, 'BYTE', [ 1, 2, 0, 0 ]); /* DNG Version */
-		if (this.copyright != '') {
-			// do UTF-8 bytes instead of ASCII if necessary
-			let bytes = new TextEncoder().encode(this.copyright);
-			//console.log('cr str ' + this.copyright.length + ' bytes ' + bytes.length);
-			if (bytes.length === this.copyright.length)
-				ti.addEntry(33432, 'ASCII', this.copyright); /* copyright */
-			else
-				ti.addEntry(33432, 'BYTE', bytes); /* copyright */
-		}
-		// do we have exifdata ?
-		let cand = [];
-		if (dateok) {
+			// do we have exifdata ?
 			let odate = date, onn = nn;
 			for (const e of this.#exififds) {
 				let { date, nn } = ImBCBase.nametotime(e.name);
@@ -2032,6 +2019,16 @@ handleone(orientation, fromloop) {
 				this.mappx(0, 'process.addexif', e.name);
 				ti.addExifIfd(e.data);
 			}
+		}
+		ti.addEntry(50706, 'BYTE', [ 1, 2, 0, 0 ]); /* DNG Version */
+		if (this.copyright != '') {
+			// do UTF-8 bytes instead of ASCII if necessary
+			let bytes = new TextEncoder().encode(this.copyright);
+			//console.log('cr str ' + this.copyright.length + ' bytes ' + bytes.length);
+			if (bytes.length === this.copyright.length)
+				ti.addEntry(33432, 'ASCII', this.copyright); /* copyright */
+			else
+				ti.addEntry(33432, 'BYTE', bytes); /* copyright */
 		}
 		ti.addEntry(50707, 'BYTE', [ 1, 2, 0, 0 ]); /* DNG Backward Version */
 		ti.addEntry(50717, 'LONG', [ 255 ]); /* White level */
