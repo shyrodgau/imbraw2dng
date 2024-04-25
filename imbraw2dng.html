@@ -417,7 +417,7 @@ getData() {
 	}
 	if (this.#cameraprofiles.length > 0) {
 		let camprofarr = [];
-		for (const j of this.#cameraprofiles) camprofarr.push(1);
+		for (let j=0; j<this.#cameraprofiles.length; j++) camprofarr.push(1);
 		this.#ifds[0].addEntry(50933, 'LONG', camprofarr); /* camera profiles pointer */
 	}
 	TIFFOut.writeshorttoout(this.#data, 0x4949, 0); // magics
@@ -442,7 +442,7 @@ getData() {
 	}
 	if (-1 !== this.#ifds[0].exifdataptr && this.#exifdata !== null) {
 		TIFFOut.writeinttoout(this.#data, lastlen, this.#ifds[0].exifdataptr);
-		let lastbase = lastlen, eoff = lastlen+2, aoff = 2;
+		let lastbase = lastlen, aoff = 2;
 		let nent = TIFFOut.readshorta(this.#exifdata,0);
 		TIFFOut.writeshorttoout(this.#data, nent, lastlen);
 		lastlen += 2;
@@ -534,13 +534,13 @@ static parseDng(f, onok, onerr) {
 			f.data = evt.target.result;
 			ImBCBackw.parseDng(f, onok, onerr);
 		}
-		reader.onerror = (evt) => { onerr(f.name); };
+		reader.onerror = () => { onerr(f.name); };
 		reader.readAsArrayBuffer(f);
 		return;
 	}
 	const v = new DataView(f.data);
 	const ifd = TIFFOut.readint(v, 4);
-	const zz = ImBCBase.infos.findIndex((v, i, o) => v.size === ifd - 8);
+	const zz = ImBCBase.infos.findIndex(v => v.size === ifd - 8);
 	const nent = TIFFOut.readshort(v, ifd);
 	let subifdstart = -1, rawstripstart = -1, datalen = -1;
 	let off = ifd+2;
@@ -567,7 +567,7 @@ static parseDng(f, onok, onerr) {
 			}
 			if (-1 !== rawstripstart) {
 				datalen = subifdstart - rawstripstart;
-				const zzz = ImBCBase.infos.findIndex((v, i, o) => v.size === datalen);
+				const zzz = ImBCBase.infos.findIndex(v => v.size === datalen);
 				if (-1 === zzz) {
 					this.imbc.appmsg('Works only for originally created DNGs.', true);
 					return onerr(f.name);
@@ -625,7 +625,7 @@ handleone(fx) {
 	}
 	if (undefined === f.size) {
 		setTimeout(() => {
-		  this.imbc.resolver(f, (url, fx, rot) => {
+		  this.imbc.resolver(f, (url, fx) => {
 				this.imbc.allfiles[this.imbc.actnum] = fx;
 				this.handleone(fx);
 			}, (url) => {
@@ -656,9 +656,7 @@ handleone(fx) {
 		this.imbc.stats.error++;
 		return this.imbc.handlenext();
 	}
-	let w, h, mode = "??";
-	let typ = 0;
-	const zz = ImBCBase.infos.findIndex((v, i, o) => v.size === f.size);
+	const zz = ImBCBase.infos.findIndex(v => v.size === f.size);
 	if (zz !== -1) {
 		this.imbc.appmsg("[" + (1 + this.imbc.actnum) + " / " + this.imbc.totnum + "] ");
 		const reader = f.imbackextension ? f : new FileReader();
@@ -752,13 +750,6 @@ static texts = { // actually const
 			   selectdng: { en: 'Select orig. DNG' },
 			   drophere: { en: 'Drop DNGs here' }
 	    },
-		file: {
-			de: 'Datei',
-			en: 'File',
-			fr: 'Fiche',
-			ru: 'файл',
-			ja: 'ファイル'
-		},
 		help: {
 			de: '? Hilfe Doku',
 			en: '? Help Doc',
@@ -1618,7 +1609,7 @@ xl0(str, base) {
 	}
 }
 /* ImBCBase: substitute in translation */
-subst(r, arg0, arg1, arg2, arg3, base) {
+subst(r, arg0, arg1, arg2, arg3) {
 	if (r.indexOf('$$0') !== -1 && arg0 !== undefined) {
 		r = r.substring(0, r.indexOf('$$0')) + arg0 + r.substring(r.indexOf('$$0') + 3);
 		if (r.indexOf('$$1') !== -1 && arg1 !== undefined) {
@@ -1721,7 +1712,10 @@ prxl(key, el) {
 				console.log(out);
 			}
 		}
-		} catch (e) { if (!document) require('process').exit(); }
+		} catch (e) {
+			console.log(JSON.stringify(e));
+			if (!document) require('process').exit();
+		}
 	}
 	for (const ne of Object.keys(el).filter((k) => ((k !== 'en') && (k !== 'de') && (typeof(el[k]) !== 'string')))) {
 		this.prxl(key + '.' + ne, el[ne]);
@@ -1729,17 +1723,15 @@ prxl(key, el) {
 }
 /* ImBCBase: language helper */
 findlang(i) {
-	let found = 0, langchg = false;
+	let found = 0;
 	for (const l of ImBCBase.alllangs) {
 		if (i.toUpperCase() === l.toUpperCase()) {
-			if (this.mylang !== l) langchg = true;
 			this.mylang = l;
 			found = 1;
 			break;
 		}
 	}
 	if (!found) {
-		if (this.mylang !== 'en') langchg = true;
 		this.mylang = 'en';
 		console.log('Unknown language(2): ' + i);
 	}
@@ -1881,7 +1873,7 @@ handleone(orientation, fromloop) {
 	}
 	let w, h, mode = "??";
 	let typ = 0;
-	const zz = ImBCBase.infos.findIndex((v, i, o) => v.size === f.size);
+	const zz = ImBCBase.infos.findIndex(v => v.size === f.size);
 	if (zz === -1) {
 		if (this.totnum > 1) {
 			this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
@@ -1953,7 +1945,7 @@ handleone(orientation, fromloop) {
 					for (const k of this.#addimgs) {
 						try {
 							res += k.getUint8(j);
-						} catch (e) { }
+						} catch { ; }
 					}
 					if (this.addscaleall) {
 						res = Math.floor(res / npic);
@@ -2246,9 +2238,9 @@ handle1imb(url) {
 					error: false,
 					processed: false
 			});
-			if (this.untypedclasses.findIndex((v, i, o) => v === cl) === -1)
+			if (this.untypedclasses.findIndex(v => v === cl) === -1)
 				this.untypedclasses.push(cl);
-			if (this.typedclasses.findIndex((v, i, o) => v === ('RAW' + cl)) === -1)
+			if (this.typedclasses.findIndex(v => v === ('RAW' + cl)) === -1)
 				this.typedclasses.push('RAW' + cl);
 		}
 	}
@@ -2271,9 +2263,9 @@ handle1imb(url) {
 					error: false,
 					processed: false
 			});
-			if (this.untypedclasses.findIndex((v, i, o) => v === cl) === -1)
+			if (this.untypedclasses.findIndex(v => v === cl) === -1)
 				this.untypedclasses.push(cl);
-			if (this.typedclasses.findIndex((v, i, o) => v === ('JPG' + cl)) === -1)
+			if (this.typedclasses.findIndex(v => v === ('JPG' + cl)) === -1)
 				this.typedclasses.push('JPG' + cl);
 		}
 	}
@@ -2296,9 +2288,9 @@ handle1imb(url) {
 					error: false,
 					processed: false
 			});
-			if (this.untypedclasses.findIndex((v, i, o) => v === cl) === -1)
+			if (this.untypedclasses.findIndex(v => v === cl) === -1)
 				this.untypedclasses.push(cl);
-			if (this.typedclasses.findIndex((v, i, o) => v === ('oth' + cl)) === -1)
+			if (this.typedclasses.findIndex(v => v === ('oth' + cl)) === -1)
 				this.typedclasses.push('oth' + cl);
 		}
 	}
@@ -2325,7 +2317,7 @@ constructor() {
 	super();
 }
 /* ImBCHtmlOut: output one thing via browser */
-writefile(name, type, okmsg, arr1, fromloop, renameidx) {
+writefile(name, type, okmsg, arr1, fromloop) {
 	let b = new Blob([ arr1 ], { type: type });
 	const outel = document.getElementById('result');
 	outel.download = name;
@@ -2468,7 +2460,7 @@ handleonex() {
 			this.setnopv();
 		}
 		else {
-			const zz = ImBCBase.infos.findIndex((v, i, o) => v.size === f.size);
+			const zz = ImBCBase.infos.findIndex(v => v.size === f.size);
 			if (zz === -1 && undefined !== f.size) {
 				/* no preview */
 				this.#qappx('main.file.rawunknown', rawname, f.size);
@@ -2665,12 +2657,12 @@ fselected() {
 		this.handleonex();
 	}
 }
-/* ImBCHtml: translation helper with title */
+/* ImBCHtml: translation helper with title * /
 #genspantitle(title, key, arg0, arg1, arg2, arg3) {
 	const s = this.genspan(key, arg0, arg1, arg2, arg3);
 	s.setAttribute('data-mytitlexlkey', title);
 	return this.xl1(s);
-}
+}*/
 /* ImBCHtml: preview: switch preview config to jpeg img */
 setjpegpv() {
 	document.getElementById('previewwait').style['display'] = 'none';
@@ -2764,7 +2756,7 @@ aftercheck() {
 				y.inuntyped = true;
 			}
 		}
-		this.untypedclasses.splice(this.untypedclasses.findIndex((v,i,o) => v === x), 1, cl);
+		this.untypedclasses.splice(this.untypedclasses.findIndex(v => v === x), 1, cl);
 	}
 	for (const x of this.typedclasses) {
 		const cl = {
@@ -2785,7 +2777,7 @@ aftercheck() {
 				y.intyped = true;
 			}
 		}
-		this.typedclasses.splice(this.typedclasses.findIndex((v,i,o) => v === x), 1, cl);
+		this.typedclasses.splice(this.typedclasses.findIndex(v => v === x), 1, cl);
 	}
 	this.#higherclasses(this.untypedclasses, 10, 5);
 	this.#higherclasses(this.typedclasses, 13, 5);
@@ -2893,7 +2885,6 @@ buildtree() {
 				dispno = true;
 				break;
 			}
-			let y = f.classList;
 			if (f.classList.contains('ggclosed')) {
 				dispno = true;
 				break;
@@ -3039,7 +3030,7 @@ topreccheck(force) {
 	if (s.length > 0) t += (' ' + s);
 	const tit = d.querySelector('.grtit');
 	tit.append(t);
-	const selno = d.querySelector('.selnumber');
+	//const selno = d.querySelector('.selnumber');
 	//selno.id = 'SEL_' + gr.title;
 	const totno = d.querySelector('.totno');
 	//totno.id = 'TOT_' + gr.title;
@@ -3048,7 +3039,7 @@ topreccheck(force) {
 	const cb = d.querySelector('.selcb');
 	cb.id = 'SELC_' + gr.title;
 	texttit.htmlFor = cb.id;
-	cb.onclick = (ev) => {
+	cb.onclick = (/*ev*/) => {
 		if (cb.checked) this.#reccheck(true, gr);
 		else this.#reccheck(false, gr);
 	};
@@ -3134,7 +3125,6 @@ topreccheck(force) {
 }
 /* ImBCHtml: visual browser: fill a html div into an imbele */
 #displaydiv(e) {
-	let x = document.querySelector('#onepict');
 	e.entry = document.querySelector('#onepict').content.querySelector('.onepic').cloneNode(true);
 	const ne = e.entry;
 	if (e.wasselected) ne.classList.add('picprocd');
@@ -3179,11 +3169,11 @@ topreccheck(force) {
 			ne.setAttribute('data-state', 'wait');
 			this.#startloadimg();
 		};
-		dlbtn.onclick = (ev) => {
+		dlbtn.onclick = (/*ev*/) => {
 			if (!this.debugflag && dlbtn.classList.contains('disabled')) return;
 			if (this.actnum !== this.allfiles.length) return;
 			let selecteds = [ e ];
-			this.fromvisbrows = true;
+			this.#fromvisbrows = true;
 			this.stepmode = 0;
 			this.totnum = 1;
 			this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
@@ -3201,7 +3191,7 @@ topreccheck(force) {
 	}
 	//dlbtn.id = 'dl_b_' + e.raw;
 	else {
-		dlbtn.onclick = (ev) => {
+		dlbtn.onclick = (/*ev*/) => {
 			if (!this.debugflag && dlbtn.classList.contains('disabled')) return;
 			const outel = document.getElementById('result');
 			outel.download = rawname;
@@ -3212,7 +3202,7 @@ topreccheck(force) {
 	}
 	let bigbtn = ne.querySelector('.bigbtn')
 	bigbtn.classList.add('disabled');
-	bigbtn.onclick = (ev) => {
+	bigbtn.onclick = (/*ev*/) => {
 		e.preview.classList.add('picbig');
 	};
 	
@@ -3221,7 +3211,7 @@ topreccheck(force) {
 		e.preview = ne.querySelector('.eeraw');
 		//e.preview.classList.add('eewait');
 		e.preview.style['display'] = 'none';
-		e.preview.onmouseout = (ev) => {
+		e.preview.onmouseout = (/*ev*/) => {
 			e.preview.classList.remove('picbig');
 		}
 	} else if (e.type === 'JPG') {
@@ -3229,13 +3219,13 @@ topreccheck(force) {
 		ne.setAttribute('data-state', 'wait');
 		//e.preview.classList.add('eewait');
 		e.preview.style['display'] = 'none';
-		e.preview.onmouseout = (ev) => {
+		e.preview.onmouseout = (/*ev*/) => {
 			e.preview.classList.remove('picbig');
 		}
 	}
 }
 /* ImBCHtml: visual browser: image loader call */
-#loadimg(url, type, to, rot) {
+#loadimg(url, type, to/*, rot*/) {
 	const e = to.entry;
 	if ((e.attributes.getNamedItem('data-state').value !== 'err' && e.attributes.getNamedItem('data-state').value !== 'wait')
 			|| (type === 'oth')) {
@@ -3248,7 +3238,7 @@ topreccheck(force) {
 	e.querySelector('.waitdiv').style['display'] = '';
 	to.preview.style['display'] = 'none';
 	if (type === 'JPG') {
-		to.preview.onload = (ev) => {
+		to.preview.onload = (/*ev*/) => {
 			e.setAttribute('data-state', 'ok');
 			e.querySelector('.waitdiv').style['display'] = 'none';
 			to.preview.style['display'] = '';
@@ -3387,8 +3377,8 @@ dodelete(list) {
 			this.#deletephase ++;
 			document.getElementById('delprogmsg').innerHTML = deletephs[this.#deletephase % deletephs.length];
 			const pv = list[0].preview;
-			//if (pv)
-			//	pv.classList.add('picdeleted');
+			if (pv)
+				pv.classList.add('picdeleted');
 			list.splice(0,1);
 			this.dodelete(list);
 			xhr.onerror = undefined;
@@ -3503,16 +3493,16 @@ savesettings() {
 trylang(i) {
 	document.getElementById('langsel').value = this.findlang(i);
 }
-/* ImBCHtml: debug */
+/* ImBCHtml: debug * /
 #prgr(gr, indent) {
 	const str = '                ';
 	if (undefined === gr.title) return;
 	console.log(str.substring(0,2*indent), gr.title, '   ', this.#countfiles(gr));
 	if (undefined === gr.smembers) return;
 	for (const s of gr.smembers) {
-		prgr(s, indent + 1);
+		this.#prgr(s, indent + 1);
 	}
-}
+}*/
 /* ImBCHtml: only debug */
 dodebug() {
 	const fr = new FileReader();
@@ -3550,15 +3540,14 @@ drophandler(ev) {
 	this.actnum = 0;
 	if (ev.dataTransfer.items) {
 		this.totnum = [...ev.dataTransfer.items].length;
-		[...ev.dataTransfer.items].forEach((item, i) => {
+		[...ev.dataTransfer.items].forEach((item/*, i*/) => {
 			if (item.kind === "file") {
-				const file = item.getAsFile();
 				this.allfiles.push(item.getAsFile());
 			}
 		});
 	} else {
 		this.totnum = [...ev.dataTransfer.files].length;
-		[...ev.dataTransfer.files].forEach((file, i) => {
+		[...ev.dataTransfer.files].forEach((file/*, i*/) => {
 			this.allfiles.push(file);
 		});
 	}
@@ -3591,13 +3580,13 @@ buildpreview(f, onok, onerr, orientation, targ, afterload) {
 		window.setTimeout(() => {
 		  this.resolver(f, (url, fx) => {
 				this.buildpreview(fx, onok, onerr, orientation, targ, afterload);
-			}, (url) => {
+			}, (/*url*/) => {
 				onerr(f);
 		  });
 		});
 		return;
 	}
-	const zz = ImBCBase.infos.findIndex((v, i, o) => v.size === f.size);
+	const zz = ImBCBase.infos.findIndex(v => v.size === f.size);
 	if (zz === -1) {
 		console.log('preview: unsupported size ' + f.size + ' of ' + f.name);
 		onerr(f);
@@ -3638,7 +3627,7 @@ buildpreview(f, onok, onerr, orientation, targ, afterload) {
 		ctx.putImageData(new ImageData(new Uint8ClampedArray(outpix), transpose ? h8: w8, transpose? w8 :h8), 0, 0);
 		onok(f);
 	};
-	reader.onerror = (evt) => {
+	reader.onerror = (/*evt*/) => {
 		console.log('preview: error reading ' + f.name);
 		onerr();
 	};
@@ -3753,8 +3742,8 @@ handlenext(fromloop) {
 			document.getElementById('droptarget').style['display'] = '';
 			document.getElementById('infile').disabled = false;
 			document.getElementById('infileb').disabled = false;
-			if (this.fromvisbrows) {
-				this.fromvisbrows = false;
+			if (this.#fromvisbrows) {
+				this.#fromvisbrows = false;
 				setTimeout(() => {
 						this.showbrowser();
 						this.#startloadimg();
@@ -3796,7 +3785,7 @@ checkimb(type) {
 	if (!window.location.href.startsWith('http://192.168.1.254')) return;
 	document.getElementById('onimback').style['display'] = '';
 	const xhr = new XMLHttpRequest();
-	xhr.onloadend = (event) => {
+	xhr.onloadend = (/*event*/) => {
 		if (xhr.status === 200) {
 			const sel2 = xhr.responseXML.querySelectorAll('a');
 			for (const r of sel2) {
@@ -3814,7 +3803,7 @@ checkimb(type) {
 		}
 		else if (!type) this.checkimb(true);
 	};
-	xhr.onerror = (event) => {
+	xhr.onerror = (/*event*/) => {
 		if (!type) this.checkimb(true);
 		else if (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0) {
 			this.aftercheck();
@@ -3854,7 +3843,7 @@ initsettings() {
 				document.getElementById('settingsset').setAttribute('data-myxlarg0',window.location.origin);
 				document.getElementById('setsettingsurl').setAttribute('data-myxlarg0',window.location.origin);
 			}
-		} catch (e) {
+		} catch  {
 			document.getElementById('onlyhttp').style['display'] = '';
 			document.getElementById('setsettings').style['display'] = 'none';
 			document.getElementById('settingsset').style['display'] = 'none';
@@ -3896,7 +3885,7 @@ resolver(url, onok, onerr, notfirst) {
 		return;
 	}
 	let xhr = new XMLHttpRequest();
-	xhr.onload = (evt) => {
+	xhr.onload = (/*evt*/) => {
 		let len = JSON.parse(xhr.getResponseHeader('content-length'));
 		if (0 >= len) len=1;
 		if (notfirst && (url.substring(url.length -4).toUpperCase() === '.RAW') && len > 10000) {
@@ -3963,7 +3952,6 @@ constructor() {
 /* ImBCHtmlBackw: browserdisplay: handler for file selection input */
 fselected() {
 	if (this.actnum !== this.allfiles.length) return;
-    const stepprev = document.getElementById('steppreview');
 	const el = document.getElementById('infileb');
 	this.totnum = el.files.length;
 	this.actnum = 0;
@@ -3986,15 +3974,14 @@ drophandler(ev) {
 	this.actnum = 0;
 	if (ev.dataTransfer.items) {
 		this.totnum = [...ev.dataTransfer.items].length;
-		[...ev.dataTransfer.items].forEach((item, i) => {
+		[...ev.dataTransfer.items].forEach((item/*, i*/) => {
 			if (item.kind === "file") {
-				const file = item.getAsFile();
 				this.allfiles.push(item.getAsFile());
 			}
 		});
 	} else {
 		this.totnum = [...ev.dataTransfer.files].length;
-		[...ev.dataTransfer.files].forEach((file, i) => {
+		[...ev.dataTransfer.files].forEach((file/*, i*/) => {
 			this.allfiles.push(file);
 		});
 	}
@@ -4011,7 +3998,7 @@ prevdef(ev) {
 	ev.preventDefault();
 }
 /* ImBCHtmlBackw: continue with the next file if any */
-handlenext(fromloop) {
+handlenext(/*fromloop*/) {
 	if (this.actnum < this.allfiles.length - 1) {
 		this.actnum++;
 		this.handleonex();

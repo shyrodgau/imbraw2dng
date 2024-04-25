@@ -323,7 +323,7 @@ getData() {
 	}
 	if (this.#cameraprofiles.length > 0) {
 		let camprofarr = [];
-		for (const j of this.#cameraprofiles) camprofarr.push(1);
+		for (let j=0; j<this.#cameraprofiles.length; j++) camprofarr.push(1);
 		this.#ifds[0].addEntry(50933, 'LONG', camprofarr); /* camera profiles pointer */
 	}
 	TIFFOut.writeshorttoout(this.#data, 0x4949, 0); // magics
@@ -348,7 +348,7 @@ getData() {
 	}
 	if (-1 !== this.#ifds[0].exifdataptr && this.#exifdata !== null) {
 		TIFFOut.writeinttoout(this.#data, lastlen, this.#ifds[0].exifdataptr);
-		let lastbase = lastlen, eoff = lastlen+2, aoff = 2;
+		let lastbase = lastlen, aoff = 2;
 		let nent = TIFFOut.readshorta(this.#exifdata,0);
 		TIFFOut.writeshorttoout(this.#data, nent, lastlen);
 		lastlen += 2;
@@ -440,13 +440,13 @@ static parseDng(f, onok, onerr) {
 			f.data = evt.target.result;
 			ImBCBackw.parseDng(f, onok, onerr);
 		}
-		reader.onerror = (evt) => { onerr(f.name); };
+		reader.onerror = () => { onerr(f.name); };
 		reader.readAsArrayBuffer(f);
 		return;
 	}
 	const v = new DataView(f.data);
 	const ifd = TIFFOut.readint(v, 4);
-	const zz = ImBCBase.infos.findIndex((v, i, o) => v.size === ifd - 8);
+	const zz = ImBCBase.infos.findIndex(v => v.size === ifd - 8);
 	const nent = TIFFOut.readshort(v, ifd);
 	let subifdstart = -1, rawstripstart = -1, datalen = -1;
 	let off = ifd+2;
@@ -473,7 +473,7 @@ static parseDng(f, onok, onerr) {
 			}
 			if (-1 !== rawstripstart) {
 				datalen = subifdstart - rawstripstart;
-				const zzz = ImBCBase.infos.findIndex((v, i, o) => v.size === datalen);
+				const zzz = ImBCBase.infos.findIndex(v => v.size === datalen);
 				if (-1 === zzz) {
 					this.imbc.appmsg('Works only for originally created DNGs.', true);
 					return onerr(f.name);
@@ -531,7 +531,7 @@ handleone(fx) {
 	}
 	if (undefined === f.size) {
 		setTimeout(() => {
-		  this.imbc.resolver(f, (url, fx, rot) => {
+		  this.imbc.resolver(f, (url, fx) => {
 				this.imbc.allfiles[this.imbc.actnum] = fx;
 				this.handleone(fx);
 			}, (url) => {
@@ -562,9 +562,7 @@ handleone(fx) {
 		this.imbc.stats.error++;
 		return this.imbc.handlenext();
 	}
-	let w, h, mode = "??";
-	let typ = 0;
-	const zz = ImBCBase.infos.findIndex((v, i, o) => v.size === f.size);
+	const zz = ImBCBase.infos.findIndex(v => v.size === f.size);
 	if (zz !== -1) {
 		this.imbc.appmsg("[" + (1 + this.imbc.actnum) + " / " + this.imbc.totnum + "] ");
 		const reader = f.imbackextension ? f : new FileReader();
@@ -658,13 +656,6 @@ static texts = { // actually const
 			   selectdng: { en: 'Select orig. DNG' },
 			   drophere: { en: 'Drop DNGs here' }
 	    },
-		file: {
-			de: 'Datei',
-			en: 'File',
-			fr: 'Fiche',
-			ru: 'файл',
-			ja: 'ファイル'
-		},
 		help: {
 			de: '? Hilfe Doku',
 			en: '? Help Doc',
@@ -787,8 +778,8 @@ static texts = { // actually const
 			ja: '選択済み'
 		},
 		fakelong: {
-			en: 'Fake long exposure by adding up all',
-			de: 'Langzeitbelichtung durch Addieren simulieren',
+			en: 'Fake long exposure by adding up all (<a href="https://shyrodgau.github.io/imbraw2dng/moredoc#a-lot-more-tricks-and-details">read more</a>)',
+			de: 'Langzeitbelichtung durch Addieren simulieren (<a href="https://shyrodgau.github.io/imbraw2dng/moredoc_de#mehr-tricks-und-details">mehr lesen</a>)',
 			scale: {
 				en: 'Scale values down',
 				de: 'Werte dabei herunterskalieren'
@@ -1524,7 +1515,7 @@ xl0(str, base) {
 	}
 }
 /* ImBCBase: substitute in translation */
-subst(r, arg0, arg1, arg2, arg3, base) {
+subst(r, arg0, arg1, arg2, arg3) {
 	if (r.indexOf('$$0') !== -1 && arg0 !== undefined) {
 		r = r.substring(0, r.indexOf('$$0')) + arg0 + r.substring(r.indexOf('$$0') + 3);
 		if (r.indexOf('$$1') !== -1 && arg1 !== undefined) {
@@ -1627,7 +1618,10 @@ prxl(key, el) {
 				console.log(out);
 			}
 		}
-		} catch (e) { if (!document) require('process').exit(); }
+		} catch (e) {
+			console.log(JSON.stringify(e));
+			if (!document) require('process').exit();
+		}
 	}
 	for (const ne of Object.keys(el).filter((k) => ((k !== 'en') && (k !== 'de') && (typeof(el[k]) !== 'string')))) {
 		this.prxl(key + '.' + ne, el[ne]);
@@ -1635,17 +1629,15 @@ prxl(key, el) {
 }
 /* ImBCBase: language helper */
 findlang(i) {
-	let found = 0, langchg = false;
+	let found = 0;
 	for (const l of ImBCBase.alllangs) {
 		if (i.toUpperCase() === l.toUpperCase()) {
-			if (this.mylang !== l) langchg = true;
 			this.mylang = l;
 			found = 1;
 			break;
 		}
 	}
 	if (!found) {
-		if (this.mylang !== 'en') langchg = true;
 		this.mylang = 'en';
 		console.log('Unknown language(2): ' + i);
 	}
@@ -1787,7 +1779,7 @@ handleone(orientation, fromloop) {
 	}
 	let w, h, mode = "??";
 	let typ = 0;
-	const zz = ImBCBase.infos.findIndex((v, i, o) => v.size === f.size);
+	const zz = ImBCBase.infos.findIndex(v => v.size === f.size);
 	if (zz === -1) {
 		if (this.totnum > 1) {
 			this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
@@ -1859,7 +1851,7 @@ handleone(orientation, fromloop) {
 					for (const k of this.#addimgs) {
 						try {
 							res += k.getUint8(j);
-						} catch (e) { }
+						} catch { ; }
 					}
 					if (this.addscaleall) {
 						res = Math.floor(res / npic);
@@ -2152,9 +2144,9 @@ handle1imb(url) {
 					error: false,
 					processed: false
 			});
-			if (this.untypedclasses.findIndex((v, i, o) => v === cl) === -1)
+			if (this.untypedclasses.findIndex(v => v === cl) === -1)
 				this.untypedclasses.push(cl);
-			if (this.typedclasses.findIndex((v, i, o) => v === ('RAW' + cl)) === -1)
+			if (this.typedclasses.findIndex(v => v === ('RAW' + cl)) === -1)
 				this.typedclasses.push('RAW' + cl);
 		}
 	}
@@ -2177,9 +2169,9 @@ handle1imb(url) {
 					error: false,
 					processed: false
 			});
-			if (this.untypedclasses.findIndex((v, i, o) => v === cl) === -1)
+			if (this.untypedclasses.findIndex(v => v === cl) === -1)
 				this.untypedclasses.push(cl);
-			if (this.typedclasses.findIndex((v, i, o) => v === ('JPG' + cl)) === -1)
+			if (this.typedclasses.findIndex(v => v === ('JPG' + cl)) === -1)
 				this.typedclasses.push('JPG' + cl);
 		}
 	}
@@ -2202,9 +2194,9 @@ handle1imb(url) {
 					error: false,
 					processed: false
 			});
-			if (this.untypedclasses.findIndex((v, i, o) => v === cl) === -1)
+			if (this.untypedclasses.findIndex(v => v === cl) === -1)
 				this.untypedclasses.push(cl);
-			if (this.typedclasses.findIndex((v, i, o) => v === ('oth' + cl)) === -1)
+			if (this.typedclasses.findIndex(v => v === ('oth' + cl)) === -1)
 				this.typedclasses.push('oth' + cl);
 		}
 	}
@@ -2225,6 +2217,7 @@ fromts = '0000';
 ptypeflags = 0; // from preferences
 // tried configfiles
 #configfiles = [ './.imbraw2dng.json' ];
+#configloaded = '';
 // string buffer for concatenating one line of output
 #strbuff = '';
 constructor() {
@@ -2379,6 +2372,7 @@ resolver(url, onok, onerr) {
 				c += chunk.length;
 			});
 			res.on('end', () => {
+				if (err) return onerr(url, fx);
 				fx.size = c;
 				fx.data = b;
 				fx.readAsArrayBuffer = (fy) => {
@@ -2437,7 +2431,7 @@ imbdoit() {
 	compval = this.fromts;
 	if (this.typeflags % 2) {
 		for (const e of this.rimbpics) {
-			let rawname = basename(e);
+			let rawname = ImBCBase.basename(e);
 			if (this.comptime(rawname, compval))
 				selecteds.push(e);
 		}
@@ -2497,7 +2491,7 @@ readconfig(callback, tryno) {
 			//console.log(' READ: ' + xch + this.pa.sep + 'imbraw2dng.json' + ' ' + JSON.stringify(err) + ' ' + JSON.stringify(data));
 			if (!err) {
 				this.parseconfig(data);
-				this.configloaded = (xch + this.pa.sep + (dotflag ? '.' : '' ) + 'imbraw2dng.json');
+				this.#configloaded = (xch + this.pa.sep + (dotflag ? '.' : '' ) + 'imbraw2dng.json');
 				callback();
 			}
 			else if (!tryno) {
@@ -2508,13 +2502,13 @@ readconfig(callback, tryno) {
 }
 /* ImBCNodeOut: nodejs: config info */
 configinfo() {
-	if ('' !== this.configloaded)
+	if ('' !== this.#configloaded)
 		this.mappx(true, 'node.readconfig', this.configloaded);
 	else
 		this.mappx(true, 'node.noconfig', JSON.stringify(this.#configfiles));
 }
 /* ImBCNodeOut: nodejs: parse config */
-parseconfig(data, fornode) {
+parseconfig(data) {
 	const d = JSON.parse(data);
 	if (d.nc) this.withcolours = false;
 	if (d.co) this.withcolours = true;
@@ -2540,11 +2534,10 @@ constructor() {
 	super();
 }
 /* node js: */
-#configloaded = '';
 #connmsg = false;
 
 /* ImBCNode: continue with the next file if any */
-handlenext(fromloop) {
+handlenext(/*fromloop*/) {
 	if (this.actnum < this.allfiles.length - 1) {
 		this.actnum++;
 		this.handleonex();
@@ -2878,7 +2871,7 @@ startnode() {
 	}
 }
 /* ImBCNodeBackw: continue with the next file if any */
-handlenext(fromloop) {
+handlenext(/*fromloop*/) {
 	if (this.actnum < this.allfiles.length - 1) {
 		this.actnum++;
 		this.handleonex();
