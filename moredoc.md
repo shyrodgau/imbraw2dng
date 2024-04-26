@@ -14,7 +14,7 @@ oder [AUF DEUTSCH](https://shyrodgau.github.io/imbraw2dng/moredoc_de)
 
 ## Installation
 
-The current release is [V3.7.3_615a7f5 - can add jpeg's EXIF to DNG](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.7.3_615a7f5). 
+The current release is [V3.7.5_f85063c - can add jpeg's EXIF to DNG](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.7.5_f85063c). 
 Note: further development when errors reported, new translation contributed or new image format.
 
 Copy the [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.html) file to your PC or extract it from the release 
