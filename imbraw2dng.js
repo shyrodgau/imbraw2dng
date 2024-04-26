@@ -1910,7 +1910,7 @@ handleone(orientation, fromloop) {
 			ti.addEntry(306, 'ASCII', datestr); /* datetime */
 			ti.addEntry(36867, 'ASCII', datestr); /* Original date time */
 			// do we have exifdata ?
-			let odate = date, onn = nn;
+			let odate = date, onn = nn, cand=[];
 			for (const e of this.#exififds) {
 				let { date, nn } = ImBCBase.nametotime(e.name);
 				if (date) {
