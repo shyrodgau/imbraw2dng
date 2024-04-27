@@ -60,7 +60,6 @@ exifdataptr = -1; // the exif ifd, pointers therein must be adjusted
 // imgdata can be view or array
 #imgdata = null;
 #imglen = 0;
-#data = new Uint8Array(20000000);
 #dyndata = [] ; //new Uint8Array(20000);
 /* IFDOut: add image data to ifd */
 addImageStrip(typ, view, width, height) {
@@ -178,30 +177,30 @@ addEntry(tag, type, value) {
 }
 /* IFDOut: get data for this ifd, shifted to actual offset in file */
 getData(offset) {
-	let ioff = 0;
+	let ioff = 0, data = new Uint8Array(this.#imglen + (12 * this.#entrys.length) + this.#currentoff + 16);
 	if (this.#imgdata?.byteLength) {
 		for (let z=0; z<this.#imgdata.byteLength; z++)
-			this.#data[ioff++] = this.#imgdata.getUint8(z);
+			data[ioff++] = this.#imgdata.getUint8(z);
 	} else if (this.#imgdata) {
 		for (let z=0; z<this.#imgdata.length; z++)
-			this.#data[ioff++] = this.#imgdata[z];
+			data[ioff++] = this.#imgdata[z];
 	}
 	while (ioff < this.#imglen)
-		this.#data[ioff++] = 0;
-	TIFFOut.writeshorttoout(this.#data, this.#entrys.length, ioff);
+		data[ioff++] = 0;
+	TIFFOut.writeshorttoout(data, this.#entrys.length, ioff);
 	ioff += 2;
 	for (const i of this.#entrys.sort((a,b) => a.tag - b.tag )) {
 		let parr = [ 0, 0, 0, 0 ];
 		TIFFOut.writeshorttoout(parr, i.tag, 0);
-		this.#data.set(parr, ioff);
+		data.set(parr, ioff);
 		TIFFOut.writeshorttoout(parr, i.type, 0);
-		this.#data.set(parr, ioff+2);
+		data.set(parr, ioff+2);
 		TIFFOut.writeinttoout(parr, i.count, 0);
-		this.#data.set(parr, ioff+4);
+		data.set(parr, ioff+4);
 		if (i.tag === 273) { /* strip offsets is set here, subifd (-2), exififd and private stuff outside */
 			let parr = [ 0, 0, 0, 0 ];
 			TIFFOut.writeinttoout(parr, offset, 0);
-			this.#data.set(parr, ioff + 8);
+			data.set(parr, ioff + 8);
 		} else if (i.tag === 34665) { /* exififd */
 			this.exifdataptr = offset + ioff + 8;
 		} else if (i.tag === 50933) { // camera profiles
@@ -210,24 +209,24 @@ getData(offset) {
 			else {			// more than one, dereference
 				let parr = [ 0, 0, 0, 0 ];
 				TIFFOut.writeinttoout(parr, i.ptr + offset + this.#imglen + 6 + (12 * this.#entrys.length), 0);
-				this.#data.set(parr, ioff + 8);
+				data.set(parr, ioff + 8);
 				this.camprofptr = offset + this.#imglen + i.ptr + 6 + (12 * this.#entrys.length);
 			}
 		} else if (undefined !== i.value) {
-			this.#data.set(i.value, ioff + 8);
+			data.set(i.value, ioff + 8);
 		} else {
 			let parr = [ 0, 0, 0, 0 ];
 			TIFFOut.writeinttoout(parr, i.ptr + offset + this.#imglen + 6 + (12 * this.#entrys.length), 0);
-			this.#data.set(parr, ioff + 8);
+			data.set(parr, ioff + 8);
 		}
 		ioff += 12;
 	}
 	let oarr = [ 0, 0, 0, 0 ];
 	// next ifd - stays zero if has sub ifd
-	this.#data.set(oarr, ioff);
+	data.set(oarr, ioff);
 	ioff += 4;
-	this.#data.set(this.#dyndata, ioff);
-	return this.#data.slice(0, ioff + this.#currentoff);
+	data.set(this.#dyndata, ioff);
+	return data.slice(0, ioff + this.#currentoff);
 }
 /* IFDOut: tiff directory is placed after image data */
 getOffset() {
@@ -252,7 +251,6 @@ class TIFFOut {
 #ifds = [];
 #cameraprofiles = [];
 #currentifd = null;
-#data = new Uint8Array(20000000);
 #exifdata = null;
 /* TIFFOut: add an ifd  (will set this as current IFD) */
 addIfd(issub) {
@@ -318,6 +316,7 @@ static writeshorttoout(out, num, off) {
 }
 /* TIFFOut: return the tiff binary data */
 getData() {
+	let data = new Uint8Array(20000000);
 	if (null !== this.#currentifd) {
 		this.#ifds.push(this.#currentifd);
 	}
@@ -326,31 +325,31 @@ getData() {
 		for (let j=0; j<this.#cameraprofiles.length; j++) camprofarr.push(1);
 		this.#ifds[0].addEntry(50933, 'LONG', camprofarr); /* camera profiles pointer */
 	}
-	TIFFOut.writeshorttoout(this.#data, 0x4949, 0); // magics
-	TIFFOut.writeshorttoout(this.#data, 42, 2);
+	TIFFOut.writeshorttoout(data, 0x4949, 0); // magics
+	TIFFOut.writeshorttoout(data, 42, 2);
 	let lastoffpos = 4;
 	let lastlen = 8;
 	for (const i of this.#ifds) {
-		TIFFOut.writeinttoout(this.#data, i.getOffset() + lastlen, lastoffpos);
+		TIFFOut.writeinttoout(data, i.getOffset() + lastlen, lastoffpos);
 		let d = i.getData(lastlen);
-		this.#data.set(d, lastlen);
+		data.set(d, lastlen);
 		lastoffpos = i.getNextIfdPosOffset() + lastlen;
 		lastlen += d.length;
 	}
-	TIFFOut.writeinttoout(this.#data, 0, lastoffpos);
+	TIFFOut.writeinttoout(data, 0, lastoffpos);
 	if (-1 !== this.#ifds[0].camprofptr && this.#cameraprofiles.length > 0) {
 		for (let l=0; l<this.#cameraprofiles.length; l++) {
-			TIFFOut.writeinttoout(this.#data, lastlen, this.#ifds[0].camprofptr + (4*l));
+			TIFFOut.writeinttoout(data, lastlen, this.#ifds[0].camprofptr + (4*l));
 			let cpd = this.#getCamProfData(this.#cameraprofiles[l]);
-			this.#data.set(cpd, lastlen);
+			data.set(cpd, lastlen);
 			lastlen += cpd.length;
 		}
 	}
 	if (-1 !== this.#ifds[0].exifdataptr && this.#exifdata !== null) {
-		TIFFOut.writeinttoout(this.#data, lastlen, this.#ifds[0].exifdataptr);
+		TIFFOut.writeinttoout(data, lastlen, this.#ifds[0].exifdataptr);
 		let lastbase = lastlen, aoff = 2;
 		let nent = TIFFOut.readshorta(this.#exifdata,0);
-		TIFFOut.writeshorttoout(this.#data, nent, lastlen);
+		TIFFOut.writeshorttoout(data, nent, lastlen);
 		lastlen += 2;
 		for (let j = 0; j < nent; j++) {
 			let tag = TIFFOut.readshorta(this.#exifdata, aoff+0);
@@ -363,25 +362,25 @@ getData() {
 				console.log('EXIFOUT: TYP NOT FOUND ' + typ);
 				continue;
 			}
-			TIFFOut.writeshorttoout(this.#data, tag, lastlen);
+			TIFFOut.writeshorttoout(data, tag, lastlen);
 			lastlen += 2;
-			TIFFOut.writeshorttoout(this.#data, typ, lastlen);
+			TIFFOut.writeshorttoout(data, typ, lastlen);
 			lastlen += 2;
-			TIFFOut.writeinttoout(this.#data, num, lastlen);
+			TIFFOut.writeinttoout(data, num, lastlen);
 			lastlen += 4;
 			if (ee.l * num <= 4) {
-				TIFFOut.writeinttoout(this.#data, addr, lastlen);
+				TIFFOut.writeinttoout(data, addr, lastlen);
 			}
 			else {
 				// correct the addresse
-				TIFFOut.writeinttoout(this.#data, addr + lastbase, lastlen);
+				TIFFOut.writeinttoout(data, addr + lastbase, lastlen);
 			}
 			lastlen += 4;
 		}
 		for (let k = aoff; k<this.#exifdata.length; k++)
-			this.#data[lastlen++] = this.#exifdata[k];
+			data[lastlen++] = this.#exifdata[k];
 	}
-	return this.#data.slice(0, lastlen);
+	return data.slice(0, lastlen);
 }
 // TIFFOut: add extra camera profile (will set this as current IFD), must go behind all other IFDs
 createCamProf(name) {
@@ -390,11 +389,11 @@ createCamProf(name) {
 }
 /* TIFFOut: get camera profile data analog to ifd */
 #getCamProfData(p) {
-	let camprofbuf = new Uint8Array(3000);
+	let d = p.getData(8);
+	let camprofbuf = new Uint8Array(d.length + 8);
 	TIFFOut.writeshorttoout(camprofbuf, 0x4949, 0); // magics
 	TIFFOut.writeshorttoout(camprofbuf, 0x4352, 2);
 	TIFFOut.writeinttoout(camprofbuf, 8, 4);
-	let d = p.getData(8);
 	camprofbuf.set(d, 8);
 	return camprofbuf.slice(0, 8 + d.length);
 }
@@ -595,7 +594,7 @@ handleone(fx) {
 /* *************************************** Main class *************************************** */
 class ImBCBase {
 /* Indentation out */
-static version = "V3.7.5_f85063c"; // actually const
+static version = "V3.7.6_dev"; // actually const
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -788,6 +787,10 @@ static texts = { // actually const
 				en: 'Added picture $$0',
 				de: 'Bild $$0 hinzugefügt'
 			}
+		},
+		usezip: {
+			de: 'Nicht mehrere Dateien einzeln, sondern in einem ZIP Archiv herunteladen. Ziel kann ausgewählt werden.',
+			en: 'Do not use several single downloads, but all in one ZIP archive. Destination can be chosen.'
 		}
 	},
 	browser: {
@@ -1008,10 +1011,10 @@ static texts = { // actually const
 			ja: '$$0 に変換'
 		},
 		errsave: {
-			de: '\u001b[31mFEHLER!\u001b[0m Konnte Datei $$0 nicht speichern.',
-			en: '\u001b[31mERROR!\u001b[0m Could not write file $$0',
-			fr: '\u001b[31mERREUR\u001b[0m Impossible d\'écrire le fiche $$0.',
-			ja: '\u001b[31mエラー!\u001b[0m ファイル $$0 に書き込めませんでした'
+			de: 'Konnte Datei $$0 nicht speichern.',
+			en: 'Could not write file $$0',
+			fr: 'Impossible d\'écrire le fiche $$0.',
+			ja: 'ファイル $$0 に書き込めませんでした'
 		},
 		droppedn: {
 			de: '$$0 Datei(en) wurden abgelegt.',
@@ -1765,7 +1768,7 @@ handleone(orientation, fromloop) {
 				out[j] = view.getUint8(j);
 			}
 			if (rawname.substring(rawname.length - 4).toUpperCase() === '.JPG') this.xexif(rawname, view);
-			this.writefile(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out, fromloop);
+			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out, fromloop);
 		}
 		reader.onerror = (evt) => {
 			console.log('Non-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
@@ -1795,7 +1798,7 @@ handleone(orientation, fromloop) {
 			for (let j=0; j<view.byteLength; j++) {
 				out[j] = view.getUint8(j);
 			}
-			this.writefile(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out, fromloop);
+			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out, fromloop);
 		}
 		reader.onerror = (evt) => {
 			console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
@@ -1937,13 +1940,13 @@ handleone(orientation, fromloop) {
 				ti.addEntry(33432, 'BYTE', bytes); /* copyright */
 		}
 		ti.addEntry(50707, 'BYTE', [ 1, 2, 0, 0 ]); /* DNG Backward Version */
+		ti.addEntry(50827, 'BYTE', rawnamearr); /* Raw file name */
 		ti.addEntry(50717, 'LONG', [ 255 ]); /* White level */
 		/* **** TODOs: **** */
 		ti.addEntry(50721, 'SRATIONAL', [ 19624, 10000, -6105, 10000, -34134, 100000, -97877, 100000, 191614, 100000, 3345, 100000, 28687, 1000000, -14068, 100000, 1348676, 1000000 ]); /* Color Matrix 1 */
 		ti.addEntry(50964, 'SRATIONAL', [ 7161, 10000, 10093, 100000, 14719, 100000, 25819, 100000, 72494, 100000, 16875, 1000000, 0, 1000000, 5178, 100000, 77342, 100000 ]); /* Forward Matrix 1 */
 		ti.addEntry(50778, 'SHORT', [ 23 ]); /* Calibration Illuminant 1 - D50 */
 		ti.addEntry(50728, 'RATIONAL', [ 6, 10, 1, 1, 6, 10 ]); /* As shot neutral */
-		ti.addEntry(50827, 'BYTE', rawnamearr); /* Raw file name */
 		ti.addEntry(50932, 'ASCII', 'Generic ImB conv profile Sig'); /* Profile calibration signature */
 		ti.addEntry(50931, 'ASCII', 'Generic ImB conv profile Sig'); /* Camera calibration signature */
 		//ti.addEntry(50936, 'ASCII', 'Generic ImB neutral'); /* Camera calibration name */
@@ -1966,7 +1969,7 @@ handleone(orientation, fromloop) {
 		//ti.createCamProf('Generic ImB brighter');
 		//ti.addEntry(50941, 'LONG', [ 3 ]); /* profile embed policy */
 		//ti.addEntry(50932, 'ASCII', 'Generic ImB conv profile Sig'); /* Profile calibration signature */
-		this.writefile(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted' + (this.checkdlfolder ? 'checkdl' : ''), ti.getData(), fromloop);
+		this.writewrap(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted' + ((this.checkdlfolder && !this.zip) ? 'checkdl' : ''), ti.getData(), fromloop);
 	};
 	reader.onerror = (evt) => {
 		console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
@@ -1976,6 +1979,16 @@ handleone(orientation, fromloop) {
 		this.handlenext(fromloop);
 	};
 	reader.readAsArrayBuffer(f);
+}
+/* ImBCBase: wrapper for zip output */
+writewrap(name, type, okmsg, arr1, fromloop) {
+	if (this.zip) {
+		this.zip.add(arr1, name, () => {
+			this.mappx(true, okmsg, name);
+			this.writepostok(name, fromloop);
+		});
+	} else
+		this.writefile(name, type, okmsg, arr1, fromloop);
 }
 /* ImBCBase: get one downsampled median image value [ r g b ] */
 static getPix(x, y, w, view, typ) {
@@ -2257,6 +2270,7 @@ writefile(name, type, okmsg, arr1, fromloop, renameidx) {
 					}
 					return;
 				}
+				this.mappx(false, 'words.error');
 				this.appmsgxl(0, 'process.errsave', outfile);
 				this.appmsg(JSON.stringify(err), true);
 				this.stats.error++;

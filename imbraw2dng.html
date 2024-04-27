@@ -154,7 +154,6 @@ exifdataptr = -1; // the exif ifd, pointers therein must be adjusted
 // imgdata can be view or array
 #imgdata = null;
 #imglen = 0;
-#data = new Uint8Array(20000000);
 #dyndata = [] ; //new Uint8Array(20000);
 /* IFDOut: add image data to ifd */
 addImageStrip(typ, view, width, height) {
@@ -272,30 +271,30 @@ addEntry(tag, type, value) {
 }
 /* IFDOut: get data for this ifd, shifted to actual offset in file */
 getData(offset) {
-	let ioff = 0;
+	let ioff = 0, data = new Uint8Array(this.#imglen + (12 * this.#entrys.length) + this.#currentoff + 16);
 	if (this.#imgdata?.byteLength) {
 		for (let z=0; z<this.#imgdata.byteLength; z++)
-			this.#data[ioff++] = this.#imgdata.getUint8(z);
+			data[ioff++] = this.#imgdata.getUint8(z);
 	} else if (this.#imgdata) {
 		for (let z=0; z<this.#imgdata.length; z++)
-			this.#data[ioff++] = this.#imgdata[z];
+			data[ioff++] = this.#imgdata[z];
 	}
 	while (ioff < this.#imglen)
-		this.#data[ioff++] = 0;
-	TIFFOut.writeshorttoout(this.#data, this.#entrys.length, ioff);
+		data[ioff++] = 0;
+	TIFFOut.writeshorttoout(data, this.#entrys.length, ioff);
 	ioff += 2;
 	for (const i of this.#entrys.sort((a,b) => a.tag - b.tag )) {
 		let parr = [ 0, 0, 0, 0 ];
 		TIFFOut.writeshorttoout(parr, i.tag, 0);
-		this.#data.set(parr, ioff);
+		data.set(parr, ioff);
 		TIFFOut.writeshorttoout(parr, i.type, 0);
-		this.#data.set(parr, ioff+2);
+		data.set(parr, ioff+2);
 		TIFFOut.writeinttoout(parr, i.count, 0);
-		this.#data.set(parr, ioff+4);
+		data.set(parr, ioff+4);
 		if (i.tag === 273) { /* strip offsets is set here, subifd (-2), exififd and private stuff outside */
 			let parr = [ 0, 0, 0, 0 ];
 			TIFFOut.writeinttoout(parr, offset, 0);
-			this.#data.set(parr, ioff + 8);
+			data.set(parr, ioff + 8);
 		} else if (i.tag === 34665) { /* exififd */
 			this.exifdataptr = offset + ioff + 8;
 		} else if (i.tag === 50933) { // camera profiles
@@ -304,24 +303,24 @@ getData(offset) {
 			else {			// more than one, dereference
 				let parr = [ 0, 0, 0, 0 ];
 				TIFFOut.writeinttoout(parr, i.ptr + offset + this.#imglen + 6 + (12 * this.#entrys.length), 0);
-				this.#data.set(parr, ioff + 8);
+				data.set(parr, ioff + 8);
 				this.camprofptr = offset + this.#imglen + i.ptr + 6 + (12 * this.#entrys.length);
 			}
 		} else if (undefined !== i.value) {
-			this.#data.set(i.value, ioff + 8);
+			data.set(i.value, ioff + 8);
 		} else {
 			let parr = [ 0, 0, 0, 0 ];
 			TIFFOut.writeinttoout(parr, i.ptr + offset + this.#imglen + 6 + (12 * this.#entrys.length), 0);
-			this.#data.set(parr, ioff + 8);
+			data.set(parr, ioff + 8);
 		}
 		ioff += 12;
 	}
 	let oarr = [ 0, 0, 0, 0 ];
 	// next ifd - stays zero if has sub ifd
-	this.#data.set(oarr, ioff);
+	data.set(oarr, ioff);
 	ioff += 4;
-	this.#data.set(this.#dyndata, ioff);
-	return this.#data.slice(0, ioff + this.#currentoff);
+	data.set(this.#dyndata, ioff);
+	return data.slice(0, ioff + this.#currentoff);
 }
 /* IFDOut: tiff directory is placed after image data */
 getOffset() {
@@ -346,7 +345,6 @@ class TIFFOut {
 #ifds = [];
 #cameraprofiles = [];
 #currentifd = null;
-#data = new Uint8Array(20000000);
 #exifdata = null;
 /* TIFFOut: add an ifd  (will set this as current IFD) */
 addIfd(issub) {
@@ -412,6 +410,7 @@ static writeshorttoout(out, num, off) {
 }
 /* TIFFOut: return the tiff binary data */
 getData() {
+	let data = new Uint8Array(20000000);
 	if (null !== this.#currentifd) {
 		this.#ifds.push(this.#currentifd);
 	}
@@ -420,31 +419,31 @@ getData() {
 		for (let j=0; j<this.#cameraprofiles.length; j++) camprofarr.push(1);
 		this.#ifds[0].addEntry(50933, 'LONG', camprofarr); /* camera profiles pointer */
 	}
-	TIFFOut.writeshorttoout(this.#data, 0x4949, 0); // magics
-	TIFFOut.writeshorttoout(this.#data, 42, 2);
+	TIFFOut.writeshorttoout(data, 0x4949, 0); // magics
+	TIFFOut.writeshorttoout(data, 42, 2);
 	let lastoffpos = 4;
 	let lastlen = 8;
 	for (const i of this.#ifds) {
-		TIFFOut.writeinttoout(this.#data, i.getOffset() + lastlen, lastoffpos);
+		TIFFOut.writeinttoout(data, i.getOffset() + lastlen, lastoffpos);
 		let d = i.getData(lastlen);
-		this.#data.set(d, lastlen);
+		data.set(d, lastlen);
 		lastoffpos = i.getNextIfdPosOffset() + lastlen;
 		lastlen += d.length;
 	}
-	TIFFOut.writeinttoout(this.#data, 0, lastoffpos);
+	TIFFOut.writeinttoout(data, 0, lastoffpos);
 	if (-1 !== this.#ifds[0].camprofptr && this.#cameraprofiles.length > 0) {
 		for (let l=0; l<this.#cameraprofiles.length; l++) {
-			TIFFOut.writeinttoout(this.#data, lastlen, this.#ifds[0].camprofptr + (4*l));
+			TIFFOut.writeinttoout(data, lastlen, this.#ifds[0].camprofptr + (4*l));
 			let cpd = this.#getCamProfData(this.#cameraprofiles[l]);
-			this.#data.set(cpd, lastlen);
+			data.set(cpd, lastlen);
 			lastlen += cpd.length;
 		}
 	}
 	if (-1 !== this.#ifds[0].exifdataptr && this.#exifdata !== null) {
-		TIFFOut.writeinttoout(this.#data, lastlen, this.#ifds[0].exifdataptr);
+		TIFFOut.writeinttoout(data, lastlen, this.#ifds[0].exifdataptr);
 		let lastbase = lastlen, aoff = 2;
 		let nent = TIFFOut.readshorta(this.#exifdata,0);
-		TIFFOut.writeshorttoout(this.#data, nent, lastlen);
+		TIFFOut.writeshorttoout(data, nent, lastlen);
 		lastlen += 2;
 		for (let j = 0; j < nent; j++) {
 			let tag = TIFFOut.readshorta(this.#exifdata, aoff+0);
@@ -457,25 +456,25 @@ getData() {
 				console.log('EXIFOUT: TYP NOT FOUND ' + typ);
 				continue;
 			}
-			TIFFOut.writeshorttoout(this.#data, tag, lastlen);
+			TIFFOut.writeshorttoout(data, tag, lastlen);
 			lastlen += 2;
-			TIFFOut.writeshorttoout(this.#data, typ, lastlen);
+			TIFFOut.writeshorttoout(data, typ, lastlen);
 			lastlen += 2;
-			TIFFOut.writeinttoout(this.#data, num, lastlen);
+			TIFFOut.writeinttoout(data, num, lastlen);
 			lastlen += 4;
 			if (ee.l * num <= 4) {
-				TIFFOut.writeinttoout(this.#data, addr, lastlen);
+				TIFFOut.writeinttoout(data, addr, lastlen);
 			}
 			else {
 				// correct the addresse
-				TIFFOut.writeinttoout(this.#data, addr + lastbase, lastlen);
+				TIFFOut.writeinttoout(data, addr + lastbase, lastlen);
 			}
 			lastlen += 4;
 		}
 		for (let k = aoff; k<this.#exifdata.length; k++)
-			this.#data[lastlen++] = this.#exifdata[k];
+			data[lastlen++] = this.#exifdata[k];
 	}
-	return this.#data.slice(0, lastlen);
+	return data.slice(0, lastlen);
 }
 // TIFFOut: add extra camera profile (will set this as current IFD), must go behind all other IFDs
 createCamProf(name) {
@@ -484,11 +483,11 @@ createCamProf(name) {
 }
 /* TIFFOut: get camera profile data analog to ifd */
 #getCamProfData(p) {
-	let camprofbuf = new Uint8Array(3000);
+	let d = p.getData(8);
+	let camprofbuf = new Uint8Array(d.length + 8);
 	TIFFOut.writeshorttoout(camprofbuf, 0x4949, 0); // magics
 	TIFFOut.writeshorttoout(camprofbuf, 0x4352, 2);
 	TIFFOut.writeinttoout(camprofbuf, 8, 4);
-	let d = p.getData(8);
 	camprofbuf.set(d, 8);
 	return camprofbuf.slice(0, 8 + d.length);
 }
@@ -689,7 +688,7 @@ handleone(fx) {
 /* *************************************** Main class *************************************** */
 class ImBCBase {
 /* Indentation out */
-static version = "V3.7.5_f85063c"; // actually const
+static version = "V3.7.6_dev"; // actually const
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -882,6 +881,10 @@ static texts = { // actually const
 				en: 'Added picture $$0',
 				de: 'Bild $$0 hinzugefügt'
 			}
+		},
+		usezip: {
+			de: 'Nicht mehrere Dateien einzeln, sondern in einem ZIP Archiv herunteladen. Ziel kann ausgewählt werden.',
+			en: 'Do not use several single downloads, but all in one ZIP archive. Destination can be chosen.'
 		}
 	},
 	browser: {
@@ -1102,10 +1105,10 @@ static texts = { // actually const
 			ja: '$$0 に変換'
 		},
 		errsave: {
-			de: '\u001b[31mFEHLER!\u001b[0m Konnte Datei $$0 nicht speichern.',
-			en: '\u001b[31mERROR!\u001b[0m Could not write file $$0',
-			fr: '\u001b[31mERREUR\u001b[0m Impossible d\'écrire le fiche $$0.',
-			ja: '\u001b[31mエラー!\u001b[0m ファイル $$0 に書き込めませんでした'
+			de: 'Konnte Datei $$0 nicht speichern.',
+			en: 'Could not write file $$0',
+			fr: 'Impossible d\'écrire le fiche $$0.',
+			ja: 'ファイル $$0 に書き込めませんでした'
 		},
 		droppedn: {
 			de: '$$0 Datei(en) wurden abgelegt.',
@@ -1859,7 +1862,7 @@ handleone(orientation, fromloop) {
 				out[j] = view.getUint8(j);
 			}
 			if (rawname.substring(rawname.length - 4).toUpperCase() === '.JPG') this.xexif(rawname, view);
-			this.writefile(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out, fromloop);
+			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out, fromloop);
 		}
 		reader.onerror = (evt) => {
 			console.log('Non-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
@@ -1889,7 +1892,7 @@ handleone(orientation, fromloop) {
 			for (let j=0; j<view.byteLength; j++) {
 				out[j] = view.getUint8(j);
 			}
-			this.writefile(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out, fromloop);
+			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out, fromloop);
 		}
 		reader.onerror = (evt) => {
 			console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
@@ -2031,13 +2034,13 @@ handleone(orientation, fromloop) {
 				ti.addEntry(33432, 'BYTE', bytes); /* copyright */
 		}
 		ti.addEntry(50707, 'BYTE', [ 1, 2, 0, 0 ]); /* DNG Backward Version */
+		ti.addEntry(50827, 'BYTE', rawnamearr); /* Raw file name */
 		ti.addEntry(50717, 'LONG', [ 255 ]); /* White level */
 		/* **** TODOs: **** */
 		ti.addEntry(50721, 'SRATIONAL', [ 19624, 10000, -6105, 10000, -34134, 100000, -97877, 100000, 191614, 100000, 3345, 100000, 28687, 1000000, -14068, 100000, 1348676, 1000000 ]); /* Color Matrix 1 */
 		ti.addEntry(50964, 'SRATIONAL', [ 7161, 10000, 10093, 100000, 14719, 100000, 25819, 100000, 72494, 100000, 16875, 1000000, 0, 1000000, 5178, 100000, 77342, 100000 ]); /* Forward Matrix 1 */
 		ti.addEntry(50778, 'SHORT', [ 23 ]); /* Calibration Illuminant 1 - D50 */
 		ti.addEntry(50728, 'RATIONAL', [ 6, 10, 1, 1, 6, 10 ]); /* As shot neutral */
-		ti.addEntry(50827, 'BYTE', rawnamearr); /* Raw file name */
 		ti.addEntry(50932, 'ASCII', 'Generic ImB conv profile Sig'); /* Profile calibration signature */
 		ti.addEntry(50931, 'ASCII', 'Generic ImB conv profile Sig'); /* Camera calibration signature */
 		//ti.addEntry(50936, 'ASCII', 'Generic ImB neutral'); /* Camera calibration name */
@@ -2060,7 +2063,7 @@ handleone(orientation, fromloop) {
 		//ti.createCamProf('Generic ImB brighter');
 		//ti.addEntry(50941, 'LONG', [ 3 ]); /* profile embed policy */
 		//ti.addEntry(50932, 'ASCII', 'Generic ImB conv profile Sig'); /* Profile calibration signature */
-		this.writefile(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted' + (this.checkdlfolder ? 'checkdl' : ''), ti.getData(), fromloop);
+		this.writewrap(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted' + ((this.checkdlfolder && !this.zip) ? 'checkdl' : ''), ti.getData(), fromloop);
 	};
 	reader.onerror = (evt) => {
 		console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
@@ -2070,6 +2073,16 @@ handleone(orientation, fromloop) {
 		this.handlenext(fromloop);
 	};
 	reader.readAsArrayBuffer(f);
+}
+/* ImBCBase: wrapper for zip output */
+writewrap(name, type, okmsg, arr1, fromloop) {
+	if (this.zip) {
+		this.zip.add(arr1, name, () => {
+			this.mappx(true, okmsg, name);
+			this.writepostok(name, fromloop);
+		});
+	} else
+		this.writefile(name, type, okmsg, arr1, fromloop);
 }
 /* ImBCBase: get one downsampled median image value [ r g b ] */
 static getPix(x, y, w, view, typ) {
@@ -2323,14 +2336,7 @@ writefile(name, type, okmsg, arr1, fromloop) {
 	outel.click();
 	this.appmsgxl(false, 'words.finished');
 	this.appmsgxl(true, okmsg, name);
-	const ie = this.imbeles.find((v) => v.raw.substring(0, v.raw.length - 3) === name.substring(0, name.length - 3));
-	if (ie) {
-		ie.wasselected = true;
-		if (ie.entry)
-			ie.entry.classList.add('picprocd');
-	}
-	this.stats.ok++;
-	this.handlenext(fromloop);
+	this.writepostok(name, okmsg, fromloop);
 }
 /* ImBCHtmlOut: find html style for translation */
 applystyle(span, msg, base) {
@@ -2402,6 +2408,42 @@ xl1(el) {
 		el.href = this.xl(el.attributes.getNamedItem('data-myhrefxlkey').value);
 	}
 	return el;
+}
+/* ImBCHtmlOut: wrapper for zip output */
+starthandleone() {
+	if (this.totnum > 0 && !this.imbcb && window.showSaveFilePicker && document.getElementById('usezip').checked) {
+		window.showSaveFilePicker({
+			types: [ { description: 'Output Zip Archive', accept: { "application/zip": [ ".zip", ".ZIP" ] } } ],
+			startIn: 'downloads',
+			suggestedName: 'imbraw2dng_' + ('' + Date.now()).substring(3,10) + '_out.zip'
+		}).then((newHandle) => {
+			newHandle.getFile().then((f) => {
+				this.zipname = f.name;
+				newHandle.createWritable().then((ws) => {
+					this.writestream = ws;
+					this.zip = new ZIPHelp((data, cb) => {
+						let p = this.writestream.write(data);
+						p.then(() => { cb(); }).catch((e) => {
+							this.mappx(false, 'words.error');
+							this.mappx(0, 'process.errsave', this.zipname);
+							this.appmsg(JSON.stringify(e), true);
+							cb();
+						});
+					});
+					this.handleonex();
+				}).catch((e) => {
+					this.mappx(false, 'words.error');
+					this.mappx(0, 'process.errsave', this.zipname);
+					this.appmsg(JSON.stringify(e), true);
+				});
+			}).catch((e) => {
+				this.mappx(false, 'words.error');
+				this.mappx(0, 'process.errsave', '??');
+				this.appmsg(JSON.stringify(e), true);
+			});
+		});
+	}
+	else this.handleonex();
 }
 /* ImBCHtmlOut: main handler function for one file */
 handleonex() {
@@ -2559,7 +2601,7 @@ imbdoit() {
 		document.getElementById('imbvisbrows').disabled = true;
 		document.getElementById('droptarget').style['display'] = 'none';
 		document.getElementById('infile').disabled = true
-		this.handleonex();
+		this.starthandleone();
 	}
 	else this.mappx(true, 'onimback.nomatch');
 }
@@ -2591,6 +2633,7 @@ parseconfig(data) {
 	else this.withpreview = true;
 	if (undefined !== d.cr) this.copyright = d.cr;
 	if (d.l) this.trylang(d.l);
+	if (d.zip && window.showSaveFilePicker && !this.imbcb) document.getElementById('usezip').checked = true;
 	if (d.step) this.stepmode = 1;
 	else this.stepmode = 0;
 }
@@ -2601,10 +2644,25 @@ showlastmsg() {
 		ll.scrollIntoView(false, { block: 'nearest' });
 	}
 }
+/* ImBCHtmlOut: post write ok handler */
+writepostok(name, fromloop) {
+	const ie = this.imbeles.find((v) => v.raw.substring(0, v.raw.length - 3) === name.substring(0, name.length - 3));
+	if (ie) {
+		ie.wasselected = true;
+		if (ie.entry)
+			ie.entry.classList.add('picprocd');
+	}
+	this.stats.ok++;
+	this.handlenext(fromloop);
+}
 /* Indentation in - end of class ImBCHtmlOut */
 }
 /* *************************************** HTML helper class E N D *************************************** */
 /* *************************************** Main class for HTML, forward *************************************** */
+writestream = null;
+zip = null;
+zipname = '';
+ziperr = false;
 class ImBCHtml extends ImBCHtmlOut {
 /* Indentation out */
 constructor() {
@@ -2651,7 +2709,7 @@ fselected() {
 		document.getElementById('imbvisbrows').disabled = true;
 		document.getElementById('droptarget').style['display'] = 'none';
 		document.getElementById('infile').disabled = true;
-		this.handleonex();
+		this.starthandleone();
 	}
 }
 /* ImBCHtml: translation helper with title * /
@@ -3476,7 +3534,8 @@ savesettings() {
 					'l': this.mylang,
 					'step': stepmode,
 					'version': ImBCBase.version,
-					'loca': window.location.origin
+					'loca': window.location.origin,
+					'zip': document.getElementById('usezip')?.checked
 				}
 			));
 		}
@@ -3563,7 +3622,7 @@ drophandler(ev) {
 		this.addall = false;
 		this.addscaleall = false;
 	}
-	this.handleonex();
+	this.starthandleone();
 }
 /* ImBCHtml: browserdisplay: some handler on the drop rectangle */
 prevdef(ev) {
@@ -3727,18 +3786,45 @@ rot0() {
 chgcache() {
 	this.#maxcache = document.getElementById('dbgcache').value;
 }
+/* ImBCHtml: after finishing.... */
+#afterfinish() {
+	if (this.stats.total > 0) {
+		this.appmsg('');
+		this.mappx(true, 'process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
+	}
+	this.actnum = 0;
+	this.allfiles = [];
+	document.getElementById('imbdoit').disabled = false;
+	document.getElementById('imbvisbrows').disabled = false;
+	document.getElementById('droptarget').style['display'] = '';
+	document.getElementById('infile').disabled = false;
+	document.getElementById('infileb').disabled = false;
+	if (this.zip) {
+		this.zip.finish(() => {
+			this.writestream.close().then(() => {
+				if (!this.ziperr) {
+					this.mappx(false, 'words.finished');
+					this.mappx(true, 'process.copyok', this.zipname);
+				} else {
+					this.mappx(false, 'words.error');
+					this.mappx(true, 'process.errsave', this.zipname);
+				}
+			}).catch((e) => {
+				this.mappx(false, 'words.error');
+				this.mappx(0, 'process.errsave', this.zipname);
+				this.appmsg(JSON.stringify(e), true);
+			});
+		});
+		this.zip = null;
+		this.ziperr = false;
+	}
+}
 /* ImBCHtml: continue with the next file if any */
 handlenext(fromloop) {
 	if (fromloop) {
 		if (this.debugflag) console.log('HN fl an ' + this.actnum + ' aflen ' + this.allfiles.length);
 		if (this.actnum >= this.allfiles.length - 1) {
-			this.actnum = 0;
-			this.allfiles = [];
-			document.getElementById('imbdoit').disabled = false;
-			document.getElementById('imbvisbrows').disabled = false;
-			document.getElementById('droptarget').style['display'] = '';
-			document.getElementById('infile').disabled = false;
-			document.getElementById('infileb').disabled = false;
+			this.#afterfinish();
 			if (this.#fromvisbrows) {
 				this.#fromvisbrows = false;
 				setTimeout(() => {
@@ -3759,18 +3845,8 @@ handlenext(fromloop) {
 		this.actnum++;
 		this.handleonex();
 	} else {
-		this.actnum = 0;
-		this.allfiles = [];
+		this.#afterfinish();
 		this.shownormal();
-		if (this.stats.total > 0) {
-			this.appmsg('');
-			this.mappx(true, 'process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
-		}
-		document.getElementById('imbdoit').disabled = false;
-		document.getElementById('imbvisbrows').disabled = false;
-		document.getElementById('droptarget').style['display'] = '';
-		document.getElementById('infile').disabled = false;
-		document.getElementById('infileb').disabled = false;
 	}
 }
 /* ImBCHtml: check if we are directly on a back */
@@ -4017,6 +4093,203 @@ handlenext(/*fromloop*/) {
 /* Indentation in - end of class ImBCHtmlBackw */
 }
 /* *************************************** Main class for HTML, backward E N D *************************************** */
+/* *************************************** ZIP Helper class *************************************** */
+class ZIPHelp {
+/* Indentation out */
+#lochdrs = [];
+#loclens = [];
+#datalens = [];
+#writecb = null;
+#finishoff = 0;
+#sizecent = 0;
+static crcTable = [];
+/* ZIPHelp: constructor */
+constructor(writecb) {
+	this.#writecb = writecb;
+}
+/* ZIPHelp: make dos date */
+static makeDosDate(yr, mon, day, hr, min, sec)
+{
+    if (yr>1980)
+        yr-=1980;
+    else if (yr>80)
+        yr-=80;
+    return (((day + (32 * mon) + (512 * yr)) * 65536) |
+		((sec/2) + (32* min) + (2048 * hr)));
+}
+/* ZIPHelp: dos date from filename */
+static datefromfile(name) {
+	let { yr, mon, day, hr, min, sec } = ImBCBase.nametotime(name);
+	if (yr) {
+		return ZIPHelp.makeDosDate(yr, mon, day, hr, min, sec);
+	} else {
+		let r = ImBCBase.nametotime(new Date(Date.now()).toISOString());
+		return ZIPHelp.makeDosDate(r.yr, r.mon, r.day, r.hr, r.min, r.sec);
+	}
+}
+/* ZIPHelp: crc32 stuff */
+static makeCRCTable(){
+    var c;
+    for(var n =0; n < 256; n++){
+        c = n;
+        for(var k =0; k < 8; k++){
+            c = ((c&1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1));
+        }
+        ZIPHelp.crcTable[n] = c;
+    }
+}
+
+static crc32(arr) {
+	if (ZIPHelp.crcTable.length === 0) ZIPHelp.makeCRCTable();
+    var crc = 0 ^ (-1);
+
+    for (var i = 0; i < arr.length; i++ ) {
+        crc = (crc >>> 8) ^ ZIPHelp.crcTable[(crc ^ arr[i]) & 0xFF];
+    }
+
+    return (crc ^ (-1)) >>> 0;
+};
+/* ZIPHelp: finish zip with centraldirs and endcentral */
+finish(cb, i) {
+	if (i === undefined) i=0;
+	if (i < this.#lochdrs.length) {
+		let j = this.#lochdrs[i];
+		let ch = new Uint8Array(46);
+		ch[0] = 0x50; // P
+		ch[1] = 0x4B; // K
+		ch[2] = 0x1; // magic
+		ch[3] = 0x2;
+		ch[4] = 0x0; // version made
+		ch[5] = 0x0;
+		ch[6] = 0x14; // version extract
+		ch[7] = 0x0;
+		ch[8] = 0x0; // gp bitflags
+		ch[9] = 0x8;
+		ch[10] = 0x0; // compr
+		ch[11] = 0x0;
+		let dosdate = j.dosdate;
+		ch[12] = dosdate % 256;
+		ch[13] = Math.floor(dosdate/256) % 256;
+		ch[14] = Math.floor(dosdate/65536) % 256;
+		ch[15] = Math.floor(dosdate/(256*65536)) % 256;
+		let crc = j.crc;
+		ch[16] = crc % 256;
+		ch[17] = Math.floor(crc/256) % 256;
+		ch[18] = Math.floor(crc/65536) % 256;
+		ch[19] = Math.floor(crc/(256*65536)) % 256;
+		let dl = j.dl; // compr. length
+		ch[20] = dl % 256;
+		ch[21] = Math.floor(dl/256) % 256;
+		ch[22] = Math.floor(dl/65536) % 256;
+		ch[23] = Math.floor(dl/(256*65536)) % 256;
+		// uncompr. size is same
+		ch[24] = dl % 256;
+		ch[25] = Math.floor(dl/256) % 256;
+		ch[26] = Math.floor(dl/65536) % 256;
+		ch[27] = Math.floor(dl/(256*65536)) % 256;
+		let fl = j.fl; // name length
+		ch[28] = fl % 256;
+		ch[29] = Math.floor(fl/256) % 256;
+		ch[30] = 0; // extra length
+		ch[31] = 0;
+		ch[32] = 0x0; // comment length
+		ch[33] = 0x0;
+		ch[34] = 0x0; // disk no
+		ch[35] = 0x0;
+		ch[36] = 0x0; // int attr
+		ch[37] = 0x0;
+		ch[38] = 0x0; // ext attr
+		ch[39] = 0x0;
+		ch[40] = 0x0;
+		ch[41] = 0x0;
+		ch[42] = this.#finishoff % 256;
+		ch[43] = Math.floor(this.#finishoff/256) % 256;
+		ch[44] = Math.floor(this.#finishoff/65536) % 256;
+		ch[45] = Math.floor(this.#finishoff/(256*65536)) % 256;
+		this.#sizecent += (46 + j.fl);
+		this.#finishoff += this.#loclens[i];
+		this.#writecb(ch, () => {
+			this.#writecb(j.name, () => { this.finish(cb, i+1); });
+		});
+		return;
+	}
+	// end of central
+	let ec = new Uint8Array(22);
+	ec[0] = 0x50; // P
+	ec[1] = 0x4B; // K
+	ec[2] = 0x5; // magic
+	ec[3] = 0x6;
+	ec[4] = 0x0; // disk no
+	ec[5] = 0x0;
+	ec[6] = 0x0; // startdisk
+	ec[7] = 0x0;
+	ec[8] = i % 256; // num entries
+	ec[9] = Math.floor(i/256) % 256;
+	ec[10] = i % 256; // num entries
+	ec[11] = Math.floor(i/256) % 256;
+	ec[12] = this.#sizecent % 256; // size of cent.dir
+	ec[13] = Math.floor(this.#sizecent/256) % 256;
+	ec[14] = Math.floor(this.#sizecent/65536) % 256;
+	ec[15] = Math.floor(this.#sizecent/(65536*256)) % 256;
+	ec[16] = this.#finishoff % 256; // start of cent.dir
+	ec[17] = Math.floor(this.#finishoff/256) % 256;
+	ec[18] = Math.floor(this.#finishoff/65536) % 256;
+	ec[19] = Math.floor(this.#finishoff/(65536*256)) % 256;
+	ec[20] = 0; // comment length
+	ec[21] = 0;
+	this.#writecb(ec, () => { cb(); });
+}
+/* ZIPHelp: add a file */
+add(data, name, cb) {
+	let narr = new TextEncoder().encode(name);
+	// output local header
+	let lh = new Uint8Array(30);
+	lh[0] = 0x50; // P
+	lh[1] = 0x4B; // K
+	lh[2] = 0x3; // magic
+	lh[3] = 0x4;
+	lh[4] = 0x14; // version 20
+	lh[5] = 0x0;
+	lh[6] = 0x0; // gp bitflags
+	lh[7] = 0x8;
+	lh[8] = 0x0; // compression
+	lh[9] = 0x0;
+	let dosdate = ZIPHelp.datefromfile(name);
+	lh[10] = dosdate % 256;
+	lh[11] = Math.floor(dosdate/256) % 256;
+	lh[12] = Math.floor(dosdate/65536) % 256;
+	lh[13] = Math.floor(dosdate/(256*65536)) % 256;
+	let crc = ZIPHelp.crc32(data);
+	lh[14] = crc % 256;
+	lh[15] = Math.floor(crc/256) % 256;
+	lh[16] = Math.floor(crc/65536) % 256;
+	lh[17] = Math.floor(crc/(256*65536)) % 256;
+	let dl = data.length;
+	lh[18] = dl % 256; // compr. length
+	lh[19] = Math.floor(dl/256) % 256;
+	lh[20] = Math.floor(dl/65536) % 256;
+	lh[21] = Math.floor(dl/(256*65536)) % 256;
+	// uncompr. size is same
+	lh[22] = dl % 256;
+	lh[23] = Math.floor(dl/256) % 256;
+	lh[24] = Math.floor(dl/65536) % 256;
+	lh[25] = Math.floor(dl/(256*65536)) % 256;
+	let fl = narr.length;
+	lh[26] = fl % 256;
+	lh[27] = Math.floor(fl/256) % 256;
+	lh[28] = 0; // extra length
+	lh[29] = 0;
+	this.#lochdrs.push( { name: narr, dosdate: dosdate, crc: crc, dl: dl, fl: fl } );
+	this.#loclens.push( 30+fl+dl );
+	this.#writecb(lh, () => {
+		this.#writecb(name, () => {
+			this.#writecb(data, () => { cb(); });
+		})
+	});
+/* Indentation in - end of class ZIPHelp */
+}
+/* *************************************** ZIP Helper class E N D *************************************** */
+}
 /* outside of classes: */
 let imbc;
 /* onload of html body */
@@ -4032,6 +4305,10 @@ function init() {
 		imbc = new ImBCHtml();
 		imbc.chgcopycheck();
 		imbc.initsettings();
+		if (!window.showSaveFilePicker) {
+			document.getElementById('usezip').disabled = true;
+			//document.getElementById('useziplbl').style['display'] = 'none';
+		}
 	}
 	imbc.querylang(window.location.pathname);
 	imbc.xlateall();
@@ -4050,8 +4327,9 @@ function init() {
 <div id="normal" style="margin-top: 0.5em;">
 <div><input class="notwhenbackw" type="checkbox" id="steppreview" onchange="imbc.dirtysettings()" checked><label class="notwhenbackw" for="steppreview" data-myxlkey="process.singlestep"></label></div>
 <div><input class="notwhenbackw" type="checkbox" id="dngpreview" checked onchange="imbc.chgdngpreview()"><label class="notwhenbackw" for="dngpreview" data-myxlkey="process.addpreview"></label></div>
-<div><input class="notwhenbackw" type="checkbox" id="copycheck"onchange="imbc.chgcopycheck()"><label class="notwhenbackw" for="copycheck" data-myxlkey="process.addcopyright"></label> <input class="notwhenbackw" onchange="imbc.dirtysettings()" type="text" id="copytext"></input></div>
-<div class="notwhenbackw">
+<div><input class="notwhenbackw" type="checkbox" id="copycheck" onchange="imbc.chgcopycheck()"><label class="notwhenbackw" for="copycheck" data-myxlkey="process.addcopyright"></label> <input class="notwhenbackw" onchange="imbc.dirtysettings()" type="text" id="copytext"></input></div>
+<div><input class="notwhenbackw" type="checkbox" id="usezip" onchange="imbc.dirtysettings()"><label class="notwhenbackw" for="usezip" data-myxlkey="main.usezip" id="useziplbl"></label></div>
+<div class="notwhenbackw" style="margin-top: 0.5em;">
 <span id="onlyhttp" data-myxlkey="browser.prefnotfile"></span>
 <span id="settingsset" data-myxlkey="browser.settingsset"></span>
 <span id="setsettings"><input type="button" data-myvalxlkey="browser.setfrom" onclick="imbc.savesettings()"></input>&#xa0;<span id="setsettingsurl" data-myxlkey="browser.forurl"></span></span>
