@@ -2435,13 +2435,20 @@ starthandleone() {
 					this.mappx(false, 'words.error');
 					this.mappx(0, 'process.errsave', this.zipname);
 					this.appmsg(JSON.stringify(e), true);
+					this.afterfinish();
 				});
 			}).catch((e) => {
 				this.mappx(false, 'words.error');
 				this.mappx(0, 'process.errsave', '??');
 				this.appmsg(JSON.stringify(e), true);
+				this.afterfinish();
 			});
-		});
+		}).catch((e) => {
+				this.mappx(false, 'words.error');
+				this.mappx(0, 'process.errsave', '??');
+				this.appmsg(JSON.stringify(e), true);
+				this.afterfinish();
+			});
 	}
 	else this.handleonex();
 }
@@ -2654,6 +2661,40 @@ writepostok(name, fromloop) {
 	}
 	this.stats.ok++;
 	this.handlenext(fromloop);
+}
+/* ImBCHtmlOut: after finishing.... */
+afterfinish() {
+	if (this.stats.total > 0) {
+		this.appmsg('');
+		this.mappx(true, 'process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
+	}
+	this.actnum = 0;
+	this.totum = 0;
+	this.allfiles = [];
+	document.getElementById('imbdoit').disabled = false;
+	document.getElementById('imbvisbrows').disabled = false;
+	document.getElementById('droptarget').style['display'] = '';
+	document.getElementById('infile').disabled = false;
+	document.getElementById('infileb').disabled = false;
+	if (this.zip) {
+		this.zip.finish(() => {
+			this.writestream.close().then(() => {
+				if (!this.ziperr) {
+					this.mappx(false, 'words.finished');
+					this.mappx(true, 'process.copyok', this.zipname);
+				} else {
+					this.mappx(false, 'words.error');
+					this.mappx(true, 'process.errsave', this.zipname);
+				}
+			}).catch((e) => {
+				this.mappx(false, 'words.error');
+				this.mappx(0, 'process.errsave', this.zipname);
+				this.appmsg(JSON.stringify(e), true);
+			});
+		});
+		this.zip = null;
+		this.ziperr = false;
+	}
 }
 /* Indentation in - end of class ImBCHtmlOut */
 }
@@ -3786,45 +3827,12 @@ rot0() {
 chgcache() {
 	this.#maxcache = document.getElementById('dbgcache').value;
 }
-/* ImBCHtml: after finishing.... */
-#afterfinish() {
-	if (this.stats.total > 0) {
-		this.appmsg('');
-		this.mappx(true, 'process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
-	}
-	this.actnum = 0;
-	this.allfiles = [];
-	document.getElementById('imbdoit').disabled = false;
-	document.getElementById('imbvisbrows').disabled = false;
-	document.getElementById('droptarget').style['display'] = '';
-	document.getElementById('infile').disabled = false;
-	document.getElementById('infileb').disabled = false;
-	if (this.zip) {
-		this.zip.finish(() => {
-			this.writestream.close().then(() => {
-				if (!this.ziperr) {
-					this.mappx(false, 'words.finished');
-					this.mappx(true, 'process.copyok', this.zipname);
-				} else {
-					this.mappx(false, 'words.error');
-					this.mappx(true, 'process.errsave', this.zipname);
-				}
-			}).catch((e) => {
-				this.mappx(false, 'words.error');
-				this.mappx(0, 'process.errsave', this.zipname);
-				this.appmsg(JSON.stringify(e), true);
-			});
-		});
-		this.zip = null;
-		this.ziperr = false;
-	}
-}
 /* ImBCHtml: continue with the next file if any */
 handlenext(fromloop) {
 	if (fromloop) {
 		if (this.debugflag) console.log('HN fl an ' + this.actnum + ' aflen ' + this.allfiles.length);
 		if (this.actnum >= this.allfiles.length - 1) {
-			this.#afterfinish();
+			this.afterfinish();
 			if (this.#fromvisbrows) {
 				this.#fromvisbrows = false;
 				setTimeout(() => {
@@ -3845,7 +3853,7 @@ handlenext(fromloop) {
 		this.actnum++;
 		this.handleonex();
 	} else {
-		this.#afterfinish();
+		this.afterfinish();
 		this.shownormal();
 	}
 }
