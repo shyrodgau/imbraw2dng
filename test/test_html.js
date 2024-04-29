@@ -65,7 +65,7 @@ describe('convert raw local', function() {
 			const fi = await driver.findElement(By.id('infile'));
 			await fi.clear();
 			//console.log('found fileinput ' + JSON.stringify(fi));
-			fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2024_1015_123011_001.raw');
+			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2024_1015_123011_001.raw');
 			//await driver.actions({async: true}).pause(900);
 			const rcw = await driver.findElement(By.id('procthiscw'));
 			await driver.actions({async: true})
@@ -94,7 +94,7 @@ describe('convert raw local', function() {
 			const fi = await driver.findElement(By.id('infile'));
 			await fi.clear();
 			//console.log('found fileinput ' + JSON.stringify(fi));
-			fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2021_1102_123011_001.raw');
+			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2021_1102_123011_001.raw');
 			//await driver.actions({async: true}).pause(900);
 			const rcw = await driver.findElement(By.id('procthisccw'));
 			await driver.actions({async: true})
@@ -153,7 +153,7 @@ describe('convert raw local', function() {
 			await driver.actions({async: true})
 				.pause(300).move({origin: crb}).pause(300).click().pause(600).perform();
 			const copytext = await driver.findElement(By.id('copytext'));
-			copytext.sendKeys('(c) Stefan Hegny debugging');
+			await copytext.sendKeys('(c) Stefan Hegny debugging');
 			//console.log('pressed checkbox ' + JSON.stringify(cb));
 			const fi = await driver.findElement(By.id('infile'));
 			await fi.clear();
