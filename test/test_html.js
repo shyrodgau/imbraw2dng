@@ -93,6 +93,18 @@ describe('convert raw local', function() {
 					.pause(300)
 					.perform();
 			}
+			const pv = await driver.findElement(By.id('dngpreview'));
+			const psel = await pv.isSelected();
+			//console.log('found checkbox ' + JSON.stringify(cb));
+			if (psel) {
+				console.log('turning off preview');
+				await driver.actions({ async: true })
+					.move({ origin: pv })
+					.pause(300)
+					.click()
+					.pause(300)
+					.perform();
+			}
 			const zipb = await driver.findElement(By.id('usezip'));
 			await driver.actions({async: true})
 				.pause(300).move({origin: zipb}).pause(300).click().pause(300).perform();
@@ -105,13 +117,10 @@ describe('convert raw local', function() {
 			const fi = await driver.findElement(By.id('infile'));
 			await fi.clear();
 			//console.log('found fileinput ' + JSON.stringify(fi));
-			fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2030_0211_213011.raw');
+			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2030_0211_213011.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2034_1015_123011.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2021_1102_123011.raw');
 			// do something to make it flutsch
 			await driver.actions({async: true})
-				.pause(300).move({origin: zipb}).pause(300).click().pause(300).perform();
-			await driver.actions().pause(1900).perform();
-			await driver.actions({async: true})
-				.pause(300).move({origin: zipb}).pause(300).click().pause(300).perform();
+				.pause(700).move({ origin: cb }).pause(700).click().pause(700).perform();
 			
 	});
 	after(async function() {
