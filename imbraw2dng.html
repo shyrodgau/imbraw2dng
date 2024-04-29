@@ -4132,7 +4132,7 @@ checkimb(type) {
 			this.aftercheck();
 		}
 	};
-	xhr.open('GET', '/IMBACK/' + (type ? 'MOVIE' : 'PHOTO'));
+	xhr.open('GET', '/IMBACK/' + (type ? 'MOVIE/' : 'PHOTO/'));
 	xhr.responseType = 'document';
 	xhr.send();
 }

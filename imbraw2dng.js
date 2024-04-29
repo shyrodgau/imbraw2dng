@@ -2830,7 +2830,7 @@ checkimb(type, found) {
 	let subdir = 'PHOTO';
 	if (type) subdir='MOVIE';
 	//this.ht.get('http://127.0.0.1:8000/PHOTO.html', (res) => {
-	this.ht.get(this.imbweb + '/IMBACK/' + subdir, (res) => {
+	this.ht.get(this.imbweb + '/IMBACK/' + subdir + '/', (res) => {
 			let err = false;
 			if (res.statusCode !== 200 || !/^text\/html/.test(res.headers['content-type'])) {
 				err = true;

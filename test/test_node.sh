@@ -31,7 +31,7 @@ pushd $testout
 echo '##########    1    ##########'
 echo Test ${tn} convert all
 set -x
-${TESTEXES}/imbraw2dng.js $( find ${TESTDAT}/IMBACK/*/ -type f -o -type l )
+${TESTEXES}/imbraw2dng.js $( find ${TESTDAT}/IMBACK/*/ \( -type f -o -type l \) ! -name index.html )
 rc=$?
 n=$( ls .|wc -l )
 set +x
@@ -39,16 +39,17 @@ if [ $rc -ne 0 ]; then
 	echo Test ${tn} failed RC $rc
 	exit 1
 fi
-if [ $n -ne 22 ]; then
+if [ $n -ne 24 ]; then
 	echo Test ${tn} failed NO $n
 	exit 1
 fi
+echo Test ${tn} okay
 tn=$(( $tn + 1 ))
 
 echo '##########    2    ##########'
 echo Test ${tn} convert again but do not overwrite expect error
 set -x
-${TESTEXES}/imbraw2dng.js $( find ${TESTDAT}/IMBACK/*/ -type f -o -type l )
+${TESTEXES}/imbraw2dng.js $( find ${TESTDAT}/IMBACK/*/ \( -type f -o -type l  \) ! -name index.html )
 rc=$?
 n=$( ls .|wc -l )
 set +x
@@ -56,16 +57,17 @@ if [ $rc -eq 0 ]; then
 	echo Test ${tn} failed $rc
 	exit 2
 fi
-if [ $n -ne 22 ]; then
+if [ $n -ne 24 ]; then
 	echo Test ${tn} failed NO $n
 	exit 2
 fi
+echo Test ${tn} okay
 tn=$(( $tn + 1 ))
 
 echo '##########    3    ##########'
 echo Test ${tn} convert again but overwrite
 set -x
-${TESTEXES}/imbraw2dng.js -f $( find ${TESTDAT}/IMBACK/*/ -type f -o -type l )
+${TESTEXES}/imbraw2dng.js -f $( find ${TESTDAT}/IMBACK/*/ \( -type f -o -type l \) ! -name index.html )
 rc=$?
 n=$( ls .|wc -l )
 set +x
@@ -73,16 +75,17 @@ if [ $rc -ne 0 ]; then
 	echo Test ${tn} failed $rc
 	exit 3
 fi
-if [ $n -ne 22 ]; then
+if [ $n -ne 24 ]; then
 	echo Test ${tn} failed NO $n
 	exit 3
 fi
+echo Test ${tn} okay
 tn=$(( $tn + 1 ))
 
 echo '##########    4    ##########'
 echo Test ${tn} convert again but rename
 set -x
-${TESTEXES}/imbraw2dng.js -r $( find ${TESTDAT}/IMBACK/*/ -type f -o -type l )
+${TESTEXES}/imbraw2dng.js -r $( find ${TESTDAT}/IMBACK/*/ \( -type f -o -type l  \) ! -name index.html )
 rc=$?
 n=$( ls .|wc -l )
 set +x
@@ -90,16 +93,17 @@ if [ $rc -ne 0 ]; then
 	echo Test ${tn} failed $rc
 	exit 4
 fi
-if [ $n -ne 44 ]; then
+if [ $n -ne 48 ]; then
 	echo Test ${tn} failed NO $n
 	exit 4
 fi
+echo Test ${tn} okay
 tn=$(( $tn + 1 ))
 
 echo '##########    5    ##########'
 echo Test ${tn} convert all recursive
 set -x
-${TESTEXES}/imbraw2dng.js -r ${TESTDAT}/IMBACK/*/*.*
+${TESTEXES}/imbraw2dng.js -r ${TESTDAT}/IMBACK/*/*.[rRmMjJ]*
 rc=$?
 n=$( ls .|wc -l )
 set +x
@@ -107,16 +111,17 @@ if [ $rc -ne 0 ]; then
 	echo Test ${tn} failed $rc
 	exit 5
 fi
-if [ $n -ne 66 ]; then
+if [ $n -ne 72 ]; then
 	echo Test ${tn} failed NO $n
 	exit 5
 fi
+echo Test ${tn} okay
 tn=$(( $tn + 1 ))
 
 echo '##########    6    ##########'
 echo Test ${tn} convert to zip
 set -x
-${TESTEXES}/imbraw2dng.js -d test1.zip ${TESTDAT}/IMBACK/*/*.*
+${TESTEXES}/imbraw2dng.js -d test1.zip ${TESTDAT}/IMBACK/*/*.[rRmMjJ]*
 rc=$?
 n=$( ls .|wc -l )
 set +x
@@ -124,16 +129,17 @@ if [ $rc -ne 0 ]; then
 	echo Test ${tn} failed $rc
 	exit 6
 fi
-if [ $n -ne 67 ]; then
+if [ $n -ne 73 ]; then
 	echo Test ${tn} failed NO $n
 	exit 6
 fi
+echo Test ${tn} okay
 tn=$(( $tn + 1 ))
 
 echo '##########    7    ##########'
 echo Test ${tn} convert again but exists
 set -x
-${TESTEXES}/imbraw2dng.js -d test1.zip ${TESTDAT}/IMBACK/*/*.*
+${TESTEXES}/imbraw2dng.js -d test1.zip ${TESTDAT}/IMBACK/*/*.[rRmMjJ]*
 rc=$?
 n=$( ls .|wc -l )
 set +x
@@ -141,16 +147,17 @@ if [ $rc -eq 0 ]; then
 	echo Test ${tn} failed $rc
 	exit 7
 fi
-if [ $n -ne 67 ]; then
+if [ $n -ne 73 ]; then
 	echo Test ${tn} failed NO $n
 	exit 7
 fi
+echo Test ${tn} okay
 tn=$(( $tn + 1 ))
 
 echo '##########    8    ##########'
 echo Test ${tn} convert again but no thum but copyright and zip
 set -x
-${TESTEXES}/imbraw2dng.js -np -cr 'testcopyright' -d test2.zip ${TESTDAT}/IMBACK/*/*.*
+${TESTEXES}/imbraw2dng.js -np -cr 'testcopyright' -d test2.zip ${TESTDAT}/IMBACK/*/*.[rRmMjJ]*
 rc=$?
 n=$( ls .|wc -l )
 set +x
@@ -158,17 +165,18 @@ if [ $rc -ne 0 ]; then
 	echo Test ${tn} failed $rc
 	exit 8
 fi
-if [ $n -ne 68 ]; then
+if [ $n -ne 74 ]; then
 	echo Test ${tn} failed NO $n
 	exit 8
 fi
+echo Test ${tn} okay
 tn=$(( $tn + 1 ))
 
 
 echo '##########    9    ##########'
 echo Test ${tn} convert again but no thum but copyright and rename
 set -x
-${TESTEXES}/imbraw2dng.js -np -cr 'testcopyright' -r ${TESTDAT}/IMBACK/*/*.*
+${TESTEXES}/imbraw2dng.js -np -cr 'testcopyright' -r ${TESTDAT}/IMBACK/*/*.[rRmMjJ]*
 rc=$?
 n=$( ls .|wc -l )
 set +x
@@ -176,14 +184,36 @@ if [ $rc -ne 0 ]; then
 	echo Test ${tn} failed $rc
 	exit 9
 fi
-if [ $n -ne 90 ]; then
+if [ $n -ne 98 ]; then
 	echo Test ${tn} failed NO $n
 	exit 9
 fi
+echo Test ${tn} okay
+tn=$(( $tn + 1 ))
+
+echo '##########    10    ##########'
+echo Test ${tn} convert from imback
+set -x
+${TESTEXES}/imbraw2dng_zZ.js -np -cr 'testcopyright' -r -R -O -n 2023 -d fromback.zip
+rc=$?
+n=$( ls .|wc -l )
+set +x
+if [ $rc -ne 0 ]; then
+	echo Test ${tn} failed $rc
+	exit $tn
+fi
+if [ $n -ne 99 ]; then
+	echo Test ${tn} failed NO $n
+	exit $tn
+fi
+echo Test ${tn} okay
 tn=$(( $tn + 1 ))
 
 
 ############ etc.
 
+echo
+echo 'NODE TESTS FINISHED'
+echo
 
 popd

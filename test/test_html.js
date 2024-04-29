@@ -17,7 +17,7 @@ const {Builder, forBrowser, By, until, Browser, Capabilities} = require('seleniu
 //const { ChromeOptions } = require('selenium-webdriver/chrome');
 
 describe('convert raw local', function() {
-	let driver, opts;
+	let driver, opts, errflg = false;
 	before(async function() {
 			//const chromcapa = Capabilities.chrome();
 			const opts = [ 'prefs', { 'download.default_directory': '/home/hegny/Downloads/testoutputdir' } ];
@@ -41,12 +41,11 @@ describe('convert raw local', function() {
 			//console.log('pressed checkbox ' + JSON.stringify(cb) + ' sel2 ' + sel2);
 			const fi = await driver.findElement(By.id('infile'));
 			//console.log('found fileinput ' + JSON.stringify(fi));
-			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2021_1102_123011.raw');
+			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2021_1102_123011_001.raw');
 			//fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2034_1015_123011.raw');
 			await driver.actions({async: true}).pause(1900);
 			await driver.actions({async: true}).clear();
 			await fi.clear();
-			
 	});
 	it('convert with question and rotation', async function dotest() {
 			this.timeout(9000);
@@ -66,21 +65,53 @@ describe('convert raw local', function() {
 			const fi = await driver.findElement(By.id('infile'));
 			await fi.clear();
 			//console.log('found fileinput ' + JSON.stringify(fi));
-			fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2034_1015_123011.raw');
+			fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2024_1015_123011_001.raw');
 			//await driver.actions({async: true}).pause(900);
 			const rcw = await driver.findElement(By.id('procthiscw'));
 			await driver.actions({async: true})
-				.pause(600).move({origin: rcw}).pause(600).click().pause(600).perform();
+				.pause(300).move({origin: rcw}).pause(300).click().pause(300).perform();
 			const doit = await driver.findElement(By.id('procthis'));
 			await driver.actions({async: true})
-				.move({origin: doit}).pause(600).click().pause(600).perform();
+				.move({origin: doit}).pause(300).click().pause(300).perform();
 			await driver.actions({async: true}).pause(1900);
 			await driver.actions({async: true}).clear();
-			
+	});
+	it('convert with question and more rotation', async function dotest() {
+			this.timeout(11000);
+			const cb = await driver.findElement(By.id('steppreview'));
+			const sel = await cb.isSelected();
+			//console.log('found checkbox ' + JSON.stringify(cb));
+			if (!sel) {
+				console.log('turning on single step');
+				await driver.actions({ async: true })
+					.move({ origin: cb })
+					.pause(300)
+					.click()
+					.pause(300)
+					.perform();
+			}
+			//console.log('pressed checkbox ' + JSON.stringify(cb));
+			const fi = await driver.findElement(By.id('infile'));
+			await fi.clear();
+			//console.log('found fileinput ' + JSON.stringify(fi));
+			fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2021_1102_123011_001.raw');
+			//await driver.actions({async: true}).pause(900);
+			const rcw = await driver.findElement(By.id('procthisccw'));
+			await driver.actions({async: true})
+				.pause(300).move({origin: rcw}).pause(300).click().pause(300).perform();
+			await driver.actions({async: true})
+				.pause(300).move({origin: rcw}).pause(300).click().pause(300).perform();
+			const rrs = await driver.findElement(By.id('procthisrs'));
+			await driver.actions({async: true})
+				.pause(300).move({origin: rrs}).pause(300).click().pause(300).perform();
+			const doit = await driver.findElement(By.id('procthis'));
+			await driver.actions({async: true})
+				.move({origin: doit}).pause(300).click().pause(300).perform();
+			await driver.actions({async: true}).pause(1900);
+			await driver.actions({async: true}).clear();
 	});
 	it('convert to zip with copyright', async function dotest() {
-			// zip does not work because only one file selected (useless)
-			this.timeout(9000);
+			this.timeout(11000);
 			const cb = await driver.findElement(By.id('steppreview'));
 			const sel = await cb.isSelected();
 			//console.log('found checkbox ' + JSON.stringify(cb));
@@ -88,9 +119,19 @@ describe('convert raw local', function() {
 				console.log('turning off single step');
 				await driver.actions({ async: true })
 					.move({ origin: cb })
-					.pause(300)
+					.pause(600)
 					.click()
-					.pause(300)
+					.pause(200)
+					.perform();
+			}
+			const sel2 = await cb.isSelected();
+			if (sel2) {
+				console.log('AGAIN turning off single step');
+				await driver.actions({ async: true })
+					.move({ origin: cb })
+					.pause(200)
+					.click()
+					.pause(200)
 					.perform();
 			}
 			const pv = await driver.findElement(By.id('dngpreview'));
@@ -100,35 +141,34 @@ describe('convert raw local', function() {
 				console.log('turning off preview');
 				await driver.actions({ async: true })
 					.move({ origin: pv })
-					.pause(300)
+					.pause(200)
 					.click()
 					.pause(300)
 					.perform();
 			}
 			const zipb = await driver.findElement(By.id('usezip'));
 			await driver.actions({async: true})
-				.pause(300).move({origin: zipb}).pause(300).click().pause(300).perform();
+				.pause(200).move({origin: zipb}).pause(300).click().pause(300).perform();
 			const crb = await driver.findElement(By.id('copycheck'));
 			await driver.actions({async: true})
-				.pause(300).move({origin: crb}).pause(300).click().pause(300).perform();
+				.pause(300).move({origin: crb}).pause(300).click().pause(600).perform();
 			const copytext = await driver.findElement(By.id('copytext'));
 			copytext.sendKeys('(c) Stefan Hegny debugging');
 			//console.log('pressed checkbox ' + JSON.stringify(cb));
 			const fi = await driver.findElement(By.id('infile'));
 			await fi.clear();
 			//console.log('found fileinput ' + JSON.stringify(fi));
-			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2030_0211_213011.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2034_1015_123011.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2021_1102_123011.raw');
+			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2024_1015_123011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2021_1102_123011_001.raw');
 			// do something to make it flutsch
 			await driver.actions({async: true})
 				.pause(700).move({ origin: cb }).pause(700).click().pause(700).perform();
-			
 	});
 	after(async function() {
 			console.log('Message Content:');
 			let m = await driver.findElement(By.id('xmsg'));
 			let t = await m.getText();
 			console.log(t);
-			driver.quit();
+			if (!errflg) driver.quit();
 	});
 });
 

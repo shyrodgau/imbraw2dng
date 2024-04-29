@@ -19,17 +19,19 @@ pushd $TESTDAT
 python3 -m http.server 8889 2>&1 | tee -a $log 2>&1
 webid=$!
 
-${TESTWORK}/test_node.sh 2>&1 | tee -a $log 2>&1
+( ${TESTWORK}/test_node.sh ; echo $? > trc ) 2>&1 | tee -a $log 2>&1
 
 touch ~/Downloads/imbraw2dng_test_${testid}_startmark
 sleep 1
+
+grep -v '^0$' trc && exit
 
 ${TESTWORK}/test_html.js 2>&1 | tee -a $log 2>&1
 sleep 1
 touch ~/Downloads/imbraw2dng_test_${testid}_endmark
 
 mkdir -p ${TESTWORK}/outdir/html
-find ~/Downloads -newer ~/Downloads/imbraw2dng_test_${testid}_startmark -type f -exec mv -v {} ${TESTWORK}/outdir/html \;
+find ~/Downloads -newer ~/Downloads/imbraw2dng_test_${testid}_startmark -type f ! -name imbraw2dng_test_${testid}_endmark -exec mv -v {} ${TESTWORK}/outdir/html \;
 rm ~/Downloads/imbraw2dng_test_${testid}_endmark ~/Downloads/imbraw2dng_test_${testid}_startmark
 
 pushd ${TESTWORK}/outdir
