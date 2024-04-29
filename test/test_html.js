@@ -25,6 +25,7 @@ describe('convert raw local', function() {
 			driver = await new Builder().forBrowser(Browser.CHROME).build();
 			//driver = await new Builder().forBrowser(Browser.CHROME).withCapabilities(chromcapa).build();
 			await driver.get(TESTURL + 'IMBACK/imbraw2dng.html');
+			driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));}');
 	});
 	it('convert without question', async function dotest() {
 			this.timeout(6000);
@@ -164,11 +165,16 @@ describe('convert raw local', function() {
 				.pause(700).move({ origin: cb }).pause(700).click().pause(700).perform();
 	});
 	after(async function() {
+			let me = await driver.findElement(By.id('thebody'));
+			let ma = await me.getAttribute('data-err');
 			console.log('Message Content:');
 			let m = await driver.findElement(By.id('xmsg'));
 			let t = await m.getText();
 			console.log(t);
-			if (!errflg) driver.quit();
+			if (ma) {
+				console.log('***ERR: ' + ma);
+			} else
+				driver.quit();
 	});
 });
 
