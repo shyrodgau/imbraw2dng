@@ -537,6 +537,7 @@ handleone(fx) {
 				this.imbc.mappx(false, 'words.sorryerr');
 				this.imbc.appmsgxl(true, 'process.erraccess', url);
 				this.imbc.stats.error ++;
+				if (undefined !== this.exitcode) this.exitcode++;
 				this.imbc.handlenext();
 		  });
 		});
@@ -550,6 +551,7 @@ handleone(fx) {
 			},
 			() => {
 				this.imbc.appmsg('Error reading DNG: ' + f.name);
+				if (undefined !== this.exitcode) this.exitcode++;
 				this.imbc.handlenext();
 				this.imbc.stats.error++;
 			});
@@ -578,6 +580,7 @@ handleone(fx) {
 			console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
 			this.imbc.appmsg('Error processing or reading file ' +  f.name, true);
 			this.imbc.stats.error++;
+			if (undefined !== this.exitcode) this.exitcode++;
 			this.imbc.handlenext();
 		}
 		reader.readAsArrayBuffer(f);
@@ -585,12 +588,209 @@ handleone(fx) {
 		this.imbc.appmsg("[" + (1 + this.imbc.actnum) + " / " + this.imbc.totnum + "] ", false);
 		this.imbc.appmsg('Size of raw data of ' + f.name + ' seems not to match known formats, ignoring...', true);
 		this.imbc.stats.error++;
+		if (undefined !== this.exitcode) this.exitcode++;
 		this.imbc.handlenext();
 	}
 }
 /* Indentation in - end of class ImBCBackw */
 }
 /* *************************************** Backward helper class E N D *************************************** */
+/* *************************************** ZIP Helper class *************************************** */
+class ZIPHelp {
+/* Indentation out */
+#lochdrs = [];
+#loclens = [];
+#writecb = null;
+#finishoff = 0;
+#sizecent = 0;
+static crcTable = [];
+/* ZIPHelp: constructor */
+constructor(writecb) {
+	this.#writecb = writecb;
+}
+/* ZIPHelp: make dos date */
+static makeDosDate(yr, mon, day, hr, min, sec)
+{
+    if (yr>1980)
+        yr-=1980;
+    else if (yr>80)
+        yr-=80;
+    return (((day + (32 * mon) + (512 * yr)) * 65536) |
+		((sec/2) + (32* min) + (2048 * hr)));
+}
+/* ZIPHelp: dos date from filename */
+static datefromfile(name) {
+	let { yr, mon, day, hr, min, sec } = ImBCBase.nametotime(name);
+	if (yr) {
+		return ZIPHelp.makeDosDate(yr, mon, day, hr, min, sec);
+	} else {
+		let r = ImBCBase.nametotime(new Date(Date.now()).toISOString());
+		return ZIPHelp.makeDosDate(r.yr, r.mon, r.day, r.hr, r.min, r.sec);
+	}
+}
+/* ZIPHelp: crc32 stuff */
+static makeCRCTable(){
+    var c;
+    for(var n =0; n < 256; n++){
+        c = n;
+        for(var k =0; k < 8; k++){
+            c = ((c&1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1));
+        }
+        ZIPHelp.crcTable[n] = c;
+    }
+}
+
+static crc32(arr) {
+	if (ZIPHelp.crcTable.length === 0) ZIPHelp.makeCRCTable();
+    var crc = 0 ^ (-1);
+
+    for (var i = 0; i < arr.length; i++ ) {
+        crc = (crc >>> 8) ^ ZIPHelp.crcTable[(crc ^ arr[i]) & 0xFF];
+    }
+
+    return (crc ^ (-1)) >>> 0;
+};
+/* ZIPHelp: finish zip with centraldirs and endcentral */
+finish(cb, i) {
+	if (i === undefined) i=0;
+	if (i < this.#lochdrs.length) {
+		let j = this.#lochdrs[i];
+		let ch = new Uint8Array(46);
+		ch[0] = 0x50; // P
+		ch[1] = 0x4B; // K
+		ch[2] = 0x1; // magic
+		ch[3] = 0x2;
+		ch[4] = 0x0; // version made
+		ch[5] = 0x0;
+		ch[6] = 0x14; // version extract
+		ch[7] = 0x0;
+		ch[8] = 0x0; // gp bitflags
+		ch[9] = 0x8;
+		ch[10] = 0x0; // compr
+		ch[11] = 0x0;
+		let dosdate = j.dosdate;
+		ch[12] = dosdate % 256;
+		ch[13] = Math.floor(dosdate/256) % 256;
+		ch[14] = Math.floor(dosdate/65536) % 256;
+		ch[15] = Math.floor(dosdate/(256*65536)) % 256;
+		let crc = j.crc;
+		ch[16] = crc % 256;
+		ch[17] = Math.floor(crc/256) % 256;
+		ch[18] = Math.floor(crc/65536) % 256;
+		ch[19] = Math.floor(crc/(256*65536)) % 256;
+		let dl = j.dl; // compr. length
+		ch[20] = dl % 256;
+		ch[21] = Math.floor(dl/256) % 256;
+		ch[22] = Math.floor(dl/65536) % 256;
+		ch[23] = Math.floor(dl/(256*65536)) % 256;
+		// uncompr. size is same
+		ch[24] = dl % 256;
+		ch[25] = Math.floor(dl/256) % 256;
+		ch[26] = Math.floor(dl/65536) % 256;
+		ch[27] = Math.floor(dl/(256*65536)) % 256;
+		let fl = j.fl; // name length
+		ch[28] = fl % 256;
+		ch[29] = Math.floor(fl/256) % 256;
+		ch[30] = 0; // extra length
+		ch[31] = 0;
+		ch[32] = 0x0; // comment length
+		ch[33] = 0x0;
+		ch[34] = 0x0; // disk no
+		ch[35] = 0x0;
+		ch[36] = 0x0; // int attr
+		ch[37] = 0x0;
+		ch[38] = 0x0; // ext attr
+		ch[39] = 0x0;
+		ch[40] = 0x0;
+		ch[41] = 0x0;
+		ch[42] = this.#finishoff % 256;
+		ch[43] = Math.floor(this.#finishoff/256) % 256;
+		ch[44] = Math.floor(this.#finishoff/65536) % 256;
+		ch[45] = Math.floor(this.#finishoff/(256*65536)) % 256;
+		this.#sizecent += (46 + j.fl);
+		this.#finishoff += this.#loclens[i];
+		this.#writecb(ch, () => {
+			this.#writecb(j.name, () => { this.finish(cb, i+1); });
+		});
+		return;
+	}
+	// end of central
+	let ec = new Uint8Array(22);
+	ec[0] = 0x50; // P
+	ec[1] = 0x4B; // K
+	ec[2] = 0x5; // magic
+	ec[3] = 0x6;
+	ec[4] = 0x0; // disk no
+	ec[5] = 0x0;
+	ec[6] = 0x0; // startdisk
+	ec[7] = 0x0;
+	ec[8] = i % 256; // num entries
+	ec[9] = Math.floor(i/256) % 256;
+	ec[10] = i % 256; // num entries
+	ec[11] = Math.floor(i/256) % 256;
+	ec[12] = this.#sizecent % 256; // size of cent.dir
+	ec[13] = Math.floor(this.#sizecent/256) % 256;
+	ec[14] = Math.floor(this.#sizecent/65536) % 256;
+	ec[15] = Math.floor(this.#sizecent/(65536*256)) % 256;
+	ec[16] = this.#finishoff % 256; // start of cent.dir
+	ec[17] = Math.floor(this.#finishoff/256) % 256;
+	ec[18] = Math.floor(this.#finishoff/65536) % 256;
+	ec[19] = Math.floor(this.#finishoff/(65536*256)) % 256;
+	ec[20] = 0; // comment length
+	ec[21] = 0;
+	this.#writecb(ec, () => { cb(); });
+}
+/* ZIPHelp: add a file */
+add(data, name, cb) {
+	let narr = new TextEncoder().encode(name);
+	// output local header
+	let lh = new Uint8Array(30);
+	lh[0] = 0x50; // P
+	lh[1] = 0x4B; // K
+	lh[2] = 0x3; // magic
+	lh[3] = 0x4;
+	lh[4] = 0x14; // version 20
+	lh[5] = 0x0;
+	lh[6] = 0x0; // gp bitflags
+	lh[7] = 0x8;
+	lh[8] = 0x0; // compression
+	lh[9] = 0x0;
+	let dosdate = ZIPHelp.datefromfile(name);
+	lh[10] = dosdate % 256;
+	lh[11] = Math.floor(dosdate/256) % 256;
+	lh[12] = Math.floor(dosdate/65536) % 256;
+	lh[13] = Math.floor(dosdate/(256*65536)) % 256;
+	let crc = ZIPHelp.crc32(data);
+	lh[14] = crc % 256;
+	lh[15] = Math.floor(crc/256) % 256;
+	lh[16] = Math.floor(crc/65536) % 256;
+	lh[17] = Math.floor(crc/(256*65536)) % 256;
+	let dl = data.length;
+	lh[18] = dl % 256; // compr. length
+	lh[19] = Math.floor(dl/256) % 256;
+	lh[20] = Math.floor(dl/65536) % 256;
+	lh[21] = Math.floor(dl/(256*65536)) % 256;
+	// uncompr. size is same
+	lh[22] = dl % 256;
+	lh[23] = Math.floor(dl/256) % 256;
+	lh[24] = Math.floor(dl/65536) % 256;
+	lh[25] = Math.floor(dl/(256*65536)) % 256;
+	let fl = narr.length;
+	lh[26] = fl % 256;
+	lh[27] = Math.floor(fl/256) % 256;
+	lh[28] = 0; // extra length
+	lh[29] = 0;
+	this.#lochdrs.push( { name: narr, dosdate: dosdate, crc: crc, dl: dl, fl: fl } );
+	this.#loclens.push( 30+fl+dl );
+	this.#writecb(lh, () => {
+		this.#writecb(narr, () => {
+			this.#writecb(data, () => { cb(); });
+		})
+	});
+}
+/* Indentation in - end of class ZIPHelp */
+}
+/* *************************************** ZIP Helper class E N D *************************************** */
 /* *************************************** Main class *************************************** */
 class ImBCBase {
 /* Indentation out */
@@ -624,14 +824,14 @@ static texts = { // actually const
 			de: '\u001b[31m\u001b[1mENTSCHULDIGUNG! FEHLER:\u001b[0m ',
 			en: '\u001b[31m\u001b[1mSORRY! ERROR:\u001b[0m  ',
 			fr: '\u001b[31m\u001b[1mDÉSOLÉE! ERREUR:\u001b[0m ',
-			ja: '\u001b[31m\u001b[1m申し訳ございません! エラー:\u001b[0m  ',
+			ja: '\u001b[31m\u001b[1m申し訳ございません! エラー:\u001b[0m  ',
 			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
 		},
 		sorry: {
 			de: '\u001b[31mENTSCHULDIGUNG!\u001b[0m ',
 			en: '\u001b[31mSORRY!\u001b[0m  ',
 			fr: '\u001b[31mDÉSOLÉE!\u001b[0m ',
-			ja: '\u001b[31m申し訳ございません!\u001b[0m  ',
+			ja: '\u001b[31m申し訳ございません!\u001b[0m  ',
 			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
 		}
 	},
@@ -789,8 +989,12 @@ static texts = { // actually const
 			}
 		},
 		usezip: {
-			de: 'Nicht mehrere Dateien einzeln, sondern in einem ZIP Archiv herunteladen. Ziel kann ausgewählt werden.',
-			en: 'Do not use several single downloads, but all in one ZIP archive. Destination can be chosen.'
+			de: 'Nicht mehrere Dateien einzeln, sondern in wenigen ZIP Archiven herunteladen.',
+			en: 'Do not use several single downloads, but in fewer ZIP archives.',
+			choosedest: {
+				de: 'Ziel auswählen',
+				en:' Choose destination'
+			}
 		}
 	},
 	browser: {
@@ -894,7 +1098,7 @@ static texts = { // actually const
 			de: '\u001b[31mFEHLER\u001b[0m bei der Verbindung zu ImB auf $$0! Im ImB WLAN?',
 			en: '\u001b[31mERROR\u001b[0m connecting to ImB on $$0! In the ImB WiFi?',
 			fr: '\u001b[31mERREUR\u001b[0m lors de la connexion à imback. Dans le Wifi ImB?',
-			ja: '\u001b[31mエラー\u001b[0m $$0 でImB に接続しています! ImB WiFi ですか?'
+			ja: '\u001b[31mエラー\u001b[0m $$0 でImB に接続しています! ImB WiFi ですか?'
 		},
 		nomatch: {
 			de: 'Keine passenden Dateien gefunden. Kann vorübergehend sein.',
@@ -960,7 +1164,7 @@ static texts = { // actually const
 			de: 'Nach $$0 kopiert',
 			en: 'Copied to $$0',
 			fr: 'Copié sur $$0',
-			ja: '$$0 にコピー'
+			ja: '$$0 にコピー'
 		},
 		errorreadingfile: {
 			de: 'beim Lesen der Datei $$0',
@@ -1216,10 +1420,10 @@ static texts = { // actually const
 			   }
 	    },
 		help: {
-			en: [ `\u001b[1mWelcome to imbraw2dng\u001b[0m $$0 !', 'Usage: node $$0 \u001b[1m[\u001b[0m-l lang\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m
-\u001b[1m[\u001b[0m-d dir\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr copyright\u001b[1m]\u001b[0m
-\u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n yyyy_mm_dd-hh_mm_ss\u001b[1m]\u001b[0m
-\u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m
+			en: [ `\u001b[1mWelcome to imbraw2dng\u001b[0m $$0 !`, `Usage: node $$0 \u001b[1m[\u001b[0m-l lang\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-d dir\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr copyright\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n yyyy_mm_dd-hh_mm_ss\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \
 \u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mfiles-or-dirs\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m`,
 				'Options:',
 				' \u001b[1m-h\u001b[0m - show this help',
@@ -1240,10 +1444,10 @@ static texts = { // actually const
 				' -----',
 				' \u001b[1m--\u001b[0m - treat rest of parameters as local files or dirs',
 				' <files-or-dirs> - process local files or directories recursively, e.g. on MicroSD from ImB',],
-			fr: [ `\u001b[1mBienvenu a imbraw2dng\u001b[0m $$0 !', 'Operation: node $$0 \u001b[1m[\u001b[0m-l lang\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m
-\u001b[1m[\u001b[0m-d repertoire\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr copyright\u001b[1m]\u001b[0m
-\u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n yyyy_mm_dd-hh_mm_ss\u001b[1m]\u001b[0m
-\u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m
+			fr: [ `\u001b[1mBienvenu a imbraw2dng\u001b[0m $$0 !`, `Operation: node $$0 \u001b[1m[\u001b[0m-l lang\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-d repertoire\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr copyright\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n yyyy_mm_dd-hh_mm_ss\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \
 \u001b[1m[\u001b[0m \u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mfiches-ou-repertoires\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m`,
 				'Choix:',
 				' \u001b[1m-h\u001b[0m - montrer cette aide',
@@ -1263,11 +1467,11 @@ static texts = { // actually const
 				' \u001b[1m-n yyyy_mm_dd-hh_mm_ss\u001b[0m (ou préfixe de n\'importe quelle longueur) - sélectionnez uniquement plus récent que cet horodatage d\'ImB ou repertoires donnés',
 				' -----',
 				' \u001b[1m--\u001b[0m - traiter le reste des paramètres comme des fiches ou des répertoires locaux',
-			' <fiches-ou-repertoires> - traiter des fiches ou des répertoires locaux de manière récursive, par exemple sur MicroSD d\'ImB',],
-			de: [ `\u001b[1mWillkommen bei imbraw2dng\u001b[0m $$0 !', 'Aufruf: node $$0 \u001b[1m[\u001b[0m-l sprache\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m
-\u001b[1m[\u001b[0m-d ordner\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr copyright\u001b[1m]\u001b[0m
-\u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n yyyy_mm_dd-hh_mm_ss\u001b[1m]\u001b[0m
-\u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m
+				' <fiches-ou-repertoires> - traiter des fiches ou des répertoires locaux de manière récursive, par exemple sur MicroSD d\'ImB',],
+			de: [ `\u001b[1mWillkommen bei imbraw2dng\u001b[0m $$0 !`, `Aufruf: node $$0 \u001b[1m[\u001b[0m-l sprache\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-d ordner\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr copyright\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n yyyy_mm_dd-hh_mm_ss\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \
 \u001b[1m[\u001b[0m \u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mdateien-oder-ordner\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m`,
 				'Optionen:',
 				' \u001b[1m-h\u001b[0m - diesen Hilfetext zeigen',
@@ -1289,29 +1493,29 @@ static texts = { // actually const
 				' \u001b[1m--\u001b[0m - weitere Parameter als lokale Dateien oder Ordner betrachten',
 				' <dateien-oder-ordner> - lokale Dateien oder Ordner rekursiv (z.B. von der MicroSD Karte aus ImB) verarbeiten',],
 			ja: [
-				`\u001b[1mimbraw2dng へようこそ\u001b[0m $$0 !', 'Usage: node $$0 \u001b[1m[\u001b[0m-l lang\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m
-\u001b[1m[\u001b[0m-d dir\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr copyright\u001b[1m]\u001b[0m
-\u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n yyyy_mm_dd-hh_mm_ss\u001b[1m]\u001b[0m
-\u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m
+				`\u001b[1mimbraw2dng へようこそ\u001b[0m $$0 !`, `Usage: node $$0 \u001b[1m[\u001b[0m-l lang\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-d dir\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr copyright\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n yyyy_mm_dd-hh_mm_ss\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \
 \u001b[1m[\u001b[0m \u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mfiles-or-dirs\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m`,
 				'オプション:',
-				' \u001b[1m-h\u001b[0m - このヘルプを表示する',
-				' \u001b[1m-nc\u001b[0m - 色付きのテキストを使用しない',
-				' \u001b[1m-co\u001b[0m - 色付きのテキストを強制',
-				' \u001b[1m-l XX\u001b[0m - ここで、XX は有効な言語コードです (現在: DE、EN、FR、JA)',
+				'\u001b[1m-h\u001b[0m - このヘルプを表示する',
+				' \u001b[1m-nc\u001b[0m - 色付きのテキストを使用しない',
+				' \u001b[1m-co\u001b[0m - 色付きのテキストを強制',
+				' \u001b[1m-l XX\u001b[0m - ここで、XX は有効な言語コードです (現在: DE、EN、FR、JA)',
 				'         ファイル名を imbraw2dng_XX.js に変更することで言語を設定することもできます。',
-				' \u001b[1m-d dir\u001b[0m - 出力ファイルを dir に置く',
-				' \u001b[1m-f\u001b[0m - 現在のファイルを上書きする',
+				' \u001b[1m-d dir\u001b[0m - 出力ファイルを dir に置く',
+				' \u001b[1m-f\u001b[0m - 現在のファイルを上書きする',
 				' \u001b[1m-r\u001b[0m - rename output file, if already exists',
 				' \u001b[1m-np\u001b[0m - Do not add preview thumbnail to DNG',
 				' \u001b[1m-cr \'copyright...\'\u001b[0m - add copyright to DNG',
 				' \u001b[1m-fla\u001b[0m, \u001b[1m-flx\u001b[0m - add multiple images to fake long exposure, flx scales down',
-				' \u001b[1m-R\u001b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリからRAWを取得する',
-				' \u001b[1m-J\u001b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリからJPEGを取得する',
-				' \u001b[1m-O\u001b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリから非RAW/非JPEGを取得する',
-				' \u001b[1m-n yyyy_mmdd_hhmmss\u001b[0m (または任意の長さのプレフィックス) - ImB からこのタイムスタンプより新しいもののみを選択する',
+				' \u001b[1m-R\u001b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリからRAWを取得する',
+				' \u001b[1m-J\u001b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリからJPEGを取得する',
+				' \u001b[1m-O\u001b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリから非RAW/非JPEGを取得する',
+				' \u001b[1m-n yyyy_mmdd_hhmmss\u001b[0m (または任意の長さのプレフィックス) - ImB からこのタイムスタンプより新しいもののみを選択する',
 				' -----',
-				' \u001b[1m--\u001b[0m - 残りのパラメータをローカル ファイルまたはディレクトリとして扱う',
+				' \u001b[1m--\u001b[0m - 残りのパラメータをローカル ファイルまたはディレクトリとして扱う',
 				'<files-or-dirs> と -R/-J/-O/-n は同時に使用できません。'
 				]
 		},
@@ -1319,19 +1523,19 @@ static texts = { // actually const
 			en: '\u001b[31mUnknown Option:\u001b[0m $$0',
 			de: '\u001b[31mUnbekannte Option:\u001b[0m $$0',
 			fr: '\u001b[31mOption inconnue:\u001b[0m $$0',
-			ja: '\u001b[31m最後のパラメータの値が欠落しています。\u001b[0m'
+			ja: '\u001b[31m最後のパラメータの値が欠落しています。\u001b[0m'
 		},
 		missingval: {
 			en: '\u001b[31mMissing value for last parameter.\u001b[0m',
 			de: '\u001b[31mFehlender Wert für letzten Parameter.\u001b[0m',
 			fr: '\u001b[31mValeur manquante pour le dernier paramètre.\u001b[0m',
-			ja: '\u001b[31m最後のパラメータの値が欠落しています。\u001b[0m'
+			ja: '\u001b[31m最後のパラメータの値が欠落しています。\u001b[0m'
 		},
 		fnwarn: {
 			en: '\u001b[31mWarning:\u001b[0m $$0 looks like a timestamp, did you forget \u001b[1m-n\u001b[0m or \u001b[1m--\u001b[0m in front of it?',
 			de: '\u001b[31mWarnung:\u001b[0m $$0 sieht wie ein Zeitstempel aus, vielleicht \u001b[1m-n\u001b[0m oder \u001b[1m--\u001b[0m davor vergessen?',
 			fr: '\u001b[31mAvertissement:\u001b[0m $$0 ressemble à un horodatage, oubliée \u001b[1m-n\u001b[0m ou \u001b[1m--\u001b[0m?',
-			ja: '\u001b[31m警告:\u001b[0m $$0 lタイムスタンプのようですが、 \u001b[1m-n\u001b[0m または \u001b[1m--\u001b[0m 手前にあるのを忘れましたか?'
+			ja: '\u001b[31m警告:\u001b[0m $$0 lタイムスタンプのようですが、 \u001b[1m-n\u001b[0m または \u001b[1m--\u001b[0m 手前にあるのを忘れましたか?'
 		},
 		renamed: {
 			en: '(renamed)',
@@ -1367,6 +1571,7 @@ totnum=0;
 actnum=0;
 stats = { total: 0, skipped: 0, ok: 0, error: 0 };
 allfiles = [];
+static zipmax = 50000000; // byte zip length, can be adjusted
 
 // ImBCBase: from the back itself
 imbpics = [];  // found jpegs
@@ -1455,6 +1660,7 @@ static infos = [ // actually const
 /* ImBCBase: debug */
 debugflag = false;
 useraw = null;
+imbweb = 'http://192.168.1.254'
 
 constructor() {
 }
@@ -1567,27 +1773,18 @@ xl(str, arg0, arg1, arg2, arg3, base) {
 /* ImBCBase: find language from filename or nodejs scriptfile */
 querylang(name, offset) {
 	if (undefined === offset) offset = 8;
-	let found = 0;
-	for (const l of ImBCBase.alllangs) {
-		if (name.substring(name.length - offset, name.length - offset + 4).toUpperCase() === ('_' + l.toUpperCase() + '.')) {
-			this.mylang = l;
-			if ('00' === l) {
-				this.debugflag = true;
-				if (document) { // translation output into browser log
-					for (const el of Object.keys(ImBCBase.texts))
-						this.prxl(el, ImBCBase.texts[el]);
-					document.getElementById('langsel').innerHTML += '<option value="00" onclick="imbc.setlang()">00</option></select>';
-				}
-			}
-			if (document) {
-				document.getElementById('langsel').value = l;
-			}
-			found = 1;
-			break;
+	if (name[name.length - offset] !== '_') return;
+	let l = this.findlang(name.substring(name.length - offset + 1, name.length - offset + 3));
+	if ('00' === l) {
+		this.debugflag = true;
+		if (document) { // translation output into browser log
+			for (const el of Object.keys(ImBCBase.texts))
+				this.prxl(el, ImBCBase.texts[el]);
+			document.getElementById('langsel').innerHTML += '<option value="00" onclick="imbc.setlang()">00</option></select>';
 		}
 	}
-	if (!found) {
-		if (name.substring(name.length - offset, name.length - offset+1) === '_') console.log('Unknown language: ' + name.substring(name.length - offset+1).substring(0,2));
+	if (document) {
+		document.getElementById('langsel').value = l;
 	}
 	// followed by xlall anyway
 }
@@ -1623,7 +1820,9 @@ prxl(key, el) {
 		}
 		} catch (e) {
 			console.log(JSON.stringify(e));
-			if (!document) require('process').exit();
+			if (undefined !== this.exitcode) {
+				this.exitcode++;
+			}
 		}
 	}
 	for (const ne of Object.keys(el).filter((k) => ((k !== 'en') && (k !== 'de') && (typeof(el[k]) !== 'string')))) {
@@ -1640,7 +1839,11 @@ findlang(i) {
 			break;
 		}
 	}
-	if (!found) {
+	if ('zZ' === i || ('00' === this.mylang && document && window.location.href.startsWith('http://127.0.0.1:8889'))) {
+		this.mylang = 'en';
+		this.imbweb = 'http://127.0.0.1:8889';
+	}
+	else if (!found) {
 		this.mylang = 'en';
 		console.log('Unknown language(2): ' + i);
 	}
@@ -1748,6 +1951,7 @@ handleone(orientation, fromloop) {
 				this.mappx(false, 'words.sorryerr');
 				this.mappx(true, 'process.erraccess', url);
 				this.stats.error ++;
+				if (undefined !== this.exitcode) this.exitcode++;
 				this.handlenext(fromloop);
 		  });
 		});
@@ -1775,6 +1979,7 @@ handleone(orientation, fromloop) {
 			this.mappx(false, 'words.sorryerr');
 			this.mappx(true, 'process.errorreadingfile', f.name);
 			this.stats.error++;
+			if (undefined !== this.exitcode) this.exitcode++;
 			this.handlenext(fromloop);
 		}
 		reader.readAsArrayBuffer(f);
@@ -1805,6 +2010,7 @@ handleone(orientation, fromloop) {
 			this.mappx(false, 'words.sorryerr');
 			this.mappx(true, 'process.errorreadingfile', f.name);
 			this.stats.error++;
+			if (undefined !== this.exitcode) this.exitcode++;
 			this.handlenext(fromloop);
 		}
 		reader.readAsArrayBuffer(f);
@@ -1976,6 +2182,7 @@ handleone(orientation, fromloop) {
 		this.mappx(false, 'words.sorryerr');
 		this.mappx(true, 'process.errorreadingfile', f.name);
 		this.stats.error++;
+		if (undefined !== this.exitcode) this.exitcode++;
 		this.handlenext(fromloop);
 	};
 	reader.readAsArrayBuffer(f);
@@ -1986,6 +2193,18 @@ writewrap(name, type, okmsg, arr1, fromloop) {
 		this.zip.add(arr1, name, () => {
 			this.mappx(true, okmsg, name);
 			this.writepostok(name, fromloop);
+			if (this.zipdata && this.zipdata.length > ImBCHtml.zipmax) {
+				this.zip.finish(() => {
+					let o = new Uint8Array(this.zipdata.length);
+					for (let p=0; p<this.zipdata.length; p++) o[p] = this.zipdata[p];
+					this.writefile('imbraw2dng_' + ('' + Date.now()).substring(3,10) + '_out.zip', 'application/zip', 'process.copyokcheckdl', o);
+					this.zipdata = [];
+					this.zip = new ZIPHelp((data, cb) => {
+						for (let l=0; l<data.length; l++) this.zipdata.push(data[l]);
+						cb();
+					});
+				});
+			}
 		});
 	} else
 		this.writefile(name, type, okmsg, arr1, fromloop);
@@ -2220,16 +2439,23 @@ class ImBCNodeOut extends ImBCBase {
 // generic data
 outdir = '.';
 renamefiles = false;
-withcolors = true;
+withcolours = true;
 ovwout = false;
 typeflags = 0;
 fromts = '0000';
+exitcode = 0;
 ptypeflags = 0; // from preferences
 // tried configfiles
 #configfiles = [ './.imbraw2dng.json' ];
 #configloaded = '';
 // string buffer for concatenating one line of output
 #strbuff = '';
+// zipping
+writestream = null;
+zipdata = null;
+zip = null;
+zipname = '';
+ziperr = false;
 constructor() {
 	super();
 	this.fs = require('fs');
@@ -2274,6 +2500,7 @@ writefile(name, type, okmsg, arr1, fromloop, renameidx) {
 				this.appmsgxl(0, 'process.errsave', outfile);
 				this.appmsg(JSON.stringify(err), true);
 				this.stats.error++;
+				if (undefined !== this.exitcode) this.exitcode++;
 				this.handlenext(fromloop);
 			}
 			else {
@@ -2370,7 +2597,7 @@ resolver(url, onok, onerr) {
 			let err = false;
 			if (res.statusCode !== 200) {
 				err = true;
-				console.log(this.xl('onimback.errconnect', '192.168.1.254'));
+				console.log(this.xl('onimback.errconnect', this.imbweb));
 				console.log('Status: ' + res.statusCode + ' Type: ' + res.headers['content-type']);
 				res.resume();
 				return onerr(url, fx);
@@ -2396,8 +2623,9 @@ resolver(url, onok, onerr) {
 				});
 			});
 		}).on('error', (e) => {
-			console.log(this.xl('onimback.errconnect', '192.168.1.254'));
+			console.log(this.xl('onimback.errconnect', this.imbweb));
 			console.log(JSON.stringify(e));
+			if (undefined !== this.exitcode) this.exitcode++;
 			onerr(url, fx);
 		});
 	}
@@ -2427,6 +2655,24 @@ resolver(url, onok, onerr) {
 }
 /* ImBCNodeOut: main handler function for one file */
 handleonex() {
+	if (this.zipname && !this.zip) {
+		let first = true;
+		this.zip = new ZIPHelp((data, cb) => {
+			if (!this.ziperr) {
+				this.fs.writeFile(this.zipname, data, {encoding: null, flush: true, flag: first?'wx':'a' }, (err) => {
+						if (err) {
+							this.ziperr = true;
+							this.mappx(false, 'words.error');
+							if (undefined !== this.exitcode) this.exitcode++;
+							this.appmsg(JSON.stringify(err), true);
+							require('process').exit(1);
+						}
+						else first = false;
+						cb();
+				});
+			} else cb();
+		});
+	}
 	const f = (this.debugflag && this.useraw) ? this.useraw : this.allfiles[this.actnum];
 	this.currentrot = 1;
 	if (this.imbcb)
@@ -2514,7 +2760,7 @@ readconfig(callback, tryno) {
 /* ImBCNodeOut: nodejs: config info */
 configinfo() {
 	if ('' !== this.#configloaded)
-		this.mappx(true, 'node.readconfig', this.configloaded);
+		this.mappx(true, 'node.readconfig', this.#configloaded);
 	else
 		this.mappx(true, 'node.noconfig', JSON.stringify(this.#configfiles));
 }
@@ -2553,12 +2799,29 @@ handlenext(/*fromloop*/) {
 		this.actnum++;
 		this.handleonex();
 	} else {
-		this.actnum = 0;
-		this.allfiles = [];
+		if (this.zip) {
+			this.zip.finish(() => {
+				if (!this.ziperr) {
+					this.mappx(false, 'words.finished');
+					this.mappx(true, 'process.copyok', this.zipname);
+				} else {
+					this.mappx(false, 'words.error');
+					this.mappx(true, 'process.errsave', this.zipname);
+					if (undefined !== this.exitcode) this.exitcode++;
+				}
+				if (this.stats.total > 0) {
+					this.appmsg('');
+					this.mappx(true, 'process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
+				}
+				require('process').exit(this.exitcode);
+			});
+			return;
+		}
 		if (this.stats.total > 0) {
 			this.appmsg('');
 			this.mappx(true, 'process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
 		}
+		require('process').exit(this.exitcode);
 	}
 }
 /* ImBCNode: nodejs: get imb data for node js */
@@ -2567,7 +2830,7 @@ checkimb(type, found) {
 	let subdir = 'PHOTO';
 	if (type) subdir='MOVIE';
 	//this.ht.get('http://127.0.0.1:8000/PHOTO.html', (res) => {
-	this.ht.get('http://192.168.1.254/IMBACK/' + subdir, (res) => {
+	this.ht.get(this.imbweb + '/IMBACK/' + subdir, (res) => {
 			let err = false;
 			if (res.statusCode !== 200 || !/^text\/html/.test(res.headers['content-type'])) {
 				err = true;
@@ -2576,7 +2839,7 @@ checkimb(type, found) {
 					return this.checkimb(true, false);
 				}
 				else if (type && !found) {
-					console.log(this.xl('onimback.errconnect', '192.168.1.254'));
+					console.log(this.xl('onimback.errconnect', this.imbweb));
 					console.log('Status: ' + res.statusCode + ' Type: ' + res.headers['content-type']);
 					process.exit(1);
 				}
@@ -2596,10 +2859,10 @@ checkimb(type, found) {
 					let endstr = b.substring(i+j+9).indexOf(delim);
 					let url = b.substring(i+j+9, i+j+9+endstr);
 					if (-1 === url.indexOf('?del=')) {
-						if (url.startsWith('http://192.168.1.254'))
+						if (url.startsWith(this.imbweb))
 							this.handle1imb(url);
 						else
-							this.handle1imb('http://192.168.1.254'+ url);
+							this.handle1imb(this.imbweb+ url);
 					}
 					i=i+j+10;
 				}
@@ -2611,12 +2874,17 @@ checkimb(type, found) {
 			return this.checkimb(true, false);
 		}
 		else if (type && !found) {
-			console.log(this.xl('onimback.errconnect', '192.168.1.254'));
+			console.log(this.xl('onimback.errconnect', this.imbweb));
 			console.log(JSON.stringify(e));
-			process.exit(1);
+			if (undefined !== this.exitcode) this.exitcode++;
 		}
 		else this.imbdoit();
 	});
+}
+/* ImBCNode: post write ok handler */
+writepostok(name, fromloop) {
+	this.stats.ok++;
+	this.handlenext(fromloop);
 }
 /* ImBCNode: nodejs: show help */
 #help(caller) {
@@ -2657,7 +2925,10 @@ startnode(notfirst) {
 				}
 				else if (flagging === 2) {
 					flagging = 0;
-					this.outdir = v;
+					if (v.substring(v.length -4).toUpperCase() === '.ZIP')
+						this.zipname = v;
+					else
+						this.outdir = v;
 				}
 				else if (flagging === 3) {
 					flagging = 0;
@@ -2668,6 +2939,7 @@ startnode(notfirst) {
 						wanthelp = true;
 						this.mappx(false, 'words.error');
 						this.mappx(true, 'onimback.invaltime', v);
+						if (undefined !== this.exitcode) this.exitcode++;
 					}
 				}
 				else if (flagging === 4) {
@@ -2713,7 +2985,10 @@ startnode(notfirst) {
 				}
 				else if (v.substring(0,2)==='-d') {
 					if (v.substring(2).length > 0) {
-						this.outdir = v.substring(2);
+						if (v.substring(v.length -4).toUpperCase() === '.ZIP')
+							this.zipname = v.substring(2);
+						else
+							this.outdir = v.substring(2);
 					}
 					else
 						flagging=2;
@@ -2727,6 +3002,7 @@ startnode(notfirst) {
 							wanthelp = true;
 							this.mappx(false, 'words.error');
 							this.mappx(true, 'onimback.invaltime', v.substring(2));
+							if (undefined !== this.exitcode) this.exitcode++;
 						}
 					}
 					else
@@ -2887,6 +3163,21 @@ handlenext(/*fromloop*/) {
 		this.actnum++;
 		this.handleonex();
 	} else {
+		if (this.zip) {
+			this.zip.finish(() => {
+				if (!this.ziperr) {
+					this.mappx(false, 'words.finished');
+					this.mappx(true, 'process.copyok', this.zipname);
+				} else {
+					this.mappx(false, 'words.error');
+					this.mappx(true, 'process.errsave', this.zipname);
+					if (undefined !== this.exitcode) this.exitcode++;
+				}
+				this.zip = null;
+				this.zipdata = null;
+				this.ziperr = false;
+			});
+		}
 		this.actnum = 0;
 		this.allfiles = [];
 		if (this.stats.total > 0) {
