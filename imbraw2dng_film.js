@@ -213,7 +213,7 @@ getData(offset) {
 			//let r = c + ((b&15)<<8);
 			//let g1 = (a<<4) + ((b&240)>>4);
 			/* THIS IS THE PLACE WHERE THE QUESTION IS */
-			/* (in odd lines, g1=>b and r=> g2) */
+			/* (in odd lines, g1=>b and r=> g2) - a is first, b second and c third byte of raw */
 			let g1 = a + ((b&15)<<8);
 			let r = ((b&240)>>4) + ((c)<<4);
 			if (0 === (tmpln %2)) {
