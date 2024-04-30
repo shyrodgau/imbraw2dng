@@ -42,6 +42,6 @@ done
 
 exiftool -r -X * > ${TESTWORK}/imbraw2dng_test_${testid}_exif.xml
 
-rm -rf *_${$}_tmp 2>&1 | tee -a $log 2>&1
+#rm -rf *_${$}_tmp 2>&1 | tee -a $log 2>&1
 
 kill $webid 2>&1 | tee -a $log 2>&1

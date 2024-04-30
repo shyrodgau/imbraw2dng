@@ -178,3 +178,87 @@ describe('convert raw local', function() {
 	});
 });
 
+describe('convert raw from imback', function() {
+	let driver, opts, errflg = false;
+	before(async function() {
+			//const chromcapa = Capabilities.chrome();
+			const opts = [ 'prefs', { 'download.default_directory': '/home/hegny/Downloads/testoutputdir' } ];
+			//chromcapa.set('chromeOptions', opts);
+			driver = await new Builder().forBrowser(Browser.CHROME).build();
+			//driver = await new Builder().forBrowser(Browser.CHROME).withCapabilities(chromcapa).build();
+			await driver.get(TESTURL + 'IMBACK/imbraw2dng_00.html');
+			driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));}');
+	});
+	it('convert without question', async function dotest() {
+			this.timeout(36000);
+			const zipb = await driver.findElement(By.id('usezip'));
+			await driver.actions({async: true})
+				.pause(200).move({origin: zipb}).pause(300).click().pause(300).perform();
+			const cb = await driver.findElement(By.id('steppreview'));
+			const sel = await cb.isSelected();
+			console.log('turning on single step');
+			await driver.actions({ async: true })
+				.move({ origin: cb })
+				.pause(900)
+				.click()
+				.pause(900)
+				.perform();
+			const sel2 = await cb.isSelected();
+			//console.log('pressed checkbox ' + JSON.stringify(cb) + ' sel2 ' + sel2);
+			const fi = await driver.findElement(By.id('imbstartts'));
+			//console.log('found fileinput ' + JSON.stringify(fi));
+			await fi.sendKeys('2023');
+			const doit = await driver.findElement(By.id('imbdoit'));
+			await driver.actions({ async: true })
+				.move({ origin: doit })
+				.pause(900)
+				.click()
+				.pause(900)
+				.perform();
+			await driver.actions({async: true}).pause(1900);
+			await driver.actions({async: true}).clear();
+			await driver.actions({async: true})
+				.pause(7000).move({ origin: cb }).pause(3000).click().pause(700).perform();
+			await fi.clear();
+	});
+	it('convert from visual browser', async function dotest() {
+			this.timeout(36000);
+			const cb = await driver.findElement(By.id('imbvisbrows'));
+			await driver.actions({ async: true })
+				.move({ origin: cb })
+				.pause(300)
+				.click()
+				.pause(3000)
+				.perform();
+			//console.log('pressed checkbox ' + JSON.stringify(cb));
+			const fi = await driver.findElement(By.id('SELC_2029'));
+			await driver.actions({ async: true })
+				.move({ origin: fi })
+				.pause(300)
+				.click()
+				.pause(600)
+				.perform();
+			//await driver.actions({async: true}).pause(900);
+			const rcw = await driver.findElement(By.id('doselbut'));
+			await driver.actions({ async: true })
+				.move({ origin: rcw })
+				.pause(300)
+				.click()
+				.pause(6000)
+				.perform();
+			await driver.actions({async:true}).clear();
+	});
+	after(async function() {
+			let me = await driver.findElement(By.id('thebody'));
+			let ma = await me.getAttribute('data-err');
+			console.log('Message Content:');
+			let m = await driver.findElement(By.id('xmsg'));
+			let t = await m.getText();
+			console.log(t);
+			if (ma) {
+				console.log('***ERR: ' + ma);
+			} else
+				driver.quit();
+	});
+});
+
