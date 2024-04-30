@@ -979,13 +979,16 @@ static texts = { // actually const
 		fakelong: {
 			en: 'Fake long exposure by adding up all (<a href="https://shyrodgau.github.io/imbraw2dng/moredoc#a-lot-more-tricks-and-details">read more</a>)',
 			de: 'Langzeitbelichtung durch Addieren simulieren (<a href="https://shyrodgau.github.io/imbraw2dng/moredoc_de#mehr-tricks-und-details">mehr lesen</a>)',
+			ja: 'すべてを加算して長時間露光をシミュレートする',
 			scale: {
 				en: 'Scale values down',
-				de: 'Werte dabei herunterskalieren'
+				de: 'Werte dabei herunterskalieren',
+				ja: 'スケールダウン値'
 			},
 			added: {
 				en: 'Added picture $$0',
-				de: 'Bild $$0 hinzugefügt'
+				de: 'Bild $$0 hinzugefügt',
+				ja: '画像を追加しました $$0'
 			}
 		},
 		usezip: {
@@ -1036,19 +1039,23 @@ static texts = { // actually const
 		},
 		settingsset: {
 			en: 'Preferences are set for source $$0',
-			de: 'Voreinstellungen für $$0 gespeichert'
+			de: 'Voreinstellungen für $$0 gespeichert',
+			ja: 'デフォルト設定は $$0 で保存されます'
 		},
 		prefnotfile: {
 			en: 'Preferences not possible for file:// URLs',
-			de: 'Voreinstellungen für file:// URLs nicht möglich'
+			de: 'Voreinstellungen für file:// URLs nicht möglich',
+			ja: 'file:// URL でデフォルト設定はできません'
 		},
 		setfrom: {
 			en: 'Set new prefereneces ',
-			de: 'Voreinstellungen setzen '
+			de: 'Voreinstellungen setzen ',
+			ja: 'デフォルトを設定する'
 		},
 		forurl: {
 			en: ' for URL $$0',
-			de: ' für URL $$0'
+			de: ' für URL $$0',
+			ja: 'URL $$0 の場合'
 		}
 	},
 	onimback: {
@@ -1128,7 +1135,8 @@ static texts = { // actually const
 		},
 		addcopyright: {
 			en: 'Add copyright',
-			de: 'Copyright hinzufügen'
+			de: 'Copyright hinzufügen',
+			ja: '著作権を追加'
 		},
 		nothing: {
 			de: 'Nichts ausgewählt.. ?',
@@ -1259,7 +1267,8 @@ static texts = { // actually const
 		addpreview: {
 			en: 'Add preview thumbnail to DNG',
 			de: 'Kleines Vorschaubild im DNG',
-			fr: 'Petite image d\'aperçu en DNG'
+			fr: 'Petite image d\'aperçu en DNG',
+			ja: 'プレビューのサムネイルを DNG に追加する'
 		},
 		addexif: {
 			en: 'Add EXIF data from $$0',
@@ -1416,7 +1425,16 @@ static texts = { // actually const
 						' -d ordner - Ausgabedateien in diesen Ordner ablegen',
 						' -----',
 						' -- - weitere Parameter als lokale Dateien oder Ordner betrachten',
-						' <dateien> - lokale Dateien verarbeiten',],
+					   ' <dateien> - lokale Dateien verarbeiten', ],
+						ja: [ 'imbdng2raw $$0 (戻る!) へようこそ!', '使い方: node $$0 [-l lang] [-d dir] [ [--] <files>* ]', 'オプション:', 
+							' -h - このヘルプを表示します',
+							' -l XX - XX は有効な言語コードです (現在: DE、EN、FR、JA)',
+							'         ファイル名を imbdng2raw_XX.js に変更することで言語を設定することもできます。',
+							' -d dir - 出力ファイルを dir に置きます',
+							' -----',
+							' -- - 残りのパラメータをローカル ファイルまたはディレクトリとして扱います',
+							' <files> - ローカル ファイルを処理します*'
+						],
 			   }
 	    },
 		help: {
@@ -1540,15 +1558,18 @@ static texts = { // actually const
 		renamed: {
 			en: '(renamed)',
 			de: '(umbenannt)',
-			fr: '(renomee)'
+			fr: '(renomee)',
+			ja: '(リネーム)'
 		},
 		readconfig: {
 			en: '\u001b[2mConfig file $$0 read.\u001b[0m',
 			de: '\u001b[2mKonfigurationsdatei $$0 eingelesen.\u001b[0m',
+			ja: '\u001b[[2m構成ファイル $$0 が読み込まれます。\u001b[[0m'
 		},
 		noconfig: {
 			de: '\u001b[2mKeine json Konfigurationsdatei gefunden, gesucht: $$0\u001b[0m',
-			en: '\u001b[2mNo json config file found, searched: $$0\u001b[0m'
+			en: '\u001b[2mNo json config file found, searched: $$0\u001b[0m',
+			ja: '\u001b[2mNo json 構成ファイルが見つかりません、検索: $$0\u001b[0m'
 		}
 	}
 };
@@ -2891,7 +2912,7 @@ writepostok(name, fromloop) {
 	caller = ImBCBase.basename(caller);
 	let texts = this.xl0('node.help');
 	console.log(this.subst(texts[0], ImBCBase.version));
-	console.log('\u001b[1mNew! Internal Overwork, please report errors to me... & Japanese translation thanks to Sadami Inoue!\u001b[0m');
+	console.log(this.rmesc('\u001b[1mNew! Internal Overwork, please report errors to me... & Japanese translation thanks to Sadami Inoue!\u001b[0m'));
 	console.log('');
 	console.log(this.subst(texts[1], caller));
 	for (let j=2; j<texts.length; j++) {
@@ -3059,7 +3080,7 @@ startnode(notfirst) {
 	}
 	else if (this.totnum > 0) {
 		console.log(this.subst(this.xl0('node.help')[0], ImBCBase.version));
-		console.log('\u001b[1mNew! Internal Overwork, please report errors to me...& Japanese translation thanks to Sadami Inoue!\u001b[0m');
+		console.log(this.rmesc('\u001b[1mNew! Internal Overwork, please report errors to me...& Japanese translation thanks to Sadami Inoue!\u001b[0m'));
 		console.log('');
 		console.log(this.xl0('main.coloursyourrisk'));
 		console.log('');
@@ -3069,7 +3090,7 @@ startnode(notfirst) {
 	}
 	else if (this.typeflags > 0) {
 		console.log(this.subst(this.xl0('node.help')[0], ImBCBase.version));
-		console.log('\u001b[1mNew! Internal Overwork, please report errors to me...& Japanese translation thanks to Sadami Inoue!\u001b[0m');
+		console.log(this.rmesc('\u001b[1mNew! Internal Overwork, please report errors to me...& Japanese translation thanks to Sadami Inoue!\u001b[0m'));
 		console.log('');
 		console.log(this.xl0('main.coloursyourrisk'));
 		console.log('');

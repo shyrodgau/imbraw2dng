@@ -4,7 +4,7 @@
 これは商用サポートのないフリー ソフトウェア ([0-clause BSD-License](LICENSE.txt)) です。
 
 ここでは: [インストール](#インストール) - [国際化](#国際化) - を見つけることができます。
-[使用法](#使用法) - [ImBack での閲覧](#imback-での閲覧) - [node.js を使用したコマンドライン経由](#nodejs-を使用したコマンドライン経由) - [どのように動作するか？](#どのように動作するか) - [A lot more tricks and details](#a-lot-more-tricks-and-details)
+[使用法](#使用法) - [ImBack での閲覧](#imback-での閲覧) - [node.js を使用したコマンドライン経由](#nodejs-を使用したコマンドライン経由) - [どのように動作するか？](#どのように動作するか) - [さらなるトリックと詳細](#さらなるトリックと詳細)
 
 簡易ドキュメント: [こちら](https://shyrodgau.github.io/imbraw2dng/README_ja)
 
@@ -93,14 +93,14 @@ DNG は TIFF に似た形式で、主に元の画像のスキャンラインの�
 色については、[DNGの処理](README_ja#DNG-の処理)もお読みください。
 
 
-## A lot more tricks and details
+## さらなるトリックと詳細
 
-If you ever need to revert the original RAW from the DNG (e.g. to do the conversion again with a never version), this is possbile using [imbdng2raw.html](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html)
+元の RAW が再び必要になった場合 (新しいバージョンで再度変換する場合など)、[imbdng2raw.html](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html) で可能です。
 
-The EXIF data in the JPEG files from ImB is of limited use, but if you would like to add it to your DNG files, this is possible. Process the JPEG first and then the corresponding RAW. 
-Corresponding is defined as: time difference < 5 sec and counter (last part of filename) difference 1. It is not neccessary to be directly consecutive, first all JPEGs and then the RAWs should do it.
+ImB からの JPEG 画像内の EXIF データは用途が限られていますが、DNG ファイルに含めたい場合は可能です。 最初に JPEG を処理し、次に適切な RAW を処理します。
+「適切」とは、時間差が 5 秒未満で、カウンタ (ファイル名の最後の部分) の差が 1 であると定義されます。 連続する必要はありません。最初にすべての JPEG、次に RAW を使用する必要があります。
 
-If you want to simulate a long "Long exposure" by several shorter ones to avoid the specific noise, you can do so by using the `-fla`/`-flx` parameters on node.js. 
-Or set the checkbox below the blue field on the HTML page and then drag and drop the RAW-files you want to stack up together into the blue field.
+特定のノイズを避けるために、長い「長時間露光」をいくつかの短い露光でシミュレートしたい場合は、node.js の `-fla`/`-flx` パラメーターを使用して行うことができます。
+または、HTML ページの青いフィールドの下にあるチェックボックスをオンにして、まとめたい RAW ファイルを青いフィールドにドラッグ アンド ドロップします。
 
-Your preferred settings can be saved in a configuration file for node.js (see above) or in the browser when you load it from a web server (internet or from ImB).
+好みの設定は、node.js の構成ファイル (上記を参照) に保存することも、Web サーバー (インターネットまたは ImB から) からロードするときにブラウザーに保存することもできます。
