@@ -13,7 +13,7 @@ or [IN ENGLISH](https://shyrodgau.github.io/imbraw2dng/moredoc)
 
 ## Installation
 
-Die aktuelle Version ist [V3.7.5_f85063c - EXIF vom JPEG kann ins RAW](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.7.5_f85063c). 
+Die aktuelle Version ist [V3.7.7_0939c27 - kann ZIP Ausgabe](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.7.7_0939c27). 
 Anmerkung: Weiterentwicklung wenn Fehler gefunden, neue Übersetzung beigesteuert, oder neues Bildformat.
 
 Die Datei [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.html) auf den PC kopieren oder aus der 
