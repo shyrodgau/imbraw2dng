@@ -996,7 +996,7 @@ static texts = { // actually const
 			en: 'Do not use several single downloads, but in fewer ZIP archives.',
 			choosedest: {
 				de: 'Ziel auswählen',
-				en:' Choose destination'
+				en: 'Choose destination'
 			}
 		}
 	},

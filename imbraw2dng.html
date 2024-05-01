@@ -1090,7 +1090,7 @@ static texts = { // actually const
 			en: 'Do not use several single downloads, but in fewer ZIP archives.',
 			choosedest: {
 				de: 'Ziel auswählen',
-				en:' Choose destination'
+				en: 'Choose destination'
 			}
 		}
 	},
@@ -3601,7 +3601,7 @@ topreccheck(force) {
 			e.setAttribute('data-state', 'ok');
 			e.querySelector('.waitdiv').style['display'] = 'none';
 			to.preview.style['display'] = '';
-			to.preview.style['width'] = to.preview.woidth * (120 / to.preview.height);
+			to.preview.style['width'] = to.preview.width * (120 / to.preview.height);
 			e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.remove('disabled') });
 			e.querySelector('.dlbtn').classList.remove('disabled');
 			if (this.debugflag) console.log('ldr j f lnx ' + to.raw);
