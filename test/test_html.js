@@ -31,7 +31,7 @@ describe('convert raw local', function() {
 			this.timeout(6000);
 			const cb = await driver.findElement(By.id('steppreview'));
 			const sel = await cb.isSelected();
-			console.log('turning on single step');
+			console.log('......turning on single step');
 			await driver.actions({ async: true })
 				.move({ origin: cb })
 				.pause(300)
@@ -54,7 +54,7 @@ describe('convert raw local', function() {
 			const sel = await cb.isSelected();
 			//console.log('found checkbox ' + JSON.stringify(cb));
 			if (!sel) {
-				console.log('turning on single step');
+				console.log('......turning on single step');
 				await driver.actions({ async: true })
 					.move({ origin: cb })
 					.pause(300)
@@ -117,7 +117,7 @@ describe('convert raw local', function() {
 			const sel = await cb.isSelected();
 			//console.log('found checkbox ' + JSON.stringify(cb));
 			if (sel) {
-				console.log('turning off single step');
+				console.log('......turning off single step');
 				await driver.actions({ async: true })
 					.move({ origin: cb })
 					.pause(600)
@@ -127,7 +127,7 @@ describe('convert raw local', function() {
 			}
 			const sel2 = await cb.isSelected();
 			if (sel2) {
-				console.log('AGAIN turning off single step');
+				console.log('......AGAIN turning off single step');
 				await driver.actions({ async: true })
 					.move({ origin: cb })
 					.pause(200)
@@ -139,7 +139,7 @@ describe('convert raw local', function() {
 			const psel = await pv.isSelected();
 			//console.log('found checkbox ' + JSON.stringify(cb));
 			if (psel) {
-				console.log('turning off preview');
+				console.log('......turning off preview');
 				await driver.actions({ async: true })
 					.move({ origin: pv })
 					.pause(200)
@@ -162,7 +162,22 @@ describe('convert raw local', function() {
 			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2024_1015_123011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2021_1102_123011_001.raw');
 			// do something to make it flutsch
 			await driver.actions({async: true})
-				.pause(700).move({ origin: cb }).pause(700).click().pause(700).perform();
+				.pause(700).move({ origin: cb }).pause(700).perform();
+	});
+	it('convert to zip with exif', async function dotest() {
+			this.timeout(11000);
+			//console.log('pressed checkbox ' + JSON.stringify(cb));
+			const cb = await driver.findElement(By.id('steppreview'));
+			const zipb = await driver.findElement(By.id('usezip'));
+			await driver.actions({async: true})
+				.pause(200).move({origin: zipb}).pause(300).click().pause(300).perform();
+			const fi = await driver.findElement(By.id('infile'));
+			await fi.clear();
+			//console.log('found fileinput ' + JSON.stringify(fi));
+			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2024_0217_121754_002.JPG' + '\n' + TESTDAT + '/IMBACK/PHOTO/2024_0217_121752_001.RAW');
+			// do something to make it flutsch
+			await driver.actions({async: true})
+				.pause(700).move({ origin: cb }).pause(700).perform();
 	});
 	after(async function() {
 			let me = await driver.findElement(By.id('thebody'));
@@ -196,7 +211,7 @@ describe('convert raw from imback', function() {
 				.pause(200).move({origin: zipb}).pause(300).click().pause(300).perform();
 			const cb = await driver.findElement(By.id('steppreview'));
 			const sel = await cb.isSelected();
-			console.log('turning on single step');
+			console.log('......turning on single step');
 			await driver.actions({ async: true })
 				.move({ origin: cb })
 				.pause(900)

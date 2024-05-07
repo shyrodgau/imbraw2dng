@@ -39,9 +39,12 @@ find . -name \*.zip | while read z; do
 	mkdir ${z}_${$}_tmp
 	unzip -q -d ${z}_${$}_tmp ${z}
 done
-find */* -type f|while read x; do z=$( echo "$x" | sed 's@/@_@g' ); ln -sv "$x" "$z"; done
 
-exiftool -r -X * > ${TESTWORK}/imbraw2dng_test_${testid}_exif.xml
+find */* -type f|while read x; do z=$( echo "$x" | sed 's@/@_@g' ); ln -sv "$x" "$z"; done >> $log 2>&1
+
+find . -maxdepth 1 -name \*.[dD][nN][gG] -exec dcraw -e {} \; 2>/dev/null
+
+find * -type f -print0 | xargs -0 exiftool -r -X  > ${TESTWORK}/imbraw2dng_test_${testid}_exif.xml
 
 #rm -rf *_${$}_tmp 2>&1 | tee -a $log 2>&1
 

@@ -209,6 +209,24 @@ fi
 echo Test ${tn} okay
 tn=$(( $tn + 1 ))
 
+echo '##########    11    ##########'
+echo Test ${tn} embed exif
+set -x
+${TESTEXES}/imbraw2dng.js -d withexif1.zip -cr 'testcopyright' ${TESTDAT}/IMBACK/PHOTO/2024_0217_121754_002.JPG ${TESTDAT}/IMBACK/PHOTO/2024_0217_121752_001.RAW
+rc=$?
+n=$( ls .|wc -l )
+set +x
+if [ $rc -ne 0 ]; then
+	echo Test ${tn} failed $rc
+	exit $tn
+fi
+if [ $n -ne 100 ]; then
+	echo Test ${tn} failed NO $n
+	exit $tn
+fi
+echo Test ${tn} okay
+tn=$(( $tn + 1 ))
+
 
 ############ etc.
 
