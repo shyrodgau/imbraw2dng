@@ -2678,7 +2678,7 @@ writefile(name, type, okmsg, arr1, fromloop) {
 	this.appmsgxl(false, 'words.finished');
 	this.appmsgxl(true, okmsg, name);
 	if (type !== 'application/zip')
-		this.writepostok(name, okmsg, fromloop);
+		this.writepostok(name, fromloop);
 }
 /* ImBCHtmlOut: find html style for translation */
 applystyle(span, msg, base) {
