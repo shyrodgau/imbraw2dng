@@ -14,7 +14,7 @@ oder [AUF DEUTSCH](https://shyrodgau.github.io/imbraw2dng/moredoc_de)
 
 ## Installation
 
-The current release is [V3.7.7_0939c27 - can output to ZIP](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.7.7_0939c27). 
+The current release is [V3.7.9_63c5e09 - bugfix](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.7.9_63c5e09).
 Note: further development when errors reported, new translation contributed or new image format.
 
 Copy the [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.html) file to your PC or extract it from the release 
