@@ -27,7 +27,7 @@ sleep 1
 grep -v '^0$' trc && exit
 
 ${TESTWORK}/test_html.js 2>&1 | tee -a $log 2>&1
-sleep 1
+sleep 3
 touch ~/Downloads/imbraw2dng_test_${testid}_endmark
 
 mkdir -p ${TESTWORK}/outdir/html

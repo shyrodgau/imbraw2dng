@@ -2,6 +2,7 @@
 /* Selenium tests */
 
 const TESTDAT='/home/hegny/prog/imbraw2dng/samples/webroot';
+const TESTDAT0='/home/hegny/prog/imbraw2dng/samples';
 
 const TESTURL='http://127.0.0.1:8889/';
 
@@ -19,6 +20,7 @@ const {Builder, forBrowser, By, until, Browser, Capabilities} = require('seleniu
 describe('convert raw local', function() {
 	let driver, opts, errflg = false;
 	before(async function() {
+			this.timeout(6000);
 			//const chromcapa = Capabilities.chrome();
 			const opts = [ 'prefs', { 'download.default_directory': '/home/hegny/Downloads/testoutputdir' } ];
 			//chromcapa.set('chromeOptions', opts);
@@ -179,6 +181,51 @@ describe('convert raw local', function() {
 			await driver.actions({async: true})
 				.pause(700).move({ origin: cb }).pause(700).perform();
 	});
+	it('convert without date', async function dotest() {
+			this.timeout(11000);
+			const cb = await driver.findElement(By.id('steppreview'));
+			const sel = await cb.isSelected();
+			//console.log('found checkbox ' + JSON.stringify(cb));
+			if (sel) {
+				console.log('......turning off single step');
+				await driver.actions({ async: true })
+					.move({ origin: cb })
+					.pause(600)
+					.click()
+					.pause(200)
+					.perform();
+			}
+			const sel2 = await cb.isSelected();
+			if (sel2) {
+				console.log('......AGAIN turning off single step');
+				await driver.actions({ async: true })
+					.move({ origin: cb })
+					.pause(200)
+					.click()
+					.pause(200)
+					.perform();
+			}
+			const pv = await driver.findElement(By.id('dngpreview'));
+			const psel = await pv.isSelected();
+			//console.log('found checkbox ' + JSON.stringify(cb));
+			if (psel) {
+				console.log('......turning off preview');
+				await driver.actions({ async: true })
+					.move({ origin: pv })
+					.pause(200)
+					.click()
+					.pause(300)
+					.perform();
+			}
+			//console.log('pressed checkbox ' + JSON.stringify(cb));
+			const fi = await driver.findElement(By.id('infile'));
+			await fi.clear();
+			//console.log('found fileinput ' + JSON.stringify(fi));
+			await fi.sendKeys(TESTDAT0 + '/kb_large_10.raw\n' + TESTDAT0 + '/mf6x6_large_1.raw');
+			// do something to make it flutsch
+			await driver.actions({async: true})
+				.pause(700).move({ origin: cb }).pause(700).perform();
+	});
 	after(async function() {
 			let me = await driver.findElement(By.id('thebody'));
 			let ma = await me.getAttribute('data-err');
@@ -196,6 +243,7 @@ describe('convert raw local', function() {
 describe('convert raw from imback', function() {
 	let driver, opts, errflg = false;
 	before(async function() {
+			this.timeout(6000);
 			//const chromcapa = Capabilities.chrome();
 			const opts = [ 'prefs', { 'download.default_directory': '/home/hegny/Downloads/testoutputdir' } ];
 			//chromcapa.set('chromeOptions', opts);
@@ -262,6 +310,41 @@ describe('convert raw from imback', function() {
 				.pause(6000)
 				.perform();
 			await driver.actions({async:true}).clear();
+	});
+	after(async function() {
+			let me = await driver.findElement(By.id('thebody'));
+			let ma = await me.getAttribute('data-err');
+			console.log('Message Content:');
+			let m = await driver.findElement(By.id('xmsg'));
+			let t = await m.getText();
+			console.log(t);
+			if (ma) {
+				console.log('***ERR: ' + ma);
+			} else
+				driver.quit();
+	});
+});
+
+describe('convert backward', function() {
+	let driver, opts, errflg = false;
+	before(async function() {
+			this.timeout(6000);
+			//const chromcapa = Capabilities.chrome();
+			const opts = [ 'prefs', { 'download.default_directory': '/home/hegny/Downloads/testoutputdir' } ];
+			//chromcapa.set('chromeOptions', opts);
+			driver = await new Builder().forBrowser(Browser.CHROME).build();
+			//driver = await new Builder().forBrowser(Browser.CHROME).withCapabilities(chromcapa).build();
+			await driver.get(TESTURL + 'IMBACK/imbdng2raw.html');
+			driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));}');
+	});
+	it('convert without question', async function dotest() {
+			this.timeout(36000);
+			const fi = await driver.findElement(By.id('infileb'));
+			await fi.clear();
+			//console.log('found fileinput ' + JSON.stringify(fi));
+			await fi.sendKeys('/home/hegny/Downloads/mf6x6_large_1.dng\n/home/hegny/Downloads/kb_large_10.dng');
+			await driver.actions({async: true})
+				.pause(7000).move({ origin: fi }).pause(3000).perform();
 	});
 	after(async function() {
 			let me = await driver.findElement(By.id('thebody'));

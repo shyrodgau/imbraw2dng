@@ -228,6 +228,44 @@ echo Test ${tn} okay
 tn=$(( $tn + 1 ))
 
 
+echo '##########    11    ##########'
+echo Test ${tn} without date
+set -x
+${TESTEXES}/imbraw2dng.js  ${TESTDAT}/../*.raw
+rc=$?
+n=$( ls .|wc -l )
+set +x
+if [ $rc -ne 0 ]; then
+	echo Test ${tn} failed $rc
+	exit $tn
+fi
+if [ $n -ne 121 ]; then
+	echo Test ${tn} failed NO $n
+	exit $tn
+fi
+echo Test ${tn} okay
+tn=$(( $tn + 1 ))
+
+
+echo '##########    12    ##########'
+echo Test ${tn} backward
+set -x
+${TESTEXES}/imbdng2raw.js  kb_large_9.dng kb_medium_5.dng kb_small_1.dng mf6x45_medium_1.dng mf6x45_small_1.dng mf6x6_large_1.dng mf6x7_large_1.dng 
+rc=$?
+n=$( ls .|wc -l )
+set +x
+if [ $rc -ne 0 ]; then
+	echo Test ${tn} failed $rc
+	exit $tn
+fi
+if [ $n -ne 128 ]; then
+	echo Test ${tn} failed NO $n
+	exit $tn
+fi
+echo Test ${tn} okay
+tn=$(( $tn + 1 ))
+
+
 ############ etc.
 
 echo
