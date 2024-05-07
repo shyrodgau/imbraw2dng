@@ -39,6 +39,7 @@ find . -name \*.zip | while read z; do
 	mkdir ${z}_${$}_tmp
 	unzip -q -d ${z}_${$}_tmp ${z}
 done
+find */* -type f|while read x; do z=$( echo "$x" | sed 's@/@_@g' ); ln -sv "$x" "$z"; done
 
 exiftool -r -X * > ${TESTWORK}/imbraw2dng_test_${testid}_exif.xml
 
