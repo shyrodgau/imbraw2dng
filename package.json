@@ -1,0 +1,29 @@
+{
+  "name": "imbraw2dng",
+  "version": "1.0.0",
+  "description": "<!-- SPDX-License-Identifier: 0BSD --> # imbraw2dng - Convert RAW files from [I'mBack<sup>&reg;</sup>&nbsp;35mm/MF](https://imback.eu) into DNG - Quick doc",
+  "main": "imbdng2raw.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shyrodgau/imbraw2dng.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shyrodgau/imbraw2dng/issues"
+  },
+  "homepage": "https://github.com/shyrodgau/imbraw2dng#readme",
+  "devDependencies": {
+    "@eslint/js": "^9.1.1",
+    "eslint": "^9.1.1",
+    "globals": "^15.0.0"
+  },
+  "dependencies": {
+    "chromedriver": "^124.0.1",
+    "jslint": "^0.12.1",
+    "selenium-webdriver": "^4.20.0"
+  }
+}
