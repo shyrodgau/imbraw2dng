@@ -31,7 +31,7 @@ sleep 3
 touch ~/Downloads/imbraw2dng_test_${testid}_endmark
 
 mkdir -p ${TESTWORK}/outdir/html
-find ~/Downloads -newer ~/Downloads/imbraw2dng_test_${testid}_startmark -type f ! -name imbraw2dng_test_${testid}_endmark -exec mv -v {} ${TESTWORK}/outdir/html \;
+find ~/Downloads -newer ~/Downloads/imbraw2dng_test_${testid}_startmark -type f ! -name imbraw2dng_test_${testid}_endmark -exec mv -v {} ${TESTWORK}/outdir/html \; 2>&1 | tee -a $log
 rm ~/Downloads/imbraw2dng_test_${testid}_endmark ~/Downloads/imbraw2dng_test_${testid}_startmark
 
 pushd ${TESTWORK}/outdir
@@ -45,6 +45,17 @@ find */* -type f|while read x; do z=$( echo "$x" | sed 's@/@_@g' ); ln -sv "$x" 
 find . -maxdepth 1 -name \*.[dD][nN][gG] -exec dcraw -e {} \; 2>/dev/null
 
 find * -type f -print0 | xargs -0 exiftool -r -X  > ${TESTWORK}/imbraw2dng_test_${testid}_exif.xml
+
+echo 'ZIP TESTS' | tee -a $log
+find . -name \*.zip -type f -print -exec unzip -v {} \; -exec unzip -t {} \; 2>&1 | tee -a $log
+
+echo 'LINT TESTS' | tee -a $log
+ln -sf ${TESTEXES}/imbraw2dng.js ih.mjs
+node /home/hegny/prog/imbraw2dng/github/node_modules/eslint/bin/eslint.js -c ${TESTEXES}/eslint.config-node.mjs ih.mjs 2>&1 | tee -a $log
+stl=$( grep -n '<script' ${TESTEXES}/imbraw2dng.html|cut -d: -f1 )
+endl=$( grep -n '</script' ${TESTEXES}/imbraw2dng.html|cut -d: -f1 )
+head -$(( $endl - 1 )) ${TESTEXES}/imbraw2dng.html|tail -$(( $endl - $stl - 1 )) > ih.js
+node /home/hegny/prog/imbraw2dng/github/node_modules/eslint/bin/eslint.js -c ${TESTEXES}/eslint.config.mjs  ih.js 2>&1 | tee -a $log
 
 #rm -rf *_${$}_tmp 2>&1 | tee -a $log 2>&1
 

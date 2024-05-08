@@ -41,12 +41,9 @@ describe('convert raw local', function() {
 				.pause(300)
 				.perform();
 			const sel2 = await cb.isSelected();
-			//console.log('pressed checkbox ' + JSON.stringify(cb) + ' sel2 ' + sel2);
 			const fi = await driver.findElement(By.id('infile'));
-			//console.log('found fileinput ' + JSON.stringify(fi));
 			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2021_1102_123011_001.raw');
-			//fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2034_1015_123011.raw');
-			await driver.actions({async: true}).pause(1900);
+			await driver.actions({async: true}).pause(1900).perform();
 			await driver.actions({async: true}).clear();
 			await fi.clear();
 	});
@@ -54,7 +51,6 @@ describe('convert raw local', function() {
 			this.timeout(9000);
 			const cb = await driver.findElement(By.id('steppreview'));
 			const sel = await cb.isSelected();
-			//console.log('found checkbox ' + JSON.stringify(cb));
 			if (!sel) {
 				console.log('......turning on single step');
 				await driver.actions({ async: true })
@@ -64,28 +60,24 @@ describe('convert raw local', function() {
 					.pause(300)
 					.perform();
 			}
-			//console.log('pressed checkbox ' + JSON.stringify(cb));
 			const fi = await driver.findElement(By.id('infile'));
 			await fi.clear();
-			//console.log('found fileinput ' + JSON.stringify(fi));
 			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2024_1015_123011_001.raw');
-			//await driver.actions({async: true}).pause(900);
 			const rcw = await driver.findElement(By.id('procthiscw'));
 			await driver.actions({async: true})
 				.pause(300).move({origin: rcw}).pause(300).click().pause(300).perform();
 			const doit = await driver.findElement(By.id('procthis'));
 			await driver.actions({async: true})
 				.move({origin: doit}).pause(300).click().pause(300).perform();
-			await driver.actions({async: true}).pause(1900);
+			await driver.actions({async: true}).pause(1900).perform();
 			await driver.actions({async: true}).clear();
 	});
 	it('convert with question and more rotation', async function dotest() {
 			this.timeout(11000);
 			const cb = await driver.findElement(By.id('steppreview'));
 			const sel = await cb.isSelected();
-			//console.log('found checkbox ' + JSON.stringify(cb));
 			if (!sel) {
-				console.log('turning on single step');
+				console.log('......turning on single step');
 				await driver.actions({ async: true })
 					.move({ origin: cb })
 					.pause(300)
@@ -93,12 +85,9 @@ describe('convert raw local', function() {
 					.pause(300)
 					.perform();
 			}
-			//console.log('pressed checkbox ' + JSON.stringify(cb));
 			const fi = await driver.findElement(By.id('infile'));
 			await fi.clear();
-			//console.log('found fileinput ' + JSON.stringify(fi));
-			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2021_1102_123011_001.raw');
-			//await driver.actions({async: true}).pause(900);
+			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2021_1102_123011_001.raw\n' + TESTDAT + '/IMBACK/PHOTO/2024_1015_123011_001.raw');
 			const rcw = await driver.findElement(By.id('procthisccw'));
 			await driver.actions({async: true})
 				.pause(300).move({origin: rcw}).pause(300).click().pause(300).perform();
@@ -110,14 +99,17 @@ describe('convert raw local', function() {
 			const doit = await driver.findElement(By.id('procthis'));
 			await driver.actions({async: true})
 				.move({origin: doit}).pause(300).click().pause(300).perform();
-			await driver.actions({async: true}).pause(1900);
+			await driver.actions({async: true}).pause(900).perform();
+			const doit2 = await driver.findElement(By.id('procthis'));
+			await driver.actions({async: true})
+				.move({origin: doit2}).pause(300).click().pause(300).perform();
+			await driver.actions({async: true}).pause(900).perform();
 			await driver.actions({async: true}).clear();
 	});
 	it('convert to zip with copyright', async function dotest() {
 			this.timeout(11000);
 			const cb = await driver.findElement(By.id('steppreview'));
 			const sel = await cb.isSelected();
-			//console.log('found checkbox ' + JSON.stringify(cb));
 			if (sel) {
 				console.log('......turning off single step');
 				await driver.actions({ async: true })
@@ -139,7 +131,6 @@ describe('convert raw local', function() {
 			}
 			const pv = await driver.findElement(By.id('dngpreview'));
 			const psel = await pv.isSelected();
-			//console.log('found checkbox ' + JSON.stringify(cb));
 			if (psel) {
 				console.log('......turning off preview');
 				await driver.actions({ async: true })
@@ -157,10 +148,8 @@ describe('convert raw local', function() {
 				.pause(300).move({origin: crb}).pause(300).click().pause(600).perform();
 			const copytext = await driver.findElement(By.id('copytext'));
 			await copytext.sendKeys('(c) Stefan Hegny debugging');
-			//console.log('pressed checkbox ' + JSON.stringify(cb));
 			const fi = await driver.findElement(By.id('infile'));
 			await fi.clear();
-			//console.log('found fileinput ' + JSON.stringify(fi));
 			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2024_1015_123011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2021_1102_123011_001.raw');
 			// do something to make it flutsch
 			await driver.actions({async: true})
@@ -168,14 +157,12 @@ describe('convert raw local', function() {
 	});
 	it('convert to zip with exif', async function dotest() {
 			this.timeout(11000);
-			//console.log('pressed checkbox ' + JSON.stringify(cb));
 			const cb = await driver.findElement(By.id('steppreview'));
 			const zipb = await driver.findElement(By.id('usezip'));
 			await driver.actions({async: true})
 				.pause(200).move({origin: zipb}).pause(300).click().pause(300).perform();
 			const fi = await driver.findElement(By.id('infile'));
 			await fi.clear();
-			//console.log('found fileinput ' + JSON.stringify(fi));
 			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2024_0217_121754_002.JPG' + '\n' + TESTDAT + '/IMBACK/PHOTO/2024_0217_121752_001.RAW');
 			// do something to make it flutsch
 			await driver.actions({async: true})
@@ -185,7 +172,6 @@ describe('convert raw local', function() {
 			this.timeout(11000);
 			const cb = await driver.findElement(By.id('steppreview'));
 			const sel = await cb.isSelected();
-			//console.log('found checkbox ' + JSON.stringify(cb));
 			if (sel) {
 				console.log('......turning off single step');
 				await driver.actions({ async: true })
@@ -207,7 +193,6 @@ describe('convert raw local', function() {
 			}
 			const pv = await driver.findElement(By.id('dngpreview'));
 			const psel = await pv.isSelected();
-			//console.log('found checkbox ' + JSON.stringify(cb));
 			if (psel) {
 				console.log('......turning off preview');
 				await driver.actions({ async: true })
@@ -217,10 +202,8 @@ describe('convert raw local', function() {
 					.pause(300)
 					.perform();
 			}
-			//console.log('pressed checkbox ' + JSON.stringify(cb));
 			const fi = await driver.findElement(By.id('infile'));
 			await fi.clear();
-			//console.log('found fileinput ' + JSON.stringify(fi));
 			await fi.sendKeys(TESTDAT0 + '/kb_large_10.raw\n' + TESTDAT0 + '/mf6x6_large_1.raw');
 			// do something to make it flutsch
 			await driver.actions({async: true})
@@ -259,7 +242,7 @@ describe('convert raw from imback', function() {
 				.pause(200).move({origin: zipb}).pause(300).click().pause(300).perform();
 			const cb = await driver.findElement(By.id('steppreview'));
 			const sel = await cb.isSelected();
-			console.log('......turning on single step');
+			console.log('......turning off single step');
 			await driver.actions({ async: true })
 				.move({ origin: cb })
 				.pause(900)
@@ -267,9 +250,7 @@ describe('convert raw from imback', function() {
 				.pause(900)
 				.perform();
 			const sel2 = await cb.isSelected();
-			//console.log('pressed checkbox ' + JSON.stringify(cb) + ' sel2 ' + sel2);
 			const fi = await driver.findElement(By.id('imbstartts'));
-			//console.log('found fileinput ' + JSON.stringify(fi));
 			await fi.sendKeys('2023');
 			const doit = await driver.findElement(By.id('imbdoit'));
 			await driver.actions({ async: true })
@@ -293,7 +274,6 @@ describe('convert raw from imback', function() {
 				.click()
 				.pause(3000)
 				.perform();
-			//console.log('pressed checkbox ' + JSON.stringify(cb));
 			const fi = await driver.findElement(By.id('SELC_2029'));
 			await driver.actions({ async: true })
 				.move({ origin: fi })
@@ -301,7 +281,6 @@ describe('convert raw from imback', function() {
 				.click()
 				.pause(600)
 				.perform();
-			//await driver.actions({async: true}).pause(900);
 			const rcw = await driver.findElement(By.id('doselbut'));
 			await driver.actions({ async: true })
 				.move({ origin: rcw })
@@ -341,7 +320,6 @@ describe('convert backward', function() {
 			this.timeout(36000);
 			const fi = await driver.findElement(By.id('infileb'));
 			await fi.clear();
-			//console.log('found fileinput ' + JSON.stringify(fi));
 			await fi.sendKeys('/home/hegny/Downloads/mf6x6_large_1.dng\n/home/hegny/Downloads/kb_large_10.dng');
 			await driver.actions({async: true})
 				.pause(7000).move({ origin: fi }).pause(3000).perform();

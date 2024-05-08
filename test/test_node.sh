@@ -24,6 +24,9 @@ echo '{ }' > ${testout}/.imbraw2dng.json
 
 tn=1
 
+sumnum=0
+rawcnt=24
+
 ################################################
 
 pushd $testout
@@ -39,7 +42,8 @@ if [ $rc -ne 0 ]; then
 	echo Test ${tn} failed RC $rc
 	exit 1
 fi
-if [ $n -ne 24 ]; then
+sumnum=$(( $sumnum + $rawcnt ))
+if [ $n -ne $sumnum ]; then
 	echo Test ${tn} failed NO $n
 	exit 1
 fi
@@ -57,7 +61,7 @@ if [ $rc -eq 0 ]; then
 	echo Test ${tn} failed $rc
 	exit 2
 fi
-if [ $n -ne 24 ]; then
+if [ $n -ne $sumnum ]; then
 	echo Test ${tn} failed NO $n
 	exit 2
 fi
@@ -75,7 +79,7 @@ if [ $rc -ne 0 ]; then
 	echo Test ${tn} failed $rc
 	exit 3
 fi
-if [ $n -ne 24 ]; then
+if [ $n -ne $sumnum ]; then
 	echo Test ${tn} failed NO $n
 	exit 3
 fi
@@ -93,7 +97,8 @@ if [ $rc -ne 0 ]; then
 	echo Test ${tn} failed $rc
 	exit 4
 fi
-if [ $n -ne 48 ]; then
+sumnum=$(( $sumnum + $rawcnt ))
+if [ $n -ne $sumnum ]; then
 	echo Test ${tn} failed NO $n
 	exit 4
 fi
@@ -111,7 +116,8 @@ if [ $rc -ne 0 ]; then
 	echo Test ${tn} failed $rc
 	exit 5
 fi
-if [ $n -ne 72 ]; then
+sumnum=$(( $sumnum + $rawcnt ))
+if [ $n -ne $sumnum ]; then
 	echo Test ${tn} failed NO $n
 	exit 5
 fi
@@ -129,7 +135,8 @@ if [ $rc -ne 0 ]; then
 	echo Test ${tn} failed $rc
 	exit 6
 fi
-if [ $n -ne 73 ]; then
+sumnum=$(( $sumnum + 1 ))
+if [ $n -ne $sumnum ]; then
 	echo Test ${tn} failed NO $n
 	exit 6
 fi
@@ -147,7 +154,7 @@ if [ $rc -eq 0 ]; then
 	echo Test ${tn} failed $rc
 	exit 7
 fi
-if [ $n -ne 73 ]; then
+if [ $n -ne $sumnum ]; then
 	echo Test ${tn} failed NO $n
 	exit 7
 fi
@@ -165,7 +172,8 @@ if [ $rc -ne 0 ]; then
 	echo Test ${tn} failed $rc
 	exit 8
 fi
-if [ $n -ne 74 ]; then
+sumnum=$(( $sumnum + 1 ))
+if [ $n -ne $sumnum ]; then
 	echo Test ${tn} failed NO $n
 	exit 8
 fi
@@ -184,7 +192,8 @@ if [ $rc -ne 0 ]; then
 	echo Test ${tn} failed $rc
 	exit 9
 fi
-if [ $n -ne 98 ]; then
+sumnum=$(( $sumnum + $rawcnt ))
+if [ $n -ne $sumnum ]; then
 	echo Test ${tn} failed NO $n
 	exit 9
 fi
@@ -202,7 +211,8 @@ if [ $rc -ne 0 ]; then
 	echo Test ${tn} failed $rc
 	exit $tn
 fi
-if [ $n -ne 99 ]; then
+sumnum=$(( $sumnum + 1 ))
+if [ $n -ne $sumnum ]; then
 	echo Test ${tn} failed NO $n
 	exit $tn
 fi
@@ -220,7 +230,8 @@ if [ $rc -ne 0 ]; then
 	echo Test ${tn} failed $rc
 	exit $tn
 fi
-if [ $n -ne 100 ]; then
+sumnum=$(( $sumnum + 1 ))
+if [ $n -ne $sumnum ]; then
 	echo Test ${tn} failed NO $n
 	exit $tn
 fi
@@ -228,7 +239,7 @@ echo Test ${tn} okay
 tn=$(( $tn + 1 ))
 
 
-echo '##########    11    ##########'
+echo '##########    12    ##########'
 echo Test ${tn} without date
 set -x
 ${TESTEXES}/imbraw2dng.js  ${TESTDAT}/../*.raw
@@ -239,7 +250,8 @@ if [ $rc -ne 0 ]; then
 	echo Test ${tn} failed $rc
 	exit $tn
 fi
-if [ $n -ne 121 ]; then
+sumnum=$(( $sumnum + 21 ))
+if [ $n -ne $sumnum ]; then
 	echo Test ${tn} failed NO $n
 	exit $tn
 fi
@@ -247,7 +259,7 @@ echo Test ${tn} okay
 tn=$(( $tn + 1 ))
 
 
-echo '##########    12    ##########'
+echo '##########    13    ##########'
 echo Test ${tn} backward
 set -x
 ${TESTEXES}/imbdng2raw.js  kb_large_9.dng kb_medium_5.dng kb_small_1.dng mf6x45_medium_1.dng mf6x45_small_1.dng mf6x6_large_1.dng mf6x7_large_1.dng 
@@ -258,7 +270,8 @@ if [ $rc -ne 0 ]; then
 	echo Test ${tn} failed $rc
 	exit $tn
 fi
-if [ $n -ne 128 ]; then
+sumnum=$(( $sumnum + 7 ))
+if [ $n -ne $sumnum ]; then
 	echo Test ${tn} failed NO $n
 	exit $tn
 fi
