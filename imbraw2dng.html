@@ -2300,6 +2300,8 @@ handleone(orientation, fromloop) {
 			this.mappx(0, 'process.orientation', this.xl0('preview.orients.' + ImBCBase.orients[ori]));
 			if (ori === 6 || ori === 8) transp = true;
 		}
+		const wb = ImBCBase.getwb(view, zz);
+		//console.log('WB ' + JSON.stringify(wb));
 		/* Here comes the actual building of the DNG */
 		let ti = new TIFFOut();
 		ti.addIfd(); /* **************************************** */
@@ -2308,7 +2310,7 @@ handleone(orientation, fromloop) {
 			/* **** PREVIEW image **** */
 			let scale = 32;
 			if (w < 4096 && h < 4096) scale=16;
-			ti.addImageStrip(1, ImBCBase.buildpvarray(view, typ, w, h, ori, scale), Math.floor(transp ? (h+scale-1)/scale:(w+scale-1)/scale), Math.floor(transp ? (w+scale-1)/scale: (h+scale-1)/scale));
+			ti.addImageStrip(1, ImBCBase.buildpvarray(view, typ, w, h, ori, scale, wb), Math.floor(transp ? (h+scale-1)/scale:(w+scale-1)/scale), Math.floor(transp ? (w+scale-1)/scale: (h+scale-1)/scale));
 			ti.addEntry(258 , 'SHORT', [ 8, 8, 8 ]); /* BitsPerSample */
 			ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression - none */
 			ti.addEntry(262, 'SHORT', [ 2 ]); /* Photometric - RGB */
@@ -2359,7 +2361,7 @@ handleone(orientation, fromloop) {
 		ti.addEntry(50717, 'LONG', [ 255 ]); /* White level */
 		if (!this.neutral) {
 			ti.addEntry(50827, 'BYTE', rawnamearr); /* Raw file name */
-			ti.addEntry(50728, 'RATIONAL', [ 6, 10, 1, 1, 6, 10 ]); /* As shot neutral */
+			ti.addEntry(50728, 'RATIONAL', wb); /* As shot neutral */
 			/* **** TODOs: **** */
 			ti.addEntry(50721, 'SRATIONAL', [ 19624, 10000, -6105, 10000, -34134, 100000, -97877, 100000, 191614, 100000, 3345, 100000, 28687, 1000000, -14068, 100000, 1348676, 1000000 ]); /* Color Matrix 1 */
 			//ti.addEntry(50721, 'FLOAT', [ 1.9624, -0.6105, -0.34134, -0.97877, 1.91614, 0.03345, 0.028687, -0.14068, 1.348676 ]); /* Color Matrix 1 */
@@ -2425,6 +2427,43 @@ writewrap(name, type, okmsg, arr1, fromloop) {
 	} else
 		this.writefile(name, type, okmsg, arr1, fromloop);
 }
+/* ImBCBase: get white balance */
+static getwb(view, typidx) {
+	const t = ImBCBase.infos[typidx];
+	let r=0, g=0, b=0;
+	for (let i=Math.floor(0.1*t.h); i<Math.floor(0.9*t.h); i++) {
+		for (let j=Math.floor(0.1*t.w); j<Math.floor(0.9*t.w); j++) {
+			let vv = view.getUint8(t.w*i + j);
+			if (vv < 20) vv = 20;
+			if (vv > 235) vv = 235;
+			if (t.typ > 1) {
+				if ((!(i & 1) && (j & 1)) || ((i & 1) && !(j & 1)))
+					g += vv;
+				else if (!(i & 1))
+					b += vv;
+				else
+					r += vv;
+			} else {
+				if ((!(i & 1) && !(j & 1)) || ((i & 1) && (j & 1)))
+					g += vv;
+				else if (i & 1)
+					r += vv;
+				else
+					b += vv;
+			}
+		}
+	}
+	g = (g/2);
+	if ((r <= b) && (r <= g)) {
+		return [ 10, 10, Math.floor(90000*g/r), 90000, Math.floor(90000*b/r), 90000 ]
+	}
+	else if ((b <= r) && (b <= g)) {
+		return [ Math.floor(90000*r/b), 90000, Math.floor(90000*g/b), 90000, 10, 10 ]
+	}
+	else {
+		return [ Math.floor(90000*r/g), 90000, 10, 10, Math.floor(90000*b/g), 90000 ]
+	}
+}
 /* ImBCBase: get one downsampled median image value [ r g b ] */
 static getPix(x, y, w, view, typ) {
 	let outrgb = [];
@@ -2482,10 +2521,14 @@ static getPix(x, y, w, view, typ) {
 	return outrgb;
 }
 /* ImBCBase: build preview in array */
-static buildpvarray(view, typ, w, h, orientation, scale) {
+static buildpvarray(view, typ, w, h, orientation, scale, wb) {
+	if (undefined === wb) wb = [ 1, 1, 16, 10, 1, 1 ];
 	const sfact = scale ? scale : 8;
 	const w8 = Math.floor((w+(sfact -1))/sfact) - (scale ? 0 : 1);
 	const h8 = Math.floor((h+(sfact -1))/sfact) - (scale ? 0 : 1);
+	const rfact = (wb[1]/wb[0]);
+	const gfact = (wb[3]/wb[2]);
+	const bfact = (wb[5]/wb[4]);
 	let minred=255, minblue = 255, mingreen = 255, maxred = 0, maxblue = 0, maxgreen = 0, allmin = 255, allmax = 0;
 	let outpix = [];
 	let rowiterstart, rowiterend;
@@ -2520,18 +2563,18 @@ static buildpvarray(view, typ, w, h, orientation, scale) {
 			outpix.push(a[0]);
 			if (a[0] > maxred) maxred = a[0];
 			if (a[0] < minred) minred = a[0];
-			if (a[0] > allmax) allmax = a[0];
-			if (a[0] < allmin) allmin = a[0];
+			if (rfact*a[0] > allmax) allmax = rfact*a[0];
+			if (rfact*a[0] < allmin) allmin = rfact*a[0];
 			outpix.push(a[1]);
 			if (a[1] > maxgreen) maxgreen = a[1];
 			if (a[1] < mingreen) mingreen = a[1];
-			if (0.6*a[1] > allmax) allmax = a[1] * 0.6;
-			if (0.6*a[1] < allmin) allmin = a[1] * 0.6;
+			if (gfact*a[1] > allmax) allmax = a[1] * gfact;
+			if (gfact*a[1] < allmin) allmin = a[1] * gfact;
 			outpix.push(a[2]);
 			if (a[2] > maxblue) maxblue = a[2];
 			if (a[2] < minblue) minblue = a[2];
-			if (a[2] > allmax) allmax = a[2];
-			if (a[2] < allmin) allmin = a[2];
+			if (bfact*a[2] > allmax) allmax = bfact*a[2];
+			if (bfact*a[2] < allmin) allmin = bfact*a[2];
 			if (!scale) outpix.push(255);
 		}
 	}
@@ -2539,18 +2582,20 @@ static buildpvarray(view, typ, w, h, orientation, scale) {
 	const o = scale ? 3 : 4;
 	for (let i = 0; i < h8; i++) {
 		for (let j=0; j< w8; j++) {
-			if ((outpix[o*((i * w8) + j)] > 250) &&
-				(outpix[o*((i * w8) + j) + 2] > 250) &&
-				(outpix[o*((i * w8) + j) + 1] > 0.6 * 250))
+			/*if ((outpix[o*((i * w8) + j)] > rfact*250) &&
+				(outpix[o*((i * w8) + j) + 2] > bfact*250) &&
+				(outpix[o*((i * w8) + j) + 1] > gfact*250))
 			{
-				outpix[o*((i*w8) + j) + 1] = 255;
-			} else {
+				outpix[o*((i*w8) + j)] = rfact*250;
+				outpix[o*((i*w8) + j) + 1] = gfact*250;
+				outpix[o*((i*w8) + j) + 2] = bfact*250;
+			} else*/ {
 				// maybe some brightening gamma?
-				const r = (fact * (outpix[o * ((i*w8) + j)] - allmin));
+				const r = (fact * rfact*(outpix[o * ((i*w8) + j)] - rfact*allmin));
 				outpix[o * ((i*w8) + j)] = 255-Math.round(255*((255-r)/255)*((255-r)/255));
-				const g = (fact * 0.6 * (outpix[o * ((i*w8) + j) + 1] - allmin* 0.6));
+				const g = (fact * gfact*(outpix[o * ((i*w8) + j) + 1] - gfact*allmin));
 				outpix[o * ((i*w8) + j) + 1] = 255-Math.round(255*((255-g)/255)*((255-g)/255));
-				const b = (fact * (outpix[o * ((i*w8) + j) + 2] - allmin));
+				const b = (fact * bfact*(outpix[o * ((i*w8) + j) + 2] - bfact*allmin));
 				outpix[o * ((i*w8) + j) + 2] = 255-Math.round(255*((255-b)/255)*((255-b)/255));
 			}
 		}
@@ -4052,11 +4097,11 @@ buildpreview(f, onok, onerr, orientation, targ, afterload) {
 		console.log('preview: unsupported size ' + f.size + ' of ' + f.name);
 		onerr(f);
 		return;
-	} else {
-		w = ImBCBase.infos[zz].w;
-		typ = ImBCBase.infos[zz].typ;
-		h = ImBCBase.infos[zz].h;
 	}
+	w = ImBCBase.infos[zz].w;
+	typ = ImBCBase.infos[zz].typ;
+	h = ImBCBase.infos[zz].h;
+
 	let canv;
 	if (undefined !== targ)
 		canv = targ;
@@ -4080,8 +4125,10 @@ buildpreview(f, onok, onerr, orientation, targ, afterload) {
 		if (undefined !== afterload) afterload();
 		const contents = evt.target.result;
 		const view = new DataView(contents);
+		const wb = ImBCBase.getwb(view, zz);
 		let transpose = false;
-		let outpix = ImBCBase.buildpvarray(view, typ, w, h, orientation, false);
+		//console.log(JSON.stringify(wb));
+		let outpix = ImBCBase.buildpvarray(view, typ, w, h, orientation, false, wb);
         if (orientation === 6 || orientation === 8) {
                 transpose = true;
         }
