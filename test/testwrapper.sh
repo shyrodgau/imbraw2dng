@@ -16,7 +16,7 @@ log=${TESTWORK}/imbraw2dng_test_${testid}.log
 
 # start webserver
 pushd $TESTDAT
-python3 -m http.server 8889 2>&1 | tee -a $log 2>&1
+( python3 -m http.server 8889 > $log 2>&1 )&
 webid=$!
 
 ( ${TESTWORK}/test_node.sh ; echo $? > trc ) 2>&1 | tee -a $log 2>&1
