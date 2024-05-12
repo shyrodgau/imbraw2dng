@@ -13,7 +13,7 @@ or [IN ENGLISH](https://shyrodgau.github.io/imbraw2dng/moredoc)
 
 ## Installation
 
-Die aktuelle Version ist [V3.7.9_63c5e09 - Fehlerbehebung](https://github.com/shyrodgau/imbraw2dng/releases/tag/V3.7.9_63c5e09).
+Die aktuelle Version ist [V4.0.0_34a9082 - Farbkalibrierung](https://github.com/shyrodgau/imbraw2dng/releases/tag/V4.0.0_34a9082).
 Anmerkung: Weiterentwicklung wenn Fehler gefunden, neue Übersetzung beigesteuert, oder neues Bildformat.
 
 Die Datei [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.html) auf den PC kopieren oder aus der 
