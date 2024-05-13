@@ -14,7 +14,7 @@ oder [AUF DEUTSCH](https://shyrodgau.github.io/imbraw2dng/moredoc_de)
 
 ## Installation
 
-The current release is [V4.0.0_34a9082 - color calibration](https://github.com/shyrodgau/imbraw2dng/releases/tag/V4.0.0_34a9082).
+The current release is [V4.0.1_de9854d - color calibration](https://github.com/shyrodgau/imbraw2dng/releases/tag/V4.0.1_de9854d).
 Note: further development when errors reported, new translation contributed or new image format.
 
 Copy the [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.html) file to your PC or extract it from the release 
