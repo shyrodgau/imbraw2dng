@@ -260,6 +260,26 @@ tn=$(( $tn + 1 ))
 
 
 echo '##########    13    ##########'
+echo Test ${tn} old-style
+set -x
+${TESTEXES}/imbraw2dng.js -ndcp -owb -r ${TESTDAT}/../*.raw
+rc=$?
+n=$( ls .|wc -l )
+set +x
+if [ $rc -ne 0 ]; then
+	echo Test ${tn} failed $rc
+	exit $tn
+fi
+sumnum=$(( $sumnum + 21 ))
+if [ $n -ne $sumnum ]; then
+	echo Test ${tn} failed NO $n
+	exit $tn
+fi
+echo Test ${tn} okay
+tn=$(( $tn + 1 ))
+
+
+echo '##########    14    ##########'
 echo Test ${tn} backward
 set -x
 ${TESTEXES}/imbdng2raw.js  kb_large_9.dng kb_medium_5.dng kb_small_1.dng mf6x45_medium_1.dng mf6x45_small_1.dng mf6x6_large_1.dng mf6x7_large_1.dng 

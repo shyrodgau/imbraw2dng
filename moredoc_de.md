@@ -76,7 +76,7 @@ Sofern man [node.js](https://nodejs.org) in Version &ge; V20.10(LTS) hat, kann m
 [Internationalisierung](#internationalisierung) beschrieben umbenannt werden. Hilfe zum Aufruf z.B. mit `node imbraw2dng.js` oder 
 umbenannt auf Deutsch `node imbraw2dng_de.js`.
 ```
-Aufruf: node imbraw2dng_de.js [-l sprache] [-f | -r] [-d ordner] [-nc | -co] [-np] [-cr copyright] [-R] [-J] [-O] [-n yyyy_mm_dd-hh_mm_ss] [-fla | -flx] [ [--] <dateien-oder-ordner>* ]
+Aufruf: node imbraw2dng_de.js [-l sprache] [-f | -r] [-d ordner] [-nc | -co] [-np] [-owb] [-ndcp] [-cr copyright] [-R] [-J] [-O] [-n yyyy_mm_dd-hh_mm_ss] [-fla | -flx] [ [--] <dateien-oder-ordner>* ]
 Optionen:
  -h - diesen Hilfetext zeigen
  -nc - keinen farbigen Text zeigen
@@ -87,6 +87,8 @@ Optionen:
  -f - existierende Dateien überschreiben
  -r - Ausgabedatei umbenennen, falls schon existiert
  -np - Kein kleines Vorschaubild im DNG
+ -owb - Alten konstanten Weißabgleich verwenden
+ -ndcp - neues DCP Profil nicht einbetten
  -cr copyright - Copyrightvermerk zum DNG dazufügen
  -fla, -flx - mehrere Bilder als Langzeitbelichtung aufaddieren, flx skaliert dabei herunter
  -R - RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen konvertieren

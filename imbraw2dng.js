@@ -10,7 +10,7 @@ Based on work by Michele Asciutti.
 
 https://github.com/shyrodgau/imbraw2dng
 
-Usage: node imbraw2dng.js [-l lang] [-f] [-d dir] [-nc | -co] [-np] [-cr copyright] [-R] [-J] [-O] [-fla | -flx] [-n yyyy_mm_dd-hh_mm_ss] [ [--] <files-or-dirs>* ]
+Usage: node imbraw2dng.js [-l lang] [-f] [-d dir] [-nc | -co] [-np] [-owb] [-ndcp] [-cr copyright] [-R] [-J] [-O] [-fla | -flx] [-n yyyy_mm_dd-hh_mm_ss] [ [--] <files-or-dirs>* ]
 Options:
  -h - show this help
  -nc - do not use coloured text
@@ -21,6 +21,8 @@ Options:
  -f - overwrite existing files
  -r - rename output file, if already exists
  -np - Do not add preview thumbnail to DNG
+ -owb - Use old style constant white balance
+ -ndcp - Do not include new DNG Color profile
  -cr 'copyright...' - add copyright to DNG
  -fla, -flx - add multiple images to fake long exposure, flx scales down'
  -R - get RAW from ImB connected via Wifi or from given directories
@@ -1308,6 +1310,22 @@ static texts = { // actually const
 		addexif: {
 			en: 'Add EXIF data from $$0',
 			de: 'Gebe EXIF Daten von $$0 dazu'
+		},
+		includedcp: {
+			en: 'Include the new DNG colour profile (DCP)',
+			de: 'Neues DNG Farbprofil (DCP) einbetten'
+		},
+		oldstylewb: {
+			en: 'Use old-style constant white balance',
+			de: 'Alten konstanten Weißabgleich verwenden'
+		},
+		adddcp: {
+			en: 'Adding new DCP',
+			de: 'Bette neues DCP Farbprofile ein'
+		},
+		foundwb: {
+			en: 'Found whitebalance $$0 / $$1 / $$2',
+			de: 'Weißabgleich $$0 / $$1 / $$2 gefunden'
 		}
 	},
 	preview: {
@@ -1474,7 +1492,7 @@ static texts = { // actually const
 	    },
 		help: {
 			en: [ `\u001b[1mWelcome to imbraw2dng\u001b[0m $$0 !`, `Usage: node $$0 \u001b[1m[\u001b[0m-l lang\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-d dir\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr copyright\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-d dir\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-owb\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-ndcp\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr copyright\u001b[1m]\u001b[0m \
 \u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n yyyy_mm_dd-hh_mm_ss\u001b[1m]\u001b[0m \
 \u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \
 \u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mfiles-or-dirs\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m`,
@@ -1488,6 +1506,8 @@ static texts = { // actually const
 				' \u001b[1m-f\u001b[0m - overwrite existing files',
 				' \u001b[1m-r\u001b[0m - rename output file, if already exists',
 				' \u001b[1m-np\u001b[0m - Do not add preview thumbnail to DNG',
+				' \u001b[1m-owb\u001b[0m - Use old style constant white balance',
+				' \u001b[1m-ndcp\u001b[0m - Do not include new DNG Color profile',
 				' \u001b[1m-cr \'copyright...\'\u001b[0m - add copyright to DNG',
 				' \u001b[1m-fla\u001b[0m, \u001b[1m-flx\u001b[0m - add multiple images to fake long exposure, flx scales down',
 				' \u001b[1m-R\u001b[0m - get RAW from ImB connected via Wifi or from given directories',
@@ -1498,7 +1518,7 @@ static texts = { // actually const
 				' \u001b[1m--\u001b[0m - treat rest of parameters as local files or dirs',
 				' <files-or-dirs> - process local files or directories recursively, e.g. on MicroSD from ImB',],
 			fr: [ `\u001b[1mBienvenu a imbraw2dng\u001b[0m $$0 !`, `Operation: node $$0 \u001b[1m[\u001b[0m-l lang\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-d repertoire\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr copyright\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-d repertoire\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-owb\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-ndcp\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr copyright\u001b[1m]\u001b[0m \
 \u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n yyyy_mm_dd-hh_mm_ss\u001b[1m]\u001b[0m \
 \u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \
 \u001b[1m[\u001b[0m \u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mfiches-ou-repertoires\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m`,
@@ -1512,6 +1532,8 @@ static texts = { // actually const
 				' \u001b[1m-f\u001b[0m - écraser les fiches existants',
 				' \u001b[1m-r\u001b[0m - quand fiche existe, renommer le résultat',
 				' \u001b[1m-np\u001b[0m - Pas petite image d\'aperçu en DNG',
+				' \u001b[1m-np\u001b[0m - Do not add preview thumbnail to DNG',
+				' \u001b[1m-owb\u001b[0m - Use old style constant white balance',
 				' \u001b[1m-cr \'copyright...\'\u001b[0m - add copyright to DNG',
 				' \u001b[1m-fla\u001b[0m, \u001b[1m-flx\u001b[0m - add multiple images to fake long exposure, flx scales down',
 				' \u001b[1m-R\u001b[0m - obtenez RAW d\'ImB connecté via Wifi ou repertoires donnés',
@@ -1522,7 +1544,7 @@ static texts = { // actually const
 				' \u001b[1m--\u001b[0m - traiter le reste des paramètres comme des fiches ou des répertoires locaux',
 				' <fiches-ou-repertoires> - traiter des fiches ou des répertoires locaux de manière récursive, par exemple sur MicroSD d\'ImB',],
 			de: [ `\u001b[1mWillkommen bei imbraw2dng\u001b[0m $$0 !`, `Aufruf: node $$0 \u001b[1m[\u001b[0m-l sprache\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-d ordner\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr copyright\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-d ordner\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-owb\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-ndcp\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr copyright\u001b[1m]\u001b[0m \
 \u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n yyyy_mm_dd-hh_mm_ss\u001b[1m]\u001b[0m \
 \u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \
 \u001b[1m[\u001b[0m \u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mdateien-oder-ordner\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m`,
@@ -1536,6 +1558,8 @@ static texts = { // actually const
 				' \u001b[1m-f\u001b[0m - existierende Dateien überschreiben',
 				' \u001b[1m-r\u001b[0m - Ausgabedatei umbenennen, falls schon existiert',
 				' \u001b[1m-np\u001b[0m - Kein kleines Vorschaubild im DNG',
+				' \u001b[1m-owb\u001b[0m - Alten konstanten Weißabgleich verwenden',
+				' \u001b[1m-ndcp\u001b[0m - neues DCP Profil nicht einbetten',
 				' \u001b[1m-cr \'copyright...\'\u001b[0m - copyright dem DNG hinzufügen',
 				' \u001b[1m-fla\u001b[0m, \u001b[1m-flx\u001b[0m - mehrere Bilder als Langzeitbelichtung aufaddieren, flx skaliert dabei herunter',
 				' \u001b[1m-R\u001b[0m - RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen konvertieren',
@@ -1547,7 +1571,7 @@ static texts = { // actually const
 				' <dateien-oder-ordner> - lokale Dateien oder Ordner rekursiv (z.B. von der MicroSD Karte aus ImB) verarbeiten',],
 			ja: [
 				`\u001b[1mimbraw2dng へようこそ\u001b[0m $$0 !`, `Usage: node $$0 \u001b[1m[\u001b[0m-l lang\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-d dir\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr copyright\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-d dir\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-owb\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-ndcp\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr copyright\u001b[1m]\u001b[0m \
 \u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n yyyy_mm_dd-hh_mm_ss\u001b[1m]\u001b[0m \
 \u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \
 \u001b[1m[\u001b[0m \u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mfiles-or-dirs\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m`,
@@ -1561,6 +1585,8 @@ static texts = { // actually const
 				' \u001b[1m-f\u001b[0m - 現在のファイルを上書きする',
 				' \u001b[1m-r\u001b[0m - rename output file, if already exists',
 				' \u001b[1m-np\u001b[0m - Do not add preview thumbnail to DNG',
+				' \u001b[1m-np\u001b[0m - Do not add preview thumbnail to DNG',
+				' \u001b[1m-owb\u001b[0m - Use old style constant white balance',
 				' \u001b[1m-cr \'copyright...\'\u001b[0m - add copyright to DNG',
 				' \u001b[1m-fla\u001b[0m, \u001b[1m-flx\u001b[0m - add multiple images to fake long exposure, flx scales down',
 				' \u001b[1m-R\u001b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリからRAWを取得する',
@@ -1774,6 +1800,9 @@ du2jcKm59lF8XtQ+ClcitY9CSi/to3meaR+Nn4naRyM9STvf4+nax8B3vvYxiFiufQwmrdc+Bru2aR+L
 7db//f0fZVIIVQggAAA=`;
 // decoded tone curve:
 tcbin = '';
+// do not try dynamic wb:
+constwb = false;
+incdcp = true;
 /* ImBCBase: debug */
 debugflag = false;
 useraw = null;
@@ -2220,8 +2249,11 @@ handleone(orientation, fromloop) {
 			this.mappx(0, 'process.orientation', this.xl0('preview.orients.' + ImBCBase.orients[ori]));
 			if (ori === 6 || ori === 8) transp = true;
 		}
-		const wb = ImBCBase.getwb(view, zz);
+		const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : ImBCBase.getwb(view, zz);
 		//console.log('WB ' + JSON.stringify(wb));
+		if (!this.constwb) {
+			this.mappx(0, 'process.foundwb', Math.round(100*wb[0]/wb[1]), Math.round(100*wb[2]/wb[3]), Math.round(100*wb[4]/wb[5]));
+		}
 		/* Here comes the actual building of the DNG */
 		let ti = new TIFFOut();
 		ti.addIfd(); /* **************************************** */
@@ -2267,7 +2299,7 @@ handleone(orientation, fromloop) {
 				ti.addExifIfd(e.data);
 			}
 		}
-		ti.addEntry(50706, 'BYTE', [ 1, 2, 0, 0 ]); /* DNG Version */
+		ti.addEntry(50706, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Version */
 		if (this.copyright != '') {
 			// do UTF-8 bytes instead of ASCII if necessary
 			let bytes = new TextEncoder().encode(this.copyright);
@@ -2277,30 +2309,40 @@ handleone(orientation, fromloop) {
 			else
 				ti.addEntry(33432, 'BYTE', bytes); /* copyright */
 		}
-		ti.addEntry(50707, 'BYTE', [ 1, 2, 0, 0 ]); /* DNG Backward Version */
+		ti.addEntry(50707, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Backward Version */
 		ti.addEntry(50717, 'LONG', [ 255 ]); /* White level */
 		if (!this.neutral) {
 			ti.addEntry(50827, 'BYTE', rawnamearr); /* Raw file name */
+			//ti.addEntry(50728, 'RATIONAL', [ 6, 10, 1,1, 6, 10 ]); /* As shot neutral */
 			ti.addEntry(50728, 'RATIONAL', wb); /* As shot neutral */
-			/* **** test: **** */
-			ti.addEntry(50721, 'SRATIONAL', [ 22391,10000, -14178,10000, 3345,10000, 2113,10000, 1690,10000, 6377,10000, -42,10000, -2569,10000, 6895,10000 ]); /* Color Matrix 1 */
-			ti.addEntry(50722, 'SRATIONAL', [ 12256,10000, -4258,10000, -906,10000, -2245,10000, 10192,10000, 2418,10000, -47,10000, 1018,10000, 4580,10000 ]); /* Color Matrix 2 */
-			ti.addEntry(50964, 'SRATIONAL', [ 4004,10000, 5488,10000, 151,10000, -152,10000, 10505,10000, -353,10000, -2088,10000, 6546,10000, 3793,10000 ]); /* Forward Matrix 1 */
-			ti.addEntry(50965, 'SRATIONAL', [ 7341,10000, 1310,10000, 993,10000, 1930,10000, 8267,10000, -197,10000, 69,10000, -3866,10000, 12047,10000 ]); /* Forward Matrix 2 */
-			ti.addEntry(50778, 'SHORT', [ 17 ]); /* Calibration Illuminant 1 - StdA */
-			ti.addEntry(50779, 'SHORT', [ 21 ]); /* Calibration Illuminant 2 - D65 */
-			if (0 === this.tcbin.length) {
-				await ImBCBase.mydecode(this.tcb64gz, (d) => {
-						this.tcbin = d;
-				});
+			/*  new:  */
+			if (this.incdcp) {
+				this.mappx(0, 'process.adddcp');
+				ti.addEntry(50721, 'SRATIONAL', [ 22391,10000, -14178,10000, 3345,10000, 2113,10000, 1690,10000, 6377,10000, -42,10000, -2569,10000, 6895,10000 ]); /* Color Matrix 1 */
+				ti.addEntry(50722, 'SRATIONAL', [ 12256,10000, -4258,10000, -906,10000, -2245,10000, 10192,10000, 2418,10000, -47,10000, 1018,10000, 4580,10000 ]); /* Color Matrix 2 */
+				ti.addEntry(50964, 'SRATIONAL', [ 4004,10000, 5488,10000, 151,10000, -152,10000, 10505,10000, -353,10000, -2088,10000, 6546,10000, 3793,10000 ]); /* Forward Matrix 1 */
+				ti.addEntry(50965, 'SRATIONAL', [ 7341,10000, 1310,10000, 993,10000, 1930,10000, 8267,10000, -197,10000, 69,10000, -3866,10000, 12047,10000 ]); /* Forward Matrix 2 */
+				ti.addEntry(50778, 'SHORT', [ 17 ]); /* Calibration Illuminant 1 - StdA */
+				ti.addEntry(50779, 'SHORT', [ 21 ]); /* Calibration Illuminant 2 - D65 */
+				if (0 === this.tcbin.length) {
+					await ImBCBase.mydecode(this.tcb64gz, (d) => {
+							this.tcbin = d;
+					});
+				}
+				ti.addEntry(50940, 'FLOATBIN', this.tcbin); /* Profile tone curve */
+				ti.addEntry(50936, 'ASCII', 'Generic ImB'); /* Camera calibration name */
+				ti.addEntry(50941, 'LONG', [ 3 ]); /* profile embed policy unrestricted */
+				ti.addEntry(50942, 'ASCII', "Stefan Hegny for ImBack CC0"); /* profile copyright */
+				ti.addEntry(50932, 'ASCII', 'Generic ImB conv profile Sig'); /* Profile calibration signature */
+				ti.addEntry(50931, 'ASCII', 'Generic ImB conv profile Sig'); /* Camera calibration signature */
+				// above stuff is now replaced taken from a dual-illuminant DCP profile
 			}
-			ti.addEntry(50940, 'FLOATBIN', this.tcbin); /* Profile tone curve */
-			ti.addEntry(50932, 'ASCII', 'Generic ImB conv profile Sig'); /* Profile calibration signature */
-			ti.addEntry(50931, 'ASCII', 'Generic ImB conv profile Sig'); /* Camera calibration signature */
-			ti.addEntry(50936, 'ASCII', 'Generic ImB'); /* Camera calibration name */
-			ti.addEntry(50941, 'LONG', [ 3 ]); /* profile embed policy unrestricted */
-			ti.addEntry(50942, 'ASCII', "Stefan Hegny for ImBack CC0"); /* profile copyright */
-			// above stuff is now replaced taken from a dual-illuminant DCP profile
+			else {
+				// like before
+				ti.addEntry(50721, 'SRATIONAL', [ 19624, 10000, -6105, 10000, -34134, 100000, -97877, 100000, 191614, 100000, 3345, 100000, 28687, 1000000, -14068, 100000, 1348676, 1000000 ]); /* Color Matrix 1 */
+				ti.addEntry(50964, 'SRATIONAL', [ 7161, 10000, 10093, 100000, 14719, 100000, 25819, 100000, 72494, 100000, 16875, 1000000, 0, 1000000, 5178, 100000, 77342, 100000 ]); /* Forward Matrix 1 */
+				ti.addEntry(50778, 'SHORT', [ 23 ]); /* Calibration Illuminant 1 - D50 */
+			}
 		}
 		if (this.withpreview && !this.neutral) {
 			ti.addEntry(50971, 'ASCII', new Date(Date.now()).toISOString() ); /* Preview date time */
@@ -2351,59 +2393,41 @@ writewrap(name, type, okmsg, arr1, fromloop) {
 }
 /* ImBCBase: get white balance */
 static getwb(view, typidx) {
+	//console.log('GWB ' + typidx + ' ' + JSON.stringify(ImBCBase.infos[typidx]));
 	const t = ImBCBase.infos[typidx];
-	let r=10, g=10, b=10, nr=10, nb=10, ng=10;
-	for (let i=Math.floor(0.1*t.h); i<Math.floor(0.9*t.h); i++) {
-		for (let j=Math.floor(0.1*t.w); j<Math.floor(0.9*t.w); j++) {
-			let vv = view.getUint8(t.w*i + j);
-			if (vv < 10 || vv > 245) continue;
-			if (Math.abs(vv - view.getUint8(t.w*i + j + 1)) > 80 || Math.abs(vv - view.getUint8(t.w*(i+1) + j)) > 80 ||
-				Math.abs(vv - view.getUint8(t.w*i + j - 1)) > 80 || Math.abs(vv - view.getUint8(t.w*(i-1) + j)) > 80)
-				continue;
-			if (vv < 20) vv = 20;
-			if (vv > 235) vv = 235;
+	let r=0, g=0, b=0;
+	for (let i=Math.round(0.05*t.h)*2; i<Math.ceil(0.9*t.h); i+=2) {
+		for (let j=Math.round(0.05*t.w)*2; j<Math.ceil(0.9*t.w); j+=2) {
+			let lg = 0, lr = 0, lb = 0;
 			if (t.typ > 1) {
-				if ((!(i & 1) && (j & 1)) || ((i & 1) && !(j & 1))) {
-					g += vv;
-					ng++;
-				}
-				else if (!(i & 1)) {
-					b += vv;
-					nb++;
-				}
-				else {
-					r += vv;
-					nr++;
-				}
+				lg = Math.round((view.getUint8(t.w*i +j + 1) + view.getUint8(t.w*(i+1) + j)) / 2);
+				lb = view.getUint8(t.w*i + j);
+				lr = view.getUint8(t.w*(i+1) + j+1);
 			} else {
-				if ((!(i & 1) && !(j & 1)) || ((i & 1) && (j & 1))) {
-					g += vv;
-					ng++;
-				}
-				else if (i & 1) {
-					r += vv;
-					nr++;
-				}
-				else {
-					b += vv;
-					nb++;
-				}
+				lg = Math.round((view.getUint8(t.w*i +j) + view.getUint8(t.w*(i+1) + j+1)) / 2);
+				lb = view.getUint8(t.w*(i+1) + j);
+				lr = view.getUint8(t.w*i + j + 1);
 			}
+			let p = Math.sqrt(lg*lg + lb*lb + lr*lr);
+			if (Math.abs(p) < 1 || p > (3*245)) continue;
+			//if (((i*t.w + j) % 50000) < 10)
+			//	console.log('i ' + i + ' j ' + j + ' R ' + lr + ' G ' + lg + ' B ' + lb + ' P ' + p);
+			b += (lb)/(p);
+			g += (lg)/(p);
+			r += (lr)/(p);
 		}
 	}
-	g = ((g*(t.w*t.h))/ng);
-	g = g*1.1;
-	r = ((r*(t.w*t.h))/nr);
-	b = ((b*(t.w*t.h))/nb);
-	if ((r <= b) && (r <= g)) {
-		return [ 10, 10, Math.ceil(90000*g/r), 90000, Math.ceil(90000*b/r), 90000 ]
+	if ((r > 0) && (r <= b) && (r <= g)) {
+		return [ 10, 10, Math.ceil(190000*g/r), 190000, Math.ceil(190000*b/r), 190000 ];
 	}
-	else if ((b <= r) && (b <= g)) {
-		return [ Math.ceil(90000*r/b), 90000, Math.ceil(90000*g/b), 90000, 10, 10 ]
+	else if ((b > 0) && (b <= r) && (b <= g)) {
+		return [ Math.ceil(190000*r/b), 190000, Math.ceil(190000*g/b), 190000, 10, 10 ];
 	}
-	else {
-		return [ Math.ceil(90000*r/g), 90000, 10, 10, Math.ceil(90000*b/g), 90000 ]
+	else if (g > 0) {
+		return [ Math.ceil(190000*r/g), 190000, 10, 10, Math.ceil(190000*b/g), 190000 ];
 	}
+	else
+		return [ 5, 10, 1, 1, 5, 10 ];
 }
 /* ImBCBase: get one downsampled median image value [ r g b ] */
 static getPix(x, y, w, view, typ) {
@@ -2634,7 +2658,7 @@ handle1imb(url) {
 }
 /* Indentation in - end of class ImBCBase */
 }
-/* *************************************** Main class E N D *************************************** */
+/* *************************************** BASE class E N D *************************************** */
 /* *************************************** Node js helper class *************************************** */
 class ImBCNodeOut extends ImBCBase {
 /* Indentation out */
@@ -2978,6 +3002,8 @@ parseconfig(data) {
 	if (d.d) this.outdir = d.d;
 	if (d.f) this.ovwout = true;
 	if (d.r) this.renamefiles = true;
+	if (d.owb) this.constwb = true;
+	if (d.ndcp) this.incdcp = false;
 	if (d.R && (!(this.ptypeflags % 2))) this.ptypeflags += 1;
 	if (d.J && ((this.ptypeflags % 4) < 2)) this.ptypeflags += 2;
 	if (d.O && ((this.ptypeflags % 8) < 4)) this.ptypeflags += 4;
@@ -3169,6 +3195,12 @@ startnode(notfirst) {
 				}
 				else if (v ==='-np') {
 					this.withpreview = false;
+				}
+				else if (v ==='-owb') {
+					this.constwb = true;
+				}
+				else if (v ==='-ndcp') {
+					this.incdcp = false;
 				}
 				else if (v.substring(0,3)==='-cr') {
 					if (v.substring(3).length > 0) {

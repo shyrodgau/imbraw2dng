@@ -209,6 +209,48 @@ describe('convert raw local', function() {
 			await driver.actions({async: true})
 				.pause(700).move({ origin: cb }).pause(700).perform();
 	});
+	it('old style wb', async function dotest() {
+			this.timeout(11000);
+			const cb = await driver.findElement(By.id('oldstylewb'));
+			const sel = await cb.isSelected();
+			if (!sel) {
+				console.log('......turning on old style wb');
+				await driver.actions({ async: true })
+					.move({ origin: cb })
+					.pause(600)
+					.click()
+					.pause(200)
+					.perform();
+			}
+			const cb2 = await driver.findElement(By.id('incdcp'));
+			const sel2 = await cb2.isSelected();
+			if (sel2) {
+				console.log('......turning off include DCP');
+				await driver.actions({ async: true })
+					.move({ origin: cb2 })
+					.pause(200)
+					.click()
+					.pause(200)
+					.perform();
+			}
+			const pv = await driver.findElement(By.id('dngpreview'));
+			const psel = await pv.isSelected();
+			if (!psel) {
+				console.log('......turning on preview');
+				await driver.actions({ async: true })
+					.move({ origin: pv })
+					.pause(200)
+					.click()
+					.pause(300)
+					.perform();
+			}
+			const fi = await driver.findElement(By.id('infile'));
+			await fi.clear();
+			await fi.sendKeys(TESTDAT0 + '/kb_large_10.raw\n' + TESTDAT0 + '/mf6x6_large_1.raw');
+			// do something to make it flutsch
+			await driver.actions({async: true})
+				.pause(700).move({ origin: cb }).pause(700).perform();
+	});
 	after(async function() {
 			let me = await driver.findElement(By.id('thebody'));
 			let ma = await me.getAttribute('data-err');
