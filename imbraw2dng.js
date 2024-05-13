@@ -831,7 +831,7 @@ add(data, name, cb) {
 /* *************************************** Main class *************************************** */
 class ImBCBase {
 /* Indentation out */
-static version = "V4.0.1_de9854d"; // actually const
+static version = "V4.0.2_dev"; // actually const
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -1035,6 +1035,10 @@ static texts = { // actually const
 				de: 'Ziel auswählen',
 				en: 'Choose destination'
 			}
+		},
+		newmsg: {
+			en: 'New! <a href="imbraw2dng_ja.html">Japanese translation</a> thanks to Sadami Inoue! <a href="https://github.com/shyrodgau/imbraw2dng/issues" target="_new">Report bugs</a>',
+			de: 'Neu! <a href="imbraw2dng_ja.html">Japanische Übersetung</a> Danke an Sadami Inoue! <a href="https://github.com/shyrodgau/imbraw2dng/issues" target="_new">Fehler melden</a>'
 		}
 	},
 	browser: {
@@ -1631,6 +1635,10 @@ static texts = { // actually const
 			de: '\u001b[2mKeine json Konfigurationsdatei gefunden, gesucht: $$0\u001b[0m',
 			en: '\u001b[2mNo json config file found, searched: $$0\u001b[0m',
 			ja: '\u001b[2mNo json 構成ファイルが見つかりません、検索: $$0\u001b[0m'
+		},
+		newmsg: {
+			en: '\u001b[1mNew! Japanese translation thanks to Sadami Inoue!\u001b[0m Report Bugs: https://github.com/shyrodgau/imbraw2dng/issues',
+			de: '\u001b[1mNeu! Japanische Übersetzung, danke an Sadami Inoue!\u001b[0m Fehler melden: https://github.com/shyrodgau/imbraw2dng/issues',
 		}
 	}
 };
@@ -3119,7 +3127,7 @@ writepostok(name, fromloop) {
 	caller = ImBCBase.basename(caller);
 	let texts = this.xl0('node.help');
 	console.log(this.subst(texts[0], ImBCBase.version));
-	console.log(this.rmesc('\u001b[1mNew! Internal Overwork, please report errors to me... & Japanese translation thanks to Sadami Inoue!\u001b[0m'));
+	console.log(this.rmesc(this.xl0('node.newmsg')));
 	console.log('');
 	console.log(this.subst(texts[1], caller));
 	for (let j=2; j<texts.length; j++) {
@@ -3296,7 +3304,7 @@ startnode(notfirst) {
 	}
 	else if (this.totnum > 0) {
 		console.log(this.subst(this.xl0('node.help')[0], ImBCBase.version));
-		console.log(this.rmesc('\u001b[1mNew! Internal Overwork, please report errors to me...& Japanese translation thanks to Sadami Inoue!\u001b[0m'));
+		console.log(this.rmesc(this.xl0('node.newmsg')));
 		console.log('');
 		console.log(this.xl0('main.coloursyourrisk'));
 		console.log('');
@@ -3306,7 +3314,7 @@ startnode(notfirst) {
 	}
 	else if (this.typeflags > 0) {
 		console.log(this.subst(this.xl0('node.help')[0], ImBCBase.version));
-		console.log(this.rmesc('\u001b[1mNew! Internal Overwork, please report errors to me...& Japanese translation thanks to Sadami Inoue!\u001b[0m'));
+		console.log(this.rmesc(this.xl0('node.newmsg')));
 		console.log('');
 		console.log(this.xl0('main.coloursyourrisk'));
 		console.log('');

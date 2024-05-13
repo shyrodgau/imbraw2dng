@@ -923,7 +923,7 @@ add(data, name, cb) {
 /* *************************************** Main class *************************************** */
 class ImBCBase {
 /* Indentation out */
-static version = "V4.0.1_de9854d"; // actually const
+static version = "V4.0.2_dev"; // actually const
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -1127,6 +1127,10 @@ static texts = { // actually const
 				de: 'Ziel auswählen',
 				en: 'Choose destination'
 			}
+		},
+		newmsg: {
+			en: 'New! <a href="imbraw2dng_ja.html">Japanese translation</a> thanks to Sadami Inoue! <a href="https://github.com/shyrodgau/imbraw2dng/issues" target="_new">Report bugs</a>',
+			de: 'Neu! <a href="imbraw2dng_ja.html">Japanische Übersetung</a> Danke an Sadami Inoue! <a href="https://github.com/shyrodgau/imbraw2dng/issues" target="_new">Fehler melden</a>'
 		}
 	},
 	browser: {
@@ -1723,6 +1727,10 @@ static texts = { // actually const
 			de: '\u001b[2mKeine json Konfigurationsdatei gefunden, gesucht: $$0\u001b[0m',
 			en: '\u001b[2mNo json config file found, searched: $$0\u001b[0m',
 			ja: '\u001b[2mNo json 構成ファイルが見つかりません、検索: $$0\u001b[0m'
+		},
+		newmsg: {
+			en: '\u001b[1mNew! Japanese translation thanks to Sadami Inoue!\u001b[0m Report Bugs: https://github.com/shyrodgau/imbraw2dng/issues',
+			de: '\u001b[1mNeu! Japanische Übersetzung, danke an Sadami Inoue!\u001b[0m Fehler melden: https://github.com/shyrodgau/imbraw2dng/issues',
 		}
 	}
 };
@@ -4605,7 +4613,7 @@ function init() {
 <div style="font-weight:bold;"><span class="notwhenbackw" data-myxlkey='main.title'> </span><span class="onlywhenbackw" style="display:none;" data-myxlkey='main.backw.title'> </span> <span id="mainversion"> </span> - 
  <a target="_new" data-myhrefxlkey="main.helplink" data-myxlkey='main.help'></a>
 <select id="langsel" onchange="imbc.setlang()" value="en"><option value="de" onclick="imbc.setlang()">DE</option><option value="en" selected onclick="imbc.setlang()">EN</option>
-<option value="ja" onclick="imbc.setlang()">JA</option><option value="fr" onclick="imbc.setlang()">FR</option><!--option value="ru" onclick="imbc.setlang()">RU</option--></select> <span class="notwhenbackw"> New! Internal Overwork, please report errors to me... &amp; <a href="imbraw2dng_ja.html">Japanese translation</a> thanks to Sadami Inoue!</span></div>
+<option value="ja" onclick="imbc.setlang()">JA</option><option value="fr" onclick="imbc.setlang()">FR</option><!--option value="ru" onclick="imbc.setlang()">RU</option--></select> <span class="notwhenbackw" data-myxlkey="main.newmsg"/></div>
 <br><div class="notwhenbackw"><span data-myxlkey="main.coloursyourrisk"> </span>&nbsp;<!--b style="background-color:#888888; text-shadow: 0.07em 0.12em 0 #FFFFFF;font-size:200%;">&#x26f6; &#x1f5d1; &#x2715;</b-->&nbsp;<br></div>
 <!-- the normal display -->
 <div id="normal" style="margin-top: 0.5em;">
