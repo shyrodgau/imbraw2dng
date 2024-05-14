@@ -2359,7 +2359,7 @@ handleone(orientation, fromloop) {
 		/* Here comes the actual building of the DNG */
 		let ti = new TIFFOut();
 		ti.addIfd(); /* **************************************** */
-		if (this.withpreview && !this.neutral && typ!==5) {
+		if (this.withpreview && !this.neutral) {
 			this.mappx(0, 'process.addpreview');
 			/* **** PREVIEW image **** */
 			let scale = 32;
@@ -2449,7 +2449,7 @@ handleone(orientation, fromloop) {
 				ti.addEntry(50778, 'SHORT', [ 23 ]); /* Calibration Illuminant 1 - D50 */
 			}
 		}
-		if (this.withpreview && !this.neutral && typ!==5) {
+		if (this.withpreview && !this.neutral) {
 			ti.addEntry(50971, 'ASCII', new Date(Date.now()).toISOString() ); /* Preview date time */
 			ti.addSubIfd(); /* **************************************** */
 		}
@@ -2503,16 +2503,10 @@ static getwb(view, typidx) {
 	let r=0, g=0, b=0;
 	for (let i=Math.round(0.05*t.h)*2; i<Math.ceil(0.9*t.h); i+=2) {
 		for (let j=Math.round(0.05*t.w)*2; j<Math.ceil(0.9*t.w); j+=2) {
-			let lg = 0, lr = 0, lb = 0;
-			if (t.typ > 1) {
-				lg = Math.round((view.getUint8(t.w*i +j + 1) + view.getUint8(t.w*(i+1) + j)) / 2);
-				lb = view.getUint8(t.w*i + j);
-				lr = view.getUint8(t.w*(i+1) + j+1);
-			} else {
-				lg = Math.round((view.getUint8(t.w*i +j) + view.getUint8(t.w*(i+1) + j+1)) / 2);
-				lb = view.getUint8(t.w*(i+1) + j);
-				lr = view.getUint8(t.w*i + j + 1);
-			}
+			let x = ImBCBase.getPix(j, i, t.w, view, t.typ);
+			let lr = x[0];
+			let lg = x[1];
+			let lb = x[2];
 			let p = Math.sqrt(lg*lg + lb*lb + lr*lr);
 			if (Math.abs(p) < 1 || p > (3*245)) continue;
 			//if (((i*t.w + j) % 50000) < 10)
@@ -2541,10 +2535,10 @@ static getPix(x, y, w, view, typ) {
 	let w3 = w + (w>>1);
 	let xx = x + (x>>1);
 	if (typ === 5) {
-		reds.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 4))-240)/16);
-		reds.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 4))-240)/16);
-		reds.push(((view.getUint8((y+2)*w3 + xx+2) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 4))-240)/16);
-		reds.push(((view.getUint8((y+2)*w3 + xx+2) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 4))-240)/16);
+		reds.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 4))/*-240*/)/16);
+		reds.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 4))/*-240*/)/16);
+		reds.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 4))/*-240*/)/16);
+		reds.push(((view.getUint8((y+2)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 4))/*-240*/)/16);
 	}
 	else if (typ > 1) {
 		reds.push(view.getUint8((y+1)*w + x + 1));
@@ -2562,14 +2556,14 @@ static getPix(x, y, w, view, typ) {
 	outrgb.push((reds[1] + reds[2]) / 2.0);
 	let greens = [];
 	if (typ === 5) {
-		greens.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF0) >> 4))-240)/16);
-		greens.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF) << 4))-240)/16);
-		greens.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF0) >> 4))-240)/16);
-		greens.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF) << 4))-240)/16);
-		greens.push((((view.getUint8((y+4)*w3 + xx+2)<<4) +  ((view.getUint8((y+4)*w3 + xx+1) &0xF0) >> 4))-240)/16);
-		greens.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF) << 4))-240)/16);
-		greens.push((((view.getUint8((y+4)*w3 + xx+5)<<4) +  ((view.getUint8((y+4)*w3 + xx+4) &0xF0) >> 4))-240)/16);
-		greens.push(((view.getUint8((y+2)*w3 + xx+3) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF) << 4))-240)/16);
+		greens.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF0) >> 4))/*-240*/)/16);
+		greens.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF) << 4))/*-240*/)/16);
+		greens.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF0) >> 4))/*-240*/)/16);
+		greens.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF) << 4))/*-240*/)/16);
+		greens.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF0) >> 4))/*-240*/)/16);
+		greens.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF) << 4))/*-240*/)/16);
+		greens.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF0) >> 4))/*-240*/)/16);
+		greens.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF) << 4))/*-240*/)/16);
 	}
 	else if (typ > 1) {
 		greens.push(view.getUint8(y*w + x + 1));
@@ -2594,10 +2588,10 @@ static getPix(x, y, w, view, typ) {
 	outrgb.push((greens[3] + greens[4]) / 2.0);
 	let blues = [];
 	if (typ == 5) {
-		blues.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-240)/16);
-		blues.push((((view.getUint8((y+1)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-240)/16);
-		blues.push((((view.getUint8((y+3)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-240)/16);
-		blues.push((((view.getUint8((y+3)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-240)/16);
+		blues.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))/*-240*/)/16);
+		blues.push((((view.getUint8((y+1)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))/*-240*/)/16);
+		blues.push((((view.getUint8((y+3)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))/*-240*/)/16);
+		blues.push((((view.getUint8((y+3)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))/*-240*/)/16);
 	}
 	else if (typ > 1) {
 		blues.push(view.getUint8(y*w + x));
@@ -4647,9 +4641,9 @@ function init() {
 <!-- the normal display -->
 <div id="normal" style="margin-top: 0.5em;">
 <div class="notwhenbackw"><input type="checkbox" id="steppreview" onchange="imbc.dirtysettings()" checked><label for="steppreview" data-myxlkey="process.singlestep"></label></div>
-<div class="notwhenbackw"><input type="checkbox" id="dngpreview" disabled onchange="imbc.chgdngpreview()"><label for="dngpreview" data-myxlkey="process.addpreview"></label> (not for FILM)</div>
-<div class="notwhenbackw"><input type="checkbox" id="oldstylewb" checked onchange="imbc.dirtysettings()"><label for="oldstylewb" style="background-color: #ffffcc;" data-myxlkey="process.oldstylewb"></label></div>
-<div class="notwhenbackw"><input type="checkbox" id="incdcp" disabled onchange="imbc.dirtysettings()"><label for="incdcp" style="background-color: #ffffcc;" data-myxlkey="process.includedcp"></label> (not for FILM)</div>
+<div class="notwhenbackw"><input type="checkbox" id="dngpreview"  onchange="imbc.chgdngpreview()"><label for="dngpreview" data-myxlkey="process.addpreview"></label> (not for FILM)</div>
+<div class="notwhenbackw"><input type="checkbox" id="oldstylewb"  onchange="imbc.dirtysettings()"><label for="oldstylewb" style="background-color: #ffffcc;" data-myxlkey="process.oldstylewb"></label></div>
+<div class="notwhenbackw"><input type="checkbox" id="incdcp"  onchange="imbc.dirtysettings()"><label for="incdcp" style="background-color: #ffffcc;" data-myxlkey="process.includedcp"></label> (not for FILM)</div>
 <div class="notwhenbackw"><input type="checkbox" id="copycheck" onchange="imbc.chgcopycheck()"><label for="copycheck" data-myxlkey="process.addcopyright"></label> <input onchange="imbc.dirtysettings()" type="text" id="copytext"></input></div>
 <div class="notwhenbackw"><input type="checkbox" id="usezip" onchange="imbc.dirtysettings()"><label for="usezip" data-myxlkey="main.usezip" id="useziplbl"></label> <input type="checkbox" id="choosezipdest" onchange="imbc.dirtysettings()"><label for="choosezipdest" data-myxlkey="main.usezip.choosedest" id="useziplbl"></label></div>
 <div class="notwhenbackw" style="margin-top: 0.5em;">
