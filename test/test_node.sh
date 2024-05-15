@@ -25,7 +25,7 @@ echo '{ }' > ${testout}/.imbraw2dng.json
 tn=1
 
 sumnum=0
-rawcnt=24
+rawcnt=25
 
 ################################################
 
@@ -250,7 +250,7 @@ if [ $rc -ne 0 ]; then
 	echo Test ${tn} failed $rc
 	exit $tn
 fi
-sumnum=$(( $sumnum + 21 ))
+sumnum=$(( $sumnum + 22 ))
 if [ $n -ne $sumnum ]; then
 	echo Test ${tn} failed NO $n
 	exit $tn
@@ -270,7 +270,7 @@ if [ $rc -ne 0 ]; then
 	echo Test ${tn} failed $rc
 	exit $tn
 fi
-sumnum=$(( $sumnum + 21 ))
+sumnum=$(( $sumnum + 22 ))
 if [ $n -ne $sumnum ]; then
 	echo Test ${tn} failed NO $n
 	exit $tn

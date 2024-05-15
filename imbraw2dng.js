@@ -204,6 +204,15 @@ getData(offset) {
 	let ioff = 0, data = new Uint8Array(this.#imglen + (12 * this.#entrys.length) + this.#currentoff + 16);
 	if (this.#imgdata?.byteLength) {
 		for (let z=0; z<this.#imgdata.byteLength; z++)
+		if (this.#imglen === 30607488) {
+			if ((z%3) === 0)
+				data[ioff++] = this.#imgdata.getUint8(z+2);
+			else if ((z%3) === 2)
+				data[ioff++] = this.#imgdata.getUint8(z-2);
+			else
+				data[ioff++] = this.#imgdata.getUint8(z);
+		}
+		else
 			data[ioff++] = this.#imgdata.getUint8(z);
 	} else if (this.#imgdata) {
 		for (let z=0; z<this.#imgdata.length; z++)
@@ -343,7 +352,7 @@ static writeshorttoout(out, num, off) {
 }
 /* TIFFOut: return the tiff binary data */
 getData() {
-	let data = new Uint8Array(20000000);
+	let data = new Uint8Array(40000000);
 	if (null !== this.#currentifd) {
 		this.#ifds.push(this.#currentifd);
 	}
@@ -535,20 +544,6 @@ static parseDng(f, onok, onerr) {
 		size: datalen,
 		data: f.data.slice(rawstripstart, datalen + rawstripstart)
 	};
-	/*off = ifd+2;
-	for (let k=0; k<((nent<50)? nent: 0); k++) {
-		let tag = ImBCBackw.readshort(v, off);
-		if (tag === 274)
-			fx.rot = ImBCBackw.readshort(v, off+8); // rotation handling has problems
-		else if (tag === 306) {
-			fx.datestr = '';
-			let xoff = ImBCBackw.readint(v, off+8);
-			const len = ImBCBackw.readshort(v, off+4)-1;
-			for (let j=0; j<len;j++)
-				fx.datestr += String.fromCharCode(v.getUint8(xoff++));
-		}
-		off += 12;
-	}*/
 	fx.readAsArrayBuffer = (fy) => {
 		fy.onload({
 				target: { result: fy.data }
@@ -831,7 +826,7 @@ add(data, name, cb) {
 /* *************************************** Main class *************************************** */
 class ImBCBase {
 /* Indentation out */
-static version = "V4.0.2_dev"; // actually const
+static version = "V4.0.3_dev"; // actually const
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -1688,7 +1683,7 @@ static fnregex = /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-
 static fnregexx = /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-9]*)/ // actually const
 static orients = [ '', 'none', '', 'upsidedown', '', '', 'clockwise', '', 'counterclockwise' ]; // actually const
 static oriecw = [ 1, 6, 3, 8 ]; // clockwise indices // actually const
-static types = [ "unknown", "ImB35mm", "MF 6x7 ", "MF6x4.5", "MF 6x6 " ]; // all length 7, actually const
+static types = [ "unknown", "ImB35mm", "MF 6x7 ", "MF6x4.5", "MF 6x6 ", "Film35 " ]; // all length 7, actually const
 static infos = [ // actually const
 	{
 		size: 14065920,
@@ -1745,8 +1740,15 @@ static infos = [ // actually const
 		w: 3260, h: 2352,
 		typ: 1,
 		mode: "Small-angle"
+	},
+	/* Film ! */
+	{
+		size: 30607488,
+		w: 5216,
+		h:3912,
+		typ: 5,
+		mode: ''
 	}
-	/* Film ? */
 ];
 // tone curve for profile in b64 gz:
 tcb64gz = `H4sIAEZ3P2YAAzXXdVRV+dvG4a1iizVIKDYGIoqKydnPfUwQFbBQERAbGxQVewuOXWON3Vijjh1YR+yOQcUcu0ZHLMzR3/28a72u5bq4/fwBnrPPd28M4///WA1eJrZs
@@ -1815,6 +1817,7 @@ incdcp = true;
 debugflag = false;
 useraw = null;
 imbweb = 'http://192.168.1.254';
+filmdemo = false;
 
 constructor() {
 }
@@ -2251,7 +2254,7 @@ handleone(orientation, fromloop) {
 		if (dateok) {
 			this.mappx(0, 'process.datetime', datestr);
 		}
-		let ori = orientation ? orientation : 1;
+		let ori = orientation ? orientation : (typ === 5 ? 3 : 1);
 		let transp = false;
 		if (ori !== 1) {
 			this.mappx(0, 'process.orientation', this.xl0('preview.orients.' + ImBCBase.orients[ori]));
@@ -2284,7 +2287,7 @@ handleone(orientation, fromloop) {
 		ti.addEntry(272, 'ASCII', ImBCBase.types[typ]); /* Model */
 		ti.addEntry(274, 'SHORT', [ ori ]); /* Orientation */
 		ti.addEntry(305, 'ASCII', 'imbraw2dng ' + ImBCBase.version); /* SW and version */
-		if (this.#historystring.length)
+		if (this.#historystring.length && !this.filmdemo)
 			ti.addEntry(37395, 'ASCII', this.#historystring); /* image history */
 		this.#historystring = '';
 		if (dateok) {
@@ -2318,10 +2321,11 @@ handleone(orientation, fromloop) {
 				ti.addEntry(33432, 'BYTE', bytes); /* copyright */
 		}
 		ti.addEntry(50707, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Backward Version */
-		ti.addEntry(50717, 'LONG', [ 255 ]); /* White level */
+		ti.addEntry(50717, 'LONG', [ (typ === 5) ? 4095 : 255 ]); /* White level */
+		if (typ === 5) ti.addEntry(50714, 'SHORT', [ 240, 240, 240, 240 ] ); /* Blacklevel */
+		if (typ === 5) ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
 		if (!this.neutral) {
-			ti.addEntry(50827, 'BYTE', rawnamearr); /* Raw file name */
-			//ti.addEntry(50728, 'RATIONAL', [ 6, 10, 1,1, 6, 10 ]); /* As shot neutral */
+			if (!this.filmdemo) ti.addEntry(50827, 'BYTE', rawnamearr); /* Raw file name */
 			ti.addEntry(50728, 'RATIONAL', wb); /* As shot neutral */
 			/*  new:  */
 			if (this.incdcp) {
@@ -2358,13 +2362,13 @@ handleone(orientation, fromloop) {
 		}
 		/* **** RAW image **** */
 		ti.addImageStrip(0, view, w, h);
-		ti.addEntry(258 , 'SHORT', [ 8 ]); /* BitsPerSample */
+		ti.addEntry(258 , 'SHORT', [ (typ === 5) ? 12 : 8 ]); /* BitsPerSample */
 		ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression - none */
 		ti.addEntry(262, 'SHORT', [ 0x8023 ]); /* Photometric - CFA */
 		ti.addEntry(277, 'SHORT', [ 1 ]); /* Samples per Pixel */
 		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config - chunky */
 		ti.addEntry(33421, 'SHORT', [ 2, 2 ]); /* CFA Repeat Pattern Dim */
-		ti.addEntry(33422, 'BYTE', (typ > 1) ? [ 2, 1, 1, 0 ] : [ 1, 0, 2, 1 ]); /* CFA Pattern dep. on MF/35mm*/
+		ti.addEntry(33422, 'BYTE', (typ > 1 && typ < 5) ? [ 2, 1, 1, 0 ] : [ 1, 0, 2, 1 ]); /* CFA Pattern dep. on MF/35mm*/
 		this.writewrap(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted' + ((this.checkdlfolder && !this.zip) ? 'checkdl' : ''), ti.getData(), fromloop);
 	};
 	reader.onerror = (evt) => {
@@ -2404,18 +2408,12 @@ static getwb(view, typidx) {
 	//console.log('GWB ' + typidx + ' ' + JSON.stringify(ImBCBase.infos[typidx]));
 	const t = ImBCBase.infos[typidx];
 	let r=0, g=0, b=0;
-	for (let i=Math.round(0.05*t.h)*2; i<Math.ceil(0.9*t.h); i+=2) {
-		for (let j=Math.round(0.05*t.w)*2; j<Math.ceil(0.9*t.w); j+=2) {
-			let lg = 0, lr = 0, lb = 0;
-			if (t.typ > 1) {
-				lg = Math.round((view.getUint8(t.w*i +j + 1) + view.getUint8(t.w*(i+1) + j)) / 2);
-				lb = view.getUint8(t.w*i + j);
-				lr = view.getUint8(t.w*(i+1) + j+1);
-			} else {
-				lg = Math.round((view.getUint8(t.w*i +j) + view.getUint8(t.w*(i+1) + j+1)) / 2);
-				lb = view.getUint8(t.w*(i+1) + j);
-				lr = view.getUint8(t.w*i + j + 1);
-			}
+	for (let i=Math.round(0.05*t.h)*2; i<Math.ceil(0.9*t.h); i+=8) {
+		for (let j=Math.round(0.05*t.w)*2; j<Math.ceil(0.9*t.w); j+=8) {
+			let x = ImBCBase.getPix(j, i, t.w, view, t.typ);
+			let lr = x[0];
+			let lg = x[1];
+			let lb = x[2];
 			let p = Math.sqrt(lg*lg + lb*lb + lr*lr);
 			if (Math.abs(p) < 1 || p > (3*245)) continue;
 			//if (((i*t.w + j) % 50000) < 10)
@@ -2426,22 +2424,35 @@ static getwb(view, typidx) {
 		}
 	}
 	if ((r > 0) && (r <= b) && (r <= g)) {
+		//console.log('A ' + JSON.stringify([ 10, 10, Math.ceil(190000*g/r), 190000, Math.ceil(190000*b/r), 190000 ]));
 		return [ 10, 10, Math.ceil(190000*g/r), 190000, Math.ceil(190000*b/r), 190000 ];
 	}
 	else if ((b > 0) && (b <= r) && (b <= g)) {
+		//console.log('B ' + JSON.stringify([ Math.ceil(190000*r/b), 190000, Math.ceil(190000*g/b), 190000, 10, 10 ]));
 		return [ Math.ceil(190000*r/b), 190000, Math.ceil(190000*g/b), 190000, 10, 10 ];
 	}
 	else if (g > 0) {
+		//console.log('C ' + JSON.stringify([ Math.ceil(190000*r/g), 190000, 10, 10, Math.ceil(190000*b/g), 190000 ]));
 		return [ Math.ceil(190000*r/g), 190000, 10, 10, Math.ceil(190000*b/g), 190000 ];
 	}
-	else
+	else {
+		//console.log('D ' + JSON.stringify([ 5, 10, 1, 1, 5, 10 ]));
 		return [ 5, 10, 1, 1, 5, 10 ];
+	}
 }
 /* ImBCBase: get one downsampled median image value [ r g b ] */
 static getPix(x, y, w, view, typ) {
 	let outrgb = [];
 	let reds = [];
-	if (typ > 1) {
+	let w3 = w + (w>>1);
+	let xx = x + (x>>1);
+	if (typ === 5) {
+		reds.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-240)/16);
+		reds.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-240)/16);
+		reds.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-240)/16);
+		reds.push(((view.getUint8((y+2)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-240)/16);
+	}
+	else if (typ > 1) {
 		reds.push(view.getUint8((y+1)*w + x + 1));
 		reds.push(view.getUint8((y+1)*w + x + 3));
 		reds.push(view.getUint8((y+1)*w + x + 2*w + 1));
@@ -2456,7 +2467,17 @@ static getPix(x, y, w, view, typ) {
 	// median of red pixels
 	outrgb.push((reds[1] + reds[2]) / 2.0);
 	let greens = [];
-	if (typ > 1) {
+	if (typ === 5) {
+		greens.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF0) >> 4))-240)/16);
+		greens.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF) << 8))-240)/16);
+		greens.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF0) >> 4))-240)/16);
+		greens.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF) << 8))-240)/16);
+		greens.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF0) >> 4))-240)/16);
+		greens.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF) << 8))-240)/16);
+		greens.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF0) >> 4))-240)/16);
+		greens.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF) << 8))-240)/16);
+	}
+	else if (typ > 1) {
 		greens.push(view.getUint8(y*w + x + 1));
 		greens.push(view.getUint8(y*w + x + w));
 		greens.push(view.getUint8(y*w + x + 3));
@@ -2478,7 +2499,13 @@ static getPix(x, y, w, view, typ) {
 	greens.sort(function(a,b) { return a - b; });
 	outrgb.push((greens[3] + greens[4]) / 2.0);
 	let blues = [];
-	if (typ > 1) {
+	if (typ == 5) {
+		blues.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-240)/16);
+		blues.push((((view.getUint8((y+1)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-240)/16);
+		blues.push((((view.getUint8((y+3)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-240)/16);
+		blues.push((((view.getUint8((y+3)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-240)/16);
+	}
+	else if (typ > 1) {
 		blues.push(view.getUint8(y*w + x));
 		blues.push(view.getUint8(y*w + x + 2));
 		blues.push(view.getUint8(y*w + x + 2*w));
@@ -2552,6 +2579,7 @@ static buildpvarray(view, typ, w, h, orientation, scale, wb) {
 		}
 	}
 	const fact = 255 / (allmax - allmin);
+	//console.log('ai ' + allmin + ' ax ' + allmax + ' ri ' + minred + ' rx ' + maxred + ' gi ' + mingreen + ' gx ' + maxgreen + ' bi ' + minblue + ' bx ' + maxblue);
 	const o = scale ? 3 : 4;
 	for (let i = 0; i < h8; i++) {
 		for (let j=0; j< w8; j++) {
@@ -2865,10 +2893,10 @@ resolver(url, onok, onerr) {
 	}
 	else {
 		// read local (or cifs/nfs...) file
-		let ab = new ArrayBuffer(20000000);
+		let ab = new ArrayBuffer(35000000);
 		let ua = new Uint8Array(ab);
 		let len = 0;
-		const str = this.fs.createReadStream(url, { highWaterMark: 20*1024*1024 });
+		const str = this.fs.createReadStream(url, { highWaterMark: 35*1024*1024 });
 		str.on('error', () => onerr(url,fx));
 		str.on('data', (chunk) =>  {
 			ua.set(chunk, len);
@@ -2963,26 +2991,27 @@ readconfig(callback, tryno) {
 	if (undefined === tryno) {
 		xch = '.';
 		dotflag = true;
+		this.#configfiles[0] = './.imbraw2dng' + (this.filmdemo?'_film':'') + '.json';
 	}
 	else if (1 === tryno && process.env.HOME) {
 		xch = process.env.HOME + this.pa.sep + '.config';
 		dotflag = false;
-		this.#configfiles.push(process.env.HOME + this.pa.sep + '.config' + this.pa.sep + 'imbraw2dng.json');
+		this.#configfiles.push(process.env.HOME + this.pa.sep + '.config' + this.pa.sep + 'imbraw2dng' + (this.filmdemo?'_film':'') + '.json');
 	}
 	else if (2 === tryno && process.env.XDG_CONFIG_HOME) {
 		xch = process.env.XDG_CONFIG_HOME;
 		dotflag = false;
-		this.#configfiles.push(process.env.XDG_CONFIG_HOME + this.pa.sep + 'imbraw2dng.json');
+		this.#configfiles.push(process.env.XDG_CONFIG_HOME + this.pa.sep + 'imbraw2dng' + (this.filmdemo?'_film':'') + '.json');
 	}
 	else {
 		return callback();
 	}
-	this.fs.readFile(xch + this.pa.sep + (dotflag ? '.' : '' ) + 'imbraw2dng.json', 'utf8',
+	this.fs.readFile(xch + this.pa.sep + (dotflag ? '.' : '' ) + 'imbraw2dng' + (this.filmdemo?'_film':'') + '.json', 'utf8',
 		(err, data) => {
 			//console.log(' READ: ' + xch + this.pa.sep + 'imbraw2dng.json' + ' ' + JSON.stringify(err) + ' ' + JSON.stringify(data));
 			if (!err) {
 				this.parseconfig(data);
-				this.#configloaded = (xch + this.pa.sep + (dotflag ? '.' : '' ) + 'imbraw2dng.json');
+				this.#configloaded = (xch + this.pa.sep + (dotflag ? '.' : '' ) + 'imbraw2dng' + (this.filmdemo?'_film':'') + '.json');
 				callback();
 			}
 			else if (!tryno) {
@@ -3443,5 +3472,7 @@ if (ImBCBase.basename(process.argv[1].toUpperCase()).indexOf('IMBDNG2RAW') !== -
 }
 else {
 	imbc = new ImBCNode();
+	if (ImBCBase.basename(process.argv[1].toUpperCase()).indexOf('IMBDNG2RAW_FILM') !== -1)
+		imbc.filmdemo = true;
 }
 imbc.startnode();

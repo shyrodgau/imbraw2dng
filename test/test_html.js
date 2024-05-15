@@ -150,7 +150,7 @@ describe('convert raw local', function() {
 			await copytext.sendKeys('(c) Stefan Hegny debugging');
 			const fi = await driver.findElement(By.id('infile'));
 			await fi.clear();
-			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2024_1015_123011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2021_1102_123011_001.raw');
+			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2024_1015_123011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2021_1102_123011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTOS/2029_0710_010203_001.raw');
 			// do something to make it flutsch
 			await driver.actions({async: true})
 				.pause(700).move({ origin: cb }).pause(700).perform();
@@ -293,7 +293,7 @@ describe('convert raw from imback', function() {
 				.perform();
 			const sel2 = await cb.isSelected();
 			const fi = await driver.findElement(By.id('imbstartts'));
-			await fi.sendKeys('2023');
+			await fi.sendKeys('2025');
 			const doit = await driver.findElement(By.id('imbdoit'));
 			await driver.actions({ async: true })
 				.move({ origin: doit })
