@@ -2365,10 +2365,7 @@ handleone(orientation, fromloop) {
 			let scale = 32;
 			if (w < 4096 && h < 4096) scale=16;
 			ti.addImageStrip(1, ImBCBase.buildpvarray(view, typ, w, h, ori, scale, wb), Math.floor(transp ? (h+scale-1)/scale:(w+scale-1)/scale), Math.floor(transp ? (w+scale-1)/scale: (h+scale-1)/scale));
-			if (typ !== 5)
-				ti.addEntry(258 , 'SHORT', [ 8, 8, 8 ]); /* BitsPerSample */
-			else
-				ti.addEntry(258 , 'SHORT', [ 12, 12, 12 ]); /* BitsPerSample */
+			ti.addEntry(258 , 'SHORT', [ 8, 8, 8 ]); /* BitsPerSample */
 			ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression - none */
 			ti.addEntry(262, 'SHORT', [ 2 ]); /* Photometric - RGB */
 			ti.addEntry(277, 'SHORT', [ 3 ]); /* Samples per Pixel */
@@ -2501,8 +2498,8 @@ static getwb(view, typidx) {
 	//console.log('GWB ' + typidx + ' ' + JSON.stringify(ImBCBase.infos[typidx]));
 	const t = ImBCBase.infos[typidx];
 	let r=0, g=0, b=0;
-	for (let i=Math.round(0.05*t.h)*2; i<Math.ceil(0.9*t.h); i+=2) {
-		for (let j=Math.round(0.05*t.w)*2; j<Math.ceil(0.9*t.w); j+=2) {
+	for (let i=Math.round(0.05*t.h)*2; i<Math.ceil(0.9*t.h); i+=8) {
+		for (let j=Math.round(0.05*t.w)*2; j<Math.ceil(0.9*t.w); j+=8) {
 			let x = ImBCBase.getPix(j, i, t.w, view, t.typ);
 			let lr = x[0];
 			let lg = x[1];
@@ -2517,16 +2514,21 @@ static getwb(view, typidx) {
 		}
 	}
 	if ((r > 0) && (r <= b) && (r <= g)) {
+		//console.log('A ' + JSON.stringify([ 10, 10, Math.ceil(190000*g/r), 190000, Math.ceil(190000*b/r), 190000 ]));
 		return [ 10, 10, Math.ceil(190000*g/r), 190000, Math.ceil(190000*b/r), 190000 ];
 	}
 	else if ((b > 0) && (b <= r) && (b <= g)) {
+		//console.log('B ' + JSON.stringify([ Math.ceil(190000*r/b), 190000, Math.ceil(190000*g/b), 190000, 10, 10 ]));
 		return [ Math.ceil(190000*r/b), 190000, Math.ceil(190000*g/b), 190000, 10, 10 ];
 	}
 	else if (g > 0) {
+		//console.log('C ' + JSON.stringify([ Math.ceil(190000*r/g), 190000, 10, 10, Math.ceil(190000*b/g), 190000 ]));
 		return [ Math.ceil(190000*r/g), 190000, 10, 10, Math.ceil(190000*b/g), 190000 ];
 	}
-	else
+	else {
+		//console.log('D ' + JSON.stringify([ 5, 10, 1, 1, 5, 10 ]));
 		return [ 5, 10, 1, 1, 5, 10 ];
+	}
 }
 /* ImBCBase: get one downsampled median image value [ r g b ] */
 static getPix(x, y, w, view, typ) {
@@ -2535,10 +2537,10 @@ static getPix(x, y, w, view, typ) {
 	let w3 = w + (w>>1);
 	let xx = x + (x>>1);
 	if (typ === 5) {
-		reds.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 4))/*-240*/)/16);
-		reds.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 4))/*-240*/)/16);
-		reds.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 4))/*-240*/)/16);
-		reds.push(((view.getUint8((y+2)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 4))/*-240*/)/16);
+		reds.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-240)/16);
+		reds.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-240)/16);
+		reds.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-240)/16);
+		reds.push(((view.getUint8((y+2)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-240)/16);
 	}
 	else if (typ > 1) {
 		reds.push(view.getUint8((y+1)*w + x + 1));
@@ -2556,14 +2558,14 @@ static getPix(x, y, w, view, typ) {
 	outrgb.push((reds[1] + reds[2]) / 2.0);
 	let greens = [];
 	if (typ === 5) {
-		greens.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF0) >> 4))/*-240*/)/16);
-		greens.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF) << 4))/*-240*/)/16);
-		greens.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF0) >> 4))/*-240*/)/16);
-		greens.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF) << 4))/*-240*/)/16);
-		greens.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF0) >> 4))/*-240*/)/16);
-		greens.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF) << 4))/*-240*/)/16);
-		greens.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF0) >> 4))/*-240*/)/16);
-		greens.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF) << 4))/*-240*/)/16);
+		greens.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF0) >> 4))-240)/16);
+		greens.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF) << 8))-240)/16);
+		greens.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF0) >> 4))-240)/16);
+		greens.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF) << 8))-240)/16);
+		greens.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF0) >> 4))-240)/16);
+		greens.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF) << 8))-240)/16);
+		greens.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF0) >> 4))-240)/16);
+		greens.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF) << 8))-240)/16);
 	}
 	else if (typ > 1) {
 		greens.push(view.getUint8(y*w + x + 1));
@@ -2588,10 +2590,10 @@ static getPix(x, y, w, view, typ) {
 	outrgb.push((greens[3] + greens[4]) / 2.0);
 	let blues = [];
 	if (typ == 5) {
-		blues.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))/*-240*/)/16);
-		blues.push((((view.getUint8((y+1)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))/*-240*/)/16);
-		blues.push((((view.getUint8((y+3)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))/*-240*/)/16);
-		blues.push((((view.getUint8((y+3)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))/*-240*/)/16);
+		blues.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-240)/16);
+		blues.push((((view.getUint8((y+1)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-240)/16);
+		blues.push((((view.getUint8((y+3)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-240)/16);
+		blues.push((((view.getUint8((y+3)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-240)/16);
 	}
 	else if (typ > 1) {
 		blues.push(view.getUint8(y*w + x));
@@ -2667,6 +2669,7 @@ static buildpvarray(view, typ, w, h, orientation, scale, wb) {
 		}
 	}
 	const fact = 255 / (allmax - allmin);
+	//console.log('ai ' + allmin + ' ax ' + allmax + ' ri ' + minred + ' rx ' + maxred + ' gi ' + mingreen + ' gx ' + maxgreen + ' bi ' + minblue + ' bx ' + maxblue);
 	const o = scale ? 3 : 4;
 	for (let i = 0; i < h8; i++) {
 		for (let j=0; j< w8; j++) {
@@ -4641,9 +4644,9 @@ function init() {
 <!-- the normal display -->
 <div id="normal" style="margin-top: 0.5em;">
 <div class="notwhenbackw"><input type="checkbox" id="steppreview" onchange="imbc.dirtysettings()" checked><label for="steppreview" data-myxlkey="process.singlestep"></label></div>
-<div class="notwhenbackw"><input type="checkbox" id="dngpreview"  onchange="imbc.chgdngpreview()"><label for="dngpreview" data-myxlkey="process.addpreview"></label> (not for FILM)</div>
+<div class="notwhenbackw"><input type="checkbox" id="dngpreview"  checked onchange="imbc.chgdngpreview()"><label for="dngpreview" data-myxlkey="process.addpreview"></label></div>
 <div class="notwhenbackw"><input type="checkbox" id="oldstylewb"  onchange="imbc.dirtysettings()"><label for="oldstylewb" style="background-color: #ffffcc;" data-myxlkey="process.oldstylewb"></label></div>
-<div class="notwhenbackw"><input type="checkbox" id="incdcp"  onchange="imbc.dirtysettings()"><label for="incdcp" style="background-color: #ffffcc;" data-myxlkey="process.includedcp"></label> (not for FILM)</div>
+<div class="notwhenbackw"><input type="checkbox" id="incdcp"  onchange="imbc.dirtysettings()"><label for="incdcp" style="background-color: #ffffcc;" data-myxlkey="process.includedcp"></label></div>
 <div class="notwhenbackw"><input type="checkbox" id="copycheck" onchange="imbc.chgcopycheck()"><label for="copycheck" data-myxlkey="process.addcopyright"></label> <input onchange="imbc.dirtysettings()" type="text" id="copytext"></input></div>
 <div class="notwhenbackw"><input type="checkbox" id="usezip" onchange="imbc.dirtysettings()"><label for="usezip" data-myxlkey="main.usezip" id="useziplbl"></label> <input type="checkbox" id="choosezipdest" onchange="imbc.dirtysettings()"><label for="choosezipdest" data-myxlkey="main.usezip.choosedest" id="useziplbl"></label></div>
 <div class="notwhenbackw" style="margin-top: 0.5em;">
