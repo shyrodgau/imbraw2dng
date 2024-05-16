@@ -2354,9 +2354,8 @@ handleone(orientation, fromloop) {
 		}
 		const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : ImBCBase.getwb(view, zz);
 		//console.log('WB ' + JSON.stringify(wb));
-		if (!this.constwb) {
+		if (!this.constwb)
 			this.mappx(0, 'process.foundwb', Math.round(100*wb[0]/wb[1]), Math.round(100*wb[2]/wb[3]), Math.round(100*wb[4]/wb[5]));
-		}
 		/* Here comes the actual building of the DNG */
 		let ti = new TIFFOut();
 		ti.addIfd(); /* **************************************** */
@@ -2614,7 +2613,7 @@ static getPix(x, y, w, view, typ) {
 }
 /* ImBCBase: build preview in array */
 static buildpvarray(view, typ, w, h, orientation, scale, wb) {
-	if (undefined === wb) wb = [ 1, 1, 16, 10, 1, 1 ];
+	if (undefined === wb) wb = [ 6, 10, 1, 1, 6, 10 ];
 	const sfact = scale ? scale : 8;
 	const w8 = Math.floor((w+(sfact -1))/sfact) - (scale ? 0 : 1);
 	const h8 = Math.floor((h+(sfact -1))/sfact) - (scale ? 0 : 1);
@@ -2675,21 +2674,27 @@ static buildpvarray(view, typ, w, h, orientation, scale, wb) {
 	const o = scale ? 3 : 4;
 	for (let i = 0; i < h8; i++) {
 		for (let j=0; j< w8; j++) {
-			/*if ((outpix[o*((i * w8) + j)] > rfact*250) &&
+			if ((outpix[o*((i * w8) + j)] > rfact*250) &&
 				(outpix[o*((i * w8) + j) + 2] > bfact*250) &&
 				(outpix[o*((i * w8) + j) + 1] > gfact*250))
 			{
 				outpix[o*((i*w8) + j)] = rfact*250;
 				outpix[o*((i*w8) + j) + 1] = gfact*250;
 				outpix[o*((i*w8) + j) + 2] = bfact*250;
-			} else*/ {
+			} else {
 				// maybe some brightening gamma?
 				const r = (fact * rfact*(outpix[o * ((i*w8) + j)] - rfact*allmin));
-				outpix[o * ((i*w8) + j)] = 255-Math.round(255*((255-r)/255)*((255-r)/255));
+				let nr = 255-Math.round(255*((255-r)/255)*((255-r)/255));
+				if (nr < 0) nr = 0;
+				outpix[o * ((i*w8) + j)] = (nr > 255) ? 255 : nr;
 				const g = (fact * gfact*(outpix[o * ((i*w8) + j) + 1] - gfact*allmin));
-				outpix[o * ((i*w8) + j) + 1] = 255-Math.round(255*((255-g)/255)*((255-g)/255));
+				let ng = 255-Math.round(255*((255-g)/255)*((255-g)/255));
+				if (ng < 0) ng = 0;
+				outpix[o * ((i*w8) + j) + 1] = (ng > 255) ? 255 : ng;
 				const b = (fact * bfact*(outpix[o * ((i*w8) + j) + 2] - bfact*allmin));
-				outpix[o * ((i*w8) + j) + 2] = 255-Math.round(255*((255-b)/255)*((255-b)/255));
+				let nb = 255-Math.round(255*((255-b)/255)*((255-b)/255));
+				if (nb < 0) nb = 0;
+				outpix[o * ((i*w8) + j) + 2] = (nb > 255) ? 255 : nb;
 			}
 		}
 	}
@@ -4623,8 +4628,10 @@ function init() {
 	}
 	else {
 		imbc = new ImBCHtml();
-		if (ImBCBase.basename(window.location.pathname.toUpperCase()).indexOf('IMBDNG2RAW_FILM') !== -1)
+		if (ImBCBase.basename(window.location.pathname.toUpperCase()).indexOf('IMBRAW2DNG_FILM') !== -1) {
 			imbc.filmdemo = true;
+			ImBCBase.version = 'V4.ZZZZZ';
+		}
 		imbc.chgcopycheck();
 		imbc.initsettings();
 		if (!window.showSaveFilePicker) {
