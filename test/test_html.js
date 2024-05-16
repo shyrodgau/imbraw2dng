@@ -17,7 +17,7 @@ const {Builder, forBrowser, By, until, Browser, Capabilities} = require('seleniu
 //const { suite, test } = require('selenium-webdriver/testing');
 //const { ChromeOptions } = require('selenium-webdriver/chrome');
 
-describe('convert raw local', function() {
+describe('A Convert Raw Local', function() {
 	let driver, opts, errflg = false;
 	before(async function() {
 			this.timeout(6000);
@@ -29,11 +29,11 @@ describe('convert raw local', function() {
 			await driver.get(TESTURL + 'IMBACK/imbraw2dng.html');
 			driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));}');
 	});
-	it('convert without question', async function dotest() {
+	it('A.1 Convert without question', async function dotest() {
 			this.timeout(6000);
 			const cb = await driver.findElement(By.id('steppreview'));
 			const sel = await cb.isSelected();
-			console.log('......turning on single step');
+			console.log('......turning off single step');
 			await driver.actions({ async: true })
 				.move({ origin: cb })
 				.pause(300)
@@ -47,7 +47,7 @@ describe('convert raw local', function() {
 			await driver.actions({async: true}).clear();
 			await fi.clear();
 	});
-	it('convert with question and rotation', async function dotest() {
+	it('A.2 Convert with question and rotation', async function dotest() {
 			this.timeout(9000);
 			const cb = await driver.findElement(By.id('steppreview'));
 			const sel = await cb.isSelected();
@@ -72,7 +72,7 @@ describe('convert raw local', function() {
 			await driver.actions({async: true}).pause(1900).perform();
 			await driver.actions({async: true}).clear();
 	});
-	it('convert with question and more rotation', async function dotest() {
+	it('A.3 Convert with question and more rotation', async function dotest() {
 			this.timeout(11000);
 			const cb = await driver.findElement(By.id('steppreview'));
 			const sel = await cb.isSelected();
@@ -106,7 +106,7 @@ describe('convert raw local', function() {
 			await driver.actions({async: true}).pause(900).perform();
 			await driver.actions({async: true}).clear();
 	});
-	it('convert to zip with copyright', async function dotest() {
+	it('A.4 Convert to zip with copyright', async function dotest() {
 			this.timeout(11000);
 			const cb = await driver.findElement(By.id('steppreview'));
 			const sel = await cb.isSelected();
@@ -150,12 +150,12 @@ describe('convert raw local', function() {
 			await copytext.sendKeys('(c) Stefan Hegny debugging');
 			const fi = await driver.findElement(By.id('infile'));
 			await fi.clear();
-			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2024_1015_123011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2021_1102_123011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTOS/2029_0710_010203_001.raw');
+			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2024_1015_123011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2021_1102_123011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2029_0710_010203_001.raw');
 			// do something to make it flutsch
 			await driver.actions({async: true})
 				.pause(700).move({ origin: cb }).pause(700).perform();
 	});
-	it('convert to zip with exif', async function dotest() {
+	it('A.5 Convert to zip with exif', async function dotest() {
 			this.timeout(11000);
 			const cb = await driver.findElement(By.id('steppreview'));
 			const zipb = await driver.findElement(By.id('usezip'));
@@ -168,7 +168,7 @@ describe('convert raw local', function() {
 			await driver.actions({async: true})
 				.pause(700).move({ origin: cb }).pause(700).perform();
 	});
-	it('convert without date', async function dotest() {
+	it('A.6 Convert without date', async function dotest() {
 			this.timeout(11000);
 			const cb = await driver.findElement(By.id('steppreview'));
 			const sel = await cb.isSelected();
@@ -209,7 +209,7 @@ describe('convert raw local', function() {
 			await driver.actions({async: true})
 				.pause(700).move({ origin: cb }).pause(700).perform();
 	});
-	it('old style wb', async function dotest() {
+	it('A.7 Old style wb', async function dotest() {
 			this.timeout(11000);
 			const cb = await driver.findElement(By.id('oldstylewb'));
 			const sel = await cb.isSelected();
@@ -255,9 +255,11 @@ describe('convert raw local', function() {
 			let me = await driver.findElement(By.id('thebody'));
 			let ma = await me.getAttribute('data-err');
 			console.log('Message Content:');
+			console.log('= = = = = = = = = = = = = = = = = = =');
 			let m = await driver.findElement(By.id('xmsg'));
 			let t = await m.getText();
 			console.log(t);
+			console.log('= = = = = = = = = = = = = = = = = = =');
 			if (ma) {
 				console.log('***ERR: ' + ma);
 			} else
@@ -265,7 +267,7 @@ describe('convert raw local', function() {
 	});
 });
 
-describe('convert raw from imback', function() {
+describe('B Convert Raw from Imback', function() {
 	let driver, opts, errflg = false;
 	before(async function() {
 			this.timeout(6000);
@@ -277,7 +279,7 @@ describe('convert raw from imback', function() {
 			await driver.get(TESTURL + 'IMBACK/imbraw2dng_00.html');
 			driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));}');
 	});
-	it('convert without question', async function dotest() {
+	it('B.1 Convert without question', async function dotest() {
 			this.timeout(36000);
 			const zipb = await driver.findElement(By.id('usezip'));
 			await driver.actions({async: true})
@@ -307,14 +309,14 @@ describe('convert raw from imback', function() {
 				.pause(7000).move({ origin: cb }).pause(3000).click().pause(700).perform();
 			await fi.clear();
 	});
-	it('convert from visual browser', async function dotest() {
+	it('B.2 Convert from visual browser', async function dotest() {
 			this.timeout(36000);
 			const cb = await driver.findElement(By.id('imbvisbrows'));
 			await driver.actions({ async: true })
 				.move({ origin: cb })
 				.pause(300)
 				.click()
-				.pause(3000)
+				.pause(300)
 				.perform();
 			const fi = await driver.findElement(By.id('SELC_2029'));
 			await driver.actions({ async: true })
@@ -328,17 +330,32 @@ describe('convert raw from imback', function() {
 				.move({ origin: rcw })
 				.pause(300)
 				.click()
-				.pause(6000)
+				.pause(600)
 				.perform();
+			try {
+				await driver.actions({ async: true })
+					.pause(300)
+					.move({ origin: fi })
+					.pause(600)
+					.perform();
+			} catch (e) {
+				await driver.actions({ async: true })
+					.pause(300)
+					.move({ origin: cb })
+					.pause(600)
+					.perform();
+			}
 			await driver.actions({async:true}).clear();
 	});
 	after(async function() {
 			let me = await driver.findElement(By.id('thebody'));
 			let ma = await me.getAttribute('data-err');
 			console.log('Message Content:');
+			console.log('= = = = = = = = = = = = = = = = = = =');
 			let m = await driver.findElement(By.id('xmsg'));
 			let t = await m.getText();
 			console.log(t);
+			console.log('= = = = = = = = = = = = = = = = = = =');
 			if (ma) {
 				console.log('***ERR: ' + ma);
 			} else
@@ -346,7 +363,7 @@ describe('convert raw from imback', function() {
 	});
 });
 
-describe('convert backward', function() {
+describe('C Convert Backward', function() {
 	let driver, opts, errflg = false;
 	before(async function() {
 			this.timeout(6000);
@@ -358,21 +375,101 @@ describe('convert backward', function() {
 			await driver.get(TESTURL + 'IMBACK/imbdng2raw.html');
 			driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));}');
 	});
-	it('convert without question', async function dotest() {
+	it('C.1 Convert without question', async function dotest() {
 			this.timeout(36000);
 			const fi = await driver.findElement(By.id('infileb'));
 			await fi.clear();
 			await fi.sendKeys('/home/hegny/Downloads/mf6x6_large_1.dng\n/home/hegny/Downloads/kb_large_10.dng');
 			await driver.actions({async: true})
-				.pause(7000).move({ origin: fi }).pause(3000).perform();
+				.pause(3000).move({ origin: fi }).pause(300).perform();
 	});
 	after(async function() {
 			let me = await driver.findElement(By.id('thebody'));
 			let ma = await me.getAttribute('data-err');
 			console.log('Message Content:');
+			console.log('= = = = = = = = = = = = = = = = = = =');
 			let m = await driver.findElement(By.id('xmsg'));
 			let t = await m.getText();
 			console.log(t);
+			console.log('= = = = = = = = = = = = = = = = = = =');
+			if (ma) {
+				console.log('***ERR: ' + ma);
+			} else
+				driver.quit();
+	});
+});
+
+describe('D Film Demo', function() {
+	let driver, opts, errflg = false;
+	before(async function() {
+			this.timeout(6000);
+			//const chromcapa = Capabilities.chrome();
+			const opts = [ 'prefs', { 'download.default_directory': '/home/hegny/Downloads/testoutputdir' } ];
+			//chromcapa.set('chromeOptions', opts);
+			driver = await new Builder().forBrowser(Browser.CHROME).build();
+			//driver = await new Builder().forBrowser(Browser.CHROME).withCapabilities(chromcapa).build();
+			await driver.get(TESTURL + 'IMBACK/imbraw2dng_film.html');
+			driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));}');
+	});
+	it('D.1 Convert Without Question', async function dotest() {
+			this.timeout(36000);
+			const owb = await driver.findElement(By.id('oldstylewb'));
+			const osel = await owb.isSelected();
+			if (!osel) {
+				console.log('......turning on old style wb');
+				await driver.actions({ async: true })
+					.move({ origin: owb })
+					.pause(600)
+					.click()
+					.pause(200)
+					.perform();
+			}
+			const cb2 = await driver.findElement(By.id('incdcp'));
+			const sel2 = await cb2.isSelected();
+			if (sel2) {
+				console.log('......turning off include DCP');
+				await driver.actions({ async: true })
+					.move({ origin: cb2 })
+					.pause(200)
+					.click()
+					.pause(200)
+					.perform();
+			}
+			const pv = await driver.findElement(By.id('dngpreview'));
+			const psel = await pv.isSelected();
+			if (psel) {
+				console.log('......turning off preview');
+				await driver.actions({ async: true })
+					.move({ origin: pv })
+					.pause(200)
+					.click()
+					.pause(300)
+					.perform();
+			}
+			const cb = await driver.findElement(By.id('steppreview'));
+			const sel = await cb.isSelected();
+			console.log('......turning off single step');
+			await driver.actions({ async: true })
+				.move({ origin: cb })
+				.pause(300)
+				.click()
+				.pause(300)
+				.perform();
+			const fi = await driver.findElement(By.id('infile'));
+			await fi.clear();
+			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2029_0710_010203_001.raw');
+			await driver.actions({async: true})
+				.pause(3000).move({ origin: cb }).pause(300).perform();
+	});
+	after(async function() {
+			let me = await driver.findElement(By.id('thebody'));
+			let ma = await me.getAttribute('data-err');
+			console.log('Message Content:');
+			console.log('= = = = = = = = = = = = = = = = = = =');
+			let m = await driver.findElement(By.id('xmsg'));
+			let t = await m.getText();
+			console.log(t);
+			console.log('= = = = = = = = = = = = = = = = = = =');
 			if (ma) {
 				console.log('***ERR: ' + ma);
 			} else

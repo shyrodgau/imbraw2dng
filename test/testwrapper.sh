@@ -16,7 +16,7 @@ log=${TESTWORK}/imbraw2dng_test_${testid}.log
 
 # start webserver
 pushd $TESTDAT
-( python3 -m http.server 8889 > $log 2>&1 )&
+( python3 -m http.server 8889 > ${log}_http 2>&1 )&
 webid=$!
 
 ( ${TESTWORK}/test_node.sh ; echo $? > trc ) 2>&1 | tee -a $log 2>&1
@@ -44,7 +44,8 @@ find */* -type f|while read x; do z=$( echo "$x" | sed 's@/@_@g' ); ln -sv "$x" 
 
 find . -maxdepth 1 -name \*.[dD][nN][gG] -exec dcraw -e {} \; 2>/dev/null
 
-find * -type f -print0 | xargs -0 exiftool -r -X  > ${TESTWORK}/imbraw2dng_test_${testid}_exif.xml
+find * -type f -print0 | xargs -0 exiftool -r -X  > ${TESTWORK}/imbraw2dng_test_${testid}_exif.xml 2>&1
+find * -type f -print0 | xargs -0 exiv2 -pR -uvb  > ${TESTWORK}/imbraw2dng_test_${testid}_exiv2.xml 2>&1
 
 echo 'ZIP TESTS' | tee -a $log
 find . -name \*.zip -type f -print -exec unzip -v {} \; -exec unzip -t {} \; 2>&1 | tee -a $log
