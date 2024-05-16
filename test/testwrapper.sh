@@ -19,12 +19,12 @@ pushd $TESTDAT
 ( python3 -m http.server 8889 > ${log}_http 2>&1 )&
 webid=$!
 
-( ${TESTWORK}/test_node.sh ; echo $? > trc ) 2>&1 | tee -a $log 2>&1
+${TESTWORK}/test_node.sh 2>&1 | tee --output-error=exit -a $log 2>&1
+xs=$(( ${PIPESTATUS[0]} + ${PIPESTATUS[1]} ))
+test ${xs} -ne 0 && echo node failed && exit
 
 touch ~/Downloads/imbraw2dng_test_${testid}_startmark
 sleep 1
-
-grep -v '^0$' trc && exit
 
 ${TESTWORK}/test_html.js 2>&1 | tee -a $log 2>&1
 sleep 3
