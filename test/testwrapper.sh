@@ -58,6 +58,12 @@ endl=$( grep -n '</script' ${TESTEXES}/imbraw2dng.html|cut -d: -f1 )
 head -$(( $endl - 1 )) ${TESTEXES}/imbraw2dng.html|tail -$(( $endl - $stl - 1 )) > ih.js
 node /home/hegny/prog/imbraw2dng/github/node_modules/eslint/bin/eslint.js -c ${TESTEXES}/eslint.config.mjs  ih.js 2>&1 | tee -a $log
 
+cd ..
+for f in imbraw2dng_test_${testid}* ; do
+	cp -v $f results/$( echo $f | sed 's/_'${testid}'//g' )
+done
+
+
 #rm -rf *_${$}_tmp 2>&1 | tee -a $log 2>&1
 
 kill $webid 2>&1 | tee -a $log 2>&1

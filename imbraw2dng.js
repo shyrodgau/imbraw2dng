@@ -202,7 +202,7 @@ addEntry(tag, type, value) {
 /* IFDOut: get data for this ifd, shifted to actual offset in file */
 getData(offset) {
 	let ioff = 0, data = new Uint8Array(this.#imglen + (12 * this.#entrys.length) + this.#currentoff + 16);
-	if (this.#imgdata?.byteLength) {
+	if (this.#imgdata?.getUint8) {
 		for (let z=0; z<this.#imgdata.byteLength; z++)
 		if (this.#imglen === 30607488) {
 			if ((z%3) === 0)
@@ -2523,8 +2523,8 @@ static getPix(x, y, w, view, typ) {
 static buildpvarray(view, typ, w, h, orientation, scale, wb) {
 	if (undefined === wb) wb = [ 6, 10, 1, 1, 6, 10 ];
 	const sfact = scale ? scale : 8;
-	const w8 = Math.floor((w+(sfact -1))/sfact) - (scale ? 0 : 1);
-	const h8 = Math.floor((h+(sfact -1))/sfact) - (scale ? 0 : 1);
+	const w8 = Math.floor((w+(sfact -1))/sfact);
+	const h8 = Math.floor((h+(sfact -1))/sfact);
 	const rfact = (wb[1]/wb[0]);
 	const gfact = (wb[3]/wb[2]);
 	const bfact = (wb[5]/wb[4]);
@@ -2574,39 +2574,34 @@ static buildpvarray(view, typ, w, h, orientation, scale, wb) {
 			if (a[2] < minblue) minblue = a[2];
 			if (bfact*a[2] > allmax) allmax = bfact*a[2];
 			if (bfact*a[2] < allmin) allmin = bfact*a[2];
-			if (!scale) outpix.push(255);
 		}
 	}
 	const fact = 255 / (allmax - allmin);
 	//console.log('ai ' + allmin + ' ax ' + allmax + ' ri ' + minred + ' rx ' + maxred + ' gi ' + mingreen + ' gx ' + maxgreen + ' bi ' + minblue + ' bx ' + maxblue);
 	const o = scale ? 3 : 4;
+	const uic = new Uint8ClampedArray(h8 * w8 * o);
 	for (let i = 0; i < h8; i++) {
 		for (let j=0; j< w8; j++) {
-			if ((outpix[o*((i * w8) + j)] > rfact*250) &&
-				(outpix[o*((i * w8) + j) + 2] > bfact*250) &&
-				(outpix[o*((i * w8) + j) + 1] > gfact*250))
+			if ((outpix[3*((i * w8) + j)] > rfact*250) &&
+				(outpix[3*((i * w8) + j) + 2] > bfact*250) &&
+				(outpix[3*((i * w8) + j) + 1] > gfact*250))
 			{
-				outpix[o*((i*w8) + j)] = rfact*250;
-				outpix[o*((i*w8) + j) + 1] = gfact*250;
-				outpix[o*((i*w8) + j) + 2] = bfact*250;
+				uic[o*((i*w8) + j)] = rfact*250;
+				uic[o*((i*w8) + j) + 1] = gfact*250;
+				uic[o*((i*w8) + j) + 2] = bfact*250;
 			} else {
 				// maybe some brightening gamma?
-				const r = (fact * rfact*(outpix[o * ((i*w8) + j)] - rfact*allmin));
-				let nr = 255-Math.round(255*((255-r)/255)*((255-r)/255));
-				if (nr < 0) nr = 0;
-				outpix[o * ((i*w8) + j)] = (nr > 255) ? 255 : nr;
-				const g = (fact * gfact*(outpix[o * ((i*w8) + j) + 1] - gfact*allmin));
-				let ng = 255-Math.round(255*((255-g)/255)*((255-g)/255));
-				if (ng < 0) ng = 0;
-				outpix[o * ((i*w8) + j) + 1] = (ng > 255) ? 255 : ng;
-				const b = (fact * bfact*(outpix[o * ((i*w8) + j) + 2] - bfact*allmin));
-				let nb = 255-Math.round(255*((255-b)/255)*((255-b)/255));
-				if (nb < 0) nb = 0;
-				outpix[o * ((i*w8) + j) + 2] = (nb > 255) ? 255 : nb;
+				const r = (fact * rfact*(outpix[3 * ((i*w8) + j)] - rfact*allmin));
+				uic[o * ((i*w8) + j)] = 255-Math.round(255*((255-r)/255)*((255-r)/255));
+				const g = (fact * gfact*(outpix[3 * ((i*w8) + j) + 1] - gfact*allmin));
+				uic[o * ((i*w8) + j) + 1] = 255-Math.round(255*((255-g)/255)*((255-g)/255));
+				const b = (fact * bfact*(outpix[3 * ((i*w8) + j) + 2] - bfact*allmin));
+				uic[o * ((i*w8) + j) + 2] = 255-Math.round(255*((255-b)/255)*((255-b)/255));
+				if (!scale) uic[o * ((i*w8) + j) + 3] = 255;
 			}
 		}
 	}
-	return outpix;
+	return uic;
 }
 /* ImBCBase: handle one entry from imb PHOTO/MOVIE listing page */
 handle1imb(url) {
