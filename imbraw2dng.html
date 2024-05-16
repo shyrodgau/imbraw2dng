@@ -3126,8 +3126,8 @@ parseconfig(data) {
 	else this.withpreview = true;
 	if (undefined !== d.cr) this.copyright = d.cr;
 	if (d.l) this.trylang(d.l);
-	if (d.ndcp) this.incdcp = false;
-	if (d.oldstylewb) this.constwb = true; else this.constwb = false;
+	if (d.ndcp) this.incdcp = false; else this.incdcp = true;
+	if (d.owb) this.constwb = true; else this.constwb = false;
 	if (d.zip && window.showSaveFilePicker && !this.imbcb) document.getElementById('usezip').checked = true;
 	if (d.step) this.stepmode = 1;
 	else this.stepmode = 0;
