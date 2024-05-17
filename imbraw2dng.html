@@ -139,7 +139,7 @@ div#xmsg {
 	padding-top: 0.1em;
 }
 </style>
-<!-- javascript code identical to imbraw2dng.js  for the classes IFDOut, TIFFOut, ImBCBase, ImBCBackw. -->
+<!-- javascript code identical to imbraw2dng.js  for the classes IFDOut, TIFFOut, ZIPHelp, ImBCBase, ImBCBackw. -->
 <script type="text/javascript" language="javascript">
 "use strict;"
 /* *************************************** IFDOut *************************************** */
@@ -295,17 +295,18 @@ addEntry(tag, type, value) {
 getData(offset) {
 	let ioff = 0, data = new Uint8Array(this.#imglen + (12 * this.#entrys.length) + this.#currentoff + 16);
 	if (this.#imgdata?.getUint8) {
-		for (let z=0; z<this.#imgdata.byteLength; z++)
-		if (this.#imglen === 30607488) {
-			if ((z%3) === 0)
-				data[ioff++] = this.#imgdata.getUint8(z+2);
-			else if ((z%3) === 2)
-				data[ioff++] = this.#imgdata.getUint8(z-2);
+		for (let z=0; z<this.#imgdata.byteLength; z++) {
+			if (this.#imglen === 30607488) {
+				if ((z%3) === 0)
+					data[ioff++] = this.#imgdata.getUint8(z+2);
+				else if ((z%3) === 2)
+					data[ioff++] = this.#imgdata.getUint8(z-2);
+				else
+					data[ioff++] = this.#imgdata.getUint8(z);
+			}
 			else
 				data[ioff++] = this.#imgdata.getUint8(z);
 		}
-		else
-			data[ioff++] = this.#imgdata.getUint8(z);
 	} else if (this.#imgdata) {
 		for (let z=0; z<this.#imgdata.length; z++)
 			data[ioff++] = this.#imgdata[z];
@@ -315,40 +316,36 @@ getData(offset) {
 	TIFFOut.writeshorttoout(data, this.#entrys.length, ioff);
 	ioff += 2;
 	for (const i of this.#entrys.sort((a,b) => a.tag - b.tag )) {
-		let parr = [ 0, 0, 0, 0 ];
-		TIFFOut.writeshorttoout(parr, i.tag, 0);
-		data.set(parr, ioff);
-		TIFFOut.writeshorttoout(parr, i.type, 0);
-		data.set(parr, ioff+2);
-		TIFFOut.writeinttoout(parr, i.count, 0);
-		data.set(parr, ioff+4);
+		TIFFOut.writeshorttoout(data, i.tag, ioff);
+		ioff+=2;
+		TIFFOut.writeshorttoout(data, i.type, ioff);
+		ioff+=2;
+		TIFFOut.writeinttoout(data, i.count, ioff);
+		ioff+=4;
 		if (i.tag === 273) { /* strip offsets is set here, subifd (-2), exififd and private stuff outside */
-			let parr = [ 0, 0, 0, 0 ];
-			TIFFOut.writeinttoout(parr, offset, 0);
-			data.set(parr, ioff + 8);
+			TIFFOut.writeinttoout(data, offset, ioff);
+			ioff+=4;
 		} else if (i.tag === 34665) { /* exififd */
 			this.exifdataptr = offset + ioff + 8;
+			ioff+=4;
 		} else if (i.tag === 50933) { // camera profiles
 			if (undefined !== i.value) // only one, profile ptr fits into value
 				this.camprofptr = offset + ioff + 8;
 			else {			// more than one, dereference
-				let parr = [ 0, 0, 0, 0 ];
-				TIFFOut.writeinttoout(parr, i.ptr + offset + this.#imglen + 6 + (12 * this.#entrys.length), 0);
-				data.set(parr, ioff + 8);
+				TIFFOut.writeinttoout(data, i.ptr + offset + this.#imglen + 6 + (12 * this.#entrys.length), ioff);
 				this.camprofptr = offset + this.#imglen + i.ptr + 6 + (12 * this.#entrys.length);
 			}
+			ioff+=4;
 		} else if (undefined !== i.value) {
-			data.set(i.value, ioff + 8);
+			data.set(i.value, ioff);
+			ioff+=4;
 		} else {
-			let parr = [ 0, 0, 0, 0 ];
-			TIFFOut.writeinttoout(parr, i.ptr + offset + this.#imglen + 6 + (12 * this.#entrys.length), 0);
-			data.set(parr, ioff + 8);
+			TIFFOut.writeinttoout(data, i.ptr + offset + this.#imglen + 6 + (12 * this.#entrys.length), ioff);
+			ioff+=4;
 		}
-		ioff += 12;
 	}
-	let oarr = [ 0, 0, 0, 0 ];
+	TIFFOut.writeinttoout(data, 0, ioff);
 	// next ifd - stays zero if has sub ifd
-	data.set(oarr, ioff);
 	ioff += 4;
 	data.set(this.#dyndata, ioff);
 	return data.slice(0, ioff + this.#currentoff);
@@ -638,12 +635,10 @@ static parseDng(f, onok, onerr) {
 	};
 	if (datalen === 30607488) {
 		const v = new DataView(fx.data);
-		for (let k=0; k < datalen; k++) {
-			if ((k % 3) === 0) {
-				let i = v.getUint8(k);
-				v.setUint8(k, v.getUint8(k+2));
-				v.setUint8(k+2, i);
-			}
+		for (let k=0; k < datalen; k+=3) {
+			let i = v.getUint8(k);
+			v.setUint8(k, v.getUint8(k+2));
+			v.setUint8(k+2, i);
 		}
 	}
 	fx.readAsArrayBuffer = (fy) => {
@@ -928,7 +923,7 @@ add(data, name, cb) {
 /* *************************************** Main class *************************************** */
 class ImBCBase {
 /* Indentation out */
-static version = "V4.0.5_9a77413"; // actually const
+static version = "V4.0.6_dev"; // actually const
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -2515,7 +2510,7 @@ static getwb(view, typidx) {
 			let lr = x[0];
 			let lg = x[1];
 			let lb = x[2];
-			let p = Math.sqrt(lg*lg + lb*lb + lr*lr);
+			let p = lg + lb + lr;
 			if (Math.abs(p) < 1 || p > (3*245)) continue;
 			//if (((i*t.w + j) % 50000) < 10)
 			//	console.log('i ' + i + ' j ' + j + ' R ' + lr + ' G ' + lg + ' B ' + lb + ' P ' + p);
