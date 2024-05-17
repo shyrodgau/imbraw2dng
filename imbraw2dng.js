@@ -544,6 +544,16 @@ static parseDng(f, onok, onerr) {
 		size: datalen,
 		data: f.data.slice(rawstripstart, datalen + rawstripstart)
 	};
+	if (datalen === 30607488) {
+		const v = new DataView(fx.data);
+		for (let k=0; k < datalen; k++) {
+			if ((k % 3) === 0) {
+				let i = v.getUint8(k);
+				v.setUint8(k, v.getUint8(k+2));
+				v.setUint8(k+2, i);
+			}
+		}
+	}
 	fx.readAsArrayBuffer = (fy) => {
 		fy.onload({
 				target: { result: fy.data }
