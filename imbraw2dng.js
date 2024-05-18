@@ -831,7 +831,7 @@ add(data, name, cb) {
 /* *************************************** Main class *************************************** */
 class ImBCBase {
 /* Indentation out */
-static version = "V4.0.6_5120ff2"; // actually const
+static version = "V4.0.7_dev"; // actually const
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -2411,15 +2411,15 @@ writewrap(name, type, okmsg, arr1, fromloop) {
 static getwb(view, typidx) {
 	//console.log('GWB ' + typidx + ' ' + JSON.stringify(ImBCBase.infos[typidx]));
 	const t = ImBCBase.infos[typidx];
-	let r=0, g=0, b=0;
+	let r=1, g=1, b=1;
 	for (let i=Math.round(0.05*t.h)*2; i<Math.ceil(0.9*t.h); i+=8) {
 		for (let j=Math.round(0.05*t.w)*2; j<Math.ceil(0.9*t.w); j+=8) {
 			let x = ImBCBase.getPix(j, i, t.w, view, t.typ);
 			let lr = x[0];
 			let lg = x[1];
 			let lb = x[2];
-			let p = lg + lb + lr;
-			if (Math.abs(p) < 1 || p > (3*245)) continue;
+			let p = Math.sqrt(lg*lg + lb*lb + lr*lr);
+			if (p < 3 || p > (3*250)) continue;
 			//if (((i*t.w + j) % 50000) < 10)
 			//	console.log('i ' + i + ' j ' + j + ' R ' + lr + ' G ' + lg + ' B ' + lb + ' P ' + p);
 			b += (lb)/(p);
@@ -2427,21 +2427,14 @@ static getwb(view, typidx) {
 			r += (lr)/(p);
 		}
 	}
-	if ((r > 0) && (r <= b) && (r <= g)) {
-		//console.log('A ' + JSON.stringify([ 10, 10, Math.ceil(190000*g/r), 190000, Math.ceil(190000*b/r), 190000 ]));
-		return [ 10, 10, Math.ceil(190000*g/r), 190000, Math.ceil(190000*b/r), 190000 ];
+	if ((r > b) && (r > g)) {
+		return [ 10, 10, Math.ceil(300000*g/r), 300000, Math.ceil(300000*b/r), 300000 ];
 	}
-	else if ((b > 0) && (b <= r) && (b <= g)) {
-		//console.log('B ' + JSON.stringify([ Math.ceil(190000*r/b), 190000, Math.ceil(190000*g/b), 190000, 10, 10 ]));
-		return [ Math.ceil(190000*r/b), 190000, Math.ceil(190000*g/b), 190000, 10, 10 ];
-	}
-	else if (g > 0) {
-		//console.log('C ' + JSON.stringify([ Math.ceil(190000*r/g), 190000, 10, 10, Math.ceil(190000*b/g), 190000 ]));
-		return [ Math.ceil(190000*r/g), 190000, 10, 10, Math.ceil(190000*b/g), 190000 ];
+	else if ((b > r) && (b > g)) {
+		return [ Math.ceil(300000*r/b), 300000, Math.ceil(300000*g/b), 300000, 10, 10 ];
 	}
 	else {
-		//console.log('D ' + JSON.stringify([ 5, 10, 1, 1, 5, 10 ]));
-		return [ 5, 10, 1, 1, 5, 10 ];
+		return [ Math.ceil(300000*r/g), 300000, 10, 10, Math.ceil(300000*b/g), 300000 ];
 	}
 }
 /* ImBCBase: get one downsampled median image value [ r g b ] */
