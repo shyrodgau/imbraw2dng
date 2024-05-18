@@ -441,10 +441,11 @@ static writeshorttoout(out, num, off) {
 }
 /* TIFFOut: return the tiff binary data */
 getData() {
-	let data = new Uint8Array(40000000);
 	if (null !== this.#currentifd) {
 		this.#ifds.push(this.#currentifd);
 	}
+	const partlens = this.#ifds.map(x => (100000+x.getOffset())).reduce((sum, a) => (sum + a), 0);
+	let data = new Uint8Array(partlens + 1000000);
 	if ((this.#bincameraprofiles.length + this.#cameraprofiles.length) > 0) {
 		let camprofarr = [];
 		for (let j=0; j<this.#cameraprofiles.length; j++) camprofarr.push(1);

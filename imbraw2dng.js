@@ -349,10 +349,11 @@ static writeshorttoout(out, num, off) {
 }
 /* TIFFOut: return the tiff binary data */
 getData() {
-	let data = new Uint8Array(40000000);
 	if (null !== this.#currentifd) {
 		this.#ifds.push(this.#currentifd);
 	}
+	const partlens = this.#ifds.map(x => (100000+x.getOffset())).reduce((sum, a) => (sum + a), 0);
+	let data = new Uint8Array(partlens + 1000000);
 	if ((this.#bincameraprofiles.length + this.#cameraprofiles.length) > 0) {
 		let camprofarr = [];
 		for (let j=0; j<this.#cameraprofiles.length; j++) camprofarr.push(1);
@@ -2891,24 +2892,27 @@ resolver(url, onok, onerr) {
 	}
 	else {
 		// read local (or cifs/nfs...) file
-		let ab = new ArrayBuffer(35000000);
-		let ua = new Uint8Array(ab);
-		let len = 0;
-		const str = this.fs.createReadStream(url, { highWaterMark: 35*1024*1024 });
-		str.on('error', () => onerr(url,fx));
-		str.on('data', (chunk) =>  {
-			ua.set(chunk, len);
-			len += chunk.length;
-			fx.size = len;
-			fx.data = ab.slice(0, len);
-			fx.readAsArrayBuffer = (fy) => {
-				fy.onload({
-						target: { result: fy.data }
+		this.fs.stat(url, (err, st) => {
+			if (err) return onerr(url, fx);
+			let ab = new ArrayBuffer(st.size);
+			let ua = new Uint8Array(ab);
+			let len = 0;
+			const str = this.fs.createReadStream(url, { highWaterMark: st.size });
+			str.on('error', () => onerr(url,fx));
+			str.on('data', (chunk) =>  {
+				ua.set(chunk, len);
+				len += chunk.length;
+				fx.size = len;
+				fx.data = ab.slice(0, len);
+				fx.readAsArrayBuffer = (fy) => {
+					fy.onload({
+							target: { result: fy.data }
+					});
+				};
+				setTimeout(() => {
+						str.close();
+						onok(url, fx);
 				});
-			};
-			setTimeout(() => {
-					str.close();
-					onok(url, fx);
 			});
 		});
 	}
