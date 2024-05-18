@@ -707,44 +707,23 @@ finish(cb, i) {
 		ch[10] = 0x0; // compr
 		ch[11] = 0x0;
 		let dosdate = j.dosdate;
-		ch[12] = dosdate % 256;
-		ch[13] = Math.floor(dosdate/256) % 256;
-		ch[14] = Math.floor(dosdate/65536) % 256;
-		ch[15] = Math.floor(dosdate/(256*65536)) % 256;
+		TIFFOut.writeinttoout(ch, dosdate, 12);
 		let crc = j.crc;
-		ch[16] = crc % 256;
-		ch[17] = Math.floor(crc/256) % 256;
-		ch[18] = Math.floor(crc/65536) % 256;
-		ch[19] = Math.floor(crc/(256*65536)) % 256;
+		TIFFOut.writeinttoout(ch, crc, 16);
 		let dl = j.dl; // compr. length
-		ch[20] = dl % 256;
-		ch[21] = Math.floor(dl/256) % 256;
-		ch[22] = Math.floor(dl/65536) % 256;
-		ch[23] = Math.floor(dl/(256*65536)) % 256;
+		TIFFOut.writeinttoout(ch, dl, 20);
 		// uncompr. size is same
-		ch[24] = dl % 256;
-		ch[25] = Math.floor(dl/256) % 256;
-		ch[26] = Math.floor(dl/65536) % 256;
-		ch[27] = Math.floor(dl/(256*65536)) % 256;
+		TIFFOut.writeinttoout(ch, dl, 24);
 		let fl = j.fl; // name length
-		ch[28] = fl % 256;
-		ch[29] = Math.floor(fl/256) % 256;
-		ch[30] = 0; // extra length
-		ch[31] = 0;
-		ch[32] = 0x0; // comment length
-		ch[33] = 0x0;
-		ch[34] = 0x0; // disk no
-		ch[35] = 0x0;
-		ch[36] = 0x0; // int attr
-		ch[37] = 0x0;
-		ch[38] = 0x0; // ext attr
-		ch[39] = 0x0;
-		ch[40] = 0x0;
-		ch[41] = 0x0;
-		ch[42] = this.#finishoff % 256;
-		ch[43] = Math.floor(this.#finishoff/256) % 256;
-		ch[44] = Math.floor(this.#finishoff/65536) % 256;
-		ch[45] = Math.floor(this.#finishoff/(256*65536)) % 256;
+		TIFFOut.writeshorttoout(ch, fl, 28);
+		TIFFOut.writeinttoout(ch, 0, 30);
+		//ch[30] = 0; // extra length
+		//ch[32] = 0x0; // comment length
+		TIFFOut.writeinttoout(ch, 0, 34);
+		//ch[34] = 0x0; // disk no
+		//ch[36] = 0x0; // int attr
+		TIFFOut.writeinttoout(ch, 0, 38); // ext attr
+		TIFFOut.writeinttoout(ch, this.#finishoff, 42);
 		this.#sizecent += (46 + j.fl);
 		this.#finishoff += this.#loclens[i];
 		this.#writecb(ch, () => {
@@ -762,18 +741,10 @@ finish(cb, i) {
 	ec[5] = 0x0;
 	ec[6] = 0x0; // startdisk
 	ec[7] = 0x0;
-	ec[8] = i % 256; // num entries
-	ec[9] = Math.floor(i/256) % 256;
-	ec[10] = i % 256; // num entries
-	ec[11] = Math.floor(i/256) % 256;
-	ec[12] = this.#sizecent % 256; // size of cent.dir
-	ec[13] = Math.floor(this.#sizecent/256) % 256;
-	ec[14] = Math.floor(this.#sizecent/65536) % 256;
-	ec[15] = Math.floor(this.#sizecent/(65536*256)) % 256;
-	ec[16] = this.#finishoff % 256; // start of cent.dir
-	ec[17] = Math.floor(this.#finishoff/256) % 256;
-	ec[18] = Math.floor(this.#finishoff/65536) % 256;
-	ec[19] = Math.floor(this.#finishoff/(65536*256)) % 256;
+	TIFFOut.writeshorttoout(ec, i, 8); // num entries
+	TIFFOut.writeshorttoout(ec, i, 10); // num entries
+	TIFFOut.writeinttoout(ec, this.#sizecent, 12); // size of cent.dir
+	TIFFOut.writeinttoout(ec, this.#finishoff, 16); // start of cent.dir
 	ec[20] = 0; // comment length
 	ec[21] = 0;
 	this.#writecb(ec, () => { cb(); });
@@ -794,28 +765,15 @@ add(data, name, cb) {
 	lh[8] = 0x0; // compression
 	lh[9] = 0x0;
 	let dosdate = ZIPHelp.datefromfile(name);
-	lh[10] = dosdate % 256;
-	lh[11] = Math.floor(dosdate/256) % 256;
-	lh[12] = Math.floor(dosdate/65536) % 256;
-	lh[13] = Math.floor(dosdate/(256*65536)) % 256;
+	TIFFOut.writeinttoout(lh, dosdate, 10);
 	let crc = ZIPHelp.crc32(data);
-	lh[14] = crc % 256;
-	lh[15] = Math.floor(crc/256) % 256;
-	lh[16] = Math.floor(crc/65536) % 256;
-	lh[17] = Math.floor(crc/(256*65536)) % 256;
+	TIFFOut.writeinttoout(lh, crc, 14);
 	let dl = data.length;
-	lh[18] = dl % 256; // compr. length
-	lh[19] = Math.floor(dl/256) % 256;
-	lh[20] = Math.floor(dl/65536) % 256;
-	lh[21] = Math.floor(dl/(256*65536)) % 256;
+	TIFFOut.writeinttoout(lh, dl, 18);  // compr. length
 	// uncompr. size is same
-	lh[22] = dl % 256;
-	lh[23] = Math.floor(dl/256) % 256;
-	lh[24] = Math.floor(dl/65536) % 256;
-	lh[25] = Math.floor(dl/(256*65536)) % 256;
+	TIFFOut.writeinttoout(lh, dl, 22);
 	let fl = narr.length;
-	lh[26] = fl % 256;
-	lh[27] = Math.floor(fl/256) % 256;
+	TIFFOut.writeshorttoout(lh, fl, 26); // name length
 	lh[28] = 0; // extra length
 	lh[29] = 0;
 	this.#lochdrs.push( { name: narr, dosdate: dosdate, crc: crc, dl: dl, fl: fl } );
@@ -832,7 +790,7 @@ add(data, name, cb) {
 /* *************************************** Main class *************************************** */
 class ImBCBase {
 /* Indentation out */
-static version = "V4.0.8_619afc0"; // actually const
+static version = "V4.0.9_dev"; // actually const
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
