@@ -324,25 +324,21 @@ getData(offset) {
 		ioff+=4;
 		if (i.tag === 273) { /* strip offsets is set here, subifd (-2), exififd and private stuff outside */
 			TIFFOut.writeinttoout(data, offset, ioff);
-			ioff+=4;
 		} else if (i.tag === 34665) { /* exififd */
-			this.exifdataptr = offset + ioff + 8;
-			ioff+=4;
+			this.exifdataptr = offset + ioff;
 		} else if (i.tag === 50933) { // camera profiles
 			if (undefined !== i.value) // only one, profile ptr fits into value
-				this.camprofptr = offset + ioff + 8;
+				this.camprofptr = offset + ioff;
 			else {			// more than one, dereference
 				TIFFOut.writeinttoout(data, i.ptr + offset + this.#imglen + 6 + (12 * this.#entrys.length), ioff);
 				this.camprofptr = offset + this.#imglen + i.ptr + 6 + (12 * this.#entrys.length);
 			}
-			ioff+=4;
 		} else if (undefined !== i.value) {
 			data.set(i.value, ioff);
-			ioff+=4;
 		} else {
 			TIFFOut.writeinttoout(data, i.ptr + offset + this.#imglen + 6 + (12 * this.#entrys.length), ioff);
-			ioff+=4;
 		}
+		ioff+=4;
 	}
 	TIFFOut.writeinttoout(data, 0, ioff);
 	// next ifd - stays zero if has sub ifd
@@ -444,7 +440,9 @@ getData() {
 	if (null !== this.#currentifd) {
 		this.#ifds.push(this.#currentifd);
 	}
-	const partlens = this.#ifds.map(x => (100000+x.getOffset())).reduce((sum, a) => (sum + a), 0);
+	let partlens = this.#ifds.map(x => (100000+x.getOffset())).reduce((sum, a) => (sum + a), 0);
+	partlens += this.#cameraprofiles.map(x => 1000000).reduce((sum, a) => (sum + a), 0);
+	partlens += this.#bincameraprofiles.map(x => x.length).reduce((sum, a) => (sum + a), 0);
 	let data = new Uint8Array(partlens + 1000000);
 	if ((this.#bincameraprofiles.length + this.#cameraprofiles.length) > 0) {
 		let camprofarr = [];
@@ -1367,8 +1365,8 @@ static texts = { // actually const
 			de: 'Gebe EXIF Daten von $$0 dazu'
 		},
 		includedcp: {
-			en: 'Include the new DNG colour profile (DCP)',
-			de: 'Neues DNG Farbprofil (DCP) einbetten'
+			en: 'Include the new DNG camera profile (DCP)',
+			de: 'Neues DNG Kamera-Profil (DCP) einbetten'
 		},
 		oldstylewb: {
 			en: 'Use old-style constant white balance',
@@ -1562,7 +1560,7 @@ static texts = { // actually const
 				' \u001b[1m-r\u001b[0m - rename output file, if already exists',
 				' \u001b[1m-np\u001b[0m - Do not add preview thumbnail to DNG',
 				' \u001b[1m-owb\u001b[0m - Use old style constant white balance',
-				' \u001b[1m-ndcp\u001b[0m - Do not include new DNG Color profile',
+				' \u001b[1m-ndcp\u001b[0m - Do not include new DNG Camera profile',
 				' \u001b[1m-cr \'copyright...\'\u001b[0m - add copyright to DNG',
 				' \u001b[1m-fla\u001b[0m, \u001b[1m-flx\u001b[0m - add multiple images to fake long exposure, flx scales down',
 				' \u001b[1m-R\u001b[0m - get RAW from ImB connected via Wifi or from given directories',
