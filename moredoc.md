@@ -8,13 +8,13 @@ In here: [Installation](#installation) - [Internationalization](#internationaliz
 
 Quick doc: [here](https://shyrodgau.github.io/imbraw2dng/README)
 
-oder [AUF DEUTSCH](https://shyrodgau.github.io/imbraw2dng/moredoc_de)
+oder [AUF DEUTSCH](https://shyrodgau.github.io/imbraw2dng/moredoc_de)  
  [日本語](https://shyrodgau.github.io/imbraw2dng/moredoc_ja)
 
 
 ## Installation
 
-The current release is [V4.0.10_34a532c - bugfix](https://github.com/shyrodgau/imbraw2dng/releases/tag/V4.0.10_34a532c.
+[The current release is](https://github.com/shyrodgau/imbraw2dng/releases/latest).
 Note: further development when errors reported, new translation contributed or new image format.
 
 Copy the [imbraw2dng.html](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.html) file to your PC or extract it from the release 
