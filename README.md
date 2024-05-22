@@ -51,7 +51,7 @@ I'm Back digital back [Developers Group on Facebook](https://www.facebook.com/gr
 A strong green or magenta tint all over the image should not happen any more! But if you have one and **can not** level it out using your software's 
 color matrix/color calibration or white-balancing, a sample image might be interesing to fix it.
 
-**Word on colours:** I don't have the slightest idea...
+**Word on colours:** I don't have the slightest idea... (but maybe look [here](cameraprofiles.md))
 
 If a red highlighted spot is in the center of the image, a manual retouche after the processing is required, or use the following darktable setting, 
 placing and sizing a circle shape manually around the area.

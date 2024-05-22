@@ -53,7 +53,7 @@ I'm Back digital back [Developers Group on Facebook](https://www.facebook.com/gr
 Eine starke grüne oder magentafarbige Tönung der Bilder sollte nicht mehr vorkommen! Wenn aber eine da ist, die sich **nicht** durch 
 Farbkalibrierung/Farbmatrix/Weißabgleich entfernen lässt, könnte ein Beispielbild interessant sein.
 
-**Ein Wort zu den Farben:** Ich habe keine Ahnung davon...
+**Ein Wort zu den Farben:** Ich habe keine Ahnung davon... (aber vielleicht [hier](cameraprofiles.md))
 
 Wenn in der Bildmitte ein rot hervorstechender Punkt ist, muss eine manuelle Retusche erfolgen, oder im darktable die folgende Einstellung 
 verwenden und dann einen Kreis manuell darumherum platziern.
