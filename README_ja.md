@@ -8,6 +8,8 @@
 oder [AUF DEUTSCH](https://shyrodgau.github.io/imbraw2dng/README_de)  
 or [IN ENGLISH](https://shyrodgau.github.io/imbraw2dng/)
 
+[Camera profiles for download](cameraprofiles.md)
+
 これらは "白黒 RAW" ファイルではなく、カラー フィルタリングが施された実際の生のセンサー データです (残念ながら 8 ビットのみです...)。
 
 このサイトは、携帯電話アプリの部分的な機能 (場合によってはそれ以上、つまり RAW の表示) もサポートできるようになりました。

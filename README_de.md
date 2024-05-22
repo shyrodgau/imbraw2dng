@@ -8,6 +8,8 @@ Mehr Doku: [hier](https://shyrodgau.github.io/imbraw2dng/moredoc_de)
 or [IN ENGLISH](https://shyrodgau.github.io/imbraw2dng/)  
  [日本語](https://shyrodgau.github.io/imbraw2dng/README_ja)
 
+[Kamera Profile zum Herunterladen](cameraprofiles.md)
+ 
 Es sind keine "Schwarz-Weiß RAW"-Dateien, sondern die echten Roh-Sensordaten mit der Farbfilterung darauf (leider aber nur 8 bit...). 
 
 Die Seite kann inzwischen auch Teilfunktionen (teils auch mehr - nämlich RAW anzeigen) der Mobiltelefon App.
