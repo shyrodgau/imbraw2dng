@@ -4153,44 +4153,10 @@ dodebug() {
 replraw() {
 	this.useraw = document.getElementById('dbgreplraw').files[0];
 }
-/* ImBCHtml: directory traverse helper * /
-static getFilesWebkitDataTransferItems(dataTransferItems) {
-  function traverseFileTreePromise(item, path='') {
-    return new Promise( resolve => {
-      if (item.isFile) {
-        item.file(file => {
-          file.filepath = path + file.name //save full path
-          files.push(file)
-          resolve(file)
-        })
-      } else if (item.isDirectory) {
-        let dirReader = item.createReader()
-        dirReader.readEntries(entries => {
-          let entriesPromises = []
-          for (let entr of entries)
-            entriesPromises.push(traverseFileTreePromise(entr, path + item.name + "/"))
-          resolve(Promise.all(entriesPromises))
-        })
-      }
-    })
-  }
-
-  let files = []
-  return new Promise((resolve, reject) => {
-    let entriesPromises = []
-    for (let it of dataTransferItems)
-      entriesPromises.push(traverseFileTreePromise(it.webkitGetAsEntry()))
-    Promise.all(entriesPromises)
-      .then(entries => {
-        //console.log(entries)
-        resolve(files)
-      })
-  })
-}*/
 /* ImBCHtml: async iterate rec */
 iterate(iterator, cb, already) {
 	iterator.next().then((o) => {
-		//console.log('OOO ' + JSON.stringify(o));
+		console.log('OOO ' + JSON.stringify(o));
 		if (o.done)
 			cb(already);
 		else {
@@ -4198,7 +4164,7 @@ iterate(iterator, cb, already) {
 			if (rr.kind === 'directory') {
 				let ai = o.value[1].entries();
 				this.iterate(ai, () => {
-					//console.log('xyz ' + already);
+					console.log('xyz ' + already);
 					this.iterate(iterator, cb, already);
 				}, already);
 			} else {
@@ -4215,14 +4181,47 @@ iterate(iterator, cb, already) {
 }
 /* ImBCHtml: traverse dropped directory/s */
 dirtraverse(items, cb, index = 0, already = []) {
-    if (index >= items.length) return cb(already);
+	if (!cb) {
+		return  new Promise((resolve, reject) => {
+			this.dirtraverse(items, resolve, index, already);
+		});
+	}
+    if (index >= items.length)
+    	return cb(already);
     let en = items[index];
-	if (en.kind === 'directory') {
+    if (en.isFile) { // not-getAsFileSystemHandle case
+    	en.file((f) => {
+    		already.push(f);
+    		this.dirtraverse(items, cb, index + 1, already);
+    	});
+    }
+	else if (en.kind === 'directory') {
 		let ai = en.entries();
 		this.iterate(ai, () => {
 			//console.log('abc ' + already);
 			this.dirtraverse(items, cb, index + 1, already);
 		}, already);
+	} else if (en.isDirectory) { // not-getAsFileSystemHandle case
+		let dr = en.createReader();
+		let getEntries = () => {
+			dr.readEntries((results) => {
+				if (results.length) {
+					let r = results;
+					for (let j = 0; j < r.length; j++) {
+						// also files (non-dir) are pushed and the resolved a few lines above here async
+						items.push(r[j]);
+					}
+					getEntries();
+				}
+				else {
+					this.dirtraverse(items, cb, index + 1, already); //cb(already);
+				}
+			},
+			(error) => {
+				console.log(JSON.stringify(error));
+			});
+		};
+		getEntries();
 	} else {
 		console.log('upps');
 		/*en.getFile().then((f) => {
@@ -4240,7 +4239,7 @@ async drophandler(ev) {
 	let auxfiles = [];
 	this.actnum = 0;
 	if (ev.dataTransfer.items) {
-		/*let mm = [...ev.dataTransfer.items];
+		let mm = [...ev.dataTransfer.items];
 		let m0 = mm.map(e => e.webkitGetAsEntry());
 		let mapped = [];
 		if (-1 !== m0.findIndex(e => e.isDirectory)) {
@@ -4250,18 +4249,23 @@ async drophandler(ev) {
 			}
 			for (let i =0; i < m0.length; i++) {
 				if (m0[i].isDirectory) {
-					let m = await mm[i].getAsFileSystemHandle();
-					mapped.push(m);
+					if (mm[i].getAsFileSystemHandle) {
+						// chromium needs it this way
+						let m = await mm[i].getAsFileSystemHandle();
+						mapped.push(m);
+					} else {
+						this.noGetFsH = true;
+						mapped.push(m0[i]);
+					}
 				}
 			}
-			this.dirtraverse(mapped, (a) => {
-				this.allfiles = a;
-				for (const j of auxfiles) this.allfiles.push(j);
-				this.totnum = this.allfiles.length;
-				console.log('LLL ' + a);
-			});
-			return;
-		} else*/ {
+			let a = await this.dirtraverse(mapped);
+			this.allfiles = a;
+			this.allfiles.concat(auxfiles);
+			//for (const j of auxfiles) this.allfiles.push(j);
+			this.totnum = this.allfiles.length;
+			console.log('LLL ' + a);
+		} else {
 			this.totnum = [...ev.dataTransfer.items].length;
 			[...ev.dataTransfer.items].forEach((item/*, i*/) => {
 				this.allfiles.push(item.getAsFile());
