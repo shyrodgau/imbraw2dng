@@ -4240,7 +4240,7 @@ async drophandler(ev) {
 	let auxfiles = [];
 	this.actnum = 0;
 	if (ev.dataTransfer.items) {
-		let mm = [...ev.dataTransfer.items];
+		/*let mm = [...ev.dataTransfer.items];
 		let m0 = mm.map(e => e.webkitGetAsEntry());
 		let mapped = [];
 		if (-1 !== m0.findIndex(e => e.isDirectory)) {
@@ -4261,7 +4261,7 @@ async drophandler(ev) {
 				console.log('LLL ' + a);
 			});
 			return;
-		} else {
+		} else*/ {
 			this.totnum = [...ev.dataTransfer.items].length;
 			[...ev.dataTransfer.items].forEach((item/*, i*/) => {
 				this.allfiles.push(item.getAsFile());
@@ -4288,7 +4288,7 @@ async drophandler(ev) {
 		this.addall = false;
 		this.addscaleall = false;
 	}
-	//this.starthandleone();
+	this.starthandleone();
 }
 /* ImBCHtml: browserdisplay: some handler on the drop rectangle */
 prevdef(ev) {
