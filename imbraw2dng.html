@@ -880,7 +880,7 @@ add(data, name, cb) {
 /* *************************************** Main class *************************************** */
 class ImBCBase {
 /* Indentation out */
-static version = "V4.0.13_66f236a"; // actually const
+static version = "V4.0.14_dev"; // actually const
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -1271,10 +1271,16 @@ static texts = { // actually const
 			ja: 'ファイル $$0 の読み取り中にエラーが発生しました。 '
 		},
 		unknownsize: {
-			de: 'Die Dateigröße <b>$$1</b> passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!',
-			en: 'File Size <b>$$1</b> does not match known formats. Please contact developer!',
-			fr: 'La taille du fiche $$1 ne correspond pas au format connu. Veuillez contacter le développeur',
-			ja: 'が、ファイルサイズ <b>$$1</b> は既知の形式と一致しません。開発者にお問い合わせください。'
+			de: 'Die Dateigröße <b>$$0</b> passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!',
+			en: 'File Size <b>$$0</b> does not match known formats. Please contact developer!',
+			fr: 'La taille du fiche <b>$$0</b> ne correspond pas au format connu. Veuillez contacter le développeur',
+			ja: 'が、ファイルサイズ <b>$$0</b> は既知の形式と一致しません。開発者にお問い合わせください。'
+		},
+		unknownsizex: {
+			de: 'Die Dateigröße $$0 passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!',
+			en: 'File Size $$0 does not match known formats. Please contact developer!',
+			fr: 'La taille du fiche $$0 ne correspond pas au format connu. Veuillez contacter le développeur',
+			ja: 'が、ファイルサイズ $$0 は既知の形式と一致しません。開発者にお問い合わせください。'
 		},
 		processing: {
 			de: 'Verarbeite Datei: $$0 ',
@@ -2286,7 +2292,7 @@ handleone(orientation, fromloop) {
 		}
 		this.appmsg('[' + f.name + '] ', false);
 		this.mappx(false, 'words.sorry');
-		this.mappx(0, 'process.unknownsize', f.size);
+		this.mappx(0, 'process.unknownsize' + ((!document) ? 'x' : ''), f.size);
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
 			const contents = evt.target.result;
@@ -4156,7 +4162,7 @@ replraw() {
 /* ImBCHtml: async iterate rec */
 iterate(iterator, cb, already) {
 	iterator.next().then((o) => {
-		console.log('OOO ' + JSON.stringify(o));
+		//console.log('OOO ' + JSON.stringify(o));
 		if (o.done)
 			cb(already);
 		else {
@@ -4164,7 +4170,7 @@ iterate(iterator, cb, already) {
 			if (rr.kind === 'directory') {
 				let ai = o.value[1].entries();
 				this.iterate(ai, () => {
-					console.log('xyz ' + already);
+					//console.log('xyz ' + already);
 					this.iterate(iterator, cb, already);
 				}, already);
 			} else {
@@ -4175,7 +4181,7 @@ iterate(iterator, cb, already) {
 			}
 		}
 	}).catch((e) => {
-		console.log('OXOXOX ' + JSON.stringify(e));
+		console.log('exception in iterator ' + JSON.stringify(e));
 		cb(already);
 	});
 }
@@ -4214,7 +4220,7 @@ dirtraverse(items, cb, index = 0, already = []) {
 					getEntries();
 				}
 				else {
-					this.dirtraverse(items, cb, index + 1, already); //cb(already);
+					this.dirtraverse(items, cb, index + 1, already);
 				}
 			},
 			(error) => {
@@ -4223,11 +4229,11 @@ dirtraverse(items, cb, index = 0, already = []) {
 		};
 		getEntries();
 	} else {
-		console.log('upps');
-		/*en.getFile().then((f) => {
+		console.log('kind == file in dirtraverse');
+		en.getFile().then((f) => {
 			already.push(f);
 			this.dirtraverse(items, cb, index + 1, already);
-		});*/
+		});
 	}
 }
 /* ImBCHtml: browserdisplay: handler function for dropping OS files into the rect */
@@ -4260,11 +4266,10 @@ async drophandler(ev) {
 				}
 			}
 			let a = await this.dirtraverse(mapped);
-			this.allfiles = a;
-			this.allfiles.concat(auxfiles);
+			this.allfiles = a.concat(auxfiles);
 			//for (const j of auxfiles) this.allfiles.push(j);
 			this.totnum = this.allfiles.length;
-			console.log('LLL ' + a);
+			console.log('LLL ' + a.length + ' ' + a);
 		} else {
 			this.totnum = [...ev.dataTransfer.items].length;
 			[...ev.dataTransfer.items].forEach((item/*, i*/) => {

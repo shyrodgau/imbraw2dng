@@ -788,7 +788,7 @@ add(data, name, cb) {
 /* *************************************** Main class *************************************** */
 class ImBCBase {
 /* Indentation out */
-static version = "V4.0.13_66f236a"; // actually const
+static version = "V4.0.14_dev"; // actually const
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -1179,10 +1179,16 @@ static texts = { // actually const
 			ja: 'ファイル $$0 の読み取り中にエラーが発生しました。 '
 		},
 		unknownsize: {
-			de: 'Die Dateigröße <b>$$1</b> passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!',
-			en: 'File Size <b>$$1</b> does not match known formats. Please contact developer!',
-			fr: 'La taille du fiche $$1 ne correspond pas au format connu. Veuillez contacter le développeur',
-			ja: 'が、ファイルサイズ <b>$$1</b> は既知の形式と一致しません。開発者にお問い合わせください。'
+			de: 'Die Dateigröße <b>$$0</b> passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!',
+			en: 'File Size <b>$$0</b> does not match known formats. Please contact developer!',
+			fr: 'La taille du fiche <b>$$0</b> ne correspond pas au format connu. Veuillez contacter le développeur',
+			ja: 'が、ファイルサイズ <b>$$0</b> は既知の形式と一致しません。開発者にお問い合わせください。'
+		},
+		unknownsizex: {
+			de: 'Die Dateigröße $$0 passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!',
+			en: 'File Size $$0 does not match known formats. Please contact developer!',
+			fr: 'La taille du fiche $$0 ne correspond pas au format connu. Veuillez contacter le développeur',
+			ja: 'が、ファイルサイズ $$0 は既知の形式と一致しません。開発者にお問い合わせください。'
 		},
 		processing: {
 			de: 'Verarbeite Datei: $$0 ',
@@ -2194,7 +2200,7 @@ handleone(orientation, fromloop) {
 		}
 		this.appmsg('[' + f.name + '] ', false);
 		this.mappx(false, 'words.sorry');
-		this.mappx(0, 'process.unknownsize', f.size);
+		this.mappx(0, 'process.unknownsize' + ((!document) ? 'x' : ''), f.size);
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
 			const contents = evt.target.result;
@@ -2921,8 +2927,23 @@ resolver(url, onok, onerr) {
 			let ab = new ArrayBuffer(st.size);
 			let ua = new Uint8Array(ab);
 			let len = 0;
+			if (st.size === 0) {
+				fx.size = len;
+				fx.data = ab;
+				fx.readAsArrayBuffer = (fy) => {
+					fy.onload({
+							target: { result: fy.data }
+					});
+				};
+				setTimeout(() => {
+						onok(url, fx);
+				});
+				return;
+			}
 			const str = this.fs.createReadStream(url, { highWaterMark: st.size });
-			str.on('error', () => onerr(url,fx));
+			str.on('error', () => {
+				onerr(url,fx)
+			});
 			str.on('data', (chunk) =>  {
 				ua.set(chunk, len);
 				len += chunk.length;
@@ -3121,6 +3142,7 @@ checkimb(type, found) {
 	let subdir = 'PHOTO';
 	if (type) subdir='MOVIE';
 	//this.ht.get('http://127.0.0.1:8000/PHOTO.html', (res) => {
+	console.log('GET ' + subdir);
 	this.ht.get(this.imbweb + '/IMBACK/' + subdir + '/', (res) => {
 			let err = false;
 			if (res.statusCode !== 200 || !/^text\/html/.test(res.headers['content-type'])) {
