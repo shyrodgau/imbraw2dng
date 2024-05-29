@@ -22,7 +22,7 @@ describe('A Convert Raw Local', function() {
 	before(async function() {
 			this.timeout(6000);
 			//const chromcapa = Capabilities.chrome();
-			const opts = [ 'prefs', { 'download.default_directory': '/home/hegny/Downloads/testoutputdir' } ];
+			//const opts = [ 'prefs', { 'download.default_directory': '/home/hegny/Downloads/testoutputdir' } ];
 			//chromcapa.set('chromeOptions', opts);
 			driver = await new Builder().forBrowser(Browser.CHROME).build();
 			//driver = await new Builder().forBrowser(Browser.CHROME).withCapabilities(chromcapa).build();
@@ -42,7 +42,7 @@ describe('A Convert Raw Local', function() {
 				.perform();
 			const sel2 = await cb.isSelected();
 			const fi = await driver.findElement(By.id('infile'));
-			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2021_1102_123011_001.raw');
+			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw');
 			await driver.actions({async: true}).pause(1900).perform();
 			await driver.actions({async: true}).clear();
 			await fi.clear();
@@ -87,7 +87,7 @@ describe('A Convert Raw Local', function() {
 			}
 			const fi = await driver.findElement(By.id('infile'));
 			await fi.clear();
-			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2021_1102_123011_001.raw\n' + TESTDAT + '/IMBACK/PHOTO/2024_1015_123011_001.raw');
+			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw\n' + TESTDAT + '/IMBACK/PHOTO/2024_1015_123011_001.raw');
 			const rcw = await driver.findElement(By.id('procthisccw'));
 			await driver.actions({async: true})
 				.pause(300).move({origin: rcw}).pause(300).click().pause(300).perform();
@@ -150,7 +150,7 @@ describe('A Convert Raw Local', function() {
 			await copytext.sendKeys('(c) Stefan Hegny debugging');
 			const fi = await driver.findElement(By.id('infile'));
 			await fi.clear();
-			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2024_1015_123011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2021_1102_123011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2029_0710_010203_001.raw');
+			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2023_1114_113011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2024_1015_123011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2029_0710_010203_001.raw');
 			// do something to make it flutsch
 			await driver.actions({async: true})
 				.pause(700).move({ origin: cb }).pause(700).perform();

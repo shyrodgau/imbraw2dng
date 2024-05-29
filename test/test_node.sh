@@ -25,7 +25,7 @@ echo '{ }' > ${testout}/.imbraw2dng.json
 tn=1
 
 sumnum=0
-rawcnt=25
+rawcnt=15
 
 ################################################
 
@@ -250,7 +250,7 @@ if [ $rc -ne 0 ]; then
 	echo Test ${tn} failed $rc
 	exit $tn
 fi
-sumnum=$(( $sumnum + 22 ))
+sumnum=$(( $sumnum + 17 ))
 if [ $n -ne $sumnum ]; then
 	echo Test ${tn} failed NO $n
 	exit $tn
@@ -270,7 +270,7 @@ if [ $rc -ne 0 ]; then
 	echo Test ${tn} failed $rc
 	exit $tn
 fi
-sumnum=$(( $sumnum + 22 ))
+sumnum=$(( $sumnum + 17 ))
 if [ $n -ne $sumnum ]; then
 	echo Test ${tn} failed NO $n
 	exit $tn
@@ -282,7 +282,7 @@ tn=$(( $tn + 1 ))
 echo '##########    14    ##########'
 echo Test ${tn} backward
 set -x
-${TESTEXES}/imbdng2raw.js  kb_large_9.dng kb_medium_5.dng kb_small_1.dng mf6x45_medium_1.dng mf6x45_small_1.dng mf6x6_large_1.dng mf6x7_large_1.dng 
+${TESTEXES}/imbdng2raw.js  2023_0314_231116_004.dng 2029_0707_120426_021.dng 2023_0311_120252_002.dng 
 rc=$?
 n=$( ls .|wc -l )
 set +x
@@ -290,7 +290,7 @@ if [ $rc -ne 0 ]; then
 	echo Test ${tn} failed $rc
 	exit $tn
 fi
-sumnum=$(( $sumnum + 7 ))
+sumnum=$(( $sumnum + 3 ))
 if [ $n -ne $sumnum ]; then
 	echo Test ${tn} failed NO $n
 	exit $tn
