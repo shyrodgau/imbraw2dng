@@ -1720,7 +1720,7 @@ static infos = [ // actually const
 ];
 //////// DYNAMIC SOURCE 1
 ////////////////////////////////////////////
-////    DYNAMIC SOURCE: /home/hegny/photos/camprof/imb35mx.tiff
+////    DYNAMIC SOURCE: /home/hegny/photos/camprof/ImBack ImB35mmx.dcp
 //  ProfileToneCurve  b64 gz
 dcpProfileToneCurve_b64gz=`H4sIAAAAAAAAAzXXdVRV+dvG4a1iizVIKDYGIoqKydnPfUwQFbBQERAbGxQVewuO
 XWON3Vijjh1YR+yOQcUcu0ZHLMzR3/28a72u5bq4/fwBnrPPd28M4///WA1eJrZs
@@ -18777,7 +18777,7 @@ AA==
 `;
 //  ProfileLookTableData  unpack
 dcpProfileLookTableData_u='';
-////    DYNAMIC SOURCE END: /home/hegny/photos/camprof/imb35mx.tiff
+////    DYNAMIC SOURCE END: /home/hegny/photos/camprof/ImBack ImB35mmx.dcp
 ////////////////////////////////////////////
 // do not try dynamic wb:
 constwb = false;
@@ -19341,7 +19341,7 @@ handleone(orientation, fromloop) {
 				ti.addEntry(50941, 'LONG', [ 3 ]); /* profile embed policy unrestricted */
 				//////// DYNAMIC SOURCE 2
 ////////////////////////////////////////////
-////    DYNAMIC SOURCE: /home/hegny/photos/camprof/imb35mx.tiff
+////    DYNAMIC SOURCE: /home/hegny/photos/camprof/ImBack ImB35mmx.dcp
 ti.addEntry(50721, 'SRATIONAL', [ 17746,10000, -20048,10000, 16054,10000, 477,10000, -4315,10000, 15802,10000, -1670,10000, -7222,10000, 16148,10000 ]); /* ColorMatrix1 */
 ti.addEntry(50722, 'SRATIONAL', [ 12577,10000, -4645,10000, -651,10000, -1120,10000, 9159,10000, 2356,10000, 638,10000, 565,10000, 4405,10000 ]); /* ColorMatrix2 */
 ti.addEntry(50964, 'SRATIONAL', [ 7102,10000, 1467,10000, 1074,10000, 3034,10000, 6615,10000, 351,10000, 2,10000, 5570,10000, 2679,10000 ]); /* ForwardMatrix1 */
@@ -19351,7 +19351,7 @@ ti.addEntry(50779, 'SHORT', [ 21 ]); /* CalibrationIlluminant2 */
 ti.addEntry(50937, 'LONG', [ 90, 30, 1 ]); /* ProfileHueSatMapDims */
 ti.addEntry(50981, 'LONG', [ 90, 30, 30 ]); /* ProfileLookTableDims */
 ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
-////    DYNAMIC SOURCE END: /home/hegny/photos/camprof/imb35mx.tiff
+////    DYNAMIC SOURCE END: /home/hegny/photos/camprof/ImBack ImB35mmx.dcp
 ////////////////////////////////////////////
 				// above stuff is now replaced taken from a dual-illuminant DCP profile
 			}
