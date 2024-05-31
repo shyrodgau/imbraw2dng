@@ -8,7 +8,7 @@
 oder [AUF DEUTSCH](https://shyrodgau.github.io/imbraw2dng/README_de)  
 or [IN ENGLISH](https://shyrodgau.github.io/imbraw2dng/)
 
-[Camera profiles for download](cameraprofiles.md)
+[カメラプロファイルのダウンロード](cameraprofiles.md)
 
 これらは "白黒 RAW" ファイルではなく、カラー フィルタリングが施された実際の生のセンサー データです (残念ながら 8 ビットのみです...)。
 
@@ -23,6 +23,7 @@ or [IN ENGLISH](https://shyrodgau.github.io/imbraw2dng/)
 ## 基本 ;tldr
 
 以下では、コピー中に RAW ファイルを DNG 形式に変換することに焦点を当てます。 ブラウザで使用するために必要なファイルは 1 つだけ、node.js で使用するために必要なファイルは 1 つだけです。
+ブラウザで使用するために必要なファイルは 1 つだけ、node.js で使用するために必要なファイルは 1 つだけです。
 
 `.../IMBACK` は ImB の Micro SD カード上のディレクトリで、USB (デバイス上の `大容量ストレージ` を選択します) 経由でアクセスするか、Micro SD カードを PC またはスマートフォンに挿入することでアクセスできます。
 
@@ -38,23 +39,26 @@ PC またはスマートフォンを ImB WiFi に接続し、ブラウザで ImB
 1. PC を ImB の WiFi に接続し、 [imbraw2dng_ja.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_ja.js) ダウンロードし、`node imbraw2dng_ja.js -R -J -O` を呼び出します。
 [(詳細)](https://shyrodgau.github.io/imbraw2dng/moredoc_ja#nodejs-を使用したコマンドライン経由)
 
-
 ## DNG の処理
 
 これには、darktable、lightroom、ufraw、rawtherapee などのお気に入りのソフトウェアを使用してください。
 
 写真がすぐにうまくいくとは期待 **しない** でください。べてのプログラムが期待するすべてを DNG に収めることはできそうにありません。 
-時間をかけて、適切な色を取得してから、残りを行ってください。 *DNG に関する経験がある方、または協力してくれる人を知っている方は、ご連絡ください。* 
+時間をかけて、適切な色を取得してから、残りを行ってください。
+*DNG に関する経験がある方、または協力してくれる人を知っている方は、ご連絡ください。* 
 例えば、Darktable/RawSpeed についての [pixls.us のディスカッション](https://discuss.pixls.us/t/converting-plain-raw-from-imback-to-dng/) または、 
 [Facebook のI'm Back デジタル バック開発者グループ](https://www.facebook.com/groups/2812057398929350) に戻ってください。
 
-画像に強い緑またはマゼンタの色合いが発生することはなくなります。 ただし、カラー キャリブレーション/カラー マトリックス/ホワイト バランスで除去 **できない** ものがある場合は、サンプル画像が興味深いかもしれません。
+画像に強い緑またはマゼンタの色合いが発生することはなくなります。 ただし、カラー キャリブレーション/カラー マトリックス/ホワイト バランスで除去 **できない** ものがある場合は、
+サンプル画像が興味深いかもしれません。
 
-**色について一言:** 色についてはまったくわかりません... (but maybe look [here](cameraprofiles.md))
+**色について一言:** 色についてはまったくわかりません... (ただし、おそらく [ここ](cameraprofiles.md))
 
-画像の中央に赤い点がある場合は、手動でレタッチするか、ダークテーブルで次の設定を使用して、その周りに手動で円を配置する必要があります。
+画像の中央に赤い点がある場合は、手動でレタッチするか、darktable で次の設定を行う必要があります。
+次に手動でその周りに円を配置します。
 
-最初から赤点を避けるには、より大きな絞り (小さな F 値) を使用するか、通常の PDLC フォーカシング スクリーンを I'm Back のフレネル スクリーンまたは Canon EG-xxx フォーカシング スクリーンに接続します。
+最初から赤点を避けるには、絞りを大きくする（F 値を小さくする）か、通常の PDLC フォーカシング スクリーンを使用します。
+I'm Back のフレネル スクリーンまたは Canon EG-xxx フォーカシング スクリーン。
 
 ![darktable sample agains red circle](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_redcircle.png "darktable sample agains red circle")
 
