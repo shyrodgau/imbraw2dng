@@ -788,7 +788,7 @@ add(data, name, cb) {
 /* *************************************** Main class *************************************** */
 class ImBCBase {
 /* Indentation out */
-static version = "V4.0.15_63ab29f7fa"; // actually const
+static version = "V4.0.16_dev"; // actually const
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -19922,7 +19922,10 @@ resolver(url, onok, onerr) {
 			}
 			const str = this.fs.createReadStream(url, { highWaterMark: st.size });
 			str.on('error', () => {
-				onerr(url,fx)
+				str.close();
+				str.push(null);
+				str.read(0);
+				onerr(url,fx);
 			});
 			str.on('data', (chunk) =>  {
 				ua.set(chunk, len);
@@ -19935,9 +19938,11 @@ resolver(url, onok, onerr) {
 					});
 				};
 				setTimeout(() => {
-						str.close();
 						onok(url, fx);
 				});
+				str.close();
+				str.push(null);
+				str.read(0);
 			});
 		});
 	}
