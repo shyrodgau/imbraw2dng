@@ -19537,7 +19537,6 @@ static buildpvarray(view, typ, w, h, orientation, scale, wb) {
 	const rfact = (wb[1]/wb[0]);
 	const gfact = (wb[3]/wb[2]);
 	const bfact = (wb[5]/wb[4]);
-	let minred=255, minblue = 255, mingreen = 255, maxred = 0, maxblue = 0, maxgreen = 0, allmin = 255, allmax = 0;
 	let outpix = [];
 	let rowiterstart, rowiterend;
 	let coliterstart, coliterend;
@@ -19565,49 +19564,75 @@ static buildpvarray(view, typ, w, h, orientation, scale, wb) {
 		coliterstart = 0;
 		coliterend = w8;
 	}
+	let hist = new Array(256);
+	for (let i = 0; i < 256; i++) hist[i] = 0;
+	let cnt = 0;
 	for (let i = rowiterstart; i < rowiterend; i +=1) {
 		for (let j = coliterstart; j < coliterend; j+=1) {
 			let a = ImBCBase.getPix(Math.abs(transpose ? i :j)*sfact, Math.abs(transpose ? j :i)*sfact, w, view, typ);
 			outpix.push(a[0]);
-			if (a[0] > maxred) maxred = a[0];
-			if (a[0] < minred) minred = a[0];
-			if (rfact*a[0] > allmax) allmax = rfact*a[0];
-			if (rfact*a[0] < allmin) allmin = rfact*a[0];
 			outpix.push(a[1]);
-			if (a[1] > maxgreen) maxgreen = a[1];
-			if (a[1] < mingreen) mingreen = a[1];
-			if (gfact*a[1] > allmax) allmax = a[1] * gfact;
-			if (gfact*a[1] < allmin) allmin = a[1] * gfact;
 			outpix.push(a[2]);
-			if (a[2] > maxblue) maxblue = a[2];
-			if (a[2] < minblue) minblue = a[2];
-			if (bfact*a[2] > allmax) allmax = bfact*a[2];
-			if (bfact*a[2] < allmin) allmin = bfact*a[2];
+			const v = Math.ceil((rfact*a[0] + gfact*a[1] + bfact*a[2])/3);
+			if (v >= 255) hist[255]++;
+			else hist[v]++;
+			cnt++;
 		}
 	}
-	const fact = 255 / (allmax - allmin);
-	//console.log('ai ' + allmin + ' ax ' + allmax + ' ri ' + minred + ' rx ' + maxred + ' gi ' + mingreen + ' gx ' + maxgreen + ' bi ' + minblue + ' bx ' + maxblue);
+	// cut off top and bottom 7%
+	let cntx = 0, allmin = 0, allmax = 255;
+	while (cntx < (cnt * 0.07))
+		cntx += hist[allmin++];
+	allmin --;
+	cntx = 0;
+	while (cntx < (cnt * 0.07))
+		cntx += hist[allmax--];
+	allmax++;
+	let fact;
+	if (allmax > 247 && allmin < 8) fact = 1;
+	/*else if (allmax - allmin < 33) {
+		const d = ((255-33-allmin)/2)
+		if (allmin < 255-33) {
+			allmin += d;
+			allmax += d;
+		}
+		fact = 8;
+	}*/
+	else fact = 240/(allmax - allmin);
+	//console.log('ai ' + allmin + ' aa ' + allmax + ' ff ' + fact);
 	const o = scale ? 3 : 4;
 	const uic = new Uint8ClampedArray(h8 * w8 * o);
 	for (let i = 0; i < h8; i++) {
 		for (let j=0; j< w8; j++) {
-			if ((outpix[3*((i * w8) + j)] > rfact*250) &&
-				(outpix[3*((i * w8) + j) + 2] > bfact*250) &&
-				(outpix[3*((i * w8) + j) + 1] > gfact*250))
-			{
-				uic[o*((i*w8) + j)] = rfact*250;
-				uic[o*((i*w8) + j) + 1] = gfact*250;
-				uic[o*((i*w8) + j) + 2] = bfact*250;
-			} else {
-				// maybe some brightening gamma?
-				const r = (fact * rfact*(outpix[3 * ((i*w8) + j)] - rfact*allmin));
-				uic[o * ((i*w8) + j)] = 255-Math.round(255*((255-r)/255)*((255-r)/255));
-				const g = (fact * gfact*(outpix[3 * ((i*w8) + j) + 1] - gfact*allmin));
-				uic[o * ((i*w8) + j) + 1] = 255-Math.round(255*((255-g)/255)*((255-g)/255));
-				const b = (fact * bfact*(outpix[3 * ((i*w8) + j) + 2] - bfact*allmin));
-				uic[o * ((i*w8) + j) + 2] = 255-Math.round(255*((255-b)/255)*((255-b)/255));
-				if (!scale) uic[o * ((i*w8) + j) + 3] = 255;
+			let nr = ((outpix[3*((i * w8) + j)] * rfact) - allmin) * fact + allmin;
+			let ng = ((outpix[3*((i * w8) + j) + 1] * gfact) - allmin) * fact + allmin;
+			let nb = ((outpix[3*((i * w8) + j) + 2] * bfact) - allmin) * fact + allmin;
+			if (nr >= 255) {
+				if (ng < 250) ng = Math.round(ng * 255 / nr);
+				if (nb < 250) nb = Math.round(nb * 255 / nr);
+				nr = 255;
 			}
+			else if (nr <= 0) nr = 0;
+			if (ng >= 255) {
+				if (nr < 250) nr = Math.round(nr * 255 / ng);
+				if (nr >= 255) nr = 255;
+				if (nb < 250) nb = Math.round(nb * 255 / ng);
+				ng = 255;
+			}
+			else if (ng <= 0) ng = 0;
+			if (nb >= 255) {
+				if (ng < 250) ng = Math.round(ng * 255 / nb);
+				if (ng >= 255) ng = 255;
+				if (nr < 250) nr = Math.round(nr * 255 / nb);
+				if (nr >= 255) nr = 255;
+				nb = 255;
+			}
+			else if (nb <= 0) nb = 0;
+			// maybe some brightening gamma?
+			uic[o * ((i*w8) + j)] = 255-Math.round(255*((255-nr)/255)*((255-nr)/255));
+			uic[o * ((i*w8) + j) + 1] = 255-Math.round(255*((255-ng)/255)*((255-ng)/255));
+			uic[o * ((i*w8) + j) + 2] = 255-Math.round(255*((255-nb)/255)*((255-nb)/255));
+			if (!scale) uic[o * ((i*w8) + j) + 3] = 255;
 		}
 	}
 	return uic;
