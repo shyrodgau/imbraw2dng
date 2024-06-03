@@ -880,7 +880,7 @@ add(data, name, cb) {
 /* *************************************** Main class *************************************** */
 class ImBCBase {
 /* Indentation out */
-static version = "V4.0.15_63ab29f7fa"; // actually const
+static version = "V4.0.16_dev"; // actually const
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -19519,7 +19519,7 @@ static getwb(view, typidx) {
 		for (let j=Math.round(0.05*t.w)*2; j<Math.ceil(0.9*t.w); j+=8) {
 			let x = ImBCBase.getPix(j, i, t.w, view, t.typ);
 			let lr = x[0];
-			let lg = x[1];
+			let lg = x[1] + 1;
 			let lb = x[2];
 			let p = Math.sqrt(lg*lg + lb*lb + lr*lr);
 			if (p < 3 || p > (3*250)) continue;

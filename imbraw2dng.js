@@ -19427,7 +19427,7 @@ static getwb(view, typidx) {
 		for (let j=Math.round(0.05*t.w)*2; j<Math.ceil(0.9*t.w); j+=8) {
 			let x = ImBCBase.getPix(j, i, t.w, view, t.typ);
 			let lr = x[0];
-			let lg = x[1];
+			let lg = x[1] + 1;
 			let lb = x[2];
 			let p = Math.sqrt(lg*lg + lb*lb + lr*lr);
 			if (p < 3 || p > (3*250)) continue;
