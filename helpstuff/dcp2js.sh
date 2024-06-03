@@ -9,6 +9,7 @@ tail -c +9 "$1" >> .tmptif
 
 exiv2 -pR .tmptif > .tmptifx
 
+# insert dcp gzip/b64 variables
 function xtag {
 	tg="$1"
 	echo '// ' $tg ' b64 gz'
@@ -29,6 +30,7 @@ function xtag {
 	
 }
 
+# insert normal matrix tags
 function ytag {
 	tg="$1"
 	#echo '// ' $tg 
@@ -46,6 +48,7 @@ function ytag {
 	echo " ]); /* $tg */"	
 }
 
+# insert normal other tags
 function ztag {
 	tg="$1"
 	#echo '// ' $tg 
@@ -59,6 +62,7 @@ function ztag {
 	echo " ]); /* $tg */"	
 }
 
+# insert the dynamic stuff into js/html
 function insdyn {
 	into="$1"
 	txt="$2"
@@ -69,6 +73,8 @@ function insdyn {
 	tail -n +$(( $sl + $el +1 )) $into >> .tmptifx1a
 	mv .tmptifx1a ${into}
 }
+
+# main stuff:
 
 echo '////////////////////////////////////////////' > .tmptifx1
 echo "////    DYNAMIC SOURCE: $1" >> .tmptifx1
