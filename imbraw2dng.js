@@ -566,7 +566,7 @@ handleone(fx) {
 	}
 	if (undefined === f.size) {
 		setTimeout(() => {
-		  this.imbc.resolver(f, (url, fx) => {
+		  this.imbc.resolver(f, false, (url, fx) => {
 				this.imbc.allfiles[this.imbc.actnum] = fx;
 				this.handleone(fx);
 			}, (url) => {
@@ -788,7 +788,7 @@ add(data, name, cb) {
 /* *************************************** Main class *************************************** */
 class ImBCBase {
 /* Indentation out */
-static version = "V4.0.17_c16574e"; // actually const
+static version = "V4.0.18_dev"; // actually const
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -19104,7 +19104,7 @@ handleone(orientation, fromloop) {
 	}
 	if (undefined === f.size) {
 		setTimeout(() => {
-		  this.resolver(f, (url, fx, rot) => {
+		  this.resolver(f, false, (url, fx, rot) => {
 				this.allfiles[this.actnum] = fx;
 				this.handleone(rot ? rot: orientation, fromloop);
 			}, (url) => {
@@ -19878,7 +19878,7 @@ handlerecurse(already, index) {
 	});
 }
 /* ImBCNodeOut: nodejs: file/filereader like interface for node js */
-resolver(url, onok, onerr) {
+resolver(url, preview, onok, onerr) {
 	if (url.url) {
 		let e = url;
 		url = e.url;
@@ -20152,7 +20152,7 @@ checkimb(type, found) {
 	let subdir = 'PHOTO';
 	if (type) subdir='MOVIE';
 	//this.ht.get('http://127.0.0.1:8000/PHOTO.html', (res) => {
-	console.log('GET ' + subdir);
+	//console.log('GET ' + subdir);
 	this.ht.get(this.imbweb + '/IMBACK/' + subdir + '/', (res) => {
 			let err = false;
 			if (res.statusCode !== 200 || !/^text\/html/.test(res.headers['content-type'])) {

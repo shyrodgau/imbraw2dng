@@ -2,7 +2,8 @@
 <!--
 ***************************************************** 
 
-imbraw2dng.html
+imbapp.html
+/* TEST VERSION USING THE MOBILE APP PROTOCOL - WORKS ONLY WHEN COPIED TO IMBACK MICRO SD */
 
 Convert RAW from I'm back(R)(https://imback.eu) into DNG
 
@@ -114,7 +115,7 @@ div#xmsg {
 .oth_CL .btnsrow, div[data-state='load'] .btnsrow, div[data-state='wait'] .btnsrow, div[data-state='err'] .btnsrow { display: none; }
 .JPG_CL .btnsrow { width: 3em; }
 .JPG_CL .rotbtn { display: none; }
-.JPG_CL .eepvx, .JPG_CL .eeraw, .oth_CL .eeraw, .oth_CL .eejpg, .RAW_CL .eepvx, .RAW_CL .eejpg { display: none; }
+.JPG_CL .eepvx, .JPG_CL .eeraw, .oth_CL .eeraw, .oth_CL .eepvx, .RAW_CL .eepvx, .RAW_CL .eejpg { display: none; }
 .biggiebtn { position: absolute; top: -0.2em; font-weight:bold; font-size:120%; text-shadow: 0.1em 0.07em 0 white; z-index: 900;}
 .picbig { scale: 3; position: absolute; z-index: 999; border: 3px solid white; left: 66%;}
 .pictitle { z-index: 90; font-size: 80%; }
@@ -658,7 +659,7 @@ handleone(fx) {
 	}
 	if (undefined === f.size) {
 		setTimeout(() => {
-		  this.imbc.resolver(f, (url, fx) => {
+		  this.imbc.resolver(f, false, (url, fx) => {
 				this.imbc.allfiles[this.imbc.actnum] = fx;
 				this.handleone(fx);
 			}, (url) => {
@@ -880,7 +881,7 @@ add(data, name, cb) {
 /* *************************************** Main class *************************************** */
 class ImBCBase {
 /* Indentation out */
-static version = "V4.0.18_dev"; // actually const
+static version = "V4.9.90_dev"; // actually const
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -1715,6 +1716,8 @@ neutral = false;
 copyright = '';
 // { name: 'xxx.jpg', data: array-ifd... }
 #exififds = [];
+appname = 'imbraw2dng'; // or imbapp
+connversion = ''; // hw version from cmd 3012
 
 // ImBCBase: fake long exposure:
 #addimgs = [];
@@ -1747,6 +1750,9 @@ static tsregex = /^[02-3]([0-9]([0-9]([0-9](([^0-9])[01]([0-9](([^0-9])[0123]([0
 // generic imb filename format
 //                   y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s     EXT
 static fnregex = /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])(.*[.])([^.]*)$/ // actually const
+// generic imb xml timestamp format
+//                               y    y    y    y      /    m    m     /    d     d    . .  h    h      :    m    m      :    s    s
+static itsregex = new RegExp('^([2-3][0-9][0-9][0-9])([/])([01][0-9])([/])([0123][0-9])( )([012][0-9])([:])([0-6][0-9])([:])([0-6][0-9])$') // actually const
 // generic imb filename format, only timestamp
 //                    y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s      .        n
 static fnregexx = /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-9]*)/ // actually const
@@ -18893,8 +18899,12 @@ constructor() {
 }
 /* ImBCBase: primitive basename helper */
 static basename(n) {
+	if (n.url) n = n.url;
 	while (n.lastIndexOf("/") > -1) {
 		n = n.substring(n.lastIndexOf("/") + 1);
+	}
+	while (n.lastIndexOf("\\") > -1) {
+		n = n.substring(n.lastIndexOf("\\") + 1);
 	}
 	return n;
 }
@@ -19174,6 +19184,17 @@ static nametotime(name) {
 	}
 	else return {};
 }
+/* ImBCBase: adjust A:\imback\... format to /imback/... */
+static adjurl(url) {
+	if (url.url) url = url.url;
+	if (url.toUpperCase().substring(0,3) !== 'A:\\')
+		return url;
+	let n = url.substring(2);
+	while (n.indexOf("\\") > -1) {
+		n = n.substring(0, n.indexOf("\\")) + '/' + n.substring(n.indexOf('\\') +1);
+	}
+	return n;
+}
 /* ImBCBase: decode b64/gz */
 static async mydecode(data, act) {
 	let dcs = new DecompressionStream('gzip');
@@ -19196,7 +19217,7 @@ handleone(orientation, fromloop) {
 	}
 	if (undefined === f.size) {
 		setTimeout(() => {
-		  this.resolver(f, (url, fx, rot) => {
+		  this.resolver(f, false, (url, fx, rot) => {
 				this.allfiles[this.actnum] = fx;
 				this.handleone(rot ? rot: orientation, fromloop);
 			}, (url) => {
@@ -19367,7 +19388,7 @@ handleone(orientation, fromloop) {
 		ti.addEntry(50708, 'ASCII', 'ImBack' + ' ' + ImBCBase.types[typ]); /* Unique model */
 		ti.addEntry(272, 'ASCII', ImBCBase.types[typ]); /* Model */
 		ti.addEntry(274, 'SHORT', [ ori ]); /* Orientation */
-		ti.addEntry(305, 'ASCII', 'imbraw2dng ' + ImBCBase.version); /* SW and version */
+		ti.addEntry(305, 'ASCII', this.appname + ' ' + ImBCBase.version); /* SW and version */
 		if (this.#historystring.length && !this.filmdemo)
 			ti.addEntry(37395, 'ASCII', this.#historystring); /* image history */
 		this.#historystring = '';
@@ -19498,7 +19519,7 @@ writewrap(name, type, okmsg, arr1, fromloop) {
 				this.zip.finish(() => {
 					let o = new Uint8Array(this.zipdata.length);
 					for (let p=0; p<this.zipdata.length; p++) o[p] = this.zipdata[p];
-					this.writefile('imbraw2dng_' + ('' + Date.now()).substring(3,10) + '_out.zip', 'application/zip', 'process.copyokcheckdl', o);
+					this.writefile(this.appname + '_' + ('' + Date.now()).substring(3,10) + '_out.zip', 'application/zip', 'process.copyokcheckdl', o);
 					this.zipdata = [];
 					this.zip = new ZIPHelp((data, cb) => {
 						for (let l=0; l<data.length; l++) this.zipdata.push(data[l]);
@@ -19730,14 +19751,19 @@ static buildpvarray(view, typ, w, h, orientation, scale, wb) {
 	return uic;
 }
 /* ImBCBase: handle one entry from imb PHOTO/MOVIE listing page */
-handle1imb(url) {
+handle1imb(url, time) {
 	let rawname = ImBCBase.basename(url);
 	if (rawname.substring(0,10).toUpperCase() === 'IMBRAW2DNG') return;
+	if (rawname.substring(0,6).toUpperCase() === 'IMBAPP') return;
 	let timestx = ImBCBase.fnregex.exec(rawname);
+	let timesty = time ? ImBCBase.itsregex.exec(time) : null;
 	let timest = null, cl = '9999_99_99-99';
 	if (null !== timestx) {
 		timest = timestx[1] + '_' + timestx[3] + '_' + timestx[5] + '-' + timestx[7] + '_' + timestx[9] + '_' + timestx[11];
 		cl = timestx[1] + '_' + timestx[3] + '_' + timestx[5] + '-' + timestx[7];
+	}
+	if (null !== timesty) {
+		timest = timesty[1] + '_' + timesty[3] + '_' + timesty[5] + '-' + timesty[7] + '_' + timesty[9] + '_' + timesty[11];
 	} else {
 		this.mappx(false, 'words.warning');
 		this.mappx(true, 'onimback.strangename', rawname);
@@ -19747,7 +19773,7 @@ handle1imb(url) {
 			if (timest < this.earliestraw) this.earliestraw = timest;
 			if (timest > this.latestraw) this.latestraw = timest;
 		}
-		this.rimbpics.push(url);
+		this.rimbpics.push({ url: url, time: timest });
 		if (this.imbeles && this.typedclasses) {
 			this.imbeles.push({
 					type: 'RAW',
@@ -19759,7 +19785,8 @@ handle1imb(url) {
 					entry: null,
 					waiting: false,
 					error: false,
-					processed: false
+					processed: false,
+					time: timest
 			});
 			if (this.untypedclasses.findIndex(v => v === cl) === -1)
 				this.untypedclasses.push(cl);
@@ -19772,7 +19799,7 @@ handle1imb(url) {
 			if (timest < this.earliestjpg) this.earliestjpg = timest;
 			if (timest > this.latestjpg) this.latestjpg = timest;
 		}
-		this.imbpics.push(url);
+		this.imbpics.push({ url: url, time: timest });
 		if (this.imbeles && this.typedclasses) {
 			this.imbeles.push({
 					type: 'JPG',
@@ -19784,7 +19811,8 @@ handle1imb(url) {
 					entry: null,
 					waiting: false,
 					error: false,
-					processed: false
+					processed: false,
+					time: timest
 			});
 			if (this.untypedclasses.findIndex(v => v === cl) === -1)
 				this.untypedclasses.push(cl);
@@ -19797,7 +19825,7 @@ handle1imb(url) {
 			if (timest < this.earliestmov) this.earliestmov = timest;
 			if (timest > this.latestmov) this.latestmov = timest;
 		}
-		this.imbmovies.push(url);
+		this.imbmovies.push({ url: url, time: timest });
 		if (this.imbeles && this.typedclasses) {
 			this.imbeles.push({
 					type: 'oth',
@@ -19809,7 +19837,8 @@ handle1imb(url) {
 					entry: null,
 					waiting: false,
 					error: false,
-					processed: false
+					processed: false,
+					time: timest
 			});
 			if (this.untypedclasses.findIndex(v => v === cl) === -1)
 				this.untypedclasses.push(cl);
@@ -19930,7 +19959,7 @@ starthandleone() {
 		window.showSaveFilePicker({
 			types: [ { description: 'Output Zip Archive', accept: { "application/zip": [ ".zip", ".ZIP" ] } } ],
 			startIn: 'downloads',
-			suggestedName: 'imbraw2dng_' + ('' + Date.now()).substring(3,10) + '_out.zip'
+			suggestedName: this.appname + '_' + ('' + Date.now()).substring(3,10) + '_out.zip'
 		}).then((newHandle) => {
 			newHandle.getFile().then((f) => {
 				this.zipname = f.name;
@@ -20023,8 +20052,13 @@ handleonex() {
 			}
 			else {
 				// simply set image src
-				document.getElementById('jpegpreview').src = f;
+				document.getElementById('jpegpreview').src = ImBCHtml.adjurl(f)+'?custom=1&cmd=4001';
 			}
+		}
+		else if (rawname.substring(rawname.length -4).toUpperCase() === '.MP4') {
+			// simply set image src
+			document.getElementById('jpegpreview').src = ImBCHtml.adjurl(f)+'?custom=1&cmd=4001';
+			this.#qappx('main.file', rawname);
 		}
 		else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
 			/* no preview */
@@ -20091,28 +20125,28 @@ imbdoit() {
 	}
 	if (document.getElementById('rpicfromimb').checked) {
 		for (const e of this.rimbpics) {
-			let rawname = ImBCBase.basename(e);
+			let rawname = ImBCBase.basename(e.url);
 			if (this.comptime(rawname, compval))
 				selecteds.push(e);
 		}
 	}
 	if (document.getElementById('picfromimb').checked) {
 		for (const e of this.imbpics) {
-			let rawname = ImBCBase.basename(e);
+			let rawname = ImBCBase.basename(e.url);
 			if (this.comptime(rawname, compval))
 				selecteds.push(e);
 		}
 	}
 	if (document.getElementById('movfromimb').checked) {
 		for (const e of this.imbmovies) {
-			let rawname = ImBCBase.basename(e);
+			let rawname = ImBCBase.basename(e.url);
 			if (this.comptime(rawname, compval))
 				selecteds.push(e);
 		}
 	}
 	selecteds.sort((a, b) => {
-		let ra = ImBCBase.basename(a);
-		let rb = ImBCBase.basename(b);
+		let ra = ImBCBase.basename(a.url ? a.url :a);
+		let rb = ImBCBase.basename(b.url ? b.url :b);
 		if (ra < rb) return -1;
 		else if (ra === rb) return 0;
 		else return 1;
@@ -20217,7 +20251,7 @@ afterfinish() {
 			} else if (this.zipdata) {
 				let o = new Uint8Array(this.zipdata.length);
 				for (let p=0; p<this.zipdata.length; p++) o[p] = this.zipdata[p];
-				this.writefile('imbraw2dng_' + ('' + Date.now()).substring(3,10) + '_out.zip', 'application/zip', 'process.copyokcheckdl', o);
+				this.writefile(this.appname + '_' + ('' + Date.now()).substring(3,10) + '_out.zip', 'application/zip', 'process.copyokcheckdl', o);
 			}
 		});
 		this.zip = null;
@@ -20509,7 +20543,7 @@ buildtree() {
 		const p = e.entry;
 		if (!p.parentElement) continue;
 		// not waiting or error at all?
-		if (e.type === 'oth') continue;
+		//if (e.type === 'oth') continue;
 		if (e.nonewerr) continue;
 		if (p.attributes.getNamedItem('data-state').value !== 'err' && p.attributes.getNamedItem('data-state').value !== 'wait') continue;
 		let dispno = false;
@@ -20783,8 +20817,8 @@ topreccheck(force) {
 		topline.append(dlbtn);
 		dlbtn.classList.remove('disabled');
 		dlbtn.classList.remove('biggiebtn');
-		ne.querySelector('.waitdiv').style['display'] = 'none';
-		ne.setAttribute('data-state', 'ok');
+		ne.querySelector('.waitdiv').style['display'] = '';
+		ne.setAttribute('data-state', 'wait');
 	}
 	let rotbtn = ne.querySelector('.rotbtn');
 	if (e.type === 'RAW') {
@@ -20850,7 +20884,7 @@ topreccheck(force) {
 		e.preview.onmouseout = (/*ev*/) => {
 			e.preview.classList.remove('picbig');
 		}
-	} else if (e.type === 'JPG') {
+	} else /*if (e.type === 'JPG')*/ {
 		e.preview = ne.querySelector('.eejpg');
 		ne.setAttribute('data-state', 'wait');
 		//e.preview.classList.add('eewait');
@@ -20863,8 +20897,7 @@ topreccheck(force) {
 /* ImBCHtml: visual browser: image loader call */
 #loadimg(url, type, to/*, rot*/) {
 	const e = to.entry;
-	if ((e.attributes.getNamedItem('data-state').value !== 'err' && e.attributes.getNamedItem('data-state').value !== 'wait')
-			|| (type === 'oth')) {
+	if ((e.attributes.getNamedItem('data-state').value !== 'err' && e.attributes.getNamedItem('data-state').value !== 'wait')) {
 		if (this.debugflag) console.log('ldr aa lnx ' + to.raw);
 		this.#loadnextimg();
 		return;
@@ -20873,7 +20906,7 @@ topreccheck(force) {
 	e.querySelector('.errimg').style['display'] = 'none';
 	e.querySelector('.waitdiv').style['display'] = '';
 	to.preview.style['display'] = 'none';
-	if (type === 'JPG') {
+	if (type !== 'RAW') {
 		to.preview.onload = (/*ev*/) => {
 			e.setAttribute('data-state', 'ok');
 			e.querySelector('.waitdiv').style['display'] = 'none';
@@ -20895,9 +20928,9 @@ topreccheck(force) {
 			to.nonewerr = true;
 			this.#loadnextimg();
 		};
-		to.preview.src = url;
+		to.preview.src = ImBCBase.adjurl(url) + '?custom=1&cmd=4001';
 	}
-	else if (type === 'RAW') {
+	else {
 		let afterloadcalled = false;
 		if (this.debugflag) console.log('li raw start bpv ' + url);
 		this.buildpreview((this.debugflag && this.useraw) ? this.useraw : url, () => { /* on ok: */
@@ -21108,7 +21141,7 @@ savesettings() {
 			let stepmode = 0;
 			const stepprev = document.getElementById('steppreview');
 			if (stepprev !== null && stepprev.checked) stepmode = 1;
-			window.localStorage.setItem('imbraw2dng' + (this.filmdemo?'_film':'') + '_json', JSON.stringify(
+			window.localStorage.setItem(this.appname + '_json', JSON.stringify(
 				{
 					'cr': copyval,
 					'np': document.getElementById('dngpreview') ? !document.getElementById('dngpreview').checked : false,
@@ -21314,7 +21347,7 @@ buildpreview(f, onok, onerr, orientation, targ, afterload) {
 	let w, h, typ;
 	if (undefined === f.size) {
 		window.setTimeout(() => {
-		  this.resolver(f, (url, fx) => {
+		  this.resolver(f, true, (url, fx) => {
 				this.buildpreview(fx, onok, onerr, orientation, targ, afterload);
 			}, (/*url*/) => {
 				onerr(f);
@@ -21498,48 +21531,73 @@ handlenext(fromloop) {
 		this.shownormal();
 	}
 }
+/* ImBCHtml: command handler */
+custcmd(cmd, type, restargs, cb) {
+	let thecmd = cmd, therest = restargs;
+	if (cmd instanceof Array) {
+		thecmd = cmd[0][0];
+		therest = cmd[0][1];
+		cmd.splice(0,1);
+	}
+	const xhr = new XMLHttpRequest();
+	xhr.onloadend = (/*event*/) => {
+		if (xhr.status === 200) {
+			if (type === 'document') {
+				const st = xhr.responseXML.querySelector('Function Status');
+				const st2 = xhr.responseXML.querySelector('LIST ALLFile File NAME');
+				if ('0' === st?.textContent || st2) {
+					if (cmd instanceof Array && cmd.length > 0)
+						this.custcmd(cmd, type, restargs, cb);
+					else
+						cb(0, xhr.response);
+				}
+				else
+					cb(-3);
+			}
+			else if (cmd instanceof Array && cmd.length > 0)
+				this.custcmd(cmd, type, restargs, cb);
+			else
+				cb(0, xhr.response);
+		}
+		else cb(-1);
+	};
+	xhr.onerror = (/*event*/) => {
+		cb(-2);
+	};
+	if (this.debugflag)
+		xhr.open('GET', '/i' + thecmd + '.xml');
+	else
+		xhr.open('GET', '/?custom=1&cmd=' + thecmd + (therest ? ('&'  + therest): ''));
+	xhr.responseType = type;
+	xhr.send();
+}
 /* ImBCHtml: check if we are directly on a back */
-checkimb(type) {
+checkimb() {
 	if (this.debugflag && document) {
 		document.getElementById('dbgcache').value = this.#maxcache;
 		document.getElementById('debugonly').style['display'] = '';
 	}
-	if (!window.location.href.startsWith(this.imbweb)) return;
-	document.getElementById('onimback').style['display'] = '';
-	const xhr = new XMLHttpRequest();
-	xhr.onloadend = (/*event*/) => {
-		if (xhr.status === 200) {
-			const sel2 = xhr.responseXML.querySelectorAll('a');
-			for (const r of sel2) {
-				if (r && r.href.indexOf('del=') === -1) {
-					if (r.href.startsWith(this.imbweb))
-						this.handle1imb(r.href);
-					else
-						this.handle1imb(this.imbweb+ r.href);
+	this.custcmd(3012, 'document', null, (rc0, doc0) => {
+		if (0 <= rc0) {
+			this.connvers = doc0.querySelector('Function String').textContent;
+			this.custcmd([ [3024], [3001,'par=2'], [3019], [3015] ] , 'document', null, (rc, doc) => {
+				if (rc >= 0) {
+					for (const e of doc.querySelectorAll('LIST ALLFile File FPATH'))
+						this.handle1imb(e.textContent, e.parentElement.querySelector('TIME').textContent);
+					if (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0) {
+						document.getElementById('onimback').style['display'] = '';
+						this.aftercheck();
+					}
 				}
-			}
-			if (type && (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0)) {
-				this.aftercheck();
-			}
-			else if (!type) this.checkimb(true);
+			});
 		}
-		else if (!type) this.checkimb(true);
-	};
-	xhr.onerror = (/*event*/) => {
-		if (!type) this.checkimb(true);
-		else if (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0) {
-			this.aftercheck();
-		}
-	};
-	xhr.open('GET', '/IMBACK/' + (type ? 'MOVIE/' : 'PHOTO/'));
-	xhr.responseType = 'document';
-	xhr.send();
+	});
 }
 /* ImBCHtml: browserdisplay: initialize settings */
 initsettings() {
 	if (window.location.origin.startsWith('http') && window.localStorage) {
 		try {
-			let e = window.localStorage.getItem('imbraw2dng' + (this.filmdemo?'_film':'') + '_json');
+			let e = window.localStorage.getItem(this.appname + '_json');
 			if (e) {
 				this.parseconfig(e);
 				const copytext = document.getElementById('copytext');
@@ -21584,7 +21642,7 @@ initsettings() {
 }
 /* ImBCHtml: file/filereader like interface for imback http */
 // url can also be an imbele member
-resolver(url, onok, onerr, notfirst) {
+resolver(url, preview, onok, onerr, notfirst) {
 	let rot, e = url;
 	if (url.url) {
 		e = url;
@@ -21633,7 +21691,7 @@ resolver(url, onok, onerr, notfirst) {
 			window.setTimeout(() => {
 					onok(url, fx, rot);
 			});
-		} else this.resolver(e, onok, onerr, len);
+		} else this.resolver(e, preview, onok, onerr, len);
 	};
 	xhr.onerror = (evt, typ) => {
 		if (undefined === typ) typ = 'err';
@@ -21648,7 +21706,10 @@ resolver(url, onok, onerr, notfirst) {
 	};
 	xhr.onabort = (evt) => { xhr.onerror(evt, 'abort'); };
 	xhr.ontimeout = (evt) => { xhr.onerror(evt, 'timeout'); };
-	xhr.open(notfirst ? 'GET' : 'HEAD', url);
+	if (notfirst && preview && (url.substring(url.length -4).toUpperCase() !== '.RAW')) {
+		xhr.open('GET', ImBCHtml.adjurl(url) +'?custom=1&cmd=4001');
+	} else
+		xhr.open(notfirst ? 'GET' : 'HEAD', ImBCHtml.adjurl(url));
 	xhr.setRequestHeader('Cache-control','max-stale');
 	xhr.responseType = 'arraybuffer';
 	xhr.timeout = (!notfirst || notfirst < 10000000) ? 30000 : Math.round(notfirst / 600);
@@ -21760,6 +21821,9 @@ function init() {
 	}
 	else {
 		imbc = new ImBCHtml();
+		if (ImBCBase.basename(window.location.pathname.toUpperCase()).indexOf('IMBAPP') !== -1) {
+			imbc.appname = 'imbapp';
+		}
 		if (ImBCBase.basename(window.location.pathname.toUpperCase()).indexOf('IMBRAW2DNG_FILM') !== -1) {
 			imbc.filmdemo = true;
 			ImBCBase.version = 'V4.ZZZZZ';
@@ -21879,13 +21943,13 @@ Replaceraw: <input type="file" onchange="imbc.replraw()" accept=".raw,.RAW" id="
 		</div>
 		<div class="errimg" style="display:none;">X</div>
 		<img class="eejpg" style="display:none; height: 120px;">
-		<div class="eepvx">?</div>
+		<!--div class="eepvx">?</div-->
 		<canvas class="eeraw" style="height: 120px; display:none;"></canvas>
 		<div class="waitdiv">
 			<span class="blink">.</span><span class="blink2">.</span><span class="blink3">.</span>
 		</div>
 		<div class="btnsrow">
-			<span class="biggiebtn bigbtn" style="left: 0.4em; margin-top: -0.5em;">⛶</span>
+			<span class="biggiebtn bigbtn" style="left: 0.4em;">⛶</span>
 			<span class="dlbtn biggiebtn" style="font-size: 133%;">↓</span>
 			<span class="biggiebtn rotbtn" style="left: 2.4em;">↷</span>
 		</div>

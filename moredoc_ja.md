@@ -1,6 +1,8 @@
 <!-- SPDX-License-Identifier: 0BSD -->
 # imbraw2dng - [I'mBack<sup>&reg;</sup>&nbsp;35mm/MF](https://imback.eu) RAW から DNG ファイルへの変換
 
+# test help needed see [testhelp](testhelp)
+
 これは商用サポートのないフリー ソフトウェア ([0-clause BSD-License](LICENSE.txt)) です。
 
 ここでは: [インストール](#インストール) - [国際化](#国際化) - を見つけることができます。

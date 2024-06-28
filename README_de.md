@@ -1,6 +1,8 @@
 <!-- SPDX-License-Identifier: 0BSD -->
 # imbraw2dng - Konvertierung von RAW-Dateien von [I'mBack<sup>&reg;</sup>&nbsp;35mm/MF](https://imback.eu) nach DNG - Schnelleinstieg
 
+# test help needed see [testhelp](testhelp)
+
 Dies ist freie Software ([0-Klausel-BSD-Lizenz](LICENSE.txt)) ohne kommerzielle Unterstützung.
 
 Mehr Doku: [hier](https://shyrodgau.github.io/imbraw2dng/moredoc_de)
