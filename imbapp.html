@@ -21580,12 +21580,12 @@ checkimb() {
 	this.custcmd(3012, 'document', null, (rc0, doc0) => {
 		if (0 <= rc0) {
 			this.connvers = doc0.querySelector('Function String').textContent;
+			document.getElementById('onimback').style['display'] = '';
 			this.custcmd([ [3024], [3001,'par=2'], [3019], [3015] ] , 'document', null, (rc, doc) => {
 				if (rc >= 0) {
 					for (const e of doc.querySelectorAll('LIST ALLFile File FPATH'))
 						this.handle1imb(e.textContent, e.parentElement.querySelector('TIME').textContent);
 					if (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0) {
-						document.getElementById('onimback').style['display'] = '';
 						this.aftercheck();
 					}
 				}
