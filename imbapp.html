@@ -20536,7 +20536,13 @@ buildtree() {
 	this.xlateall();
 }
 /* ImBCHtml: visual browser: find next to load */
-#findnexttoload(alsooutside) {
+/* four phases, finding a match for one skips all following phases */
+/* 0: visible JPG+MP4 */
+/* 1: visible RAW */
+/* 2: invisible JPG+MP4 */
+/* 3: invisible RAW */
+#findnexttoload() {
+	let res = undefined, ph = 4;
 	for (const e of this.imbeles.sort((a,b) => this.#myisort(a,b))) {
 		// display: none somewhere?
 		if (!e.entry) continue;
@@ -20551,10 +20557,26 @@ buildtree() {
 		while (f) {
 			if (f.style['display'] === 'none') {
 				dispno = true;
+				if (e.type !== 'RAW' && ph >= 3) {
+					res = e;
+					ph = 2;
+				}
+				else if (ph >= 3) {
+					res = e;
+					ph = 3;
+				}
 				break;
 			}
 			if (f.classList.contains('ggclosed')) {
 				dispno = true;
+				if (e.type !== 'RAW' && ph >= 3) {
+					res = e;
+					ph = 2;
+				}
+				else if (ph >= 3) {
+					res = e;
+					ph = 3;
+				}
 				break;
 			}
 			f = f.parentElement;
@@ -20562,14 +20584,28 @@ buildtree() {
 		if (dispno) continue;
 		// display not none, check pos
 		let rect = p.getBoundingClientRect();
-		if (rect.top < window.innerHeight && rect.bottom > 0 && rect.width > 0)
-			return e;
-		if (alsooutside && rect.bottom > 0 && rect.width > 0)
-			if ((p.querySelector('.waitdiv') && p.querySelector('.waitdiv').style['display'] !== 'none') ||
-				(p.querySelector('.errimg') && p.querySelector('.errimg').style['display'] !== 'none'))
-			return e;
+		if (rect.top < window.innerHeight && rect.bottom > 0 && rect.width > 0) {
+			if (e.type !== 'RAW' && ph >= 2) {
+				res = e;
+				ph = 1;
+			}
+			else if (ph >= 3) {
+				res = e;
+				ph = 2;
+			}
+		}
+		else {
+				if (e.type !== 'RAW' && ph >= 3) {
+					res = e;
+					ph = 2;
+				}
+				else if (ph >= 3) {
+					res = e;
+					ph = 3;
+				}
+		}
 	}
-	return undefined;
+	return res;
 }
 /* ImBCHtml: visual browser: sort helper */
 #mysort(a, b) {
