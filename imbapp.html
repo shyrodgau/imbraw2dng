@@ -38,6 +38,7 @@ div#xmsg {
 	white-space: pre-wrap !important;
 }
 }
+body { margin: 0; }
 #rpiclbl, #piclbl, #movlbl, #rpiccnt, #piccnt, #movcnt { font-weight: bold; }
 #imbvisbrows {
 	padding: 0.4em;
@@ -72,33 +73,35 @@ div#xmsg {
 	display: block;
 }
 .gg .grtit { font-weight: bold; font-size: 125%; }
-.gg:not(.gl1) {
+.igtype > * { border: 0.5px solid grey; }
+/*.gg:not(.gl1) {
 	margin-left: 1em;
-}
-.ggtt {
+}*/
+/*.ggtt {
 	border: 2px solid white;
 	border-radius: 5px;
 	margin:0.2em;
-}
-.gl1 > .ggtt span.gtype { display: inline !important; }
+}*/
+/*.gl1 > .ggtt span.gtype { display: inline !important; }*/
 .ggttopen { border-bottom: 0 !important; }
-.ggopen {  border: 2px solid white; border-radius: 5px; border-top: 0;border-left: 0; border-right:0;}
+/*.ggopen {  border: 2px solid white; border-radius: 5px; border-top: 0;border-left: 0; border-right:0;}*/
 .ggttopen > .ggttplus { display: none; }
 .ggttclosed > .ggttminus { display: none; }
+.ggttminus { font-size: 133%; margin-left: -0.2em; }
 .ggttclosed > div > .ggtt { display: none; }
 .ggclosed > .gg, .ggclosed .igtype { display: none !important; }
-.ggttminus, .ggttplus { cursor: pointer; display: inline-block; width: 1.9em; font-weight:normal !important; }
+.ggttminus, .ggttplus { cursor: pointer; display: inline-block; font-weight:normal !important; }
 .biggiebtn:not(.disabled), .dlbtn:not(.disabled) { cursor: pointer; }
-.dlbtn.biggiebtn { left: 1.5em; margin-top: -0.1em; }
+.dlbtn.biggiebtn { left: .1em; margin-top: -0.1em; }
 .biggiebtn.disabled { display: none; }
 .dlbtn:not(.biggiebtn) { vertical-align: bottom; font-weight: bold; }
-.igtype { border: 2px solid yellow; border-radius: 5px; display: flex; flex-flow: wrap;background-color: #ffe6da;border-top: 0; padding:0.5em;}
-.onepic { border: 2px solid gray; border-radius: 5px; margin: 2px; width: fit-content; display: flex; flex-direction: column; padding: 0.3em;position: relative; }
+.igtype { display: flex; flex-flow: wrap;border-top: 0; padding:0.1em;}
+.onepic { margin: -1px; width: fit-content; display: flex; flex-direction: column; padding: 0.1em;position: relative; }
 .eepvx { color: #777777; font-size: 100px; align-self: center; font-weight: bold; }
-.errimg { color: red; font-size: 100px; align-self: center; font-weight: bold; }
-.waitdiv { color: #444444; font-size: 100px; align-self: center; font-weight: bold; }
+.errimg { width: 163px;color: red; height:90px;font-size: 80px; text-align: center; font-weight: bold; }
+.waitdiv { color: #444444; width:163px;font-size: 80px; height:90px;text-align: center; font-weight: bold; }
 .eeraw, .eejpg { align-self: center; }
-.onepic > :nth-child(1) { margin-top: -0.2em; margin-bottom: 0.1em;}
+/*.onepic > :nth-child(1) { margin-top: -0.2em; margin-bottom: 0.1em;}*/
 #previewwait {
 	scale: 500%;
 	margin-left: 250px;
@@ -111,23 +114,25 @@ div#xmsg {
 	width: 2em;
 	text-align: end;
 }
-.btnsrow { position: absolute; top: 1.5em; left: 0.1em; height: 1em; width: 4em; background-color: rgba(200,200,180,0.4); }
-.oth_CL .btnsrow, div[data-state='load'] .btnsrow, div[data-state='wait'] .btnsrow, div[data-state='err'] .btnsrow { display: none; }
-.JPG_CL .btnsrow { width: 3em; }
+.btnsrow { position: absolute; top: 1.5em; left: 0.1em; height: 1em; width: 2em; background-color: rgba(200,200,180,0.4); }
+div[data-state='load'] .btnsrow, div[data-state='wait'] .btnsrow, div[data-state='err'] .btnsrow { display: none; }
+.oth_CL .btnsrow, .JPG_CL .btnsrow { width: 1em; }
 .JPG_CL .rotbtn { display: none; }
 .JPG_CL .eepvx, .JPG_CL .eeraw, .oth_CL .eeraw, .oth_CL .eepvx, .RAW_CL .eepvx, .RAW_CL .eejpg { display: none; }
 .biggiebtn { position: absolute; top: -0.2em; font-weight:bold; font-size:120%; text-shadow: 0.1em 0.07em 0 white; z-index: 900;}
 .picbig { scale: 3; position: absolute; z-index: 999; border: 3px solid white; left: 66%;}
-.pictitle { z-index: 90; font-size: 80%; }
+.pictitle { z-index: 90; font-size:66%; }
+.pictitle:not(:nth-child(1)) { border-top: 1px solid black; }
 .picdeleted:before {
 	content: '\1f6c7';
-	position: relative;
-	font-size: 50px;
+	position: absolute;
+	font-size: 25px;
 	z-index: 99;
 	color: rgba(255,0,0,0.6);
-	text-shadow: 6px 4px white;
-	padding-left: 0.1em;
-	padding-top: 0.1em;
+	text-shadow: 3px 2px white;
+	padding-left: 1.5em;
+	padding-top: 0.3em;
+	pointer-events:none;
 }
 .picprocd:before {
 	content: '\2713';
@@ -135,10 +140,20 @@ div#xmsg {
 	font-size: 50px;
 	z-index: 99;
 	color: rgba(0,255,0,0.6);
-	text-shadow: 6px 4px white;
-	padding-left: 0.1em;
+	text-shadow: 2px 3px white;
+	padding-left: 0.5em;
 	padding-top: 0.1em;
+	pointer-events:none;
 }
+.whbtn {
+	font-weight:bold;
+	font-size:110%;
+	color:white;
+	height:1.66em;
+	background-color: black !important;
+	border:none !important;
+}
+.whbtn:disabled { opacity: 0.6; }
 </style>
 <!-- javascript code identical to imbraw2dng.js  for the classes IFDOut, TIFFOut, ZIPHelp, ImBCBase, ImBCBackw. -->
 <script type="text/javascript" language="javascript">
@@ -559,171 +574,6 @@ static readinta(arr, off) {
 /* Indentation in - end of class TIFFOut */
 }
 /* *************************************** TIFFOut E N D *************************************** */
-/* *************************************** Backward helper class *************************************** */
-class ImBCBackw {
-/* Indentation out */
-constructor (imbcout) {
-	this.imbc = imbcout;
-}
-/* ImBCBackw: backward: handle dng like raw */
-static parseDng(f, onok, onerr) {
-	// blindly assumes that it is one of our own DNG
-	if (undefined === f.data) {
-		const reader = f.imbackextension ? f : new FileReader();
-		reader.onload = (evt) => {
-			f.data = evt.target.result;
-			ImBCBackw.parseDng(f, onok, onerr);
-		}
-		reader.onerror = () => { onerr(f.name); };
-		reader.readAsArrayBuffer(f);
-		return;
-	}
-	const v = new DataView(f.data);
-	const ifd = TIFFOut.readint(v, 4);
-	const zz = ImBCBase.infos.findIndex(v => v.size === ifd - 8);
-	const nent = TIFFOut.readshort(v, ifd);
-	let subifdstart = -1, rawstripstart = -1, datalen = -1;
-	let off = ifd+2;
-	if (TIFFOut.readshort(v, 2) !== 42 || TIFFOut.readshort(v,0) !== 18761 /* 0x4949 */ || zz === -1) {
-		// seek sub ifd then therein the stripoffsets
-		for (let k=0; k<((nent<50)? nent: 0); k++) {
-			let tag = TIFFOut.readshort(v, off);
-			if (tag === 330) {
-				subifdstart = TIFFOut.readint(v, off+8);
-				break;
-			}
-			off += 12;
-		}
-		if (-1 !== subifdstart) {
-			let subnent = TIFFOut.readshort(v, subifdstart);
-			off = subifdstart + 2;
-			for (let j=0; j<((subnent < 50)? subnent: 0); j++) {
-				let stag = TIFFOut.readshort(v, off);
-				if (stag === 273) {
-					rawstripstart = TIFFOut.readint(v, off+8);
-					break;
-				}
-				off += 12;
-			}
-			if (-1 !== rawstripstart) {
-				datalen = subifdstart - rawstripstart;
-				const zzz = ImBCBase.infos.findIndex(v => v.size === datalen);
-				if (-1 === zzz) {
-					this.imbc.appmsg('Works only for originally created DNGs.', true);
-					return onerr(f.name);
-				}
-			}
-			else {
-				this.imbc.appmsg('Works only for originally created DNGs.', true);
-				return onerr(f.name);
-			}
-		}
-		else {
-			this.imbc.appmsg('Works only for originally created DNGs.', true);
-			return onerr(f.name);
-		}
-	}
-	else {
-		rawstripstart = 8;
-		datalen = ifd - 8;
-	}
-	let fx = {
-		imbackextension: true,
-		name: f.name.substring(0, f.name.length - 4) + '.raw',
-		size: datalen,
-		data: f.data.slice(rawstripstart, datalen + rawstripstart)
-	};
-	if (datalen === 30607488) {
-		const v = new DataView(fx.data);
-		for (let k=0; k < datalen; k+=3) {
-			let i = v.getUint8(k);
-			v.setUint8(k, v.getUint8(k+2));
-			v.setUint8(k+2, i);
-		}
-	}
-	fx.readAsArrayBuffer = (fy) => {
-		fy.onload({
-				target: { result: fy.data }
-		});
-	};
-	setTimeout(() => {
-			onok(f.name, fx, fx.rot);
-	});
-}
-/* ImBCBackw: backward: actual processing function for one file */
-handleone(fx) {
-	const f = (fx !== undefined) ? fx : this.imbc.allfiles[this.imbc.actnum];
-	if (undefined === f) {
-		this.imbc.appmsgxl(true, 'process.nothing');
-		return this.imbc.handlenext();
-	}
-	if (undefined === f.size) {
-		setTimeout(() => {
-		  this.imbc.resolver(f, false, (url, fx) => {
-				this.imbc.allfiles[this.imbc.actnum] = fx;
-				this.handleone(fx);
-			}, (url) => {
-				this.imbc.mappx(false, 'words.sorryerr');
-				this.imbc.appmsgxl(true, 'process.erraccess', url);
-				this.imbc.stats.error ++;
-				if (undefined !== this.exitcode) this.exitcode++;
-				this.imbc.handlenext();
-		  });
-		});
-		return;
-	}
-	let rawname = ImBCBase.basename(f.name);
-	if (rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
-		ImBCBackw.parseDng(f,
-			(name, fx) => {
-				this.handleone(fx);
-			},
-			() => {
-				this.imbc.appmsg('Error reading DNG: ' + f.name);
-				if (undefined !== this.exitcode) this.exitcode++;
-				this.imbc.handlenext();
-				this.imbc.stats.error++;
-			});
-		return;
-	}
-	else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
-		this.imbc.appmsg("[" + (1 + this.imbc.actnum) + " / " + this.imbc.totnum + "] ", false);
-		this.imbc.appmsg('Seems not to be DNG: ' + f.name, true);
-		this.imbc.stats.error++;
-		return this.imbc.handlenext();
-	}
-	const zz = ImBCBase.infos.findIndex(v => v.size === f.size);
-	if (zz !== -1) {
-		this.imbc.appmsg("[" + (1 + this.imbc.actnum) + " / " + this.imbc.totnum + "] ");
-		const reader = f.imbackextension ? f : new FileReader();
-		reader.onload = (evt) => {
-			const contents = evt.target.result;
-			const view = new DataView(contents);
-			const out = new Uint8Array(f.size);
-			for (let j=0; j<view.byteLength; j++) {
-				out[j] = view.getUint8(j);
-			}
-			this.imbc.writefile(rawname, 'application/octet-stream', 'process.converted', out);
-		}
-		reader.onerror = (evt) => {
-			console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
-			this.imbc.appmsg('Error processing or reading file ' +  f.name, true);
-			this.imbc.stats.error++;
-			if (undefined !== this.exitcode) this.exitcode++;
-			this.imbc.handlenext();
-		}
-		reader.readAsArrayBuffer(f);
-	} else {
-		this.imbc.appmsg("[" + (1 + this.imbc.actnum) + " / " + this.imbc.totnum + "] ", false);
-		this.imbc.appmsg('Size of raw data of ' + f.name + ' seems not to match known formats, ignoring...', true);
-		this.imbc.stats.error++;
-		if (undefined !== this.exitcode) this.exitcode++;
-		this.imbc.handlenext();
-	}
-}
-/* Indentation in - end of class ImBCBackw */
-}
-/* *************************************** Backward helper class E N D *************************************** */
 /* *************************************** ZIP Helper class *************************************** */
 class ZIPHelp {
 /* Indentation out */
@@ -1003,10 +853,10 @@ static texts = { // actually const
 				ja: 'その他'
 			},
 			notpic: {
-				de: 'Keine Bilder',
-				en: 'Not pictures',
-				fr: 'Pas images',
-				ja: '画像ではない'
+				de: 'MP4',
+				en: 'MP4',
+				fr: 'MP4',
+				ja: 'MP4'
 			}
 		},
 		file: {
@@ -1096,9 +946,9 @@ static texts = { // actually const
 	},
 	browser: {
 		bytype: {
-			de: 'nach Typ',
-			en: 'by type',
-			fr: 'par type',
+			de: 'Nach Typ',
+			en: 'By type',
+			fr: 'Par type',
 			ja: '種類別'
 		},
 		olderfirst: {
@@ -1717,6 +1567,7 @@ copyright = '';
 // { name: 'xxx.jpg', data: array-ifd... }
 #exififds = [];
 appname = 'imbraw2dng'; // or imbapp
+maxcl = 2; // 5 - hr - day - month 
 connversion = ''; // hw version from cmd 3012
 
 // ImBCBase: fake long exposure:
@@ -18980,6 +18831,7 @@ subst(r, arg0, arg1, arg2, arg3) {
 xl(str, arg0, arg1, arg2, arg3, base) {
 	// console.log(' XL ' + str + ' - ' + base + ' - ' + arg0 + ' - ' + arg1);
 	if (undefined === base) base = ImBCBase.texts;
+	if (this.mylang === '00') this.mylang = 'en';
 	if (this.mylang === '00') {
 		let res = '[' + str;
 		if (undefined !== arg0) {
@@ -19217,16 +19069,30 @@ handleone(orientation, fromloop) {
 	}
 	if (undefined === f.size) {
 		setTimeout(() => {
-		  this.resolver(f, false, (url, fx, rot) => {
-				this.allfiles[this.actnum] = fx;
-				this.handleone(rot ? rot: orientation, fromloop);
-			}, (url) => {
-				this.mappx(false, 'words.sorryerr');
-				this.mappx(true, 'process.erraccess', url);
-				this.stats.error ++;
-				if (undefined !== this.exitcode) this.exitcode++;
-				this.handlenext(fromloop);
-		  });
+		  if (this.previewworker) {
+		  	  let cachehit;
+		  	  if ((cachehit = this.findcache(f.name))) {
+		  	  	  this.allfiles[this.actnum] = cachehit.reader;
+		  	  	  this.handleone(orientation, fromloop);
+		  	  	  // nope this.previewworker.postMessage({ cmd: 'handlefromcache', c: cachehit, n: f.name, o: orientation, fl: fromloop });
+		  	  } else {
+		  	  	  this.previewworker.postMessage({ cmd: 'resolveandhandle', n: f.name, o: orientation, fl: fromloop });
+		  	  	  // onmessage: { o: orientation, fl: fromloop, c: cacheentry }
+		  	  	  // set allfiles[this.actnum] to cacheentry.reader and call handleone(o, fl)
+		  	  	  // add cache
+		  	  }
+		  } else {
+			  this.resolver(f, false, (url, fx, rot) => {
+					this.allfiles[this.actnum] = fx;
+					this.handleone(rot ? rot: orientation, fromloop);
+				}, (url) => {
+					this.mappx(false, 'words.sorryerr');
+					this.mappx(true, 'process.erraccess', url);
+					this.stats.error ++;
+					if (undefined !== this.exitcode) this.exitcode++;
+					this.handlenext(fromloop);
+			  });
+		  }
 		});
 		return;
 	}
@@ -19758,15 +19624,16 @@ handle1imb(url, time) {
 	let timestx = ImBCBase.fnregex.exec(rawname);
 	let timesty = time ? ImBCBase.itsregex.exec(time) : null;
 	let timest = null, cl = '9999_99_99-99';
+	if (this.mingrp === 'd') cl = '9999_99_99';
 	if (null !== timestx) {
 		timest = timestx[1] + '_' + timestx[3] + '_' + timestx[5] + '-' + timestx[7] + '_' + timestx[9] + '_' + timestx[11];
-		cl = timestx[1] + '_' + timestx[3] + '_' + timestx[5] + '-' + timestx[7];
-	}
-	if (null !== timesty) {
-		timest = timesty[1] + '_' + timesty[3] + '_' + timesty[5] + '-' + timesty[7] + '_' + timesty[9] + '_' + timesty[11];
+		cl = timestx[1] + '_' + timestx[3] + '_' + timestx[5] + (this.mingrp === 'h'? ('-' + timestx[7]) : '');
 	} else {
 		this.mappx(false, 'words.warning');
 		this.mappx(true, 'onimback.strangename', rawname);
+	}
+	if (null !== timesty) {
+		timest = timesty[1] + '_' + timesty[3] + '_' + timesty[5] + '-' + timesty[7] + '_' + timesty[9] + '_' + timesty[11];
 	}
 	if (rawname.substring(rawname.length -4).toUpperCase() === '.RAW') {
 		if (null !== timest) {
@@ -19820,7 +19687,7 @@ handle1imb(url, time) {
 				this.typedclasses.push('JPG' + cl);
 		}
 	}
-	else {
+	else if (rawname.substring(rawname.length -4).toUpperCase() === '.MP4') {
 		if (null !== timest) {
 			if (timest < this.earliestmov) this.earliestmov = timest;
 			if (timest > this.latestmov) this.latestmov = timest;
@@ -19846,6 +19713,10 @@ handle1imb(url, time) {
 				this.typedclasses.push('oth' + cl);
 		}
 	}
+	else {
+		this.appmsgxl(false, 'words.warning');
+		this.appmsgxl(0, 'onimback.strangename', rawname);
+	}
 }
 /* Indentation in - end of class ImBCBase */
 }
@@ -19865,6 +19736,9 @@ stepmode = 1;
 #dispcnt = 1;
 // const if html:
 checkdlfolder = true;
+// grouping in visual dings:
+mingrp = 'd'; // 'h',  day hour
+maxgrp = 'm'; // 'y', 'm' day year month
 constructor() {
 	super();
 }
@@ -20286,6 +20160,18 @@ zipname = '';
 ziperr = false;
 constructor() {
 	super();
+	let scripttext = `onmessage = (e) => {
+		console.log('worker got ' + JSON.stringify(e.data));
+			postMessage('Blah ' + e.data) 
+	};`;
+	let worker = new Worker('data:text/javascript;base64,' + btoa(scripttext));
+	worker.onmessage = function(e) {
+		console.log('f: ' + JSON.stringify(e.data));
+	}
+	worker.onerror = (e) => {
+		console.log('EE ' + JSON.stringify(e));
+	}
+	worker.postMessage('blubber');
 }
 // from the back itself
 #maxcache = 30; // max. length of cache for already downloaded raw data - you may increase or decrease this
@@ -20414,7 +20300,7 @@ aftercheck() {
 		cl.entry = document.createElement('div');
 		cl.entry.id = 'gg_' + x + '_X';
 		cl.entry.classList.add('gg');
-		cl.entry.classList.add('ggclosed');
+		cl.entry.classList.add('ggopen');
 		cl.entry.classList.add('gl5');
 		for (const y of this.imbeles) {
 			if (x === y.ts)
@@ -20435,7 +20321,7 @@ aftercheck() {
 		cl.entry = document.createElement('div');
 		cl.entry.id = 'gg_' + x + '_X';
 		cl.entry.classList.add('gg');
-		cl.entry.classList.add('ggclosed');
+		cl.entry.classList.add('ggopen');
 		cl.entry.classList.add('gl5');
 		for (const y of this.imbeles) {
 			if (x === y.type + y.ts)
@@ -20447,10 +20333,23 @@ aftercheck() {
 		}
 		this.typedclasses.splice(this.typedclasses.findIndex(v => v === x), 1, cl);
 	}
-	this.#higherclasses(this.untypedclasses, 10, 5);
-	this.#higherclasses(this.typedclasses, 13, 5);
+	if (this.mingrp === 'h') {
+		this.#higherclasses(this.untypedclasses, 10, 5);
+		this.#higherclasses(this.typedclasses, 13, 5);
+	} else if (this.mingrp !== this.maxgrp) {
+		this.#higherclasses(this.untypedclasses, 7, 5);
+		this.#higherclasses(this.typedclasses, 10, 5);
+	}
+	this.maxcl = 2;
+	if (this.mingrp === 'd')
+		this.maxcl++;
+	if (this.maxgrp === 'd') {
+		this.maxcl+=2;
+	}
+	else if (this.mingrp === 'm')
+		this.maxcl++;
 	// top type classes here
-	for (const u of this.typedclasses.filter((o) => o.level === 2)) {
+	for (const u of this.typedclasses.filter((o) => o.level === this.maxcl)) {
 		if (u.ischild) continue;
 		if (this.typedclasses.filter((o) => u.title.substring(0,3) === o.title.substring(0,3)).length === 1) {
 			u.level --;
@@ -20465,7 +20364,7 @@ aftercheck() {
 			cl.entry = document.createElement('div');
 			cl.entry.id = 'gg_' + u.title.substring(0,3) + '_X';
 			cl.entry.classList.add('gg');
-			cl.entry.classList.add('ggclosed');
+			cl.entry.classList.add('ggopen');
 			cl.entry.classList.add('gl1');
 			for (const x of this.typedclasses.filter((o) => u.title.substring(0,3) === o.title.substring(0,3))) {
 				x.ischild = true;
@@ -20478,7 +20377,7 @@ aftercheck() {
 		}
 	}
 	// non-typed upgraded to gl1, unless only one
-	if (this.untypedclasses.filter((o) => o.level === 2).length === 1 && this.untypedclasses.filter((o) => o.level === 2)[0].smembers) {
+	if (this.untypedclasses.filter((o) => o.level === this.maxcl).length === 1 && this.untypedclasses.filter((o) => o.level === this.maxcl)[0].smembers) {
 		const t = this.untypedclasses.filter((o) => o.level === 2)[0];
 		this.untypedclasses.splice(0,1);
 		for (const s of t.smembers) {
@@ -20487,8 +20386,8 @@ aftercheck() {
 			this.untypedclasses.push(s);
 		}
 	} else
-		for (const s of this.untypedclasses.filter((o) => o.level === 2)) s.entry.classList.add('gl1');
-	// build title elemenes
+		for (const s of this.untypedclasses.filter((o) => o.level === this.maxcl)) s.entry.classList.add('gl1');
+	// build title elements
 	for (const s of this.untypedclasses) this.#buildtitlerec(s);
 	for (const s of this.typedclasses) this.#buildtitlerec(s);
 	if (document) {
@@ -20496,6 +20395,7 @@ aftercheck() {
 		document.getElementById('brntot').innerHTML = '' + this.imbeles.length;
 		this.buildtree();
 	}
+	this.showbrowser();
 	/* debug * /
 	if (debugflag) {
 		for (const s of untypedclasses.filter((o) => o.level === 2)) prgr(s,1);
@@ -20507,11 +20407,11 @@ buildtree() {
 	let list, toplevel;
 	if (document.getElementById('sbytype').checked) {
 		list = this.typedclasses;
-		toplevel = 1;
+		toplevel = this.maxcl;
 	}
 	else {
 		list = this.untypedclasses;
-		toplevel = 2;
+		toplevel = this.maxcl;
 	}
 
 	// first, make everything empty
@@ -20529,8 +20429,10 @@ buildtree() {
 	}
 
 	// now, sort and add
-	for (const e of list.filter((o) => o.level === toplevel).sort((a,b) => this.#mysort(a, b))) {
+	//for (const e of list.filter((o) => o.level === toplevel).sort((a,b) => this.#mysort(a, b))) {
+	for (const e of list.sort((a,b) => this.#mysort(a, b))) {
 		document.getElementById('browser').append(e.entry);
+		this.#doopen(e, true);
 		this.#addsorted(e);
 	}
 	this.xlateall();
@@ -20544,12 +20446,10 @@ buildtree() {
 #findnexttoload() {
 	let res = undefined, ph = 4;
 	for (const e of this.imbeles.sort((a,b) => this.#myisort(a,b))) {
-		// display: none somewhere?
 		if (!e.entry) continue;
 		const p = e.entry;
 		if (!p.parentElement) continue;
 		// not waiting or error at all?
-		//if (e.type === 'oth') continue;
 		if (e.nonewerr) continue;
 		if (p.attributes.getNamedItem('data-state').value !== 'err' && p.attributes.getNamedItem('data-state').value !== 'wait') continue;
 		let dispno = false;
@@ -20561,7 +20461,7 @@ buildtree() {
 					res = e;
 					ph = 2;
 				}
-				else if (ph >= 3) {
+				else if (ph >= 4) {
 					res = e;
 					ph = 3;
 				}
@@ -20573,7 +20473,7 @@ buildtree() {
 					res = e;
 					ph = 2;
 				}
-				else if (ph >= 3) {
+				else if (ph >= 4) {
 					res = e;
 					ph = 3;
 				}
@@ -20585,24 +20485,24 @@ buildtree() {
 		// display not none, check pos
 		let rect = p.getBoundingClientRect();
 		if (rect.top < window.innerHeight && rect.bottom > 0 && rect.width > 0) {
-			if (e.type !== 'RAW' && ph >= 2) {
+			// visible
+			if (e.type !== 'RAW' && ph >= 1) {
+				res = e;
+				ph = 0;
+				break;
+			}
+			else if (ph >= 2) {
 				res = e;
 				ph = 1;
 			}
-			else if (ph >= 3) {
-				res = e;
-				ph = 2;
-			}
 		}
-		else {
-				if (e.type !== 'RAW' && ph >= 3) {
-					res = e;
-					ph = 2;
-				}
-				else if (ph >= 3) {
-					res = e;
-					ph = 3;
-				}
+		else if (e.type !== 'RAW' && ph >= 3) {
+			res = e;
+			ph = 2;
+		}
+		else if (ph >= 4) {
+			res = e;
+			ph = 3;
 		}
 	}
 	return res;
@@ -20706,10 +20606,10 @@ topreccheck(force) {
 	const d = document.querySelector('#titlet').content.querySelector('.titletop').cloneNode(true); //document.createElement('div');
 	const pluss = d.querySelector('.ggttp');
 	pluss.onclick = () => {
-		this.#doopen(gr, false);
+		this.#doopen(gr, true);
 	};
 	const pluspluss = d.querySelector('.ggttpp');
-	if (gr.haschildren) {
+	if (pluspluss && gr.haschildren) {
 		pluspluss.innerHTML = '[++]';
 		pluspluss.onclick = () => {
 			this.#doopen(gr, true);
@@ -20742,7 +20642,7 @@ topreccheck(force) {
 	const texttit = d.querySelector('label');
 	const cb = d.querySelector('.selcb');
 	cb.id = 'SELC_' + gr.title;
-	texttit.htmlFor = cb.id;
+	if (texttit?.htmlFor) texttit.htmlFor = cb.id;
 	cb.onclick = (/*ev*/) => {
 		if (cb.checked) this.#reccheck(true, gr);
 		else this.#reccheck(false, gr);
@@ -20761,6 +20661,7 @@ topreccheck(force) {
 		if (u.ischild) continue;
 		if (arr.filter((o) => u.title.substring(0,len) === o.title.substring(0,len)).length === 1) {
 			u.level --;
+			u.title = u.title.substring(0,len);
 			u.entry.classList.add('gl' + u.level);
 			u.entry.classList.remove('gl' + (u.level + 1));
 		} else if (arr.findIndex((o) => o.title === u.title.substring(0,len)) === -1) {
@@ -20773,7 +20674,7 @@ topreccheck(force) {
 			const ce = cl.entry;
 			ce.id = 'gg_' + u.title.substring(0,len) + '_X';
 			ce.classList.add('gg');
-			ce.classList.add('ggclosed');
+			ce.classList.add('ggopen');
 			ce.classList.add('gl' + (curlevel - 1));
 			for (const x of arr.filter((o) => u.title.substring(0,len) === o.title.substring(0,len))) {
 				x.ischild = true;
@@ -20785,9 +20686,15 @@ topreccheck(force) {
 			arr.push(cl);
 		}
 	}
-	if (curlevel === 5)
+	// 5	h	y => again ->
+	// 4	h  	y => again
+	// 5	h	m => again 1x
+	// 5    d   y => again 1x
+	// 5    d   m ready
+	// (5	d	d	 not called at all)
+	if (curlevel === 5 && ((this.maxgrp === 'y') || ((this.mingrp === 'h')) && (this.maxgrp === 'm')))
 		this.#higherclasses(arr, len - 3, 4);
-	else if (curlevel === 4)
+	else if (curlevel === 4 && (this.maxgrp === 'y') && (this.mingrp === 'h'))
 		this.#higherclasses(arr, len - 3, 3);
 }
 /* visual browser: return count of files in class */
@@ -20826,6 +20733,7 @@ topreccheck(force) {
 	document.getElementById('brnsel').innerHTML = '' + res;
 	document.getElementById('selall').checked = (res === sum);
 	document.getElementById('delselbut').disabled = (res === 0);
+	document.getElementById('doselbut').disabled = (res === 0);
 }
 /* ImBCHtml: visual browser: fill a html div into an imbele */
 #displaydiv(e) {
@@ -20906,11 +20814,11 @@ topreccheck(force) {
 			ne.classList.add('picprocd');
 		};
 	}*/
-	let bigbtn = ne.querySelector('.bigbtn')
-	bigbtn.classList.add('disabled');
-	bigbtn.onclick = (/*ev*/) => {
-		e.preview.classList.add('picbig');
-	};
+	//let bigbtn = ne.querySelector('.bigbtn')
+	//bigbtn.classList.add('disabled');
+	//bigbtn.onclick = (/*ev*/) => {
+	//	e.preview.classList.add('picbig');
+	//};
 	
 	if (e.type === 'RAW') {
 		ne.setAttribute('data-state', 'wait');
@@ -20947,7 +20855,7 @@ topreccheck(force) {
 			e.setAttribute('data-state', 'ok');
 			e.querySelector('.waitdiv').style['display'] = 'none';
 			to.preview.style['display'] = '';
-			to.preview.style['width'] = to.preview.width * (120 / to.preview.height);
+			to.preview.style['height'] = to.preview.height * (163 / to.preview.width);
 			e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.remove('disabled') });
 			e.querySelector('.dlbtn').classList.remove('disabled');
 			if (this.debugflag) console.log('ldr j f lnx ' + to.raw);
@@ -21081,14 +20989,19 @@ dodelete(list) {
 		xhr.onload = () => {
 			this.#deletephase ++;
 			document.getElementById('delprogmsg').innerHTML = deletephs[this.#deletephase % deletephs.length];
+			list[0].selected = false;
+			if (list[0].entry) list[0].entry.querySelector('.selcb').checked = false;
 			const pv = list[0].preview;
 			if (pv)
 				pv.classList.add('picdeleted');
+			if (pv?.parentElement)
+				pv.parentElement.classList.add('picdeleted');
 			list.splice(0,1);
 			this.dodelete(list);
 			xhr.onerror = undefined;
 			xhr.onload = undefined;
 			xhr.ontimeout = undefined;
+			this.#updateselections();
 		};
 		xhr.onerror = xhr.onload;
 		xhr.ontimeout = xhr.onload;
@@ -21218,13 +21131,21 @@ dodebug() {
 		const dp = new DOMParser();
 		const doc = dp.parseFromString(res.target.result,'text/html');
 		const sel2 = doc.querySelectorAll('a');
-		for (const r of sel2) {
-			if (r && (-1 === r.href.indexOf('?del='))) {
-				this.handle1imb(r.href);
+		if (sel2.length !== 0) {
+			for (const r of sel2) {
+				if (r && (-1 === r.href.indexOf('?del='))) {
+					this.handle1imb(r.href);
+				}
+			}
+		} else {
+			for (const e of doc.querySelectorAll('LIST ALLFile File FPATH'))
+				this.handle1imb(e.textContent, e.parentElement.querySelector('TIME').textContent);
+			if (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0) {
+				this.aftercheck();
 			}
 		}
 		document.getElementById('dbgfsel').style['display'] = 'none';
-		document.getElementById('onimback').style['display'] = '';
+		if (this.appname !== 'imbapp') document.getElementById('onimback').style['display'] = '';
 		this.aftercheck();
 	};
 	fr.readAsText(document.getElementById('dbgfsel').files[0]);
@@ -21383,11 +21304,24 @@ buildpreview(f, onok, onerr, orientation, targ, afterload) {
 	let w, h, typ;
 	if (undefined === f.size) {
 		window.setTimeout(() => {
-		  this.resolver(f, true, (url, fx) => {
-				this.buildpreview(fx, onok, onerr, orientation, targ, afterload);
-			}, (/*url*/) => {
-				onerr(f);
-		  });
+		  if (this.previewworker) {
+		  	  let cachehit;
+		  	  if ((cachehit = this.findcache(f.url ? f.url :f.name))) {
+		  	  	  this.previewworker.postMessage({ cmd: 'previewfromcache', c: cachehit, n: f.name, o: orientation, onok: onok, onerr: onerr, t: targ });
+		  	  	  // onmessage: { pix: array, o: orientation, t: targ, onok, onerr }
+		  	  	  // ctx.putImageData(new ImageData(outpix, transpose ? h8: w8, transpose? w8 :h8), 0, 0); onok(f)
+		  	  } else {
+		  	  	  this.previewworker.postMessage({ cmd: 'resolveandpreview', n: f.name, o: orientation, onok: onok, onerr: onerr, t: targ });
+		  	  	  // onmessage: { pix: array, o: orientation, t: targ, onok, onerr, c: cacheentry }
+		  	  	  // ctx.putImageData(new ImageData(outpix, transpose ? h8: w8, transpose? w8 :h8), 0, 0); onok(f); add cache
+		  	  }
+		  } else {
+			  this.resolver(f, true, (url, fx) => {
+					this.buildpreview(fx, onok, onerr, orientation, targ, afterload);
+				}, (/*url*/) => {
+					onerr(f);
+			  });
+		  }
 		});
 		return;
 	}
@@ -21416,8 +21350,8 @@ buildpreview(f, onok, onerr, orientation, targ, afterload) {
 	}
 	const ctx = canv.getContext('2d', { alpha: false });
 	if (undefined !== targ) {
-		const sc = 120 / canv.height;
-		canv.style['width'] = '' + (sc*canv.width) + 'px';
+		const sc = 163 / canv.width;
+		canv.style['height'] = '' + (sc*canv.height) + 'px';
 	}
 	const reader = f.imbackextension ? f : new FileReader();
 	reader.onload = (evt) => {
@@ -21676,6 +21610,27 @@ initsettings() {
 	}
 	this.xlateall();
 }
+/* ImBCHtml: find in cache */
+findcache(url) {
+	let e;
+	if (url.url) {
+		e = url;
+		url = e.url;
+	}
+	const ii = this.#cache.findIndex((v) => (v.url === url));
+	if (ii !== -1) {
+		fx.data = this.#cache[ii].d;
+		fx.size = this.#cache[ii].l;
+		fx.readAsArrayBuffer = (fy) => {
+			fy.onload({
+				target: {
+					result: fy.data				}
+			});
+		};
+		return { reader: fx };
+	}
+	return undefined;
+}
 /* ImBCHtml: file/filereader like interface for imback http */
 // url can also be an imbele member
 resolver(url, preview, onok, onerr, notfirst) {
@@ -21736,7 +21691,7 @@ resolver(url, preview, onok, onerr, notfirst) {
 		xhr.onload = undefined;
 		xhr.ontimeout = undefined;
 		xhr.onabort = undefined;
-		window.setTimeout(() => {
+		setTimeout(() => {
 				onerr(url, fx, rot);
 		});
 	};
@@ -21765,97 +21720,18 @@ resolver(url, preview, onok, onerr, notfirst) {
 /* Indentation in - end of class ImBCHtml */
 }
 /* *************************************** Main class for HTML, forward E N D *************************************** */
-/* *************************************** Main class for HTML, backward *************************************** */
-class ImBCHtmlBackw extends ImBCHtmlOut {
-/* Indentation out */
-constructor() {
-	super();
-	this.imbcb = new ImBCBackw(this);
-	this.stepmode = 0;
-}
-/* ImBCHtmlBackw: browserdisplay: handler for file selection input */
-fselected() {
-	if (this.actnum !== this.allfiles.length) return;
-	const el = document.getElementById('infileb');
-	this.totnum = el.files.length;
-	this.actnum = 0;
-	this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
-	this.allfiles = el.files;
-	if (this.totnum > 0) {
-		this.appmsgxl(true, 'process.selectedn', this.totnum);
-		document.getElementById('imbdoit').disabled = true;
-		document.getElementById('droptarget').style['display'] = 'none';
-		document.getElementById('infileb').disabled = true;
-		this.handleonex();
-	}
-}
-/* ImBCHtmlBackw: browserdisplay: handler function for dropping OS files into the rect */
-drophandler(ev) {
-	if (this.actnum !== this.allfiles.length) return;
-    this.stepmode = 0;
-	ev.preventDefault();
-	this.allfiles = [];
-	this.actnum = 0;
-	if (ev.dataTransfer.items) {
-		this.totnum = [...ev.dataTransfer.items].length;
-		[...ev.dataTransfer.items].forEach((item/*, i*/) => {
-			if (item.kind === "file") {
-				this.allfiles.push(item.getAsFile());
-			}
-		});
-	} else {
-		this.totnum = [...ev.dataTransfer.files].length;
-		[...ev.dataTransfer.files].forEach((file/*, i*/) => {
-			this.allfiles.push(file);
-		});
-	}
-	this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
-	this.mappx(true, 'process.droppedn', this.totnum);
-	document.getElementById('imbdoit').disabled = true;
-	document.getElementById('imbvisbrows').disabled = true;
-	document.getElementById('droptarget').style['display'] = 'none';
-	document.getElementById('infileb').disabled = true;
-	this.handleonex();
-}
-/* ImBCHtmlBackw: browserdisplay: some handler on the drop rectangle */
-prevdef(ev) {
-	ev.preventDefault();
-}
-/* ImBCHtmlBackw: continue with the next file if any */
-handlenext(/*fromloop*/) {
-	if (this.actnum < this.allfiles.length - 1) {
-		this.actnum++;
-		this.handleonex();
-	} else {
-		this.actnum = 0;
-		this.allfiles = [];
-		if (!this.imbcb) this.shownormal();
-		if (this.stats.total > 0) {
-			this.appmsg('');
-			this.mappx(true, 'process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
-		}
-		document.getElementById('imbdoit').disabled = false;
-		document.getElementById('imbvisbrows').disabled = false;
-		document.getElementById('droptarget').style['display'] = '';
-		document.getElementById('infile').disabled = false;
-		document.getElementById('infileb').disabled = false;
-	}
-}
-/* Indentation in - end of class ImBCHtmlBackw */
-}
-/* *************************************** Main class for HTML, backward E N D *************************************** */
 /* outside of classes: */
 let imbc;
 /* onload of html body */
 function init() {
 	let backw = false;
-	if (ImBCBase.basename(window.location.pathname.toUpperCase()).indexOf('IMBDNG2RAW') !== -1) {
+	/*if (ImBCBase.basename(window.location.pathname.toUpperCase()).indexOf('IMBDNG2RAW') !== -1) {
 		backw = true;
 		imbc = new ImBCHtmlBackw();
 		for (const o of document.getElementsByClassName('onlywhenbackw')) o.style['display']='';
 		for (const o of document.getElementsByClassName('notwhenbackw')) o.style['display']='none';
 	}
-	else {
+	else*/ {
 		imbc = new ImBCHtml();
 		if (ImBCBase.basename(window.location.pathname.toUpperCase()).indexOf('IMBAPP') !== -1) {
 			imbc.appname = 'imbapp';
@@ -21879,11 +21755,11 @@ function init() {
 </head>
 <!-- here comes the html itself -->
 <body id="thebody" style="font-family: Helvetica, Arial, sans-serif;" onload="init();" lang="en">
-<div style="font-weight:bold;"><span class="notwhenbackw" data-myxlkey='main.title'> </span><span class="onlywhenbackw" style="display:none;" data-myxlkey='main.backw.title'> </span> <span id="mainversion"> </span> - 
+<div style="font-weight:bold;display:none;"><span class="notwhenbackw" data-myxlkey='main.title'> </span><span class="onlywhenbackw" style="display:none;" data-myxlkey='main.backw.title'> </span> <span id="mainversion"> </span> - 
  <a target="_new" data-myhrefxlkey="main.helplink" data-myxlkey='main.help'></a>
 <select id="langsel" onchange="imbc.setlang()" value="en"><option value="de" onclick="imbc.setlang()">DE</option><option value="en" selected onclick="imbc.setlang()">EN</option>
 <option value="ja" onclick="imbc.setlang()">JA</option><option value="fr" onclick="imbc.setlang()">FR</option><!--option value="ru" onclick="imbc.setlang()">RU</option--></select> <span class="notwhenbackw" data-myxlkey="main.newmsg"/></div>
-<br><div class="notwhenbackw"><span data-myxlkey="main.coloursyourrisk"> </span>&nbsp;<!--b style="background-color:#888888; text-shadow: 0.07em 0.12em 0 #FFFFFF;font-size:200%;">&#x26f6; &#x1f5d1; &#x2715;</b-->&nbsp;<br></div>
+<br><div class="notwhenbackw" style="display:none;"><span data-myxlkey="main.coloursyourrisk"> </span>&nbsp;<!--b style="background-color:#888888; text-shadow: 0.07em 0.12em 0 #FFFFFF;font-size:200%;">&#x26f6; &#x1f5d1; &#x2715;</b-->&nbsp;<br></div>
 <!-- the normal display -->
 <div id="normal" style="margin-top: 0.5em;">
 <div class="notwhenbackw"><input type="checkbox" id="steppreview" onchange="imbc.dirtysettings()" checked><label for="steppreview" data-myxlkey="process.singlestep"></label></div>
@@ -21944,13 +21820,16 @@ function init() {
 </div>
 <!-- end of normal preview with question -->
 <!-- this is the picture browser, generated content appended -->
-<div id="browser" style="background-color:#ffccbb;border: 5px solid #ff8833; border-radius: 10px;width: 90%;padding-left:2em;padding-right:2em;padding-top:1em; padding-bottom:1em;display:none;flex-direction:column;">
-<span id="browserx" style="position: fixed; right:9%;"><input type="button" value="&#x2715" style="font-weight: bold; font-size: 110%; border: 0.2px solid red; background-color: rgba(230,230,230,0.7);" onclick="imbc.shownormal()"></span>
-<div style="margin-bottom:1em;"><span data-myxlkey="main.sort"></span>: <label for="sbytype"><input type="checkbox" id="sbytype" onclick="imbc.buildtree()"><span data-myxlkey="browser.bytype"></span></label> - <label for="solder">
+<div id="browser" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
+<div style="position:fixed; top:0; width:100%;background-color:black;z-index:999;color:white;"><div>&nbsp;<span id="browserx"><input type="button" value="&#x2715;" style="font-weight: bold; font-size: 90%; border: 0.2px solid white;" onclick="imbc.shownormal()"></span>
+<input type="button" value="&#x1f5d1;" class="whbtn" onclick="imbc.browserdelete()" id="delselbut" disabled> <input type="button" value="&#x2b73;" class="whbtn" onclick="imbc.browserprocess()" id="doselbut" disabled> 
+<input type="button" value="&#x1f5ce;" class="whbtn"  id="logbut" disabled>
+<input type="button" value="&#x2699;" class="whbtn"  id="settbut" disabled></div>
+<div style="margin-bottom:0.3em;">&nbsp;<span data-myxlkey="main.sort" style="display:none;"></span> <label for="sbytype"><input type="checkbox" id="sbytype" onclick="imbc.buildtree()"><span data-myxlkey="browser.bytype"></span></label> - <label for="solder">
 <input type="checkbox" id="solder" onclick="imbc.buildtree()"><span data-myxlkey="browser.olderfirst"></span></label>
- - <span data-myxlkey="main.selected"></span>: <span id="brnsel" class="selnumber">?</span> / <span id="brntot">?</span> - <label for="selall" data-mytitlexlkey="browser.selall.tooltip">
- <input onclick="imbc.topreccheck()" type="checkbox" id="selall"><span data-myxlkey="browser.selall"></span></label> - <input type="button" data-myvalxlkey="browser.procall" onclick="imbc.browserprocess()" id="doselbut"> - 
- <input type="button" data-myvalxlkey="browser.delall" onclick="imbc.browserdelete()" id="delselbut" disabled></div> 
+ <span id="brnsel" class="selnumber">?</span> / <span id="brntot">?</span> - <label for="selall" data-mytitlexlkey="browser.selall.tooltip">
+ <input onclick="imbc.topreccheck()" type="checkbox" id="selall"><!--span data-myxlkey="browser.selall"></span--></label><!-- - --> 
+ </div> </div>
 </div>
 <!-- end of the picture browser, generated content appended -->
 <!-- this is the delete question/progress -->
@@ -21964,8 +21843,9 @@ function init() {
 <!-- debug -->
 <div id="debugonly" style="display:none;">
 Visual Browser Cache Size: <input type="number" onchange="imbc.chgcache()" id="dbgcache" style="width: 5em;"><br>
-Debugging: <input type="file" onchange="imbc.dodebug()" accept=".html,.htm" id="dbgfsel">
-Replaceraw: <input type="file" onchange="imbc.replraw()" accept=".raw,.RAW" id="dbgreplraw">
+Debugging: <input type="file" onchange="imbc.dodebug()" accept=".html,.htm,.xml" id="dbgfsel">
+Replaceraw: <input type="file" onchange="imbc.replraw()" accept=".raw,.RAW" id="dbgreplraw"><!--br>
+<span style="font-weight: bold;">&#x1f5c9; &#x1f5ce; &#x1f5cf; &#x1f5c4; &#x33d2; &#x2699;</span> <span>&#x1f5c9; &#x1f5ce; &#x1f5cf; &#x1f5c4; &#x33d2; &#x2699;</span--> 
 </div>
 <!-- this is invisible -->
 <a style="display: none;" id="result">x</a>
@@ -21978,29 +21858,24 @@ Replaceraw: <input type="file" onchange="imbc.replraw()" accept=".raw,.RAW" id="
 			</label>
 		</div>
 		<div class="errimg" style="display:none;">X</div>
-		<img class="eejpg" style="display:none; height: 120px;">
+		<img class="eejpg" style="display:none; height: 90px;">
 		<!--div class="eepvx">?</div-->
-		<canvas class="eeraw" style="height: 120px; display:none;"></canvas>
+		<canvas class="eeraw" style="width: 163px; display:none;"></canvas>
 		<div class="waitdiv">
 			<span class="blink">.</span><span class="blink2">.</span><span class="blink3">.</span>
 		</div>
 		<div class="btnsrow">
-			<span class="biggiebtn bigbtn" style="left: 0.4em;">⛶</span>
+			<!--span class="biggiebtn bigbtn" style="left: 0.4em;">⛶</span-->
 			<span class="dlbtn biggiebtn" style="font-size: 133%;">↓</span>
-			<span class="biggiebtn rotbtn" style="left: 2.4em;">↷</span>
+			<span class="biggiebtn rotbtn" style="left: 0.6em;">↷</span>
 		</div>
 	</div>
 </template>
 <template id="titlet">
-	<div class="ggtt ggttclosed titletop">
-		<span class="ggttplus ggttp">[+]</span><span class="ggttplus ggttpp"></span><span class="ggttminus ggttm">[‒]</span><span class="ggttminus ggttmm"> </span>
-		<span class="gtype" style="display: none;"></span><span class="grtit"></span> - 
-		<span data-myxlkey="main.selected"></span>: 
-		<span class="selnumber">0</span> / <span class="totno"></span> - 
-		<label>
-			<input type="checkbox" class="selcb">
-			<span data-myxlkey="browser.selall" data-mytitlexlkey="browser.selall.tooltip"></span>
-		</label>
+	<div class="ggtt ggttopen titletop">
+		<span class="ggttplus ggttp">&#x25b6;</span><span class="ggttminus ggttm">&#x25bc;</span>
+		<span class="gtype" style="display: inline;"></span><span class="grtit"></span>
+		<span class="selnumber">0</span> / <span class="totno"></span><input type="checkbox" class="selcb" data-mytitlexlkey="browser.selall.tooltip">
 	</div>
 </template>
 </body>
