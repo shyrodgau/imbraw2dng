@@ -21331,7 +21331,7 @@ buildpreview(f, onok, onerr, orientation, targ, afterload) {
 		  	  let cachehit;
 		  	  if ((cachehit = this.findcache(f.url ? f.url :f))) {
 		  	  	  this.workerstate = { cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :f), o: orientation, onok: onok, onerr: onerr, t: targ };
-		  	  	  this.previewworker.postMessage({ cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :f), o: orientation });
+		  	  	  this.previewworker.postMessage({ cmd: 'previewfromcache', c: { n: cachehit.url, d: cachehit.d, l: cachehit.l} , n: (f.url ? f.url :f), o: orientation });
 		  	  	  // onmessage: { pix: array, c: cache, n: name, o: orientation }
 		  	  	  // ctx.putImageData(new ImageData(outpix, transpose ? h8: w8, transpose? w8 :h8), 0, 0); onok(f)
 		  	  } else {
@@ -21660,7 +21660,7 @@ findcache(url) {
 					result: fy.data				}
 			});
 		};
-		return { reader: fx };
+		return { url: url, reader: fx, d: this.#cache[ii].d, l: this.#cache[ii].l };
 	}
 	return undefined;
 }
@@ -21951,7 +21951,7 @@ function init() {
 <!-- this is the download progress -->
 <div id="dlprogress" style="border: 5px solid grey; border-radius: 20px; padding: 20px;display:none;width:fit-content;">
 <div style="font-weight:bold;" id="progmsg"></div>
-<input id="progokbut" type="button" data-myvalxlkey="del.question.ok" onclick="imbc.showbrowser() disabled">
+<input id="progokbut" type="button" data-myvalxlkey="del.question.ok" onclick="imbc.showbrowser()" disabled>
 </div>
 <!-- end of the download progress -->
 <!-- debug -->

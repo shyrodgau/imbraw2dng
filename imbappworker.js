@@ -16,7 +16,7 @@ onmessage = (e) => {
  	  	// onmessage: { pix: array, n: name, o: orientation, c: cacheentry }
 		break;
 	case 'previewfromcache':
-		buildpreview(e.data.c, e.data.o);
+		buildpreviewcache(e.data.c, e.data.o);
 		// this.previewworker.postMessage({ cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :f), o: orientation });
 		// onmessage: { pix: array, c: cache, n: name, o: orientation }
 		break;
@@ -239,6 +239,31 @@ buildpreview = (f, orientation) => {
 		postMessage({ cmd: cmd, ok: false, n: name });
 	};
 	reader.readAsArrayBuffer(f);
+}
+/* WORKER: browserdisplay: build preview from cache */
+// orientation: 1: norm, 3: rot 180, 6 rot 90 CW, 8: rot 270 CCW
+buildpreviewcache = (f, orientation) => {
+	let w, h, typ;
+	const zz = infos.findIndex(v => v.size === f.l);
+	if (zz === -1) {
+		console.log('preview: unsupported size ' + f.l + ' of ' + f.n);
+		postMessage({ cmd: cmd, ok: false, n: name });
+		return;
+	}
+	w = infos[zz].w;
+	typ = infos[zz].typ;
+	h = infos[zz].h;
+
+	const w8 = Math.floor((w+7)/8);
+	const h8 = Math.floor((h+7)/8);
+	const contents = f.d;
+	const view = new DataView(contents);
+	const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : getwb(view, zz);
+	let transpose = false;
+	console.log(JSON.stringify(wb));
+	let outpix = buildpvarray(view, typ, w, h, orientation, false, wb);
+	// onmessage: { pix: array, n: name, o: orientation, c: cacheentry }
+	postMessage({ cmd: cmd, pix: outpix, n: name, o: ori, c: cache });
 }
 /* WORKER: get white balance */
 getwb = (view, typidx) => {
