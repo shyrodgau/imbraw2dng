@@ -113,6 +113,7 @@ body { margin: 0; }
 	display: inline-block;
 	width: 2em;
 	text-align: end;
+	font-weight: bold;
 }
 .btnsrow { position: absolute; top: 1.5em; left: 0.1em; height: 1em; width: 2em; background-color: rgba(200,200,180,0.4); }
 div[data-state='load'] .btnsrow, div[data-state='wait'] .btnsrow, div[data-state='err'] .btnsrow { display: none; }
@@ -18928,9 +18929,9 @@ findlang(i) {
 			break;
 		}
 	}
-	if ('zZ' === i || ('00' === this.mylang && document && window?.location.href.startsWith('http://127.0.0.1:8889'))) {
+	if ('zZ' === i || ('00' === this.mylang && document && window?.location.href.startsWith('http://127.0.0.1'))) {
 		this.mylang = 'en';
-		this.imbweb = 'http://127.0.0.1:8889';
+		this.imbweb = window.location.origin;
 	}
 	else if (!found) {
 		this.mylang = 'en';
@@ -18938,6 +18939,7 @@ findlang(i) {
 	}
 	else if ('00' === this.mylang)
 		this.debugflag = true;
+	if (this.previewworker) this.previewworker.postMessage({ cmd: 'seturl', url: this.imbweb });
 	return this.mylang;
 }
 /* ImBCBase: extract exif from jpeg */
@@ -19071,13 +19073,13 @@ handleone(orientation, fromloop) {
 		setTimeout(() => {
 		  if (this.previewworker) {
 		  	  let cachehit;
-		  	  if ((cachehit = this.findcache(f.name))) {
+		  	  if ((cachehit = this.findcache(f.name ? f.name : f))) {
 		  	  	  this.allfiles[this.actnum] = cachehit.reader;
 		  	  	  this.handleone(orientation, fromloop);
 		  	  	  // nope this.previewworker.postMessage({ cmd: 'handlefromcache', c: cachehit, n: f.name, o: orientation, fl: fromloop });
 		  	  } else {
-		  	  	  this.previewworker.postMessage({ cmd: 'resolveandhandle', n: f.name, o: orientation, fl: fromloop });
-		  	  	  // onmessage: { o: orientation, fl: fromloop, c: cacheentry }
+		  	  	  this.previewworker.postMessage({ cmd: 'resolveandhandle', n: (f.name ? f.name : f), o: orientation, fl: fromloop });
+		  	  	  // onmessage: { ok?, n: f.name, o: orientation, fl: fromloop, c: cacheentry }
 		  	  	  // set allfiles[this.actnum] to cacheentry.reader and call handleone(o, fl)
 		  	  	  // add cache
 		  	  }
@@ -20153,25 +20155,27 @@ checkchecks() {
 /* *************************************** Main class for HTML, forward *************************************** */
 class ImBCHtml extends ImBCHtmlOut {
 /* Indentation out */
+rotphases = [ '|' , '/', '-', '\\' ]; // actually const
 writestream = null;
 zipdata = null;
 zip = null;
 zipname = '';
 ziperr = false;
+previewworker = null;
+workerstate = {};
 constructor() {
 	super();
-	let scripttext = `onmessage = (e) => {
-		console.log('worker got ' + JSON.stringify(e.data));
-			postMessage('Blah ' + e.data) 
-	};`;
-	let worker = new Worker('data:text/javascript;base64,' + btoa(scripttext));
-	worker.onmessage = function(e) {
-		console.log('f: ' + JSON.stringify(e.data));
+	let scripttext = Array.prototype.map.call(
+          document.querySelectorAll("script[type='text\/js-previewworker']"),
+          (script) => script.textContent,
+        );
+	this.previewworker = new Worker('imbappworker.js');
+	this.previewworker.onmessage = (e) => {
+		this.workermsg(e);
 	}
-	worker.onerror = (e) => {
+	this.previewworker.onerror = (e) => {
 		console.log('EE ' + JSON.stringify(e));
 	}
-	worker.postMessage('blubber');
 }
 // from the back itself
 #maxcache = 30; // max. length of cache for already downloaded raw data - you may increase or decrease this
@@ -20179,7 +20183,7 @@ constructor() {
 #loaderrunning=false; // currently handled browser raw preview download
 #fromvisbrows = false;
 /* deleting */
-#deletephase = 0;
+#rotphase = 0;
 
 /* ImBCHtml: browserdisplay: copyright checkbox change */
 chgcopycheck() {
@@ -20251,6 +20255,8 @@ showbrowser() {
 	document.getElementById('browser').style['display'] = '';
 	quest.style['display'] = 'none';
 	norm.style['display'] = 'none';
+	document.getElementById('progokbut').disabled = true;
+	document.getElementById('dlprogress').style['display'] = 'none';
 	window.onscroll = () => this.#startloadimg();
 	window.onresize = () => this.#startloadimg();
 	this.#startloadimg();
@@ -20378,11 +20384,11 @@ aftercheck() {
 	}
 	// non-typed upgraded to gl1, unless only one
 	if (this.untypedclasses.filter((o) => o.level === this.maxcl).length === 1 && this.untypedclasses.filter((o) => o.level === this.maxcl)[0].smembers) {
-		const t = this.untypedclasses.filter((o) => o.level === 2)[0];
+		const t = this.untypedclasses.filter((o) => o.level === this.maxcl)[0];
 		this.untypedclasses.splice(0,1);
 		for (const s of t.smembers) {
 			s.entry.classList.add('gl1');
-			s.level = 2;
+			s.level = this.maxcl;
 			this.untypedclasses.push(s);
 		}
 	} else
@@ -20393,9 +20399,9 @@ aftercheck() {
 	if (document) {
 		document.getElementById('brnsel').innerHTML = '0';
 		document.getElementById('brntot').innerHTML = '' + this.imbeles.length;
+		if (this.appname === 'imbapp') this.showbrowser();
 		this.buildtree();
 	}
-	this.showbrowser();
 	/* debug * /
 	if (debugflag) {
 		for (const s of untypedclasses.filter((o) => o.level === 2)) prgr(s,1);
@@ -20407,11 +20413,9 @@ buildtree() {
 	let list, toplevel;
 	if (document.getElementById('sbytype').checked) {
 		list = this.typedclasses;
-		toplevel = this.maxcl;
 	}
 	else {
 		list = this.untypedclasses;
-		toplevel = this.maxcl;
 	}
 
 	// first, make everything empty
@@ -20432,9 +20436,10 @@ buildtree() {
 	//for (const e of list.filter((o) => o.level === toplevel).sort((a,b) => this.#mysort(a, b))) {
 	for (const e of list.sort((a,b) => this.#mysort(a, b))) {
 		document.getElementById('browser').append(e.entry);
-		this.#doopen(e, true);
+		this.#doopen(e, true, true);
 		this.#addsorted(e);
 	}
+	this.#startloadimg();
 	this.xlateall();
 }
 /* ImBCHtml: visual browser: find next to load */
@@ -20509,9 +20514,18 @@ buildtree() {
 }
 /* ImBCHtml: visual browser: sort helper */
 #mysort(a, b) {
+	let at = a.title, bt = b.title;
 	const fact = document.getElementById('solder').checked ? 1 : -1
-	if (a.title > b.title) return fact;
-	else if (a.title < b.title) return -1 * fact;
+	if (a.title.startsWith('oth') && !b.title.startsWith('oth')) return -1;		// oR oJ
+	else if (b.title.startsWith('oth') && !a.title.startsWith('oth')) return 1;	// Ro Jo
+	else if (a.title.startsWith('JPG') && b.title.startsWith('RAW')) return 1;	// (Jo) JR
+	else if (b.title.startsWith('JPG') && !a.title.startsWith('JPG')) return -1;	// (oJ) RJ
+	else if (a.title.startsWith('JPG') || a.title.startsWith('RAW') || a.title.startsWith('oth')) {
+		at = a.title.substring(3);
+		bt = b.title.substring(3);
+	}
+	if (at > bt) return fact;
+	else if (at < bt) return -1 * fact;
 	else return 0;
 }
 /* ImBCHtml: visual browser: sort helper */
@@ -20660,6 +20674,8 @@ topreccheck(force) {
 	for (const u of arr.filter((o) => o.level === curlevel)) {
 		if (u.ischild) continue;
 		if (arr.filter((o) => u.title.substring(0,len) === o.title.substring(0,len)).length === 1) {
+			//if (u.title.indexOf('2023_03_14') !== -1)
+				console.log(u.title);
 			u.level --;
 			u.title = u.title.substring(0,len);
 			u.entry.classList.add('gl' + u.level);
@@ -20971,51 +20987,55 @@ browserdelete() {
 	document.getElementById('delcancelbut').disabled = false;
 }
 /* ImBCHtml: visual browser: do delete */
-dodelete(list) {
-	const deletephs = [ '|' , '/', '-', '\\' ];
+dodelete(list, status) {
 	if (list === undefined && this.imbeles.filter((o) => o.selected).length === 0) {
 		this.delcancel();
 		return;
 	}
-	else if (list === undefined) {
+	else if (list === undefined && this.#rotphase !== -1) {
 		document.getElementById('delokbut').disabled = true;
 		document.getElementById('delcancelbut').disabled = true;
-		this.dodelete(this.imbeles.filter((o) => o.selected));
-		this.#deletephase=0;
-		document.getElementById('delprogmsg').innerHTML = deletephs[this.#deletephase];
+		this.dodelete(this.imbeles.filter((o) => o.selected), { no: this.imbeles.filter((o) => o.selected).length, ok: 0, err: 0 });
+		this.#rotphase=0;
+		document.getElementById('delprogmsg').innerHTML = this.rotphases[this.#rotphase];
 		return;
-	} else if (list.length > 0) {
-		let xhr = new XMLHttpRequest();
-		xhr.onload = () => {
-			this.#deletephase ++;
-			document.getElementById('delprogmsg').innerHTML = deletephs[this.#deletephase % deletephs.length];
-			list[0].selected = false;
-			if (list[0].entry) list[0].entry.querySelector('.selcb').checked = false;
-			const pv = list[0].preview;
-			if (pv)
-				pv.classList.add('picdeleted');
-			if (pv?.parentElement)
-				pv.parentElement.classList.add('picdeleted');
-			list.splice(0,1);
-			this.dodelete(list);
-			xhr.onerror = undefined;
-			xhr.onload = undefined;
-			xhr.ontimeout = undefined;
-			this.#updateselections();
-		};
-		xhr.onerror = xhr.onload;
-		xhr.ontimeout = xhr.onload;
-		xhr.open('GET',list[0].url + '?del=1');
-		xhr.send();
-	} else {
-		alert(this.xl('del.reload'));
+	} else if (list === undefined) {
 		this.delcancel();
+		this.#rotphase = 0;
+		document.getElementById('delprogmsg').innerHTML = '';
+	} else if (list.length > 0) {
+		this.custcmd(4003, 'document', 'str=' + list[0].url, (res) => {
+			this.#rotphase ++;
+			document.getElementById('delprogmsg').innerHTML = this.rotphases[this.#rotphase % this.rotphases.length];
+			if (0 <= res) {
+				status.ok++;
+				list[0].selected = false;
+				if (list[0].entry) list[0].entry.querySelector('.selcb').checked = false;
+				const pv = list[0].preview;
+				if (pv)
+					pv.classList.add('picdeleted');
+				if (pv?.parentElement)
+					pv.parentElement.classList.add('picdeleted');
+				this.#updateselections();
+			} else {
+				status.err++;
+			}
+			list.splice(0,1);
+			this.dodelete(list, status);
+		});
+	} else {
+		document.getElementById('delprogmsg').innerHTML = this.xl('process.totals', status.no, status.ok, 0, status.err);
+		document.getElementById('delokbut').disabled = false;
+		document.getElementById('delcancelbut').disabled = false;
+		this.#rotphase = -1;
 	}
 }
 /* ImBCHtml: visual browser: cancel the delete */
 delcancel() {
 	document.getElementById('delq').style['display'] = 'none';
 	document.getElementById('browser').style['display'] = '';
+	this.#rotphase = 0;
+	document.getElementById('delprogmsg').innerHTML = '';
 }
 /* ImBCHtml: visual browser: process browser selected */
 browserprocess() {
@@ -21048,7 +21068,10 @@ browserprocess() {
 		document.getElementById('imbvisbrows').disabled = true;
 		document.getElementById('droptarget').style['display'] = 'none';
 		document.getElementById('infile').disabled = true
-		this.shownormal();
+		this.#rotphase = 1;
+		this.#fromvisbrows = true;
+		document.getElementById('dlprogress').style['display'] = '';
+		document.getElementById('browser').style['display'] = 'none';
 		this.#startloadimg();
 		this.topreccheck(false);
 	} else {
@@ -21306,13 +21329,15 @@ buildpreview(f, onok, onerr, orientation, targ, afterload) {
 		window.setTimeout(() => {
 		  if (this.previewworker) {
 		  	  let cachehit;
-		  	  if ((cachehit = this.findcache(f.url ? f.url :f.name))) {
-		  	  	  this.previewworker.postMessage({ cmd: 'previewfromcache', c: cachehit, n: f.name, o: orientation, onok: onok, onerr: onerr, t: targ });
-		  	  	  // onmessage: { pix: array, o: orientation, t: targ, onok, onerr }
+		  	  if ((cachehit = this.findcache(f.url ? f.url :f))) {
+		  	  	  this.workerstate = { cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :f), o: orientation, onok: onok, onerr: onerr, t: targ };
+		  	  	  this.previewworker.postMessage({ cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :f), o: orientation });
+		  	  	  // onmessage: { pix: array, c: cache, n: name, o: orientation }
 		  	  	  // ctx.putImageData(new ImageData(outpix, transpose ? h8: w8, transpose? w8 :h8), 0, 0); onok(f)
 		  	  } else {
-		  	  	  this.previewworker.postMessage({ cmd: 'resolveandpreview', n: f.name, o: orientation, onok: onok, onerr: onerr, t: targ });
-		  	  	  // onmessage: { pix: array, o: orientation, t: targ, onok, onerr, c: cacheentry }
+		  	  	  this.workerstate = { cmd: 'resolveandpreview', c: cachehit, n: (f.url ? f.url :f), o: orientation, onok: onok, onerr: onerr, t: targ };
+		  	  	  this.previewworker.postMessage({ cmd: 'resolveandpreview', n: (f.url ? f.url :f), o: orientation });
+		  	  	  // onmessage: { pix: array, n: name, o: orientation, c: cacheentry }
 		  	  	  // ctx.putImageData(new ImageData(outpix, transpose ? h8: w8, transpose? w8 :h8), 0, 0); onok(f); add cache
 		  	  }
 		  } else {
@@ -21479,15 +21504,18 @@ handlenext(fromloop) {
 			this.afterfinish();
 			if (this.#fromvisbrows) {
 				this.#fromvisbrows = false;
-				setTimeout(() => {
-						this.showbrowser();
-						this.#startloadimg();
-				}, 1000);
+				document.getElementById('progokbut').disabled = false;
+				document.getElementById('progmsg').innerHTML = this.xl('process.totals', this.stats.total, this.stats.ok, 0, this.stats.error);
 			} else {
 				this.shownormal();
 			}
 		}
 		else {
+			if (this.#fromvisbrows) {
+				document.getElementById('progmsg').style['display'] = '';
+				this.#rotphase ++;
+				document.getElementById('progmsg').innerHTML = this.rotphases[this.#rotphase % this.rotphases.length];
+			}
 			this.actnum++;
 		}
 		this.#loadnextimg();
@@ -21534,7 +21562,7 @@ custcmd(cmd, type, restargs, cb) {
 	xhr.onerror = (/*event*/) => {
 		cb(-2);
 	};
-	if (this.debugflag)
+	if (this.imbweb.startsWith('http://127.0.0'))
 		xhr.open('GET', '/i' + thecmd + '.xml');
 	else
 		xhr.open('GET', '/?custom=1&cmd=' + thecmd + (therest ? ('&'  + therest): ''));
@@ -21615,8 +21643,13 @@ findcache(url) {
 	let e;
 	if (url.url) {
 		e = url;
-		url = e.url;
+		url = ImBCBase.basename(e.url);
 	}
+	else url = ImBCBase.basename(url);
+	let fx = {
+		imbackextension: true,
+		name: url
+	};
 	const ii = this.#cache.findIndex((v) => (v.url === url));
 	if (ii !== -1) {
 		fx.data = this.#cache[ii].d;
@@ -21630,6 +21663,11 @@ findcache(url) {
 		return { reader: fx };
 	}
 	return undefined;
+}
+/* ImBCHtml: add to cache */
+addcache(name, entry) {
+	this.#cache.push({ url: ImBCBase.basename(name), d: entry.data, l: entry.len });
+	if (this.#cache.length > this.#maxcache) this.#cache.splice(0,1);
 }
 /* ImBCHtml: file/filereader like interface for imback http */
 // url can also be an imbele member
@@ -21717,6 +21755,73 @@ resolver(url, preview, onok, onerr, notfirst) {
 		});
 	}
 }
+/* ImBCHtml: worker on message */
+workermsg(msg) {
+	const d = msg.data;
+	switch (d.cmd) {
+	case 'resolveandhandle':
+		// onmessage: { ok?, n: f.name, o: orientation, fl: fromloop, c: cacheentry }
+		if (d.ok) {
+			this.allfiles[this.actnum] = d.c.reader;
+			this.addcache(d.n, d.c);
+			this.handleone(d.o, d.fl);
+		} else {
+			this.mappx(false, 'words.sorryerr');
+			this.mappx(true, 'process.erraccess', d.n);
+			this.stats.error ++;
+			if (undefined !== this.exitcode) this.exitcode++;
+			this.handlenext(d.fl);
+		}
+		break;
+	case 'resolveandpreview':
+		// onmessage: { pix: array, n: name, o: orientation, t: targ, onok, onerr, c: cacheentry }
+		if (d.pix) this.addcache(d.n, d.c);
+		// no break
+	case 'previewfromcache':
+		// onmessage: { pix: array, c: cache, n: name, o: orientation, t: targ, onok, onerr }
+		if (d.pix) {
+			const f = this.findcache(d.n).reader;
+			const zz = ImBCBase.infos.findIndex(v => v.size === f.size);
+			if (zz === -1) {
+				console.log('preview: unsupported size ' + f.size + ' of ' + f.name);
+				this.workerstate.onerr(f);
+				return;
+			}
+			let w = ImBCBase.infos[zz].w;
+			let typ = ImBCBase.infos[zz].typ;
+			let h = ImBCBase.infos[zz].h;
+		
+			let canv;
+			if (undefined !== this.workerstate.t)
+				canv = this.workerstate.t;
+			else
+				canv = document.getElementById('preview');
+			const w8 = Math.floor((w+7)/8);
+			const h8 = Math.floor((h+7)/8);
+			canv.width = w8;
+			canv.height = h8;
+			if (d.o === 6 || d.o === 8) {
+				canv.width = h8;
+				canv.height = w8;
+			}
+			const ctx = canv.getContext('2d', { alpha: false });
+			if (undefined !== this.workerstate.t) {
+				const sc = 163 / canv.width;
+				canv.style['height'] = '' + (sc*canv.height) + 'px';
+			}
+			let transpose = false;
+			const outpix = d.pix;
+			if (d.o === 6 || d.o === 8) {
+					transpose = true;
+			}
+			ctx.putImageData(new ImageData(outpix, transpose ? h8: w8, transpose? w8 :h8), 0, 0);
+			this.workerstate.onok(f);
+		} else {
+			this.workerstate.onerr(d.n);
+		}
+		break;
+	}
+}
 /* Indentation in - end of class ImBCHtml */
 }
 /* *************************************** Main class for HTML, forward E N D *************************************** */
@@ -21752,6 +21857,10 @@ function init() {
 	if (!backw) imbc.checkimb();
 }
 </script>
+<!-- WORKER -->
+<script type="text/js-previewworker" language="javascript">
+</script>
+<!-- WORKER END -->
 </head>
 <!-- here comes the html itself -->
 <body id="thebody" style="font-family: Helvetica, Arial, sans-serif;" onload="init();" lang="en">
@@ -21836,10 +21945,15 @@ function init() {
 <div id="delq" style="border: 5px solid red; border-radius: 20px; padding: 20px;display:none;width:fit-content;">
 <span id="del_text" data-myxlarg0="0" data-myxlkey="del.question"></span><br>
 <input id="delcancelbut" type="button" data-myvalxlkey="del.question.cancel" onclick="imbc.delcancel()"> - <input id="delokbut" type="button" data-myvalxlkey="del.question.ok" onclick="imbc.dodelete()"><br>
-<span data-myxlkey="del.nostatus"></span><br>
-<div id="delprogmsg"></div>
+<div style="font-weight:bold;" id="delprogmsg"></div>
 </div>
 <!-- end of the delete question/progress -->
+<!-- this is the download progress -->
+<div id="dlprogress" style="border: 5px solid grey; border-radius: 20px; padding: 20px;display:none;width:fit-content;">
+<div style="font-weight:bold;" id="progmsg"></div>
+<input id="progokbut" type="button" data-myvalxlkey="del.question.ok" onclick="imbc.showbrowser() disabled">
+</div>
+<!-- end of the download progress -->
 <!-- debug -->
 <div id="debugonly" style="display:none;">
 Visual Browser Cache Size: <input type="number" onchange="imbc.chgcache()" id="dbgcache" style="width: 5em;"><br>
