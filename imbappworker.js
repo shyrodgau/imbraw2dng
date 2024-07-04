@@ -1,6 +1,6 @@
 let cmd, name, cache, ori, fl, base;
 onmessage = (e) => {
-	console.log(JSON.stringify(e.data));
+	//console.log(JSON.stringify(e.data));
 	name = e.data.n;
 	cmd = e.data.cmd;
 	ori = e.data.o;
@@ -57,6 +57,7 @@ resolver = (url, preview, notfirst) => {
 		xhr.onabort = undefined;
 		if (notfirst) {
 			if (!preview) {
+				//console.log('POSTING ' + url);
 				postMessage({ cmd: cmd, ok: true, n: url, o: ori, fl: fl, c: cache });
 			}
 			else {
@@ -66,7 +67,7 @@ resolver = (url, preview, notfirst) => {
 	};
 	xhr.onerror = (evt, typ) => {
 		if (undefined === typ) typ = 'err';
-		console.log('XHR err (createfx, ' + typ + ') for ' + url + ' readyState:' + xhr.readyState + ' http status:' + xhr.status + ' text: ' + xhr.statusText);
+		console.log('WORKER XHR err (createfx, ' + typ + ') for ' + url + ' readyState:' + xhr.readyState + ' http status:' + xhr.status + ' text: ' + xhr.statusText);
 		xhr.onerror = undefined;
 		xhr.onload = undefined;
 		xhr.ontimeout = undefined;
@@ -74,7 +75,6 @@ resolver = (url, preview, notfirst) => {
 		postMessage({ cmd: cmd, ok: false, n: name });
 	};
 	xhr.onabort = (evt) => { xhr.onerror(evt, 'abort'); };
-	xhr.mozSystem = true;
 	xhr.ontimeout = (evt) => { xhr.onerror(evt, 'timeout'); };
 	if (notfirst && preview && (url.substring(url.length -4).toUpperCase() !== '.RAW')) {
 		xhr.open('GET', base + adjurl(url) +'?custom=1&cmd=4001');
@@ -82,15 +82,15 @@ resolver = (url, preview, notfirst) => {
 		//fetch(base + adjurl(url), { mode: 'no-cors' }).then((rs) => {
 		//		console.log('RRR ' + url + ' ' + JSON.stringify(rs.url));
 		//});
-		xhr.open('GET', base + adjurl(url));
+		xhr.open(notfirst ? 'GET' : 'HEAD', base + adjurl(url));
 	}
-	//xhr.setRequestHeader('Cache-control','max-stale');
+	xhr.setRequestHeader('Cache-control','max-stale');
 	xhr.responseType = 'arraybuffer';
 	xhr.timeout = (!notfirst || notfirst < 10000000) ? 30000 : Math.round(notfirst / 600);
 	try {
 		xhr.send();
 	} catch (e) {
-		console.log('XHR send exception (createfx) for ' + url + ' ' + e.toString());
+		console.log('WORKER XHR send exception (createfx) for ' + url + ' ' + e.toString());
 		xhr.onerror = undefined;
 		xhr.onload = undefined;
 		xhr.ontimeout = undefined;
@@ -213,8 +213,8 @@ buildpreview = (f, orientation) => {
 	let w, h, typ;
 	const zz = infos.findIndex(v => v.size === f.size);
 	if (zz === -1) {
-		console.log('preview: unsupported size ' + f.size + ' of ' + f.name);
-		onerr(f);
+		console.log('WORKER preview: unsupported size ' + f.size + ' of ' + f.name);
+		postMessage({ cmd: cmd, ok: false, n: name });
 		return;
 	}
 	w = infos[zz].w;
@@ -235,7 +235,7 @@ buildpreview = (f, orientation) => {
 		postMessage({ cmd: cmd, pix: outpix, n: name, o: ori, c: cache });
 	};
 	reader.onerror = (/*evt*/) => {
-		console.log('preview: error reading ' + f.name);
+		console.log('WORKER preview: error reading ' + f.name);
 		postMessage({ cmd: cmd, ok: false, n: name });
 	};
 	reader.readAsArrayBuffer(f);
@@ -246,7 +246,7 @@ buildpreviewcache = (f, orientation) => {
 	let w, h, typ;
 	const zz = infos.findIndex(v => v.size === f.l);
 	if (zz === -1) {
-		console.log('preview: unsupported size ' + f.l + ' of ' + f.n);
+		console.log('WORKER preview: unsupported size ' + f.l + ' of ' + f.n);
 		postMessage({ cmd: cmd, ok: false, n: name });
 		return;
 	}
@@ -386,6 +386,7 @@ adjurl = (url) => {
 	}
 	return n;
 }
+/* WORKER image formats */
 infos = [ // actually const
 	{
 		size: 14065920,
