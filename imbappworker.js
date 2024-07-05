@@ -225,11 +225,12 @@ buildpreview = (f, orientation) => {
 	const h8 = Math.floor((h+7)/8);
 	const reader = f.imbackextension ? f : new FileReader();
 	reader.onload = (evt) => {
+		postMessage({ cmd: 'afterload' });
 		const contents = evt.target.result;
 		const view = new DataView(contents);
 		const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : getwb(view, zz);
 		let transpose = false;
-		console.log(JSON.stringify(wb));
+		console.log('WOrKER ' + JSON.stringify(wb));
 		let outpix = buildpvarray(view, typ, w, h, orientation, false, wb);
 		// onmessage: { pix: array, n: name, o: orientation, c: cacheentry }
 		postMessage({ cmd: cmd, pix: outpix, n: name, o: ori, c: cache });

@@ -19811,6 +19811,10 @@ appmsgxl(opt, msg, arg0, arg1, arg2, arg3) {
 		msgel.innerHTML += '<br>';
 	if (opt === true)
 		msgel.innerHTML += '<br>&nbsp;<br>';
+	let logbt = document.getElementById('logbut');
+	if (logbt) {
+		logbt.disabled = false;
+	}
 }
 /* ImBCHtmlOut: translate one element */
 xl1(el) {
@@ -20162,7 +20166,7 @@ zip = null;
 zipname = '';
 ziperr = false;
 previewworker = null;
-workerstate = {};
+workerstate = [];
 constructor() {
 	super();
 	let scripttext = Array.prototype.map.call(
@@ -20261,6 +20265,16 @@ showbrowser() {
 	window.onscroll = () => this.#startloadimg();
 	window.onresize = () => this.#startloadimg();
 	this.#startloadimg();
+	document.getElementById('msglog').style['display'] = 'none';
+}
+/* ImBCHtml: show message log */
+showlog() {
+	const norm = document.getElementById('normal');
+	const quest = document.getElementById('question');
+	document.getElementById('browser').style['display'] = 'none';
+	quest.style['display'] = 'none';
+	norm.style['display'] = 'none';
+	document.getElementById('msglog').style['display'] = '';
 }
 /* ImBCHtml: visual browser: prepare the browser display, group the stuff */
 aftercheck() {
@@ -21305,12 +21319,12 @@ buildpreview(f, onok, onerr, orientation, targ, afterload) {
 		  if (this.previewworker) {
 		  	  let cachehit;
 		  	  if ((cachehit = this.findcache(f.url ? f.url :f))) {
-		  	  	  this.workerstate = { cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :f), o: orientation, onok: onok, onerr: onerr, t: targ };
+		  	  	  this.workerstate.push({ cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :f), o: orientation, onok: onok, onerr: onerr, t: targ });
 		  	  	  this.previewworker.postMessage({ cmd: 'previewfromcache', c: { n: cachehit.url, d: cachehit.d, l: cachehit.l} , n: (f.url ? f.url :f), o: orientation });
 		  	  	  // onmessage: { pix: array, c: cache, n: name, o: orientation }
 		  	  	  // ctx.putImageData(new ImageData(outpix, transpose ? h8: w8, transpose? w8 :h8), 0, 0); onok(f)
 		  	  } else {
-		  	  	  this.workerstate = { cmd: 'resolveandpreview', c: cachehit, n: (f.url ? f.url :f), o: orientation, onok: onok, onerr: onerr, t: targ };
+		  	  	  this.workerstate.push({ cmd: 'resolveandpreview', c: cachehit, n: (f.url ? f.url :f), o: orientation, onok: onok, onerr: onerr, t: targ, afterload: afterload });
 		  	  	  this.previewworker.postMessage({ cmd: 'resolveandpreview', n: (f.url ? f.url :f), o: orientation });
 		  	  	  // onmessage: { pix: array, n: name, o: orientation, c: cacheentry }
 		  	  	  // ctx.putImageData(new ImageData(outpix, transpose ? h8: w8, transpose? w8 :h8), 0, 0); onok(f); add cache
@@ -21737,6 +21751,7 @@ resolver(url, preview, onok, onerr, notfirst) {
 /* ImBCHtml: worker on message */
 workermsg(msg) {
 	const d = msg.data;
+	//console.log('from worker ' + JSON.stringify(d));
 	switch (d.cmd) {
 	case 'resolveandhandle':
 		// onmessage: { ok?, n: f.name, o: orientation, fl: fromloop, c: cacheentry }
@@ -21771,12 +21786,14 @@ workermsg(msg) {
 		// no break
 	case 'previewfromcache':
 		// onmessage: { pix: array, c: cache, n: name, o: orientation, t: targ, onok, onerr }
+		let w0 = this.workerstate[0];
+		this.workerstate.splice(0,1);
 		if (d.pix) {
 			const f = this.findcache(d.n).reader;
 			const zz = ImBCBase.infos.findIndex(v => v.size === f.size);
 			if (zz === -1) {
 				console.log('preview: unsupported size ' + f.size + ' of ' + f.name);
-				this.workerstate.onerr(f);
+				w0.onerr(f);
 				return;
 			}
 			let w = ImBCBase.infos[zz].w;
@@ -21784,8 +21801,8 @@ workermsg(msg) {
 			let h = ImBCBase.infos[zz].h;
 		
 			let canv;
-			if (undefined !== this.workerstate.t)
-				canv = this.workerstate.t;
+			if (undefined !== w0.t)
+				canv = w0.t;
 			else
 				canv = document.getElementById('preview');
 			const w8 = Math.floor((w+7)/8);
@@ -21797,7 +21814,7 @@ workermsg(msg) {
 				canv.height = w8;
 			}
 			const ctx = canv.getContext('2d', { alpha: false });
-			if (undefined !== this.workerstate.t) {
+			if (undefined !== w0.t) {
 				const sc = 163 / canv.width;
 				canv.style['height'] = '' + (sc*canv.height) + 'px';
 			}
@@ -21807,10 +21824,13 @@ workermsg(msg) {
 					transpose = true;
 			}
 			ctx.putImageData(new ImageData(outpix, transpose ? h8: w8, transpose? w8 :h8), 0, 0);
-			this.workerstate.onok(f);
+			w0.onok(f);
 		} else {
-			this.workerstate.onerr(d.n);
+			w0.onerr(d.n);
 		}
+		break;
+	case 'afterload':
+		if (undefined !== this.workerstate[0].afterload) this.workerstate[0].afterload();
 		break;
 	}
 }
@@ -22357,8 +22377,6 @@ infos = [ // actually const
 </div><br>
 </div>
 &nbsp;<br>
-<div id="xmsg" style="display: none; width: fit-content;white-space: pre;"><span style="font-weight:bold;" data-myxlkey="main.log"></span><br>
-<div id="outmsg"></div></div>
 </div>
 <!-- end of the normal display -->
 <!-- normal preview with question -->
@@ -22379,7 +22397,7 @@ infos = [ // actually const
 <div id="browser" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
 <div style="position:fixed; top:0; width:100%;background-color:black;z-index:999;color:white;"><div>&nbsp;<span id="browserx"><input type="button" value="&#x2715;" style="font-weight: bold; font-size: 90%; border: 0.2px solid white;" onclick="imbc.shownormal()"></span>
 <input type="button" value="&#x1f5d1;" class="whbtn" onclick="imbc.browserdelete()" id="delselbut" disabled> <input type="button" value="&#x2b73;" class="whbtn" onclick="imbc.browserprocess()" id="doselbut" disabled> 
-<input type="button" value="&#x1f5ce;" class="whbtn"  id="logbut" disabled>
+<input type="button" value="&#x1f5ce;" class="whbtn"  id="logbut" disabled  onclick="imbc.showlog();">
 <input type="button" value="&#x2699;" class="whbtn"  id="settbut" disabled></div>
 <div style="margin-bottom:0.3em;">&nbsp;<span data-myxlkey="main.sort" style="display:none;"></span> <label for="sbytype"><input type="checkbox" id="sbytype" onclick="imbc.buildtree()"><span data-myxlkey="browser.bytype"></span></label> - <label for="solder">
 <input type="checkbox" id="solder" onclick="imbc.buildtree()"><span data-myxlkey="browser.olderfirst"></span></label>
@@ -22388,6 +22406,15 @@ infos = [ // actually const
  </div> </div>
 </div>
 <!-- end of the picture browser, generated content appended -->
+<!-- this is the messagelog, generated content appended -->
+<div id="msglog" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
+<div style="position:fixed; top:0; width:100%;background-color:black;z-index:999;color:white;"><div>&nbsp;<span id="msglogx"><input type="button" value="&#x2715;" style="font-weight: bold; font-size: 90%; border: 0.2px solid white;" onclick="imbc.showbrowser()"></span>
+<input type="button" value="&#x2699;" class="whbtn"  id="settbutlog" disabled></div>
+</div>
+<div id="xmsg" style="width: fit-content;white-space: pre;"><span style="font-weight:bold;" data-myxlkey="main.log"></span><br>
+<div id="outmsg"></div></div>
+</div>
+<!-- end of the message log, generated content appended -->
 <!-- this is the delete question/progress -->
 <div id="delq" style="border: 5px solid red; border-radius: 20px; padding: 20px;display:none;width:fit-content;">
 <span id="del_text" data-myxlarg0="0" data-myxlkey="del.question"></span><br>
