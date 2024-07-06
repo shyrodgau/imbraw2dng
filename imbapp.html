@@ -630,6 +630,17 @@ static crc32(arr) {
 
     return (crc ^ (-1)) >>> 0;
 };
+/* ZIPHelp: crc32 stuff */
+static crc32str(str) {
+	if (ZIPHelp.crcTable.length === 0) ZIPHelp.makeCRCTable();
+    var crc = 0 ^ (-1);
+
+    for (var i = 0; i < str.length; i++ ) {
+        crc = (crc >>> 8) ^ ZIPHelp.crcTable[(crc ^ str.codePointAt(i)) & 0xFF];
+    }
+
+    return (crc ^ (-1)) >>> 0;
+};
 /* ZIPHelp: finish zip with centraldirs and endcentral */
 finish(cb, i) {
 	if (i === undefined) i=0;
@@ -18939,7 +18950,7 @@ findlang(i) {
 	}
 	else if ('00' === this.mylang)
 		this.debugflag = true;
-	if (this.previewworker) this.previewworker.postMessage({ cmd: 'seturl', url: this.imbweb });
+	if (null === this.previewworker) this.initworker();
 	return this.mylang;
 }
 /* ImBCBase: extract exif from jpeg */
@@ -20169,18 +20180,6 @@ previewworker = null;
 workerstate = [];
 constructor() {
 	super();
-	let scripttext = Array.prototype.map.call(
-          document.querySelectorAll("script[type='text\/js-previewworker']"),
-          (script) => script.textContent,
-        );
-	//this.previewworker = new Worker('data:text/javascript,' + scripttext);
-	this.previewworker = new Worker('imbappworker.js');
-	this.previewworker.onmessage = (e) => {
-		this.workermsg(e);
-	}
-	this.previewworker.onerror = (e) => {
-		console.log('EE ' + JSON.stringify(e));
-	}
 }
 // from the back itself
 #maxcache = 30; // max. length of cache for already downloaded raw data - you may increase or decrease this
@@ -20189,6 +20188,56 @@ constructor() {
 #fromvisbrows = false;
 /* deleting */
 #rotphase = 0;
+/* ImBCHtml: init the worker */
+initworker(second) {
+	let scripttext = document.querySelector("script[type='text\/js-previewworker']").textContent;
+    const crc = ZIPHelp.crc32str(scripttext);
+	const wrkurl = this.imbweb.startsWith('http://127.0.0') ? 'imbappworker.js' : ('imbappworker'  + crc + '.js');
+    /* check if script exists */
+    let xhr = new XMLHttpRequest();
+	xhr.onloadend = (/*event*/) => {
+		if (xhr.status === 200 && xhr.responseText.length > 1000) {
+			this.previewworker = new Worker(wrkurl);
+			if (!this.previewworker) {
+				// upload previewworker OR
+				console.log('BACKGOUND WORKER FAILED 3 ' + wrkurl + ' ' + xhr.status + ' ' + second);
+				this.previewworker = null;
+			}
+			else {
+				this.previewworker.onmessage = (e) => {
+					this.workermsg(e);
+				}
+				this.previewworker.onerror = (e) => {
+					console.log('EE ' + JSON.stringify(e));
+				}
+				this.previewworker.postMessage({ cmd: 'seturl', url: this.imbweb });
+			}
+		} else if (!second) {
+			let xhrpost = new XMLHttpRequest();
+			let bound = '----WebKitFormDataBoundaryayLaxYz12345uuu';
+			xhrpost.onloadend = (ev) => {
+				console.log('XHR ' + JSON.stringify(ev));
+				this.initworker(true);
+			}
+			xhrpost.open('POST', '/imback');
+			
+			xhrpost.setRequestHeader("Content-Type", 'multipart/form-data; boundary=' + bound);
+			xhrpost.send('--' + bound + '\r\nContent-Disposition: form-data; name="fileupload1"; filename="imbappworker' + crc + '.js"\r\nContent-type=text/javascript\r\n\r\n' + scripttext + '\r\n\r\n--' + bound  + 'Content-Disposition: form-data; name="upbtn"\r\n\r\nUpload files\r\n\r\n-- ' + bound + '--');
+		}
+		else {
+			this.previewworker = null;
+			console.log('BACKGOUND WORKER FAILED 0 ' + wrkurl + ' ' + xhr.status + ' ' + second);
+		}
+	};
+	xhr.onerror = (/*event*/) => {
+		console.log('BACKGOUND WORKER FAILED 2 ' + wrkurl + ' ' + xhr.status + ' ' + second);
+		this.previewworker = null;
+	};
+	xhr.open('GET', wrkurl);
+	this.previewworker = false;
+	xhr.send();
+}
+
 
 /* ImBCHtml: browserdisplay: copyright checkbox change */
 chgcopycheck() {
