@@ -100,7 +100,7 @@ body { margin: 0; }
 .eepvx { color: #777777; font-size: 100px; align-self: center; font-weight: bold; }
 .errimg { width: 163px;color: red; height:90px;font-size: 80px; text-align: center; font-weight: bold; }
 .waitdiv { color: #444444; width:163px;font-size: 80px; height:90px;text-align: center; font-weight: bold; }
-.eeraw, .eejpg { align-self: center; }
+.eeraw, .eejpg { align-self: center; max-width: 163px; max-height: 117px;}
 /*.onepic > :nth-child(1) { margin-top: -0.2em; margin-bottom: 0.1em;}*/
 #previewwait {
 	scale: 500%;
@@ -119,7 +119,7 @@ body { margin: 0; }
 div[data-state='load'] .btnsrow, div[data-state='wait'] .btnsrow, div[data-state='err'] .btnsrow { display: none; }
 .oth_CL .btnsrow, .JPG_CL .btnsrow { width: 1em; }
 .JPG_CL .rotbtn { display: none; }
-.JPG_CL .eepvx, .JPG_CL .eeraw, .oth_CL .eeraw, .oth_CL .eepvx, .RAW_CL .eepvx, .RAW_CL .eejpg { display: none; }
+.JPG_CL .eeraw, .oth_CL .eeraw, .RAW_CL .eejpg { display: none; }
 .biggiebtn { position: absolute; top: -0.2em; font-weight:bold; font-size:120%; text-shadow: 0.1em 0.07em 0 white; z-index: 900;}
 .picbig { scale: 3; position: absolute; z-index: 999; border: 3px solid white; left: 66%;}
 .pictitle { z-index: 90; font-size:66%; }
@@ -141,7 +141,7 @@ div[data-state='load'] .btnsrow, div[data-state='wait'] .btnsrow, div[data-state
 	font-size: 50px;
 	z-index: 99;
 	color: rgba(0,255,0,0.6);
-	text-shadow: 2px 3px white;
+	text-shadow: 3px 1px white;
 	padding-left: 0.5em;
 	padding-top: 0.1em;
 	pointer-events:none;
@@ -19106,7 +19106,7 @@ handleone(orientation) {
 					this.handlenext();
 			  });
 		  }
-		});
+		}, 10);
 		return;
 	}
 	let rawname = ImBCBase.basename(f.name);
@@ -20209,6 +20209,7 @@ initworker(second) {
 				}
 				this.previewworker.onerror = (e) => {
 					console.log('EE ' + JSON.stringify(e));
+					this.previewworker = null;
 				}
 				this.previewworker.postMessage({ cmd: 'seturl', url: this.imbweb });
 			}
@@ -20839,8 +20840,9 @@ topreccheck(force) {
 		topline.append(dlbtn);
 		dlbtn.classList.remove('disabled');
 		dlbtn.classList.remove('biggiebtn');
-		ne.querySelector('.waitdiv').style['display'] = '';
+		ne.querySelector('.waitdiv').style['display'] = 'none';
 		ne.setAttribute('data-state', 'wait');
+		ne.querySelector('.eepvx').style['display'] = '';
 	}
 	let rotbtn = ne.querySelector('.rotbtn');
 	if (e.type === 'RAW') {
@@ -20853,7 +20855,8 @@ topreccheck(force) {
 			j = ((j + 1) % 4);
 			e.rot = ImBCBase.oriecw[j];
 			e.preview.style['display'] = 'none';
-			ne.querySelector('.waitdiv').style['display'] = '';
+			ne.querySelector('.waitdiv').style['display'] = 'none';
+			ne.querySelector('.eepvx').style['display'] = '';
 			ne.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
 			ne.querySelector('.dlbtn').classList.add('disabled');
 			ne.setAttribute('data-state', 'wait');
@@ -20879,12 +20882,16 @@ topreccheck(force) {
 		e.preview = ne.querySelector('.eeraw');
 		//e.preview.classList.add('eewait');
 		e.preview.style['display'] = 'none';
+		ne.querySelector('.eepvx').style['display'] = '';
+		ne.querySelector('.waitdiv').style['display'] = 'none';
 		e.preview.onmouseout = (/*ev*/) => {
 			e.preview.classList.remove('picbig');
 		}
 	} else /*if (e.type === 'JPG')*/ {
 		e.preview = ne.querySelector('.eejpg');
 		ne.setAttribute('data-state', 'wait');
+		ne.querySelector('.eepvx').style['display'] = '';
+		ne.querySelector('.waitdiv').style['display'] = 'none';
 		//e.preview.classList.add('eewait');
 		e.preview.style['display'] = 'none';
 		e.preview.onmouseout = (/*ev*/) => {
@@ -20901,6 +20908,7 @@ topreccheck(force) {
 		return;
 	}
 	e.setAttribute('data-state', 'load');
+	e.querySelector('.eepvx').style['display'] = 'none';
 	e.querySelector('.errimg').style['display'] = 'none';
 	e.querySelector('.waitdiv').style['display'] = '';
 	to.preview.style['display'] = 'none';
@@ -20909,7 +20917,7 @@ topreccheck(force) {
 			e.setAttribute('data-state', 'ok');
 			e.querySelector('.waitdiv').style['display'] = 'none';
 			to.preview.style['display'] = '';
-			to.preview.style['height'] = to.preview.height * (163 / to.preview.width);
+			//to.preview.style['height'] = to.preview.height * (163 / to.preview.width);
 			e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.remove('disabled') });
 			e.querySelector('.dlbtn').classList.remove('disabled');
 			if (this.debugflag) console.log('ldr j f lnx ' + to.raw);
@@ -21385,7 +21393,7 @@ buildpreview(f, onok, onerr, orientation, targ, afterload) {
 					onerr(f);
 			  });
 		  }
-		});
+		}, 10);
 		return;
 	}
 	const zz = ImBCBase.infos.findIndex(v => v.size === f.size);
@@ -21414,7 +21422,7 @@ buildpreview(f, onok, onerr, orientation, targ, afterload) {
 	const ctx = canv.getContext('2d', { alpha: false });
 	if (undefined !== targ) {
 		const sc = 163 / canv.width;
-		canv.style['height'] = '' + (sc*canv.height) + 'px';
+		//canv.style['height'] = '' + (sc*canv.height) + 'px';
 	}
 	const reader = f.imbackextension ? f : new FileReader();
 	reader.onload = (evt) => {
@@ -21736,7 +21744,7 @@ resolver(url, preview, onok, onerr, notfirst) {
 		};
 		window.setTimeout(() => {
 			onok(url, fx, rot);
-		});
+		}, 10);
 		return;
 	}
 	let xhr = new XMLHttpRequest();
@@ -21760,8 +21768,8 @@ resolver(url, preview, onok, onerr, notfirst) {
 		xhr.onabort = undefined;
 		if (notfirst) {
 			window.setTimeout(() => {
-					onok(url, fx, rot);
-			});
+				onok(url, fx, rot);
+			}, 10);
 		} else this.resolver(e, preview, onok, onerr, len);
 	};
 	xhr.onerror = (evt, typ) => {
@@ -21772,8 +21780,8 @@ resolver(url, preview, onok, onerr, notfirst) {
 		xhr.ontimeout = undefined;
 		xhr.onabort = undefined;
 		setTimeout(() => {
-				onerr(url, fx, rot);
-		});
+			onerr(url, fx, rot);
+		}, 10);
 	};
 	xhr.onabort = (evt) => { xhr.onerror(evt, 'abort'); };
 	xhr.ontimeout = (evt) => { xhr.onerror(evt, 'timeout'); };
@@ -21793,8 +21801,8 @@ resolver(url, preview, onok, onerr, notfirst) {
 		xhr.ontimeout = undefined;
 		xhr.onabort = undefined;
 		window.setTimeout(() => {
-				onerr(url, fx, rot);
-		});
+			onerr(url, fx, rot);
+		}, 10);
 	}
 }
 /* ImBCHtml: worker on message */
@@ -21865,7 +21873,7 @@ workermsg(msg) {
 			const ctx = canv.getContext('2d', { alpha: false });
 			if (undefined !== w0.t) {
 				const sc = 163 / canv.width;
-				canv.style['height'] = '' + (sc*canv.height) + 'px';
+				//canv.style['height'] = '' + (sc*canv.height) + 'px';
 			}
 			let transpose = false;
 			const outpix = d.pix;
@@ -21920,7 +21928,7 @@ function init() {
 </script>
 <!-- WORKER -->
 <script type="text/js-previewworker" language="javascript">
-let cmd, name, cache, ori, fl, base;
+let cmd, name, cache, ori, fl, base, msg = false;
 onmessage = (e) => {
 	//console.log(JSON.stringify(e.data));
 	name = e.data.n;
@@ -21928,6 +21936,10 @@ onmessage = (e) => {
 	ori = e.data.o;
 	fl = e.data.fl;
 	cache = {};
+	if (!msg) {
+		console.log('WORKER SEEMS OK');
+		msg = true;
+	}
 	switch (cmd) {
 	case 'seturl':
 		base = e.data.url;
@@ -22494,17 +22506,19 @@ Replaceraw: <input type="file" onchange="imbc.replraw()" accept=".raw,.RAW" id="
 				<input type="checkbox" class="selcb">
 			</label>
 		</div>
+		<div style="width:163px; height:117px; margin:0px; align-self:center; text-align:center; vertical-align: middle;">
 		<div class="errimg" style="display:none;">X</div>
-		<img class="eejpg" style="display:none; height: 90px;">
-		<!--div class="eepvx">?</div-->
-		<canvas class="eeraw" style="width: 163px; display:none;"></canvas>
-		<div class="waitdiv">
+		<img class="eejpg" style="display:none;">
+		<div class="eepvx">?</div>
+		<canvas class="eeraw" style="display:none;"></canvas>
+		<div style="display:none;" class="waitdiv">
 			<span class="blink">.</span><span class="blink2">.</span><span class="blink3">.</span>
 		</div>
 		<div class="btnsrow">
 			<!--span class="biggiebtn bigbtn" style="left: 0.4em;">⛶</span-->
 			<span class="dlbtn biggiebtn" style="font-size: 133%;">↓</span>
 			<span class="biggiebtn rotbtn" style="left: 0.6em;">↷</span>
+		</div>
 		</div>
 	</div>
 </template>
