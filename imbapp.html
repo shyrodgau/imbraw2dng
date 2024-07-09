@@ -798,6 +798,9 @@ static texts = { // actually const
 			ru: 'Конвертер ImB RAW в DNG',
 			ja: 'ImB RAW を DNG に変換'
 		},
+		apptitle: {
+			en: 'ImB HTML App'
+		},
 	    backw: {
 			   title:  { en: 'ImB DNG to RAW back converter' },
 			   generaladvice: { en: 'Only works for the exact original converted DNG.' },
@@ -19089,7 +19092,7 @@ handleone(orientation) {
 		  	  	  this.handleone(orientation);
 		  	  	  // nope this.previewworker.postMessage({ cmd: 'handlefromcache', c: cachehit, n: f.name, o: orientation, fl: fromloop });
 		  	  } else {
-		  	  	  this.previewworker.postMessage({ cmd: 'resolveandhandle', n: (f.name ? f.name : f), o: orientation });
+		  	  	  this.previewworker.postMessage({ cmd: 'resolveandhandle', n: (f.name ? f.name : (f.url ? f.url : f)), o: orientation });
 		  	  	  // onmessage: { ok?, n: f.name, o: orientation, fl: fromloop, c: cacheentry }
 		  	  	  // set allfiles[this.actnum] to cacheentry.reader and call handleone(o, fl)
 		  	  	  // add cache
@@ -19393,7 +19396,6 @@ writewrap(name, type, okmsg, arr1) {
 	if (this.zip) {
 		this.zip.add(arr1, name, () => {
 			this.mappx(true, okmsg, name);
-			this.writepostok(name);
 			if (this.zipdata && this.zipdata.length > ImBCHtml.zipmax) {
 				this.zip.finish(() => {
 					let o = new Uint8Array(this.zipdata.length);
@@ -19403,9 +19405,11 @@ writewrap(name, type, okmsg, arr1) {
 					this.zip = new ZIPHelp((data, cb) => {
 						for (let l=0; l<data.length; l++) this.zipdata.push(data[l]);
 						cb();
+						this.writepostok(name);
 					});
 				});
 			}
+			else this.writepostok(name);
 		});
 	} else
 		this.writefile(name, type, okmsg, arr1);
@@ -19845,7 +19849,7 @@ xl1(el) {
 }
 /* ImBCHtmlOut: wrapper for zip output */
 starthandleone() {
-	if (!this.imbcb && window.showSaveFilePicker && document.getElementById('choosezipdest').checked && document.getElementById('usezip').checked) {
+	if (!this.imbcb && window.showSaveFilePicker && document.getElementById('usezip').checked) {
 		// zip with selected file
 		window.showSaveFilePicker({
 			types: [ { description: 'Output Zip Archive', accept: { "application/zip": [ ".zip", ".ZIP" ] } } ],
@@ -19901,7 +19905,7 @@ starthandleone() {
 /* ImBCHtmlOut: main handler function for one file */
 handleonex() {
 	const f = (this.debugflag && this.useraw) ? this.useraw : this.allfiles[this.actnum];
-	this.currentrot = 1;
+	this.currentrot = (f.rot || (f.rot === 0)) ? f.rot : 1;
 	document.getElementById('doforall').checked = false;
 	if (this.actnum < this.totnum-1) {
 		document.getElementById('forrest').style['display'] = '';
@@ -20074,7 +20078,7 @@ xlateall() {
 	for (const e of h)
 		this.xl1(e);
 	if (undefined === this.imbcb)
-		document.title = this.xl('main.title') + ' ' + ImBCBase.version;
+		document.title = this.xl('main.apptitle') + ' ' + ImBCBase.version;
 	else
 		document.title = this.xl('main.backw.title') + ' ' + ImBCBase.version;
 }
@@ -20111,18 +20115,6 @@ writepostok(name) {
 }
 /* ImBCHtmlOut: after finishing.... */
 afterfinish() {
-	if (this.stats.total > 0) {
-		this.appmsg('');
-		this.mappx(true, 'process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
-	}
-	this.actnum = 0;
-	this.totum = 0;
-	this.allfiles = [];
-	document.getElementById('imbdoit').disabled = false;
-	document.getElementById('imbvisbrows').disabled = false;
-	document.getElementById('droptarget').style['display'] = '';
-	document.getElementById('infile').disabled = false;
-	document.getElementById('infileb').disabled = false;
 	if (this.zip) {
 		this.zip.finish(() => {
 			if (this.writestream) {
@@ -20149,6 +20141,25 @@ afterfinish() {
 		this.zipdata = null;
 		this.ziperr = false;
 	}
+	if (this.stats.total > 0) {
+		this.appmsg('');
+		this.mappx(true, 'process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
+	}
+	this.actnum = 0;
+	this.totum = 0;
+	this.allfiles = [];
+	if (this.fromvisbrows) {
+		this.fromvisbrows = false;
+		document.getElementById('progmsg').style['display'] = '';
+		document.getElementById('progokbut').disabled = false;
+		document.getElementById('progmsg').innerHTML = this.xl('process.totals', this.stats.total, this.stats.ok, 0, this.stats.error);
+		this.loadnextimg();
+	}
+	document.getElementById('imbdoit').disabled = false;
+	document.getElementById('imbvisbrows').disabled = false;
+	document.getElementById('droptarget').style['display'] = '';
+	document.getElementById('infile').disabled = false;
+	if (document.getElementById('infileb')) document.getElementById('infileb').disabled = false;
 }
 /* ImBCHtmlOut: look at the checkboxes and set settings */
 checkchecks() {
@@ -20185,7 +20196,7 @@ constructor() {
 #maxcache = 30; // max. length of cache for already downloaded raw data - you may increase or decrease this
 #cache = []; // actual cache buffer
 #loaderrunning=false; // currently handled browser raw preview download
-#fromvisbrows = false;
+fromvisbrows = false;
 /* deleting */
 #rotphase = 0;
 /* ImBCHtml: init the worker */
@@ -20306,10 +20317,12 @@ setpvwait() {
 /* ImBCHtml: browserdisplay: open visual browser */
 showbrowser() {
 	const norm = document.getElementById('normal');
+	const splash = document.getElementById('splash');
 	const quest = document.getElementById('question');
 	document.getElementById('browser').style['display'] = '';
-	quest.style['display'] = 'none';
-	norm.style['display'] = 'none';
+	if (quest) quest.style['display'] = 'none';
+	if (norm) norm.style['display'] = 'none';
+	if (splash) splash.style['display'] = 'none';
 	document.getElementById('progokbut').disabled = true;
 	document.getElementById('dlprogress').style['display'] = 'none';
 	window.onscroll = () => this.#startloadimg();
@@ -20868,7 +20881,7 @@ topreccheck(force) {
 		if (!this.debugflag && dlbtn.classList.contains('disabled')) return;
 		if (this.actnum !== this.allfiles.length) return;
 		let selecteds = [ e ];
-		this.#fromvisbrows = true;
+		this.fromvisbrows = true;
 		this.stepmode = 0;
 		this.totnum = 1;
 		this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
@@ -20904,7 +20917,7 @@ topreccheck(force) {
 	const e = to.entry;
 	if ((e.attributes.getNamedItem('data-state').value !== 'err' && e.attributes.getNamedItem('data-state').value !== 'wait')) {
 		if (this.debugflag) console.log('ldr aa lnx ' + to.raw);
-		this.#loadnextimg();
+		this.loadnextimg();
 		return;
 	}
 	e.setAttribute('data-state', 'load');
@@ -20921,7 +20934,7 @@ topreccheck(force) {
 			e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.remove('disabled') });
 			e.querySelector('.dlbtn').classList.remove('disabled');
 			if (this.debugflag) console.log('ldr j f lnx ' + to.raw);
-			this.#loadnextimg();
+			this.loadnextimg();
 		};
 		to.preview.onerror = (ev) => {
 			e.setAttribute('data-state', 'err');
@@ -20932,7 +20945,7 @@ topreccheck(force) {
 			e.querySelector('.dlbtn').classList.add('disabled');
 			if (this.debugflag) console.log('ldr j e lnx ' + to.raw);
 			to.nonewerr = true;
-			this.#loadnextimg();
+			this.loadnextimg();
 		};
 		to.preview.src = ImBCBase.adjurl(url) + '?custom=1&cmd=4001';
 	}
@@ -20948,7 +20961,7 @@ topreccheck(force) {
 			if (this.debugflag) console.log('ldr r f ' + to.raw);
 			if (!afterloadcalled) {
 				if (this.debugflag) console.log('ldr r e lnx ' + to.raw);
-				this.#loadnextimg();
+				this.loadnextimg();
 			} // else the afterload had already been called
 			else if (this.debugflag) {
 				console.log('ldr r ff lnyy ' + to.raw);
@@ -20963,7 +20976,7 @@ topreccheck(force) {
 			if (this.debugflag) console.log('ldr r e ' + to.raw);
 			if (!afterloadcalled) {
 				if (this.debugflag) console.log('ldr r e lnx ' + to.raw);
-				this.#loadnextimg();
+				this.loadnextimg();
 			} // else the afterload had already been called
 			else if (this.debugflag) {
 				console.log('ldr r ee lnyy ' + to.raw);
@@ -20972,29 +20985,33 @@ topreccheck(force) {
 			if (this.debugflag) console.log('ldr r l lnx ' + to.raw);
 			// invalidate url for err callback
 			this.#loaderrunning = '1';
-			this.#loadnextimg();
+			this.loadnextimg();
 			afterloadcalled = true;
 		});
 		if (this.debugflag) console.log('li raw end bpv ' + url);
 	}
 }
 /* ImBCHtml: visual browser or from imback: load next from todo list */
-#loadnextimg() {
+loadnextimg() {
 	if (this.debugflag) console.log('L  N  I');
 	let e;
 	if (this.allfiles.length > 0 && this.actnum <= this.allfiles.length - 1) {
-		e = this.allfiles[this.actnum];
+		//e = this.allfiles[this.actnum];
 		this.#loaderrunning = 'blah!';
 		window.setTimeout(() => {
+			this.checkchecks();
 			if (this.debugflag) console.log('NN li dl ' + e.url + ' ' + this.actnum);
-			if (undefined === e.url) {
+			this.fromvisbrows = true;
+			/*if (undefined === e.url) {
 				console.log('x');
 				this.allfiles[this.actnum] = e;
-				this.handleone(undefined, true);
+				this.handleone(undefined);
 			} else {
 				this.allfiles[this.actnum] = e.url;
-				this.handleone(e.rot, true);
-			}
+				this.handleone(e.rot);
+			}*/
+			this.stepmode = 0;
+			this.starthandleone();
 		}, 33);
 		return;
 	}
@@ -21017,7 +21034,7 @@ topreccheck(force) {
 #startloadimg() {
 	if (!this.#loaderrunning) {
 		if (this.debugflag) console.log('start loader');
-		this.#loadnextimg();
+		this.loadnextimg();
 	}
 	else if (this.debugflag) {
 		console.log('load already on ' + this.#loaderrunning);
@@ -21115,7 +21132,7 @@ browserprocess() {
 		document.getElementById('droptarget').style['display'] = 'none';
 		document.getElementById('infile').disabled = true
 		this.#rotphase = 1;
-		this.#fromvisbrows = true;
+		this.fromvisbrows = true;
 		document.getElementById('dlprogress').style['display'] = '';
 		document.getElementById('browser').style['display'] = 'none';
 		this.#startloadimg();
@@ -21352,7 +21369,7 @@ async drophandler(ev) {
 	document.getElementById('imbvisbrows').disabled = true;
 	document.getElementById('droptarget').style['display'] = 'none';
 	document.getElementById('infile').disabled = true;
-	document.getElementById('infileb').disabled = true;
+	if (document.getElementById('infileb')) document.getElementById('infileb').disabled = true;
 	if (document.getElementById('fakelongexpadd')?.checked) {
 		this.addall = true;
 		this.addscaleall = document.getElementById('fakelongexpscale')?.checked;
@@ -21547,26 +21564,27 @@ handlenext() {
 	if (this.#loaderrunning === 'blah!') {
 		if (this.debugflag) console.log('HN fl an ' + this.actnum + ' aflen ' + this.allfiles.length);
 		if (this.actnum >= this.allfiles.length - 1) {
-			this.afterfinish();
 			this.#loaderrunning = false;
-			if (this.#fromvisbrows) {
-				this.#fromvisbrows = false;
+			this.afterfinish();
+			/*if (this.fromvisbrows) {
+				this.fromvisbrows = false;
 				document.getElementById('progmsg').style['display'] = '';
 				document.getElementById('progokbut').disabled = false;
 				document.getElementById('progmsg').innerHTML = this.xl('process.totals', this.stats.total, this.stats.ok, 0, this.stats.error);
+				this.loadnextimg();
 			} else {
 				this.shownormal();
-			}
+			}*/
 		}
 		else {
-			if (this.#fromvisbrows) {
+			if (this.fromvisbrows) {
 				document.getElementById('progmsg').style['display'] = '';
 				this.#rotphase ++;
 				document.getElementById('progmsg').innerHTML = this.rotphases[this.#rotphase % this.rotphases.length];
 			}
 			this.actnum++;
+			this.handleonex();
 		}
-		this.#loadnextimg();
 		return;
 	}
 	if (this.actnum < this.allfiles.length - 1) {
@@ -21898,36 +21916,29 @@ workermsg(msg) {
 let imbc;
 /* onload of html body */
 function init() {
-	let backw = false;
-	/*if (ImBCBase.basename(window.location.pathname.toUpperCase()).indexOf('IMBDNG2RAW') !== -1) {
-		backw = true;
-		imbc = new ImBCHtmlBackw();
-		for (const o of document.getElementsByClassName('onlywhenbackw')) o.style['display']='';
-		for (const o of document.getElementsByClassName('notwhenbackw')) o.style['display']='none';
+	imbc = new ImBCHtml();
+	document.getElementById('normal').style['display'] = 'none';
+	if (ImBCBase.basename(window.location.pathname.toUpperCase()).indexOf('IMBAPP') !== -1) {
+		imbc.appname = 'imbapp';
 	}
-	else*/ {
-		imbc = new ImBCHtml();
-		if (ImBCBase.basename(window.location.pathname.toUpperCase()).indexOf('IMBAPP') !== -1) {
-			imbc.appname = 'imbapp';
-		}
-		if (ImBCBase.basename(window.location.pathname.toUpperCase()).indexOf('IMBRAW2DNG_FILM') !== -1) {
-			imbc.filmdemo = true;
-			ImBCBase.version = 'V4.ZZZZZ';
-		}
-		imbc.chgcopycheck();
-		imbc.initsettings();
-		if (!window.showSaveFilePicker) {
-			document.getElementById('choosezipdest').disabled = true;
-			//document.getElementById('useziplbl').style['display'] = 'none';
-		}
+	if (ImBCBase.basename(window.location.pathname.toUpperCase()).indexOf('IMBRAW2DNG_FILM') !== -1) {
+		imbc.filmdemo = true;
+		ImBCBase.version = 'V4.ZZZZZ';
+	}
+	imbc.chgcopycheck();
+	imbc.initsettings();
+	if (!window.showSaveFilePicker) {
+		document.getElementById('usezip').disabled = true;
+		document.getElementById('usezip').checked = false;
 	}
 	imbc.querylang(window.location.pathname);
 	imbc.xlateall();
-	if (!backw) imbc.checkimb();
+	imbc.checkimb();
 }
 </script>
 <!-- WORKER -->
 <script type="text/js-previewworker" language="javascript">
+/* *************************************** Main class for WORKER *************************************** */
 let cmd, name, cache, ori, fl, base, msg = false;
 onmessage = (e) => {
 	//console.log(JSON.stringify(e.data));
@@ -22387,32 +22398,40 @@ infos = [ // actually const
 		mode: ''
 	}
 ];
+/* *************************************** Main class for WORKER, E N D *************************************** */
 </script>
 <!-- WORKER END -->
 </head>
 <!-- here comes the html itself -->
 <body id="thebody" style="font-family: Helvetica, Arial, sans-serif;" onload="init();" lang="en">
-<div style="font-weight:bold;display:none;"><span class="notwhenbackw" data-myxlkey='main.title'> </span><span class="onlywhenbackw" style="display:none;" data-myxlkey='main.backw.title'> </span> <span id="mainversion"> </span> - 
+<div style="font-weight:bold;display:none;"><span class="notwhenbackw" data-myxlkey='main.title'> </span><span class="onlywhenbackw" style="display:none;" data-myxlkey='main.backw.title'> </span>  - 
  <a target="_new" data-myhrefxlkey="main.helplink" data-myxlkey='main.help'></a>
 <select id="langsel" onchange="imbc.setlang()" value="en"><option value="de" onclick="imbc.setlang()">DE</option><option value="en" selected onclick="imbc.setlang()">EN</option>
 <option value="ja" onclick="imbc.setlang()">JA</option><option value="fr" onclick="imbc.setlang()">FR</option><!--option value="ru" onclick="imbc.setlang()">RU</option--></select> <span class="notwhenbackw" data-myxlkey="main.newmsg"/></div>
 <br><div class="notwhenbackw" style="display:none;"><span data-myxlkey="main.coloursyourrisk"> </span>&nbsp;<!--b style="background-color:#888888; text-shadow: 0.07em 0.12em 0 #FFFFFF;font-size:200%;">&#x26f6; &#x1f5d1; &#x2715;</b-->&nbsp;<br></div>
-<!-- the normal display -->
+<!-- splash -->
+<div id="splash" style="width:100%; height:100%; font-weight:bold; font-size:200%;color:white;background-color:black;">
+<div style="text-align:center; width:100%;" ><span data-myxlkey="main.apptitle"> </span> <span id="mainversion"> </span></div>
+<div style="text-align:center; width:100%;" class="waitdiv">
+	<span class="blink">.</span><span class="blink2">.</span><span class="blink3">.</span>
+</div>
+</div>
+<!-- splash end -->
+<!-- the normal display/settings -->
 <div id="normal" style="margin-top: 0.5em;">
-<div class="notwhenbackw"><input type="checkbox" id="steppreview" onchange="imbc.dirtysettings()" checked><label for="steppreview" data-myxlkey="process.singlestep"></label></div>
-<div class="notwhenbackw"><input type="checkbox" id="dngpreview" checked onchange="imbc.chgdngpreview()"><label for="dngpreview" data-myxlkey="process.addpreview"></label></div>
-<div class="notwhenbackw"><input type="checkbox" id="oldstylewb" onchange="imbc.dirtysettings()"><label for="oldstylewb" style="background-color: #ffffcc;" data-myxlkey="process.oldstylewb"></label></div>
-<div class="notwhenbackw"><input type="checkbox" id="incdcp" checked onchange="imbc.dirtysettings()"><label for="incdcp" style="background-color: #ffffcc;" data-myxlkey="process.includedcp"></label></div>
-<div class="notwhenbackw"><input type="checkbox" id="copycheck" onchange="imbc.chgcopycheck()"><label for="copycheck" data-myxlkey="process.addcopyright"></label> <input onchange="imbc.dirtysettings()" type="text" id="copytext"></input></div>
-<div class="notwhenbackw"><input type="checkbox" id="usezip" onchange="imbc.dirtysettings()"><label for="usezip" data-myxlkey="main.usezip" id="useziplbl"></label> <input type="checkbox" id="choosezipdest" onchange="imbc.dirtysettings()"><label for="choosezipdest" data-myxlkey="main.usezip.choosedest" id="useziplbl"></label></div>
-<div class="notwhenbackw" style="margin-top: 0.5em;">
+<div ><input type="checkbox" id="steppreview" onchange="imbc.dirtysettings()" checked><label for="steppreview" data-myxlkey="process.singlestep"></label></div>
+<div ><input type="checkbox" id="dngpreview" checked onchange="imbc.chgdngpreview()"><label for="dngpreview" data-myxlkey="process.addpreview"></label></div>
+<div ><input type="checkbox" id="oldstylewb" onchange="imbc.dirtysettings()"><label for="oldstylewb" style="background-color: #ffffcc;" data-myxlkey="process.oldstylewb"></label></div>
+<div ><input type="checkbox" id="incdcp" checked onchange="imbc.dirtysettings()"><label for="incdcp" style="background-color: #ffffcc;" data-myxlkey="process.includedcp"></label></div>
+<div ><input type="checkbox" id="copycheck" onchange="imbc.chgcopycheck()"><label for="copycheck" data-myxlkey="process.addcopyright"></label> <input onchange="imbc.dirtysettings()" type="text" id="copytext"></input></div>
+<div ><input type="checkbox" id="usezip" onchange="imbc.dirtysettings()"><label for="usezip" data-myxlkey="main.usezip" id="useziplbl"></label></div>
+<div  style="margin-top: 0.5em;">
 <span id="onlyhttp" data-myxlkey="browser.prefnotfile"></span>
 <span id="settingsset" data-myxlkey="browser.settingsset"></span>
 <span id="setsettings"><input type="button" data-myvalxlkey="browser.setfrom" onclick="imbc.savesettings()"></input>&#xa0;<span id="setsettingsurl" data-myxlkey="browser.forurl"></span></span>
 <!-- here goes the save preferences .. -->
 </div>
-<div class="notwhenbackw" style="margin-top: 0.5em;" data-myxlkey="main.generaladvice"></div>
-<div class="onlywhenbackw" style="margin-top: 0.5em;display:none;" data-myxlkey="main.backw.generaladvice"></div>
+<div  style="margin-top: 0.5em;" data-myxlkey="main.generaladvice"></div>
 <!-- connected ! -->
 <div id="onimback" style="background-color:#ffffbb;border: 5px solid #ffff88;border-radius: 10px;width:fit-content;padding:1em;display:none;"><div style="font-size:133%;" data-myxlkey="onimback.connected">&nbsp;<br></div>
 <span data-myxlkey="onimback.dlconvert"></span><br>
@@ -22425,16 +22444,14 @@ infos = [ // actually const
 </div>
 <!-- end of connected -->
 <div id="notimback">
-<div class="notwhenbackw" style="font-size:133%;margin-top: 0.5em;" data-myxlkey="main.drophere"></div>
-<div class="onlywhenbackw" style="font-size:133%;margin-top: 0.5em;display:none;" data-myxlkey="main.backw.drophere"></div>
+<div  style="font-size:133%;margin-top: 0.5em;" data-myxlkey="main.drophere"></div>
 <div id="droptarget" ondrop="imbc.drophandler(event);" ondragenter="imbc.prevdef(event);" ondragover="imbc.prevdef(event);" style="border: 5px solid blue;border-radius: 10px;width:300px; height:70px;background-color: rgba(0,0,255,0.2);"></div><br>
-<div class="notwhenbackw" style="font-size:75%; background-color:rgba(0,0,255,0.1);width:fit-content;margin-top:-0.7em;color:#808080;">
+<div  style="font-size:75%; background-color:rgba(0,0,255,0.1);width:fit-content;margin-top:-0.7em;color:#808080;">
 <input type="checkbox" id="fakelongexpadd"> <label for="fakelongexpadd" data-myxlkey="main.fakelong"> </label> - 
 <input type="checkbox" id="fakelongexpscale"> <label for="fakelongexpscale" data-myxlkey="main.fakelong.scale"> </label>
 </div>
-<div  style="font-size:133%;margin-top: 0.5em;"><span class="notwhenbackw" data-myxlkey="main.selectraw"></span><span class="onlywhenbackw" data-myxlkey="main.backw.selectdng" style="display:none;"></span> 
-<input class="notwhenbackw" type="file" accept=".raw,.RAW" id="infile" name="infile" multiple onchange="imbc.fselected()">
-<input class="onlywhenbackw" style="display:none;" type="file" accept=".dng,.DNG" id="infileb" name="infileb" multiple onchange="imbc.fselected()">
+<div  style="font-size:133%;margin-top: 0.5em;"><span  data-myxlkey="main.selectraw"></span> 
+<input  type="file" accept=".raw,.RAW" id="infile" name="infile" multiple onchange="imbc.fselected()">
 </div><br>
 </div>
 &nbsp;<br>
