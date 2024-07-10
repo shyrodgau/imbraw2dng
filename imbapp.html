@@ -222,7 +222,7 @@ body { margin: 0; }
 .btnsrow { position: absolute; top: 1.5em; left: 0.1em; height: 1em; width: 2em; background-color: rgba(200,200,180,0.4); }
 div[data-state='load'] .btnsrow, div[data-state='wait'] .btnsrow, div[data-state='err'] .btnsrow { display: none; }
 .oth_CL .btnsrow, .JPG_CL .btnsrow { width: 1em; }
-.JPG_CL .rotbtn { display: none; }
+.JPG_CL .rotbtn, .oth_CL .rotbtn { display: none; }
 .JPG_CL .eeraw, .oth_CL .eeraw, .RAW_CL .eejpg { display: none; }
 .biggiebtn { position: absolute; top: -0.2em; font-weight:bold; font-size:120%; text-shadow: 0.1em 0.07em 0 white; z-index: 900;}
 .picbig { scale: 3; position: absolute; z-index: 999; border: 3px solid white; left: 66%;}
@@ -257,6 +257,7 @@ div[data-state='load'] .btnsrow, div[data-state='wait'] .btnsrow, div[data-state
 	height:1.66em;
 	background-color: black !important;
 	border:none !important;
+	padding-right: 2em;
 }
 .whbtn:disabled { opacity: 0.6; }
 </style>
@@ -20004,12 +20005,14 @@ starthandleone() {
 			}).catch((e) => {
 				this.mappx(false, 'words.error');
 				this.mappx(0, 'process.errsave', '??');
+				this.stats.error++;
 				this.appmsg(JSON.stringify(e), true);
 				this.afterfinish();
 			});
 		}).catch((e) => {
 				this.mappx(false, 'words.error');
 				this.mappx(0, 'process.errsave', '??');
+				this.stats.error++;
 				this.appmsg(JSON.stringify(e), true);
 				this.afterfinish();
 			});
@@ -20037,7 +20040,7 @@ handleonex() {
 	let rawname = ImBCBase.basename(f.url ? f.url : (f.name ? f.name : f));
 	if (this.stepmode === 2) {
 		// skip rest
-		if (!this.imbcb) this.shownormal();
+		if (!this.imbcb && !this.fromvisbrows) this.shownormal();
 		return this.handlenext();
 	}
 	else if (this.stepmode === 1) {
@@ -20100,7 +20103,7 @@ handleonex() {
 		if (this.imbcb)
 			this.imbcb.handleone();
 		else {
-			this.shownormal();
+			if (!this.fromvisbrows) this.shownormal();
 			this.handleone(f.rot);
 		}
 	}
@@ -20980,14 +20983,14 @@ topreccheck(force) {
 	topline.htmlFor = check.id;
 	topline.append(rawname);
 	const dlbtn = ne.querySelector('.dlbtn');
-	if (e.type === 'oth') {
-		topline.append(dlbtn);
-		dlbtn.classList.remove('disabled');
-		dlbtn.classList.remove('biggiebtn');
+	/*if (e.type === 'oth') {
+		//topline.append(dlbtn);
+		//dlbtn.classList.remove('disabled');
+		//dlbtn.classList.remove('biggiebtn');
 		ne.querySelector('.waitdiv').style['display'] = 'none';
 		ne.setAttribute('data-state', 'wait');
 		ne.querySelector('.eepvx').style['display'] = '';
-	}
+	}*/
 	let rotbtn = ne.querySelector('.rotbtn');
 	if (e.type === 'RAW') {
 		e.rot = 1;
@@ -21006,18 +21009,22 @@ topreccheck(force) {
 			ne.setAttribute('data-state', 'wait');
 			this.#startloadimg();
 		};
-	} else
+	} else {
 		rotbtn.remove();
+	}
 	dlbtn.onclick = (/*ev*/) => {
 		if (!this.debugflag && dlbtn.classList.contains('disabled')) return;
 		if (this.actnum !== this.allfiles.length) return;
 		let selecteds = [ e ];
+		this.#rotphase = 1;
 		this.fromvisbrows = true;
 		this.stepmode = 0;
 		this.totnum = 1;
 		this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
 		this.actnum = 0;
 		this.allfiles = selecteds;
+		document.getElementById('dlprogress').style['display'] = '';
+		document.getElementById('browser').style['display'] = 'none';
 		this.#startloadimg();
 	};
 	
@@ -21701,7 +21708,7 @@ handlenext() {
 				document.getElementById('progmsg').style['display'] = '';
 				document.getElementById('progokbut').disabled = false;
 				document.getElementById('progmsg').innerHTML = this.xl('process.totals', this.stats.total, this.stats.ok, 0, this.stats.error);
-				this.loadnextimg();
+				//this.loadnextimg();
 			} else {
 				this.shownormal();
 			}*/
@@ -21774,7 +21781,7 @@ checkimb() {
 	this.custcmd(3012, 'document', null, (rc0, doc0) => {
 		if (0 <= rc0) {
 			this.connvers = doc0.querySelector('Function String').textContent;
-			document.getElementById('onimback').style['display'] = '';
+			if (this.appname !== 'imbapp') document.getElementById('onimback').style['display'] = '';
 			this.custcmd([ [3024], [3001,'par=2'], [3019], [3015] ] , 'document', null, (rc, doc) => {
 				if (rc >= 0) {
 					for (const e of doc.querySelectorAll('LIST ALLFile File FPATH'))
@@ -22066,6 +22073,7 @@ function init() {
 	imbc.checkimb();
 	window.onbeforeunload = () => {
 		imbc.savesettings();
+		if (document.getElementById('browser').style['display'] === 'none') return true;
 	};
 }
 </script>
@@ -22552,7 +22560,7 @@ infos = [ // actually const
 <!-- splash end -->
 <!-- the normal display/settings -->
 <div id="normal"  style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
-<div style="position:fixed; top:0; width:100%;background-color:black;z-index:999;color:white;"><div>&nbsp;<span id="settx"><input type="button" value="&#x2715;" style="font-weight: bold; font-size: 90%; border: 0.2px solid white;" onclick="imbc.showbrowser()"></span></div></div>
+<div style="position:fixed; top:0; width:100%;background-color:black;z-index:999;color:white;"><div>&nbsp;<span id="settx"><input type="button" value="&#x2190;" class="whbtn" style="font-size:200%;" onclick="imbc.showbrowser()"></span></div></div>
 <div id="appsett" class="gg ggopen">
 <div class="ggtt titletop ggttopen">
 <span class="ggttplus ggttp" onclick="this.parentElement.classList.remove('ggttclosed'); this.parentElement.classList.add('ggttopen');this.parentElement.parentElement.classList.remove('ggclosed'); this.parentElement.parentElement.classList.add('ggopen');">&#x25b6;</span>
@@ -22626,7 +22634,7 @@ infos = [ // actually const
 <!-- end of normal preview with question -->
 <!-- this is the picture browser, generated content appended -->
 <div id="browser" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
-<div style="position:fixed; top:0; width:100%;background-color:black;z-index:999;color:white;"><div>&nbsp;<span id="browserx"><input style="font-family:Symbol3;" type="button" value="&#x2715;" style="font-weight: bold; font-size: 90%; border: 0.2px solid white;" onclick="window.navigation.back()"></span>
+<div style="position:fixed; top:0; width:100%;background-color:black;z-index:999;color:white;"><div>&nbsp;<span id="browserx"><input type="button" value="&#x2715;" style="font-weight: bold; font-size: 90%; border: 0.2px solid white;margin-right:1em;" onclick="window.navigation.back()"></span>
 <input type="button" value="&#x1f5d1;" class="whbtn" onclick="imbc.browserdelete()" id="delselbut" disabled> <input type="button" style="font-family:Symbol3;" value="&#x2b73;" class="whbtn" onclick="imbc.browserprocess()" id="doselbut" disabled> 
 <input type="button" value="&#x1f5ce;" class="whbtn" style="font-family:Symbol3;" id="logbut" disabled  onclick="imbc.showlog();">
 <input type="button" value="&#x2699;" class="whbtn"  id="settbut" onclick="imbc.shownormal()"></div>
@@ -22639,8 +22647,7 @@ infos = [ // actually const
 <!-- end of the picture browser, generated content appended -->
 <!-- this is the messagelog, generated content appended -->
 <div id="msglog" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
-<div style="position:fixed; top:0; width:100%;background-color:black;z-index:999;color:white;"><div>&nbsp;<span id="msglogx"><input type="button" value="&#x2715;" style="font-weight: bold; font-size: 90%; border: 0.2px solid white;" onclick="imbc.showbrowser()"></span>
-<input type="button" value="&#x2699;" class="whbtn"  id="settbutlog" disabled></div>
+<div style="position:fixed; top:0; width:100%;background-color:black;z-index:999;color:white;"><div>&nbsp;<span id="msglogx"><input type="button" value="&#x2190;" class="whbtn" style="font-size:200%;" onclick="imbc.showbrowser()"></span></div>
 </div>
 <div id="xmsg" style="width: fit-content;white-space: pre;"><span style="font-weight:bold;" data-myxlkey="main.log"></span><br>
 <div id="outmsg"></div></div>
@@ -22663,8 +22670,8 @@ infos = [ // actually const
 <div id="debugonly" style="display:none;">
 Visual Browser Cache Size: <input type="number" onchange="imbc.chgcache()" id="dbgcache" style="width: 5em;"><br>
 Debugging: <input type="file" onchange="imbc.dodebug()" accept=".html,.htm,.xml" id="dbgfsel">
-Replaceraw: <input type="file" onchange="imbc.replraw()" accept=".raw,.RAW" id="dbgreplraw"><!--br>
-<span style="font-weight: bold;">&#x2261; &#x1f5c9; &#x1f5ce; &#x1f5cf; &#x1f5c4; &#x33d2; &#x2699;</span> <span>&#x2261; &#x1f5c9; &#x1f5ce; &#x1f5cf; &#x1f5c4; &#x33d2; &#x2699;</span--> 
+Replaceraw: <input type="file" onchange="imbc.replraw()" accept=".raw,.RAW" id="dbgreplraw"><br>
+<span style="font-weight: bold;">&#x2190; &#x2261; &#x1f5c9; &#x1f5ce; &#x1f5cf; &#x1f5c4; &#x33d2; &#x2699;</span> <span>&#x2190; &#x2261; &#x1f5c9; &#x1f5ce; &#x1f5cf; &#x1f5c4; &#x33d2; &#x2699;</span> 
 </div>
 <!-- this is invisible -->
 <a style="display: none;" id="result">x</a>
