@@ -177,7 +177,7 @@ body { margin: 0; }
 	display: block;
 }
 .gg .grtit { font-weight: bold; font-size: 125%; }
-.igtype > * { border: 0.5px solid grey; }
+.igtype > *, .igxtype > * { border: 0.5px solid grey; }
 /*.gg:not(.gl1) {
 	margin-left: 1em;
 }*/
@@ -193,7 +193,7 @@ body { margin: 0; }
 .ggttclosed > .ggttminus { display: none; }
 .ggttminus { font-size: 133%; margin-left: -0.2em; }
 .ggttclosed > div > .ggtt { display: none; }
-.ggclosed > .gg, .ggclosed .igtype { display: none !important; }
+.ggclosed > .gg, .ggclosed .igtype, .ggclosed .igxtype { display: none !important; }
 .ggttminus, .ggttplus { cursor: pointer; display: inline-block; font-weight:normal !important; }
 .biggiebtn:not(.disabled), .dlbtn:not(.disabled) { cursor: pointer; }
 .dlbtn.biggiebtn { left: .1em; margin-top: -0.1em; }
@@ -1673,6 +1673,24 @@ static texts = { // actually const
 			en: '\u001b[1mNew! Japanese translation thanks to Sadami Inoue!\u001b[0m Report Bugs: https://github.com/shyrodgau/imbraw2dng/issues',
 			de: '\u001b[1mNeu! Japanische Übersetzung, danke an Sadami Inoue!\u001b[0m Fehler melden: https://github.com/shyrodgau/imbraw2dng/issues',
 			ja: '\u001b[1mNew! Japanese translation thanks to Sadami Inoue!\u001b[0m バグ報告: https://github.com/shyrodgau/imbraw2dng/issues'
+		}
+	},
+	app: {
+		onexit: {
+			de: 'Beim Beenden ImB setzen auf: ',
+			en: 'On exit, switch ImB to: '
+		},
+		exitphoto: {
+			de: 'Fotos aufnehmen',
+			en: 'Take photos'
+		},
+		exitmovie: {
+			de: 'Filme aufnehmen',
+			en: 'Take movies'
+		},
+		exitbrowse: {
+			de: 'Aufgen. Bilder durchstöbern',
+			en: 'Browse taken images'
 		}
 	}
 };
@@ -19049,7 +19067,9 @@ findlang(i) {
 	}
 	if ('zZ' === i || ('00' === this.mylang && document && window?.location.href.startsWith('http://127.0.0.1'))) {
 		this.mylang = 'en';
+		this.debugflag = true;
 		this.imbweb = window.location.origin;
+		if (this.previewworker) this.previewworker.postMessage({ cmd: 'seturl', url: this.imbweb });
 	}
 	else if (!found) {
 		this.mylang = 'en';
@@ -20304,54 +20324,24 @@ fromvisbrows = false;
 /* deleting */
 #rotphase = 0;
 /* ImBCHtml: init the worker */
-initworker(second) {
+initworker() {
 	let scripttext = document.querySelector("script[type='text\/js-previewworker']").textContent;
-    const crc = ZIPHelp.crc32str(scripttext);
-	const wrkurl = this.imbweb.startsWith('http://127.0.0') ? 'imbappworker.js' : ('imbappworker'  + crc + '.js');
-    /* check if script exists */
-    let xhr = new XMLHttpRequest();
-	xhr.onloadend = (/*event*/) => {
-		if (xhr.status === 200 && xhr.responseText.length > 1000) {
-			this.previewworker = new Worker(wrkurl);
-			if (!this.previewworker) {
-				// upload previewworker OR
-				console.log('BACKGOUND WORKER FAILED 3 ' + wrkurl + ' ' + xhr.status + ' ' + second);
-				this.previewworker = null;
-			}
-			else {
-				this.previewworker.onmessage = (e) => {
-					this.workermsg(e);
-				}
-				this.previewworker.onerror = (e) => {
-					console.log('EE ' + JSON.stringify(e));
-					this.previewworker = null;
-				}
-				this.previewworker.postMessage({ cmd: 'seturl', url: this.imbweb });
-			}
-		} else if (!second) {
-			let xhrpost = new XMLHttpRequest();
-			let bound = '----WebKitFormDataBoundaryayLaxYz12345uuu';
-			xhrpost.onloadend = (ev) => {
-				console.log('XHR ' + JSON.stringify(ev));
-				this.initworker(true);
-			}
-			xhrpost.open('POST', '/imback');
-			
-			xhrpost.setRequestHeader("Content-Type", 'multipart/form-data; boundary=' + bound);
-			xhrpost.send('--' + bound + '\r\nContent-Disposition: form-data; name="fileupload1"; filename="imbappworker' + crc + '.js"\r\nContent-type=text/javascript\r\n\r\n' + scripttext + '\r\n\r\n--' + bound  + 'Content-Disposition: form-data; name="upbtn"\r\n\r\nUpload files\r\n\r\n-- ' + bound + '--');
-		}
-		else {
-			this.previewworker = null;
-			console.log('BACKGOUND WORKER FAILED 0 ' + wrkurl + ' ' + xhr.status + ' ' + second);
-		}
-	};
-	xhr.onerror = (/*event*/) => {
-		console.log('BACKGOUND WORKER FAILED 2 ' + wrkurl + ' ' + xhr.status + ' ' + second);
+    this.previewworker = new Worker(URL.createObjectURL(new Blob([scripttext], { type: "text/javascript" })));
+	if (!this.previewworker) {
+		// upload previewworker OR
+		console.log('BACKGOUND WORKER FAILED 3 ' + wrkurl + ' ' + xhr.status + ' ' + second);
 		this.previewworker = null;
-	};
-	xhr.open('GET', wrkurl);
-	this.previewworker = false;
-	xhr.send();
+	}
+	else {
+		this.previewworker.onmessage = (e) => {
+			this.workermsg(e);
+		}
+		this.previewworker.onerror = (e) => {
+			console.log('EE ' + JSON.stringify(e));
+			this.previewworker = null;
+		}
+		this.previewworker.postMessage({ cmd: 'seturl', url: this.imbweb });
+	}
 }
 
 
@@ -21141,7 +21131,7 @@ loadnextimg() {
 		this.#loaderrunning = 'blah!';
 		window.setTimeout(() => {
 			this.checkchecks();
-			if (this.debugflag) console.log('NN li dl ' + e.url + ' ' + this.actnum);
+			if (this.debugflag) console.log('NN li dl ' + this.actnum);
 			this.fromvisbrows = true;
 			/*if (undefined === e.url) {
 				console.log('x');
@@ -22561,13 +22551,33 @@ infos = [ // actually const
 </div>
 <!-- splash end -->
 <!-- the normal display/settings -->
-<div id="normal" style="margin-top: 0.5em;">
-<div ><input type="checkbox" id="steppreview" onchange="imbc.dirtysettings()" checked><label for="steppreview" data-myxlkey="process.singlestep"></label></div>
+<div id="normal"  style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
+<div style="position:fixed; top:0; width:100%;background-color:black;z-index:999;color:white;"><div>&nbsp;<span id="settx"><input type="button" value="&#x2715;" style="font-weight: bold; font-size: 90%; border: 0.2px solid white;" onclick="imbc.showbrowser()"></span></div></div>
+<div id="appsett" class="gg ggopen">
+<div class="ggtt titletop ggttopen">
+<span class="ggttplus ggttp" onclick="this.parentElement.classList.remove('ggttclosed'); this.parentElement.classList.add('ggttopen');this.parentElement.parentElement.classList.remove('ggclosed'); this.parentElement.parentElement.classList.add('ggopen');">&#x25b6;</span>
+<span class="ggttminus ggttp" onclick="this.parentElement.classList.remove('ggttopen'); this.parentElement.classList.add('ggttclosed');this.parentElement.parentElement.classList.remove('ggopen'); this.parentElement.parentElement.classList.add('ggclosed');">&#x25bc;</span>
+<span class="grtit"> APP </span>
+</div>
+<div class="igxtype">
+<div ><input style="display:none;" type="checkbox" id="steppreview" onchange="imbc.dirtysettings()"><label for="steppreview" data-myxlkey="process.singlestep" style="display:none;"></label></div>
+<div ><input type="checkbox" id="usezip" onchange="imbc.dirtysettings()"><label for="usezip" data-myxlkey="main.usezip" id="useziplbl"></label></div>
+<div><span data-myxlkey="app.onexit"></span><select id="exitsel"><option value="photo" data-myxlkey="app.exitphoto"> </option><option value="movie" data-myxlkey="app.exitmovie"> </option><option value="browse" data-myxlkey="app.exitbrowse"> </option></select></div>
+</div>
+</div>
+<div id="dngsett" class="gg ggopen">
+<div class="ggtt titletop ggttopen">
+<span class="ggttplus ggttp" onclick="this.parentElement.classList.remove('ggttclosed'); this.parentElement.classList.add('ggttopen');this.parentElement.parentElement.classList.remove('ggclosed'); this.parentElement.parentElement.classList.add('ggopen');">&#x25b6;</span>
+<span class="ggttminus ggttp" onclick="this.parentElement.classList.remove('ggttopen'); this.parentElement.classList.add('ggttclosed');this.parentElement.parentElement.classList.remove('ggopen'); this.parentElement.parentElement.classList.add('ggclosed');">&#x25bc;</span>
+<span class="grtit"> DNG </span>
+</div>
+<div class="igxtype">
 <div ><input type="checkbox" id="dngpreview" checked onchange="imbc.chgdngpreview()"><label for="dngpreview" data-myxlkey="process.addpreview"></label></div>
 <div ><input type="checkbox" id="oldstylewb" onchange="imbc.dirtysettings()"><label for="oldstylewb" style="background-color: #ffffcc;" data-myxlkey="process.oldstylewb"></label></div>
 <div ><input type="checkbox" id="incdcp" checked onchange="imbc.dirtysettings()"><label for="incdcp" style="background-color: #ffffcc;" data-myxlkey="process.includedcp"></label></div>
 <div ><input type="checkbox" id="copycheck" onchange="imbc.chgcopycheck()"><label for="copycheck" data-myxlkey="process.addcopyright"></label> <input onchange="imbc.dirtysettings()" type="text" id="copytext"></input></div>
-<div ><input type="checkbox" id="usezip" onchange="imbc.dirtysettings()"><label for="usezip" data-myxlkey="main.usezip" id="useziplbl"></label></div>
+</div>
+</div>
 <div style="display:none;" style="margin-top: 0.5em;">
 <span id="onlyhttp" data-myxlkey="browser.prefnotfile"></span>
 <span id="settingsset" data-myxlkey="browser.settingsset"></span>
@@ -22616,10 +22626,10 @@ infos = [ // actually const
 <!-- end of normal preview with question -->
 <!-- this is the picture browser, generated content appended -->
 <div id="browser" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
-<div style="position:fixed; top:0; width:100%;background-color:black;z-index:999;color:white;"><div>&nbsp;<span id="browserx"><input style="font-family:Symbol3;" type="button" value="&#x2715;" style="font-weight: bold; font-size: 90%; border: 0.2px solid white;" onclick="imbc.shownormal()"></span>
+<div style="position:fixed; top:0; width:100%;background-color:black;z-index:999;color:white;"><div>&nbsp;<span id="browserx"><input style="font-family:Symbol3;" type="button" value="&#x2715;" style="font-weight: bold; font-size: 90%; border: 0.2px solid white;" onclick="window.navigation.back()"></span>
 <input type="button" value="&#x1f5d1;" class="whbtn" onclick="imbc.browserdelete()" id="delselbut" disabled> <input type="button" style="font-family:Symbol3;" value="&#x2b73;" class="whbtn" onclick="imbc.browserprocess()" id="doselbut" disabled> 
 <input type="button" value="&#x1f5ce;" class="whbtn" style="font-family:Symbol3;" id="logbut" disabled  onclick="imbc.showlog();">
-<input type="button" value="&#x2699;" class="whbtn"  id="settbut" disabled></div>
+<input type="button" value="&#x2699;" class="whbtn"  id="settbut" onclick="imbc.shownormal()"></div>
 <div style="margin-bottom:0.3em;">&nbsp;<span data-myxlkey="main.sort" style="display:none;"></span> <label for="sbytype"><input type="checkbox" id="sbytype" onclick="imbc.buildtree()"><span data-myxlkey="browser.bytype"></span></label> - <label for="solder">
 <input type="checkbox" id="solder" onclick="imbc.buildtree()"><span data-myxlkey="browser.olderfirst"></span></label>
  <span id="brnsel" class="selnumber">?</span> / <span id="brntot">?</span> - <label for="selall" data-mytitlexlkey="browser.selall.tooltip">
@@ -22654,7 +22664,7 @@ infos = [ // actually const
 Visual Browser Cache Size: <input type="number" onchange="imbc.chgcache()" id="dbgcache" style="width: 5em;"><br>
 Debugging: <input type="file" onchange="imbc.dodebug()" accept=".html,.htm,.xml" id="dbgfsel">
 Replaceraw: <input type="file" onchange="imbc.replraw()" accept=".raw,.RAW" id="dbgreplraw"><!--br>
-<span style="font-weight: bold;">&#x1f5c9; &#x1f5ce; &#x1f5cf; &#x1f5c4; &#x33d2; &#x2699;</span> <span>&#x1f5c9; &#x1f5ce; &#x1f5cf; &#x1f5c4; &#x33d2; &#x2699;</span--> 
+<span style="font-weight: bold;">&#x2261; &#x1f5c9; &#x1f5ce; &#x1f5cf; &#x1f5c4; &#x33d2; &#x2699;</span> <span>&#x2261; &#x1f5c9; &#x1f5ce; &#x1f5cf; &#x1f5c4; &#x33d2; &#x2699;</span--> 
 </div>
 <!-- this is invisible -->
 <a style="display: none;" id="result">x</a>
