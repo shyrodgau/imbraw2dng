@@ -342,7 +342,7 @@ div[data-state='load'] .btnsrow, div[data-state='wait'] .btnsrow, div[data-state
 	padding-right: 2em;
 }
 .whbtn:disabled { opacity: 0.6; }
-#hammen > * { padding:0.5em; margin:0.5em; }
+#hammen > * { padding:0.5em; margin:0.5em;cursor:pointer; }
 .hammenent:hover { background-color: #cccccc; }
 </style>
 <!-- javascript code CURRENTLY NOT identical to imbraw2dng.js  for the classes IFDOut, TIFFOut, ZIPHelp, ImBCBase, ImBCBackw. -->
@@ -932,7 +932,7 @@ add(data, name, cb) {
 /* *************************************** Main class *************************************** */
 class ImBCBase {
 /* Indentation out */
-static version = "V4.9.90_dev"; // actually const
+static version = "V4.9.91_dev"; // actually const
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -22884,7 +22884,7 @@ infos = [ // actually const
 <!-- this is the picture browser, generated content appended -->
 <div id="browser" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
 <div style="position:fixed; top:0; width:100%;background-color:black;z-index:999;color:white;"><div>&nbsp;<span id="browserx"><input type="button" value="&#x2261;" class="whbtn" onclick="imbc.handleham();"></span>
-<input type="button" value="&#x1f5d1;" class="whbtn" onclick="imbc.browserdelete()" id="delselbut" disabled data-mytitlexlkey="browser.delall"> <input type="button" style="font-family:Symbol3;" value="&#x2b73;" class="whbtn" onclick="imbc.browserprocess()" id="doselbut" disabled data-mytitlexlkey="browser.procall"> </div>
+<input type="button" value="&#x1f5d1;" class="whbtn" onclick="imbc.browserdelete()" id="delselbut" disabled style="font-family:Symbol2;" data-mytitlexlkey="browser.delall"> <input type="button" style="font-family:Symbol3;" value="&#x2b73;" class="whbtn" onclick="imbc.browserprocess()" id="doselbut" disabled data-mytitlexlkey="browser.procall"> </div>
 <div id="hammen" style="position:fixed; left: 0; width: fit-content; background-color:white; z-index:999; color:black;display:none;border:1px solid gray;border-bottom-right-radius:10px;border-bottom-left-radius:10px;">
 <div class="hammenent" onclick="imbc.closeham();imbc.settime()"><span  style="font-family:Symbol3;">&#x1f570;</span> <span data-myxlkey='app.menu.settime'>Set ImB Time</span></div>
 <div class="hammenent" onclick="imbc.closeham();imbc.showlog()"><span  style="font-family:Symbol3;">&#x1f5ce;</span> <span data-myxlkey='app.menu.msglog'>Msg Log</span></div>
