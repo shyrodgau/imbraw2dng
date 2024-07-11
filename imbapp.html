@@ -1797,6 +1797,10 @@ static texts = { // actually const
 				en: 'Quit',
 				de: 'Beenden'
 			}
+		},
+		okay: {
+			de: 'Erfolgreich!',
+			en: 'Success!'
 		}
 	}
 };
@@ -1807,6 +1811,8 @@ withpreview = true;
 // app language
 imblang = undefined;
 useimblang = false;
+// exitmode for imb
+exitmode = 'photo';
 // experimental
 neutral = false;
 copyright = '';
@@ -20348,6 +20354,7 @@ parseconfig(data) {
 	if (d.owb) this.constwb = true; else this.constwb = false;
 	if (d.zip && window.showSaveFilePicker && !this.imbcb) document.getElementById('usezip').checked = true;
 	if (d.step) this.stepmode = 1;
+	if (d.exitmode) this.exitmode = d.exitmode;
 	else this.stepmode = 0;
 }
 /* ImBCHtmlOut: browserdisplay: put last message viewable */
@@ -21453,7 +21460,8 @@ savesettings() {
 					'loca': window.location.origin,
 					'zip': document.getElementById('usezip')?.checked,
 					'owb': document.getElementById('oldstylewb')?.checked,
-					'ndcp': !document.getElementById('incdcp')?.checked
+					'ndcp': !document.getElementById('incdcp')?.checked,
+					'exitmode': this.exitmode
 				}
 			));
 		}
@@ -21879,18 +21887,18 @@ custcmd(cmd, type, restargs, cb) {
 				if ('0' === st?.textContent || st2 || thecmd === 3014 || thecmd === 3031) {
 					if (cmd instanceof Array && cmd.length > 0)
 						this.custcmd(cmd, type, restargs, cb);
-					else
+					else if (cb)
 						cb(0, xhr.response);
 				}
-				else
+				else if (cb)
 					cb(-3);
 			}
 			else if (cmd instanceof Array && cmd.length > 0)
 				this.custcmd(cmd, type, restargs, cb);
-			else
+			else if (cb)
 				cb(0, xhr.response);
 		}
-		else cb(-1);
+		else if (cb) cb(-1);
 	};
 	xhr.onerror = (/*event*/) => {
 		cb(-2);
@@ -21925,7 +21933,7 @@ checkimb() {
 						}
 					}
 					/* what lang is the index ? */
-					this.custcmd([ [ 3031, 'str=all'] ], 'document', null, (rc1, doc1) => {
+					this.custcmd(3031, 'document',  'str=all', (rc1, doc1) => {
 						if (rc1 >= 0) {
 							for (const e of doc1.querySelectorAll('LIST Item Cmd')) {
 								if (e.textContent === '3008') {
@@ -21994,6 +22002,7 @@ initsettings() {
 				document.getElementById('settingsset').style['display'] = '';
 				document.getElementById('settingsset').setAttribute('data-myxlarg0',window.location.origin);
 				document.getElementById('setsettingsurl').setAttribute('data-myxlarg0',window.location.origin);
+				document.getElementById('exitsel').value = this.exitmode;
 			} else {
 				document.getElementById('onlyhttp').style['display'] = 'none';
 				document.getElementById('setsettings').style['display'] = '';
@@ -22230,6 +22239,41 @@ handleham() {
 closeham() {
 	document.getElementById('hammen').style['display'] = 'none';
 }
+/* ImBCHtml: exit mode select change */
+chgexit() {
+	this.exitmode = document.getElementById('exitsel').value;
+}
+/* ImBCHtml: set device time */
+settime() {
+	const d = new Date();
+	const m = d.getMonth();
+	const y = d.getDate();
+	const h = d.getHours();
+	const i = d.getMinutes();
+	const s = d.getSeconds();
+	this.custcmd(3005, 'document', 'str=' + d.getFullYear() + '-' + ((m < 10)?'0':'') + m + '-' + ((y < 10)?'0':'') + y, (rc) => {
+		if (!rc) {
+			this.custcmd(3006, 'document', 'str=' + ((h < 10)?'0':'') + h + ':' + ((i < 10)?'0':'') + i + ':' + ((s < 10)?'0':'') + s, (rc) => {
+				if (!rc) {
+					document.getElementById('genericok').style['border-color'] = 'green';
+					document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('app.okay'));
+					document.getElementById('genericok').style['display'] = '';
+					document.getElementById('browser').style['display'] = 'none';
+				} else {
+					document.getElementById('genericok').style['border-color'] = 'red';
+					document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error'));
+					document.getElementById('genericok').style['display'] = '';
+					document.getElementById('browser').style['display'] = 'none';
+				}
+			});
+		} else {
+			document.getElementById('genericok').style['border-color'] = 'red';
+			document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error'));
+			document.getElementById('genericok').style['display'] = '';
+			document.getElementById('browser').style['display'] = 'none';
+		}
+	});
+}
 /* Indentation in - end of class ImBCHtml */
 }
 /* *************************************** Main class for HTML, forward E N D *************************************** */
@@ -22257,6 +22301,10 @@ function init() {
 	imbc.checkimb();
 	window.onbeforeunload = () => {
 		imbc.savesettings();
+		let ex = 0;
+		if (this.exitmode === 'movie') ex = 1;
+		else if (this.exitmode === 'browse') ex = 2;
+		imbc.custcmd( 3001,  'document', ('par=' + 2));
 		if (document.getElementById('browser').style['display'] === 'none') return true;
 	};
 }
@@ -22753,7 +22801,7 @@ infos = [ // actually const
 <div class="igxtype">
 <!--div ><input style="display:none;" type="checkbox" id="steppreview" onchange="imbc.dirtysettings()"><label for="steppreview" data-myxlkey="process.singlestep" style="display:none;"></label></div-->
 <div ><input type="checkbox" id="usezip" onchange="imbc.dirtysettings()"> <label for="usezip" data-myxlkey="main.usezip" id="useziplbl"></label></div>
-<div><span data-myxlkey="app.onexit"></span> <select id="exitsel"><option value="photo" data-myxlkey="app.exitphoto"> </option><option value="movie" data-myxlkey="app.exitmovie"> </option><option value="browse" data-myxlkey="app.exitbrowse"> </option></select></div>
+<div><span data-myxlkey="app.onexit"></span> <select id="exitsel" onchange="imbc.chgexit();"><option value="photo" data-myxlkey="app.exitphoto"> </option><option value="movie" data-myxlkey="app.exitmovie"> </option><option value="browse" data-myxlkey="app.exitbrowse"> </option></select></div>
 <div><span data-myxlkey="app.lang"></span> <select id="langsel" onchange="imbc.setlang()"><option value="99" onclick="imbc.setlang()">AUTO</option><option value="de" onclick="imbc.setlang()">DE</option><option value="en" selected onclick="imbc.setlang()">EN</option>
 <option value="ja" onclick="imbc.setlang()">JA</option><option value="fr" onclick="imbc.setlang()">FR</option><!--option value="ru" onclick="imbc.setlang()">RU</option--></select></div>
 </div>
@@ -22824,7 +22872,7 @@ infos = [ // actually const
 <!--input type="button" value="&#x1f5ce;" class="whbtn" style="font-family:Symbol3;" id="logbut" disabled  onclick="imbc.showlog();">
 <input type="button" value="&#x2699;" class="whbtn"  id="settbut" onclick="imbc.shownormal()"><input type="button" value="&#x1f570;" style="font-weight:normal;" class="whbtn"  id="settbut" onclick="imbc.shownormal()"--></div>
 <div id="hammen" style="position:fixed; left: 0; width: fit-content; background-color:white; z-index:999; color:black;display:none;">
-<div class="hammenent"><span  style="font-family:Symbol3;">&#x1f570;</span> <span data-myxlkey='app.menu.settime'>Set ImB Time</span></div>
+<div class="hammenent" onclick="imbc.closeham();imbc.settime()"><span  style="font-family:Symbol3;">&#x1f570;</span> <span data-myxlkey='app.menu.settime'>Set ImB Time</span></div>
 <div class="hammenent" onclick="imbc.closeham();imbc.showlog()"><span  style="font-family:Symbol3;">&#x1f5ce;</span> <span data-myxlkey='app.menu.msglog'>Msg Log</span></div>
 <div class="hammenent" onclick="imbc.closeham();imbc.shownormal()">&#x2699; <span data-myxlkey='app.menu.settings'>Settings</span></div>
 <div class="hammenent" onclick="imbc.closeham();window.navigation.back()">&#x2715; <span data-myxlkey='app.menu.quit'>Quit</span></div>
@@ -22855,6 +22903,12 @@ infos = [ // actually const
 <div id="dlprogress" style="border: 5px solid grey; border-radius: 20px; padding: 20px;display:none;width:fit-content;">
 <div style="font-weight:bold;" id="progmsg"></div>
 <input id="progokbut" type="button" data-myvalxlkey="del.question.ok" onclick="imbc.showbrowser()" disabled>
+</div>
+<!-- end of the download progress -->
+<!-- generic OK/error -->
+<div id="genericok" style="border: 5px solid grey; border-radius: 20px; padding: 20px;display:none;width:fit-content;">
+<div style="font-weight:bold;" id="okmsg"></div>
+<input id="confirmbut" type="button" data-myvalxlkey="del.question.ok" onclick="imbc.showbrowser(); this.parentElement.style['display'] = 'none';">
 </div>
 <!-- end of the download progress -->
 <!-- debug -->
