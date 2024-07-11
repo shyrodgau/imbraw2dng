@@ -30,6 +30,7 @@ DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS 
 <head>
 <meta name="viewport" content="width=200, initial-scale=1" />
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="manifest" href="manifest.json">
 <link rel="shortcut icon" type="image/x-icon" href="data:image/x-icon;base64,AAABAAEAICAAAAEACACoCAAAFgAAACgAAAAgAAAAQAAAAAEACAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAcAAAAAAQEAAQEBAAAHBwAACgoAAAs
 LAAAMDAAADQ0AAA8PAAASEgAAFRUAABcXAAAaGgAAHBwAACAgAAEjIgANIicAAiQl
@@ -316,7 +317,7 @@ div[data-state='load'] .btnsrow, div[data-state='wait'] .btnsrow, div[data-state
 	z-index: 99;
 	color: rgba(255,0,0,0.6);
 	text-shadow: 3px 2px white;
-	padding-left: 1.5em;
+	padding-left: 1.1em;
 	padding-top: 0.3em;
 	pointer-events:none;
 }
@@ -327,7 +328,7 @@ div[data-state='load'] .btnsrow, div[data-state='wait'] .btnsrow, div[data-state
 	z-index: 99;
 	color: rgba(0,255,0,0.6);
 	text-shadow: 3px 1px white;
-	padding-left: 0.5em;
+	padding-left: 0.1em;
 	padding-top: 0.1em;
 	pointer-events:none;
 }
@@ -344,7 +345,7 @@ div[data-state='load'] .btnsrow, div[data-state='wait'] .btnsrow, div[data-state
 #hammen > * { padding:0.5em; margin:0.5em; }
 .hammenent:hover { background-color: #cccccc; }
 </style>
-<!-- javascript code identical to imbraw2dng.js  for the classes IFDOut, TIFFOut, ZIPHelp, ImBCBase, ImBCBackw. -->
+<!-- javascript code CURRENTLY NOT identical to imbraw2dng.js  for the classes IFDOut, TIFFOut, ZIPHelp, ImBCBase, ImBCBackw. -->
 <script type="text/javascript" language="javascript">
 "use strict;"
 /* *************************************** IFDOut *************************************** */
@@ -1793,9 +1794,9 @@ static texts = { // actually const
 				en: 'Settings',
 				de: 'Einstellungen'
 			},
-			quit: {
-				en: 'Quit',
-				de: 'Beenden'
+			info: {
+				en: 'Info',
+				de: 'Info'
 			}
 		},
 		okay: {
@@ -22274,6 +22275,21 @@ settime() {
 		}
 	});
 }
+/* ImBCHtml: set device time */
+appinfo() {
+	const d = new Date();
+	const m = d.getMonth();
+	const y = d.getDate();
+	const h = d.getHours();
+	const i = d.getMinutes();
+	const s = d.getSeconds();
+	document.getElementById('genericok').style['border-color'] = 'grey';
+	document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('main.apptitle'));
+	document.getElementById('okmsg').innerHTML += '<br>';
+	document.getElementById('okmsg').innerHTML += ImBCBase.version;
+	document.getElementById('genericok').style['display'] = '';
+	document.getElementById('browser').style['display'] = 'none';
+}
 /* Indentation in - end of class ImBCHtml */
 }
 /* *************************************** Main class for HTML, forward E N D *************************************** */
@@ -22868,18 +22884,16 @@ infos = [ // actually const
 <!-- this is the picture browser, generated content appended -->
 <div id="browser" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
 <div style="position:fixed; top:0; width:100%;background-color:black;z-index:999;color:white;"><div>&nbsp;<span id="browserx"><input type="button" value="&#x2261;" class="whbtn" onclick="imbc.handleham();"></span>
-<input type="button" value="&#x1f5d1;" class="whbtn" onclick="imbc.browserdelete()" id="delselbut" disabled> <input type="button" style="font-family:Symbol3;" value="&#x2b73;" class="whbtn" onclick="imbc.browserprocess()" id="doselbut" disabled> 
-<!--input type="button" value="&#x1f5ce;" class="whbtn" style="font-family:Symbol3;" id="logbut" disabled  onclick="imbc.showlog();">
-<input type="button" value="&#x2699;" class="whbtn"  id="settbut" onclick="imbc.shownormal()"><input type="button" value="&#x1f570;" style="font-weight:normal;" class="whbtn"  id="settbut" onclick="imbc.shownormal()"--></div>
-<div id="hammen" style="position:fixed; left: 0; width: fit-content; background-color:white; z-index:999; color:black;display:none;">
+<input type="button" value="&#x1f5d1;" class="whbtn" onclick="imbc.browserdelete()" id="delselbut" disabled data-mytitlexlkey="browser.delall"> <input type="button" style="font-family:Symbol3;" value="&#x2b73;" class="whbtn" onclick="imbc.browserprocess()" id="doselbut" disabled data-mytitlexlkey="browser.procall"> </div>
+<div id="hammen" style="position:fixed; left: 0; width: fit-content; background-color:white; z-index:999; color:black;display:none;border:1px solid gray;border-bottom-right-radius:10px;border-bottom-left-radius:10px;">
 <div class="hammenent" onclick="imbc.closeham();imbc.settime()"><span  style="font-family:Symbol3;">&#x1f570;</span> <span data-myxlkey='app.menu.settime'>Set ImB Time</span></div>
 <div class="hammenent" onclick="imbc.closeham();imbc.showlog()"><span  style="font-family:Symbol3;">&#x1f5ce;</span> <span data-myxlkey='app.menu.msglog'>Msg Log</span></div>
 <div class="hammenent" onclick="imbc.closeham();imbc.shownormal()">&#x2699; <span data-myxlkey='app.menu.settings'>Settings</span></div>
-<div class="hammenent" onclick="imbc.closeham();window.navigation.back()">&#x2715; <span data-myxlkey='app.menu.quit'>Quit</span></div>
+<div class="hammenent" onclick="imbc.closeham();imbc.appinfo()"><span style="font-weight:bold;">?</span> <span data-myxlkey='app.menu.info'>Quit</span></div>
 </div>
 <div style="margin-bottom:0.3em;">&nbsp;<span data-myxlkey="main.sort" style="display:none;"></span> <label for="sbytype"><input type="checkbox" id="sbytype" onclick="imbc.buildtree()"><span data-myxlkey="browser.bytype"></span></label> - <label for="solder">
-<input type="checkbox" id="solder" onclick="imbc.buildtree()"><span data-myxlkey="browser.olderfirst"></span></label>
- <span id="brnsel" class="selnumber">?</span> / <span id="brntot">?</span> - <label for="selall" data-mytitlexlkey="browser.selall.tooltip">
+<input type="checkbox" id="solder" onclick="imbc.buildtree()"><span data-myxlkey="browser.olderfirst"></span></label> -
+ <span id="brnsel" class="selnumber">?</span> / <span id="brntot">?</span> <label for="selall" data-mytitlexlkey="browser.selall.tooltip">
  <input onclick="imbc.topreccheck()" type="checkbox" id="selall"><!--span data-myxlkey="browser.selall"></span--></label><!-- - --> 
  </div> </div>
 </div>
