@@ -110,3 +110,5 @@ insdyn ~/prog/imbraw2dng/imbraw2dng/imbraw2dng.html 2
 insdyn ~/prog/imbraw2dng/imbraw2dng/imbraw2dng.html 1
 insdyn ~/prog/imbraw2dng/imbraw2dng/imbapp.html 2
 insdyn ~/prog/imbraw2dng/imbraw2dng/imbapp.html 1
+insdyn ~/prog/imbraw2dng/imbraw2dng/imbapp_00.html 2
+insdyn ~/prog/imbraw2dng/imbraw2dng/imbapp_00.html 1
