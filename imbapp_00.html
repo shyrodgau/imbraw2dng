@@ -5177,7 +5177,7 @@ body { margin: 0; }
 }
 .gg .grtit { font-weight: bold; font-size: 125%; }
 .igtype > * { border: 0.5px solid grey; }
-.igxtype > * { margin: 0.5em; padding: 0.5em; }
+.igxtype > * { margin: 0.2em; padding: 0.5em; }
 /*.gg:not(.gl1) {
 	margin-left: 1em;
 }*/
@@ -6741,6 +6741,7 @@ mylang = 'en';
 withpreview = true;
 // app language
 imblang = undefined;
+imbsettings = [];
 useimblang = false;
 // exitmode for imb
 exitmode = 'photo';
@@ -6752,7 +6753,6 @@ copyright = '';
 // { name: 'xxx.jpg', data: array-ifd... }
 #exififds = [];
 appname = 'imbraw2dng'; // or imbapp
-maxcl = 2; // 5 - hr - day - month 
 connversion = ''; // hw version from cmd 3012
 
 // ImBCBase: fake long exposure:
@@ -25482,6 +25482,8 @@ setpvwait() {
 }
 /* ImBCHtml: browserdisplay: show main screen */
 showmain() {
+	document.getElementById('delq').style['display'] = 'none';
+	document.getElementById('genericok').style['display'] = 'none';
 	if (this.dispmode === 2) {
 		this.showbrowser();
 	} else if (this.dispmode === 1) {
@@ -25665,16 +25667,8 @@ aftercheck() {
 		this.#higherclasses(this.untypedclasses, 7, 5);
 		this.#higherclasses(this.typedclasses, 10, 5);
 	}
-	this.maxcl = 2;
-	if (this.mingrp === 'd')
-		this.maxcl++;
-	if (this.maxgrp === 'd') {
-		this.maxcl+=2;
-	}
-	else if (this.mingrp === 'm')
-		this.maxcl++;
 	// top type classes here
-	for (const u of this.typedclasses.filter((o) => o.level === this.maxcl)) {
+	for (const u of this.typedclasses) {
 		if (u.ischild) continue;
 		if (this.typedclasses.filter((o) => u.title.substring(0,3) === o.title.substring(0,3)).length === 1) {
 			u.level --;
@@ -25704,16 +25698,15 @@ aftercheck() {
 		}
 	}
 	// non-typed upgraded to gl1, unless only one
-	if (this.untypedclasses.filter((o) => o.level === this.maxcl).length === 1 && this.untypedclasses.filter((o) => o.level === this.maxcl)[0].smembers) {
-		const t = this.untypedclasses.filter((o) => o.level === this.maxcl)[0];
+	if (this.untypedclasses.length === 1 && this.untypedclasses[0].smembers) {
+		const t = this.untypedclasses[0];
 		this.untypedclasses.splice(0,1);
 		for (const s of t.smembers) {
 			s.entry.classList.add('gl1');
-			s.level = this.maxcl;
 			this.untypedclasses.push(s);
 		}
 	} else
-		for (const s of this.untypedclasses.filter((o) => o.level === this.maxcl)) s.entry.classList.add('gl1');
+		for (const s of this.untypedclasses) s.entry.classList.add('gl1');
 	// build title elements
 	for (const s of this.untypedclasses) this.#buildtitlerec(s);
 	for (const s of this.typedclasses) this.#buildtitlerec(s);
@@ -26943,6 +26936,9 @@ checkimb() {
 							while (n.nodeName !== 'Status') n = n.nextSibling;
 							imblang = n.textContent;
 						}
+						let n = e.nextSibling;
+						while (n.nodeName !== 'Status') n = n.nextSibling;
+						this.imbsettings.push({ id: e.textContent, val: n.textContent });
 					}
 					/* what lang is the index ? */
 					this.custcmd(3031, 'document',  'str=all', (rc1, doc1) => {
@@ -26961,6 +26957,61 @@ checkimb() {
 										}
 									}
 								}
+								// remember all settings in imb menu
+								let x = this.imbsettings.find((el) => el.id === e.textContent);
+								let a = e.nextSibling;
+								while (a.nodeName !== 'Name') a = a.nextSibling;
+								let n = e.nextSibling;
+								while (n.nodeName !== 'MenuList') n = n.nextSibling;
+								if (x) {
+									x.name = a.textContent;
+									x.vals = [];
+									for (const f of n.querySelectorAll('Option Index')) {
+										let id = f.textContent;
+										let v = f.nextSibling;
+										while (v.nodeName !== 'Id') v = v.nextSibling;
+										x.vals.push( { id: id, val: v.textContent });
+									}
+									console.log('X ' + JSON.stringify(x));
+								} else {
+									let newset = { id: e.textContent, name: a.textContent, vals: [] };
+									for (const f of n.querySelectorAll('Option Index')) {
+										let id = f.textContent;
+										let v = f.nextSibling;
+										while (v.nodeName !== 'Id') v = v.nextSibling;
+										newset.vals.push( { id: id, val: v.textContent });
+									}
+									console.log('XX ' + JSON.stringify(newset));
+								}
+							}
+							// build the settings menu
+							const r = document.getElementById('menufromimb');
+							r.innerHTML = '';
+							for (const l of this.imbsettings) {
+								if (l.name && l.vals) {
+									const s = document.createElement('div');
+									s.append(l.name + ': ');
+									r.append(s);
+									const o = document.createElement('select');
+									r.append(o);
+									for (const v of l.vals) {
+										const e = document.createElement('option');
+										e.value = v.id;
+										e.innerHTML = v.val;
+										o.append(e);
+									}
+									o.value = l.val;
+									o.onchange = () => {
+										this.custcmd(l.id, 'document', 'par=' + o.value, (rc) => {
+											if (!rc)
+												l.val = o.value;
+											else
+												alert(this.rmesc(this.xl('words.error')) + ' ' + l.name)
+										});
+									}
+									s.append(o);
+								}
+								//else console.log('UU ' + JSON.stringify(l));
 							}
 						}
 						this.custcmd([ [3024], [3001,'par=2'], [3019], [3015] ] , 'document', null, (rc, doc) => {
@@ -27329,7 +27380,10 @@ function init() {
 		if (this.exitmode === 'movie') ex = 1;
 		else if (this.exitmode === 'browse') ex = 2;
 		imbc.custcmd( 3001,  'document', ('par=' + 2));
-		if (document.getElementById('browser').style['display'] === 'none' && document.getElementById('takephotos').style['display'] === 'none' && document.getElementById('takemovies').style['display'] === 'none') return true;
+		if (document.getElementById('browser').style['display'] === 'none' && document.getElementById('takephotos').style['display'] === 'none' && document.getElementById('takemovies').style['display'] === 'none') {
+			imbc.showmain();
+			return true;
+		}
 	};
 	window.onbeforeinstallprompt = (ev) => {
 		ev.preventDefault();
@@ -27826,20 +27880,30 @@ infos = [ // actually const
 <!-- the normal display/settings -->
 <div id="normal"  style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
 <div style="position:fixed; top:0; width:100%;background-color:black;z-index:999;color:white;"><div>&nbsp;<span id="settx"><input type="button" value="&#x2190;" class="whbtn" style="font-size:200%;padding:0 !important; border:0 !important;" onclick="imbc.showmain()"></span></div></div>
-<div id="appsett" class="gg ggopen">
-<div class="ggtt titletop ggttopen">
+<div id="appsett" class="gg ggclosed">
+<div class="ggtt titletop ggttclosed">
 <span class="ggttplus ggttp" onclick="this.parentElement.classList.remove('ggttclosed'); this.parentElement.classList.add('ggttopen');this.parentElement.parentElement.classList.remove('ggclosed'); this.parentElement.parentElement.classList.add('ggopen');">&#x25b6;</span>
 <span class="ggttminus ggttp" onclick="this.parentElement.classList.remove('ggttopen'); this.parentElement.classList.add('ggttclosed');this.parentElement.parentElement.classList.remove('ggopen'); this.parentElement.parentElement.classList.add('ggclosed');">&#x25bc;</span>
 <span class="grtit"> APP </span>
 </div>
 <div class="igxtype">
-<!--div ><input style="display:none;" type="checkbox" id="steppreview" onchange="imbc.dirtysettings()"><label for="steppreview" data-myxlkey="process.singlestep" style="display:none;"></label></div-->
 <div ><input type="checkbox" id="usezip" onchange="imbc.dirtysettings()"> <label for="usezip" data-myxlkey="main.usezip" id="useziplbl"></label></div>
 <div><span data-myxlkey="app.onexit"></span> <select id="exitsel" onchange="imbc.chgexit();"><option value="photo" data-myxlkey="app.exitphoto"> </option><option value="movie" data-myxlkey="app.exitmovie"> </option><option value="browse" data-myxlkey="app.exitbrowse"> </option></select></div>
 <div><span data-myxlkey="app.lang"></span> <select id="langsel" onchange="imbc.setlang()"><option value="99" onclick="imbc.setlang()">AUTO</option><option value="de" onclick="imbc.setlang()">DE</option><option value="en" selected onclick="imbc.setlang()">EN</option>
 <option value="ja" onclick="imbc.setlang()">JA</option><option value="fr" onclick="imbc.setlang()">FR</option><!--option value="ru" onclick="imbc.setlang()">RU</option--></select></div>
 </div>
 </div>
+<div id="imbsett" class="gg ggopen">
+<div class="ggtt titletop ggttopen">
+<span class="ggttplus ggttp" onclick="this.parentElement.classList.remove('ggttclosed'); this.parentElement.classList.add('ggttopen');this.parentElement.parentElement.classList.remove('ggclosed'); this.parentElement.parentElement.classList.add('ggopen');">&#x25b6;</span>
+<span class="ggttminus ggttp" onclick="this.parentElement.classList.remove('ggttopen'); this.parentElement.classList.add('ggttclosed');this.parentElement.parentElement.classList.remove('ggopen'); this.parentElement.parentElement.classList.add('ggclosed');">&#x25bc;</span>
+<span class="grtit"> ImB </span>
+</div>
+<div class="igxtype" id="menufromimb">
+
+</div>
+</div>
+
 <div id="dngsett" class="gg ggopen">
 <div class="ggtt titletop ggttopen">
 <span class="ggttplus ggttp" onclick="this.parentElement.classList.remove('ggttclosed'); this.parentElement.classList.add('ggttopen');this.parentElement.parentElement.classList.remove('ggclosed'); this.parentElement.parentElement.classList.add('ggopen');">&#x25b6;</span>
@@ -27914,7 +27978,7 @@ infos = [ // actually const
 <input type="button" value="&#x1f5d1;" class="whbtn" onclick="imbc.browserdelete()" id="delselbut" disabled style="font-family:Symbol3;padding-left: 0.3em; padding-right:0.3em;" data-mytitlexlkey="browser.delall"> <input type="button" style="font-family:Symbol3;" value="&#x2b73;" class="whbtn" onclick="imbc.browserprocess()" id="doselbut" disabled data-mytitlexlkey="browser.procall"> 
 <input type="button" class="whbtn" value="&#x26f0;" style="color:red;font-family:Symbol3;padding-left:0.3em;padding-right:0.2em;font-weight:normal;">
 <input type="button" class="whbtn" value="&#x1f4f7;" onclick="imbc.dispmode=0;imbc.showphoto();imbc.closeham();" style="font-family:Symbol3;padding-left:0.3em;padding-right:0.2em;font-weight:normal;">
-<input type="button" class="whbtn" value="&#x1f3ac;" onclick="imbc.dispmode=1;this.showmovie();imbc.closeham();" style="font-family:Symbol3;padding-left:0.4em;padding-right:0.4em;">
+<input type="button" class="whbtn" value="&#x1f3ac;" onclick="imbc.dispmode=1;imbc.showmovie();imbc.closeham();" style="font-family:Symbol3;padding-left:0.4em;padding-right:0.4em;">
 <input type="button" data-myvalxlkey="app.install" class="whbtn" onclick="if (bfep) bfep.prompt(); bpef=null; this.style['display']='none';" id="installbutton" style="display:none;font-weight:bold;position:absolute; right:0.5em;">
 </div>
 <div style="margin-bottom:0.3em;">&nbsp;<span data-myxlkey="main.sort" style="display:none;"></span> <label for="sbytype"><input type="checkbox" id="sbytype" onclick="imbc.buildtree()"><span data-myxlkey="browser.bytype"></span></label> - <label for="solder">
@@ -27937,7 +28001,7 @@ infos = [ // actually const
 <div style="position:fixed; top:0; width:100%;background-color:black;z-index:999;color:white;padding-top:0.2em;"><div>&nbsp;<span class="browserx"><input type="button" value="&#x2261;" style="padding-left: 0em; margin-top: -0.3em; margin-bottom: -0.5em;font-size:200%;border:0 !important;" class="whbtn" onclick="imbc.handleham();"></span>
 <input type="button" class="whbtn" onclick="imbc.dispmode=2;imbc.showbrowser();imbc.closeham();" value="&#x26f0;" style="font-family:Symbol3;padding-left:0.3em;padding-right:0.2em;font-weight:normal;">
 <input type="button" class="whbtn" onclick="imbc.closeham();" value="&#x1f4f7;" style="font-family:Symbol3;padding-left:0.3em;padding-right:0.2em;font-weight:normal;color:red;">
-<input type="button" class="whbtn" onclick="imbc.dispmode=1;this.showmovie();imbc.closeham();" value="&#x1f3ac;" style="font-family:Symbol3;padding-left:0.4em;padding-right:0.4em;">
+<input type="button" class="whbtn" onclick="imbc.dispmode=1;imbc.showmovie();imbc.closeham();" value="&#x1f3ac;" style="font-family:Symbol3;padding-left:0.4em;padding-right:0.4em;">
 </div><div>&nbsp;</div>
 </div>
 </div>
