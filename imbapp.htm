@@ -5175,6 +5175,7 @@ body { margin: 0; }
 	display: block;
 }
 .gg .grtit { font-weight: bold; font-size: 125%; }
+.grtit.ggttplus, .grtit.ggttminus { font-weight: bold !important; }
 .igtype > * { border: 0.5px solid grey; }
 .igxtype > * { margin: 0.2em; padding: 0.5em; }
 /*.gg:not(.gl1) {
@@ -6734,7 +6735,1688 @@ static texts = { // actually const
 		}
 	}
 };
-
+static apptexts = [
+    {
+      "Language": "cn",
+      "s": [
+        {
+          "r": [
+            {
+              "title": "分辨率",
+              "cmd": "2002",
+              "list": [
+                "2K 30fps",
+                "1080P 60fps",
+                "1080P 30fps",
+                "720P 120fps",
+                "720P 60fps",
+                "720P 30fps",
+                "VGA 240fps",
+                "1080P30_4_3",
+                "1080P30_SUPER"
+              ],
+            },
+            {
+              "title": "循环录影",
+              "cmd": "2003",
+              "list": [
+                "关",
+                "1分钟",
+                "3分钟",
+                "4分钟",
+                "5分钟",
+                "6分钟",
+                "10分钟"
+              ],
+            },
+            {
+              "title": "间隔录影",
+              "cmd": "2019",
+              "list": [
+                "1秒",
+                "2秒",
+                "5秒",
+                "10秒",
+                "30秒",
+                "60秒"
+              ],
+            },
+            {
+              "title": "WDR",
+              "cmd": "2004",
+              "list": [
+                "关",
+                "开"
+              ],
+            },
+            {
+              "title": "录音",
+              "cmd": "2007",
+              "list": [
+                "关",
+                "开"
+              ],
+            },
+            {
+              "title": "日期标签",
+              "cmd": "2008",
+              "list": [
+                "关",
+                "开"
+              ],
+            }
+          ],
+          "title": "视频设置"
+        },
+        {
+          "r": [
+            {
+              "title": "照片尺寸",
+              "cmd": "1002",
+              "list": [
+                "12M",
+                "10M",
+                "8M",
+                "5M",
+                "3M",
+                "2MHD ",
+                "VGA",
+                "1.3M",
+                "14M",
+                "16M"
+              ],
+            },
+            {
+              "title": "白平衡",
+              "cmd": "1007",
+              "list": [
+                "自动",
+                "日光",
+                "阴天",
+                "钨丝灯",
+                "荧光灯"
+              ],
+            },
+            {
+              "title": "曝光补偿",
+              "cmd": "2005",
+              "list": [
+                "+2.0",
+                "+5/3",
+                "+4/3",
+                "+1.0",
+                "+2/3",
+                "+1/3",
+                "+0.0",
+                "-1/3",
+                "-2/3",
+                "-1.0",
+                "-4/3",
+                "-5/3",
+                "-2.0"
+              ],
+            },
+            {
+              "title": "间隔拍照时间",
+              "cmd": "1012",
+              "list": [
+                "3秒定时",
+                "5秒定时",
+                "10秒定时",
+                "20秒定时"
+              ],
+            }
+          ],
+          "title": "照片设置"
+        },
+        {
+          "r": [
+            {
+              "title": "光源频率",
+              "cmd": "3025",
+              "list": [
+                "50 Hz",
+                "60 Hz"
+              ],
+            },
+            {
+              "title": "运动侦测",
+              "cmd": "2006",
+              "list": [
+                "关",
+                "开"
+              ],
+            },
+            {
+              "title": "重力感应",
+              "cmd": "2011",
+              "list": [
+                "关",
+                "低",
+                "中",
+                "高"
+              ],
+            },
+            {
+              "title": "开机录像",
+              "cmd": "2012",
+              "list": [
+                "开",
+                "关"
+              ],
+            },
+            {
+              "title": "自动关机",
+              "cmd": "3007",
+              "list": [
+                "关闭",
+                "1分钟",
+                "2分钟",
+                "3分钟",
+                "5分钟",
+                "10分钟"
+              ],
+            },
+            {
+              "title": "TV模式",
+              "cmd": "3009",
+              "list": [
+                "NTSC",
+                "PAL"
+              ],
+            },
+            {
+              "title": "相机语言设置",
+              "cmd": "3008",
+              "list": [
+                "中文",
+                "English"
+              ],
+            },
+            {
+              "title": "格式化",
+              "cmd": "3010",
+              "list": [
+                "确认格式化相机内存卡？"
+              ],
+            },
+            {
+              "title": "默认设置",
+              "cmd": "3011",
+              "list": [
+                "确定恢复默认设置？"
+              ],
+            }
+          ],
+          "title": "其他设置"
+        }
+      ]
+    },
+    {
+	"Language":"ja",
+	"s":[
+		{
+			"r":[
+				{
+					"title":"解像度",
+					"cmd":"2002",
+					"list":[
+						"2K 30fps",
+						"1080P 60fps",
+						"1080P 30fps",
+						"720P 120fps",
+						"720P 60fps",
+						"720P 30fps",
+						"VGA 240fps",
+						"1080P30_4_3",
+						"1080P30_SUPER"
+					],
+					"type":0
+				},
+				{
+					"title":"ループビデオ",
+					"cmd":"2003",
+					"list":[
+						"オフ",
+						"1分",
+						"3分",
+						"4分",
+						"5分",
+						"6分",
+						"10分"
+					],
+					"type":0
+				},
+				{
+					"title":"タイムラプス撮影",
+					"cmd":"2019",
+					"list":[
+						"1秒",
+						"2秒",
+						"5秒",
+						"10秒",
+						"30秒",
+						"60秒"
+					],
+					"type":0
+				},
+				{
+					"title":"WDR",
+					"cmd":"2004",
+					"list":[
+						"オフ",
+						"オン"
+					],
+					"type":1
+				},
+				{
+					"title":"録音",
+					"cmd":"2007",
+					"list":[
+						"オフ",
+						"オン"
+					],
+					"type":1
+				},
+				{
+					"title":"日付表示",
+					"cmd":"2008",
+					"list":[
+						"オフ",
+						"オン"
+					],
+					"type":1
+				}
+			],
+			"title":"ビデオ設定"
+		},
+		{
+			"r":[
+				{
+					"title":"写真サイズ",
+					"cmd":"1002",
+					"list":[
+						"12M",
+						"10M",
+						"8M",
+						"5M",
+						"3M",
+						"2MHD ",
+						"VGA",
+						"1.3M",
+						"14M",
+						"16M"
+					],
+					"type":0
+				},
+				{
+					"title":"ホワイトバランス",
+					"cmd":"1007",
+					"list":[
+						"自動",
+						"日光",
+						"曇りの日",
+						"タングステンランプ",
+						"蛍光灯"
+					],
+					"type":0
+				},
+				{
+					"title":"露出補正",
+					"cmd":"2005",
+					"list":[
+						"+2.0",
+						"+5/3",
+						"+4/3",
+						"+1.0",
+						"+2/3",
+						"+1/3",
+						"+0.0",
+						"-1/3",
+						"-2/3",
+						"-1.0",
+						"-4/3",
+						"-5/3",
+						"-2.0"
+					],
+					"type":0
+				},
+				{
+					"title":"インターバル撮影",
+					"cmd":"1012",
+					"list":[
+						"3秒",
+						"5秒",
+						"10秒",
+						"20秒"
+					],
+					"type":0
+				}
+			],
+			"title":"写真設定"
+		},
+		{
+			"r":[
+				{
+					"title":"光源周波数",
+					"cmd":"3025",
+					"list":[
+						"50 Hz",
+						"60 Hz"
+					],
+					"type":0
+				},
+				{
+					"title":"動き検出",
+					"cmd":"2006",
+					"list":[
+						"オフ",
+						"オン"
+					],
+					"type":1
+				},
+				{
+					"title":"Gセンサー",
+					"cmd":"2011",
+					"list":[
+						"オフ",
+						"低い",
+						"普通",
+						"高い"
+					],
+					"type":0
+				},
+				{
+					"title":"起動記録",
+					"cmd":"2012",
+					"list":[
+						"オン",
+						"オフ"
+					],
+					"type":1
+				},
+				{
+					"title":"自動シャットダウン",
+					"cmd":"3007",
+					"list":[
+						"オフ",
+						"1分",
+						"2分",
+						"3分",
+						"5分",
+						"10分"
+					],
+					"type":0
+				},
+				{
+					"title":"TVモード",
+					"cmd":"3009",
+					"list":[
+						"NTSC",
+						"PAL"
+					],
+					"type":0
+				},
+				{
+					"title":"カメラの言語設定",
+					"cmd":"3008",
+					"list":[
+						"日本語",
+						"English"
+					],
+					"type":0
+				},
+				{
+					"title":"フォーマット",
+					"cmd":"3010",
+					"list":[
+						"フォーマットしますか？"
+					],
+					"type":5
+				},
+				{
+					"title":"デフォルト設定",
+					"cmd":"3011",
+					"list":[
+						"デフォルト設定に戻しますか？"
+					],
+					"type":6
+				}
+			],
+			"title":"他の設定"
+		}
+	]
+	},
+    {
+      "Language": "en",
+      "s": [
+        {
+          "r": [
+            {
+              "title": "Video Resolution",
+              "cmd": "2002",
+              "list": [
+                "2K 30fps",
+                "1080P 60fps",
+                "1080P 30fps",
+                "720P 120fps",
+                "720P 60fps",
+                "720P 30fps",
+                "VGA 240fps",
+                "1080P30_4_3",
+                "1080P30_SUPER"
+              ],
+            },
+            {
+              "title": "Cyclic Record",
+              "cmd": "2003",
+              "list": [
+                "Off",
+                "1 Mins",
+                "3 Mins",
+                "4 Mins",
+                "5 Mins",
+                "6 Mins",
+                "10 Mins"
+              ],
+            },
+            {
+              "title": "Videolapse",
+              "cmd": "2019",
+              "list": [
+                "1Seconds",
+                "2Seconds",
+                "5Seconds",
+                "10Seconds",
+                "30Seconds",
+                "60Seconds"
+              ],
+            },
+            {
+              "title": "WDR",
+              "cmd": "2004",
+              "list": [
+                "Off",
+                "On"
+              ],
+            },
+            {
+              "title": "Audio",
+              "cmd": "2007",
+              "list": [
+                "Off",
+                "ON"
+              ],
+            },
+            {
+              "title": " Date Stamping",
+              "cmd": "2008",
+              "list": [
+                "Off",
+                "On"
+              ],
+            }
+          ],
+          "title": "Video Setting"
+        },
+        {
+          "r": [
+            {
+              "title": "Photo Size",
+              "cmd": "1002",
+              "list": [
+                "12M",
+                "10M",
+                "8M",
+                "5M",
+                "3M",
+                "2MHD ",
+                "VGA",
+                "1.3M",
+                "14M",
+                "16M"
+              ],
+            },
+            {
+              "title": "White Balance",
+              "cmd": "1007",
+              "list": [
+                "Auto",
+                "Daylight",
+                "Cloudy",
+                "Tungsten",
+                "Fluorescent"
+              ],
+            },
+            {
+              "title": "Exposure",
+              "cmd": "2005",
+              "list": [
+                "+2.0",
+                "+5/3",
+                "+4/3",
+                "+1.0",
+                "+2/3",
+                "+1/3",
+                "+0.0",
+                "-1/3",
+                "-2/3",
+                "-1.0",
+                "-4/3",
+                "-5/3",
+                "-2.0"
+              ],
+            },
+            {
+              "title": "Photo lapse",
+              "cmd": "1012",
+              "list": [
+                "3S Timer",
+                "5S Timer",
+                "10S Timer",
+                "20S Timer"
+              ],
+            }
+          ],
+          "title": "Photo Setting"
+        },
+        {
+          "r": [
+            {
+              "title": "Frequency",
+              "cmd": "3025",
+              "list": [
+                "50 HZ",
+                "60 HZ"
+              ],
+            },
+            {
+              "title": "Motion detection",
+              "cmd": "2006",
+              "list": [
+                "Off",
+                "On"
+              ],
+            },
+            {
+              "title": "G-Sensor",
+              "cmd": "2011",
+              "list": [
+                "Off",
+                "LOW",
+                "MED",
+                "HIGH"
+              ],
+            },
+            {
+              "title": "Auto-recording",
+              "cmd": "2012",
+              "list": [
+                "On",
+                "Off"
+              ],
+            },
+            {
+              "title": "Auto Power Off",
+              "cmd": "3007",
+              "list": [
+                "Off",
+                "1 Mins",
+                "2 Mins",
+                "3 Mins",
+                "5 Mins",
+                "10 Mins"
+              ],
+            },
+            {
+              "title": "TV Mode",
+              "cmd": "3009",
+              "list": [
+                "NTSC",
+                "PAL"
+              ],
+            },
+            {
+              "title": "Format",
+              "cmd": "3010",
+              "list": [
+                "Format？"
+              ],
+            },
+            {
+              "title": "Default Setting",
+              "cmd": "3011",
+              "list": [
+                "Default Setting？"
+              ],
+            }
+          ],
+          "title": "Other Setting"
+        }
+      ]
+    },
+    {
+      "Language": "de",
+      "s": [
+        {
+          "r": [
+            {
+              "title": "Auflösung",
+              "cmd": "2002",
+              "list": [
+                "2K 30fps",
+                "1080P 60fps",
+                "1080P 30fps",
+                "720P 120fps",
+                "720P 60fps",
+                "720P 30fps",
+                "VGA 240fps",
+                "1080P30_4_3",
+                "1080P30_SUPER"
+              ],
+            },
+            {
+              "title": "Zyklische Aufnahme",
+              "cmd": "2003",
+              "list": [
+                "Aus",
+                "3 Min",
+                "5 Min",
+                "10 Min"
+              ],
+            },
+            {
+              "title": "Intervall video",
+              "cmd": "2019",
+              "list": [
+                "1 Sek",
+                "2 Sek",
+                "5 Sek",
+                "10 Sek",
+                "30 Sek",
+                "60 Sek"
+              ],
+            },
+            {
+              "title": "WDR",
+              "cmd": "2004",
+              "list": [
+                "Aus",
+                "An"
+              ],
+            },
+            {
+              "title": "Audio",
+              "cmd": "2007",
+              "list": [
+                "Aus",
+                "An"
+              ],
+            },
+            {
+              "title": "Datumsstempel",
+              "cmd": "2008",
+              "list": [
+                "Aus",
+                "An"
+              ],
+            }
+          ],
+          "title": "Video Einstellungen"
+        },
+        {
+          "r": [
+            {
+              "title": "Auflösung",
+              "cmd": "1002",
+              "list": [
+                "12M",
+                "10M",
+                "8M",
+                "5M",
+                "3M",
+                "2MHD ",
+                "VGA",
+                "1.3M",
+                "14M",
+                "16M"
+              ],
+            },
+            {
+              "title": "Weissbalance",
+              "cmd": "1007",
+              "list": [
+                "Auto",
+                "Tageslicht",
+                "Wolkig",
+                "Kunstlicht",
+                "Neonlicht"
+              ],
+            },
+            {
+              "title": "Belichtung",
+              "cmd": "2005",
+              "list": [
+                "+2.0",
+                "+5/3",
+                "+4/3",
+                "+1.0",
+                "+2/3",
+                "+1/3",
+                "+0.0",
+                "-1/3",
+                "-2/3",
+                "-1.0",
+                "-4/3",
+                "-5/3",
+                "-2.0"
+              ],
+            },
+            {
+              "title": "Intervall bild ",
+              "cmd": "1012",
+              "list": [
+                "Timer 3s",
+                "Timer 5s",
+                "Timer 10s",
+                "Timer 20s"
+              ],
+            }
+          ],
+          "title": "Standbild Einstellungen"
+        },
+        {
+          "r": [
+            {
+              "title": "Frequenz",
+              "cmd": "3025",
+              "list": [
+                "50 Hz",
+                "60 Hz"
+              ],
+            },
+            {
+              "title": "Motion detection",
+              "cmd": "2006",
+              "list": [
+                "Off",
+                "On"
+              ],
+            },
+            {
+              "title": "G-Sensor",
+              "cmd": "2011",
+              "list": [
+                "Off",
+                "LOW",
+                "MED",
+                "HIGH",
+                "MAX"
+              ],
+            },
+            {
+              "title": "Auto-recording",
+              "cmd": "2012",
+              "list": [
+                "On",
+                "Off"
+              ],
+            },
+            {
+              "title": "Auto Aus",
+              "cmd": "3007",
+              "list": [
+                "Aus",
+                "3 Min",
+                "5 Min",
+                "10 Min"
+              ],
+            },
+            {
+              "title": "TV Mode",
+              "cmd": "3009",
+              "list": [
+                "NTSC",
+                "PAL"
+              ],
+            },
+            {
+              "title": "Formatierung",
+              "cmd": "3010",
+              "list": [
+                "Formatierung?"
+              ],
+            },
+            {
+              "title": "Werkseinstellung ",
+              "cmd": "3011",
+              "list": [
+                "Werkseinstellung？"
+              ],
+            }
+          ],
+          "title": "Andere Einstellungen"
+        }
+      ]
+    },
+    {
+      "Language": "fr",
+      "s": [
+        {
+          "r": [
+            {
+              "title": "Record cyclique",
+              "cmd": "2003",
+              "list": [
+                "Desactive",
+                "3 Mins",
+                "5 Mins",
+                "10 Mins"
+              ],
+            },
+            {
+              "title": "Resolution",
+              "cmd": "2002",
+              "list": [
+                "2K 30fps",
+                "1080P 60fps",
+                "1080P 30fps",
+                "720P 120fps",
+                "720P 60fps",
+                "720P 30fps",
+                "VGA 240fps",
+                "1080P30_4_3",
+                "1080P30_SUPER"
+              ],
+            },
+            {
+              "title": "Video Lapse",
+              "cmd": "2019",
+              "list": [
+                "1 Sec",
+                "2 Sec",
+                "5 Sec",
+                "10 Sec",
+                "30 Sec",
+                "60 Sec"
+              ],
+            },
+            {
+              "title": "WDR",
+              "cmd": "2004",
+              "list": [
+                "Desactive",
+                "Active"
+              ],
+            },
+            {
+              "title": "Audio",
+              "cmd": "2007",
+              "list": [
+                "Desactive",
+                "Active"
+              ],
+            },
+            {
+              "title": "Marque Date",
+              "cmd": "2008",
+              "list": [
+                "Desactive",
+                "Active"
+              ],
+            }
+          ],
+          "title": "Vidéo Reglages"
+        },
+        {
+          "r": [
+            {
+              "title": "Taille Im.",
+              "cmd": "1002",
+              "list": [
+                "12M",
+                "10M",
+                "8M",
+                "5M",
+                "3M",
+                "2MHD ",
+                "VGA",
+                "1.3M",
+                "14M",
+                "16M"
+              ],
+            },
+            {
+              "title": "Balance Blancs",
+              "cmd": "1007",
+              "list": [
+                "Auto",
+                "Ensoleille",
+                "Nuageux",
+                "Tungstene",
+                "Fluor"
+              ],
+            },
+            {
+              "title": "Exposition",
+              "cmd": "2005",
+              "list": [
+                "+2.0",
+                "+5/3",
+                "+4/3",
+                "+1.0",
+                "+2/3",
+                "+1/3",
+                "+0.0",
+                "-1/3",
+                "-2/3",
+                "-1.0",
+                "-4/3",
+                "-5/3",
+                "-2.0"
+              ],
+            },
+            {
+              "title": "Photo Lapse",
+              "cmd": "1012",
+              "list": [
+                "3s temporisateur",
+                "5s temporisateur",
+                "10s temporisateur",
+                "20s temporisateur"
+              ],
+            }
+          ],
+          "title": "fixe Reglages"
+        },
+        {
+          "r": [
+            {
+              "title": "Fréquence",
+              "cmd": "3025",
+              "list": [
+                "50 Hz",
+                "60 Hz"
+              ],
+            },
+            {
+              "title": "Motion detection",
+              "cmd": "2006",
+              "list": [
+                "Off",
+                "On"
+              ],
+            },
+            {
+              "title": "G-Sensor",
+              "cmd": "2011",
+              "list": [
+                "Off",
+                "LOW",
+                "MED",
+                "HIGH",
+                "MAX"
+              ],
+            },
+            {
+              "title": "Auto-recording",
+              "cmd": "2012",
+              "list": [
+                "On",
+                "Off"
+              ],
+            },
+            {
+              "title": "Arret Auto",
+              "cmd": "3007",
+              "list": [
+                "Desactive",
+                "3 Mins",
+                "5 Mins",
+                "10 Mins"
+              ],
+            },
+            {
+              "title": "TV Mode",
+              "cmd": "3009",
+              "list": [
+                "NTSC",
+                "PAL"
+              ],
+            },
+            {
+              "title": "Formatierung",
+              "cmd": "3010",
+              "list": [
+                "Formatierung?"
+              ],
+            },
+            {
+              "title": "Regl. Defaut",
+              "cmd": "3011",
+              "list": [
+                "Regl. Défaut?"
+              ],
+            }
+          ],
+          "title": "Autre Reglages"
+        }
+      ]
+    },
+    {
+      "Language": "cs",
+      "s": [
+        {
+          "r": [
+            {
+              "title": "Rozlišení video",
+              "cmd": "2002",
+              "list": [
+                "2K 30fps",
+                "1080P 60fps",
+                "1080P 30fps",
+                "720P 120fps",
+                "720P 60fps",
+                "720P 30fps",
+                "VGA 240fps",
+                "1080P30_4_3",
+                "1080P30_SUPER"
+              ],
+            },
+            {
+              "title": "Nahr. ve smyčce ",
+              "cmd": "2003",
+              "list": [
+                "Vyp",
+                "3 Minut",
+                "5 Minut",
+                "10 Minut"
+              ],
+            },
+            {
+              "title": "interval nahrávání",
+              "cmd": "2019",
+              "list": [
+                "1 sekund",
+                "2 sekund",
+                "5 sekund",
+                "10 sekund",
+                "30 sekund",
+                "60 sekund"
+              ],
+            },
+            {
+              "title": "WDR",
+              "cmd": "2004",
+              "list": [
+                "Vyp",
+                "Zap"
+              ],
+            },
+            {
+              "title": "Zvuk",
+              "cmd": "2007",
+              "list": [
+                "Vyp",
+                "Zap"
+              ],
+            },
+            {
+              "title": "Čas. razítko ",
+              "cmd": "2008",
+              "list": [
+                "Vyp",
+                "Zap"
+              ],
+            }
+          ],
+          "title": "Video Nastavení"
+        },
+        {
+          "r": [
+            {
+              "title": "Rozlišení foto",
+              "cmd": "1002",
+              "list": [
+                "12M",
+                "10M",
+                "8M",
+                "5M",
+                "3M",
+                "2MHD ",
+                "VGA",
+                "1.3M",
+                "14M",
+                "16M"
+              ],
+            },
+            {
+              "title": "Vyvážení bílé",
+              "cmd": "1007",
+              "list": [
+                "Automaticky",
+                "Denní světlo",
+                "Oblačno",
+                "Žárovka",
+                "Zářivka"
+              ],
+            },
+            {
+              "title": "Expozice",
+              "cmd": "2005",
+              "list": [
+                "+2.0",
+                "+5/3",
+                "+4/3",
+                "+1.0",
+                "+2/3",
+                "+1/3",
+                "+0.0",
+                "-1/3",
+                "-2/3",
+                "-1.0",
+                "-4/3",
+                "-5/3",
+                "-2.0"
+              ],
+            },
+            {
+              "title": "rozteč obrázky",
+              "cmd": "1012",
+              "list": [
+                "Každých 3 sekund",
+                "Každých 5 sekund",
+                "Každých 10 sekund",
+                "Každých 20 sekund"
+              ],
+            }
+          ],
+          "title": "Pořídit snimek Nastavení"
+        },
+        {
+          "r": [
+            {
+              "title": "Frekvence",
+              "cmd": "3025",
+              "list": [
+                "50 Hz",
+                "60 Hz"
+              ],
+            },
+            {
+              "title": "Motion detection",
+              "cmd": "2006",
+              "list": [
+                "Off",
+                "On"
+              ],
+            },
+            {
+              "title": "G-Sensor",
+              "cmd": "2011",
+              "list": [
+                "Off",
+                "LOW",
+                "MED",
+                "HIGH",
+                "MAX"
+              ],
+            },
+            {
+              "title": "Auto-recording",
+              "cmd": "2012",
+              "list": [
+                "On",
+                "Off"
+              ],
+            },
+            {
+              "title": "Automatické vypnutí",
+              "cmd": "3007",
+              "list": [
+                "Vyp",
+                "3 Minut",
+                "5 Minut",
+                "10 Minut"
+              ],
+            },
+            {
+              "title": "TV Mode",
+              "cmd": "3009",
+              "list": [
+                "NTSC",
+                "PAL"
+              ],
+            },
+            {
+              "title": "Formátovat",
+              "cmd": "3010",
+              "list": [
+                "Formátovat?"
+              ],
+            },
+            {
+              "title": "Tovární nastavení ",
+              "cmd": "3011",
+              "list": [
+                "Tovární nastavení?"
+              ],
+            }
+          ],
+          "title": "Ostatní  Nastavení"
+        }
+      ]
+    },
+    {
+      "Language": "th",
+      "s": [
+        {
+          "r": [
+            {
+              "title": "ความละเอียด",
+              "cmd": "2002",
+              "list": [
+                "2K 30fps",
+                "1080P 60fps",
+                "1080P 30fps",
+                "720P 120fps",
+                "720P 60fps",
+                "720P 30fps",
+                "VGA 240fps",
+                "1080P30_4_3",
+                "1080P30_SUPER"
+              ],
+            },
+            {
+              "title": "บันทึกวน",
+              "cmd": "2003",
+              "list": [
+                "ใกล้",
+                "3 นาที",
+                "5 นาที",
+                "10 นาที"
+              ],
+            },
+            {
+              "title": "ไทม์แลปส์ ",
+              "cmd": "2019",
+              "list": [
+                "ใกล้",
+                "1 วินาที",
+                "2 วินาที",
+                "5 วินาที",
+                "10 วินาที",
+                "30 วินาที",
+                "60 วินาที"
+              ],
+            },
+            {
+              "title": "WDR",
+              "cmd": "2004",
+              "list": [
+                "ใกล้",
+                "เปิด"
+              ],
+            },
+            {
+              "title": "การบันทึก",
+              "cmd": "2007",
+              "list": [
+                "ใกล้",
+                "เปิด"
+              ],
+            },
+            {
+              "title": "ฉลากวันที่",
+              "cmd": "2008",
+              "list": [
+                "ใกล้",
+                "เปิด"
+              ],
+            }
+          ],
+          "title": "วิดีโอตั้งค่า"
+        },
+        {
+          "r": [
+            {
+              "title": "ความละเอียดภาพนิ่ง",
+              "cmd": "1002",
+              "list": [
+                "12M",
+                "10M",
+                "8M",
+                "5M",
+                "3M",
+                "2MHD ",
+                "VGA",
+                "1.3M",
+                "14M",
+                "16M"
+              ],
+            },
+            {
+              "title": "สมดุลแสงสีขาว",
+              "cmd": "1007",
+              "list": [
+                "อัตโนมัติ",
+                "แสงแดด",
+                "พยับแดด",
+                "ทังสเตน",
+                "เรือง"
+              ],
+            },
+            {
+              "title": "ชดเชยแสง",
+              "cmd": "2005",
+              "list": [
+                "+2.0",
+                "+5/3",
+                "+4/3",
+                "+1.0",
+                "+2/3",
+                "+1/3",
+                "+0.0",
+                "-1/3",
+                "-2/3",
+                "-1.0",
+                "-4/3",
+                "-5/3",
+                "-2.0"
+              ],
+            },
+            {
+              "title": "จับเวลาถ่-ายภาพ ",
+              "cmd": "1012",
+              "list": [
+                "ทุก 3 วินาที",
+                "ทุก 5 วินาที",
+                "ทุก 10 วินาที",
+                "ทุก 20 วินาที"
+              ],
+            }
+          ],
+          "title": "ภาพนิ่งตั้งค่า"
+        },
+        {
+          "r": [
+            {
+              "title": "ความถี่ของแหล่งกำเนิดแสง",
+              "cmd": "3025",
+              "list": [
+                "50 Hz",
+                "60 Hz"
+              ],
+            },
+            {
+              "title": "Motion detection",
+              "cmd": "2006",
+              "list": [
+                "Off",
+                "On"
+              ],
+            },
+            {
+              "title": "G-Sensor",
+              "cmd": "2011",
+              "list": [
+                "Off",
+                "LOW",
+                "MED",
+                "HIGH",
+                "MAX"
+              ],
+            },
+            {
+              "title": "Auto-recording",
+              "cmd": "2012",
+              "list": [
+                "On",
+                "Off"
+              ],
+            },
+            {
+              "title": "ปิดเครื่องอัตโนมัติ",
+              "cmd": "3007",
+              "list": [
+                "ใกล้",
+                "3 นาที",
+                "5 นาที",
+                "10 นาที"
+              ],
+            },
+            {
+              "title": "TV Mode",
+              "cmd": "3009",
+              "list": [
+                "NTSC",
+                "PAL"
+              ],
+            },
+            {
+              "title": "Format Memory ",
+              "cmd": "3010",
+              "list": [
+                "Format Memory?"
+              ],
+            },
+            {
+              "title": "คืนค่าเริ่มต้น",
+              "cmd": "3011",
+              "list": [
+                "คืนค่าเริ่มต้น?"
+              ],
+            }
+          ],
+          "title": "อื่นๆตั้งค่า"
+        }
+      ]
+    },
+    {
+      "Language": "pl",
+      "s": [
+        {
+          "r": [
+            {
+              "title": "Rozdzielczość video",
+              "cmd": "2002",
+              "list": [
+                "2K 30fps",
+                "1080P 60fps",
+                "1080P 30fps",
+                "720P 120fps",
+                "720P 60fps",
+                "720P 30fps",
+                "VGA 240fps",
+                "1080P30_4_3",
+                "1080P30_SUPER"
+              ],
+            },
+            {
+              "title": "Nagrywanie ciągłe",
+              "cmd": "2003",
+              "list": [
+                "wyłączony",
+                "3 minut",
+                "5 minut",
+                "10 minut"
+              ],
+            },
+            {
+              "title": "Interwał nagrywania",
+              "cmd": "2019",
+              "list": [
+                "1 sekund",
+                "2 sekund",
+                "5 sekund",
+                "10 sekund",
+                "30 sekund",
+                "60 sekund"
+              ],
+            },
+            {
+              "title": "WDR",
+              "cmd": "2004",
+              "list": [
+                "wyłączony",
+                "włączony"
+              ],
+            },
+            {
+              "title": "Mikrofon",
+              "cmd": "2007",
+              "list": [
+                "wyłączony",
+                "włączony"
+              ],
+            },
+            {
+              "title": "Datownik - video",
+              "cmd": "2008",
+              "list": [
+                "wyłączony",
+                "włączony"
+              ],
+            }
+          ],
+          "title": "Video Ustawienia"
+        },
+        {
+          "r": [
+            {
+              "title": "Rozdzielczość aparatu",
+              "cmd": "1002",
+              "list": [
+                "12M",
+                "10M",
+                "8M",
+                "5M",
+                "3M",
+                "2MHD ",
+                "VGA",
+                "1.3M",
+                "14M",
+                "16M "
+              ],
+            },
+            {
+              "title": "Balans bieli",
+              "cmd": "1007",
+              "list": [
+                "automatyczny",
+                "światło dzienne",
+                "zachmurzenie",
+                "wolfram",
+                "fluorescencyjne"
+              ],
+            },
+            {
+              "title": "Ekspozycja",
+              "cmd": "2005",
+              "list": [
+                "+2.0",
+                "+5/3",
+                "+4/3",
+                "+1.0",
+                "+2/3",
+                "+1/3",
+                "+0.0",
+                "-1/3",
+                "-2/3",
+                "-1.0",
+                "-4/3",
+                "-5/3",
+                "-2.0"
+              ],
+            },
+            {
+              "title": "Oddzielone zdjęcia",
+              "cmd": "1012",
+              "list": [
+                "Autowyzwalacz 3 sek",
+                "Autowyzwalacz 5 sek",
+                "Autowyzwalacz 10 sek",
+                "Autowyzwalacz 20 sek"
+              ],
+            }
+          ],
+          "title": "Klatka Ustawienia"
+        },
+        {
+          "r": [
+            {
+              "title": "Częstotliwość",
+              "cmd": "3025",
+              "list": [
+                "50 Hz",
+                "60 Hz"
+              ],
+            },
+            {
+              "title": "Motion detection",
+              "cmd": "2006",
+              "list": [
+                "Off",
+                "On"
+              ],
+            },
+            {
+              "title": "G-Sensor",
+              "cmd": "2011",
+              "list": [
+                "Off",
+                "LOW",
+                "MED",
+                "HIGH",
+                "MAX"
+              ],
+            },
+            {
+              "title": "Auto-recording",
+              "cmd": "2012",
+              "list": [
+                "On",
+                "Off"
+              ],
+            },
+            {
+              "title": "Automatyczne wyłączanie",
+              "cmd": "3007",
+              "list": [
+                "wyłączony",
+                "przez 3 minut",
+                "przez 5 minut",
+                "przez 10 minut"
+              ],
+            },
+            {
+              "title": "TV Mode",
+              "cmd": "3009",
+              "list": [
+                "NTSC",
+                "PAL"
+              ],
+            },
+            {
+              "title": "Format karty",
+              "cmd": "3010",
+              "list": [
+                "Format party?"
+              ],
+            },
+            {
+              "title": "Ustawienia fabryczne",
+              "cmd": "3011",
+              "list": [
+                "Ustawienia fabryczne?"
+              ],
+            }
+          ],
+          "title": "Inne Ustawienia"
+        }
+      ]
+    }
+];
 // ImBCBase: generic data
 mylang = 'en';
 withpreview = true;
@@ -6752,7 +8434,8 @@ copyright = '';
 // { name: 'xxx.jpg', data: array-ifd... }
 #exififds = [];
 appname = 'imbraw2dng'; // or imbapp
-connversion = ''; // hw version from cmd 3012
+connvers = ''; // hw version from cmd 3012
+imbfree = -1;
 
 // ImBCBase: fake long exposure:
 #addimgs = [];
@@ -24011,6 +25694,21 @@ subst(r, arg0, arg1, arg2, arg3) {
 	}
 	return this.rmesc(r);
 }
+/* ImBCBase: translate one string with parameters - title for app */
+xlx(str) {
+	const txt = ImBCBase.apptexts.find((v) => v.Language === this.mylang);
+	return txt.s[str].title;
+}
+/* ImBCBase: translate one string with parameters - select title for app */
+xlxi(str, arg0) {
+	const txt = ImBCBase.apptexts.find((v) => v.Language === this.mylang);
+	return txt.s[arg0].r.find((v) => v.cmd == str).title;
+}
+/* ImBCBase: translate one string with parameters - option title for app */
+xlxx(str, arg0, arg1) {
+	const txt = ImBCBase.apptexts.find((v) => v.Language === this.mylang);
+	return txt.s[arg1].r.find((v) => v.cmd == str).list[arg0];
+}
 /* ImBCBase: translate one string with parameters */
 xl(str, arg0, arg1, arg2, arg3, base) {
 	// console.log(' XL ' + str + ' - ' + base + ' - ' + arg0 + ' - ' + arg1);
@@ -25036,6 +26734,15 @@ xl1(el) {
 	if (el.attributes.getNamedItem('data-myhrefxlkey')) {
 		el.href = this.xl(el.attributes.getNamedItem('data-myhrefxlkey').value);
 	}
+	if (el.attributes.getNamedItem('data-myxxlst')) {
+		el.innerHTML = this.xlx(el.attributes.getNamedItem('data-myxxlst').value) + ': ';
+	}
+	if (el.attributes.getNamedItem('data-myxxlsti')) {
+		el.innerHTML = this.xlxi(el.attributes.getNamedItem('data-myxxlsti').value, el.attributes.getNamedItem('data-myxlarg0')?.value) + ': ';
+	}
+	if (el.attributes.getNamedItem('data-myxxlstx')) {
+		el.innerHTML = this.xlxx(el.attributes.getNamedItem('data-myxxlstx').value, el.attributes.getNamedItem('data-myxlarg0')?.value, el.attributes.getNamedItem('data-myxlarg1')?.value);
+	}
 	return el;
 }
 /* ImBCHtmlOut: wrapper for zip output */
@@ -25269,6 +26976,15 @@ xlateall() {
 		this.xl1(e);
 	const h = document.querySelectorAll('*[data-myhrefxlkey]');
 	for (const e of h)
+		this.xl1(e);
+	const i = document.querySelectorAll('*[data-myxxlst]');
+	for (const e of i)
+		this.xl1(e);
+	const j = document.querySelectorAll('*[data-myxxlsti]');
+	for (const e of j)
+		this.xl1(e);
+	const o = document.querySelectorAll('*[data-myxxlstx]');
+	for (const e of o)
 		this.xl1(e);
 	if (undefined === this.imbcb)
 		document.title = this.xl('main.apptitle') + ' ' + ImBCBase.version;
@@ -25555,8 +27271,8 @@ showbrowser() {
 		if (splash) splash.style['display'] = 'none';
 		document.getElementById('progokbut').disabled = true;
 		document.getElementById('dlprogress').style['display'] = 'none';
-		window.onscroll = () => this.#addallimgs();
-		window.onresize = () => this.#addallimgs();
+		window.onscroll = () => this.addallimgs();
+		window.onresize = () => this.addallimgs();
 		this.#startloadimg();
 		document.getElementById('msglog').style['display'] = 'none';
 		document.getElementById('takephotos').style['display']='none';
@@ -25901,10 +27617,10 @@ buildtree() {
 			if (m.entry?.remove) m.entry.remove();
 		}
 	}
-	this.#addallimgs(gr, e);
+	this.addallimgs(gr, e);
 }
 /* ImBCHtml: add images */
-#addallimgs(gr, e) {
+addallimgs(gr, e) {
 	if (!gr) {
 		let list;
 		if (document.getElementById('sbytype').checked) {
@@ -25917,10 +27633,10 @@ buildtree() {
 			const xe = xgr.entry;
 			if (xgr.fmembers) {
 				for (const m of xgr.fmembers) {
-					this.#addallimgs(xgr, xe);
+					this.addallimgs(xgr, xe);
 				}
 			} else {
-				xgr.smembers.map((m) => { this.#addallimgs(m, m.entry) });
+				xgr.smembers.map((m) => { this.addallimgs(m, m.entry) });
 			}
 		}
 		return;
@@ -25931,7 +27647,7 @@ buildtree() {
 			this.#startloadimg();
 		}, 10);
 	} else
-		gr.smembers.map((m) => { this.#addallimgs(m, m.entry) });
+		gr.smembers.map((m) => { this.addallimgs(m, m.entry) });
 }
 /* ImBCHtml: visual browser: select all from top */
 topreccheck(force) {
@@ -25979,7 +27695,7 @@ topreccheck(force) {
 		d.classList.add('ggttclosed');
 		d.parentElement.classList.remove('ggopen');
 		d.parentElement.classList.add('ggclosed');
-		this.#addallimgs();
+		this.addallimgs();
 	};
 	const sp = d.querySelector('.gtype');
 	if (s.startsWith('JPG') || s.startsWith('RAW')) {
@@ -25990,8 +27706,8 @@ topreccheck(force) {
 		s = s.substring(3);
 	}
 	if (s.length > 0) t += (' ' + s);
-	const tit = d.querySelector('.grtit');
-	tit.append(t);
+	for (const tit of d.querySelectorAll('.grtit'))
+		tit.append(t);
 	//const selno = d.querySelector('.selnumber');
 	//selno.id = 'SEL_' + gr.title;
 	const totno = d.querySelector('.totno');
@@ -26875,37 +28591,43 @@ handlenext() {
 	}
 }
 /* ImBCHtml: command handler */
-custcmd(cmd, type, restargs, cb) {
+custcmd(cmd, type, restargs, cb, results) {
 	let thecmd = cmd, therest = restargs;
 	if (cmd instanceof Array) {
-		thecmd = cmd[0][0];
-		therest = cmd[0][1];
+		if (cmd[0] instanceof Array) {
+			thecmd = cmd[0][0];
+			therest = cmd[0][1];
+		} else {
+			thecmd = cmd[0];
+			therest = '';
+		}
 		cmd.splice(0,1);
 	}
 	const xhr = new XMLHttpRequest();
 	xhr.onloadend = (/*event*/) => {
 		if (xhr.status === 200) {
+			if (results instanceof Array) results.push(xhr.response);
 			if (type === 'document') {
 				const st = xhr.responseXML.querySelector('Function Status');
 				const st2 = xhr.responseXML.querySelector('LIST ALLFile File NAME');
-				if ('0' === st?.textContent || st2 || thecmd === 3014 || thecmd === 3031) {
+				if ('0' === st?.textContent || st2 || thecmd === 3014 || thecmd === 3031 || thecmd === 3030) {
 					if (cmd instanceof Array && cmd.length > 0)
-						this.custcmd(cmd, type, restargs, cb);
+						this.custcmd(cmd, type, restargs, cb, results);
 					else if (cb)
-						cb(0, xhr.response);
+						cb(0, (results instanceof Array) ? results : xhr.response);
 				}
 				else if (cb)
-					cb(-3);
+					cb(-3, results);
 			}
 			else if (cmd instanceof Array && cmd.length > 0)
-				this.custcmd(cmd, type, restargs, cb);
+				this.custcmd(cmd, type, restargs, cb, results);
 			else if (cb)
-				cb(0, xhr.response);
+				cb(0, (results instanceof Array) ? results : xhr.response);
 		}
-		else if (cb) cb(-1);
+		else if (cb) cb(-1, results);
 	};
 	xhr.onerror = (/*event*/) => {
-		cb(-2);
+		cb(-2, results);
 	};
 	if (this.imbweb.startsWith('http://127.0.0'))
 		xhr.open('GET', '/i' + thecmd + '.xml');
@@ -26923,117 +28645,201 @@ checkimb() {
 	if (null === this.previewworker) this.initworker();
 	let imblang = '';
 	this.imblang = false;
-	this.custcmd(3012, 'document', null, (rc0, doc0) => {
+	let results = [];
+	this.custcmd([3012, 3017, 3014, [ 3031, 'str=all'], [ 3030, 'str=all'] ], 'document', null, (rc0, doc0) => {
 		if (0 <= rc0) {
-			this.connvers = doc0.querySelector('Function String').textContent;
+			this.connvers = doc0[0].querySelector('Function String').textContent;
+			this.imbfree = doc0[1].querySelector('Function Value').textContent;
 			if (this.appname !== 'imbapp') document.getElementById('onimback').style['display'] = '';
-			this.custcmd( 3014, 'document', null, (rc0, doc0) => {
-				if (rc0 >= 0) {
-					for (const e of doc0.querySelectorAll('Function Cmd')) {
-						if (e.textContent === '3008') {
-							let n = e.nextSibling;
-							while (n.nodeName !== 'Status') n = n.nextSibling;
-							imblang = n.textContent;
+			for (const e of doc0[2].querySelectorAll('Function Cmd')) {
+				if (e.textContent === '3008') {
+					let n = e.nextSibling;
+					while (n.nodeName !== 'Status') n = n.nextSibling;
+					imblang = n.textContent;
+				}
+				let n = e.nextSibling;
+				while (n.nodeName !== 'Status') n = n.nextSibling;
+				this.imbsettings.push({ id: e.textContent, val: n.textContent });
+			}
+			/* what lang is the index ? */
+			for (const e of doc0[3].querySelectorAll('LIST Item Cmd')) {
+				if (e.textContent === '3008') {
+					let n = e.nextSibling;
+					while (n.nodeName !== 'MenuList') n = n.nextSibling;
+					for (const f of n.querySelectorAll('Option Index')) {
+						if (f.textContent === imblang) {
+							let m = f.nextSibling;
+							while (m.nodeName !== 'Id') m = m.nextSibling;
+							// jp -> ja
+							if (m.textContent === 'JP' || m.textContent === 'jp')
+								m.textContent = 'JA';
+							this.imblang = m.textContent.toLowerCase();
+							if (this.useimblang && this.imblang) this.findlang(this.imblang);
+							break;
 						}
-						let n = e.nextSibling;
-						while (n.nodeName !== 'Status') n = n.nextSibling;
-						this.imbsettings.push({ id: e.textContent, val: n.textContent });
 					}
-					/* what lang is the index ? */
-					this.custcmd(3031, 'document',  'str=all', (rc1, doc1) => {
-						if (rc1 >= 0) {
-							for (const e of doc1.querySelectorAll('LIST Item Cmd')) {
-								if (e.textContent === '3008') {
-									let n = e.nextSibling;
-									while (n.nodeName !== 'MenuList') n = n.nextSibling;
-									for (const f of n.querySelectorAll('Option Index')) {
-										if (f.textContent === imblang) {
-											let m = f.nextSibling;
-											while (m.nodeName !== 'Id') m = m.nextSibling;
-											this.imblang = m.textContent.toLowerCase();
-											if (this.useimblang && this.imblang) this.findlang(this.imblang);
-											break;
-										}
-									}
-								}
-								// remember all settings in imb menu
-								let x = this.imbsettings.find((el) => el.id === e.textContent);
-								let a = e.nextSibling;
-								while (a.nodeName !== 'Name') a = a.nextSibling;
-								let n = e.nextSibling;
-								while (n.nodeName !== 'MenuList') n = n.nextSibling;
-								if (x) {
-									x.name = a.textContent;
-									x.vals = [];
-									for (const f of n.querySelectorAll('Option Index')) {
-										let id = f.textContent;
-										let v = f.nextSibling;
-										while (v.nodeName !== 'Id') v = v.nextSibling;
-										x.vals.push( { id: id, val: v.textContent });
-									}
-									console.log('X ' + JSON.stringify(x));
-								} else {
-									let newset = { id: e.textContent, name: a.textContent, vals: [] };
-									for (const f of n.querySelectorAll('Option Index')) {
-										let id = f.textContent;
-										let v = f.nextSibling;
-										while (v.nodeName !== 'Id') v = v.nextSibling;
-										newset.vals.push( { id: id, val: v.textContent });
-									}
-									console.log('XX ' + JSON.stringify(newset));
-								}
-							}
-							// build the settings menu
-							const r = document.getElementById('menufromimb');
-							r.innerHTML = '';
-							for (const l of this.imbsettings) {
-								if (l.name && l.vals) {
-									const s = document.createElement('div');
-									s.append(l.name + ': ');
-									r.append(s);
-									const o = document.createElement('select');
-									r.append(o);
-									for (const v of l.vals) {
-										const e = document.createElement('option');
-										e.value = v.id;
-										e.innerHTML = v.val;
-										o.append(e);
-									}
-									o.value = l.val;
-									o.onchange = () => {
-										this.custcmd(l.id, 'document', 'par=' + o.value, (rc) => {
-											if (!rc)
-												l.val = o.value;
-											else
-												alert(this.rmesc(this.xl('words.error')) + ' ' + l.name)
-										});
-									}
-									s.append(o);
-								}
-								//else console.log('UU ' + JSON.stringify(l));
-							}
+				}
+				// remember all settings in imb menu
+				let x = this.imbsettings.find((el) => el.id === e.textContent);
+				let a = e.nextSibling;
+				while (a.nodeName !== 'Name') a = a.nextSibling;
+				let n = e.nextSibling;
+				while (n.nodeName !== 'MenuList') n = n.nextSibling;
+				if (x) {
+					x.name = a.textContent;
+					x.vals = [];
+					for (const f of n.querySelectorAll('Option Index')) {
+						let id = f.textContent;
+						let v = f.nextSibling;
+						while (v.nodeName !== 'Id') v = v.nextSibling;
+						// jp -> ja
+						if (x.id === '3008' && (v.textContent === 'JP' || v.textContent === 'jp'))
+							v.textContent = 'JA';
+						x.vals.push( { id: id, val: v.textContent });
+					}
+					console.log('X ' + JSON.stringify(x));
+				} else {
+					let newset = { id: e.textContent, name: a.textContent, vals: [] };
+					for (const f of n.querySelectorAll('Option Index')) {
+						let id = f.textContent;
+						let v = f.nextSibling;
+						while (v.nodeName !== 'Id') v = v.nextSibling;
+						newset.vals.push( { id: id, val: v.textContent });
+					}
+					console.log('XX ' + JSON.stringify(newset));
+				}
+			}
+
+			/* video formats ? */
+			let xx = this.imbsettings.find(v => v.id === '2002');
+			if (xx) {
+				xx.name = 'VIDEOFORMAT';
+				xx.vals = [];
+				for (const e of doc0[4].querySelectorAll('LIST Item')) {
+					// remember all settings in imb menu
+					let n = e.firstElementChild;
+					while (n.nodeName !== 'Name') n = n.nextSibling;
+					let j = e.firstElementChild;
+					while (j.nodeName !== 'Index') j = j.nextSibling;
+					xx.vals.push( { id: j.textContent, val: n.textContent });
+					console.log('Xy ' + JSON.stringify(xx));
+				}
+			}
+			
+			
+			// build the settings menu
+			const r = document.getElementById('menufromimb');
+			r.innerHTML = '';
+			const txt = ImBCBase.apptexts.find((v) => v.Language === this.mylang);
+			let first = true;
+			for (let i = 0; i < 3; i++) {
+				const s = document.createElement('div');
+				s.append(txt.s[i].title + ': ');
+				s.setAttribute('data-myxxlst',i); 
+				s.style['font-size'] = '66%';
+				first = true;
+				r.append(s);
+				for (const l of this.imbsettings) {
+					let e;
+					if (l.name && l.vals && (l.id !== '3008') && (l.id !== '2002') && (e = txt.s[i].r.find((v) => l.id === v.cmd))) {
+						const s = document.createElement('div');
+						if (first) s.style['margin-top'] = '-0.66em';
+						first = false;
+						const sp = document.createElement('span');
+						sp.append(e.title + ': ');
+						sp.setAttribute('data-myxxlsti',l.id);
+						sp.setAttribute('data-myxlarg0',i);
+						s.append(sp);
+						r.append(s);
+						const o = document.createElement('select');
+						s.append(o);
+						for (const v of l.vals) {
+							const e = document.createElement('option');
+							e.value = v.id;
+							e.innerHTML = v.val;
+							e.setAttribute('data-myxxlstx',l.id);
+							e.setAttribute('data-myxlarg0',v.id);
+							e.setAttribute('data-myxlarg1',i);
+							o.append(e);
 						}
-						this.custcmd([ [3024], [3001,'par=2'], [3019], [3015] ] , 'document', null, (rc, doc) => {
-							if (rc >= 0) {
-								for (const e of doc.querySelectorAll('LIST ALLFile File FPATH'))
-									this.handle1imb(e.textContent, e.parentElement.querySelector('TIME').textContent);
-								if (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0) {
-									this.aftercheck();
-								}
-							}
+						o.value = l.val;
+						o.onchange = () => {
+							this.custcmd(l.id, 'document', 'par=' + o.value, (rc) => {
+								if (!rc)
+									l.val = o.value;
+								else
+									alert(this.rmesc(this.xl('words.error')) + ' ' + sp.innerHTML)
+							});
+						}
+						s.append(o);
+					}
+					//else console.log('UU ' + JSON.stringify(l));
+				}
+				if (i === 0) {
+					// videoformat ??
+					const l = this.imbsettings.find((v) => (v.id === '2002'));
+					const s = document.createElement('div');
+					if (first) s.style['margin-top'] = '-0.66em';
+					first = false;
+					const sp = document.createElement('span');
+					sp.append(l.name + ': ');
+					sp.setAttribute('data-myxxlsti',l.id);
+					sp.setAttribute('data-myxlarg0',i);
+					s.append(sp);
+					r.append(s);
+					const o = document.createElement('select');
+					s.append(o);
+					for (const v of l.vals) {
+						const e = document.createElement('option');
+						e.value = v.id;
+						e.innerHTML = v.val;
+						o.append(e);
+					}
+					o.value = l.val;
+					o.onchange = () => {
+						this.custcmd(l.id, 'document', 'par=' + o.value, (rc) => {
+							if (!rc)
+								l.val = o.value;
+							else
+								alert(this.rmesc(this.xl('words.error')) + ' ' + l.name)
 						});
-					});
-				} else 
-					this.custcmd([ [3024], [3001,'par=2'], [3019], [3015] ] , 'document', null, (rc, doc) => {
-						if (rc >= 0) {
-							for (const e of doc.querySelectorAll('LIST ALLFile File FPATH'))
-								this.handle1imb(e.textContent, e.parentElement.querySelector('TIME').textContent);
-							if (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0) {
-								this.aftercheck();
-							}
-						}
-					});
-			});
+					}
+				}
+			}
+			// language ??
+			const l = this.imbsettings.find((v) => (v.id === '3008'));
+			const s = document.createElement('div');
+			if (first) s.style['margin-top'] = '-0.66em';
+			first = false;
+			s.append(l.name + ': ');
+			r.append(s);
+			const o = document.createElement('select');
+			s.append(o);
+			for (const v of l.vals) {
+				const e = document.createElement('option');
+				e.value = v.id;
+				e.innerHTML = v.val;
+				o.append(e);
+			}
+			o.value = l.val;
+			o.onchange = () => {
+				this.custcmd(l.id, 'document', 'par=' + o.value, (rc) => {
+					if (!rc)
+						l.val = o.value;
+					else
+						alert(this.rmesc(this.xl('words.error')) + ' ' + l.name)
+				});
+			}			
+			this.xlateall();
+		}
+	}, results);
+	this.custcmd([ 3024, [3001,'par=2'], 3019, 3015 ] , 'document', null, (rc, doc) => {
+		if (rc >= 0) {
+			for (const e of doc.querySelectorAll('LIST ALLFile File FPATH'))
+				this.handle1imb(e.textContent, e.parentElement.querySelector('TIME').textContent);
+			if (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0) {
+				this.aftercheck();
+			}
 		}
 	});
 }
@@ -27883,7 +29689,8 @@ infos = [ // actually const
 <div class="ggtt titletop ggttclosed">
 <span class="ggttplus ggttp" onclick="this.parentElement.classList.remove('ggttclosed'); this.parentElement.classList.add('ggttopen');this.parentElement.parentElement.classList.remove('ggclosed'); this.parentElement.parentElement.classList.add('ggopen');">&#x25b6;</span>
 <span class="ggttminus ggttp" onclick="this.parentElement.classList.remove('ggttopen'); this.parentElement.classList.add('ggttclosed');this.parentElement.parentElement.classList.remove('ggopen'); this.parentElement.parentElement.classList.add('ggclosed');">&#x25bc;</span>
-<span class="grtit"> APP </span>
+<span class="grtit ggttplus" onclick="this.parentElement.classList.remove('ggttclosed'); this.parentElement.classList.add('ggttopen');this.parentElement.parentElement.classList.remove('ggclosed'); this.parentElement.parentElement.classList.add('ggopen');"> APP </span>
+<span class="grtit ggttminus" onclick="this.parentElement.classList.remove('ggttopen'); this.parentElement.classList.add('ggttclosed');this.parentElement.parentElement.classList.remove('ggopen'); this.parentElement.parentElement.classList.add('ggclosed');"> APP </span>
 </div>
 <div class="igxtype">
 <div ><input type="checkbox" id="usezip" onchange="imbc.dirtysettings()"> <label for="usezip" data-myxlkey="main.usezip" id="useziplbl"></label></div>
@@ -27896,7 +29703,8 @@ infos = [ // actually const
 <div class="ggtt titletop ggttopen">
 <span class="ggttplus ggttp" onclick="this.parentElement.classList.remove('ggttclosed'); this.parentElement.classList.add('ggttopen');this.parentElement.parentElement.classList.remove('ggclosed'); this.parentElement.parentElement.classList.add('ggopen');">&#x25b6;</span>
 <span class="ggttminus ggttp" onclick="this.parentElement.classList.remove('ggttopen'); this.parentElement.classList.add('ggttclosed');this.parentElement.parentElement.classList.remove('ggopen'); this.parentElement.parentElement.classList.add('ggclosed');">&#x25bc;</span>
-<span class="grtit"> ImB </span>
+<span class="grtit ggttplus" onclick="this.parentElement.classList.remove('ggttclosed'); this.parentElement.classList.add('ggttopen');this.parentElement.parentElement.classList.remove('ggclosed'); this.parentElement.parentElement.classList.add('ggopen');"> ImB </span>
+<span class="grtit ggttminus" onclick="this.parentElement.classList.remove('ggttopen'); this.parentElement.classList.add('ggttclosed');this.parentElement.parentElement.classList.remove('ggopen'); this.parentElement.parentElement.classList.add('ggclosed');"> ImB </span>
 </div>
 <div class="igxtype" id="menufromimb">
 
@@ -27907,7 +29715,8 @@ infos = [ // actually const
 <div class="ggtt titletop ggttopen">
 <span class="ggttplus ggttp" onclick="this.parentElement.classList.remove('ggttclosed'); this.parentElement.classList.add('ggttopen');this.parentElement.parentElement.classList.remove('ggclosed'); this.parentElement.parentElement.classList.add('ggopen');">&#x25b6;</span>
 <span class="ggttminus ggttp" onclick="this.parentElement.classList.remove('ggttopen'); this.parentElement.classList.add('ggttclosed');this.parentElement.parentElement.classList.remove('ggopen'); this.parentElement.parentElement.classList.add('ggclosed');">&#x25bc;</span>
-<span class="grtit"> DNG </span>
+<span class="grtit ggttplus" onclick="this.parentElement.classList.remove('ggttclosed'); this.parentElement.classList.add('ggttopen');this.parentElement.parentElement.classList.remove('ggclosed'); this.parentElement.parentElement.classList.add('ggopen');"> DNG </span>
+<span class="grtit ggttminus" onclick="this.parentElement.classList.remove('ggttopen'); this.parentElement.classList.add('ggttclosed');this.parentElement.parentElement.classList.remove('ggopen'); this.parentElement.parentElement.classList.add('ggclosed');"> DNG </span>
 </div>
 <div class="igxtype">
 <div ><input type="checkbox" id="dngpreview" checked onchange="imbc.chgdngpreview()"> <label for="dngpreview" data-myxlkey="process.addpreview"></label></div>
@@ -27967,8 +29776,8 @@ infos = [ // actually const
 <div class="hammenent" onclick="imbc.closeham();imbc.settime()"><span  style="font-family:Symbol3;">&#x1f570;</span> <span data-myxlkey='app.menu.settime'>Set ImB Time</span></div>
 <div class="hammenent" onclick="imbc.closeham();imbc.showlog();"><span  style="font-family:Symbol3;">&#x1f5ce;</span> <span data-myxlkey='app.menu.msglog'>Msg Log</span></div>
 <div class="hammenent" onclick="imbc.closeham();imbc.shownormal();">&#x2699; <span data-myxlkey='app.menu.settings'>Settings</span></div>
-<div class="hammenent" onclick="imbc.closeham();imbc.appinfo();"><span style="font-weight:bold;">?</span> <span data-myxlkey='app.menu.info'>Quit</span></div>
-<div class="hammenent" onclick="imbc.closeham();window.location.assign('byebye.htm');"><span style="font-weight:bold;">&lt;<span style="margin-left:-0.2em;">&ndash;</span></span> <span data-myxlkey='app.menu.quit'>Quit</span></div>
+<div class="hammenent" onclick="imbc.closeham();imbc.appinfo();"><span style="font-weight:bold;">?</span> <span data-myxlkey='app.menu.info'>Info</span></div>
+<div class="hammenent" onclick="imbc.closeham();window.location.assign('/IMBACK/');"><span style="font-weight:bold;">&lt;<span style="margin-left:-0.2em;">&ndash;</span></span> <span data-myxlkey='app.menu.quit'>Quit</span></div>
 </div>
 <!-- end of hamburger menu -->
 <!-- this is the picture browser, generated content appended -->
@@ -27980,7 +29789,7 @@ infos = [ // actually const
 <input type="button" class="whbtn" value="&#x1f3ac;" onclick="imbc.dispmode=1;imbc.showmovie();imbc.closeham();" style="font-family:Symbol3;padding-left:0.4em;padding-right:0.4em;">
 <input type="button" data-myvalxlkey="app.install" class="whbtn" onclick="if (bfep) bfep.prompt(); bpef=null; this.style['display']='none';" id="installbutton" style="display:none;font-weight:bold;position:absolute; right:0.5em;">
 </div>
-<div style="margin-bottom:0.3em;">&nbsp;<span data-myxlkey="main.sort" style="display:none;"></span> <label for="sbytype"><input type="checkbox" id="sbytype" onclick="imbc.buildtree()"><span data-myxlkey="browser.bytype"></span></label> - <label for="solder">
+<div style="margin-bottom:0.3em;font-size:85%;">&nbsp;<span data-myxlkey="main.sort" style="display:none;"></span> <label for="sbytype"><input type="checkbox" id="sbytype" onclick="imbc.buildtree()"><span data-myxlkey="browser.bytype"></span></label> - <label for="solder">
 <input type="checkbox" id="solder" onclick="imbc.buildtree()"><span data-myxlkey="browser.olderfirst"></span></label> -
  <span id="brnsel" class="selnumber">?</span> / <span id="brntot">?</span> <label for="selall" data-mytitlexlkey="browser.selall.tooltip">
  <input onclick="imbc.topreccheck()" type="checkbox" id="selall"><!--span data-myxlkey="browser.selall"></span--></label><!-- - --> 
@@ -28070,7 +29879,9 @@ Replaceraw: <input type="file" onchange="imbc.replraw()" accept=".raw,.RAW" id="
 <template id="titlet">
 	<div class="ggtt ggttopen titletop">
 		<span class="ggttplus ggttp">&#x25b6;</span><span class="ggttminus ggttm">&#x25bc;</span>
-		<span class="gtype" style="display: inline;"></span><span class="grtit"></span>
+		<span class="gtype" style="display: inline;"></span>
+		<span class="grtit ggttminus"onclick="this.parentElement.classList.remove('ggttopen'); this.parentElement.classList.add('ggttclosed');this.parentElement.parentElement.classList.remove('ggopen'); this.parentElement.parentElement.classList.add('ggclosed');imbc.addallimgs();"></span>
+		<span class="grtit ggttplus" onclick="this.parentElement.classList.remove('ggttclosed'); this.parentElement.classList.add('ggttopen');this.parentElement.parentElement.classList.remove('ggclosed'); this.parentElement.parentElement.classList.add('ggopen');imbc.addallimgs();"></span>
 		<span class="selnumber">0</span> / <span class="totno"></span><input type="checkbox" class="selcb" data-mytitlexlkey="browser.selall.tooltip">
 	</div>
 </template>
