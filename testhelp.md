@@ -2,7 +2,7 @@
 # Test Help needed
 
 I am preparing different versions of the 
-- html version: named `imbapp.html`
+- html version: named `imbapp.htm`
 - and node.js version: named `imbraw2dngnn.js`
 that use a different protocol communication with the ImBack device.
 
@@ -14,9 +14,8 @@ But that works only if you copy it onto your ImB:
 1. connect PC or smartphone to the ImB WIFI
 1. open [the device in browser](http://192.168.1.254/IMBACK) (in new browser tab)
 1. click `Choose File`
-1. select the `imbapp.html` that you just downloaded
+1. select the `imbapp.htm` that you just downloaded
 1. click `Upload Files`
-1. Note, the device will rename it to `IMBAPP.HTM`
 
 For testing, navigate to the [new version on your ImB](http://192.168.1.254/IMBACK/IMBAPP.HTM) - it may take a while
 
