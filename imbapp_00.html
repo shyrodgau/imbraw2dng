@@ -5199,9 +5199,11 @@ body { margin: 0; }
 /*.gl1 > .ggtt span.gtype { display: inline !important; }*/
 .ggttopen { border-bottom: 0 !important; }
 /*.ggopen {  border: 2px solid white; border-radius: 5px; border-top: 0;border-left: 0; border-right:0;}*/
-.ggttopen > .ggttplus { display: none; }
-.ggttclosed > .ggttminus { display: none; }
-.ggttminus { font-size: 133%; margin-left: -0.2em; }
+.ggttopen > .ggttplus { display: none !important; }
+.ggttclosed > .ggttminus { display: none !important; }
+.ggttplus.mmrr { margin-right: 0.2em; }
+.ggttminus.mmll { margin-left: -0.2em; }
+.ggttminus { font-size: 133%; }
 .ggttclosed > div > .ggtt { display: none; }
 .ggclosed > .gg, .ggclosed .igtype, .ggclosed .igxtype { display: none !important; }
 .ggttminus, .ggttplus { cursor: pointer; display: inline-block; font-weight:normal !important; }
@@ -5989,10 +5991,10 @@ static texts = { // actually const
 				ja: 'その他'
 			},
 			notpic: {
-				de: 'MP4',
-				en: 'MP4',
-				fr: 'MP4',
-				ja: 'MP4'
+				de: 'MP4: ',
+				en: 'MP4: ',
+				fr: 'MP4: ',
+				ja: 'MP4: '
 			}
 		},
 		file: {
@@ -27733,13 +27735,14 @@ topreccheck(force) {
 		d.parentElement.classList.add('ggclosed');
 		this.addallimgs();
 	};
-	const sp = d.querySelector('.gtype');
-	if (s.startsWith('JPG') || s.startsWith('RAW')) {
-		sp.append(' ' + s.substring(0,3) + ': ');
-		s = s.substring(3);
-	} else if (s.startsWith('oth')) {
-		sp.setAttribute('data-myxlkey', 'main.types.notpic');
-		s = s.substring(3);
+	for (const sp of d.querySelectorAll('.gtype')) {
+		if (s.startsWith('JPG') || s.startsWith('RAW')) {
+			sp.append(' ' + s.substring(0,3) + ': ');
+			s = s.substring(3);
+		} else if (s.startsWith('oth')) {
+			sp.setAttribute('data-myxlkey', 'main.types.notpic');
+			s = s.substring(3);
+		}
 	}
 	if (s.length > 0) t += (' ' + s);
 	for (const tit of d.querySelectorAll('.grtit'))
@@ -29225,6 +29228,20 @@ takephoto() {
 		}
 	});
 }
+/* ImBCHtml: open parent */
+static openp(el) {
+	el.parentElement.classList.add('ggttopen');
+	el.parentElement.classList.remove('ggttclosed');
+	el.parentElement.parentElement.classList.add('ggopen');
+	el.parentElement.parentElement.classList.remove('ggclosed');
+}
+/* ImBCHtml: close parent */
+static closep(el) {
+	el.parentElement.classList.remove('ggttopen');
+	el.parentElement.classList.add('ggttclosed');
+	el.parentElement.parentElement.classList.remove('ggopen');
+	el.parentElement.parentElement.classList.add('ggclosed');
+}
 /* Indentation in - end of class ImBCHtml */
 }
 /* *************************************** Main class for HTML, forward E N D *************************************** */
@@ -29802,10 +29819,10 @@ infos = [ // actually const
 <div style="position:fixed; top:0; width:100%;background-color:black;z-index:997;color:white;"><div>&nbsp;<span id="settx"><input type="button" value="&#x2190;" class="whbtn" style="font-size:200%;padding:0 !important; border:0 !important;" onclick="imbc.showmain()"></span></div></div>
 <div id="appsett" class="gg ggclosed">
 <div class="ggtt titletop ggttclosed">
-<span class="ggttplus ggttp" onclick="this.parentElement.classList.remove('ggttclosed'); this.parentElement.classList.add('ggttopen');this.parentElement.parentElement.classList.remove('ggclosed'); this.parentElement.parentElement.classList.add('ggopen');">&#x25b6;</span>
-<span class="ggttminus ggttp" onclick="this.parentElement.classList.remove('ggttopen'); this.parentElement.classList.add('ggttclosed');this.parentElement.parentElement.classList.remove('ggopen'); this.parentElement.parentElement.classList.add('ggclosed');">&#x25bc;</span>
-<span class="grtit ggttplus" onclick="this.parentElement.classList.remove('ggttclosed'); this.parentElement.classList.add('ggttopen');this.parentElement.parentElement.classList.remove('ggclosed'); this.parentElement.parentElement.classList.add('ggopen');" data-myxlkey="app.app"> APP </span>
-<span class="grtit ggttminus" onclick="this.parentElement.classList.remove('ggttopen'); this.parentElement.classList.add('ggttclosed');this.parentElement.parentElement.classList.remove('ggopen'); this.parentElement.parentElement.classList.add('ggclosed');" data-myxlkey="app.app"> APP </span>
+<span class="ggttplus ggttp mmrr" onclick="ImBCHtml.openp(this);">&#x25b6;</span>
+<span class="ggttminus ggttp mmll" onclick="ImBCHtml.closep(this);">&#x25bc;</span>
+<span class="grtit ggttplus" onclick="ImBCHtml.openp(this);" data-myxlkey="app.app"> APP </span>
+<span class="grtit ggttminus" onclick="ImBCHtml.closep(this);" data-myxlkey="app.app"> APP </span>
 </div>
 <div class="igxtype">
 <div ><input type="checkbox" id="usezip" onchange="imbc.dirtysettings()"> <label for="usezip" data-myxlkey="main.usezip" id="useziplbl"></label></div>
@@ -29816,10 +29833,10 @@ infos = [ // actually const
 </div>
 <div id="imbsett" class="gg ggopen">
 <div class="ggtt titletop ggttopen">
-<span class="ggttplus ggttp" onclick="this.parentElement.classList.remove('ggttclosed'); this.parentElement.classList.add('ggttopen');this.parentElement.parentElement.classList.remove('ggclosed'); this.parentElement.parentElement.classList.add('ggopen');">&#x25b6;</span>
-<span class="ggttminus ggttp" onclick="this.parentElement.classList.remove('ggttopen'); this.parentElement.classList.add('ggttclosed');this.parentElement.parentElement.classList.remove('ggopen'); this.parentElement.parentElement.classList.add('ggclosed');">&#x25bc;</span>
-<span class="grtit ggttplus" onclick="this.parentElement.classList.remove('ggttclosed'); this.parentElement.classList.add('ggttopen');this.parentElement.parentElement.classList.remove('ggclosed'); this.parentElement.parentElement.classList.add('ggopen');"> ImB </span>
-<span class="grtit ggttminus" onclick="this.parentElement.classList.remove('ggttopen'); this.parentElement.classList.add('ggttclosed');this.parentElement.parentElement.classList.remove('ggopen'); this.parentElement.parentElement.classList.add('ggclosed');"> ImB </span>
+<span class="ggttplus ggttp mmrr" onclick="ImBCHtml.openp(this);">&#x25b6;</span>
+<span class="ggttminus ggttp mmll" onclick="ImBCHtml.closep(this);">&#x25bc;</span>
+<span class="grtit ggttplus" onclick="ImBCHtml.openp(this);"> ImB </span>
+<span class="grtit ggttminus" onclick="ImBCHtml.closep(this);"> ImB </span>
 </div>
 <div class="igxtype" id="menufromimb">
 
@@ -29828,10 +29845,10 @@ infos = [ // actually const
 
 <div id="dngsett" class="gg ggopen">
 <div class="ggtt titletop ggttopen">
-<span class="ggttplus ggttp" onclick="this.parentElement.classList.remove('ggttclosed'); this.parentElement.classList.add('ggttopen');this.parentElement.parentElement.classList.remove('ggclosed'); this.parentElement.parentElement.classList.add('ggopen');">&#x25b6;</span>
-<span class="ggttminus ggttp" onclick="this.parentElement.classList.remove('ggttopen'); this.parentElement.classList.add('ggttclosed');this.parentElement.parentElement.classList.remove('ggopen'); this.parentElement.parentElement.classList.add('ggclosed');">&#x25bc;</span>
-<span class="grtit ggttplus" onclick="this.parentElement.classList.remove('ggttclosed'); this.parentElement.classList.add('ggttopen');this.parentElement.parentElement.classList.remove('ggclosed'); this.parentElement.parentElement.classList.add('ggopen');"> DNG </span>
-<span class="grtit ggttminus" onclick="this.parentElement.classList.remove('ggttopen'); this.parentElement.classList.add('ggttclosed');this.parentElement.parentElement.classList.remove('ggopen'); this.parentElement.parentElement.classList.add('ggclosed');"> DNG </span>
+<span class="ggttplus ggttp mmrr" onclick="ImBCHtml.openp(this);">&#x25b6;</span>
+<span class="ggttminus ggttp mmll" onclick="ImBCHtml.closep(this);">&#x25bc;</span>
+<span class="grtit ggttplus" onclick="ImBCHtml.openp(this);"> DNG </span>
+<span class="grtit ggttminus" onclick="ImBCHtml.closep(this);"> DNG </span>
 </div>
 <div class="igxtype">
 <div ><input type="checkbox" id="dngpreview" checked onchange="imbc.chgdngpreview()"> <label for="dngpreview" data-myxlkey="process.addpreview"></label></div>
@@ -30021,10 +30038,10 @@ Replaceraw: <input type="file" onchange="imbc.replraw()" accept=".raw,.RAW" id="
 </template>
 <template id="titlet">
 	<div class="ggtt ggttopen titletop">
-		<span class="ggttplus ggttp">&#x25b6;</span><span class="ggttminus ggttm">&#x25bc;</span>
+		<span class="ggttplus ggttp mmrr">&#x25b6;</span><span class="ggttminus ggttm mmll">&#x25bc;</span>
 		<span class="gtype" style="display: inline;"></span>
-		<span class="grtit ggttminus"onclick="this.parentElement.classList.remove('ggttopen'); this.parentElement.classList.add('ggttclosed');this.parentElement.parentElement.classList.remove('ggopen'); this.parentElement.parentElement.classList.add('ggclosed');imbc.addallimgs();"></span>
-		<span class="grtit ggttplus" onclick="this.parentElement.classList.remove('ggttclosed'); this.parentElement.classList.add('ggttopen');this.parentElement.parentElement.classList.remove('ggclosed'); this.parentElement.parentElement.classList.add('ggopen');imbc.addallimgs();"></span>
+		<span class="grtit ggttminus" onclick="ImBCHtml.closep(this);imbc.addallimgs();"></span>
+		<span class="grtit ggttplus"  onclick="ImBCHtml.openp(this);imbc.addallimgs();"></span>
 		<span class="selnumber">0</span> / <span class="totno"></span><input type="checkbox" class="selcb" data-mytitlexlkey="browser.selall.tooltip">
 	</div>
 </template>
