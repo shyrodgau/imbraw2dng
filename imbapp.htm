@@ -27515,6 +27515,7 @@ buildtree() {
 /* 2: invisible JPG+MP4 */
 /* 3: invisible RAW */
 #findnexttoload() {
+	if (document.getElementById('browser').style['display'] === 'none') return undefined;
 	let res = undefined, ph = 4;
 	for (const e of this.imbeles.sort((a,b) => this.#myisort(a,b))) {
 		if (!e.entry) continue;
@@ -27552,7 +27553,7 @@ buildtree() {
 			}
 			f = f.parentElement;
 		}
-		//if (dispno) continue;
+		if (dispno) continue;
 		// display not none, check pos
 		let rect = p.getBoundingClientRect();
 		if (rect.top < window.innerHeight && rect.bottom > 0 && rect.width > 0) {
@@ -28055,7 +28056,7 @@ loadnextimg() {
 			this.loadnextimg();
 		}
 		else if (this.debugflag) {
-			console.log('load already on ' + this.#loaderrunning);
+			if (this.debugflag) console.log('load already on ' + this.#loaderrunning);
 		}
 	}, 100);
 }
@@ -28379,7 +28380,7 @@ async drophandler(ev) {
 			this.allfiles = a.concat(auxfiles);
 			//for (const j of auxfiles) this.allfiles.push(j);
 			this.totnum = this.allfiles.length;
-			console.log('LLL ' + a.length + ' ' + a);
+			if (this.debugflag) console.log('LLL ' + a.length + ' ' + a);
 		} else {
 			this.totnum = [...ev.dataTransfer.items].length;
 			[...ev.dataTransfer.items].forEach((item/*, i*/) => {
@@ -28477,7 +28478,7 @@ buildpreview(f, onok, onerr, orientation, targ, afterload) {
 		const view = new DataView(contents);
 		const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : ImBCBase.getwb(view, zz);
 		let transpose = false;
-		console.log(JSON.stringify(wb));
+		if (this.debugflag) console.log(JSON.stringify(wb));
 		let outpix = ImBCBase.buildpvarray(view, typ, w, h, orientation, false, wb);
         if (orientation === 6 || orientation === 8) {
                 transpose = true;
@@ -28701,7 +28702,7 @@ checkimb() {
 							v.textContent = 'JA';
 						x.vals.push( { id: id, val: v.textContent });
 					}
-					console.log('X ' + JSON.stringify(x));
+					if (this.debugflag) console.log('X ' + JSON.stringify(x));
 				} else {
 					let newset = { id: e.textContent, name: a.textContent, vals: [] };
 					for (const f of n.querySelectorAll('Option Index')) {
@@ -28726,7 +28727,7 @@ checkimb() {
 					let j = e.firstElementChild;
 					while (j.nodeName !== 'Index') j = j.nextSibling;
 					xx.vals.push( { id: j.textContent, val: n.textContent });
-					console.log('Xy ' + JSON.stringify(xx));
+					if (this.debugflag) console.log('Xy ' + JSON.stringify(xx));
 				}
 			}
 			// build the settings menu
@@ -29512,7 +29513,7 @@ buildpreview = (f, orientation) => {
 		const view = new DataView(contents);
 		const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : getwb(view, zz);
 		let transpose = false;
-		console.log(JSON.stringify(wb));
+		//console.log(JSON.stringify(wb));
 		let outpix = buildpvarray(view, typ, w, h, orientation, false, wb);
 		// onmessage: { pix: array, n: name, o: orientation, c: cacheentry }
 		postMessage({ cmd: cmd, pix: outpix, n: name, o: ori, c: cache });
@@ -29543,7 +29544,7 @@ buildpreviewcache = (f, orientation) => {
 	const view = new DataView(contents);
 	const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : getwb(view, zz);
 	let transpose = false;
-	console.log(JSON.stringify(wb));
+	//console.log(JSON.stringify(wb));
 	let outpix = buildpvarray(view, typ, w, h, orientation, false, wb);
 	// onmessage: { pix: array, n: name, o: orientation, c: cacheentry }
 	postMessage({ cmd: cmd, pix: outpix, n: name, o: ori, c: cache });
@@ -29699,9 +29700,10 @@ custcmd = (cmd, type, restargs, results) => {
 		postMessage({ cmd: 'custcmd', ok: false, results: results, rc: -2 });
 	};
 	if (base.startsWith('http://127.0.0'))
-		xhr.open('GET', base+ '/i' + thecmd + '.xml');
+		xhr.open('GET', base+ '/i' + thecmd + '.xml' + (therest ? ('?'  + therest): ''));
 	else
 		xhr.open('GET', base + '/?custom=1&cmd=' + thecmd + (therest ? ('&'  + therest): ''));
+	xhr.setRequestHeader('Cache-control','no-cache, no-store, max-age=0');
 	xhr.responseType = 'arraybuffer';
 	xhr.send();
 }
