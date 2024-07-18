@@ -27221,6 +27221,14 @@ setpvwait() {
 	document.getElementById('preview').style['display'] = 'none';
 	document.getElementById('previewwait').style['display'] = '';
 }
+/* ImBCHtml: show generic msg */
+showmsg() {
+	document.getElementById('genericok').style['display'] = '';
+	document.getElementById('browser').style['display'] = 'none';
+	document.getElementById('takephotos').style['display']='none';
+	document.getElementById('takemovies').style['display']='none';
+	this.closeham();
+}
 /* ImBCHtml: browserdisplay: show main screen */
 showmain() {
 	document.getElementById('delq').style['display'] = 'none';
@@ -29138,21 +29146,16 @@ settime() {
 				if (!rc) {
 					document.getElementById('genericok').style['border-color'] = 'green';
 					document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('app.okay'));
-					document.getElementById('genericok').style['display'] = '';
-					document.getElementById('browser').style['display'] = 'none';
 				} else {
 					document.getElementById('genericok').style['border-color'] = 'red';
 					document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.menu.settime'));
-					document.getElementById('genericok').style['display'] = '';
-					document.getElementById('browser').style['display'] = 'none';
 				}
 			});
 		} else {
 			document.getElementById('genericok').style['border-color'] = 'red';
 			document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.menu.settime'));
-			document.getElementById('genericok').style['display'] = '';
-			document.getElementById('browser').style['display'] = 'none';
 		}
+		this.showmsg();
 	});
 }
 /* ImBCHtml: info screen */
@@ -29180,12 +29183,8 @@ appinfo() {
 	a.setAttribute('target','#new');
 	document.getElementById('okmsg').innerHTML += '<br>';
 	document.getElementById('okmsg').append(a);
-	document.getElementById('genericok').style['display'] = '';
-	document.getElementById('browser').style['display'] = 'none';
-	document.getElementById('takephotos').style['display']='none';
-	document.getElementById('takemovies').style['display']='none';
-	this.closeham();
 	this.xlateall();
+	this.showmsg();
 }
 /* ImBCHtml: take a photo */
 takephoto() {
