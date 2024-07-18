@@ -5854,7 +5854,7 @@ add(data, name, cb) {
 /* *************************************** Main class *************************************** */
 class ImBCBase {
 /* Indentation out */
-static version = "V4.9.93_cb85cd5"; // actually const
+static version = "V4.9.94_dev"; // actually const
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -27647,17 +27647,18 @@ addallimgs(gr, e) {
 		}
 		for (const xgr of list.sort((a,b) => this.#mysort(a, b))) {
 			const xe = xgr.entry;
-			if (xgr.fmembers) {
-				for (const m of xgr.fmembers) {
-					this.addallimgs(xgr, xe);
-				}
+			if (xgr.fmembers && xgr.fmembers.length > 0) {
+				this.#addimgsorted(xgr);
+				setTimeout(() => {
+					this.#startloadimg();
+				}, 10);
 			} else {
 				xgr.smembers.map((m) => { this.addallimgs(m, m.entry) });
 			}
 		}
 		return;
 	}
-	if (gr.fmembers && !e.querySelector('.onepic')) {
+	if (gr.fmembers && gr.fmembers.length > 0 && !e.querySelector('.onepic')) {
 		this.#addimgsorted(gr);
 		setTimeout(() => {
 			this.#startloadimg();
@@ -28626,14 +28627,14 @@ custcmd(cmd, type, restargs, cb, results) {
 			if (type === 'document') {
 				const st = xhr.responseXML.querySelector('Function Status');
 				const st2 = xhr.responseXML.querySelector('LIST ALLFile File NAME');
-				if ('0' === st?.textContent || st2 || thecmd === 3014 || thecmd === 3031 || thecmd === 3030) {
+				//if ('0' === st?.textContent || st2 || thecmd === 3014 || thecmd === 3031 || thecmd === 3030) {
 					if (cmd instanceof Array && cmd.length > 0)
 						this.custcmd(cmd, type, restargs, cb, results);
 					else if (cb)
 						cb(0, (results instanceof Array) ? results : xhr.response);
-				}
-				else if (cb)
-					cb(-3, results);
+				//}
+				//else if (cb)
+				//	cb(-3, results);
 			}
 			else if (cmd instanceof Array && cmd.length > 0)
 				this.custcmd(cmd, type, restargs, cb, results);
@@ -28742,8 +28743,6 @@ checkimb() {
 					console.log('Xy ' + JSON.stringify(xx));
 				}
 			}
-			
-			
 			// build the settings menu
 			const r = document.getElementById('menufromimb');
 			r.innerHTML = '';
@@ -28852,16 +28851,16 @@ checkimb() {
 			}			
 			this.xlateall();
 		}
-	}, results);
-	this.custcmd([ 3024, [3001,'par=2'], 3019, 3015 ] , 'document', null, (rc, doc) => {
-		if (rc >= 0) {
-			for (const e of doc.querySelectorAll('LIST ALLFile File FPATH'))
-				this.handle1imb(e.textContent, e.parentElement.querySelector('TIME').textContent);
-			if (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0) {
-				this.aftercheck();
+		this.custcmd([ 3024, [3001,'par=2'], 3019, 3015 ] , 'document', null, (rc, doc) => {
+			if (rc >= 0) {
+				for (const e of doc.querySelectorAll('LIST ALLFile File FPATH'))
+					this.handle1imb(e.textContent, e.parentElement.querySelector('TIME').textContent);
+				if (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0) {
+					this.aftercheck();
+				}
 			}
-		}
-	});
+		});
+	}, results);
 }
 /* ImBCHtml: browserdisplay: initialize settings */
 initsettings() {
