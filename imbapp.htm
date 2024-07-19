@@ -27248,14 +27248,14 @@ showmain() {
 }
 /* ImBCHtml: browserdisplay: take photos */
 showphoto() {
+	const norm = document.getElementById('normal');
+	if (norm) norm.style['display'] = 'none';
 	this.custcmdB(3001, 'document', 'par=0', (rc) => {
 		if (!rc) {
 			this.dispmode = 0;
-			const norm = document.getElementById('normal');
 			const splash = document.getElementById('splash');
 			const quest = document.getElementById('question');
 			if (quest) quest.style['display'] = 'none';
-			if (norm) norm.style['display'] = 'none';
 			if (splash) splash.style['display'] = 'none';
 			document.getElementById('progokbut').disabled = true;
 			document.getElementById('dlprogress').style['display'] = 'none';
@@ -27274,14 +27274,14 @@ showphoto() {
 }
 /* ImBCHtml: browserdisplay: take movies */
 showmovie() {
+	const norm = document.getElementById('normal');
+	if (norm) norm.style['display'] = 'none';
 	this.custcmdB(3001, 'document', 'par=1', (rc) => {
 		if (!rc) {
 			this.dispmode = 1;
-			const norm = document.getElementById('normal');
 			const splash = document.getElementById('splash');
 			const quest = document.getElementById('question');
 			if (quest) quest.style['display'] = 'none';
-			if (norm) norm.style['display'] = 'none';
 			if (splash) splash.style['display'] = 'none';
 			document.getElementById('progokbut').disabled = true;
 			document.getElementById('dlprogress').style['display'] = 'none';
@@ -28525,17 +28525,19 @@ showquestion() {
 }
 /* ImBCHtml: browserdisplay: as it says */
 shownormal() {
-	window.onscroll = () => undefined;
-	window.onresize = () => undefined;
-	const norm = document.getElementById('normal');
-	const quest = document.getElementById('question');
-	document.getElementById('browser').style['display'] = 'none';
-	document.getElementById('browser').style['display'] = 'none';
-	quest.style['display'] = 'none';
-	norm.style['display'] = '';
-	document.getElementById('takephotos').style['display']='none';
-	document.getElementById('takemovies').style['display']='none';
-	window.setTimeout(() => { this.showlastmsg(); }, 100);
+	this.custcmdB(3019, 'document', undefined, () => {
+		window.onscroll = () => undefined;
+		window.onresize = () => undefined;
+		const norm = document.getElementById('normal');
+		const quest = document.getElementById('question');
+		document.getElementById('browser').style['display'] = 'none';
+		document.getElementById('browser').style['display'] = 'none';
+		quest.style['display'] = 'none';
+		norm.style['display'] = '';
+		document.getElementById('takephotos').style['display']='none';
+		document.getElementById('takemovies').style['display']='none';
+		window.setTimeout(() => { this.showlastmsg(); }, 100);
+	});
 }
 /* ImBCHtml: preview: skip handler in the step preview */
 skipthis() {
@@ -28654,12 +28656,12 @@ checkimb() {
 	this.imblang = false;
 	let results = [];
 	const ll = '00' === this.mylang ? 'en' : this.mylang;
-	this.custcmd([3012, 3017, [2015, 'par=0'], 3014, [2015, 'par=1'], [ 3031, 'str=all'], [ 3030, 'str=all'] ], 'document', null, (rc0, doc0) => {
+	this.custcmd([3012, 3024, [3001, 'par=2'], 3017, 2016, [2015, 'par=0'], 3014, [2015, 'par=1'], [ 3031, 'str=all'], [ 3030, 'str=all'] ], 'document', null, (rc0, doc0) => {
 		if (0 <= rc0) {
-			this.connvers = doc0[0].querySelector('Function String').textContent;
-			this.imbfree = doc0[1].querySelector('Function Value').textContent;
+			this.connvers = doc0[0].querySelector('Function String').textContent; // 3012
+			this.imbfree = doc0[3].querySelector('Function Value').textContent; // 3017
 			if (this.appname !== 'imbapp') document.getElementById('onimback').style['display'] = '';
-			for (const e of doc0[3].querySelectorAll('Function Cmd')) {
+			for (const e of doc0[6].querySelectorAll('Function Cmd')) { // 3014
 				if (e.textContent === '3008') {
 					let n = e.nextSibling;
 					while (n.nodeName !== 'Status') n = n.nextSibling;
@@ -28670,7 +28672,7 @@ checkimb() {
 				this.imbsettings.push({ id: e.textContent, val: n.textContent });
 			}
 			/* what lang is the index ? */
-			for (const e of doc0[5].querySelectorAll('LIST Item Cmd')) {
+			for (const e of doc0[8].querySelectorAll('LIST Item Cmd')) { // 3031
 				if (e.textContent === '3008') {
 					let n = e.nextSibling;
 					while (n.nodeName !== 'MenuList') n = n.nextSibling;
@@ -28723,7 +28725,7 @@ checkimb() {
 			if (xx) {
 				xx.name = 'VIDEOFORMAT';
 				xx.vals = [];
-				for (const e of doc0[6].querySelectorAll('LIST Item')) {
+				for (const e of doc0[9].querySelectorAll('LIST Item')) { // 3030
 					// remember all settings in imb menu
 					let n = e.firstElementChild;
 					while (n.nodeName !== 'Name') n = n.nextSibling;
@@ -28733,6 +28735,8 @@ checkimb() {
 					if (this.debugflag) console.log('Xy ' + JSON.stringify(xx));
 				}
 			}
+			
+			
 			// build the settings menu
 			const r = document.getElementById('menufromimb');
 			r.innerHTML = '';
@@ -28841,16 +28845,16 @@ checkimb() {
 			}			
 			this.xlateall();
 		}
-		this.custcmd([ 3024, [3001,'par=2'], 3019, 3015 ] , 'document', null, (rc, doc) => {
+		this.custcmd([ 3019, 3015 ] , 'document', null, (rc, doc) => {
 			if (rc >= 0) {
-				for (const e of doc.querySelectorAll('LIST ALLFile File FPATH'))
+				for (const e of doc[1].querySelectorAll('LIST ALLFile File FPATH'))
 					this.handle1imb(e.textContent, e.parentElement.querySelector('TIME').textContent);
 				if (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0) {
 					this.aftercheck();
 				}
 			}
 		});
-	}, results);
+	});
 }
 /* ImBCHtml: browserdisplay: initialize settings */
 initsettings() {
@@ -29106,7 +29110,10 @@ workermsg(msg) {
 	case 'custcmd':
 		let w1 = this.workerstate[0];
 		this.workerstate.splice(0,1);
-		if (w1.type === 'document' && d.results instanceof Array) {
+		if (!w1) {
+			console.log('OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOPS w1 empty!' + JSON.stringify(d));
+		}
+		else if (w1.type === 'document' && d.results instanceof Array) {
 			d.results = d.results.map((m) => {
 					return (new DOMParser()).parseFromString((new TextDecoder()).decode(m), 'text/xml');
 			});
@@ -29288,8 +29295,13 @@ window.addEventListener('pageshow', function (event) {
 <!-- WORKER -->
 <script type="text/js-previewworker" language="javascript">
 /* *************************************** Main class for WORKER *************************************** */
-let cmd, name, cache, ori, fl, base, msg = false;
+let cmd, name, cache, ori, fl, base, msg = false, progress = false, queue = [], wdtimer, currcust	;
 onmessage = (e) => {
+	//console.log('WORKER received ' + e.data.cmd);
+	if (progress) {
+		console.log('WORKER PUSHING ' + e.data.cmd);
+		queue.push(e);
+	}
 	//console.log(JSON.stringify(e.data));
 	name = e.data.n;
 	cmd = e.data.cmd;
@@ -29303,28 +29315,37 @@ onmessage = (e) => {
 	switch (cmd) {
 	case 'seturl':
 		base = e.data.url;
+		// NO break;
+	case 'watchdog':
+		watchdog();
 		break;
 	case 'resolveandpreview':
+		progress = true;
 		resolver(name, true);
 		// this.previewworker.postMessage({ cmd: 'resolveandpreview', n: (f.url ? f.url :f), o: orientation });
  	  	// onmessage: { pix: array, n: name, o: orientation, c: cacheentry }
 		break;
 	case 'previewfromcache':
+		progress = true;
 		buildpreviewcache(e.data.c, e.data.o);
 		// this.previewworker.postMessage({ cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :f), o: orientation });
 		// onmessage: { pix: array, c: cache, n: name, o: orientation }
 		break;
 	case 'resolveandhandle':
+		progress = true;
 		resolver(name, false);
 		//this.previewworker.postMessage({ cmd: 'resolveandhandle', n: (f.name ? f.name : f), o: orientation, fl: fromloop });
 		// onmessage: { ok?, n: f.name, o: orientation, fl: fromloop, c: cacheentry }
 		break;
 	case 'custcmd':
+		progress = true;
+		currcust = e.data.c;
 		//this.previewworker.postMessage({ cmd: 'custcmd', c: cmd, type: type, rest: rest, results: results });
 		custcmd(e.data.c, e.data.type, e.data.rest, e.data.results);
 		break;
 	default:
 		console.log('WORKER: unexpected CMD ' + e.data.cmd);
+		postMessage({ cmd: cmd, ok: false });
 	}
 };
 /* WORKER: handle communication */
@@ -29360,6 +29381,7 @@ resolver = (url, preview, notfirst) => {
 			if (!preview) {
 				//console.log('POSTING ' + url);
 				postMessage({ cmd: cmd, ok: true, n: url, o: ori, fl: fl, c: cache });
+				handlewait();
 			}
 			else {
 				buildpreview(fx, ori);
@@ -29374,6 +29396,7 @@ resolver = (url, preview, notfirst) => {
 		xhr.ontimeout = undefined;
 		xhr.onabort = undefined;
 		postMessage({ cmd: cmd, ok: false, n: name });
+		handlewait();
 	};
 	xhr.onabort = (evt) => { xhr.onerror(evt, 'abort'); };
 	xhr.ontimeout = (evt) => { xhr.onerror(evt, 'timeout'); };
@@ -29397,6 +29420,17 @@ resolver = (url, preview, notfirst) => {
 		xhr.ontimeout = undefined;
 		xhr.onabort = undefined;
 		postMessage({ cmd: cmd, ok: false, n: name });
+		handlewait();
+	}
+}
+/* WORKER: handle wait queue */
+handlewait = () => {
+	progress = false;
+	if (queue.length > 0) {
+		const e = queue[0];
+		console.log('WORKER CONTINUE ' + e.data.cmd);
+		queue.splice(0,1);
+		onmessage(e);
 	}
 }
 /* WORKER: build preview in array */
@@ -29516,6 +29550,7 @@ buildpreview = (f, orientation) => {
 	if (zz === -1) {
 		console.log('WORKER preview: unsupported size ' + f.size + ' of ' + f.name);
 		postMessage({ cmd: cmd, ok: false, n: name });
+		handlewait();
 		return;
 	}
 	w = infos[zz].w;
@@ -29534,10 +29569,12 @@ buildpreview = (f, orientation) => {
 		let outpix = buildpvarray(view, typ, w, h, orientation, false, wb);
 		// onmessage: { pix: array, n: name, o: orientation, c: cacheentry }
 		postMessage({ cmd: cmd, pix: outpix, n: name, o: ori, c: cache });
+		handlewait();
 	};
 	reader.onerror = (/*evt*/) => {
 		console.log('WORKER preview: error reading ' + f.name);
 		postMessage({ cmd: cmd, ok: false, n: name });
+		handlewait();
 	};
 	reader.readAsArrayBuffer(f);
 }
@@ -29549,6 +29586,7 @@ buildpreviewcache = (f, orientation) => {
 	if (zz === -1) {
 		console.log('WORKER preview: unsupported size ' + f.l + ' of ' + f.n);
 		postMessage({ cmd: cmd, ok: false, n: name });
+		handlewait();
 		return;
 	}
 	w = infos[zz].w;
@@ -29565,6 +29603,7 @@ buildpreviewcache = (f, orientation) => {
 	let outpix = buildpvarray(view, typ, w, h, orientation, false, wb);
 	// onmessage: { pix: array, n: name, o: orientation, c: cacheentry }
 	postMessage({ cmd: cmd, pix: outpix, n: name, o: ori, c: cache });
+	handlewait();
 }
 /* WORKER: get white balance */
 getwb = (view, typidx) => {
@@ -29687,10 +29726,32 @@ adjurl = (url) => {
 	}
 	return n;
 }
-/* WORKER: command handler */
-custcmd = (cmd, type, restargs, results) => {
+/* WORKER: watchdog */
+watchdog = () => {
+	if (progress) {
+		queue.push({ data: { cmd: 'watchdog' } });
+		return;
+	}
+	progress = true;
+	custcmdi(3019, 'document', undefined, () => {
+		console.log('WORKER WATCHDOG');
+		handlewait();
+		if (wdtimer) clearTimeout(wdtimer);
+		wdtimer = setTimeout(() => {
+			wdtimer = undefined;
+			onmessage({ data: { cmd: 'watchdog' } });
+		}, 12000);
+	});
+}
+/* WORKER: internal handler */
+custcmd = (cmd, type, restargs) => {
+	custcmdi(cmd, type, restargs, postMessage)
+}
+/* WORKER: internal command handler */
+custcmdi = (cmd, type, restargs, cb, results) => {
 	let thecmd = cmd, therest = restargs;
 	if (cmd instanceof Array) {
+		if (results === undefined) results = [];
 		if (cmd[0] instanceof Array) {
 			thecmd = cmd[0][0];
 			therest = cmd[0][1];
@@ -29705,16 +29766,26 @@ custcmd = (cmd, type, restargs, results) => {
 		if (xhr.status === 200) {
 			if (results instanceof Array) results.push(xhr.response);
 			if (cmd instanceof Array && cmd.length > 0) {
-				custcmd(cmd, type, restargs, results);
+				custcmdi(cmd, type, restargs, cb, results);
 			}
 			else
-				postMessage({ cmd: 'custcmd', ok: true, results: (results instanceof Array) ? results : xhr.response, rc: 0 });
+				cb({ cmd: 'custcmd', ok: true, results: (results instanceof Array) ? results : xhr.response, rc: 0, cmds: currcust });
+				currcust = undefined;
+				handlewait();
 				//cb(0, (results instanceof Array) ? results : xhr.response);
 		}
-		else postMessage({ cmd: 'custcmd', ok: false, results: results, rc: -1 });
+		else {
+			console.log('WORKER custcmd !== 200: ' + thecmd);
+			cb({ cmd: 'custcmd', ok: false, results: (results instanceof Array) ? results : xhr.response, rc: -1, cmds: currcust });
+			currcust = undefined;
+			handlewait();
+		}
 	};
 	xhr.onerror = (/*event*/) => {
-		postMessage({ cmd: 'custcmd', ok: false, results: results, rc: -2 });
+		console.log('WORKER custcmd onerror: ' + thecmd);
+		cb({ cmd: 'custcmd', ok: false, results: results, rc: -2, cmds: currcust });
+		currcust = undefined;
+		handlewait();
 	};
 	if (base.startsWith('http://127.0.0'))
 		xhr.open('GET', base+ '/i' + thecmd + '.xml' + (therest ? ('?'  + therest): ''));
