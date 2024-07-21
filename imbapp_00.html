@@ -5866,7 +5866,7 @@ add(data, name, cb) {
 /* *************************************** Main class *************************************** */
 class ImBCBase {
 /* Indentation out */
-static version = "V4.9.95_dev"; // actually const
+static version = "V4.9.96_dev"; // actually const
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -25863,7 +25863,7 @@ findlang(i) {
 	}
 	if (i === '99') {
 		/* use lang from imb */
-		console.log('fl 99 ' + this.imblang);
+		//console.log('fl 99 ' + this.imblang);
 		this.useimblang = true;
 		if (this.imblang) this.findlang(this.imblang);
 		if (document) document.getElementById('langsel').value = '99';
@@ -27248,25 +27248,33 @@ showmain() {
 	}
 }
 /* ImBCHtml: browserdisplay: take photos */
+showphotoi() {
+	const norm = document.getElementById('normal');
+	if (norm) norm.style['display'] = 'none';
+	this.dispmode = 0;
+	const splash = document.getElementById('splash');
+	const quest = document.getElementById('question');
+	if (quest) quest.style['display'] = 'none';
+	if (splash) splash.style['display'] = 'none';
+	document.getElementById('progokbut').disabled = true;
+	document.getElementById('dlprogress').style['display'] = 'none';
+	window.onscroll = undefined;
+	window.onresize = undefined;
+	document.getElementById('msglog').style['display'] = 'none';
+	document.getElementById('takephotos').style['display']='';
+	document.getElementById('browser').style['display'] = 'none';
+	document.getElementById('takemovies').style['display'] = 'none';
+	window.scrollTo({ top: 0 });
+	this.imbmode = 0;
+}
+/* ImBCHtml: browserdisplay: take photos */
 showphoto() {
 	const norm = document.getElementById('normal');
+	if (0 === this.imbmode) return this.showphotoi();
 	if (norm) norm.style['display'] = 'none';
 	this.custcmdB(3001, 'document', 'par=0', (rc) => {
 		if (!rc) {
-			this.dispmode = 0;
-			const splash = document.getElementById('splash');
-			const quest = document.getElementById('question');
-			if (quest) quest.style['display'] = 'none';
-			if (splash) splash.style['display'] = 'none';
-			document.getElementById('progokbut').disabled = true;
-			document.getElementById('dlprogress').style['display'] = 'none';
-			window.onscroll = undefined;
-			window.onresize = undefined;
-			document.getElementById('msglog').style['display'] = 'none';
-			document.getElementById('takephotos').style['display']='';
-			document.getElementById('browser').style['display'] = 'none';
-			document.getElementById('takemovies').style['display'] = 'none';
-			window.scrollTo({ top: 0 });
+			this.showphotoi();
 		} else {
 			this.dispmode = 2;
 			this.showbrowser();
@@ -27274,25 +27282,33 @@ showphoto() {
 	});
 }
 /* ImBCHtml: browserdisplay: take movies */
+showmoviei() {
+	const norm = document.getElementById('normal');
+	if (norm) norm.style['display'] = 'none';
+	this.dispmode = 1;
+	const splash = document.getElementById('splash');
+	const quest = document.getElementById('question');
+	if (quest) quest.style['display'] = 'none';
+	if (splash) splash.style['display'] = 'none';
+	document.getElementById('progokbut').disabled = true;
+	document.getElementById('dlprogress').style['display'] = 'none';
+	window.onscroll = undefined;
+	window.onresize = undefined;
+	document.getElementById('msglog').style['display'] = 'none';
+	document.getElementById('takephotos').style['display']='none';
+	document.getElementById('browser').style['display'] = 'none';
+	document.getElementById('takemovies').style['display'] = '';
+	window.scrollTo({ top: 0 });
+	this.imbmode = 1;
+}
+/* ImBCHtml: browserdisplay: take movies */
 showmovie() {
 	const norm = document.getElementById('normal');
+	if (1 === this.imbmode) return this.showmoviei();
 	if (norm) norm.style['display'] = 'none';
 	this.custcmdB(3001, 'document', 'par=1', (rc) => {
 		if (!rc) {
-			this.dispmode = 1;
-			const splash = document.getElementById('splash');
-			const quest = document.getElementById('question');
-			if (quest) quest.style['display'] = 'none';
-			if (splash) splash.style['display'] = 'none';
-			document.getElementById('progokbut').disabled = true;
-			document.getElementById('dlprogress').style['display'] = 'none';
-			window.onscroll = undefined;
-			window.onresize = undefined;
-			document.getElementById('msglog').style['display'] = 'none';
-			document.getElementById('takephotos').style['display']='none';
-			document.getElementById('browser').style['display'] = 'none';
-			document.getElementById('takemovies').style['display'] = '';
-			window.scrollTo({ top: 0 });
+			this.showmoviei();
 		} else {
 			this.dispmode = 2;
 			this.showbrowser();
@@ -27300,25 +27316,31 @@ showmovie() {
 	});
 }
 /* ImBCHtml: browserdisplay: open visual browser */
+showbrowseri() {
+	this.dispmode = 2;
+	const norm = document.getElementById('normal');
+	const splash = document.getElementById('splash');
+	const quest = document.getElementById('question');
+	if (quest) quest.style['display'] = 'none';
+	if (norm) norm.style['display'] = 'none';
+	if (splash) splash.style['display'] = 'none';
+	document.getElementById('progokbut').disabled = true;
+	document.getElementById('dlprogress').style['display'] = 'none';
+	window.onscroll = () => this.addallimgs();
+	window.onresize = () => this.addallimgs();
+	document.getElementById('msglog').style['display'] = 'none';
+	document.getElementById('takephotos').style['display']='none';
+	document.getElementById('browser').style['display'] = '';
+	document.getElementById('takemovies').style['display'] = 'none';
+	window.scrollTo({ top: 0 })
+	this.imbmode = 2;
+	this.#startloadimg();
+}
+/* ImBCHtml: browserdisplay: open visual browser */
 showbrowser() {
+	if (2 === this.imbmode) return this.showbrowseri();
 	this.custcmdB(3001, 'document', 'par=2', (rc) => {
-		this.dispmode = 2;
-		const norm = document.getElementById('normal');
-		const splash = document.getElementById('splash');
-		const quest = document.getElementById('question');
-		if (quest) quest.style['display'] = 'none';
-		if (norm) norm.style['display'] = 'none';
-		if (splash) splash.style['display'] = 'none';
-		document.getElementById('progokbut').disabled = true;
-		document.getElementById('dlprogress').style['display'] = 'none';
-		window.onscroll = () => this.addallimgs();
-		window.onresize = () => this.addallimgs();
-		this.#startloadimg();
-		document.getElementById('msglog').style['display'] = 'none';
-		document.getElementById('takephotos').style['display']='none';
-		document.getElementById('browser').style['display'] = '';
-		document.getElementById('takemovies').style['display'] = 'none';
-		window.scrollTo({ top: 0 })
+		this.showbrowseri();
 	});
 }
 /* ImBCHtml: show message log */
@@ -28634,19 +28656,17 @@ handlenext() {
 	}
 }
 /* ImBCHtml: command handler */
-custcmd(cmd, type, restargs, cb, results) {
-	setTimeout(() => {
-		this.workerstate.push({ cb: cb, type: type });
-		this.previewworker.postMessage({ cmd: 'custcmd', c:cmd, type: type, rest: restargs, results: results });
-	},1000);
+custcmd(cmd, type, restargs, cb) {
+	this.workerstate.push({ cb: cb, type: type });
+	this.previewworker.postMessage({ cmd: 'custcmd', c:cmd, type: type, rest: restargs });
 }
 /* ImBCHtml: command handler BLOCKING */
-custcmdB(cmd, type, restargs, cb, results) {
+custcmdB(cmd, type, restargs, cb) {
 	document.getElementById('overlay').style['display'] = '';
 	this.custcmd(cmd, type, restargs, (rc, d) => {
 		if (cb) cb(rc, d);
 		document.getElementById('overlay').style['display'] = 'none';
-	}, results);
+	});
 }
 /* ImBCHtml: check if we are directly on a back */
 checkimb() {
@@ -28770,14 +28790,14 @@ checkimb() {
 							const e = document.createElement('option');
 							e.value = v.id;
 							e.innerHTML = v.val;
-							e.setAttribute('data-myxxlstx',l.id);
-							e.setAttribute('data-myxlarg0',v.id);
-							e.setAttribute('data-myxlarg1',i);
+							//e.setAttribute('data-myxxlstx',l.id);
+							//e.setAttribute('data-myxlarg0',v.id);
+							//e.setAttribute('data-myxlarg1',i);
 							o.append(e);
 						}
 						o.value = l.val;
 						o.onchange = () => {
-							this.custcmdB([l.id, [2015, 'par=0'], [2015, 'par=1']], 'document', 'par=' + o.value, (rc) => {
+							this.custcmdB([[ l.id, 'par=' + o.value ], [2015, 'par=0'], [2015, 'par=1']], 'document', '', (rc) => {
 								if (!rc)
 									l.val = o.value;
 								else
@@ -28810,7 +28830,7 @@ checkimb() {
 					}
 					o.value = l.val;
 					o.onchange = () => {
-						this.custcmdB([l.id, [2015, 'par=0'], [2015, 'par=1']], 'document', 'par=' + o.value, (rc) => {
+						this.custcmdB([ [l.id, 'par=' + o.value], [2015, 'par=0'], [2015, 'par=1']], 'document', '', (rc) => {
 							if (!rc)
 								l.val = o.value;
 							else
@@ -28839,7 +28859,7 @@ checkimb() {
 			}
 			o.value = l.val;
 			o.onchange = () => {
-				this.custcmdB([l.id, [2015, 'par=0'], [2015, 'par=1']], 'document', 'par=' + o.value, (rc) => {
+				this.custcmdB([ [l.id, 'par=' + o.value], [2015, 'par=0'], [2015, 'par=1']], 'document', '', (rc) => {
 					if (!rc)
 						l.val = o.value;
 					else
@@ -29304,6 +29324,7 @@ onmessage = (e) => {
 	if (progress) {
 		console.log('WORKER PUSHING ' + e.data.cmd);
 		queue.push(e);
+		return;
 	}
 	//console.log(JSON.stringify(e.data));
 	name = e.data.n;
@@ -29344,7 +29365,7 @@ onmessage = (e) => {
 		progress = true;
 		currcust = e.data.c;
 		//this.previewworker.postMessage({ cmd: 'custcmd', c: cmd, type: type, rest: rest, results: results });
-		custcmd(e.data.c, e.data.type, e.data.rest, e.data.results);
+		custcmd(e.data.c, e.data.type, e.data.rest);
 		break;
 	default:
 		console.log('WORKER: unexpected CMD ' + e.data.cmd);
@@ -29747,29 +29768,29 @@ watchdog = () => {
 	});
 }
 /* WORKER: internal handler */
-custcmd = (cmd, type, restargs) => {
-	custcmdi(cmd, type, restargs, postMessage)
+custcmd = (c, t, restargs) => {
+	custcmdi(c, t, restargs, postMessage)
 }
 /* WORKER: internal command handler */
-custcmdi = (cmd, type, restargs, cb, results) => {
-	let thecmd = cmd, therest = restargs;
-	if (cmd instanceof Array) {
+custcmdi = (c, t, restargs, cb, results) => {
+	let thecmd = c, therest = restargs;
+	if (c instanceof Array) {
 		if (results === undefined) results = [];
-		if (cmd[0] instanceof Array) {
-			thecmd = cmd[0][0];
-			therest = cmd[0][1];
+		if (c[0] instanceof Array) {
+			thecmd = c[0][0];
+			therest = c[0][1];
 		} else {
-			thecmd = cmd[0];
+			thecmd = c[0];
 			therest = '';
 		}
-		cmd.splice(0,1);
+		c.splice(0,1);
 	}
 	const xhr = new XMLHttpRequest();
 	xhr.onload = (event) => {
 		if (xhr.status === 200) {
 			if (results instanceof Array) results.push(xhr.response);
-			if (cmd instanceof Array && cmd.length > 0) {
-				custcmdi(cmd, type, restargs, cb, results);
+			if (c instanceof Array && c.length > 0) {
+				custcmdi(c, t, restargs, cb, results);
 			}
 			else
 				cb({ cmd: 'custcmd', ok: true, results: (results instanceof Array) ? results : xhr.response, rc: 0, cmds: currcust });
