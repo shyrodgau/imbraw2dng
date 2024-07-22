@@ -27334,6 +27334,7 @@ showbrowseri() {
 	document.getElementById('takemovies').style['display'] = 'none';
 	window.scrollTo({ top: 0 })
 	this.imbmode = 2;
+	this.addallimgs();
 	this.#startloadimg();
 }
 /* ImBCHtml: browserdisplay: open visual browser */
@@ -27630,7 +27631,7 @@ buildtree() {
 /* ImBCHtml: visual browser: add images sorted  */
 #addimgsorted(el) {
 	let rect = el.entry.getBoundingClientRect();
-	if (rect.top > window.innerHeight || rect.bottom < 0)
+	if (rect.top > window.innerHeight || rect.bottom <= 0)
 		return;
 	if (el.fmembers !== null && el.fmembers !== undefined) {
 		for (const e of el.fmembers.sort((a,b) => this.#myisort(a, b))) {
@@ -27694,6 +27695,9 @@ addallimgs(gr, e) {
 		}
 		for (const xgr of list.sort((a,b) => this.#mysort(a, b))) {
 			const xe = xgr.entry;
+			let rect = xe.getBoundingClientRect();
+			if (rect.top > window.innerHeight || rect.bottom <= 0 || rect.width <= 0)
+				continue;
 			if (xgr.fmembers && xgr.fmembers.length > 0) {
 				this.#addimgsorted(xgr);
 				this.#startloadimg();
@@ -28677,9 +28681,8 @@ checkimb() {
 	if (null === this.previewworker) this.initworker();
 	let imblang = '';
 	this.imblang = false;
-	let results = [];
 	const ll = '00' === this.mylang ? 'en' : this.mylang;
-	this.custcmd([3012, 3024, [3001, 'par=2'], 3017, 2016, [2015, 'par=0'], 3014, [2015, 'par=1'], [ 3031, 'str=all'], [ 3030, 'str=all'] ], 'document', null, (rc0, doc0) => {
+	this.custcmd([3012, 3024, [3001, 'par=2'], 3017, 2016, [2015, 'par=0'], 3014, [2015, 'par=1'], [ 3031, 'str=all'], 3030 ], 'document', null, (rc0, doc0) => {
 		if (0 <= rc0) {
 			this.connvers = doc0[0].querySelector('Function String').textContent; // 3012
 			this.imbfree = doc0[3].querySelector('Function Value').textContent; // 3017
@@ -29419,8 +29422,10 @@ resolver = (url, preview, notfirst) => {
 		xhr.onload = undefined;
 		xhr.ontimeout = undefined;
 		xhr.onabort = undefined;
-		postMessage({ cmd: cmd, ok: false, n: name });
-		handlewait();
+		setTimeout(() => {
+			postMessage({ cmd: cmd, ok: false, n: name });
+			handlewait();
+		}, 300);
 	};
 	xhr.onabort = (evt) => { xhr.onerror(evt, 'abort'); };
 	xhr.ontimeout = (evt) => { xhr.onerror(evt, 'timeout'); };
@@ -29626,8 +29631,10 @@ buildpreviewcache = (f, orientation) => {
 	//console.log(JSON.stringify(wb));
 	let outpix = buildpvarray(view, typ, w, h, orientation, false, wb);
 	// onmessage: { pix: array, n: name, o: orientation, c: cacheentry }
-	postMessage({ cmd: cmd, pix: outpix, n: name, o: ori, c: cache });
-	handlewait();
+	setTimeout(() => {
+		postMessage({ cmd: cmd, pix: outpix, n: name, o: ori, c: cache });
+		handlewait();
+	}, 300);
 }
 /* WORKER: get white balance */
 getwb = (view, typidx) => {
