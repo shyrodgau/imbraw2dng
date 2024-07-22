@@ -6754,8 +6754,8 @@ static texts = { // actually const
 			de: 'Freier Speicher:'
 		},
 		helpurl: {
-			de: 'https://shyrodgau.github.io/imbraw2dng/imbapp_de.md',
-			en: 'https://shyrodgau.github.io/imbraw2dng/imbapp.md'
+			de: 'https://shyrodgau.github.io/imbraw2dng/imbapp_de',
+			en: 'https://shyrodgau.github.io/imbraw2dng/imbapp'
 		},
 		livehint: {
 			en: 'For live view, point media player to $$0',
@@ -27685,33 +27685,35 @@ buildtree() {
 }
 /* ImBCHtml: add images */
 addallimgs(gr, e) {
-	if (!gr) {
-		let list;
-		if (document.getElementById('sbytype').checked) {
-			list = this.typedclasses;
-		}
-		else {
-			list = this.untypedclasses;
-		}
-		for (const xgr of list.sort((a,b) => this.#mysort(a, b))) {
-			const xe = xgr.entry;
-			let rect = xe.getBoundingClientRect();
-			if (rect.top > window.innerHeight || rect.bottom <= 0 || rect.width <= 0)
-				continue;
-			if (xgr.fmembers && xgr.fmembers.length > 0) {
-				this.#addimgsorted(xgr);
-				this.#startloadimg();
-			} else {
-				xgr.smembers.map((m) => { this.addallimgs(m, m.entry) });
+	setTimeout(() => {
+		if (!gr) {
+			let list;
+			if (document.getElementById('sbytype').checked) {
+				list = this.typedclasses;
 			}
+			else {
+				list = this.untypedclasses;
+			}
+			for (const xgr of list.sort((a,b) => this.#mysort(a, b))) {
+				const xe = xgr.entry;
+				let rect = xe.getBoundingClientRect();
+				if (rect.top > window.innerHeight || rect.bottom <= 0 || rect.width <= 0)
+					continue;
+				if (xgr.fmembers && xgr.fmembers.length > 0) {
+					this.#addimgsorted(xgr);
+					this.#startloadimg();
+				} else {
+					xgr.smembers.map((m) => { this.addallimgs(m, m.entry) });
+				}
+			}
+			return;
 		}
-		return;
-	}
-	if (gr.fmembers && gr.fmembers.length > 0 && !e.querySelector('.onepic')) {
-		this.#addimgsorted(gr);
-		this.#startloadimg();
-	} else
-		gr.smembers.map((m) => { this.addallimgs(m, m.entry) });
+		if (gr.fmembers && gr.fmembers.length > 0 && !e.querySelector('.onepic')) {
+			this.#addimgsorted(gr);
+			this.#startloadimg();
+		} else
+			gr.smembers.map((m) => { this.addallimgs(m, m.entry) });
+	}, 100);
 }
 /* ImBCHtml: visual browser: select all from top */
 topreccheck(force) {
