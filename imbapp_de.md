@@ -14,17 +14,15 @@ Die Datei [imbapp.htm](https://github.com/shyrodgau/imbraw2dng/raw/master/imbapp
 Die Micro SD aus der ImB entnehmen und in (einen Adapter am) Computer stecken. Wenn keiner da, müsste ich einen alternativen Weg beschreiben, bitte frag danach.
 
 Inhalt der Micro SD öffnen, könnte `VOLUME1` heißen und müsste einen Ordner namens `IMBACK` oder `imback` enthalten. Diesen Ordner öffnen.
+(Darin sollten Ordner namens `photo` und/oder `movie` zu sehen sein.)
 
-Darin sollten Ordner namens `photo` und/oder `movie` zu sehen sein.
-
-Mit dem Dateiexplorer oder Betriebssystem die heruntergeladene Datei `imbapp.htm` in diese aktuellen imback Ordner kopieren.
+Mit dem Dateiexplorer oder Betriebssystem die heruntergeladene Datei `imbapp.htm` in diesen aktuellen imback Ordner kopieren.
 
 Micro SD aus dem Computer auswerfen und wieder ins ImB stecken.
 
 ## Fertig zum Benutzen!
 
-Computer oder Smartphone ins WLAN vom ImB reinhängen.
-
+Computer oder Smartphone ins WLAN vom ImB reinhängen.  
 Browser auf [http://192.168.1.254/IMBACK/IMBAPP.HTM](http://192.168.1.254/IMBACK/IMBAPP.HTM).
 
 ### Einschränkungen
