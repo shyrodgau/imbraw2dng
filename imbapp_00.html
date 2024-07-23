@@ -8465,6 +8465,7 @@ copyright = '';
 appname = 'imbraw2dng'; // or imbapp
 connvers = ''; // hw version from cmd 3012
 imbfree = -1;
+imbmode = -1; // movie, photo, browse
 
 // ImBCBase: fake long exposure:
 #addimgs = [];
@@ -28689,7 +28690,7 @@ checkimb() {
 	let imblang = '';
 	this.imblang = false;
 	const ll = '00' === this.mylang ? 'en' : this.mylang;
-	this.custcmd([3012, 3024, [3001, 'par=2'], 3017, 2016, [2015, 'par=0'], 3014, [2015, 'par=1'], [ 3031, 'str=all'], 3030 ], 'document', null, (rc0, doc0) => {
+	this.custcmd([3012, 3024, [3001, 'par=2'], 3017, 2016, [2015, 'par=0'], 3014, [2015, 'par=1'], [3031, 'str=all'],  3030  ], 'document', null, (rc0, doc0) => {
 		if (0 <= rc0) {
 			this.connvers = doc0[0].querySelector('Function String').textContent; // 3012
 			this.imbfree = doc0[3].querySelector('Function Value').textContent; // 3017
@@ -28807,12 +28808,25 @@ checkimb() {
 						}
 						o.value = l.val;
 						o.onchange = () => {
-							this.custcmdB([[ l.id, 'par=' + o.value ], [2015, 'par=0'], [2015, 'par=1']], 'document', '', (rc) => {
-								if (!rc)
-									l.val = o.value;
-								else
-									alert(this.rmesc(this.xl('words.error')) + ' ' + sp.innerHTML)
-							});
+							if (l.val !== o.value) {
+								if (i === 0) {
+									this.imbmode = 1;
+									this.custcmdB([[ 3001,'par=1'], [ l.id, 'par=' + o.value ], [2015, 'par=0'], [ 3001,'par=1'], [2015, 'par=1']], 'document', '', (rc) => {
+										this.imbmode = 1;
+										if (!rc)
+											l.val = o.value;
+										else
+											alert(this.rmesc(this.xl('words.error')) + ' ' + sp.innerHTML)
+									});
+								} else {
+									this.custcmdB([[ l.id, 'par=' + o.value ], [2015, 'par=0'], [2015, 'par=1']], 'document', '', (rc) => {
+										if (!rc)
+											l.val = o.value;
+										else
+											alert(this.rmesc(this.xl('words.error')) + ' ' + sp.innerHTML)
+									});
+								}
+							}
 						}
 						s.append(o);
 					}
@@ -28840,12 +28854,16 @@ checkimb() {
 					}
 					o.value = l.val;
 					o.onchange = () => {
-						this.custcmdB([ [l.id, 'par=' + o.value], [2015, 'par=0'], [2015, 'par=1']], 'document', '', (rc) => {
-							if (!rc)
-								l.val = o.value;
-							else
-								alert(this.rmesc(this.xl('words.error')) + ' ' + l.name)
-						});
+						if (l.val !== o.value) {
+							this.imbmode = 1;
+							this.custcmdB([ [ 3001, 'par=1'], [l.id, 'par=' + o.value], [2015, 'par=0'], [ 3001, 'par=1'], [2015, 'par=1']], 'document', '', (rc) => {
+								this.imbmode = 1;
+								if (!rc)
+									l.val = o.value;
+								else
+									alert(this.rmesc(this.xl('words.error')) + ' ' + l.name)
+							});
+						}
 					}
 				}
 			}
@@ -28869,12 +28887,13 @@ checkimb() {
 			}
 			o.value = l.val;
 			o.onchange = () => {
-				this.custcmdB([ [l.id, 'par=' + o.value], [2015, 'par=0'], [2015, 'par=1']], 'document', '', (rc) => {
-					if (!rc)
-						l.val = o.value;
-					else
-						alert(this.rmesc(this.xl('words.error')) + ' ' + l.name)
-				});
+				if (l.val !== o.value)
+					this.custcmdB([ [l.id, 'par=' + o.value], [2015, 'par=0'], [2015, 'par=1']], 'document', '', (rc) => {
+						if (!rc)
+							l.val = o.value;
+						else
+							alert(this.rmesc(this.xl('words.error')) + ' ' + l.name)
+					});
 			}			
 			this.xlateall();
 		}
@@ -29261,6 +29280,22 @@ takephoto() {
 				// raw
 			}
 		}
+	});
+}
+/* ImBCHtml: start a movie */
+takemovie() {
+	this.custcmdB(2001, 'document', 'par=1', (rc, doc) => {
+		if (rc >= 0) {
+			document.getElementById('movieprogress').style['display'] = '';
+			document.getElementById('takemovies').style['display'] = 'none';
+		}
+	});
+}
+/* ImBCHtml: stop a movie */
+stopmovie() {
+	document.getElementById('movieprogress').style['display'] = 'none';
+	this.custcmdB(2001, 'document', 'par=0', (rc, doc) => {
+		this.showmain();
 	});
 }
 /* ImBCHtml: open parent */
@@ -30081,10 +30116,17 @@ infos = [ // actually const
 <input type="button" class="whbtn" onclick="imbc.closeham();" value="&#x1f3ac;" style="font-family:Symbol3;padding-left:0.4em;padding-right:0.4em;color:red;">
 </div><div>&nbsp;</div>
 </div>
-Coming Soon...
-	<div data-myxlkey="app.livehint" data-myxlarg0='rtsp://192.168.1.254/stream0/svc0/'> </div>
-</div>
+<div style="display:flex;flex-flow:wrap;">
+<input type="button" onclick="imbc.takemovie()" style="font-weight:bold;font-size:200%;background-color:red;width:97px;height:97px;margin:10px;font-family:Symbol3;border-radius:50%;margin-right: 30px;" value="&#x1f3ac; !">&nbsp;
+	<div data-myxlkey="app.livehint" data-myxlarg0='rtsp://192.168.1.254/stream0/svc0/' style="align-self:center;margin:3em;"> </div>
+</div></div>
 <!-- end of the take movies -->
+<!-- this is the wait for stop movie -->
+<div id="movieprogress" style="border: 5px solid blue; border-radius: 20px; padding: 20px;display:none;width:fit-content;">
+<div style="font-weight:bold;" id="progmoviemsg">&#x23f1;</div>
+<input id="stopbut" type="button" value="&#x23f1;"  onclick="imbc.stopmovie()">
+</div>
+<!-- end of the wait for stop movie -->
 <!-- this is the delete question/progress -->
 <div id="delq" style="border: 5px solid red; border-radius: 20px; padding: 20px;display:none;width:fit-content;">
 <span id="del_text" data-myxlarg0="0" data-myxlkey="del.question"></span><br>
