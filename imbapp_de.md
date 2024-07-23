@@ -29,8 +29,6 @@ Browser auf [http://192.168.1.254/IMBACK/IMBAPP.HTM](http://192.168.1.254/IMBACK
 
 Nicht gut getestet, bitte ein genaues Auge darauf haben und Bescheid sagen, wenn etwas nicht wie erwartet funktioniert.
 
-Filme können momentan nicht aufgenommen werden.
-
 Nach einem Photo kann man es zwar ansehen, aber nicht herunterladen, hierzu muss die Seite/App neu geladen werden.
 
 ## Als App installieren

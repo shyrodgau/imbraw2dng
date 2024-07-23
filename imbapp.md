@@ -29,8 +29,6 @@ Navigate your browser to [http://192.168.1.254/IMBACK/IMBAPP.HTM](http://192.168
 
 It has not been tested very good, please keep an eye on it and tell me if something does not work as you expect.
 
-Taking movies is not yet implemented.
-
 After taking a photo, you can only preview it but not download it, you need to reload the app/page.
 
 ## Install the APP
