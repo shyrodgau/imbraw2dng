@@ -1,7 +1,8 @@
 <!-- SPDX-License-Identifier: 0BSD -->
 # imbapp - versuche die App zu ersetzen
 
-or [in English](https://shyrodgau.github.io/imbraw2dng/imbapp) 
+or [in English](https://shyrodgau.github.io/imbraw2dng/imbapp)  
+ [日本語](https://shyrodgau.github.io/imbraw2dng/imbapp_ja)
 
 ## Kurze Einführung
 
