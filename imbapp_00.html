@@ -5991,21 +5991,21 @@ static texts = { // actually const
 			en: 'Data processing is entirely in the browser, not in \'the internet\'<br>Browser may ask you if you want to allow downloading multiple files.<br>Not or unrecognized RAW Files simply will be copied.',
 			fr: 'L\'information est entièrement traitée dans le navigateur et non sur \'Internet\'<br>Le navigateur peux questionner que vous acceptez le téléchargement de beaucoup de fiches.<br>Fiches pas-RAW ou RAW inconnue sont copiée 1:1.',
 			ru: 'Данные обрабатываются только в браузере, а не в \'Интернете\'.<br>Браузер может спросить, хотите ли вы разрешить загрузку нескольких файлов.<br>Файлы, которые не являются или неизвестными файлами RAW, копируются 1:1.',
-			ja: 'データ処理は完全にブラウザ内で行われ、\'インターネット\'では行われません。<br>ブラウザにより複数のファイルのダウンロードを許可するかを尋ねることがあります。<br>RAW ファイルが存在しない、または認識されない場合は、単純にコピーされます。'
+			ja: 'データはブラウザ内でのみ処理され、「インターネット」上では処理されません。<br>ブラウザは、複数のファイルのダウンロードを許可するかどうかを尋ねる場合があります。<br>RAW ファイルではないファイル、または不明なファイルは 1:1 でコピーされます。'
 		},
 		drophere: {
 			de: 'Dateien von ImB hier ablegen: ',
 			en: 'Drop Files from ImB here: ',
 			fr: 'Posez fiches de ImB ici: ',
 			ru: 'Храните файлы из ImB здесь: ',
-			ja: 'ここに ImB のファイルをドロップします。：  '
+			ja: 'ここに ImB のファイルをドロップします。： '
 		},
 		selectraw: {
 			de: 'Oder diese Seite per WLAN <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/moredoc_de.md#gucken-auf-imback-selbst\'>direkt von ImB</a> verwenden.<br>Oder <tt>.RAW</tt> Datei(en) auswählen:',
 			en: 'Or use this page via Wifi <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/moredoc.md#browsing-on-the-imback\'>directly from ImB</a>.<br>Or select <tt>.RAW</tt> File(s):',
 			fr: 'Ou utiliez cette page <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/moredoc.md#browsing-on-the-imback\'>via Wifi sur ImB</a>.<br>Ou selectez <tt>.RAW</tt> fiche(s):',
 			ru: 'Или используйте эту страницу через Wi-Fi <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/moredoc.md#browsing-on-the-imback\'>прямо из ImB</a>.<br>Или выберите файл(ы) <tt>RAW</tt>:',
-			ja: 'または、Wifi 経由で <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/moredoc_ja.md#imback-での閲覧\'>ImB から直接</a>このページを使用します。<br> または、 <tt>.RAW</tt> ファイルを選択します。:'
+			ja: 'または、このページを WiFi 経由で<a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/moredoc_ja.md#imback-での閲覧\'>ImB から直接</a>使用します。<br >または、<tt>.RAW</tt> ファイルを選択します。：'
 		},
 		stillcounting: {
 			de: '... zähle ... ',
@@ -6097,7 +6097,7 @@ static texts = { // actually const
 		fakelong: {
 			en: 'Fake long exposure by adding up all (<a href="https://shyrodgau.github.io/imbraw2dng/moredoc#a-lot-more-tricks-and-details">read more</a>)',
 			de: 'Langzeitbelichtung durch Addieren simulieren (<a href="https://shyrodgau.github.io/imbraw2dng/moredoc_de#mehr-tricks-und-details">mehr lesen</a>)',
-			ja: 'すべてを加算して長時間露光をシミュレートする',
+			ja: '「追加して長時間露光をシミュレートします (<a href="https://shyrodgau.github.io/imbraw2dng/moredoc_ja#さらなるトリックと詳細">続きを読む</a>)」すべてを加算して長時間露光をシミュレートする',
 			scale: {
 				en: 'Scale values down',
 				de: 'Werte dabei herunterskalieren',
@@ -6122,7 +6122,7 @@ static texts = { // actually const
 		newmsg: {
 			en: 'New! <a href="imbraw2dng_ja.html">Japanese translation</a> thanks to Sadami Inoue! <a href="https://github.com/shyrodgau/imbraw2dng/issues" target="_new">Report bugs</a>',
 			de: 'Neu! <a href="imbraw2dng_ja.html">Japanische Übersetung</a> Danke an Sadami Inoue! <a href="https://github.com/shyrodgau/imbraw2dng/issues" target="_new">Fehler melden</a>',
-			ja: 'Japanese translation thanks to Sadami Inoue! <a href="https://github.com/shyrodgau/imbraw2dng/issues" target="_new">バグ報告</a>'
+			ja: '新着！ <a href="imbraw2dng_ja.html">日本語翻訳</a> <a href="https://github.com/shyrodgau/imbraw2dng/issues" target="_new">バグを報告する</a>'
 		}
 	},
 	browser: {
@@ -6740,69 +6740,85 @@ static texts = { // actually const
 	app: {
 		lang: {
 			en: 'Language:',
-			de: 'Sprache:'
+			de: 'Sprache:',
+			ja: '言語：'
 		},
 		onexit: {
 			de: 'Beim Beenden ImB setzen auf: ',
-			en: 'On exit, switch ImB to: '
+			en: 'On exit, switch ImB to: ',
+			ja: '終了時に、ImB を次のように切り替えます。 '
 		},
 		exitphoto: {
 			de: 'Fotos aufnehmen',
-			en: 'Take photos'
+			en: 'Take photos',
+			ja: '写真を撮る'
 		},
 		exitmovie: {
 			de: 'Filme aufnehmen',
-			en: 'Take movies'
+			en: 'Take movies',
+			ja: '映画を撮る'
 		},
 		exitbrowse: {
 			de: 'Aufgen. Bilder durchstöbern',
-			en: 'Browse taken images'
+			en: 'Browse taken images',
+			ja: '撮影した画像を閲覧する'
 		},
 		menu: {
 			settime: {
 				en: 'Set ImB Time',
-				de: 'ImB Zeit setzen'
+				de: 'ImB Zeit setzen',
+				ja: 'ImB 時間を設定する'
 			},
 			msglog: {
 				en: 'Message Log',
-				de: 'Logdatei'
+				de: 'Logdatei',
+				ja: 'メッセージログ'
 			},
 			settings: {
 				en: 'Settings',
-				de: 'Einstellungen'
+				de: 'Einstellungen',
+				ja: '設定'
 			},
 			info: {
 				en: 'Info',
-				de: 'Info'
+				de: 'Info',
+				ja: '情報'
 			},
 			quit: {
 				en: 'Quit',
-				de: 'Ende'
+				de: 'Ende',
+				ja: 'やめる'
 			},
 		},
 		okay: {
 			de: 'Erfolgreich!',
-			en: 'Success!'
+			en: 'Success!',
+			ja: '成功！'
 		},
 		install: {
 			de: 'INSTALLIEREN',
-			en: 'INSTALL'
+			en: 'INSTALL',
+			ja: 'インストール'
 		},
 		app: {
 			en: ' APP ',
-			de: ' APP '
+			de: ' APP ',
+			ja: ' アプリ '
 		},
 		free: {
 			en: 'Unused memory:',
-			de: 'Freier Speicher:'
+			de: 'Freier Speicher:',
+			ja: '未使用のメモリ:'
 		},
 		helpurl: {
 			de: 'https://shyrodgau.github.io/imbraw2dng/imbapp_de',
-			en: 'https://shyrodgau.github.io/imbraw2dng/imbapp'
+			en: 'https://shyrodgau.github.io/imbraw2dng/imbapp',
+			ja: 'https://shyrodgau.github.io/imbraw2dng/imbapp_ja'
 		},
 		livehint: {
 			en: 'For live view, point media player to $$0',
 			de: 'Für Live Bild, mit Mediaplayer auf $$0 gehen',
+			ja: 'ライブ画像については、メディア プレーヤーで $$0 にアクセスしてください'
 		}
 	}
 };
