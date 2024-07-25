@@ -9,6 +9,9 @@ Convert RAW from I'm back(R)(https://imback.eu) into DNG
 
 Based on work by Michele Asciutti.
 
+Contains parts of NotoSansSymbols2-Regular https://fonts.google.com/noto/specimen/Noto+Sans+Symbols+2 
+licensed under Open Font License http://scripts.sil.org/OFL
+
 https://github.com/shyrodgau/imbraw2dng
 
 Usage: open in browser and select RAW
@@ -29310,6 +29313,7 @@ appinfo() {
 	a.setAttribute('target','#new');
 	document.getElementById('okmsg').innerHTML += '<br>';
 	document.getElementById('okmsg').append(a);
+	document.getElementById('okmsg').innerHTML += '<br><span style="font-weight:normal;font-size:75%;">Contains parts of <a href="https://fonts.google.com/noto/specimen/Noto+Sans+Symbols+2">NotoSansSymbols2-Regular</a> font licensed under <a href="http://scripts.sil.org/OFL">Open Font License</a></span>'; 
 	this.xlateall();
 	this.showmsg();
 }
