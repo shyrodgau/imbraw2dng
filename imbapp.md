@@ -30,10 +30,10 @@ Navigate your browser to [http://192.168.1.254/IMBACK/IMBAPP.HTM](http://192.168
 
 It has not been tested very good, please keep an eye on it and tell me if something does not work as you expect.
 
-After taking a photo, you can only preview it but not download it, you need to reload the app/page.
+After taking a photo or movie, you can only preview it but not download it, you need to reload the app/page.
 
 ## Install the APP
 
-This may not be possible because the standard commands https connection which ImB can not provide.
+This may not be possible because the standard requires https connection which ImB can not provide.
 
 But most browser should allow to either add a bookmark for it or, on mobile, add a desktop shortcut that you can use like an app.
