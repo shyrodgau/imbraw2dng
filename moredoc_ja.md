@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: 0BSD -->
 # imbraw2dng - [I'mBack<sup>&reg;</sup>&nbsp;35mm/MF](https://imback.eu) RAW から DNG ファイルへの変換
 
-# new: [imbapp](imbapp)
+# new: [imbapp](https://shyrodgau.github.io/imbraw2dng/imbapp_ja)
 
 これは商用サポートのないフリー ソフトウェア ([0-clause BSD-License](LICENSE.txt)) です。
 
