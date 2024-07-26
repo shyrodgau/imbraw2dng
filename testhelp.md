@@ -10,7 +10,7 @@ I would be interested if they differ from the classic versions.
 
 Especially the **HTML page** and **Medium Format** or **older Firmware**.  
 But that works only if you copy it onto your ImB:
-1. download [imbapp.html](https://github.com/shyrodgau/imbraw2dng/raw/master/imbapp.html) to your PC or smartphone
+1. download [imbapp.htm](https://github.com/shyrodgau/imbraw2dng/raw/master/imbapp.htm) to your PC or smartphone
 1. connect PC or smartphone to the ImB WIFI
 1. open [the device in browser](http://192.168.1.254/IMBACK) (in new browser tab)
 1. click `Choose File`
