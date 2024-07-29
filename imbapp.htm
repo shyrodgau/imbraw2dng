@@ -5237,10 +5237,10 @@ body { margin: 0; }
     background-color: rgba(0, 0, 0, 0.3);
     z-index: 999;
     position: fixed;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
+    left: -20%;
+    top: -20%;
+    width: 150%;
+    height: 150%;
 }​
 /*.gl1 > .ggtt span.gtype { display: inline !important; }*/
 .ggttopen { border-bottom: 0 !important; }
@@ -8518,7 +8518,9 @@ useimblang = false;
 // exitmode for imb
 exitmode = 'photo';
 // display mode for app
-dispmode = 2;
+dispmode = 1;
+// need to load imgs from back?
+imgsdirty = true;
 // experimental
 neutral = false;
 copyright = '';
@@ -27313,6 +27315,25 @@ showmain() {
 		this.showphoto();
 	}
 }
+/* ImBCHtml: browserdisplay: show slpash */
+showsplash() {
+	const norm = document.getElementById('normal');
+	if (norm) norm.style['display'] = 'none';
+	//this.dispmode = 0;
+	const splash = document.getElementById('splash');
+	const quest = document.getElementById('question');
+	if (quest) quest.style['display'] = 'none';
+	if (splash) splash.style['display'] = '';
+	document.getElementById('progokbut').disabled = true;
+	document.getElementById('dlprogress').style['display'] = 'none';
+	window.onscroll = undefined;
+	window.onresize = undefined;
+	document.getElementById('msglog').style['display'] = 'none';
+	document.getElementById('takephotos').style['display']='none';
+	document.getElementById('browser').style['display'] = 'none';
+	document.getElementById('takemovies').style['display'] = 'none';
+	window.scrollTo({ top: 0 });
+}
 /* ImBCHtml: browserdisplay: take photos */
 showphotoi() {
 	const norm = document.getElementById('normal');
@@ -27336,7 +27357,7 @@ showphotoi() {
 /* ImBCHtml: browserdisplay: take photos */
 showphoto() {
 	const norm = document.getElementById('normal');
-	if (0 === this.imbmode) return this.showphotoi();
+	//if (0 === this.imbmode) return this.showphotoi();
 	if (norm) norm.style['display'] = 'none';
 	this.custcmdB(3001, 'document', 'par=0', (rc) => {
 		if (!rc) {
@@ -27370,7 +27391,7 @@ showmoviei() {
 /* ImBCHtml: browserdisplay: take movies */
 showmovie() {
 	const norm = document.getElementById('normal');
-	if (1 === this.imbmode) return this.showmoviei();
+	//if (1 === this.imbmode) return this.showmoviei();
 	if (norm) norm.style['display'] = 'none';
 	this.custcmdB(3001, 'document', 'par=1', (rc) => {
 		if (!rc) {
@@ -27405,10 +27426,15 @@ showbrowseri() {
 }
 /* ImBCHtml: browserdisplay: open visual browser */
 showbrowser() {
-	if (2 === this.imbmode) return this.showbrowseri();
-	this.custcmdB(3001, 'document', 'par=2', (rc) => {
-		this.showbrowseri();
-	});
+	if (this.imgsdirty) {
+		this.dispmode = 2;
+		this.loadimgs();
+	} else {
+		//if (2 === this.imbmode) return this.showbrowseri();
+		this.custcmdB(3001, 'document', 'par=2', (rc) => {
+			this.showbrowseri();
+		});
+	}
 }
 /* ImBCHtml: show message log */
 showlog() {
@@ -27554,10 +27580,11 @@ aftercheck() {
 	// build title elements
 	for (const s of this.untypedclasses) this.#buildtitlerec(s);
 	for (const s of this.typedclasses) this.#buildtitlerec(s);
+	this.imgsdirty = false;
 	if (document) {
 		document.getElementById('brnsel').innerHTML = '0';
 		document.getElementById('brntot').innerHTML = '' + this.imbeles.length;
-		if (this.appname === 'imbapp') this.showbrowser();
+		if (this.appname === 'imbapp') this.showmain();
 		this.buildtree();
 	}
 	/* debug * /
@@ -27597,8 +27624,10 @@ buildtree() {
 		this.#addsorted(e);
 		this.#doopen(e, true);
 	}
+	this.imgsdirty = false;
 	this.#startloadimg();
 	this.xlateall();
+	this.showmain();
 }
 /* ImBCHtml: visual browser: find next to load */
 /* four phases, finding a match for one skips all following phases */
@@ -28748,6 +28777,38 @@ custcmdB(cmd, type, restargs, cb) {
 		document.getElementById('overlay').style['display'] = 'none';
 	});
 }
+/* ImBCHtml: load imgs from back */
+loadimgs() {
+	this.showsplash();
+	// first, make everything empty
+	for (const e of this.untypedclasses) {
+		e.entry.remove();
+		this.#doclose(e, true);
+	}
+	for (const e of this.typedclasses) {
+		e.entry.remove();
+		this.#doclose(e, true);
+	}
+	for (const d of this.imbeles) {
+		if (undefined !== d.entry && null !== d.entry && d.entry.remove)
+			d.entry.remove();
+	}
+	this.imbpics = [];
+	this.rimbpics = [];
+	this.imbmovies = [];
+	this.untypedclasses = [];
+	this.typedclasses = [];
+	this.imbeles = [];
+	this.custcmd([ [3001, 'par=2'], 3015 ] , 'document', null, (rc, doc) => {
+		if (rc >= 0) {
+			for (const e of doc[1].querySelectorAll('LIST ALLFile File FPATH'))
+				this.handle1imb(e.textContent, e.parentElement.querySelector('TIME').textContent);
+			if (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0) {
+				this.aftercheck();
+			}
+		}
+	});
+}
 /* ImBCHtml: check if we are directly on a back */
 checkimb() {
 	if (this.debugflag && document) {
@@ -28760,6 +28821,7 @@ checkimb() {
 	const ll = '00' === this.mylang ? 'en' : this.mylang;
 	this.custcmd([3012, 3024, [3001, 'par=2'], 3017, 2016, [2015, 'par=0'], 3014, [2015, 'par=1'], [3031, 'str=all'],  3030  ], 'document', null, (rc0, doc0) => {
 		if (0 <= rc0) {
+			this.imbmode = 2;
 			this.connvers = doc0[0].querySelector('Function String').textContent; // 3012
 			this.imbfree = doc0[3].querySelector('Function Value').textContent; // 3017
 			if (this.appname !== 'imbapp') document.getElementById('onimback').style['display'] = '';
@@ -28965,15 +29027,7 @@ checkimb() {
 			}			
 			this.xlateall();
 		}
-		this.custcmd([ 3019, 3015 ] , 'document', null, (rc, doc) => {
-			if (rc >= 0) {
-				for (const e of doc[1].querySelectorAll('LIST ALLFile File FPATH'))
-					this.handle1imb(e.textContent, e.parentElement.querySelector('TIME').textContent);
-				if (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0) {
-					this.aftercheck();
-				}
-			}
-		});
+		this.showmain(); //this.loadimgs();
 	});
 }
 /* ImBCHtml: browserdisplay: initialize settings */
@@ -29320,6 +29374,7 @@ appinfo() {
 /* ImBCHtml: take a photo */
 takephoto() {
 	this.custcmdB(1001, 'document', 'par=0', (rc, doc) => {
+		this.imgsdirty = true;
 		if (rc >= 0) {
 			const e = doc.querySelector('Function FPATH');
 			const n = e.textContent;
@@ -29354,6 +29409,7 @@ takephoto() {
 /* ImBCHtml: start a movie */
 takemovie() {
 	this.custcmdB(2001, 'document', 'par=1', (rc, doc) => {
+		this.imgsdirty = true;
 		if (rc >= 0) {
 			document.getElementById('movieprogress').style['display'] = '';
 			document.getElementById('takemovies').style['display'] = 'none';
