@@ -26073,19 +26073,18 @@ handleone(orientation) {
 		return this.handlenext();
 	}
 	if (undefined === f.size) {
+	  let cachehit;
+	  if ((cachehit = this.findcache(f.name ? f.name : f))) {
+		  this.allfiles[this.actnum] = cachehit.reader;
+		  this.handleone(orientation);
+	  }
+	  else {
 		setTimeout(() => {
 		  if (this.previewworker) {
-		  	  let cachehit;
-		  	  if ((cachehit = this.findcache(f.name ? f.name : f))) {
-		  	  	  this.allfiles[this.actnum] = cachehit.reader;
-		  	  	  this.handleone(orientation);
-		  	  	  // nope this.previewworker.postMessage({ cmd: 'handlefromcache', c: cachehit, n: f.name, o: orientation, fl: fromloop });
-		  	  } else {
-		  	  	  this.previewworker.postMessage({ cmd: 'resolveandhandle', n: (f.name ? f.name : (f.url ? f.url : f)), o: orientation });
-		  	  	  // onmessage: { ok?, n: f.name, o: orientation, fl: fromloop, c: cacheentry }
-		  	  	  // set allfiles[this.actnum] to cacheentry.reader and call handleone(o, fl)
-		  	  	  // add cache
-		  	  }
+			  this.previewworker.postMessage({ cmd: 'resolveandhandle', n: (f.name ? f.name : (f.url ? f.url : f)), o: orientation });
+			  // onmessage: { ok?, n: f.name, o: orientation, fl: fromloop, c: cacheentry }
+			  // set allfiles[this.actnum] to cacheentry.reader and call handleone(o, fl)
+			  // add cache
 		  } else {
 			  this.resolver(f, false, (url, fx, rot) => {
 					this.allfiles[this.actnum] = fx;
@@ -26099,7 +26098,8 @@ handleone(orientation) {
 			  });
 		  }
 		}, 10);
-		return;
+	  }
+	  return;
 	}
 	let rawname = ImBCBase.basename(f.name);
 	if (rawname.substring(rawname.length - 4).toUpperCase() !== '.RAW') {
@@ -27569,7 +27569,7 @@ aftercheck() {
 		}
 	}
 	// non-typed upgraded to gl1, unless only one
-	if (this.untypedclasses.length === 1 && this.untypedclasses[0].smembers) {
+	if (this.untypedclasses.length === 1 && this.untypedclasses[0].smembers && this.untypedclasses[0].smembers.length > 0) {
 		const t = this.untypedclasses[0];
 		this.untypedclasses.splice(0,1);
 		for (const s of t.smembers) {
@@ -28040,6 +28040,7 @@ topreccheck(force) {
 		this.actnum = 0;
 		this.allfiles = selecteds;
 		document.getElementById('dlprogress').style['display'] = '';
+		document.getElementById('progmsg').innerHTML = '...';
 		document.getElementById('browser').style['display'] = 'none';
 		this.#startloadimg();
 	};
@@ -28736,15 +28737,6 @@ handlenext() {
 		if (this.actnum >= this.allfiles.length - 1) {
 			this.#loaderrunning = false;
 			this.afterfinish();
-			/*if (this.fromvisbrows) {
-				this.fromvisbrows = false;
-				document.getElementById('progmsg').style['display'] = '';
-				document.getElementById('progokbut').disabled = false;
-				document.getElementById('progmsg').innerHTML = this.xl('process.totals', this.stats.total, this.stats.ok, 0, this.stats.error);
-				//this.loadnextimg();
-			} else {
-				this.shownormal();
-			}*/
 		}
 		else {
 			if (this.fromvisbrows) {
@@ -30304,7 +30296,7 @@ infos = [ // actually const
 Visual Browser Cache Size: <input type="number" onchange="imbc.chgcache()" id="dbgcache" style="width: 5em;"><br>
 Debugging: <input type="file" onchange="imbc.dodebug()" accept=".html,.htm,.xml" id="dbgfsel">
 Replaceraw: <input type="file" onchange="imbc.replraw()" accept=".raw,.RAW" id="dbgreplraw"><br>
-<span style="font-weight: bold;font-family:Symbol3;">&#x26f0; &#x2e3f; &#x1f4f7; &#x1f3a5; &#x2261; &#x1f570; &#x2190; &#x2261; &#x1f5c9; &#x1f5ce; &#x1f5cf; &#x1f5c4; &#x33d2; &#x2699;</span> <span style="font-family:Symbol3;">&#xff1a; &#x1f4f7; &#x1f3a5; &#x2261; &#x1f570; &#x2190; &#x2261; &#x1f5c9; &#x1f5ce; &#x1f5cf; &#x1f5c4; &#x33d2; &#x2699;</span> 
+<span style="font-weight: bold;font-family:Symbol3;">&#x1f60c; &#x26f0; &#x2e3f; &#x1f4f7; &#x1f3a5; &#x2261; &#x1f570; &#x2190; &#x2261; &#x1f5c9; &#x1f5ce; &#x1f5cf; &#x1f5c4; &#x33d2; &#x2699;</span> <span style="font-family:Symbol3;">&#x1f60c; &#xff1a; &#x1f4f7; &#x1f3a5; &#x2261; &#x1f570; &#x2190; &#x2261; &#x1f5c9; &#x1f5ce; &#x1f5cf; &#x1f5c4; &#x33d2; &#x2699;</span> 
 </div>
 <!-- this is invisible -->
 <a style="display: none;" id="result">x</a>
