@@ -19303,7 +19303,7 @@ handleone(orientation, fromloop) {
 			if (undefined !== this.exitcode) this.exitcode++;
 			this.handlenext(fromloop);
 		}
-		reader.readAsArrayBuffer(f);
+		reader.readAsArrayBuffer(f.imbackintension ? f.imbackintension : f);
 		return;
 	}
 	let w, h, mode = "??";
@@ -19334,7 +19334,7 @@ handleone(orientation, fromloop) {
 			if (undefined !== this.exitcode) this.exitcode++;
 			this.handlenext(fromloop);
 		}
-		reader.readAsArrayBuffer(f);
+		reader.readAsArrayBuffer(f.imbackintension ? f.imbackintension : f);
 		return;
 	} else {
 		w = ImBCBase.infos[zz].w;
@@ -19555,7 +19555,7 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		if (undefined !== this.exitcode) this.exitcode++;
 		this.handlenext(fromloop);
 	};
-	reader.readAsArrayBuffer(f);
+	reader.readAsArrayBuffer(f.imbackintension ? f.imbackintension : f);
 }
 /* ImBCBase: wrapper for zip output */
 writewrap(name, type, okmsg, arr1, fromloop) {
@@ -19800,7 +19800,7 @@ static buildpvarray(view, typ, w, h, orientation, scale, wb) {
 }
 /* ImBCBase: handle one entry from imb PHOTO/MOVIE listing page */
 handle1imb(url) {
-	let rawname = ImBCBase.basename(url);
+	let rawname = ImBCBase.basename(url.name ? url.name :url);
 	if (rawname.substring(0,10).toUpperCase() === 'IMBRAW2DNG') return;
 	let timestx = ImBCBase.fnregex.exec(rawname);
 	let timest = null, cl = '9999_99_99-99';
@@ -19820,15 +19820,18 @@ handle1imb(url) {
 		if (this.imbeles && this.typedclasses) {
 			this.imbeles.push({
 					type: 'RAW',
-					url: url,
+					url: url.name ? url.name : url,
 					raw: rawname,
+					name: rawname,
 					ts: cl,
 					selected: false,
 					preview: null,
 					entry: null,
 					waiting: false,
 					error: false,
-					processed: false
+					processed: false,
+					size: url?.size,
+					imbackintension: url.size ? url : undefined
 			});
 			if (this.untypedclasses.findIndex(v => v === cl) === -1)
 				this.untypedclasses.push(cl);
@@ -19845,15 +19848,18 @@ handle1imb(url) {
 		if (this.imbeles && this.typedclasses) {
 			this.imbeles.push({
 					type: 'JPG',
-					url: url,
+					url: url.name ? url.name : url,
 					raw: rawname,
+					name: rawname,
 					ts: cl,
 					selected: false,
 					preview: null,
 					entry: null,
 					waiting: false,
 					error: false,
-					processed: false
+					processed: false,
+					size: url?.size,
+					imbackintension: url.size ? url : undefined
 			});
 			if (this.untypedclasses.findIndex(v => v === cl) === -1)
 				this.untypedclasses.push(cl);
@@ -19870,15 +19876,18 @@ handle1imb(url) {
 		if (this.imbeles && this.typedclasses) {
 			this.imbeles.push({
 					type: 'oth',
-					url: url,
+					url: url.name ? url.name : url,
 					raw: rawname,
+					name: rawname,
 					ts: cl,
 					selected: false,
 					preview: null,
 					entry: null,
 					waiting: false,
 					error: false,
-					processed: false
+					processed: false,
+					size: url?.size,
+					imbackintension: url.size ? url : undefined
 			});
 			if (this.untypedclasses.findIndex(v => v === cl) === -1)
 				this.untypedclasses.push(cl);
@@ -20964,12 +20973,35 @@ topreccheck(force) {
 			to.nonewerr = true;
 			this.#loadnextimg();
 		};
-		to.preview.src = url;
+		if (to.imbackintension) {
+			// read jpeg file for preview
+			const fr = new FileReader();
+			fr.onload = (evt) => {
+				let contents = evt.target.result;
+				contents = 'data:image/jpeg;' + contents.substring(8);
+				to.preview.src = contents;
+				/* shown in onload of img */
+			}
+			fr.onerror = (evt) => {
+				e.setAttribute('data-state', 'err');
+				console.log('JPEG preview load error for ' + url + ' ' + JSON.stringify(evt));
+				e.querySelector('.waitdiv').style['display'] = 'none';
+				e.querySelector('.errimg').style['display'] = '';
+				e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
+				e.querySelector('.dlbtn').classList.add('disabled');
+				if (this.debugflag) console.log('ldr j e lnx ' + to.raw);
+				to.nonewerr = true;
+				this.#loadnextimg();
+			}
+			fr.readAsDataURL(to.imbackintension);
+		}
+		else
+			to.preview.src = url;
 	}
 	else if (type === 'RAW') {
 		let afterloadcalled = false;
 		if (this.debugflag) console.log('li raw start bpv ' + url);
-		this.buildpreview((this.debugflag && this.useraw) ? this.useraw : url, () => { /* on ok: */
+		this.buildpreview((this.debugflag && this.useraw) ? this.useraw : (to.imbackintension ? to.imbackintension : url), () => { /* on ok: */
 			e.setAttribute('data-state', 'ok');
 			e.querySelector('.waitdiv').style['display'] = 'none';
 			e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.remove('disabled') });
@@ -21022,7 +21054,7 @@ topreccheck(force) {
 				this.allfiles[this.actnum] = e;
 				this.handleone(undefined, true);
 			} else {
-				this.allfiles[this.actnum] = e.url;
+				this.allfiles[this.actnum] = e.size ? e : e.url;
 				this.handleone(e.rot, true);
 			}
 		}, 33);
@@ -21316,7 +21348,7 @@ async drophandler(ev) {
 	this.checkchecks();
 	ev.preventDefault();
 	this.allfiles = [];
-	let auxfiles = [];
+	//let auxfiles = [];
 	this.actnum = 0;
 	if (ev.dataTransfer.items) {
 		let mm = [...ev.dataTransfer.items];
@@ -21325,7 +21357,8 @@ async drophandler(ev) {
 		if (-1 !== m0.findIndex(e => e.isDirectory)) {
 			for (let i =0; i < m0.length; i++) {
 				if (!m0[i].isDirectory)
-					auxfiles.push(mm[i].getAsFile());
+					//auxfiles.push(mm[i].getAsFile());
+					this.handle1imb(mm[i].getAsFile());
 			}
 			for (let i =0; i < m0.length; i++) {
 				if (m0[i].isDirectory) {
@@ -21340,29 +21373,32 @@ async drophandler(ev) {
 				}
 			}
 			let a = await this.dirtraverse(mapped);
-			this.allfiles = a.concat(auxfiles);
+			for (const x of a) this.handle1imb(x);
+			//this.allfiles = a.concat(auxfiles);
 			//for (const j of auxfiles) this.allfiles.push(j);
 			this.totnum = this.allfiles.length;
 			console.log('LLL ' + a.length + ' ' + a);
 		} else {
 			this.totnum = [...ev.dataTransfer.items].length;
 			[...ev.dataTransfer.items].forEach((item/*, i*/) => {
-				this.allfiles.push(item.getAsFile());
+				//this.allfiles.push(item.getAsFile());
+				this.handle1imb(item.getAsFile());
 			});
 		}
 	} else {
 		this.totnum = [...ev.dataTransfer.files].length;
 		[...ev.dataTransfer.files].forEach((file/*, i*/) => {
-			this.allfiles.push(file);
+			//this.allfiles.push(file);
+			this.handle1imb(file);
 		});
 	}
-	this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
+	/*this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
 	this.mappx(true, 'process.droppedn', this.totnum);
 	document.getElementById('imbdoit').disabled = true;
 	document.getElementById('imbvisbrows').disabled = true;
 	document.getElementById('droptarget').style['display'] = 'none';
 	document.getElementById('infile').disabled = true;
-	document.getElementById('infileb').disabled = true;
+	document.getElementById('infileb').disabled = true;*/
 	if (document.getElementById('fakelongexpadd')?.checked) {
 		this.addall = true;
 		this.addscaleall = document.getElementById('fakelongexpscale')?.checked;
@@ -21371,7 +21407,8 @@ async drophandler(ev) {
 		this.addall = false;
 		this.addscaleall = false;
 	}
-	this.starthandleone();
+	this.aftercheck(); this.showbrowser();
+	//this.starthandleone();
 }
 /* ImBCHtml: browserdisplay: some handler on the drop rectangle */
 prevdef(ev) {
@@ -21438,7 +21475,7 @@ buildpreview(f, onok, onerr, orientation, targ, afterload) {
 		console.log('preview: error reading ' + f.name);
 		onerr();
 	};
-	reader.readAsArrayBuffer(f);
+	reader.readAsArrayBuffer(f.imbackintension ? f.imbackintension : f);
 }
 /* ImBCHtml: preview: raw preview okay */
 setrawpv() {

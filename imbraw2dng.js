@@ -566,7 +566,7 @@ handleone(fx) {
 	}
 	if (undefined === f.size) {
 		setTimeout(() => {
-		  this.imbc.resolver(f, false, (url, fx) => {
+		  this.imbc.resolver(f, (url, fx) => {
 				this.imbc.allfiles[this.imbc.actnum] = fx;
 				this.handleone(fx);
 			}, (url) => {
@@ -19104,7 +19104,7 @@ handleone(orientation, fromloop) {
 	}
 	if (undefined === f.size) {
 		setTimeout(() => {
-		  this.resolver(f, false, (url, fx, rot) => {
+		  this.resolver(f, (url, fx, rot) => {
 				this.allfiles[this.actnum] = fx;
 				this.handleone(rot ? rot: orientation, fromloop);
 			}, (url) => {
@@ -19142,7 +19142,7 @@ handleone(orientation, fromloop) {
 			if (undefined !== this.exitcode) this.exitcode++;
 			this.handlenext(fromloop);
 		}
-		reader.readAsArrayBuffer(f);
+		reader.readAsArrayBuffer(f.imbackintension ? f.imbackintension : f);
 		return;
 	}
 	let w, h, mode = "??";
@@ -19173,7 +19173,7 @@ handleone(orientation, fromloop) {
 			if (undefined !== this.exitcode) this.exitcode++;
 			this.handlenext(fromloop);
 		}
-		reader.readAsArrayBuffer(f);
+		reader.readAsArrayBuffer(f.imbackintension ? f.imbackintension : f);
 		return;
 	} else {
 		w = ImBCBase.infos[zz].w;
@@ -19394,7 +19394,7 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		if (undefined !== this.exitcode) this.exitcode++;
 		this.handlenext(fromloop);
 	};
-	reader.readAsArrayBuffer(f);
+	reader.readAsArrayBuffer(f.imbackintension ? f.imbackintension : f);
 }
 /* ImBCBase: wrapper for zip output */
 writewrap(name, type, okmsg, arr1, fromloop) {
@@ -19639,7 +19639,7 @@ static buildpvarray(view, typ, w, h, orientation, scale, wb) {
 }
 /* ImBCBase: handle one entry from imb PHOTO/MOVIE listing page */
 handle1imb(url) {
-	let rawname = ImBCBase.basename(url);
+	let rawname = ImBCBase.basename(url.name ? url.name :url);
 	if (rawname.substring(0,10).toUpperCase() === 'IMBRAW2DNG') return;
 	let timestx = ImBCBase.fnregex.exec(rawname);
 	let timest = null, cl = '9999_99_99-99';
@@ -19659,15 +19659,18 @@ handle1imb(url) {
 		if (this.imbeles && this.typedclasses) {
 			this.imbeles.push({
 					type: 'RAW',
-					url: url,
+					url: url.name ? url.name : url,
 					raw: rawname,
+					name: rawname,
 					ts: cl,
 					selected: false,
 					preview: null,
 					entry: null,
 					waiting: false,
 					error: false,
-					processed: false
+					processed: false,
+					size: url?.size,
+					imbackintension: url.size ? url : undefined
 			});
 			if (this.untypedclasses.findIndex(v => v === cl) === -1)
 				this.untypedclasses.push(cl);
@@ -19684,15 +19687,18 @@ handle1imb(url) {
 		if (this.imbeles && this.typedclasses) {
 			this.imbeles.push({
 					type: 'JPG',
-					url: url,
+					url: url.name ? url.name : url,
 					raw: rawname,
+					name: rawname,
 					ts: cl,
 					selected: false,
 					preview: null,
 					entry: null,
 					waiting: false,
 					error: false,
-					processed: false
+					processed: false,
+					size: url?.size,
+					imbackintension: url.size ? url : undefined
 			});
 			if (this.untypedclasses.findIndex(v => v === cl) === -1)
 				this.untypedclasses.push(cl);
@@ -19709,15 +19715,18 @@ handle1imb(url) {
 		if (this.imbeles && this.typedclasses) {
 			this.imbeles.push({
 					type: 'oth',
-					url: url,
+					url: url.name ? url.name : url,
 					raw: rawname,
+					name: rawname,
 					ts: cl,
 					selected: false,
 					preview: null,
 					entry: null,
 					waiting: false,
 					error: false,
-					processed: false
+					processed: false,
+					size: url?.size,
+					imbackintension: url.size ? url : undefined
 			});
 			if (this.untypedclasses.findIndex(v => v === cl) === -1)
 				this.untypedclasses.push(cl);
@@ -19878,7 +19887,7 @@ handlerecurse(already, index) {
 	});
 }
 /* ImBCNodeOut: nodejs: file/filereader like interface for node js */
-resolver(url, preview, onok, onerr) {
+resolver(url, onok, onerr) {
 	if (url.url) {
 		let e = url;
 		url = e.url;
