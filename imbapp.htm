@@ -3652,7 +3652,7 @@ dispmode = 1;
 imgsdirty = true;
 // experimental
 neutral = false;
-copyright = '';
+copyright = undefined;
 // { name: 'xxx.jpg', data: array-ifd... }
 #exififds = [];
 appname = 'imbraw2dng'; // or imbapp
@@ -21413,7 +21413,7 @@ handleone(orientation) {
 			}
 		}
 		ti.addEntry(50706, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Version */
-		if (this.copyright != '') {
+		if (this.copyright !== undefined && this.copyright !== '') {
 			// do UTF-8 bytes instead of ASCII if necessary
 			let bytes = new TextEncoder().encode(this.copyright);
 			//console.log('cr str ' + this.copyright.length + ' bytes ' + bytes.length);
@@ -22225,7 +22225,7 @@ parseconfig(data) {
 	const d = JSON.parse(data);
 	if (d.np) this.withpreview = false;
 	else this.withpreview = true;
-	if (undefined !== d.cr) this.copyright = d.cr;
+	this.copyright = d.cr;
 	if (d.l !== undefined) this.findlang(d.l);
 	else this.useimblang = true;
 	if (d.ndcp) this.incdcp = false; else this.incdcp = true;
@@ -22309,8 +22309,8 @@ checkchecks() {
 	if (stepprev !== null && stepprev.checked) this.stepmode = 1;
 	const copytext = document.getElementById('copytext');
 	const copycheck = document.getElementById('copycheck');
-	this.copyright = '';
-	if (copycheck !== null && copycheck.checked && copytext !== null && copytext.value !== '') this.copyright = copytext.value;
+	this.copyright = undefined;
+	if (copycheck !== null && copycheck.checked && copytext !== null) this.copyright = copytext.value;
 	const oldwb = document.getElementById('oldstylewb');
 	this.constwb = (oldwb !== null && oldwb.checked);
 	const incdcp = document.getElementById('incdcp');
@@ -23447,8 +23447,8 @@ browserprocess() {
     this.stepmode = 0;
     const copytext = document.getElementById('copytext');
     const copycheck = document.getElementById('copycheck');
-	this.copyright = '';
-	if (copycheck !== null && copycheck.checked && copytext !== null && copytext.value !== '') this.copyright = copytext.value;
+	this.copyright = undefined;
+	if (copycheck !== null && copycheck.checked && copytext !== null) this.copyright = copytext.value;
 	this.totnum = selecteds.length;
 	this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
 	this.actnum = 0;
@@ -23507,7 +23507,7 @@ savesettings() {
 		try {
 			const copytext = document.getElementById('copytext');
 			const copycheck = document.getElementById('copycheck');
-			let copyval = ''
+			let copyval = undefined;
 			if (copycheck !== null && copytext !== null && copycheck.checked) {
 				copyval = copytext.value;
 			}
@@ -24216,9 +24216,9 @@ initsettings() {
 				const incdcp = document.getElementById('incdcp');
 				const oldstylewb = document.getElementById('oldstylewb');
 				if (copycheck !== null && copytext !== null) {
-					copycheck.checked = (this.copyright.length > 0);
+					copycheck.checked = (this.copyright !== undefined);
 					copytext.value = this.copyright;
-					copytext.style['display'] = (this.copyright.length > 0) ? '' : 'none';
+					copytext.style['display'] = (this.copyright !== undefined) ? '' : 'none';
 				}
 				if (stepprev !== null) stepprev.checked = (this.stepmode===1);
 				if (incdcp !== null) incdcp.checked = this.incdcp;
@@ -24633,8 +24633,8 @@ function init() {
 		imbc.filmdemo = true;
 		ImBCBase.version = 'V4.ZZZZZ';
 	}
-	imbc.chgcopycheck();
 	imbc.initsettings();
+	imbc.chgcopycheck();
 	if (!window.showSaveFilePicker) {
 		document.getElementById('usezip').disabled = true;
 		document.getElementById('usezip').checked = false;
