@@ -39,4 +39,4 @@ Bei den meisten Browser sollte man aber ein Lesezeichen erstellen können, oder 
 
 ## Lokal benutzen
 
-Die Datei kann auf dem PC oder von hier [https://shyrodgau.github.io/imbraw2dng/imbapp_de.html](https://shyrodgau.github.io/imbraw2dng/imbapp_de.html) analog zum normalen imbraw2dng benutzt werden.
+Die Datei kann auf dem PC oder von hier [https://shyrodgau.github.io/imbraw2dng/imbapp.htm](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) analog zum normalen imbraw2dng benutzt werden.
