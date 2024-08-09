@@ -1119,11 +1119,10 @@ static texts = { // actually const
 			ja: 'データはブラウザ内でのみ処理され、「インターネット」上では処理されません。<br>ブラウザは、複数のファイルのダウンロードを許可するかどうかを尋ねる場合があります。<br>RAW ファイルではないファイル、または不明なファイルは 1:1 でコピーされます。'
 		},
 		drophere: {
-			de: 'Dateien von ImB hier ablegen: ',
-			en: 'Drop Files from ImB here: ',
-			fr: 'Posez fiches de ImB ici: ',
-			ru: 'Храните файлы из ImB здесь: ',
-			ja: 'ここに ImB のファイルをドロップします。： '
+			de: 'Dateien oder Verzeichnisse von ImB hier ablegen: ',
+			en: 'Drop Files or directories from ImB here: ',
+			fr: 'Posez fiches ou repertoires de ImB ici: ',
+			ja: 'ここに ImB のファイルをドロップします。：  (or directories)'
 		},
 		selectraw: {
 			de: 'Oder diese Seite per WLAN <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/moredoc_de.md#gucken-auf-imback-selbst\'>direkt von ImB</a> verwenden.<br>Oder <tt>.RAW</tt> Datei(en) auswählen:',
@@ -21255,7 +21254,7 @@ handleone(orientation) {
 			if (undefined !== this.exitcode) this.exitcode++;
 			this.handlenext();
 		}
-		reader.readAsArrayBuffer(f);
+		reader.readAsArrayBuffer(f.imbackintension ? f.imbackintension : f);
 		return;
 	}
 	let w, h, mode = "??";
@@ -21286,7 +21285,7 @@ handleone(orientation) {
 			if (undefined !== this.exitcode) this.exitcode++;
 			this.handlenext();
 		}
-		reader.readAsArrayBuffer(f);
+		reader.readAsArrayBuffer(f.imbackintension ? f.imbackintension : f);
 		return;
 	} else {
 		w = ImBCBase.infos[zz].w;
@@ -21507,7 +21506,7 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		if (undefined !== this.exitcode) this.exitcode++;
 		this.handlenext();
 	};
-	reader.readAsArrayBuffer(f);
+	reader.readAsArrayBuffer(f.imbackintension ? f.imbackintension : f);
 }
 /* ImBCBase: wrapper for zip output */
 writewrap(name, type, okmsg, arr1) {
@@ -21753,7 +21752,7 @@ static buildpvarray(view, typ, w, h, orientation, scale, wb) {
 }
 /* ImBCBase: handle one entry from imb PHOTO/MOVIE listing page */
 handle1imb(url, time) {
-	let rawname = ImBCBase.basename(url);
+	let rawname = ImBCBase.basename(url.name ? url.name : url);
 	if (rawname.substring(0,10).toUpperCase() === 'IMBRAW2DNG') return;
 	if (rawname.substring(0,6).toUpperCase() === 'IMBAPP') return;
 	let timestx = ImBCBase.fnregex.exec(rawname);
@@ -21779,8 +21778,9 @@ handle1imb(url, time) {
 		if (this.imbeles && this.typedclasses) {
 			this.imbeles.push({
 					type: 'RAW',
-					url: url,
+					url: url.name ? url.name : url,
 					raw: rawname,
+					name: rawname,
 					ts: cl,
 					selected: false,
 					preview: null,
@@ -21788,7 +21788,9 @@ handle1imb(url, time) {
 					waiting: false,
 					error: false,
 					processed: false,
-					time: timest
+					time: timest,
+					size: url?.size,
+					imbackintension: url.size ? url : undefined
 			});
 			if (this.untypedclasses.findIndex(v => v === cl) === -1)
 				this.untypedclasses.push(cl);
@@ -21805,8 +21807,9 @@ handle1imb(url, time) {
 		if (this.imbeles && this.typedclasses) {
 			this.imbeles.push({
 					type: 'JPG',
-					url: url,
+					url: url.name ? url.name : url,
 					raw: rawname,
+					name: rawname,
 					ts: cl,
 					selected: false,
 					preview: null,
@@ -21814,7 +21817,9 @@ handle1imb(url, time) {
 					waiting: false,
 					error: false,
 					processed: false,
-					time: timest
+					time: timest,
+					size: url?.size,
+					imbackintension: url.size ? url : undefined
 			});
 			if (this.untypedclasses.findIndex(v => v === cl) === -1)
 				this.untypedclasses.push(cl);
@@ -21831,8 +21836,9 @@ handle1imb(url, time) {
 		if (this.imbeles && this.typedclasses) {
 			this.imbeles.push({
 					type: 'oth',
-					url: url,
+					url: url.name ? url.name : url,
 					raw: rawname,
+					name: rawname,
 					ts: cl,
 					selected: false,
 					preview: null,
@@ -21840,7 +21846,9 @@ handle1imb(url, time) {
 					waiting: false,
 					error: false,
 					processed: false,
-					time: timest
+					time: timest,
+					size: url?.size,
+					imbackintension: url.size ? url : undefined
 			});
 			if (this.untypedclasses.findIndex(v => v === cl) === -1)
 				this.untypedclasses.push(cl);
@@ -22390,6 +22398,20 @@ fselected() {
 		document.getElementById('imbvisbrows').disabled = true;
 		document.getElementById('droptarget').style['display'] = 'none';
 		document.getElementById('infile').disabled = true;
+		this.mappx(true, 'process.frombrowsern', this.totnum);
+		document.getElementById('imbdoit').disabled = true;
+		document.getElementById('imbvisbrows').disabled = true;
+		document.getElementById('droptarget').style['display'] = 'none';
+		document.getElementById('infile').disabled = true
+		this.#rotphase = 1;
+		this.fromvisbrows = true;
+		document.getElementById('dlprogress').style['display'] = '';
+		this.closeham();
+		document.getElementById('dlprogresslogbtn').style['display'] = '';
+		document.getElementById('dlprogresslogbtn').disabled = true;
+		document.getElementById('browser').style['display'] = 'none';
+		document.getElementById('notimback').style['display'] = 'none';
+		this.topreccheck(false);
 		this.starthandleone();
 	}
 }
@@ -22439,12 +22461,12 @@ showmsg() {
 showmain() {
 	document.getElementById('delq').style['display'] = 'none';
 	document.getElementById('genericok').style['display'] = 'none';
-	if (this.dispmode === 2) {
-		this.showbrowser();
-	} else if (this.dispmode === 1) {
+	if (this.dispmode === 1) {
 		this.showmovie();
 	} else if (this.dispmode === 0) {
 		this.showphoto();
+	} else if (this.dispmode === 2 && this.imbeles.length > 0) {
+		this.showbrowser();
 	}
 	else this.showlocal();
 }
@@ -22539,9 +22561,11 @@ showmovie() {
 	});
 }
 /* ImBCHtml: show disconnection */
-showdisconnect() {
-	for (const e of document.querySelectorAll('.disconnected'))
-		e.style['display'] = '';
+showdisconnect(alsoerr) {
+	if (alsoerr) {
+		for (const e of document.querySelectorAll('.disconnected'))
+			e.style['display'] = '';
+	}
 	for (const e of document.querySelectorAll('.photosym'))
 		e.style['display'] = 'none';
 	for (const e of document.querySelectorAll('.moviesym'))
@@ -22549,6 +22573,7 @@ showdisconnect() {
 }
 /* ImBCHtml: browserdisplay: open visual browser */
 showbrowseri() {
+	if (this.imbeles.length === 0) return this.showlocal();
 	this.dispmode = 2;
 	const norm = document.getElementById('normal');
 	const splash = document.getElementById('splash');
@@ -22653,8 +22678,9 @@ aftercheck() {
 	document.getElementById('imbdoit').disabled = false;
 	document.getElementById('imbvisbrows').disabled = false;
 	document.getElementById('notimback').style['display'] = 'none';
-	if (this.untypedclasses[0].title) return;
+	//if (this.untypedclasses[0].title) return;
 	for (const x of this.untypedclasses) {
+		if (x.title) continue;
 		const cl = {
 			title: x,
 			level: 5,
@@ -22678,6 +22704,7 @@ aftercheck() {
 		this.untypedclasses.splice(this.untypedclasses.findIndex(v => v === x), 1, cl);
 	}
 	for (const x of this.typedclasses) {
+		if (x.title) continue;
 		const cl = {
 			title: x,
 			level: 5,
@@ -23209,6 +23236,7 @@ topreccheck(force) {
 		this.actnum = 0;
 		this.allfiles = selecteds;
 		document.getElementById('dlprogress').style['display'] = '';
+		this.closeham();
 		document.getElementById('progmsg').innerHTML = '...';
 		document.getElementById('browser').style['display'] = 'none';
 		this.#startloadimg();
@@ -23276,12 +23304,35 @@ topreccheck(force) {
 			to.nonewerr = true;
 			this.loadnextimg();
 		};
-		to.preview.src = ImBCBase.adjurl(url) + '?custom=1&cmd=4001';
+		if (to.imbackintension) {
+			// read jpeg file for preview
+			const fr = new FileReader();
+			fr.onload = (evt) => {
+				let contents = evt.target.result;
+				contents = 'data:image/jpeg;' + contents.substring(8);
+				to.preview.src = contents;
+				/* shown in onload of img */
+			}
+			fr.onerror = (evt) => {
+				e.setAttribute('data-state', 'err');
+				console.log('JPEG preview load error for ' + url + ' ' + JSON.stringify(evt));
+				e.querySelector('.waitdiv').style['display'] = 'none';
+				e.querySelector('.errimg').style['display'] = '';
+				e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
+				e.querySelector('.dlbtn').classList.add('disabled');
+				if (this.debugflag) console.log('ldr j e lnx ' + to.raw);
+				to.nonewerr = true;
+				this.loadnextimg();
+			}
+			fr.readAsDataURL(to.imbackintension);
+		}
+		else
+			to.preview.src = ImBCBase.adjurl(url) + '?custom=1&cmd=4001';
 	}
 	else {
 		let afterloadcalled = false;
 		if (this.debugflag) console.log('li raw start bpv ' + url);
-		this.buildpreview((this.debugflag && this.useraw) ? this.useraw : url, () => { /* on ok: */
+		this.buildpreview((this.debugflag && this.useraw) ? this.useraw : (to.imbackintension ? to.imbackintension : url), () => { /* on ok: */
 			e.setAttribute('data-state', 'ok');
 			e.querySelector('.waitdiv').style['display'] = 'none';
 			e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.remove('disabled') });
@@ -23462,6 +23513,7 @@ browserprocess() {
 		this.#rotphase = 1;
 		this.fromvisbrows = true;
 		document.getElementById('dlprogress').style['display'] = '';
+		this.closeham();
 		document.getElementById('dlprogresslogbtn').style['display'] = '';
 		document.getElementById('dlprogresslogbtn').disabled = true;
 		document.getElementById('browser').style['display'] = 'none';
@@ -23662,8 +23714,29 @@ async drophandler(ev) {
 	this.checkchecks();
 	ev.preventDefault();
 	this.allfiles = [];
-	let auxfiles = [];
+	//let auxfiles = [];
 	this.actnum = 0;
+	this.showsplash();
+	// first, make everything empty
+	for (const e of this.untypedclasses) {
+		e.entry.remove();
+		this.#doclose(e, true);
+	}
+	for (const e of this.typedclasses) {
+		e.entry.remove();
+		this.#doclose(e, true);
+	}
+	for (const d of this.imbeles) {
+		if (undefined !== d.entry && null !== d.entry && d.entry.remove)
+			d.entry.remove();
+	}
+	this.imbpics = [];
+	this.rimbpics = [];
+	this.imbmovies = [];
+	this.untypedclasses = [];
+	this.typedclasses = [];
+	this.imbeles = [];
+	let withpromise = false;
 	if (ev.dataTransfer.items) {
 		let mm = [...ev.dataTransfer.items];
 		let m0 = mm.map(e => e.webkitGetAsEntry());
@@ -23671,44 +23744,58 @@ async drophandler(ev) {
 		if (-1 !== m0.findIndex(e => e.isDirectory)) {
 			for (let i =0; i < m0.length; i++) {
 				if (!m0[i].isDirectory)
-					auxfiles.push(mm[i].getAsFile());
+					 //auxfiles.push(mm[i].getAsFile());
+					 this.handle1imb(mm[i].getAsFile())
 			}
 			for (let i =0; i < m0.length; i++) {
 				if (m0[i].isDirectory) {
 					if (mm[i].getAsFileSystemHandle) {
 						// chromium needs it this way
-						let m = await mm[i].getAsFileSystemHandle();
-						mapped.push(m);
+						//let m = await mm[i].getAsFileSystemHandle();
+						withpromise = true;
+						mm[i] = mm[i].getAsFileSystemHandle(); // replace with promise
+						//if (m) mapped.push(m);
 					} else {
 						this.noGetFsH = true;
 						mapped.push(m0[i]);
 					}
 				}
 			}
+			if (withpromise) {
+				const mmp = mm.filter(v => v instanceof Promise);
+				await Promise.all(mmp).then((rmmp) => {
+					for (const l of rmmp) {
+						if (l) mapped.push(l);
+					}
+				});
+			}
 			let a = await this.dirtraverse(mapped);
-			this.allfiles = a.concat(auxfiles);
+			for (const x of a) this.handle1imb(x);
+			//this.allfiles = a.concat(auxfiles);
 			//for (const j of auxfiles) this.allfiles.push(j);
-			this.totnum = this.allfiles.length;
+			//this.totnum = this.allfiles.length;
 			if (this.debugflag) console.log('LLL ' + a.length + ' ' + a);
 		} else {
 			this.totnum = [...ev.dataTransfer.items].length;
 			[...ev.dataTransfer.items].forEach((item/*, i*/) => {
-				this.allfiles.push(item.getAsFile());
+				//this.allfiles.push(item.getAsFile());
+				this.handle1imb(item.getAsFile());
 			});
 		}
 	} else {
 		this.totnum = [...ev.dataTransfer.files].length;
 		[...ev.dataTransfer.files].forEach((file/*, i*/) => {
-			this.allfiles.push(file);
+			//this.allfiles.push(file);
+			this.handle1imb(file);
 		});
 	}
-	this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
+	/*this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
 	this.mappx(true, 'process.droppedn', this.totnum);
 	document.getElementById('imbdoit').disabled = true;
 	document.getElementById('imbvisbrows').disabled = true;
 	document.getElementById('droptarget').style['display'] = 'none';
 	document.getElementById('infile').disabled = true;
-	if (document.getElementById('infileb')) document.getElementById('infileb').disabled = true;
+	if (document.getElementById('infileb')) document.getElementById('infileb').disabled = true;*/
 	if (document.getElementById('fakelongexpadd')?.checked) {
 		this.addall = true;
 		this.addscaleall = document.getElementById('fakelongexpscale')?.checked;
@@ -23717,7 +23804,9 @@ async drophandler(ev) {
 		this.addall = false;
 		this.addscaleall = false;
 	}
-	this.starthandleone();
+	this.closeham();
+	this.aftercheck(); this.showbrowser();
+	//this.starthandleone();
 }
 /* ImBCHtml: browserdisplay: some handler on the drop rectangle */
 prevdef(ev) {
@@ -23927,7 +24016,7 @@ handlenext() {
 		this.handleonex();
 	} else {
 		this.afterfinish();
-		this.shownormal();
+		//this.shownormal();
 	}
 }
 /* ImBCHtml: command handler */
@@ -24199,6 +24288,9 @@ checkimb() {
 			// disconnected?
 			this.disconnected = true;
 			this.showdisconnect();
+			this.showlocal();
+			ImBCHtml.openp(document.getElementById('appsettopener'));
+			return;
 		}
 		this.showmain(); //this.loadimgs();
 	});
@@ -24475,7 +24567,7 @@ workermsg(msg) {
 		for (const e of document.querySelectorAll('.disconnected'))
 			e.style['display'] = '';
 		this.disconnected = true;
-		this.showdisconnect();
+		this.showdisconnect(true);
 		break;
 	default:
 		console.log('workermsg: unexpected response for ' + d.cmd);
@@ -25123,7 +25215,7 @@ adjurl = (url) => {
 /* WORKER: watchdog */
 watchdog = () => {
 	custcmdi(3019, 'document', undefined, (rc) => {
-			console.log('WW ' + JSON.stringify(rc));
+		if (dbgflag || rc) console.log('WW ' + JSON.stringify(rc));
 		if (rc.rc) errcount ++;
 		if (dbgflag) console.log('WORKER WATCHDOG');
 		if (errcount > 2) {
@@ -25296,7 +25388,7 @@ infos = [ // actually const
 </div></div>
 <div id="appsett" class="gg ggclosed">
 <div class="ggtt titletop ggttclosed">
-<span class="ggttplus ggttp mmrr" onclick="ImBCHtml.openp(this);">&#x25b6;</span>
+<span class="ggttplus ggttp mmrr" id="appsettopener" onclick="ImBCHtml.openp(this);">&#x25b6;</span>
 <span class="ggttminus ggttp mmll" onclick="ImBCHtml.closep(this);">&#x25bc;</span>
 <span class="grtit ggttplus" onclick="ImBCHtml.openp(this);" data-myxlkey="app.app"> APP </span>
 <span class="grtit ggttminus" onclick="ImBCHtml.closep(this);" data-myxlkey="app.app"> APP </span>
