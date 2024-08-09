@@ -41,4 +41,4 @@ But most browser should allow to either add a bookmark for it or, on mobile, add
 
 ## Use locally
 
-File can also be used locally or from [https://shyrodgau.github.io/imbraw2dng/imbapp.htl](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) similar to the normal imbraw2dng.
+File can also be used locally or from [https://shyrodgau.github.io/imbraw2dng/imbapp.htm](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) similar to the normal imbraw2dng.
