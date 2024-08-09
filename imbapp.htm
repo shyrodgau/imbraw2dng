@@ -23531,7 +23531,6 @@ chgdngpreview() {
 }
 /* ImBCHtml: translate html for new language */
 setlang() {
-	if (this.mylang !== document.getElementById('langsel').value) this.dirtysettings();
 	this.mylang = document.getElementById('langsel').value;
 	if (this.mylang === '99' && this.imblang) {
 		this.useimblang = true;
@@ -23541,6 +23540,7 @@ setlang() {
 	else
 		this.useimblang = false;
 	this.xlateall();
+	if (this.mylang !== document.getElementById('langsel').value) this.dirtysettings();
 }
 /* ImBCHtml: browserdisplay: settings are dirty */
 dirtysettings() {
