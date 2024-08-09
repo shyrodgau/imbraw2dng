@@ -21209,7 +21209,7 @@ handleone(orientation) {
 	  else {
 		setTimeout(() => {
 		  if (this.previewworker) {
-			  this.previewworker.postMessage({ cmd: 'resolveandhandle', n: (f.name ? f.name : (f.url ? f.url : f)), o: orientation });
+			  this.previewworker.postMessage({ cmd: 'resolveandhandle', n: (f.url ? f.url : f), o: orientation });
 			  // onmessage: { ok?, n: f.name, o: orientation, fl: fromloop, c: cacheentry }
 			  // set allfiles[this.actnum] to cacheentry.reader and call handleone(o, fl)
 			  // add cache
@@ -25215,7 +25215,7 @@ adjurl = (url) => {
 /* WORKER: watchdog */
 watchdog = () => {
 	custcmdi(3019, 'document', undefined, (rc) => {
-		if (dbgflag || rc) console.log('WW ' + JSON.stringify(rc));
+		if (dbgflag || rc.rc) console.log('WW ' + JSON.stringify(rc));
 		if (rc.rc) errcount ++;
 		if (dbgflag) console.log('WORKER WATCHDOG');
 		if (errcount > 2) {
