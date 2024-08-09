@@ -14,10 +14,11 @@ Download the file [imbapp.htm](https://github.com/shyrodgau/imbraw2dng/raw/maste
 
 Take the Micro SD from your back and insert it into Micro SD Adapter on your computer. If you do not have one, I describe an alternative way, please ask for it.
 
-Open the contents of the Micro SD, it might be named `VOLUME1` and you should see a folder named `imback` or `IMBACK`. Open that folder.
+Open the contents of the Micro SD, it might be named `VOLUME1` or `0000-0001`and you should see a folder named `imback` or `IMBACK`. Open that folder.
 (You should see folders named `photo` and/or `movie`.)
 
-Use your operating system/file explorer to copy the file `imbapp.htm` that you downloaded into that current imback folder.
+Use your operating system/file explorer to copy the file `imbapp.htm` that you downloaded into that current imback folder.  
+<!--You can rename it with a language code `XX` (DE, JA, FR, more translations needed!) to `imbapp_XX.html` (note: `html` instead of `htm`!), but then you need to adjust the link below.-->
 
 Eject the Micro SD from computer and put back into your device.
 
@@ -37,3 +38,7 @@ After taking a photo or movie, you can only preview it but not download it, you 
 This may not be possible because the standard requires https connection which ImB can not provide.
 
 But most browser should allow to either add a bookmark for it or, on mobile, add a desktop shortcut that you can use like an app.
+
+## Use locally
+
+File can also be used locally or from [https://shyrodgau.github.io/imbraw2dng/imbapp.htl](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) similar to the normal imbraw2dng.
