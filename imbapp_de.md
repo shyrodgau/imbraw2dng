@@ -6,11 +6,31 @@ or [in English](https://shyrodgau.github.io/imbraw2dng/imbapp)
 
 ## Kurze Einführung
 
-Verbesserungen gegenüber der App: läuft auch auf normalem Computer, zeigt RAW an, konvertiert RAW nach DNG beim Herunterladen
+Vorteile gegenüber der [APP von ImB](https://imback.eu/home/app/):
+- auf jedem Browser benutzbar
+- kann raw anzeigen
+- konvertiert beim Herunterladen raw nach DNG
+- kann wie imbraw2dng auch offline für Dateien benutzt werden
+
+Nachteile gegenüber APP vom ImB:
+- Keine Funktion für Live-Bild eingebaut
+- Lokales Album auf Smartphone/PC/Mac kann nicht betrachtet werden
+- kein knuffiger Kerl guckt dich an
+
+Vorteile gegenüber (meinem) [bisherigen imbraw2dng](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html), wenn es auf ImB benutzt wird:
+- Kann die Zeit auf ImB setzen
+- JPEG Vorschau schneller
+- Bildparameter (Größe, Belichtungskorrektur etc.) können gesetzt werden
+
+
+Nachteile gegenüber bisherigem imbraw2dng, wenn nicht auf ImB benutzt:
+- schrittweise Verarbeitung gibt es nicht mehr, es wird entweder alles (wenn man Dateien auswählt) verarbeitet oder der Bild-Browser präsentiert (bei drag-and-drop)
 
 ## Ausprobieren
 
-Die Datei [imbapp.htm](https://github.com/shyrodgau/imbraw2dng/raw/master/imbapp.htm) auf den Computer herunterladen.
+Die Datei [imbapp.htm](https://github.com/shyrodgau/imbraw2dng/raw/master/imbapp.htm) auf den Computer oder Smartphone herunterladen.
+
+### Mit einem Micro SD Kartenleser/Adapter
 
 Die Micro SD aus der ImB entnehmen und in (einen Adapter am) Computer stecken. Wenn keiner da, müsste ich einen alternativen Weg beschreiben, bitte frag danach.
 
@@ -18,7 +38,15 @@ Inhalt der Micro SD öffnen, könnte `VOLUME1`  oder `0000-0001` heißen und mü
 Mit dem Dateiexplorer oder Betriebssystem die heruntergeladene Datei `imbapp.htm` in diesen `IMBACK` Ordner kopieren.  
 <!--Und/oder diese Datei in `imbapp_de.html` umbenennen. (Achtung, `html` statt `htm`)-->
 
-Micro SD aus dem Computer auswerfen und wieder ins ImB stecken.
+Micro SD aus dem Computer auswerfen und wieder ins ImB stecken - fertig.
+
+### Ohne die Micro SD aus ImB herauszunehmen
+
+Smartphone oder Computer in das ImB WLAN stecken..
+
+Neues Browserfenster (oder Registerkarte) verwenden, um auf  [http://192.168.1.254/IMBACK/](http://192.168.1.254/IMBACK/) zu navigieren.
+
+`Datei auswählen` klicken und die gerade heruntergeladene `imbapp.htm` auswählen. Auf `upload file` (exakter Wortlaut muss geprüft werden) - fertig!
 
 ## Fertig zum Benutzen!
 
@@ -28,8 +56,6 @@ Browser auf [http://192.168.1.254/IMBACK/IMBAPP.HTM](http://192.168.1.254/IMBACK
 ### Einschränkungen
 
 Nicht gut getestet, bitte ein genaues Auge darauf haben und Bescheid sagen, wenn etwas nicht wie erwartet funktioniert.
-
-Nach einem Photo oder Film kann man es zwar ansehen, aber nicht herunterladen, hierzu muss die Seite/App neu geladen werden.
 
 ## Als App installieren
 
