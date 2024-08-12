@@ -13,7 +13,7 @@ Advantages over the [APP from ImB](https://imback.eu/home/app/):
 - can be used offline just like imbraw2dng
 
 Disadvantages over the APP from ImB:
-- live image view not built in
+- live image view for video not built in
 - no local album browsing on PC/phone
 - no tough guy looking at you
 

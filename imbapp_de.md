@@ -13,7 +13,7 @@ Vorteile gegenüber der [APP von ImB](https://imback.eu/home/app/):
 - kann wie imbraw2dng auch offline für Dateien benutzt werden
 
 Nachteile gegenüber APP vom ImB:
-- Keine Funktion für Live-Bild eingebaut
+- Keine Funktion für Live-Bild bei Video eingebaut
 - Lokales Album auf Smartphone/PC/Mac kann nicht betrachtet werden
 - kein knuffiger Kerl guckt dich an
 
