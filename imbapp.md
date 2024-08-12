@@ -33,7 +33,7 @@ Download the file [imbapp.htm](https://github.com/shyrodgau/imbraw2dng/raw/maste
 
 Take the Micro SD from your back and insert it into Micro SD Adapter on your computer or phone.
 
-Open the contents of the Micro SD, it might be named `VOLUME1` or `0000-0001`and you should see a folder named `imback` or `IMBACK`.
+Open the contents of the Micro SD, it might be named `VOLUME1` or `0000-0001` and you should see a folder named `imback` or `IMBACK`.
 
 Use your operating system/file explorer to copy the file `imbapp.htm` that you downloaded into the `imback` or `IMBACK` folder.  
 <!--You can rename it with a language code `XX` (DE, JA, FR, more translations needed!) to `imbapp_XX.html` (note: `html` instead of `htm`!), but then you need to adjust the link below.-->
