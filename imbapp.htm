@@ -1947,9 +1947,9 @@ static texts = { // actually const
 			ja: 'https://shyrodgau.github.io/imbraw2dng/imbapp_ja'
 		},
 		livehint: {
-			en: 'For live view, point media player to $$0',
-			de: 'Für Live Bild, mit Mediaplayer auf $$0 gehen',
-			ja: 'ライブ画像については、メディア プレーヤーで $$0 にアクセスしてください'
+			en: 'For live view, point media player to <a target="_new" href="$$0" type="video/x-motion-jpeg">$$0</a>',
+			de: 'Für Live Bild, mit Mediaplayer auf <a target="_new" href="$$0" type="video/mpeg">$$0</a> gehen',
+			ja: 'ライブ画像については、メディア プレーヤーで <a target="_new" href="$$0" type="video/mpeg">$$0</a> にアクセスしてください'
 		}
 	}
 };
@@ -20902,19 +20902,21 @@ xl0(str, base) {
 	}
 }
 /* ImBCBase: substitute in translation */
-subst(r, arg0, arg1, arg2, arg3) {
-	if (r.indexOf('$$0') !== -1 && arg0 !== undefined) {
-		r = r.substring(0, r.indexOf('$$0')) + arg0 + r.substring(r.indexOf('$$0') + 3);
-		if (r.indexOf('$$1') !== -1 && arg1 !== undefined) {
-			r = r.substring(0, r.indexOf('$$1')) + arg1 + r.substring(r.indexOf('$$1') + 3);
-			if (r.indexOf('$$2') !== -1 && arg2 !== undefined) {
-				r = r.substring(0, r.indexOf('$$2')) + arg2 + r.substring(r.indexOf('$$2') + 3);
-				if (r.indexOf('$$3') !== -1 && arg3 !== undefined) {
-					r = r.substring(0, r.indexOf('$$3')) + arg3 + r.substring(r.indexOf('$$3') + 3);
-				}
-			}
-		}
+isubst(r, sub, arg, ind=0) {
+	const is = '$$' + sub;
+	const j = r.substring(ind).indexOf(is);
+	if (j !== -1 && arg !== undefined) {
+		return this.isubst(r.substring(0, j + ind) + arg + r.substring(j + 3 + ind), sub, arg, j + arg.length);
+	} else {
+		return r;
 	}
+}
+/* ImBCBase: substitute in translation */
+subst(r, arg0, arg1, arg2, arg3) {
+	r = this.isubst(r, 0, arg0);
+	r = this.isubst(r, 1, arg1);
+	r = this.isubst(r, 2, arg2);
+	r = this.isubst(r, 3, arg3);
 	return this.rmesc(r);
 }
 /* ImBCBase: translate one string with parameters - title for app */
