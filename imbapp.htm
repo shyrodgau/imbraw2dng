@@ -22452,6 +22452,7 @@ setpvwait() {
 }
 /* ImBCHtml: show generic msg */
 showmsg() {
+	document.getElementById('phpv').src="";
 	document.getElementById('genericok').style['display'] = '';
 	document.getElementById('browser').style['display'] = 'none';
 	document.getElementById('takephotos').style['display']='none';
@@ -22461,6 +22462,7 @@ showmsg() {
 }
 /* ImBCHtml: browserdisplay: show main screen */
 showmain() {
+	document.getElementById('phpv').src="";
 	document.getElementById('delq').style['display'] = 'none';
 	document.getElementById('genericok').style['display'] = 'none';
 	if (this.dispmode === 1) {
@@ -22474,6 +22476,7 @@ showmain() {
 }
 /* ImBCHtml: browserdisplay: show slpash */
 showsplash() {
+	document.getElementById('phpv').src="";
 	const norm = document.getElementById('normal');
 	if (norm) norm.style['display'] = 'none';
 	//this.dispmode = 0;
@@ -22512,6 +22515,9 @@ showphotoi() {
 	document.getElementById('notimback').style['display'] = 'none';
 	window.scrollTo({ top: 0 });
 	this.imbmode = 0;
+	setTimeout(() => {
+		document.getElementById('phpv').src="http://192.168.1.254:8192";
+	},300);
 }
 /* ImBCHtml: browserdisplay: take photos */
 showphoto() {
@@ -22575,6 +22581,7 @@ showdisconnect(alsoerr) {
 }
 /* ImBCHtml: browserdisplay: open visual browser */
 showbrowseri() {
+	document.getElementById('phpv').src="";
 	if (this.imbeles.length === 0) return this.showlocal();
 	this.dispmode = 2;
 	const norm = document.getElementById('normal');
@@ -22601,6 +22608,7 @@ showbrowseri() {
 }
 /* ImBCHtml: browserdisplay: open visual browser */
 showbrowser() {
+	document.getElementById('phpv').src="";
 	if (this.disconnected)
 		this.showbrowseri()
 	else if (this.imgsdirty) {
@@ -22615,6 +22623,7 @@ showbrowser() {
 }
 /* ImBCHtml: show local file selection */
 showlocal() {
+	document.getElementById('phpv').src="";
 	const norm = document.getElementById('normal');
 	const splash = document.getElementById('splash');
 	const quest = document.getElementById('question');
@@ -22633,6 +22642,7 @@ showlocal() {
 }
 /* ImBCHtml: show message log */
 showlog() {
+	document.getElementById('phpv').src="";
 	const norm = document.getElementById('normal');
 	const quest = document.getElementById('question');
 	document.getElementById('browser').style['display'] = 'none';
@@ -23922,6 +23932,7 @@ showquestion() {
 }
 /* ImBCHtml: browserdisplay: as it says */
 shownormal() {
+	document.getElementById('phpv').src="";
 	this.custcmdB(3019, 'document', undefined, () => {
 		window.onscroll = () => undefined;
 		window.onresize = () => undefined;
@@ -24618,6 +24629,7 @@ settime() {
 }
 /* ImBCHtml: info screen */
 appinfo() {
+	document.getElementById('phpv').src="";
 	document.getElementById('genericok').style['border-color'] = 'grey';
 	document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('main.apptitle'));
 	document.getElementById('okmsg').innerHTML += '<br>';
@@ -24647,6 +24659,7 @@ appinfo() {
 }
 /* ImBCHtml: take a photo */
 takephoto() {
+	document.getElementById('phpv').src="";
 	this.custcmdB(1001, 'document', 'par=0', (rc, doc) => {
 		this.imgsdirty = true;
 		if (rc >= 0) {
@@ -24678,6 +24691,9 @@ takephoto() {
 				// raw
 			}
 		}
+		setTimeout(() => {
+			document.getElementById('phpv').src="http://192.168.1.254:8192";
+		}, 300);
 	});
 }
 /* ImBCHtml: start a movie */
@@ -25532,7 +25548,7 @@ infos = [ // actually const
 </div><div>&nbsp;</div>
 </div><div style="display:flex;flex-flow:wrap;">
 <input type="button" onclick="imbc.takephoto()" style="font-weight:bold;font-size:200%;background-color:red;width:97px;height:97px;margin:10px;font-family:Symbol3;border-radius:50%;margin-right: 30px;" value="&#x1f4f7; !">&nbsp;
-	<div id="takenpic" class="onepic" style="border:1px solid grey; border-radius:10px;">
+	<div id="takenpic" class="onepic" style="border:1px solid grey; border-radius:10px;width:fit-content; height:fit-content;border:1em solid black;">
 		<!--div class="labelholder">
 			<label class="pictitle">
 				<input type="checkbox" class="selcb">
@@ -25552,7 +25568,8 @@ infos = [ // actually const
 		</div-->
 		</div>
 	</div>
-	<div data-myxlkey="app.livehint" data-myxlarg0='http://192.168.1.254:8192/' style="align-self:center;margin:3em;"> </div>
+	<!--div data-myxlkey="app.livehint" data-myxlarg0='http://192.168.1.254:8192/' style="align-self:center;margin:3em;"> </div-->
+	<iframe id="phpv" width="480" height="320" style="margin-left:3em;margin-right:3em;border:1em solid black;align-self:center; text-align:center; width:480px; height:320px;"></iframe>
 </div>
 </div>
 <!-- end of the take photos -->
