@@ -21050,7 +21050,7 @@ findlang(i) {
 		this.debugflag = true;
 		if (this.previewworker) this.previewworker.postMessage({ cmd: 'setdbg' });
 	}
-	if ('zZ' === i || window?.location.href.startsWith('http://127.0.0.1') || window?.location.href.startsWith('http://192.168.8')) {
+	if ('zZ' === i || window?.location.href.startsWith('http://1')) {
 		this.imbweb = window.location.origin;
 		if (this.previewworker) this.previewworker.postMessage({ cmd: 'seturl', url: this.imbweb });
 	}
@@ -22520,7 +22520,7 @@ showphotoi() {
 	window.scrollTo({ top: 0 });
 	this.imbmode = 0;
 	setTimeout(() => {
-		document.getElementById('phpv').src="http://192.168.1.254:8192";
+		document.getElementById('phpv').src=window.location.protocol + '//' + window.location.hostname + ':8192'; //"http://192.168.1.254:8192";
 	},300);
 }
 /* ImBCHtml: browserdisplay: take photos */
@@ -24642,19 +24642,20 @@ appinfo() {
 	document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('main.apptitle'));
 	document.getElementById('okmsg').innerHTML += '<br>';
 	document.getElementById('okmsg').innerHTML += ImBCBase.version;
-	if (this.connvers)
+	if (this.connvers) {
 		document.getElementById('okmsg').innerHTML += ('<br>ImB: ' + this.connvers);
-	const s = document.createElement('span');
-	s.setAttribute('data-myxlkey','app.free');
-	document.getElementById('okmsg').innerHTML += '<br>';
-	document.getElementById('okmsg').append(s);
-	if (this.imbfree > 10000000000)
-		document.getElementById('okmsg').innerHTML += (' ' + Math.round(this.imbfree/100000000)/10 + ' GB');
-	else /*if (this.imbfree > 10000000)*/
-		document.getElementById('okmsg').innerHTML += (' ' + Math.round(this.imbfree/100000)/10 + ' MB');
-	//else
-	//	document.getElementById('okmsg').innerHTML += ('<br>Free: ' + Math.round(this.imbfree/100)/10 + ' KB');
-	//document.getElementById('okmsg').innerHTML += ('<br>Free: ' + this.imbfree + ' B');
+		const s = document.createElement('span');
+		s.setAttribute('data-myxlkey','app.free');
+		document.getElementById('okmsg').innerHTML += '<br>';
+		document.getElementById('okmsg').append(s);
+		if (this.imbfree > 10000000000)
+			document.getElementById('okmsg').innerHTML += (' ' + Math.round(this.imbfree/100000000)/10 + ' GB');
+		else /*if (this.imbfree > 10000000)*/
+			document.getElementById('okmsg').innerHTML += (' ' + Math.round(this.imbfree/100000)/10 + ' MB');
+		//else
+		//	document.getElementById('okmsg').innerHTML += ('<br>Free: ' + Math.round(this.imbfree/100)/10 + ' KB');
+		//document.getElementById('okmsg').innerHTML += ('<br>Free: ' + this.imbfree + ' B');
+	}
 	const a = document.createElement('a');
 	a.setAttribute('data-myxlkey','main.help');
 	a.setAttribute('data-myhrefxlkey','app.helpurl');
@@ -24700,7 +24701,7 @@ takephoto() {
 			}
 		}
 		setTimeout(() => {
-			document.getElementById('phpv').src="http://192.168.1.254:8192";
+			document.getElementById('phpv').src= window.location.protocol + '//' + window.location.hostname + ':8192'; //"http://192.168.1.254:8192";
 		}, 300);
 	});
 }
@@ -24720,6 +24721,11 @@ stopmovie() {
 	this.custcmdB(2001, 'document', 'par=0', (/*rc, doc*/) => {
 		this.showmain();
 	});
+}
+/* ImBHtml: do quit */
+doquit() {
+	if (window.location.href.startsWith('http://1'))
+		window.location.assign('/IMBACK/');
 }
 /* ImBCHtml: open parent */
 static openp(el) {
@@ -25512,7 +25518,7 @@ function custcmdi(c, t, restargs, cb, results) {
 <div class="hammenent" id="hamlog" onclick="imbc.closeham();imbc.showlog();"><span  style="font-family:Symbol3;">&#x1f5ce;</span> <span data-myxlkey='app.menu.msglog'>Msg Log</span></div>
 <div class="hammenent" onclick="imbc.closeham();imbc.shownormal();">&#x2699; <span data-myxlkey='app.menu.settings'>Settings</span></div>
 <div class="hammenent" onclick="imbc.closeham();imbc.appinfo();"><span style="font-weight:bold;">?</span> <span data-myxlkey='app.menu.info'>Info</span></div>
-<div class="hammenent" onclick="imbc.closeham();window.location.assign('/IMBACK/');"><span style="font-weight:bold;">&lt;<span style="margin-left:-0.2em;">&ndash;</span></span> <span data-myxlkey='app.menu.quit'>Quit</span></div>
+<div class="hammenent" onclick="imbc.closeham();imbc.doquit();"><span style="font-weight:bold;">&lt;<span style="margin-left:-0.2em;">&ndash;</span></span> <span data-myxlkey='app.menu.quit'>Quit</span></div>
 </div>
 <!-- end of hamburger menu -->
 <!-- this is the picture browser, generated content appended -->
