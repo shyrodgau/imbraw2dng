@@ -492,6 +492,11 @@ describe('E Convert Raw from Imback APP', function() {
 	});
 	it('E.1 Convert from visual browser', async function dotest() {
 			this.timeout(36000);
+			await driver.actions({ async: true })
+				.pause(1000)
+				.click()
+				.pause(1000)
+				.perform();
 			const cb = await driver.findElement(By.id('mov2brows'));
 			await driver.actions({ async: true}).pause(900).perform();
 			await driver.actions({ async: true })
@@ -500,7 +505,7 @@ describe('E Convert Raw from Imback APP', function() {
 				.click()
 				.pause(300)
 				.perform();
-			const fi = await driver.findElement(By.id('SELC_2029_06'));
+			const fi = await driver.findElement(By.id('SELC_2029_07'));
 			await driver.actions({ async: true })
 				.move({ origin: fi })
 				.pause(300)
@@ -512,7 +517,7 @@ describe('E Convert Raw from Imback APP', function() {
 				.move({ origin: rcw })
 				.pause(300)
 				.click()
-				.pause(1600)
+				.pause(2600)
 				.perform();
 			const okb = await driver.findElement(By.id('progokbut'));
 			await driver.actions({ async: true })

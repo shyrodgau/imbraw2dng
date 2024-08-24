@@ -22354,11 +22354,11 @@ fromvisbrows = false;
 #rotphase = 0;
 /* ImBCHtml: init the worker */
 initworker() {
-	let scripttext = document.querySelector("script[type='text\/js-previewworker']").textContent;
+	let scripttext = document.querySelector("script[type='text/js-previewworker']").textContent;
     this.previewworker = new Worker(URL.createObjectURL(new Blob([scripttext], { type: "text/javascript" })));
 	if (!this.previewworker) {
 		// upload previewworker OR
-		console.log('BACKGOUND WORKER FAILED 3 ' + wrkurl + ' ' + xhr.status + ' ' + second);
+		console.log('BACKGOUND WORKER FAILED 3 ');
 		this.previewworker = null;
 	}
 	else {
@@ -22621,7 +22621,7 @@ showbrowser() {
 		this.loadimgs();
 	} else {
 		//if (2 === this.imbmode) return this.showbrowseri();
-		this.custcmdB(3001, 'document', 'par=2', (rc) => {
+		this.custcmdB(3001, 'document', 'par=2', (/*rc*/) => {
 			this.showbrowseri();
 		});
 	}
@@ -22810,7 +22810,7 @@ aftercheck() {
 }
 /* ImBCHtml: visual browser: build ordered lists */
 buildtree() {
-	let list, toplevel;
+	let list;
 	if (document.getElementById('sbytype').checked) {
 		list = this.typedclasses;
 	}
@@ -23678,7 +23678,7 @@ iterate(iterator, cb, already) {
 /* ImBCHtml: traverse dropped directory/s */
 dirtraverse(items, cb, index = 0, already = []) {
 	if (!cb) {
-		return  new Promise((resolve, reject) => {
+		return  new Promise((resolve/*, reject*/) => {
 			this.dirtraverse(items, resolve, index, already);
 		});
 	}
@@ -23883,10 +23883,6 @@ buildpreview(f, onok, onerr, orientation, targ, afterload) {
 		canv.height = w8;
 	}
 	const ctx = canv.getContext('2d', { alpha: false });
-	if (undefined !== targ) {
-		const sc = 163 / canv.width;
-		//canv.style['height'] = '' + (sc*canv.height) + 'px';
-	}
 	const reader = f.imbackextension ? f : new FileReader();
 	reader.onload = (evt) => {
 		if (undefined !== afterload) afterload();
@@ -24094,8 +24090,6 @@ checkimb() {
 		this.showdisconnect();
 		this.showlocal();
 		ImBCHtml.openp(document.getElementById('appsettopener'));
-		return;
-		this.showmain(); //this.loadimgs();
 		return;
 	}
 	if (this.debugflag && document) {
@@ -24496,6 +24490,7 @@ resolver(url, preview, onok, onerr, notfirst) {
 /* ImBCHtml: worker on message */
 workermsg(msg) {
 	const d = msg.data;
+	let w0, w1
 	//console.log('from worker ' + JSON.stringify(d));
 	switch (d.cmd) {
 	case 'resolveandhandle':
@@ -24531,7 +24526,7 @@ workermsg(msg) {
 		// no break
 	case 'previewfromcache':
 		// onmessage: { pix: array, c: cache, n: name, o: orientation, t: targ, onok, onerr }
-		let w0 = this.workerstate[0];
+		w0 = this.workerstate[0];
 		this.workerstate.splice(0,1);
 		if (d.pix) {
 			const f = this.findcache(d.n).reader;
@@ -24542,7 +24537,6 @@ workermsg(msg) {
 				return;
 			}
 			let w = ImBCBase.infos[zz].w;
-			let typ = ImBCBase.infos[zz].typ;
 			let h = ImBCBase.infos[zz].h;
 		
 			let canv;
@@ -24559,10 +24553,6 @@ workermsg(msg) {
 				canv.height = w8;
 			}
 			const ctx = canv.getContext('2d', { alpha: false });
-			if (undefined !== w0.t) {
-				const sc = 163 / canv.width;
-				//canv.style['height'] = '' + (sc*canv.height) + 'px';
-			}
 			let transpose = false;
 			const outpix = d.pix;
 			if (d.o === 6 || d.o === 8) {
@@ -24578,7 +24568,7 @@ workermsg(msg) {
 		if (undefined !== this.workerstate[0].afterload) this.workerstate[0].afterload();
 		break;
 	case 'custcmd':
-		let w1 = this.workerstate[0];
+		w1 = this.workerstate[0];
 		this.workerstate.splice(0,1);
 		if (!w1) {
 			console.log('OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOPS w1 empty!' + JSON.stringify(d));
@@ -24716,7 +24706,7 @@ takephoto() {
 }
 /* ImBCHtml: start a movie */
 takemovie() {
-	this.custcmdB(2001, 'document', 'par=1', (rc, doc) => {
+	this.custcmdB(2001, 'document', 'par=1', (rc/*, doc*/) => {
 		this.imgsdirty = true;
 		if (rc >= 0) {
 			document.getElementById('movieprogress').style['display'] = '';
@@ -24727,7 +24717,7 @@ takemovie() {
 /* ImBCHtml: stop a movie */
 stopmovie() {
 	document.getElementById('movieprogress').style['display'] = 'none';
-	this.custcmdB(2001, 'document', 'par=0', (rc, doc) => {
+	this.custcmdB(2001, 'document', 'par=0', (/*rc, doc*/) => {
 		this.showmain();
 	});
 }
@@ -24797,7 +24787,75 @@ window.addEventListener('pageshow', function (event) {
 <!-- WORKER -->
 <script type="text/js-previewworker" language="javascript">
 /* *************************************** Main class for WORKER *************************************** */
-let cmd, name, cache, ori, fl, base, msg = false, progress = false, queue = [], wdtimer, currcust, dbgflag,	errcount = 0;
+let cmd, n, cache, ori, fl, base, msg = false, progress = false, queue = [], wdtimer, currcust, dbgflag,	errcount = 0;
+/* WORKER image formats */
+const infos = [ // actually const
+	{
+		size: 14065920,
+		w: 4320,
+		h: 3256,
+		typ: 0,
+		mode: "historic"
+	},
+	{ /* MF 6x7 */
+		size: 15925248,
+		w: 4608,
+		h: 3456,
+		typ: 2,
+		mode: ""
+	},
+	{ /* MF 6x4.5 */
+		size: 12937632,
+		w: 4152, h: 3116,
+		typ: 3,
+		mode: ""
+	},
+	{
+		size: 9806592,
+		w: 3616, h: 2712,
+		typ: 3,
+		mode: "Medium-angle"
+	},
+	{
+		size: 6470944,
+		w: 2936, h: 2204,
+		typ: 3,
+		mode: "Small-angle"
+	},
+	{ /* MF 6x6 */
+		size: 11943936,
+		w: 3456, h: 3456,
+		typ: 4,
+		mode: ""
+	},
+	{ /* 35mm */
+		size: 15335424,
+		w: 4608, h: 3328,
+		typ: 1,
+		mode: ""
+	},
+	{
+		size: 11618752,
+		w: 4012, h: 2896,
+		typ: 1,
+		mode: "Medium-angle"
+	},
+	{
+		size: 7667520,
+		w: 3260, h: 2352,
+		typ: 1,
+		mode: "Small-angle"
+	},
+	/* Film ! */
+	{
+		size: 30607488,
+		w: 5216,
+		h:3912,
+		typ: 5,
+		mode: ''
+	}
+];
+/* WORKER onmessage */
 onmessage = (e) => {
 	//console.log('WORKER received ' + e.data.cmd);
 	if (progress) {
@@ -24806,7 +24864,7 @@ onmessage = (e) => {
 		return;
 	}
 	//console.log(JSON.stringify(e.data));
-	name = e.data.n;
+	n = e.data.n;
 	cmd = e.data.cmd;
 	ori = e.data.o;
 	fl = e.data.fl;
@@ -24828,21 +24886,21 @@ onmessage = (e) => {
 		break;
 	case 'resolveandpreview':
 		progress = cmd;
-		resolver(name, true);
+		resolver(n, true);
 		// this.previewworker.postMessage({ cmd: 'resolveandpreview', n: (f.url ? f.url :f), o: orientation });
- 	  	// onmessage: { pix: array, n: name, o: orientation, c: cacheentry }
+ 	  	// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
 		break;
 	case 'previewfromcache':
 		progress = cmd;
 		buildpreviewcache(e.data.c, e.data.o);
 		// this.previewworker.postMessage({ cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :f), o: orientation });
-		// onmessage: { pix: array, c: cache, n: name, o: orientation }
+		// onmessage: { pix: array, c: cache, n: n, o: orientation }
 		break;
 	case 'resolveandhandle':
 		progress = cmd;
-		resolver(name, false);
-		//this.previewworker.postMessage({ cmd: 'resolveandhandle', n: (f.name ? f.name : f), o: orientation, fl: fromloop });
-		// onmessage: { ok?, n: f.name, o: orientation, fl: fromloop, c: cacheentry }
+		resolver(n, false);
+		//this.previewworker.postMessage({ cmd: 'resolveandhandle', n: (f.n ? f.n : f), o: orientation, fl: fromloop });
+		// onmessage: { ok?, n: f.n, o: orientation, fl: fromloop, c: cacheentry }
 		break;
 	case 'custcmd':
 		progress = cmd;
@@ -24856,12 +24914,12 @@ onmessage = (e) => {
 	}
 };
 /* WORKER: handle communication */
-resolver = (url, preview, notfirst) => {
-	let rot, e = url;
+function resolver(url, preview, notfirst)  {
+	let e = url;
 	if (url.url) {
 		e = url;
 		url = e.url;
-		rot = e.rot;
+		//rot = e.rot;
 	}
 	let fx = {
 		imbackextension: true,
@@ -24908,7 +24966,7 @@ resolver = (url, preview, notfirst) => {
 				handlewait();
 			}, 300);
 		} else*/ {
-			postMessage({ cmd: cmd, ok: false, n: name });
+			postMessage({ cmd: cmd, ok: false, n: n });
 			handlewait();
 		}
 	};
@@ -24933,12 +24991,12 @@ resolver = (url, preview, notfirst) => {
 		xhr.onload = undefined;
 		xhr.ontimeout = undefined;
 		xhr.onabort = undefined;
-		postMessage({ cmd: cmd, ok: false, n: name });
+		postMessage({ cmd: cmd, ok: false, n: n });
 		handlewait();
 	}
 }
 /* WORKER: handle wait queue */
-handlewait = () => {
+function handlewait() {
 	progress = false;
 	if (queue.length > 0) {
 		const e = queue[0];
@@ -24948,7 +25006,7 @@ handlewait = () => {
 	}
 }
 /* WORKER: build preview in array */
-buildpvarray = (view, typ, w, h, orientation, scale, wb) => {
+function buildpvarray (view, typ, w, h, orientation, scale, wb) {
 	if (undefined === wb) wb = [ 6, 10, 1, 1, 6, 10 ];
 	const sfact = scale ? scale : 8;
 	const w8 = Math.floor((w+(sfact -1))/sfact);
@@ -25058,12 +25116,12 @@ buildpvarray = (view, typ, w, h, orientation, scale, wb) => {
 }
 /* WORKER: browserdisplay: build preview */
 // orientation: 1: norm, 3: rot 180, 6 rot 90 CW, 8: rot 270 CCW
-buildpreview = (f, orientation) => {
+function buildpreview(f, orientation) {
 	let w, h, typ;
 	const zz = infos.findIndex(v => v.size === f.size);
 	if (zz === -1) {
 		console.log('WORKER preview: unsupported size ' + f.size + ' of ' + f.name);
-		postMessage({ cmd: cmd, ok: false, n: name });
+		postMessage({ cmd: cmd, ok: false, n: n });
 		handlewait();
 		return;
 	}
@@ -25071,35 +25129,32 @@ buildpreview = (f, orientation) => {
 	typ = infos[zz].typ;
 	h = infos[zz].h;
 
-	const w8 = Math.floor((w+7)/8);
-	const h8 = Math.floor((h+7)/8);
 	const reader = f.imbackextension ? f : new FileReader();
 	reader.onload = (evt) => {
 		const contents = evt.target.result;
 		const view = new DataView(contents);
 		const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : getwb(view, zz);
-		let transpose = false;
 		//console.log(JSON.stringify(wb));
 		let outpix = buildpvarray(view, typ, w, h, orientation, false, wb);
-		// onmessage: { pix: array, n: name, o: orientation, c: cacheentry }
-		postMessage({ cmd: cmd, pix: outpix, n: name, o: ori, c: cache });
+		// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
+		postMessage({ cmd: cmd, pix: outpix, n: n, o: ori, c: cache });
 		handlewait();
 	};
 	reader.onerror = (/*evt*/) => {
 		console.log('WORKER preview: error reading ' + f.name);
-		postMessage({ cmd: cmd, ok: false, n: name });
+		postMessage({ cmd: cmd, ok: false, n: n });
 		handlewait();
 	};
 	reader.readAsArrayBuffer(f);
 }
 /* WORKER: browserdisplay: build preview from cache */
 // orientation: 1: norm, 3: rot 180, 6 rot 90 CW, 8: rot 270 CCW
-buildpreviewcache = (f, orientation) => {
+function buildpreviewcache(f, orientation) {
 	let w, h, typ;
 	const zz = infos.findIndex(v => v.size === f.l);
 	if (zz === -1) {
 		console.log('WORKER preview: unsupported size ' + f.l + ' of ' + f.n);
-		postMessage({ cmd: cmd, ok: false, n: name });
+		postMessage({ cmd: cmd, ok: false, n: n });
 		handlewait();
 		return;
 	}
@@ -25107,28 +25162,25 @@ buildpreviewcache = (f, orientation) => {
 	typ = infos[zz].typ;
 	h = infos[zz].h;
 
-	const w8 = Math.floor((w+7)/8);
-	const h8 = Math.floor((h+7)/8);
 	const contents = f.d;
 	const view = new DataView(contents);
 	const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : getwb(view, zz);
-	let transpose = false;
 	//console.log(JSON.stringify(wb));
 	let outpix = buildpvarray(view, typ, w, h, orientation, false, wb);
-	// onmessage: { pix: array, n: name, o: orientation, c: cacheentry }
+	// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
 	/*if (dbgflag) {
 		setTimeout(() => {
-			postMessage({ cmd: cmd, pix: outpix, n: name, o: ori, c: cache });
+			postMessage({ cmd: cmd, pix: outpix, n: n, o: ori, c: cache });
 			handlewait();
 		}, 300);
 	}
 	else*/ {
-		postMessage({ cmd: cmd, pix: outpix, n: name, o: ori, c: cache });
+		postMessage({ cmd: cmd, pix: outpix, n: n, o: ori, c: cache });
 		handlewait();
 	}
 }
 /* WORKER: get white balance */
-getwb = (view, typidx) => {
+function getwb(view, typidx) {
 	//console.log('GWB ' + typidx + ' ' + JSON.stringify(ImBCBase.infos[typidx]));
 	const t = infos[typidx];
 	let r=1, g=1, b=1;
@@ -25158,7 +25210,7 @@ getwb = (view, typidx) => {
 	}
 }
 /* WORKER: get one downsampled median image value [ r g b ] */
-getPix = (x, y, w, view, typ) => {
+function getPix(x, y, w, view, typ) {
 	let outrgb = [];
 	let reds = [];
 	let w3 = w + (w>>1);
@@ -25238,7 +25290,7 @@ getPix = (x, y, w, view, typ) => {
 	return outrgb;
 }
 /* WORKER: adjust A:\imback\... format to /imback/... */
-adjurl = (url) => {
+function adjurl(url) {
 	if (url.url) url = url.url;
 	if (url.toUpperCase().substring(0,3) !== 'A:\\')
 		return url;
@@ -25249,7 +25301,7 @@ adjurl = (url) => {
 	return n;
 }
 /* WORKER: watchdog */
-watchdog = () => {
+function watchdog() {
 	custcmdi(3019, 'document', undefined, (rc) => {
 		if (dbgflag || rc.rc) console.log('WW ' + JSON.stringify(rc));
 		if (rc.rc) errcount ++;
@@ -25267,11 +25319,11 @@ watchdog = () => {
 	});
 }
 /* WORKER: internal handler */
-custcmd = (c, t, restargs) => {
+function custcmd (c, t, restargs) {
 	custcmdi(c, t, restargs, postMessage)
 }
 /* WORKER: internal command handler */
-custcmdi = (c, t, restargs, cb, results) => {
+function custcmdi(c, t, restargs, cb, results) {
 	let thecmd = c, therest = restargs;
 	if (c instanceof Array) {
 		if (results === undefined) results = [];
@@ -25285,7 +25337,7 @@ custcmdi = (c, t, restargs, cb, results) => {
 		c.splice(0,1);
 	}
 	const xhr = new XMLHttpRequest();
-	xhr.onload = (event) => {
+	xhr.onload = (/*event*/) => {
 		if (xhr.status === 200) {
 			if (results instanceof Array) results.push(xhr.response);
 			if (c instanceof Array && c.length > 0) {
@@ -25336,73 +25388,6 @@ custcmdi = (c, t, restargs, cb, results) => {
 		xhr.send();
 	}
 }
-/* WORKER image formats */
-infos = [ // actually const
-	{
-		size: 14065920,
-		w: 4320,
-		h: 3256,
-		typ: 0,
-		mode: "historic"
-	},
-	{ /* MF 6x7 */
-		size: 15925248,
-		w: 4608,
-		h: 3456,
-		typ: 2,
-		mode: ""
-	},
-	{ /* MF 6x4.5 */
-		size: 12937632,
-		w: 4152, h: 3116,
-		typ: 3,
-		mode: ""
-	},
-	{
-		size: 9806592,
-		w: 3616, h: 2712,
-		typ: 3,
-		mode: "Medium-angle"
-	},
-	{
-		size: 6470944,
-		w: 2936, h: 2204,
-		typ: 3,
-		mode: "Small-angle"
-	},
-	{ /* MF 6x6 */
-		size: 11943936,
-		w: 3456, h: 3456,
-		typ: 4,
-		mode: ""
-	},
-	{ /* 35mm */
-		size: 15335424,
-		w: 4608, h: 3328,
-		typ: 1,
-		mode: ""
-	},
-	{
-		size: 11618752,
-		w: 4012, h: 2896,
-		typ: 1,
-		mode: "Medium-angle"
-	},
-	{
-		size: 7667520,
-		w: 3260, h: 2352,
-		typ: 1,
-		mode: "Small-angle"
-	},
-	/* Film ! */
-	{
-		size: 30607488,
-		w: 5216,
-		h:3912,
-		typ: 5,
-		mode: ''
-	}
-];
 /* *************************************** Main class for WORKER, E N D *************************************** */
 </script>
 <!-- WORKER END -->

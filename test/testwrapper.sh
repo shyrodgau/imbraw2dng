@@ -58,6 +58,17 @@ endl=$( grep -n '</script' ${TESTEXES}/imbraw2dng.html|cut -d: -f1 )
 head -$(( $endl - 1 )) ${TESTEXES}/imbraw2dng.html|tail -$(( $endl - $stl - 1 )) > ih.js
 node /home/hegny/prog/imbraw2dng/github/node_modules/eslint/bin/eslint.js -c ${TESTEXES}/eslint.config.mjs  ih.js 2>&1 | tee -a $log
 
+stla=$( grep -n '<script' ${TESTEXES}/imbapp.htm|cut -d: -f1 | head -1 )
+endla=$( grep -n '</script' ${TESTEXES}/imbapp.htm|cut -d: -f1 |head -1)
+head -$(( $endla - 1 )) ${TESTEXES}/imbapp.htm|tail -$(( $endla - $stla - 1 )) > iaa.js
+node /home/hegny/prog/imbraw2dng/github/node_modules/eslint/bin/eslint.js -c ${TESTEXES}/eslint.config.mjs  iaa.js 2>&1 | tee -a $log
+
+stlb=$( grep -n '<script' ${TESTEXES}/imbapp.htm|cut -d: -f1 | tail -1 )
+endlb=$( grep -n '</script' ${TESTEXES}/imbapp.htm|cut -d: -f1 |tail -1)
+head -$(( $endlb - 1 )) ${TESTEXES}/imbapp.htm|tail -$(( $endlb - $stlb - 1 )) > iaw.js
+node /home/hegny/prog/imbraw2dng/github/node_modules/eslint/bin/eslint.js -c ${TESTEXES}/eslint.config.mjs  iaw.js 2>&1 | tee -a $log
+ls -l ia*.js
+
 cd ..
 for f in imbraw2dng_test_${testid}* ; do
 	cp -v $f results/$( echo $f | sed 's/_'${testid}'//g' )
