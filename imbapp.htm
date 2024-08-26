@@ -380,7 +380,7 @@ body { margin: 0; }
 .dlbtn:not(.biggiebtn) { vertical-align: bottom; font-weight: bold; }
 .igtype { display: flex; flex-flow: wrap;border-top: 0; padding:0.1em;}
 .onepic { margin: -1px; width: fit-content; display: flex; flex-direction: column; padding: 0.1em;position: relative; }
-.eepvx { color: #777777; font-size: 100px; align-self: center; font-weight: bold; }
+.eepvx { color: #777777; font-size: 100px; align-self: center; font-weight: bold; pointer-events:none;}
 .errimg { width: 163px;color: red; height:90px;font-size: 80px; text-align: center; font-weight: bold; }
 .waitdiv { color: #444444; width:163px;font-size: 80px; height:90px;text-align: center; font-weight: bold; }
 .eeraw, .eejpg { align-self: center; max-width: 163px; max-height: 117px;}
@@ -398,10 +398,11 @@ body { margin: 0; }
 	text-align: end;
 	font-weight: bold;
 }
-.btnsrow { position: absolute; top: 1.5em; left: 0.1em; height: 1em; width: 2em; background-color: rgba(200,200,180,0.4); }
+.btnsrow { position: absolute; top: 1.5em; left: 0.1em; height: 1em; width: 3em; background-color: rgba(200,200,180,0.3); }
 div[data-state='load'] .btnsrow, div[data-state='wait'] .btnsrow, div[data-state='err'] .btnsrow { display: none; }
 .oth_CL .btnsrow, .JPG_CL .btnsrow { width: 1em; }
 .JPG_CL .rotbtn, .oth_CL .rotbtn { display: none; }
+.JPG_CL .rotbtnr, .oth_CL .rotbtnr { display: none; }
 .JPG_CL .eeraw, .oth_CL .eeraw, .RAW_CL .eejpg { display: none; }
 .biggiebtn { position: absolute; top: -0.2em; font-weight:bold; font-size:120%; text-shadow: 0.1em 0.07em 0 white; z-index: 900;}
 .picbig { scale: 3; position: absolute; z-index: 990; border: 3px solid white; left: 66%;}
@@ -22581,6 +22582,8 @@ showdisconnect(alsoerr) {
 		e.style['display'] = 'none';
 	for (const e of document.querySelectorAll('.moviesym'))
 		e.style['display'] = 'none';
+	for (const e of document.querySelectorAll('#quitelem'))
+		e.style['display'] = 'none';
 }
 /* ImBCHtml: browserdisplay: open visual browser */
 showbrowseri() {
@@ -23242,6 +23245,25 @@ topreccheck(force) {
 	} else {
 		rotbtn.remove();
 	}
+	let rotbtnr = ne.querySelector('.rotbtnr');
+	if (e.type === 'RAW') {
+		rotbtnr.classList.add('disabled');
+		rotbtnr.onclick = () => {
+			if (!this.debugflag && rotbtnr.classList.contains('disabled')) return;
+			let j = ImBCBase.oriecw.indexOf(e.rot);
+			j = ((j + 3) % 4);
+			e.rot = ImBCBase.oriecw[j];
+			e.preview.style['display'] = 'none';
+			ne.querySelector('.waitdiv').style['display'] = 'none';
+			ne.querySelector('.eepvx').style['display'] = '';
+			ne.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
+			ne.querySelector('.dlbtn').classList.add('disabled');
+			ne.setAttribute('data-state', 'wait');
+			this.#startloadimg();
+		};
+	} else {
+		rotbtnr.remove();
+	}
 	dlbtn.onclick = (/*ev*/) => {
 		if (!this.debugflag && dlbtn.classList.contains('disabled')) return;
 		if (this.actnum !== this.allfiles.length) return;
@@ -23323,6 +23345,11 @@ topreccheck(force) {
 			this.loadnextimg();
 		};
 		if (to.imbackintension) {
+			if (this.previewworker) {
+				this.workerstate.push({ cmd: 'readjpg', targ: to, ele: e});
+				this.previewworker.postMessage({ cmd: 'readjpg', f: to.imbackintension});
+				return;
+			}
 			// read jpeg file for preview
 			const fr = new FileReader();
 			fr.onload = (evt) => {
@@ -24490,7 +24517,7 @@ resolver(url, preview, onok, onerr, notfirst) {
 /* ImBCHtml: worker on message */
 workermsg(msg) {
 	const d = msg.data;
-	let w0, w1
+	let w0;
 	//console.log('from worker ' + JSON.stringify(d));
 	switch (d.cmd) {
 	case 'resolveandhandle':
@@ -24568,19 +24595,19 @@ workermsg(msg) {
 		if (undefined !== this.workerstate[0].afterload) this.workerstate[0].afterload();
 		break;
 	case 'custcmd':
-		w1 = this.workerstate[0];
+		w0 = this.workerstate[0];
 		this.workerstate.splice(0,1);
-		if (!w1) {
+		if (!w0) {
 			console.log('OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOPS w1 empty!' + JSON.stringify(d));
 		}
-		else if (w1.type === 'document' && d.results instanceof Array) {
+		else if (w0.type === 'document' && d.results instanceof Array) {
 			d.results = d.results.map((m) => {
 					return (new DOMParser()).parseFromString((new TextDecoder()).decode(m), 'text/xml');
 			});
-		} else if (w1.type === 'document')
+		} else if (w0.type === 'document')
 			d.results = (new DOMParser()).parseFromString((new TextDecoder()).decode(d.results), 'text/xml');
-		if (w1.cb) {
-			w1.cb(d.rc, d.results);
+		if (w0.cb) {
+			w0.cb(d.rc, d.results);
 		}
 		break;
 	case 'disconnect':
@@ -24589,6 +24616,25 @@ workermsg(msg) {
 			e.style['display'] = '';
 		this.disconnected = true;
 		this.showdisconnect(true);
+		break;
+	case 'readjpg':
+		w0 = this.workerstate[0];
+		this.workerstate.splice(0,1);
+		if (d.ok) {
+			w0.targ.preview.src = d.c;
+		}
+		else {
+			let e = d.ele;
+			e.setAttribute('data-state', 'err');
+			console.log('JPEG preview load error for ' + url + ' ' + JSON.stringify(evt));
+			e.querySelector('.waitdiv').style['display'] = 'none';
+			e.querySelector('.errimg').style['display'] = '';
+			e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
+			e.querySelector('.dlbtn').classList.add('disabled');
+			if (this.debugflag) console.log('ldr j e lnx ' + to.raw);
+			to.nonewerr = true;
+			this.loadnextimg();
+		}
 		break;
 	default:
 		console.log('workermsg: unexpected response for ' + d.cmd);
@@ -24913,6 +24959,9 @@ onmessage = (e) => {
 		currcust = e.data.c;
 		//this.previewworker.postMessage({ cmd: 'custcmd', c: cmd, type: type, rest: rest, results: results });
 		custcmd(e.data.c, e.data.type, e.data.rest);
+		break;
+	case 'readjpg':
+		readjpg(e.data.f);
 		break;
 	default:
 		console.log('WORKER: unexpected CMD ' + e.data.cmd);
@@ -25394,6 +25443,21 @@ function custcmdi(c, t, restargs, cb, results) {
 		xhr.send();
 	}
 }
+/* WORKER read local jpeg */
+function readjpg(file) {
+	// read jpeg file for preview
+	const fr = new FileReader();
+	fr.onload = (evt) => {
+		let contents = evt.target.result;
+		contents = 'data:image/jpeg;' + contents.substring(8);
+		/* shown in onload of img */
+		postMessage({ cmd: cmd, ok: true, c: contents });
+	}
+	fr.onerror = (evt) => {
+		postMessage({ cmd: cmd, ok: false });
+	}
+	fr.readAsDataURL(file);
+}
 /* *************************************** Main class for WORKER, E N D *************************************** */
 </script>
 <!-- WORKER END -->
@@ -25518,7 +25582,7 @@ function custcmdi(c, t, restargs, cb, results) {
 <div class="hammenent" id="hamlog" onclick="imbc.closeham();imbc.showlog();"><span  style="font-family:Symbol3;">&#x1f5ce;</span> <span data-myxlkey='app.menu.msglog'>Msg Log</span></div>
 <div class="hammenent" onclick="imbc.closeham();imbc.shownormal();">&#x2699; <span data-myxlkey='app.menu.settings'>Settings</span></div>
 <div class="hammenent" onclick="imbc.closeham();imbc.appinfo();"><span style="font-weight:bold;">?</span> <span data-myxlkey='app.menu.info'>Info</span></div>
-<div class="hammenent" onclick="imbc.closeham();imbc.doquit();"><span style="font-weight:bold;">&lt;<span style="margin-left:-0.2em;">&ndash;</span></span> <span data-myxlkey='app.menu.quit'>Quit</span></div>
+<div class="hammenent" id="quitelem" onclick="imbc.closeham();imbc.doquit();"><span style="font-weight:bold;">&lt;<span style="margin-left:-0.2em;">&ndash;</span></span> <span data-myxlkey='app.menu.quit'>Quit</span></div>
 </div>
 <!-- end of hamburger menu -->
 <!-- this is the picture browser, generated content appended -->
@@ -25660,6 +25724,7 @@ Replaceraw: <input type="file" onchange="imbc.replraw()" accept=".raw,.RAW" id="
 			<!--span class="biggiebtn bigbtn" style="left: 0.4em;">⛶</span-->
 			<span class="dlbtn biggiebtn" style="font-size: 133%;">↓</span>
 			<span class="biggiebtn rotbtn" style="left: 0.6em;">↷</span>
+			<span class="biggiebtn rotbtnr" style="left: 1.6em;">&#x21b6;</span>
 		</div>
 		</div>
 	</div>
