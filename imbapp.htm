@@ -374,6 +374,7 @@ body { margin: 0; }
 .ggttclosed > div > .ggtt { display: none; }
 .ggclosed > .gg, .ggclosed .igtype, .ggclosed .igxtype { display: none !important; }
 .ggttminus, .ggttplus { cursor: pointer; display: inline-block; font-weight:normal !important; }
+.gg.empty { height: 11em; }
 .biggiebtn:not(.disabled), .dlbtn:not(.disabled) { cursor: pointer; }
 .dlbtn.biggiebtn { left: .1em; margin-top: -0.1em; }
 .biggiebtn.disabled { display: none; }
@@ -22590,6 +22591,8 @@ showbrowseri() {
 	document.getElementById('delselbut').style['display'] = '';
 	document.getElementById('doselbut').style['display'] = '';
 	window.scrollTo({ top: 0 })
+	window.onscroll = () => { this.addallimgs(); };
+	window.onresize = () => { this.addallimgs(); };
 	this.imbmode = 2;
 	this.addallimgs();
 	this.#startloadimg();
@@ -22682,6 +22685,7 @@ aftercheck() {
 		cl.entry.id = 'gg_' + x + '_X';
 		cl.entry.classList.add('gg');
 		cl.entry.classList.add('ggopen');
+		cl.entry.classList.add('empty');
 		cl.entry.classList.add('gl5');
 		for (const y of this.imbeles) {
 			if (x === y.ts)
@@ -22705,6 +22709,7 @@ aftercheck() {
 		cl.entry = document.createElement('div');
 		cl.entry.id = 'gg_' + x + '_X';
 		cl.entry.classList.add('gg');
+		cl.entry.classList.add('empty');
 		cl.entry.classList.add('ggopen');
 		cl.entry.classList.add('gl5');
 		for (const y of this.imbeles) {
@@ -22731,6 +22736,7 @@ aftercheck() {
 			u.level --;
 			u.entry.classList.add('gl' + u.level);
 			u.entry.classList.remove('gl' + (u.level + 1));
+			u.entry.classList.remove('empty');
 		} else if (this.typedclasses.findIndex((o) => o.title === u.title.substring(0,3)) === -1) {
 			const cl = {
 				title: u.title.substring(0,3),
@@ -22742,6 +22748,7 @@ aftercheck() {
 			cl.entry = document.createElement('div');
 			cl.entry.id = 'gg_' + u.title.substring(0,3) + '_X';
 			cl.entry.classList.add('gg');
+			//cl.entry.classList.add('empty');
 			cl.entry.classList.add('ggopen');
 			cl.entry.classList.add('gl1');
 			for (const x of this.typedclasses.filter((o) => u.title.substring(0,3) === o.title.substring(0,3))) {
@@ -22965,6 +22972,7 @@ buildtree() {
 }
 /* ImBCHtml: add images */
 addallimgs(gr, e) {
+	let retry = false;
 	setTimeout(() => {
 		if (!gr) {
 			let list;
@@ -22980,6 +22988,8 @@ addallimgs(gr, e) {
 				if (rect.top > window.innerHeight || rect.bottom <= 0 || rect.width <= 0)
 					continue;
 				if (xgr.fmembers && xgr.fmembers.length > 0) {
+					xe.classList.remove('empty');
+					retry = true;
 					this.#addimgsorted(xgr);
 					this.#startloadimg();
 				} else {
@@ -22989,11 +22999,17 @@ addallimgs(gr, e) {
 			return;
 		}
 		if (gr.fmembers && gr.fmembers.length > 0 && !e.querySelector('.onepic')) {
+			e.classList.remove('empty');
+			retry = true;
 			this.#addimgsorted(gr);
 			this.#startloadimg();
 		} else
 			gr.smembers.map((m) => { this.addallimgs(m, m.entry) });
-	}, 100);
+		if (retry) {
+			retry = false;
+			this.addallimgs();
+		}
+	},100);
 }
 /* ImBCHtml: visual browser: select all from top */
 topreccheck(force) {
@@ -25665,7 +25681,8 @@ Replaceraw: <input type="file" onchange="imbc.replraw()" accept=".raw,.RAW" id="
 </template>
 <template id="titlet">
 	<div class="ggtt ggttopen titletop">
-		<span class="ggttplus ggttp mmrr">&#x25b6;</span><span class="ggttminus ggttm mmll">&#x25bc;</span>
+		<span class="ggttplus ggttp mmrr">&#x25b6;</span>
+		<span class="ggttminus ggttm mmll">&#x25bc;</span>
 		<span class="gtype" style="display: inline;"></span>
 		<span class="grtit ggttminus" onclick="ImBCHtml.closep(this);imbc.addallimgs();"></span>
 		<span class="grtit ggttplus"  onclick="ImBCHtml.openp(this);imbc.addallimgs();"></span>
