@@ -444,6 +444,8 @@ div[data-state='load'] .btnsrow, div[data-state='wait'] .btnsrow, div[data-state
 }
 .whbtn.disconnected{ .font-family:Symbol3;.font-size:120%; background-color: red !important;}
 .whbtn:disabled { opacity: 0.6; }
+.whbtn.active { color: red !important; pointer-events: none; }
+.whbtn:not(.active) { cursor:pointer; }
 img.whbtn { height:1.33em; position:relative; top:0.5em; }
 #hammen > * { padding:0.5em; margin:0.5em;cursor:pointer; }
 .hammenent:hover { background-color: #cccccc; }
@@ -3640,16 +3642,6 @@ static apptexts = [
 // ImBCBase: generic data
 mylang = 'en';
 withpreview = true;
-// app language
-imblang = undefined;
-imbsettings = [];
-useimblang = false;
-// exitmode for imb
-exitmode = 'photo';
-// display mode for app
-dispmode = 1;
-// need to load imgs from back?
-imgsdirty = true;
 // experimental
 neutral = false;
 copyright = undefined;
@@ -20982,13 +20974,12 @@ querylang(name, offset) {
 			for (const el of Object.keys(ImBCBase.texts))
 				this.prxl(el, ImBCBase.texts[el]);
 			document.getElementById('langsel').innerHTML += '<option value="00" onclick="imbc.setlang()">00</option></select>';
+			if (this.useimblang && '00' === l)
+				document.getElementById('langsel').value = '99';
 		}
 	}
-	if (document) {
-		if (this.useimblang && '00' === l)
-			document.getElementById('langsel').value = '99';
-		else
-			document.getElementById('langsel').value = l;
+	else if (document) {
+		document.getElementById('langsel').value = l;
 	}
 	// followed by xlall anyway
 }
@@ -21060,7 +21051,7 @@ findlang(i) {
 		if (!found) this.mylang = 'en';
 		found = 1;
 	}
-	if (i === '99') {
+	if ((this.useimblang !== undefined ) && i === '99') {
 		/* use lang from imb */
 		//console.log('fl 99 ' + this.imblang);
 		this.useimblang = true;
@@ -21882,6 +21873,16 @@ stepmode = 1;
 #dispcnt = 1;
 // const if html:
 checkdlfolder = true;
+// app language
+imblang = undefined;
+imbsettings = [];
+useimblang = false;
+// exitmode for imb
+exitmode = 'photo';
+// display mode for app
+dispmode = 1;
+// need to load imgs from back?
+imgsdirty = true;
 // grouping in visual dings:
 mingrp = 'd'; // 'h',  day hour
 maxgrp = 'm'; // 'y', 'm' day year month
@@ -22301,11 +22302,11 @@ afterfinish() {
 	this.allfiles = [];
 	if (this.fromvisbrows) {
 		this.fromvisbrows = false;
+		document.getElementById('pages').style['display'] = 'none';
 		document.getElementById('progmsg').style['display'] = '';
 		document.getElementById('progokbut').disabled = false;
 		document.getElementById('dlprogresslogbtn').disabled = false;
 		document.getElementById('progcancelbut').disabled = true;
-		document.getElementById('dlprogresslogbtn').disabled = false;
 		document.getElementById('progmsg').innerHTML = this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
 		this.loadnextimg();
 	}
@@ -22410,14 +22411,7 @@ fselected() {
 		document.getElementById('infile').disabled = true
 		this.#rotphase = 1;
 		this.fromvisbrows = true;
-		document.getElementById('dlprogress').style['display'] = '';
-		this.closeham();
-		document.getElementById('dlprogresslogbtn').style['display'] = '';
-		document.getElementById('dlprogresslogbtn').disabled = true;
-		document.getElementById('progcancelbut').disabled = false;
-		document.getElementById('progokbut').disabled = true;
-		document.getElementById('browser').style['display'] = 'none';
-		document.getElementById('notimback').style['display'] = 'none';
+		this.showdlprog();
 		this.topreccheck(false);
 		this.starthandleone();
 	}
@@ -22459,11 +22453,35 @@ setpvwait() {
 showmsg() {
 	document.getElementById('phpv').src="";
 	document.getElementById('genericok').style['display'] = '';
-	document.getElementById('browser').style['display'] = 'none';
-	document.getElementById('takephotos').style['display']='none';
-	document.getElementById('takemovies').style['display']='none';
-	document.getElementById('notimback').style['display']='none';
+	document.getElementById('pages').style['display'] = 'none';
 	this.closeham();
+}
+/* ImBCHtml: show the normal pages */
+showpages() {
+	document.getElementById('pages').style['display'] = '';
+	const norm = document.getElementById('normal');
+	if (norm) norm.style['display'] = 'none';
+	const splash = document.getElementById('splash');
+	const quest = document.getElementById('question');
+	if (quest) quest.style['display'] = 'none';
+	if (splash) splash.style['display'] = 'none';
+	document.getElementById('dlprogress').style['display'] = 'none';
+	window.onscroll = undefined;
+	window.onresize = undefined;
+	document.getElementById('msglog').style['display'] = 'none';
+	document.getElementById('takephotos').style['display']='none';
+	document.getElementById('browser').style['display'] = 'none';
+	document.getElementById('takemovies').style['display'] = 'none';
+	document.getElementById('notimback').style['display'] = 'none';
+	document.getElementById('delselbut').style['display'] = 'none';
+	document.getElementById('doselbut').style['display'] = 'none';
+	document.getElementById('browseselectors').style['display'] = 'none';
+	document.getElementById('nobrowse').style['display'] = '';
+	document.getElementById('phpv').src="";
+	document.getElementById('tobrows').classList.remove('active');
+	document.getElementById('tophot').classList.remove('active');
+	document.getElementById('tomov').classList.remove('active');
+	document.getElementById('toloc').classList.remove('active');
 }
 /* ImBCHtml: browserdisplay: show main screen */
 showmain() {
@@ -22481,6 +22499,7 @@ showmain() {
 }
 /* ImBCHtml: browserdisplay: show slpash */
 showsplash() {
+	document.getElementById('pages').style['display'] = 'none';
 	document.getElementById('phpv').src="";
 	const norm = document.getElementById('normal');
 	if (norm) norm.style['display'] = 'none';
@@ -22496,28 +22515,14 @@ showsplash() {
 	window.onresize = undefined;
 	document.getElementById('msglog').style['display'] = 'none';
 	document.getElementById('takephotos').style['display']='none';
-	document.getElementById('browser').style['display'] = 'none';
-	document.getElementById('takemovies').style['display'] = 'none';
-	document.getElementById('notimback').style['display'] = 'none';
 	window.scrollTo({ top: 0 });
 }
 /* ImBCHtml: browserdisplay: take photos */
 showphotoi() {
-	const norm = document.getElementById('normal');
-	if (norm) norm.style['display'] = 'none';
+	this.showpages();
 	this.dispmode = 0;
-	const splash = document.getElementById('splash');
-	const quest = document.getElementById('question');
-	if (quest) quest.style['display'] = 'none';
-	if (splash) splash.style['display'] = 'none';
-	document.getElementById('dlprogress').style['display'] = 'none';
-	window.onscroll = undefined;
-	window.onresize = undefined;
-	document.getElementById('msglog').style['display'] = 'none';
 	document.getElementById('takephotos').style['display']='';
-	document.getElementById('browser').style['display'] = 'none';
-	document.getElementById('takemovies').style['display'] = 'none';
-	document.getElementById('notimback').style['display'] = 'none';
+	document.getElementById('tophot').classList.add('active');
 	window.scrollTo({ top: 0 });
 	this.imbmode = 0;
 	setTimeout(() => {
@@ -22540,21 +22545,9 @@ showphoto() {
 }
 /* ImBCHtml: browserdisplay: take movies */
 showmoviei() {
-	const norm = document.getElementById('normal');
-	if (norm) norm.style['display'] = 'none';
-	this.dispmode = 1;
-	const splash = document.getElementById('splash');
-	const quest = document.getElementById('question');
-	if (quest) quest.style['display'] = 'none';
-	if (splash) splash.style['display'] = 'none';
-	document.getElementById('dlprogress').style['display'] = 'none';
-	window.onscroll = undefined;
-	window.onresize = undefined;
-	document.getElementById('msglog').style['display'] = 'none';
-	document.getElementById('takephotos').style['display']='none';
-	document.getElementById('browser').style['display'] = 'none';
+	this.showpages();
 	document.getElementById('takemovies').style['display'] = '';
-	document.getElementById('notimback').style['display'] = 'none';
+	document.getElementById('tomov').classList.add('active');
 	window.scrollTo({ top: 0 });
 	this.imbmode = 1;
 }
@@ -22587,28 +22580,15 @@ showdisconnect(alsoerr) {
 }
 /* ImBCHtml: browserdisplay: open visual browser */
 showbrowseri() {
-	document.getElementById('phpv').src="";
 	if (this.imbeles.length === 0) return this.showlocal();
+	this.showpages();
 	this.dispmode = 2;
-	const norm = document.getElementById('normal');
-	const splash = document.getElementById('splash');
-	const quest = document.getElementById('question');
-	if (quest) quest.style['display'] = 'none';
-	if (norm) norm.style['display'] = 'none';
-	if (splash) splash.style['display'] = 'none';
-	document.getElementById('progokbut').disabled = true;
-	document.getElementById('progcancelbut').disabled = false;
-	document.getElementById('progmsg').innerHTML = '...';
-	document.getElementById('dlprogress').style['display'] = 'none';
-	document.getElementById('dlprogresslogbtn').style['display'] = 'none';
-	document.getElementById('dlprogresslogbtn').disabled = true;
-	window.onscroll = () => this.addallimgs();
-	window.onresize = () => this.addallimgs();
-	document.getElementById('msglog').style['display'] = 'none';
-	document.getElementById('takephotos').style['display']='none';
 	document.getElementById('browser').style['display'] = '';
-	document.getElementById('takemovies').style['display'] = 'none';
-	document.getElementById('notimback').style['display'] = 'none';
+	document.getElementById('tobrows').classList.add('active');
+	document.getElementById('browseselectors').style['display'] = '';
+	document.getElementById('nobrowse').style['display'] = 'none';
+	document.getElementById('delselbut').style['display'] = '';
+	document.getElementById('doselbut').style['display'] = '';
 	window.scrollTo({ top: 0 })
 	this.imbmode = 2;
 	this.addallimgs();
@@ -22631,36 +22611,26 @@ showbrowser() {
 }
 /* ImBCHtml: show local file selection */
 showlocal() {
-	document.getElementById('phpv').src="";
-	const norm = document.getElementById('normal');
-	const splash = document.getElementById('splash');
-	const quest = document.getElementById('question');
-	if (quest) quest.style['display'] = 'none';
-	if (norm) norm.style['display'] = 'none';
-	if (splash) splash.style['display'] = 'none';
-	document.getElementById('progokbut').disabled = true;
-	document.getElementById('progcancelbut').disabled = false;
-	document.getElementById('dlprogress').style['display'] = 'none';
-	window.onscroll = () => this.addallimgs();
-	window.onresize = () => this.addallimgs();
-	document.getElementById('msglog').style['display'] = 'none';
-	document.getElementById('takephotos').style['display']='none';
-	document.getElementById('browser').style['display'] = 'none';
-	document.getElementById('takemovies').style['display'] = 'none';
+	this.showpages();
 	document.getElementById('notimback').style['display'] = '';
+	document.getElementById('toloc').classList.add('active');
+}
+/* ImBCHtml: show download progress (start) */
+showdlprog() {
+	document.getElementById('dlprogress').style['display']='';
+	document.getElementById('dlprogresslogbtn').style['display'] = '';
+	document.getElementById('dlprogresslogbtn').disabled = true;
+	document.getElementById('progcancelbut').disabled = false;
+	document.getElementById('progokbut').disabled = true;
+	this.closeham();
+	document.getElementById('progmsg').innerHTML = '...';
+	document.getElementById('pages').style['display'] = 'none';
 }
 /* ImBCHtml: show message log */
 showlog() {
+	document.getElementById('pages').style['display'] = 'none';
 	document.getElementById('phpv').src="";
-	const norm = document.getElementById('normal');
-	const quest = document.getElementById('question');
-	document.getElementById('browser').style['display'] = 'none';
-	quest.style['display'] = 'none';
-	norm.style['display'] = 'none';
 	document.getElementById('msglog').style['display'] = '';
-	document.getElementById('takephotos').style['display']='none';
-	document.getElementById('takemovies').style['display']='none';
-	document.getElementById('notimback').style['display']='none';
 	document.getElementById('dlprogress').style['display']='none';
 	window.setTimeout(() => { this.showlastmsg(); }, 100);
 }
@@ -22698,7 +22668,6 @@ aftercheck() {
 	document.getElementById('movcnt').removeAttribute('data-myxlkey');
 	document.getElementById('imbdoit').disabled = false;
 	document.getElementById('imbvisbrows').disabled = false;
-	document.getElementById('notimback').style['display'] = 'none';
 	//if (this.untypedclasses[0].title) return;
 	for (const x of this.untypedclasses) {
 		if (x.title) continue;
@@ -22805,11 +22774,6 @@ aftercheck() {
 		if (this.appname === 'imbapp') this.showmain();
 		this.buildtree();
 	}
-	/* debug * /
-	if (debugflag) {
-		for (const s of untypedclasses.filter((o) => o.level === 2)) prgr(s,1);
-		for (const s of typedclasses.filter((o) => o.level === 1)) prgr(s,1);
-	} */
 }
 /* ImBCHtml: visual browser: build ordered lists */
 buildtree() {
@@ -23189,7 +23153,7 @@ topreccheck(force) {
 	}
 	document.getElementById('brnsel').innerHTML = '' + res;
 	document.getElementById('selall').checked = (res === sum);
-	document.getElementById('delselbut').disabled = (res === 0);
+	document.getElementById('delselbut').disabled = (this.disconnected || (res === 0));
 	document.getElementById('doselbut').disabled = (res === 0);
 }
 /* ImBCHtml: visual browser: fill a html div into an imbele */
@@ -23275,10 +23239,7 @@ topreccheck(force) {
 		this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
 		this.actnum = 0;
 		this.allfiles = selecteds;
-		document.getElementById('dlprogress').style['display'] = '';
-		this.closeham();
-		document.getElementById('progmsg').innerHTML = '...';
-		document.getElementById('browser').style['display'] = 'none';
+		this.showdlprog();
 		this.#startloadimg();
 	};
 	
@@ -23557,11 +23518,7 @@ browserprocess() {
 		document.getElementById('infile').disabled = true
 		this.#rotphase = 1;
 		this.fromvisbrows = true;
-		document.getElementById('dlprogress').style['display'] = '';
-		this.closeham();
-		document.getElementById('dlprogresslogbtn').style['display'] = '';
-		document.getElementById('dlprogresslogbtn').disabled = true;
-		document.getElementById('browser').style['display'] = 'none';
+		this.showdlprog();
 		this.#startloadimg();
 		this.topreccheck(false);
 	} else {
@@ -23963,17 +23920,11 @@ showquestion() {
 shownormal() {
 	document.getElementById('phpv').src="";
 	this.custcmdB(3019, 'document', undefined, () => {
+		document.getElementById('pages').style['display'] = 'none';
 		window.onscroll = () => undefined;
 		window.onresize = () => undefined;
 		const norm = document.getElementById('normal');
-		const quest = document.getElementById('question');
-		document.getElementById('browser').style['display'] = 'none';
-		quest.style['display'] = 'none';
 		norm.style['display'] = '';
-		document.getElementById('takephotos').style['display']='none';
-		document.getElementById('takemovies').style['display']='none';
-		document.getElementById('notimback').style['display']='none';
-		document.getElementById('dlprogress').style['display']='none';
 		window.setTimeout(() => { this.showlastmsg(); }, 100);
 	});
 }
@@ -24683,6 +24634,7 @@ settime() {
 }
 /* ImBCHtml: info screen */
 appinfo() {
+	document.getElementById('pages').style['display'] = 'none';
 	document.getElementById('phpv').src="";
 	document.getElementById('genericok').style['border-color'] = 'grey';
 	document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('main.apptitle'));
@@ -24756,6 +24708,7 @@ takemovie() {
 	this.custcmdB(2001, 'document', 'par=1', (rc/*, doc*/) => {
 		this.imgsdirty = true;
 		if (rc >= 0) {
+			document.getElementById('pages').style['display'] = 'none';
 			document.getElementById('movieprogress').style['display'] = '';
 			document.getElementById('takemovies').style['display'] = 'none';
 		}
@@ -24818,8 +24771,7 @@ function init() {
 		if (this.exitmode === 'movie') ex = 1;
 		else if (this.exitmode === 'browse') ex = 2;
 		imbc.custcmdB( 3001,  'document', ('par=' + ex));
-		if (document.getElementById('browser').style['display'] === 'none' && document.getElementById('takephotos').style['display'] === 'none' && document.getElementById('takemovies').style['display'] === 'none'
-			 	&& document.getElementById('notimback').style['display'] === 'none') {
+		if (document.getElementById('pages').style['display'] === 'none') {
 			imbc.showmain();
 			return true;
 		}
@@ -25476,6 +25428,31 @@ function readjpg(file) {
 </div>
 </div>
 <!-- splash end -->
+<!-- connected ! (unused in app) -->
+<div id="onimback" style="background-color:#ffffbb;border: 5px solid #ffff88;border-radius: 10px;width:fit-content;padding:1em;display:none;"><div style="font-size:133%;" data-myxlkey="onimback.connected">&nbsp;<br></div>
+<span data-myxlkey="onimback.dlconvert"></span><br>
+<input checked type="checkbox" id="rpicfromimb"><label for="rpicfromimb" id="rpiclbl" data-myxlkey="main.types.rawpics"></label>, <span data-myxlkey="onimback.totalnum"></span> <span id="rpiccnt" data-myxlkey="main.stillcounting"></span> <span id="rpicinterval" style="display:none;"></span>
+<br><input checked type="checkbox" id="picfromimb"><label for="picfromimb" id="piclbl" data-myxlkey="main.types.jpgpics"></label>, <span data-myxlkey="onimback.totalnum"></span> <span id="piccnt" data-myxlkey="main.stillcounting"></span> <span id="picinterval" style="display:none;"></span> 
+<br><input checked type="checkbox" id="movfromimb"><label for="movfromimb" id="movlbl" data-myxlkey="main.types.other"></label>, <span data-myxlkey="onimback.totalnum"></span> <span id="movcnt" data-myxlkey="main.stillcounting"></span> <span id="movinterval" style="display:none;"></span><br>
+<span data-myxlkey="onimback.fromtime"></span> <input type="text" maxlength="19" id="imbstartts" inlength="0" placeholder="YYYY_MM_DD-hh_mm_ss" pattern="[0-9][0-9][0-9][0-9](_[0-9][0-9](_[0-9][0-9]-([0-9][0-9](_[0-9]([0-9](_[0-9][0-9])*)*)*)*)*)*"> (<span data-myxlkey="onimback.nullforall"></span>) <br>
+<input onclick="imbc.imbdoit()" type="button" data-myvalxlkey="onimback.doit" id="imbdoit" disabled><br>
+<span data-myxlkey="main.or"></span> <input type="button" data-myvalxlkey="onimback.visual" id="imbvisbrows" onclick="imbc.showbrowser()" disabled>.
+</div>
+<!-- end of connected (unused in app) -->
+<!-- normal preview with question (unused in app) -->
+<div id="question" style="display:none;background-color:#ddffaa;border: 5px solid #33ff33; border-radius: 10px;width: fit-content;padding:2em;">
+<div style="font-weight:bold;" id="qhdr">&nbsp;</div>
+<canvas id="preview"></canvas><img style="display:none;max-width:550px; max-height:550px;" id="jpegpreview" onload="imbc.setjpegpv()" onerror="imbc.setpverr()"><div id="previewerr" data-myxlkey="preview.err"></div><div id="previewwait">
+<span class="blink">.</span><span class="blink2">.</span><span class="blink3">.</span></div><br>
+<div id="rotations"><input type="button" id="procthiscw" data-myvalxlkey="preview.rotcw" onclick="imbc.rotcw()" style="padding:0.5em; margin:0.5em;margin-left:2.5em;">
+<input type="button" id="procthisccw" data-myvalxlkey="preview.rotccw" onclick="imbc.rotccw()" style="padding:0.5em; margin:0.5em;">
+<input type="button" id="procthisud" data-myvalxlkey="preview.rot180" onclick="imbc.rot180()" style="padding:0.5em; margin:0.5em;" >
+<input type="button" id="procthisrs"data-myvalxlkey="preview.rotreset" data-mytitlexlkey="preview.rotreset.tooltip" value="Reset" onclick="imbc.rot0()" style="padding:0.5em; margin:0.5em;"></div>
+<div id="continues"><input type="button" id="procthis" data-myvalxlkey="preview.process" onclick="imbc.procthis()" style="padding:0.5em; margin:0.5em;">
+<input type="button" id="skipthis" data-myvalxlkey="preview.skip" value="Skip" onclick="imbc.skipthis()" style="padding:0.5em; margin:0.5em;">&nbsp;
+<span id="forrest"><input type="checkbox" id="doforall" style="padding-left:0.5em; margin-left:0.5em;"><label for="doforall" data-myxlkey="preview.forall"></label></span></div>
+</div>
+<!-- end of normal preview with question (unused in app) -->
 <!-- the normal display/settings -->
 <div id="normal"  style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
 <div style="position:fixed; top:0; width:100%;background-color:black;z-index:997;color:white;"><div>&nbsp;<span id="settx"><input type="button" value="&#x2190;" class="whbtn" style="font-size:200%;padding:0 !important; border:0 !important;" onclick="imbc.showmain()"></span>
@@ -25503,10 +25480,8 @@ function readjpg(file) {
 <span class="grtit ggttminus" onclick="ImBCHtml.closep(this);"> ImB </span>
 </div>
 <div class="igxtype" id="menufromimb">
-
 </div>
 </div>
-
 <div id="dngsett" class="gg ggopen">
 <div class="ggtt titletop ggttopen">
 <span class="ggttplus ggttp mmrr" onclick="ImBCHtml.openp(this);">&#x25b6;</span>
@@ -25529,28 +25504,53 @@ function readjpg(file) {
 <span id="setsettings"><input type="button" data-myvalxlkey="browser.setfrom" onclick="imbc.savesettings()"></input>&#xa0;<span id="setsettingsurl" data-myxlkey="browser.forurl"></span></span>
 <!-- here goes the save preferences .. -->
 </div>
-<!-- connected ! -->
-<div id="onimback" style="background-color:#ffffbb;border: 5px solid #ffff88;border-radius: 10px;width:fit-content;padding:1em;display:none;"><div style="font-size:133%;" data-myxlkey="onimback.connected">&nbsp;<br></div>
-<span data-myxlkey="onimback.dlconvert"></span><br>
-<input checked type="checkbox" id="rpicfromimb"><label for="rpicfromimb" id="rpiclbl" data-myxlkey="main.types.rawpics"></label>, <span data-myxlkey="onimback.totalnum"></span> <span id="rpiccnt" data-myxlkey="main.stillcounting"></span> <span id="rpicinterval" style="display:none;"></span>
-<br><input checked type="checkbox" id="picfromimb"><label for="picfromimb" id="piclbl" data-myxlkey="main.types.jpgpics"></label>, <span data-myxlkey="onimback.totalnum"></span> <span id="piccnt" data-myxlkey="main.stillcounting"></span> <span id="picinterval" style="display:none;"></span> 
-<br><input checked type="checkbox" id="movfromimb"><label for="movfromimb" id="movlbl" data-myxlkey="main.types.other"></label>, <span data-myxlkey="onimback.totalnum"></span> <span id="movcnt" data-myxlkey="main.stillcounting"></span> <span id="movinterval" style="display:none;"></span><br>
-<span data-myxlkey="onimback.fromtime"></span> <input type="text" maxlength="19" id="imbstartts" inlength="0" placeholder="YYYY_MM_DD-hh_mm_ss" pattern="[0-9][0-9][0-9][0-9](_[0-9][0-9](_[0-9][0-9]-([0-9][0-9](_[0-9]([0-9](_[0-9][0-9])*)*)*)*)*)*"> (<span data-myxlkey="onimback.nullforall"></span>) <br>
-<input onclick="imbc.imbdoit()" type="button" data-myvalxlkey="onimback.doit" id="imbdoit" disabled><br>
-<span data-myxlkey="main.or"></span> <input type="button" data-myvalxlkey="onimback.visual" id="imbvisbrows" onclick="imbc.showbrowser()" disabled>.
+<!-- end of the normal display/settings -->
+<!-- this is the messagelog, generated content appended -->
+<div id="msglog" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
+<div style="position:fixed; top:0; width:100%;background-color:black;z-index:997;color:white;"><div>&nbsp;<span id="msglogx"><input type="button" value="&#x2190;" class="whbtn" style="font-size:200%;padding:0 !important; border:0 !important;" onclick="imbc.showmain()"></span>
+<span class="whbtn disconnected" style="font-weight:bold;font-family:Symbol3;padding-left:0.4em;padding-right:0.4em;background-color:red !important;display:none;"> ! &#x1f593; ! </span>
 </div>
-<!-- end of connected -->
+</div>
+<div id="xmsg" style="width: fit-content;white-space: pre;"><span style="font-weight:bold;" data-myxlkey="main.log"></span><br>
+<div id="outmsg"></div></div>
+</div>
+<!-- end of the message log, generated content appended -->
+<div id="pages" style="display:none;"><!-- container for navigationable pages -->
+<!-- hamburger menu -->
+<div id="hammen" style="position:fixed; left: 0; width: fit-content; background-color:white; z-index:998; top:2em;color:black;display:none;border:1px solid gray;border-bottom-right-radius:10px;border-bottom-left-radius:10px;">
+<div class="hammenent" onclick="imbc.closeham();imbc.settime()"><span  style="font-family:Symbol3;">&#x1f570;</span> <span data-myxlkey='app.menu.settime'>Set ImB Time</span></div>
+<div class="hammenent" id="hamlog" onclick="imbc.closeham();imbc.showlog();"><span  style="font-family:Symbol3;">&#x1f5ce;</span> <span data-myxlkey='app.menu.msglog'>Msg Log</span></div>
+<div class="hammenent" onclick="imbc.closeham();imbc.shownormal();">&#x2699; <span data-myxlkey='app.menu.settings'>Settings</span></div>
+<div class="hammenent" onclick="imbc.closeham();imbc.appinfo();"><span style="font-weight:bold;">?</span> <span data-myxlkey='app.menu.info'>Info</span></div>
+<div class="hammenent" id="quitelem" onclick="imbc.closeham();imbc.doquit();"><span style="font-weight:bold;">&lt;<span style="margin-left:-0.2em;">&ndash;</span></span> <span data-myxlkey='app.menu.quit'>Quit</span></div>
+</div>
+<!-- end of hamburger menu -->
+<!-- navigation header -->
+<div id="navheader" style="position:fixed; top:0; width:100%;background-color:black;z-index:997;color:white;"><div>&nbsp;
+<span class="browserx"><input type="button" value="&#x2261;" style="padding-left: 0em; margin-top: -0.3em; margin-bottom: -0.5em;font-size:200%;border:0 !important;" class="whbtn" id="hamb" onclick="imbc.handleham();"></span>
+<input type="button" value="&#x1f5d1;" class="whbtn" onclick="imbc.browserdelete()" id="delselbut" disabled style="font-family:Symbol3;padding-left: 0.3em; padding-right:0.3em;" data-mytitlexlkey="browser.delall"> 
+<input type="button" style="font-family:Symbol3;" value="&#x2b73;" class="whbtn" onclick="imbc.browserprocess()" id="doselbut" disabled data-mytitlexlkey="browser.procall"> 
+<input type="button" class="whbtn" value="&#x26f0;" id="tobrows" onclick="imbc.dispmode=2;imbc.showbrowser();imbc.closeham();" style="font-family:Symbol3;padding-left:0.3em;padding-right:0.2em;font-weight:normal;">
+<input type="button" class="whbtn photosym" value="&#x1f4f7;" id="tophot" onclick="imbc.dispmode=0;imbc.showphoto();imbc.closeham();" style="font-family:Symbol3;padding-left:0.3em;padding-right:0.2em;font-weight:normal;">
+<input type="button" class="whbtn moviesym" value="&#x1f3ac;" id="tomov" onclick="imbc.dispmode=1;imbc.showmovie();imbc.closeham();" style="font-family:Symbol3;padding-left:0.4em;padding-right:0.4em;">
+<input type="button" class="whbtn foldersym" value="&#x1f5c2;" id="toloc" onclick="imbc.dispmode=3;imbc.showlocal();imbc.closeham();" style="font-family:Symbol3;padding-left:0.2em;padding-right:0.2em;">
+<span class="whbtn disconnected" style="padding-left:0.4em;padding-right:0.4em;display:none;"> ! &#x1f593; ! &#x1f5be; ! </span>
+<input type="button" data-myvalxlkey="app.install" class="whbtn" onclick="if (bfep) bfep.prompt(); bpef=null; this.style['display']='none';" id="installbutton" style="display:none;font-weight:bold;position:absolute; right:0.5em;">
+</div>
+<div id="browseselectors" style="margin-bottom:0.3em;font-size:85%;">&nbsp;<span data-myxlkey="main.sort" style="display:none;"></span> <label for="sbytype"><input type="checkbox" id="sbytype" onclick="imbc.buildtree()"><span data-myxlkey="browser.bytype"></span></label> - <label for="solder">
+<input type="checkbox" id="solder" onclick="imbc.buildtree()"><span data-myxlkey="browser.olderfirst"></span></label> -
+ <span id="brnsel" class="selnumber">?</span> / <span id="brntot">?</span> <label for="selall" data-mytitlexlkey="browser.selall.tooltip">
+ <input onclick="imbc.topreccheck()" type="checkbox" id="selall"><!--span data-myxlkey="browser.selall"></span--></label><!-- - --> 
+ </div>
+ <div id="nobrowse">&nbsp;</div>
+</div>
+<!-- end of navigation header -->
+<!-- this is the picture browser, generated content appended -->
+<div id="browser" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
+</div>
+<!-- end of the picture browser, generated content appended -->
 <!-- enter local files -->
 <div id="notimback" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
-<div style="position:fixed; top:0; width:100%;background-color:black;z-index:997;color:white;padding-top:0.2em;"><div>&nbsp;
-<span class="browserx"><input type="button" id="locham" value="&#x2261;" style="padding-left: 0em; margin-top: -0.3em; margin-bottom: -0.5em;font-size:200%;border:0 !important;" class="whbtn" onclick="imbc.handleham();"></span>
-<input type="button" class="whbtn" id="loc2brows" onclick="imbc.dispmode=2;imbc.showbrowser();imbc.closeham();" value="&#x26f0;" style="font-family:Symbol3;padding-left:0.3em;padding-right:0.2em;font-weight:normal;">
-<input type="button" class="whbtn photosym" id="loc2phot" onclick="imbc.closeham();" value="&#x1f4f7;" style="font-family:Symbol3;padding-left:0.3em;padding-right:0.2em;font-weight:normal;color:red;">
-<input type="button" class="whbtn moviesym" id="loc2bmov" onclick="imbc.dispmode=1;imbc.showmovie();imbc.closeham();" value="&#x1f3ac;" style="font-family:Symbol3;padding-left:0.4em;padding-right:0.4em;">
-<input type="button" class="whbtn foldersym" value="&#x1f5c2;" onclick="imbc.closeham();" style="font-family:Symbol3;padding-left:0.2em;padding-right:0.2em;color:red;">
-<span class="whbtn disconnected" style="padding-left:0.4em;padding-right:0.4em;display:none;"> ! &#x1f593; ! &#x1f5be; ! </span>
-</div><div>&nbsp;</div>
-</div>
 <div  style="font-size:133%;margin-top: 0.5em;" data-myxlkey="main.drophere"></div>
 <div id="droptarget" ondrop="imbc.drophandler(event);" ondragenter="imbc.prevdef(event);" ondragover="imbc.prevdef(event);" style="border: 5px solid blue;border-radius: 10px;width:300px; height:70px;background-color: rgba(0,0,255,0.2);"></div><br>
 <div  style="font-size:75%; background-color:rgba(0,0,255,0.1);width:fit-content;margin-top:-0.7em;color:#808080;">
@@ -25562,68 +25562,9 @@ function readjpg(file) {
 </div><br>
 </div>
 <!-- end of the normal display -->
-<!-- normal preview with question -->
-<div id="question" style="display:none;background-color:#ddffaa;border: 5px solid #33ff33; border-radius: 10px;width: fit-content;padding:2em;">
-<div style="font-weight:bold;" id="qhdr">&nbsp;</div>
-<canvas id="preview"></canvas><img style="display:none;max-width:550px; max-height:550px;" id="jpegpreview" onload="imbc.setjpegpv()" onerror="imbc.setpverr()"><div id="previewerr" data-myxlkey="preview.err"></div><div id="previewwait">
-<span class="blink">.</span><span class="blink2">.</span><span class="blink3">.</span></div><br>
-<div id="rotations"><input type="button" id="procthiscw" data-myvalxlkey="preview.rotcw" onclick="imbc.rotcw()" style="padding:0.5em; margin:0.5em;margin-left:2.5em;">
-<input type="button" id="procthisccw" data-myvalxlkey="preview.rotccw" onclick="imbc.rotccw()" style="padding:0.5em; margin:0.5em;">
-<input type="button" id="procthisud" data-myvalxlkey="preview.rot180" onclick="imbc.rot180()" style="padding:0.5em; margin:0.5em;" >
-<input type="button" id="procthisrs"data-myvalxlkey="preview.rotreset" data-mytitlexlkey="preview.rotreset.tooltip" value="Reset" onclick="imbc.rot0()" style="padding:0.5em; margin:0.5em;"></div>
-<div id="continues"><input type="button" id="procthis" data-myvalxlkey="preview.process" onclick="imbc.procthis()" style="padding:0.5em; margin:0.5em;">
-<input type="button" id="skipthis" data-myvalxlkey="preview.skip" value="Skip" onclick="imbc.skipthis()" style="padding:0.5em; margin:0.5em;">&nbsp;
-<span id="forrest"><input type="checkbox" id="doforall" style="padding-left:0.5em; margin-left:0.5em;"><label for="doforall" data-myxlkey="preview.forall"></label></span></div>
-</div>
-<!-- end of normal preview with question -->
-<!-- hamburger menu -->
-<div id="hammen" style="position:fixed; left: 0; width: fit-content; background-color:white; z-index:998; top:2em;color:black;display:none;border:1px solid gray;border-bottom-right-radius:10px;border-bottom-left-radius:10px;">
-<div class="hammenent" onclick="imbc.closeham();imbc.settime()"><span  style="font-family:Symbol3;">&#x1f570;</span> <span data-myxlkey='app.menu.settime'>Set ImB Time</span></div>
-<div class="hammenent" id="hamlog" onclick="imbc.closeham();imbc.showlog();"><span  style="font-family:Symbol3;">&#x1f5ce;</span> <span data-myxlkey='app.menu.msglog'>Msg Log</span></div>
-<div class="hammenent" onclick="imbc.closeham();imbc.shownormal();">&#x2699; <span data-myxlkey='app.menu.settings'>Settings</span></div>
-<div class="hammenent" onclick="imbc.closeham();imbc.appinfo();"><span style="font-weight:bold;">?</span> <span data-myxlkey='app.menu.info'>Info</span></div>
-<div class="hammenent" id="quitelem" onclick="imbc.closeham();imbc.doquit();"><span style="font-weight:bold;">&lt;<span style="margin-left:-0.2em;">&ndash;</span></span> <span data-myxlkey='app.menu.quit'>Quit</span></div>
-</div>
-<!-- end of hamburger menu -->
-<!-- this is the picture browser, generated content appended -->
-<div id="browser" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
-<div id="browseheader" style="position:fixed; top:0; width:100%;background-color:black;z-index:997;color:white;"><div>&nbsp;<span class="browserx"><input type="button" value="&#x2261;" style="padding-left: 0em; margin-top: -0.3em; margin-bottom: -0.5em;font-size:200%;border:0 !important;" class="whbtn" id="browsham" onclick="imbc.handleham();"></span>
-<input type="button" value="&#x1f5d1;" class="whbtn" onclick="imbc.browserdelete()" id="delselbut" disabled style="font-family:Symbol3;padding-left: 0.3em; padding-right:0.3em;" data-mytitlexlkey="browser.delall"> 
-<input type="button" style="font-family:Symbol3;" value="&#x2b73;" class="whbtn" onclick="imbc.browserprocess()" id="doselbut" disabled data-mytitlexlkey="browser.procall"> 
-<input type="button" class="whbtn" value="&#x26f0;" style="color:red;font-family:Symbol3;padding-left:0.3em;padding-right:0.2em;font-weight:normal;">
-<input type="button" class="whbtn photosym" value="&#x1f4f7;" id="brows2phot" onclick="imbc.dispmode=0;imbc.showphoto();imbc.closeham();" style="font-family:Symbol3;padding-left:0.3em;padding-right:0.2em;font-weight:normal;">
-<input type="button" class="whbtn moviesym" value="&#x1f3ac;" id="brows2mov" onclick="imbc.dispmode=1;imbc.showmovie();imbc.closeham();" style="font-family:Symbol3;padding-left:0.4em;padding-right:0.4em;">
-<input type="button" class="whbtn foldersym" value="&#x1f5c2;" id="brows2loc" onclick="imbc.dispmode=3;imbc.showlocal();imbc.closeham();" style="font-family:Symbol3;padding-left:0.2em;padding-right:0.2em;">
-<span class="whbtn disconnected" style="padding-left:0.4em;padding-right:0.4em;display:none;"> ! &#x1f593; ! &#x1f5be; ! </span>
-<input type="button" data-myvalxlkey="app.install" class="whbtn" onclick="if (bfep) bfep.prompt(); bpef=null; this.style['display']='none';" id="installbutton" style="display:none;font-weight:bold;position:absolute; right:0.5em;">
-</div>
-<div style="margin-bottom:0.3em;font-size:85%;">&nbsp;<span data-myxlkey="main.sort" style="display:none;"></span> <label for="sbytype"><input type="checkbox" id="sbytype" onclick="imbc.buildtree()"><span data-myxlkey="browser.bytype"></span></label> - <label for="solder">
-<input type="checkbox" id="solder" onclick="imbc.buildtree()"><span data-myxlkey="browser.olderfirst"></span></label> -
- <span id="brnsel" class="selnumber">?</span> / <span id="brntot">?</span> <label for="selall" data-mytitlexlkey="browser.selall.tooltip">
- <input onclick="imbc.topreccheck()" type="checkbox" id="selall"><!--span data-myxlkey="browser.selall"></span--></label><!-- - --> 
- </div> </div>
-</div>
-<!-- end of the picture browser, generated content appended -->
-<!-- this is the messagelog, generated content appended -->
-<div id="msglog" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
-<div style="position:fixed; top:0; width:100%;background-color:black;z-index:997;color:white;"><div>&nbsp;<span id="msglogx"><input type="button" value="&#x2190;" class="whbtn" style="font-size:200%;padding:0 !important; border:0 !important;" onclick="imbc.showmain()"></span>
-<span class="whbtn disconnected" style="font-weight:bold;font-family:Symbol3;padding-left:0.4em;padding-right:0.4em;background-color:red !important;display:none;"> ! &#x1f593; ! </span>
-</div>
-</div>
-<div id="xmsg" style="width: fit-content;white-space: pre;"><span style="font-weight:bold;" data-myxlkey="main.log"></span><br>
-<div id="outmsg"></div></div>
-</div>
-<!-- end of the message log, generated content appended -->
 <!-- this is the take photos page -->
 <div id="takephotos" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
-<div style="position:fixed; top:0; width:100%;background-color:black;z-index:997;color:white;padding-top:0.2em;"><div>&nbsp;<span class="browserx"><input type="button" value="&#x2261;" style="padding-left: 0em; margin-top: -0.3em; margin-bottom: -0.5em;font-size:200%;border:0 !important;" class="whbtn" id="photham" onclick="imbc.handleham();"></span>
-<input type="button" class="whbtn" id="phot2brows" onclick="imbc.dispmode=2;imbc.showbrowser();imbc.closeham();" value="&#x26f0;" style="font-family:Symbol3;padding-left:0.3em;padding-right:0.2em;font-weight:normal;">
-<input type="button" class="whbtn photosym" onclick="imbc.closeham();" value="&#x1f4f7;" style="font-family:Symbol3;padding-left:0.3em;padding-right:0.2em;font-weight:normal;color:red;">
-<input type="button" class="whbtn moviesym" id="phot2mov" onclick="imbc.dispmode=1;imbc.showmovie();imbc.closeham();" value="&#x1f3ac;" style="font-family:Symbol3;padding-left:0.4em;padding-right:0.4em;">
-<input type="button" class="whbtn foldersym" value="&#x1f5c2;" id="phot2loc" onclick="imbc.dispmode=3;imbc.showlocal();imbc.closeham();" style="font-family:Symbol3;padding-left:0.2em;padding-right:0.2em;">
-<span class="whbtn disconnected" style="padding-left:0.4em;padding-right:0.4em;display:none;"> ! &#x1f593; ! </span>
-</div><div>&nbsp;</div>
-</div><div style="display:flex;flex-flow:wrap;">
+<div style="display:flex;flex-flow:wrap;">
 <input type="button" onclick="imbc.takephoto()" style="font-weight:bold;font-size:200%;background-color:red;width:97px;height:97px;margin:10px;font-family:Symbol3;border-radius:50%;margin-right: 30px;" value="&#x1f4f7; !">&nbsp;
 	<div id="takenpic" class="onepic" style="border:1px solid grey; border-radius:10px;width:fit-content; height:fit-content;border:1em solid black;">
 		<!--div class="labelholder">
@@ -25652,19 +25593,12 @@ function readjpg(file) {
 <!-- end of the take photos -->
 <!-- this is the take movies page -->
 <div id="takemovies" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
-<div style="position:fixed; top:0; width:100%;background-color:black;z-index:997;color:white;padding-top:0.2em;"><div>&nbsp;<span class="browserx"><input type="button" value="&#x2261;" style="padding-left: 0em; margin-top: -0.3em; margin-bottom: -0.5em;font-size:200%;border:0 !important;" class="whbtn" id="movham" onclick="imbc.handleham();"></span>
-<input type="button" class="whbtn" id="mov2brows" onclick="imbc.dispmode=2;imbc.showbrowser();imbc.closeham();" value="&#x26f0;" style="font-family:Symbol3;padding-left:0.3em;padding-right:0.2em;font-weight:normal;">
-<input type="button" class="whbtn photosym" id="mov2phot" onclick="imbc.dispmode=0;imbc.showphoto();imbc.closeham();" value="&#x1f4f7;" style="font-family:Symbol3;padding-left:0.3em;padding-right:0.2em;font-weight:normal;">
-<input type="button" class="whbtn moviesym" onclick="imbc.closeham();" value="&#x1f3ac;" style="font-family:Symbol3;padding-left:0.4em;padding-right:0.4em;color:red;">
-<input type="button" class="whbtn foldersym" id="mov2loc" value="&#x1f5c2;" onclick="imbc.dispmode=3;imbc.showlocal();imbc.closeham();" style="font-family:Symbol3;padding-left:0.2em;padding-right:0.2em;">
-<span class="whbtn disconnected" style="padding-left:0.4em;padding-right:0.4em;display:none;"> ! &#x1f593; ! &#x1f5be; ! </span>
-</div><div>&nbsp;</div>
-</div>
 <div style="display:flex;flex-flow:wrap;">
 <input type="button" onclick="imbc.takemovie()" style="font-weight:bold;font-size:200%;background-color:red;width:97px;height:97px;margin:10px;font-family:Symbol3;border-radius:50%;margin-right: 30px;" value="&#x1f3ac; !">&nbsp;
 	<div data-myxlkey="app.livehint" data-myxlarg0='rtsp://192.168.1.254/stream0/svc0/' style="align-self:center;margin:3em;"> </div>
 </div></div>
 <!-- end of the take movies -->
+</div><!-- end of container for navigationable pages -->
 <!-- this is the wait for stop movie -->
 <div id="movieprogress" style="border: 5px solid blue; border-radius: 20px; padding: 20px;display:none;width:fit-content;">
 <div style="font-weight:bold;" id="progmoviemsg">&#x23f1;</div>
