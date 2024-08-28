@@ -497,7 +497,7 @@ describe('E Convert Raw from Imback APP', function() {
 				.click()
 				.pause(1000)
 				.perform();
-			const cb = await driver.findElement(By.id('mov2brows'));
+			const cb = await driver.findElement(By.id('tobrows'));
 			await driver.actions({ async: true}).pause(900).perform();
 			await driver.actions({ async: true })
 				.move({ origin: cb })
@@ -526,7 +526,7 @@ describe('E Convert Raw from Imback APP', function() {
 				.click()
 				.pause(1900)
 				.perform();
-			const hm = await driver.findElement(By.id('browsham'));
+			const hm = await driver.findElement(By.id('hamb'));
 			await driver.actions({ async: true })
 				.move({ origin: hm })
 				.pause(300)
@@ -576,7 +576,7 @@ describe('F Convert Raw Local APP', function() {
 			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw');
 			await driver.actions({async: true}).pause(900).perform();
 			await driver.actions({async: true}).clear();
-			const okb = await driver.findElement(By.id('progokbut'));
+			const okb = await driver.findElement(By.id('dlprogresslogbtn'));
 			await driver.actions({ async: true })
 				.move({ origin: okb })
 				.pause(300)
@@ -585,226 +585,8 @@ describe('F Convert Raw Local APP', function() {
 				.perform();
 			//await fi.clear();
 	});
-	/*it('A.2 Convert with question and rotation', async function dotest() {
-			this.timeout(9000);
-			const cb = await driver.findElement(By.id('steppreview'));
-			const sel = await cb.isSelected();
-			if (!sel) {
-				console.log('......turning on single step');
-				await driver.actions({ async: true })
-					.move({ origin: cb })
-					.pause(300)
-					.click()
-					.pause(300)
-					.perform();
-			}
-			const fi = await driver.findElement(By.id('infile'));
-			await fi.clear();
-			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2024_1015_123011_001.raw');
-			const rcw = await driver.findElement(By.id('procthiscw'));
-			await driver.actions({async: true})
-				.pause(300).move({origin: rcw}).pause(300).click().pause(300).perform();
-			const doit = await driver.findElement(By.id('procthis'));
-			await driver.actions({async: true})
-				.move({origin: doit}).pause(300).click().pause(300).perform();
-			await driver.actions({async: true}).pause(1900).perform();
-			await driver.actions({async: true}).clear();
-	});
-	it('A.3 Convert with question and more rotation', async function dotest() {
-			this.timeout(11000);
-			const cb = await driver.findElement(By.id('steppreview'));
-			const sel = await cb.isSelected();
-			if (!sel) {
-				console.log('......turning on single step');
-				await driver.actions({ async: true })
-					.move({ origin: cb })
-					.pause(300)
-					.click()
-					.pause(300)
-					.perform();
-			}
-			const fi = await driver.findElement(By.id('infile'));
-			await fi.clear();
-			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw\n' + TESTDAT + '/IMBACK/PHOTO/2024_1015_123011_001.raw');
-			const rcw = await driver.findElement(By.id('procthisccw'));
-			await driver.actions({async: true})
-				.pause(300).move({origin: rcw}).pause(300).click().pause(300).perform();
-			await driver.actions({async: true})
-				.pause(300).move({origin: rcw}).pause(300).click().pause(300).perform();
-			const rrs = await driver.findElement(By.id('procthisrs'));
-			await driver.actions({async: true})
-				.pause(300).move({origin: rrs}).pause(300).click().pause(300).perform();
-			const doit = await driver.findElement(By.id('procthis'));
-			await driver.actions({async: true})
-				.move({origin: doit}).pause(300).click().pause(300).perform();
-			await driver.actions({async: true}).pause(900).perform();
-			const doit2 = await driver.findElement(By.id('procthis'));
-			await driver.actions({async: true})
-				.move({origin: doit2}).pause(300).click().pause(300).perform();
-			await driver.actions({async: true}).pause(900).perform();
-			await driver.actions({async: true}).clear();
-	});
-	it('A.4 Convert to zip with copyright', async function dotest() {
-			this.timeout(11000);
-			const cb = await driver.findElement(By.id('steppreview'));
-			const sel = await cb.isSelected();
-			if (sel) {
-				console.log('......turning off single step');
-				await driver.actions({ async: true })
-					.move({ origin: cb })
-					.pause(600)
-					.click()
-					.pause(200)
-					.perform();
-			}
-			const sel2 = await cb.isSelected();
-			if (sel2) {
-				console.log('......AGAIN turning off single step');
-				await driver.actions({ async: true })
-					.move({ origin: cb })
-					.pause(200)
-					.click()
-					.pause(200)
-					.perform();
-			}
-			const pv = await driver.findElement(By.id('dngpreview'));
-			const psel = await pv.isSelected();
-			if (psel) {
-				console.log('......turning off preview');
-				await driver.actions({ async: true })
-					.move({ origin: pv })
-					.pause(200)
-					.click()
-					.pause(300)
-					.perform();
-			}
-			const zipb = await driver.findElement(By.id('usezip'));
-			await driver.actions({async: true})
-				.pause(200).move({origin: zipb}).pause(300).click().pause(300).perform();
-			const crb = await driver.findElement(By.id('copycheck'));
-			await driver.actions({async: true})
-				.pause(300).move({origin: crb}).pause(300).click().pause(600).perform();
-			const copytext = await driver.findElement(By.id('copytext'));
-			await copytext.sendKeys('(c) Stefan Hegny debugging');
-			const fi = await driver.findElement(By.id('infile'));
-			await fi.clear();
-			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2023_1114_113011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2024_1015_123011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2029_0710_010203_001.raw');
-			// do something to make it flutsch
-			await driver.actions({async: true})
-				.pause(700).move({ origin: cb }).pause(700).perform();
-	});
-	it('A.5 Convert to zip with exif', async function dotest() {
-			this.timeout(11000);
-			const cb = await driver.findElement(By.id('steppreview'));
-			const zipb = await driver.findElement(By.id('usezip'));
-			await driver.actions({async: true})
-				.pause(200).move({origin: zipb}).pause(300).click().pause(300).perform();
-			const fi = await driver.findElement(By.id('infile'));
-			await fi.clear();
-			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2024_0217_121754_002.JPG' + '\n' + TESTDAT + '/IMBACK/PHOTO/2024_0217_121752_001.RAW');
-			// do something to make it flutsch
-			await driver.actions({async: true})
-				.pause(700).move({ origin: cb }).pause(700).perform();
-	});
-	it('A.6 Convert without date', async function dotest() {
-			this.timeout(11000);
-			const cb = await driver.findElement(By.id('steppreview'));
-			const sel = await cb.isSelected();
-			if (sel) {
-				console.log('......turning off single step');
-				await driver.actions({ async: true })
-					.move({ origin: cb })
-					.pause(600)
-					.click()
-					.pause(200)
-					.perform();
-			}
-			const sel2 = await cb.isSelected();
-			if (sel2) {
-				console.log('......AGAIN turning off single step');
-				await driver.actions({ async: true })
-					.move({ origin: cb })
-					.pause(200)
-					.click()
-					.pause(200)
-					.perform();
-			}
-			const pv = await driver.findElement(By.id('dngpreview'));
-			const psel = await pv.isSelected();
-			if (psel) {
-				console.log('......turning off preview');
-				await driver.actions({ async: true })
-					.move({ origin: pv })
-					.pause(200)
-					.click()
-					.pause(300)
-					.perform();
-			}
-			const fi = await driver.findElement(By.id('infile'));
-			await fi.clear();
-			await fi.sendKeys(TESTDAT0 + '/kb_large_10.raw\n' + TESTDAT0 + '/mf6x6_large_1.raw');
-			// do something to make it flutsch
-			await driver.actions({async: true})
-				.pause(700).move({ origin: cb }).pause(700).perform();
-	});
-	it('A.7 Old style wb', async function dotest() {
-			this.timeout(11000);
-			const cb = await driver.findElement(By.id('oldstylewb'));
-			const sel = await cb.isSelected();
-			if (!sel) {
-				console.log('......turning on old style wb');
-				await driver.actions({ async: true })
-					.move({ origin: cb })
-					.pause(600)
-					.click()
-					.pause(200)
-					.perform();
-			}
-			const cb2 = await driver.findElement(By.id('incdcp'));
-			const sel2 = await cb2.isSelected();
-			if (sel2) {
-				console.log('......turning off include DCP');
-				await driver.actions({ async: true })
-					.move({ origin: cb2 })
-					.pause(200)
-					.click()
-					.pause(200)
-					.perform();
-			}
-			const pv = await driver.findElement(By.id('dngpreview'));
-			const psel = await pv.isSelected();
-			if (!psel) {
-				console.log('......turning on preview');
-				await driver.actions({ async: true })
-					.move({ origin: pv })
-					.pause(200)
-					.click()
-					.pause(300)
-					.perform();
-			}
-			const fi = await driver.findElement(By.id('infile'));
-			await fi.clear();
-			await fi.sendKeys(TESTDAT0 + '/kb_large_10.raw\n' + TESTDAT0 + '/mf6x6_large_1.raw');
-			// do something to make it flutsch
-			await driver.actions({async: true})
-				.pause(700).move({ origin: cb }).pause(700).perform();
-	});*/
 	after(async function() {
 			this.timeout(36000);
-			const hm = await driver.findElement(By.id('locham'));
-			await driver.actions({ async: true })
-				.move({ origin: hm })
-				.pause(300)
-				.click()
-				.pause(600)
-				.perform();
-			const hml = await driver.findElement(By.id('hamlog'));
-			await driver.actions({ async: true })
-				.move({ origin: hml })
-				.pause(300)
-				.click()
-				.pause(600)
-				.perform();
 			let me = await driver.findElement(By.id('thebody'));
 			let ma = await me.getAttribute('data-err');
 			console.log('Message Content:');
