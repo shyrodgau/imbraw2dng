@@ -374,12 +374,11 @@ body { margin: 0; }
 .ggttclosed > div > .ggtt { display: none; }
 .ggclosed > .gg, .ggclosed .igtype, .ggclosed .igxtype { display: none !important; }
 .ggttminus, .ggttplus { cursor: pointer; display: inline-block; font-weight:normal !important; }
-.gg.empty { height: 11em; }
 .biggiebtn:not(.disabled), .dlbtn:not(.disabled) { cursor: pointer; }
 .dlbtn.biggiebtn { left: .1em; margin-top: -0.1em; }
 .biggiebtn.disabled { display: none; }
 .dlbtn:not(.biggiebtn) { vertical-align: bottom; font-weight: bold; }
-.igtype { display: flex; flex-flow: wrap;border-top: 0; padding:0.1em;}
+.igtype { display: flex; flex-flow: wrap;border-top: 0; padding:0.1em; min-height:9em; }
 .onepic { margin: -1px; width: fit-content; display: flex; flex-direction: column; padding: 0.1em;position: relative; }
 .eepvx { color: #777777; font-size: 100px; align-self: center; font-weight: bold; pointer-events:none;}
 .errimg { width: 163px;color: red; height:90px;font-size: 80px; text-align: center; font-weight: bold; }
@@ -22685,7 +22684,6 @@ aftercheck() {
 		cl.entry.id = 'gg_' + x + '_X';
 		cl.entry.classList.add('gg');
 		cl.entry.classList.add('ggopen');
-		cl.entry.classList.add('empty');
 		cl.entry.classList.add('gl5');
 		for (const y of this.imbeles) {
 			if (x === y.ts)
@@ -22709,7 +22707,6 @@ aftercheck() {
 		cl.entry = document.createElement('div');
 		cl.entry.id = 'gg_' + x + '_X';
 		cl.entry.classList.add('gg');
-		cl.entry.classList.add('empty');
 		cl.entry.classList.add('ggopen');
 		cl.entry.classList.add('gl5');
 		for (const y of this.imbeles) {
@@ -22736,7 +22733,6 @@ aftercheck() {
 			u.level --;
 			u.entry.classList.add('gl' + u.level);
 			u.entry.classList.remove('gl' + (u.level + 1));
-			u.entry.classList.remove('empty');
 		} else if (this.typedclasses.findIndex((o) => o.title === u.title.substring(0,3)) === -1) {
 			const cl = {
 				title: u.title.substring(0,3),
@@ -22748,7 +22744,6 @@ aftercheck() {
 			cl.entry = document.createElement('div');
 			cl.entry.id = 'gg_' + u.title.substring(0,3) + '_X';
 			cl.entry.classList.add('gg');
-			//cl.entry.classList.add('empty');
 			cl.entry.classList.add('ggopen');
 			cl.entry.classList.add('gl1');
 			for (const x of this.typedclasses.filter((o) => u.title.substring(0,3) === o.title.substring(0,3))) {
@@ -22795,11 +22790,11 @@ buildtree() {
 	// first, make everything empty
 	for (const e of this.untypedclasses) {
 		e.entry.remove();
-		this.#doclose(e, true);
+		//this.#doclose(e, true);
 	}
 	for (const e of this.typedclasses) {
 		e.entry.remove();
-		this.#doclose(e, true);
+		//this.#doclose(e, true);
 	}
 	for (const d of this.imbeles) {
 		if (undefined !== d.entry && null !== d.entry && d.entry.remove)
@@ -22918,6 +22913,7 @@ buildtree() {
 /* ImBCHtml: visual browser: add images sorted  */
 #addimgsorted(el) {
 	let rect = el.entry.getBoundingClientRect();
+	let rc = false;
 	if (rect.top > window.innerHeight || rect.bottom <= 0)
 		return;
 	if (el.fmembers !== null && el.fmembers !== undefined) {
@@ -22925,8 +22921,10 @@ buildtree() {
 			if (null === e.entry || undefined === e.entry) this.#displaydiv(e);
 			el.entry.querySelector('.igtype').append(e.entry);
 			e.nonewerr = false; // retry again if was error
+			rc = true;
 		}
 	}
+	return true;
 }
 /* ImBCHtml: visual browser: add sorted recursively */
 #addsorted(el) {
@@ -22973,43 +22971,39 @@ buildtree() {
 /* ImBCHtml: add images */
 addallimgs(gr, e) {
 	let retry = false;
-	setTimeout(() => {
-		if (!gr) {
-			let list;
-			if (document.getElementById('sbytype').checked) {
-				list = this.typedclasses;
-			}
-			else {
-				list = this.untypedclasses;
-			}
-			for (const xgr of list.sort((a,b) => this.#mysort(a, b))) {
-				const xe = xgr.entry;
-				let rect = xe.getBoundingClientRect();
-				if (rect.top > window.innerHeight || rect.bottom <= 0 || rect.width <= 0)
-					continue;
-				if (xgr.fmembers && xgr.fmembers.length > 0) {
-					xe.classList.remove('empty');
-					retry = true;
-					this.#addimgsorted(xgr);
-					this.#startloadimg();
-				} else {
-					xgr.smembers.map((m) => { this.addallimgs(m, m.entry) });
-				}
-			}
-			return;
+	if (!gr) {
+		let list;
+		if (document.getElementById('sbytype').checked) {
+			list = this.typedclasses;
 		}
-		if (gr.fmembers && gr.fmembers.length > 0 && !e.querySelector('.onepic')) {
-			e.classList.remove('empty');
-			retry = true;
-			this.#addimgsorted(gr);
-			this.#startloadimg();
-		} else
-			gr.smembers.map((m) => { this.addallimgs(m, m.entry) });
-		if (retry) {
-			retry = false;
+		else {
+			list = this.untypedclasses;
+		}
+		for (const xgr of list.sort((a,b) => this.#mysort(a, b))) {
+			const xe = xgr.entry;
+			let rect = xe.getBoundingClientRect();
+			if (rect.top > window.innerHeight || rect.bottom <= 0 || rect.width <= 0)
+				continue;
+			if (xgr.fmembers && xgr.fmembers.length > 0) {
+				retry |= this.#addimgsorted(xgr);
+				this.#startloadimg();
+			} else {
+				xgr.smembers.map((m) => { this.addallimgs(m, m.entry); });
+			}
+		}
+		return;
+	}
+	if (gr.fmembers && gr.fmembers.length > 0 && !e.querySelector('.onepic')) {
+		retry |= this.#addimgsorted(gr);
+		this.#startloadimg();
+	} else
+		gr.smembers.map((m) => { this.addallimgs(m, m.entry) });
+	if (retry) {
+		retry = false;
+		setTimeout(() => {
 			this.addallimgs();
-		}
-	},100);
+		}, 100);
+	}
 }
 /* ImBCHtml: visual browser: select all from top */
 topreccheck(force) {
