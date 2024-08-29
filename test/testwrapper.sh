@@ -36,10 +36,9 @@ rm ~/Downloads/imbraw2dng_test_${testid}_endmark ~/Downloads/imbraw2dng_test_${t
 
 kk=1
 for f in $( ls ${TESTWORK}/outdir/html/imb*zip | sort ); do
-	r=$( basename $f )
-	nn=$( echo $f | sed 's/\(imb[^_]*_\)[0-9]*_/\1_'$kk'_/g' )
+	nn=$( basename "$f" | sed 's/\(imb[^_]*_\)[0-9]*_/\1'$kk'_/g' )
 	kk=$(( $kk + 1 ))
-	echo mv $f ${TESTWORK}/outdir/html/$nn
+	mv -v "$f" ${TESTWORK}/outdir/html/"$nn" 2>&1 | tee -a $log
 done
 
 pushd ${TESTWORK}/outdir
