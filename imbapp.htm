@@ -23433,7 +23433,7 @@ browserdelete() {
 	document.getElementById('del_text').setAttribute('data-myxlarg0', this.imbeles.filter((o) => o.selected).length);
 	this.xl1(document.getElementById('del_text'));
 	document.getElementById('delq').style['display'] = '';
-	document.getElementById('browser').style['display'] = 'none';
+	document.getElementById('pages').style['display'] = 'none';
 	document.getElementById('delokbut').disabled = false;
 	document.getElementById('delcancelbut').disabled = false;
 	window.scrollTo({ top: 0 });
@@ -23488,6 +23488,7 @@ delcancel() {
 	document.getElementById('browser').style['display'] = '';
 	this.#rotphase = 0;
 	document.getElementById('delprogmsg').innerHTML = '';
+	this.showmain();
 	window.scrollTo({ top: 0 });
 }
 /* ImBCHtml: visual browser: process browser selected */
