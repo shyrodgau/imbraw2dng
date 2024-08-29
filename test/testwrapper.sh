@@ -34,18 +34,27 @@ mkdir -p ${TESTWORK}/outdir/html
 find ~/Downloads -newer ~/Downloads/imbraw2dng_test_${testid}_startmark -type f ! -name imbraw2dng_test_${testid}_endmark -exec mv -v {} ${TESTWORK}/outdir/html \; 2>&1 | tee -a $log
 rm ~/Downloads/imbraw2dng_test_${testid}_endmark ~/Downloads/imbraw2dng_test_${testid}_startmark
 
+kk=1
+for f in $( ls ${TESTWORK}/outdir/html/imb*zip | sort ); do
+	r=$( basename $f )
+	nn=$( echo $f | sed 's/\(imb[^_]*_\)[0-9]*_/\1_'$kk'_/g' )
+	kk=$(( $kk + 1 ))
+	echo mv $f ${TESTWORK}/outdir/html/$nn
+done
+
 pushd ${TESTWORK}/outdir
 find . -name \*.zip | while read z; do
-	mkdir "${z}_${$}_tmp"
-	unzip -q -d "${z}_${$}_tmp" "${z}"
+	rm -rf "${z}_tmp"
+	mkdir "${z}_tmp"
+	unzip -q -d "${z}_tmp" "${z}"
 done
 
 find */* -type f|while read x; do z=$( echo "$x" | sed 's@/@_@g' ); ln -sv "$x" "$z"; done >> $log 2>&1
 
 find . -maxdepth 1 -name \*.[dD][nN][gG] -exec dcraw -e {} \; 2>/dev/null
 
-find * -type f -print0 | xargs -0 exiftool -r -X  > ${TESTWORK}/imbraw2dng_test_${testid}_exif.xml 2>&1
-find * -type f -print0 | xargs -0 exiv2 -pR -uvb  > ${TESTWORK}/imbraw2dng_test_${testid}_exiv2.xml 2>&1
+find * -type f -print0 | sort -z | xargs -0 exiftool -r -X  > ${TESTWORK}/imbraw2dng_test_${testid}_exif.xml 2>&1
+find * -type f -print0 | sort -z | xargs -0 exiv2 -pR -uvb  > ${TESTWORK}/imbraw2dng_test_${testid}_exiv2.xml 2>&1
 
 echo 'ZIP TESTS' | tee -a $log
 find . -name \*.zip -type f -print -exec unzip -v {} \; -exec unzip -t {} \; 2>&1 | tee -a $log

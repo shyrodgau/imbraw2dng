@@ -1,18 +1,56 @@
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/usr/lib/python3.11/http/server.py", line 1309, in <module>
-    test(
-  File "/usr/lib/python3.11/http/server.py", line 1256, in test
-    with ServerClass(addr, HandlerClass) as httpd:
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.11/socketserver.py", line 456, in __init__
-    self.server_bind()
-  File "/usr/lib/python3.11/http/server.py", line 1303, in server_bind
-    return super().server_bind()
-           ^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.11/http/server.py", line 136, in server_bind
-    socketserver.TCPServer.server_bind(self)
-  File "/usr/lib/python3.11/socketserver.py", line 472, in server_bind
-    self.socket.bind(self.server_address)
-OSError: [Errno 98] Address already in use
+127.0.0.1 - - [29/Aug/2024 09:45:13] "GET /IMBACK/PHOTO/ HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:45:13] "GET /IMBACK/MOVIE/ HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:45:13] "GET /IMBACK/PHOTO/2023_0304_121756_002.RAW HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:45:14] "GET /IMBACK/PHOTO/2023_0311_120252_002.RAW HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:45:14] "GET /IMBACK/PHOTO/2023_0314_231116_004.RAW HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:45:15] "GET /IMBACK/PHOTO/2023_1114_113011_001.raw HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:45:15] "GET /IMBACK/PHOTO/2024_0217_121752_001.RAW HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:45:16] "GET /IMBACK/MOVIE/2024_0219_211300_015.MP4 HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:45:18] "GET /IMBACK/PHOTO/2024_1015_123011_001.raw HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:45:18] "GET /IMBACK/PHOTO/2027_0718_153011_001.raw HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:45:19] "GET /IMBACK/PHOTO/2029_0506_070809_001.raw HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:45:19] "GET /IMBACK/PHOTO/2029_0707_120426_021.RAW HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:45:20] "GET /IMBACK/PHOTO/2029_0710_010203_001.raw HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:45:35] "GET /IMBACK/imbraw2dng.html HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:46:15] "GET /IMBACK/imbraw2dng_00.html HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:46:15] "GET /IMBACK/PHOTO/ HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:46:15] "GET /IMBACK/MOVIE/ HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:46:21] "HEAD /IMBACK/PHOTO/2027_0718_153011_001.raw HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:46:21] "GET /IMBACK/PHOTO/2027_0718_153011_001.raw HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:46:22] "HEAD /IMBACK/PHOTO/2029_0506_070809_001.raw HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:46:22] "GET /IMBACK/PHOTO/2029_0506_070809_001.raw HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:46:23] "HEAD /IMBACK/PHOTO/2029_0707_120426_021.RAW HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:46:23] "GET /IMBACK/PHOTO/2029_0707_120426_021.RAW HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:46:25] "HEAD /IMBACK/PHOTO/2029_0710_010203_001.raw HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:46:25] "GET /IMBACK/PHOTO/2029_0710_010203_001.raw HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:46:45] "GET /IMBACK/imbdng2raw.html HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:46:50] "GET /IMBACK/imbraw2dng_film.html HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:46:59] "GET /IMBACK/imbapp.htm HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:46:59] "GET /i3019.xml HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:46:59] "GET /i3012.xml HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:46:59] "GET /i3024.xml HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:46:59] "GET /i3001.xml?par=2 HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:46:59] "GET /i3017.xml HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:46:59] "GET /i2016.xml HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:46:59] "GET /i2015.xml?par=0 HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:46:59] "GET /i3014.xml HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:46:59] "GET /i2015.xml?par=1 HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:46:59] "GET /i3031.xml?str=all HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:46:59] "GET /i3030.xml HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:46:59] "GET /i3001.xml?par=1 HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:47:04] "GET /i3001.xml?par=2 HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:47:04] "GET /i3015.xml HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:47:04] "GET /i3001.xml?par=2 HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:47:04] "GET /i3001.xml?par=2 HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:47:04] "HEAD /IMBACK/PHOTO/2029_0710_010203_001.raw HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:47:04] "GET /IMBACK/PHOTO/2029_0710_010203_001.raw HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:47:05] "HEAD /IMBACK/PHOTO/2029_0707_120426_021.RAW HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:47:05] "GET /IMBACK/PHOTO/2029_0707_120426_021.RAW HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:47:05] "HEAD /IMBACK/PHOTO/2029_0506_070809_001.raw HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:47:05] "GET /IMBACK/PHOTO/2029_0506_070809_001.raw HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:47:06] "HEAD /IMBACK/PHOTO/2027_0718_153011_001.raw HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:47:06] "GET /IMBACK/PHOTO/2027_0718_153011_001.raw HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:47:07] "HEAD /IMBACK/PHOTO/2024_1015_123011_001.raw HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:47:07] "GET /IMBACK/PHOTO/2024_1015_123011_001.raw HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:47:11] "GET /i3019.xml HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2024 09:47:14] "GET /i3001.xml?par=2 HTTP/1.1" 200 -
