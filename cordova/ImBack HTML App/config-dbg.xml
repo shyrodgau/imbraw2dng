@@ -1,16 +1,19 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget xmlns:android="http://schemas.android.com/apk/res/android" id="name.stefanhegny.imbackapp" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>ImB HTML App</name>
-    <description>ImBack HTML App</description>
+    <name>DBG ImB HTML App</name>
+    <description>DBG ImBack HTML App</description>
     <author email="stefan@hegny.de">
         Stefan Hegny
     </author>
-    <content src="http://192.168.0.72:8080/imbapp-dbg.html" />
+    <!--content src="http://192.168.0.72:8080/imbapp.html" /-->
+    <content src="http://192.168.8.101:8080/imbapp.html" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
-    <acces origin="http://192.168.0.72:8080" />
+    <!--acces origin="http://192.168.0.72:8080" /-->
+    <acces origin="http://192.168.8.101:8080" />
     <preference name="scheme" value="http" />
-    <preference name="hostname" value="192.168.0.72:8080" />
+    <!--preference name="hostname" value="192.168.0.72:8080" /-->
+    <preference name="hostname" value="192.168.8.101:8080" />
     <edit-config file="AndroidManifest.xml" mode="merge" target="/manifest/application">
             <application android:usesCleartextTraffic="true"/>
     </edit-config>

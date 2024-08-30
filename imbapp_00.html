@@ -27165,7 +27165,8 @@ afterfinish() {
 		this.fromvisbrows = false;
 		document.getElementById('progmsg').style['display'] = '';
 		document.getElementById('progokbut').disabled = false;
-		document.getElementById('progmsg').innerHTML = this.xl('process.totals', this.stats.total, this.stats.ok, 0, this.stats.error);
+		document.getElementById('progcancelbut').disabled = true;
+		document.getElementById('progmsg').innerHTML = this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
 		this.loadnextimg();
 	}
 	document.getElementById('imbdoit').disabled = false;
@@ -27328,6 +27329,7 @@ showsplash() {
 	if (quest) quest.style['display'] = 'none';
 	if (splash) splash.style['display'] = '';
 	document.getElementById('progokbut').disabled = true;
+	document.getElementById('progcancelbut').disabled = false;
 	document.getElementById('dlprogress').style['display'] = 'none';
 	window.onscroll = undefined;
 	window.onresize = undefined;
@@ -27346,7 +27348,6 @@ showphotoi() {
 	const quest = document.getElementById('question');
 	if (quest) quest.style['display'] = 'none';
 	if (splash) splash.style['display'] = 'none';
-	document.getElementById('progokbut').disabled = true;
 	document.getElementById('dlprogress').style['display'] = 'none';
 	window.onscroll = undefined;
 	window.onresize = undefined;
@@ -27380,7 +27381,6 @@ showmoviei() {
 	const quest = document.getElementById('question');
 	if (quest) quest.style['display'] = 'none';
 	if (splash) splash.style['display'] = 'none';
-	document.getElementById('progokbut').disabled = true;
 	document.getElementById('dlprogress').style['display'] = 'none';
 	window.onscroll = undefined;
 	window.onresize = undefined;
@@ -27415,6 +27415,8 @@ showbrowseri() {
 	if (norm) norm.style['display'] = 'none';
 	if (splash) splash.style['display'] = 'none';
 	document.getElementById('progokbut').disabled = true;
+	document.getElementById('progcancelbut').disabled = false;
+	document.getElementById('progmsg').innerHTML = '...';
 	document.getElementById('dlprogress').style['display'] = 'none';
 	window.onscroll = () => this.addallimgs();
 	window.onresize = () => this.addallimgs();
@@ -28677,11 +28679,11 @@ shownormal() {
 }
 /* ImBCHtml: preview: skip handler in the step preview */
 skipthis() {
-	if (document.getElementById('doforall').checked) this.stepmode = 2;
+	if (document.getElementById('doforall').checked || this.appname === 'imbapp') this.stepmode = 2;
 	if (this.totnum > 1) {
 		this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
 	}
-	if (document.getElementById('doforall').checked) {
+	if (document.getElementById('doforall').checked || this.appname === 'imbapp') {
 		this.appmsgxl(true, 'process.skipped.remaining', this.totnum - this.actnum);
 		this.stats.skipped += (this.totnum - this.actnum);
 	} else {
@@ -28689,8 +28691,10 @@ skipthis() {
 		this.appmsgxl(true, 'process.skipped', rawname);
 		this.stats.skipped ++;
 	}
-	this.shownormal();
-	this.handlenext();
+	if (this.appname !== 'imbapp') {
+		this.shownormal();
+		this.handlenext();
+	}
 }
 /* ImBCHtml: previewquestion: process handler in the step preview */
 procthis() {
@@ -30282,6 +30286,7 @@ infos = [ // actually const
 <div id="dlprogress" style="border: 5px solid grey; border-radius: 20px; padding: 20px;display:none;width:fit-content;">
 <div style="font-weight:bold;" id="progmsg"></div>
 <input id="progokbut" type="button" data-myvalxlkey="del.question.ok" onclick="imbc.showbrowser()" disabled>
+<input id="progcancelbut" type="button" data-myvalxlkey="del.question.cancel" onclick="imbc.skipthis()">
 </div>
 <!-- end of the download progress -->
 <!-- generic OK/error -->

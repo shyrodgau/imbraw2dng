@@ -31,7 +31,8 @@ DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS 
 ***************************************************** 
 -->
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src data: http: 192.168.0.72 *; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval'">
+<!--meta http-equiv="Content-Security-Policy" content="default-src data: http: 192.168.0.72 *; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval'"-->
+<meta http-equiv="Content-Security-Policy" content="default-src data: http: 192.168.8.101 *; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval'">
 <meta http-equiv='cache-control' content='no-cache'>
 <meta http-equiv='expires' content='0'>
 <meta http-equiv='pragma' content='no-cache'>
@@ -427,6 +428,7 @@ img.whbtn { height:1.33em; position:relative; top:0.5em; }
 #hammen > * { padding:0.5em; margin:0.5em;cursor:pointer; }
 .hammenent:hover { background-color: #cccccc; }
 </style>
+<script src="cordova.js"></script>
 <!-- javascript code CURRENTLY NOT identical to imbraw2dng.js  for the classes IFDOut, TIFFOut, ZIPHelp, ImBCBase, ImBCBackw. -->
 <script type="text/javascript" language="javascript">
 "use strict;"
@@ -20803,7 +20805,8 @@ incdcp = true;
 /* ImBCBase: debug */
 debugflag = false;
 useraw = null;
-imbweb = 'http://192.168.0.72:8080';
+imbweb = 'http://192.168.8.101:8080';
+//imbweb = 'http://192.168.0.72:8080';
 filmdemo = false;
 
 constructor() {
@@ -21869,11 +21872,13 @@ constructor() {
 /* ImBCHtmlOut: output one thing via browser */
 writefile(name, type, okmsg, arr1) {
 	let b = new Blob([ arr1 ], { type: type });
-	const outel = document.getElementById('result');
-	outel.download = name;
 	const thisurl = URL.createObjectURL(b);
+	/*const outel = document.getElementById('result');
+	outel.download = name;
 	outel.href = thisurl;
-	outel.click();
+	outel.click();*/
+	//cordova.InAppBrowser.open(thisurl, '_system');
+	ImBCHtml.cvWriteFile(name, thisurl);
 	this.appmsgxl(false, 'words.finished');
 	this.appmsgxl(true, okmsg, name);
 	if (type !== 'application/zip')
@@ -24730,6 +24735,59 @@ static closep(el) {
 	el.parentElement.parentElement.classList.remove('ggopen');
 	el.parentElement.parentElement.classList.add('ggclosed');
 }
+static cvWriteFile(fname, dataObj) {
+	ImBCHtml.cvListDir(cordova.file.externalDataDirectory);
+	window.resolveLocalFileSystemURL(cordova.file.externalDataDirectory, function (fs) {
+	//window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function (fs) {
+
+		console.log('file system open: ' + fs.name);
+		fs.getFile('/Downloads/' + fname, { create: true }, function (fileEntry) {
+		//fs.getFile('Downloads/' + fname, { create: true, exclusive: false }, function (fileEntry) {
+		//fs.root.getFile('Downloads/' + fname, { create: true, exclusive: false }, function (fileEntry) {
+	
+			console.log("fileEntry is file?" + fileEntry.isFile.toString());
+			//fileEntry.name == fname;
+			//fileEntry.fullPath == fname;
+			// Create a FileWriter object for our FileEntry (log.txt).
+			fileEntry.createWriter(function (fileWriter) {
+				fileWriter.onwriteend = function() {
+					console.log("Successful file write...");
+					/*if (dataObj.type == "image/png") {
+						readBinaryFile(fileEntry);
+					}
+					else {
+						readFile(fileEntry);
+					}*/
+				};
+				fileWriter.onerror = function(e) {
+					console.log("Failed file write: " + e.toString());
+				};
+				fileWriter.write(dataObj);
+			});
+		}, (e) => {
+			console.log('Error root get file ' + JSON.stringify(e));
+		});
+	}, (e) => {
+		console.log('Error resolve ' + JSON.stringify(e));
+	});
+}
+static cvListDir(path){
+  window.resolveLocalFileSystemURL(path,
+    function (fileSystem) {
+      var reader = fileSystem.createReader();
+      reader.readEntries(
+        function (entries) {
+          console.log('EE ' + entries);
+        },
+        function (err) {
+          console.log('RR1 '  + err);
+        }
+      );
+    }, function ('RR2 ' + err) {
+      console.log(err);
+    }
+  );
+}
 /* Indentation in - end of class ImBCHtml */
 }
 /* *************************************** Main class for HTML, forward E N D *************************************** */
@@ -24748,7 +24806,9 @@ function init() {
 	}
 	imbc.querylang(window.location.pathname);
 	imbc.xlateall();
+setTimeout(() => {
 	imbc.checkimb();
+}, 20000);
 	window.onbeforeunload = () => {
 		imbc.savesettings();
 		let ex = 0;
