@@ -1207,9 +1207,9 @@ static texts = { // actually const
 			ja: '選択済み'
 		},
 		fakelong: {
-			en: 'Fake long exposure by adding up all (<a href="https://shyrodgau.github.io/imbraw2dng/moredoc#a-lot-more-tricks-and-details">read more</a>)',
-			de: 'Langzeitbelichtung durch Addieren simulieren (<a href="https://shyrodgau.github.io/imbraw2dng/moredoc_de#mehr-tricks-und-details">mehr lesen</a>)',
-			ja: '「追加して長時間露光をシミュレートします (<a href="https://shyrodgau.github.io/imbraw2dng/moredoc_ja#さらなるトリックと詳細">続きを読む</a>)」すべてを加算して長時間露光をシミュレートする',
+			en: 'Fake long exposure by adding up all (<a href="#" onclick=" window.open(\'https://shyrodgau.github.io/imbraw2dng/moredoc#a-lot-more-tricks-and-details\', \'_system\'); return false;">read more</a>)',
+			de: 'Langzeitbelichtung durch Addieren simulieren (<a href="#" onclick=" window.open(\'https://shyrodgau.github.io/imbraw2dng/moredoc_de#mehr-tricks-und-details\', ·\'_system\'); return false;">mehr lesen</a>)',
+			ja: '「追加して長時間露光をシミュレートします (<a href="#" onclick=" window.open(\'https://shyrodgau.github.io/imbraw2dng/moredoc_ja#さらなるトリックと詳細\', \'_system\'); return false;">続きを読む</a>)」すべてを加算して長時間露光をシミュレートする',
 			scale: {
 				en: 'Scale values down',
 				de: 'Werte dabei herunterskalieren',
@@ -22249,11 +22249,11 @@ xlateall() {
 	const k = document.querySelectorAll('*[data-myxlkey]');
 	for (const e of k)
 		this.xl1(e);
-	const l = document.querySelectorAll('*[data-myvalxlkey]');
+	let l = document.querySelectorAll('*[data-myvalxlkey]');
 	for (const e of l)
 		this.xl1(e);
-	const m = document.querySelectorAll('*[data-mytitlexlkey]');
-	for (const e of m)
+	l = document.querySelectorAll('*[data-mytitlexlkey]');
+	for (const e of l)
 		this.xl1(e);
 	const h = document.querySelectorAll('*[data-myhrefxlkey]');
 	for (const e of h)
@@ -24710,10 +24710,18 @@ appinfo() {
 	const a = document.createElement('a');
 	a.setAttribute('data-myxlkey','main.help');
 	a.setAttribute('data-myhrefxlkey','app.helpurl');
-	a.setAttribute('target','#new');
+	a.onclick = () => {
+		window.open(this.xl('app.helpurl'), '_system'); return false;
+	};
 	document.getElementById('okmsg').innerHTML += '<br>';
 	document.getElementById('okmsg').append(a);
-	document.getElementById('okmsg').innerHTML += '<br><span style="font-weight:normal;font-size:75%;">Contains parts of <a href="https://fonts.google.com/noto/specimen/Noto+Sans+Symbols+2">NotoSansSymbols2-Regular</a> font licensed under <a href="http://scripts.sil.org/OFL">Open Font License</a></span>'; 
+	document.getElementById('okmsg').innerHTML += `<br><span style="font-weight:normal;font-size:75%;">Contains parts of <a href="#" onclick="window.open('https://fonts.google.com/noto/specimen/Noto+Sans+Symbols+2', '_system'); return false;">NotoSansSymbols2-Regular</a> font
+	licensed under <a href="#" onclick=" window.open('http://scripts.sil.org/OFL', '_system'); return false;">Open Font License</a>.</span>`;
+	// https://github.com/apache/cordova-plugin-inappbrowser/ https://github.com/apache/cordova-plugin-file/ https://github.com/frontyard/cordova-plugin-exoplayer/
+	document.getElementById('okmsg').innerHTML += `<br><span style="font-weight:normal;font-size:75%;">Cordova Plugins: 
+	<a href="#" onclick="window.open('https://github.com/apache/cordova-plugin-inappbrowser/','_system'); return false;">InAppBrowser</a>, 
+	<a href="#" onclick="window.open('https://github.com/apache/cordova-plugin-file/','_system'); return false;">File</a>, 
+	<a href="#" onclick="window.open('https://github.com/frontyard/cordova-plugin-exoplayer/','_system'); return false;">ExoPlayer</a>`
 	this.xlateall();
 	this.showmsg();
 }
