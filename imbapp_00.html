@@ -29464,8 +29464,8 @@ function init() {
 	window.onbeforeunload = () => {
 		imbc.savesettings();
 		let ex = 0;
-		if (this.exitmode === 'movie') ex = 1;
-		else if (this.exitmode === 'browse') ex = 2;
+		if (imbc.exitmode === 'movie') ex = 1;
+		else if (imbc.exitmode === 'browse') ex = 2;
 		imbc.custcmdB( 3001,  'document', ('par=' + ex));
 		if (document.getElementById('browser').style['display'] === 'none' && document.getElementById('takephotos').style['display'] === 'none' && document.getElementById('takemovies').style['display'] === 'none') {
 			imbc.showmain();

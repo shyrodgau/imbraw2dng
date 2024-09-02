@@ -22345,6 +22345,7 @@ afterfinish() {
 	if (this.fromvisbrows) {
 		this.fromvisbrows = false;
 		document.getElementById('pages').style['display'] = 'none';
+		this.onback = 'main';
 		document.getElementById('progmsg').style['display'] = '';
 		document.getElementById('progokbut').disabled = false;
 		document.getElementById('dlprogresslogbtn').disabled = false;
@@ -22386,6 +22387,7 @@ zipname = '';
 ziperr = false;
 previewworker = null;
 workerstate = [];
+onback = 'quit'; // 'main', 'quit', 'nothing'
 constructor() {
 	super();
 }
@@ -22497,10 +22499,12 @@ showmsg() {
 	document.getElementById('phpv').src="";
 	document.getElementById('genericok').style['display'] = '';
 	document.getElementById('pages').style['display'] = 'none';
+	this.onback = 'main';
 	this.closeham();
 }
 /* ImBCHtml: show the normal pages */
 showpages() {
+	this.onback = 'quit';
 	document.getElementById('pages').style['display'] = '';
 	const norm = document.getElementById('normal');
 	if (norm) norm.style['display'] = 'none';
@@ -22543,6 +22547,7 @@ showmain() {
 /* ImBCHtml: browserdisplay: show slpash */
 showsplash() {
 	document.getElementById('pages').style['display'] = 'none';
+	this.onback = 'quit';
 	document.getElementById('phpv').src="";
 	const norm = document.getElementById('normal');
 	if (norm) norm.style['display'] = 'none';
@@ -22671,10 +22676,12 @@ showdlprog() {
 	this.closeham();
 	document.getElementById('progmsg').innerHTML = '...';
 	document.getElementById('pages').style['display'] = 'none';
+	this.onback = 'nothing';
 }
 /* ImBCHtml: show message log */
 showlog() {
 	document.getElementById('pages').style['display'] = 'none';
+	this.onback = 'main';
 	document.getElementById('phpv').src="";
 	document.getElementById('msglog').style['display'] = '';
 	document.getElementById('dlprogress').style['display']='none';
@@ -23478,6 +23485,7 @@ browserdelete() {
 	this.xl1(document.getElementById('del_text'));
 	document.getElementById('delq').style['display'] = '';
 	document.getElementById('pages').style['display'] = 'none';
+	this.onback = 'nothing';
 	document.getElementById('delokbut').disabled = false;
 	document.getElementById('delcancelbut').disabled = false;
 	window.scrollTo({ top: 0 });
@@ -23976,6 +23984,7 @@ shownormal() {
 	document.getElementById('phpv').src="";
 	this.custcmdB(3019, 'document', undefined, () => {
 		document.getElementById('pages').style['display'] = 'none';
+		this.onback = 'main';
 		window.onscroll = () => undefined;
 		window.onresize = () => undefined;
 		const norm = document.getElementById('normal');
@@ -24690,6 +24699,7 @@ settime() {
 /* ImBCHtml: info screen */
 appinfo() {
 	document.getElementById('pages').style['display'] = 'none';
+	this.onback = 'main';
 	document.getElementById('phpv').src="";
 	document.getElementById('genericok').style['border-color'] = 'grey';
 	document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('main.apptitle'));
@@ -24775,6 +24785,7 @@ takemovie() {
 		this.imgsdirty = true;
 		if (rc >= 0) {
 			document.getElementById('pages').style['display'] = 'none';
+			this.onback = 'nothing';
 			document.getElementById('movieprogress').style['display'] = '';
 			document.getElementById('takemovies').style['display'] = 'none';
 		}
@@ -24789,8 +24800,26 @@ stopmovie() {
 }
 /* ImBHtml: do quit */
 doquit() {
-	if (window.location.href.startsWith('http://1'))
-		window.location.assign('/IMBACK/');
+	this.savesettings();
+	let ex = 0;
+	if (this.exitmode === 'movie') ex = 1;
+	else if (this.exitmode === 'browse') ex = 2;
+	this.custcmdB( 3001,  'document', ('par=' + ex), () => {
+		if (navigator.app)
+			navigator.app.exitApp();
+		else if (navigator.device)
+			navigator.device.exitApp();
+		else
+			window.close();
+	});
+
+}
+/* ImBHtml: handle back button */
+handleback() {
+	if (this.onback === 'main')
+		this.showmain();
+	else if (this.onback === 'quit')
+		this.doquit();
 }
 /* ImBCHtml: open parent */
 static openp(el) {
@@ -24866,6 +24895,10 @@ static cvListDir(path){
 let imbc, bfep;
 /* onload of html body */
 function init() {
+	document.addEventListener('deviceready', () => { init2(); });
+}
+/* onload of html body */
+function init2() {
 	imbc = new ImBCHtml();
 	document.getElementById('normal').style['display'] = 'none';
 	imbc.appname = 'imbapp';
@@ -24877,31 +24910,24 @@ function init() {
 	}
 	imbc.querylang(window.location.pathname);
 	imbc.xlateall();
+	document.addEventListener('backbutton', () => {
+		imbc.handleback();
+	});
 setTimeout(() => {
 	imbc.checkimb();
 }, 2000);
 	window.onbeforeunload = () => {
 		imbc.savesettings();
 		let ex = 0;
-		if (this.exitmode === 'movie') ex = 1;
-		else if (this.exitmode === 'browse') ex = 2;
+		if (imbc.exitmode === 'movie') ex = 1;
+		else if (imbc.exitmode === 'browse') ex = 2;
 		imbc.custcmdB( 3001,  'document', ('par=' + ex));
 		if (document.getElementById('pages').style['display'] === 'none') {
 			imbc.showmain();
 			return true;
 		}
 	};
-	window.onbeforeinstallprompt = (ev) => {
-		ev.preventDefault();
-		document.getElementById('installbutton').style['display'] = '';
-		bfep = ev;
-    };
 }
-window.addEventListener('pageshow', function (event) {
-    if (event.persisted || performance.getEntriesByType("navigation")[0].type === 'back_forward') {
-        window.location.reload();
-    }
-});
 </script>
 <!-- WORKER -->
 <script type="text/js-previewworker" language="javascript">
