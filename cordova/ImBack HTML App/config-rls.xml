@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget xmlns:android="http://schemas.android.com/apk/res/android" id="name.stefanhegny.imbackapp" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget xmlns:android="http://schemas.android.com/apk/res/android" id="name.hegny.stefan.imbapp" version="0.8.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>ImB HTML App</name>
     <description>ImBack HTML App</description>
     <author email="stefan@hegny.de">
@@ -11,8 +11,13 @@
     <acces origin="http://192.168.1.254" />
     <preference name="scheme" value="http" />
     <preference name="hostname" value="192.168.1.254" />
-    <edit-config file="AndroidManifest.xml" mode="merge" target="/manifest/application">
+    <platform name="android">
+        <edit-config file="AndroidManifest.xml" mode="merge" target="/manifest/application">
             <application android:usesCleartextTraffic="true"/>
-    </edit-config>
+        </edit-config>
+    </platform>
+    <config-file target="AndroidManifest.xml" parent="/*">
+    	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
+    </config-file>
     <icon src="res/logo.png"/>
 </widget>

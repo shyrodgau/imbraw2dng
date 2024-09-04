@@ -387,6 +387,7 @@ div[data-state='load'] .btnsrow, div[data-state='wait'] .btnsrow, div[data-state
 .pictitle { z-index: 90; font-size:66%; }
 .pictitle:not(:nth-child(1)) { border-top: 1px solid black; }
 .picdeleted:before {
+	font-family: Symbol3;
 	content: '\1f6c7';
 	position: absolute;
 	font-size: 25px;
@@ -420,7 +421,7 @@ div[data-state='load'] .btnsrow, div[data-state='wait'] .btnsrow, div[data-state
 	margin-right: 1em;
 	border-radius: 0.83em;
 }
-.whbtn.disconnected{ .font-family:Symbol3;.font-size:120%; background-color: red !important;}
+.whbtn.disconnected{ font-family:Symbol3; font-size:120%; background-color: red !important;}
 .whbtn:disabled { opacity: 0.6; }
 .whbtn.active { color: red !important; pointer-events: none; }
 .whbtn:not(.active) { cursor:pointer; }
@@ -3643,7 +3644,7 @@ totnum=0;
 actnum=0;
 stats = { total: 0, skipped: 0, ok: 0, error: 0 };
 allfiles = [];
-static zipmax = 50000000; // byte zip length, can be adjusted
+static zipmax = 20000000; // byte zip length, can be adjusted
 
 // ImBCBase: from the back itself
 imbpics = [];  // found jpegs
@@ -21205,6 +21206,11 @@ handleone(orientation) {
 	}
 	let rawname = ImBCBase.basename(f.name);
 	if (rawname.substring(rawname.length - 4).toUpperCase() !== '.RAW') {
+		if (f.imbackextension && rawname.substring(rawname.length - 4).toUpperCase() !== '.JPG') {
+			this.mappx(0, 'process.notraw',rawname);
+			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), f);
+			return;
+		}
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
 			if (this.totnum > 1) {
@@ -21866,13 +21872,13 @@ imgsdirty = true;
 // grouping in visual dings:
 mingrp = 'd'; // 'h',  day hour
 maxgrp = 'm'; // 'y', 'm' day year month
+rootfs = undefined; // FS
+fto = undefined; // cordova file transfer
 constructor() {
 	super();
 }
 /* ImBCHtmlOut: output one thing via browser */
 writefile(name, type, okmsg, arr1, origname, renameidx) {
-	let b = new Blob([ arr1 ], { type: type });
-	const thisurl = URL.createObjectURL(b);
 	if (undefined === this.rootfs) {
 		const d = (cordova.platformId === 'android') ? cordova.file.externalDataDirectory  : cordova.file.documentsDirectory;
 		console.log('FS: ' + d);
@@ -21888,7 +21894,7 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 		});
 		return;
 	}
-	this.rootfs.getFile(name, { create: true /*, exclusive: true*/ }, (fileEntry) => {
+	this.rootfs.getFile(name, { create: true , exclusive: true }, (fileEntry) => {
 		// Create a FileWriter object for our FileEntry (log.txt).
 		fileEntry.createWriter((fileWriter) => {
 			fileWriter.onwriteend = () => {
@@ -21908,7 +21914,25 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 				this.stats.error++;
 				this.handlenext();
 			};
-			fileWriter.write(thisurl);
+			if ((arr1.imbackextension ? arr1.data : arr1.buffer).byteLength > 20000000) {
+				this.writeslice(fileWriter, name, (arr1.imbackextension ? arr1.data : arr1.buffer), () => {
+					//console.log("Successful file write...");
+					this.appmsgxl(false, 'words.finished');
+					this.appmsgxl(0, okmsg, name);
+					if (undefined !== renameidx) this.appmsgxl(true, 'node.renamed');
+					else this.appmsg('');
+					if (type !== 'application/zip')
+						this.writepostok(origname ? origname : name);
+				}, (e) => {
+					console.log("Failed file write: " + e.toString());
+					this.mappx(false, 'words.error');
+					this.appmsgxl(0, 'process.errsave', name);
+					this.appmsg(JSON.stringify(e), true);
+					this.stats.error++;
+					this.handlenext();
+				}, 0);
+			} else
+				fileWriter.write(arr1.imbackextension ? arr1.data : arr1.buffer);
 		});
 	}, (e) => {
 		console.log('Error root get file ' + JSON.stringify(e));
@@ -21945,6 +21969,26 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 	outel.click();*/
 	//cordova.InAppBrowser.open(thisurl, '_system');
 	//ImBCHtml.cvWriteFile(name, thisurl);
+}
+/* ImBCHtmlOut: Sliced write to file */
+writeslice(fw, name, arr, onok, onerr, off) {
+	fw.onerror = (e) => { onerr(e); }
+	fw.onwriteend = () => {
+		if (off + 20000000 >= arr.byteLength + 1)
+			onok();
+		else {
+			setTimeout(() => {
+				this.rootfs.getFile(name, { create: false }, (fileEntry) => {
+					// Create a FileWriter object for our FileEntry (log.txt).
+					fileEntry.createWriter((fileWriter) => {
+							this.writeslice(fileWriter, name, arr, () => onok(), (e) => onerr(e), off + 20000000);
+					});
+				});
+			}, 1);
+		}
+	};
+	fw.seek(off);
+	fw.write(arr.slice(off, off + 20000000));
 }
 /* ImBCHtmlOut: find html style for translation */
 applystyle(span, msg, base) {
