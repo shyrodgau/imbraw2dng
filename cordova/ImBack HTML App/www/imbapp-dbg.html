@@ -31,8 +31,8 @@ DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS 
 ***************************************************** 
 -->
 <head>
-<!--meta http-equiv="Content-Security-Policy" content="default-src data: http: 192.168.0.72 *; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval'"-->
-<meta http-equiv="Content-Security-Policy" content="default-src data: http: 192.168.8.101 *; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval'">
+<meta http-equiv="Content-Security-Policy" content="default-src data: http: 192.168.0.72 *; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval'">
+<!--meta http-equiv="Content-Security-Policy" content="default-src data: http: 192.168.8.101 *; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval'"-->
 <meta http-equiv='cache-control' content='no-cache'>
 <meta http-equiv='expires' content='0'>
 <meta http-equiv='pragma' content='no-cache'>
@@ -20805,8 +20805,8 @@ incdcp = true;
 /* ImBCBase: debug */
 debugflag = false;
 useraw = null;
-imbweb = 'http://192.168.8.101:8080';
-//imbweb = 'http://192.168.0.72:8080';
+//imbweb = 'http://192.168.8.101:8080';
+imbweb = 'http://192.168.0.72:8080';
 filmdemo = false;
 
 constructor() {
@@ -21871,22 +21871,24 @@ constructor() {
 }
 /* ImBCHtmlOut: output one thing via browser */
 writefile(name, type, okmsg, arr1, origname, renameidx) {
+	let b = new Blob([ arr1 ], { type: type });
+	const thisurl = URL.createObjectURL(b);
 	if (undefined === this.rootfs) {
-		window.resolveLocalFileSystemURL(cordova.file.documentsDirectory + '/ImBack', (fs) => {
+		const d = (cordova.platformId === 'android') ? cordova.file.externalDataDirectory  : cordova.file.documentsDirectory;
+		console.log('FS: ' + d);
+		window.resolveLocalFileSystemURL(d, (fs) => {
 			this.rootfs = fs;
 			this.writefile(name, type, okmsg, arr1);
 			for (const o in ImBCBase.texts.process.copyokcheckdl) {
-				ImBCBase.texts.process.copyokcheckdl[o] = this.isubst(ImBCBase.texts.process.copyokcheckdl[o], 'X', cordova.file.documentsDirectory + '/ImBack');
+				ImBCBase.texts.process.copyokcheckdl[o] = this.isubst(ImBCBase.texts.process.copyokcheckdl[o], 'X', d);
 			}
 			for (const o in ImBCBase.texts.process.convertedcheckdl) {
-				ImBCBase.texts.process.convertedcheckdl[o] = this.isubst(ImBCBase.texts.process.convertedcheckdl[o], 'X', cordova.file.documentsDirectory + '/ImBack');
+				ImBCBase.texts.process.convertedcheckdl[o] = this.isubst(ImBCBase.texts.process.convertedcheckdl[o], 'X', d);
 			}
 		});
 		return;
 	}
-	let b = new Blob([ arr1 ], { type: type });
-	const thisurl = URL.createObjectURL(b);
-	this.rootfs.getFile(name, { create: true, exclusive: true }, (fileEntry) => {
+	this.rootfs.getFile(name, { create: true /*, exclusive: true*/ }, (fileEntry) => {
 		// Create a FileWriter object for our FileEntry (log.txt).
 		fileEntry.createWriter((fileWriter) => {
 			fileWriter.onwriteend = () => {
@@ -21932,8 +21934,8 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 			return;
 		}
 		this.mappx(false, 'words.error');
-		this.appmsgxl(0, 'process.errsave', outfile);
-		this.appmsg(JSON.stringify(err), true);
+		this.appmsgxl(0, 'process.errsave', name);
+		this.appmsg(JSON.stringify(e), true);
 		this.stats.error++;
 		this.handlenext();
 	});
@@ -24913,7 +24915,7 @@ function init2() {
 	document.addEventListener('backbutton', () => {
 		imbc.handleback();
 	});
-	//cordova.plugins.permissions.requestPermission(cordova.plugins.permissions.WRITE_EXTERNAL_STORAGE, () => { console.log('Perm Ok '); }, () => { console.log('Perm NOk '); });
+	cordova.plugins.permissions.requestPermission(cordova.plugins.permissions.WRITE_EXTERNAL_STORAGE, () => { console.log('Perm Ok '); }, () => { console.log('Perm NOk '); });
 setTimeout(() => {
 	imbc.checkimb();
 }, 2000);

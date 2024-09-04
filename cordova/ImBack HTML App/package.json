@@ -14,6 +14,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "cordova-android": "^13.0.0",
+    "cordova-plugin-android-permissions": "^1.1.5",
     "cordova-plugin-file": "^8.1.0",
     "cordova-plugin-inappbrowser": "^6.0.0",
     "file": "^0.2.2"
@@ -23,13 +24,14 @@
       "android"
     ],
     "plugins": {
-      "cordova-plugin-file": {
-        "ANDROIDX_WEBKIT_VERSION": "1.4.0"
-      },
-      "cordova-plugin-inappbrowser": {}
+      "cordova-plugin-file": {},
+      "cordova-plugin-inappbrowser": {},
+      "cordova-plugin-android-permissions": {}
     }
   },
   "dependencies": {
-    "@ionic-native/android-exoplayer": "^5.36.0"
+    "@ionic-native/android-exoplayer": "^5.36.0",
+    "cordova": "^7.1.0",
+    "gradle": "^1.2.4"
   }
 }

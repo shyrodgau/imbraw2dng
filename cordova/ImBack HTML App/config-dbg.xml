@@ -5,15 +5,15 @@
     <author email="stefan@hegny.de">
         Stefan Hegny
     </author>
-    <!--content src="http://192.168.0.72:8080/imbapp-dbg.html" /-->
-    <content src="http://192.168.8.101:8080/imbapp-dbg.html" />
+    <content src="http://192.168.0.72:8080/imbapp-dbg.html" />
+    <!--content src="http://192.168.8.101:8080/imbapp-dbg.html" /-->
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
-    <!--acces origin="http://192.168.0.72:8080" /-->
-    <acces origin="http://192.168.8.101:8080" />
+    <acces origin="http://192.168.0.72:8080" />
+    <!--acces origin="http://192.168.8.101:8080" /-->
     <preference name="scheme" value="http" />
-    <!--preference name="hostname" value="192.168.0.72:8080" /-->
-    <preference name="hostname" value="192.168.8.101:8080" />
+    <preference name="hostname" value="192.168.0.72:8080" />
+    <!--preference name="hostname" value="192.168.8.101:8080" /-->
     <platform name="android">
     	<edit-config file="AndroidManifest.xml" mode="merge" target="/manifest/application">
             <application android:usesCleartextTraffic="true"/>
@@ -22,5 +22,10 @@
 	    <uses-permission android:name="android.Manifest.permission.WRITE_EXTERNAL_STORAGE" />
     	</edit-config-->
     </platform>
+    <config-file target="AndroidManifest.xml" parent="/*">
+    	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
+    </config-file>
     <icon src="res/logo.png"/>
+    <!--preference name="android-minSdkVersion" value="19"/>
+    <preference name="android-targetSdkVersion" value="19"/-->
 </widget>
