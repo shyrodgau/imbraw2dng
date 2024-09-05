@@ -21880,7 +21880,7 @@ constructor() {
 /* ImBCHtmlOut: output one thing via browser */
 writefile(name, type, okmsg, arr1, origname, renameidx) {
 	if (undefined === this.rootfs) {
-		const d = (cordova.platformId === 'android') ? cordova.file.externalDataDirectory  : cordova.file.documentsDirectory;
+		const d = (cordova.platformId === 'android') ? (cordova.file.externalRootDirectory  + '/Download') : cordova.file.documentsDirectory;
 		console.log('FS: ' + d);
 		window.resolveLocalFileSystemURL(d, (fs) => {
 			this.rootfs = fs;
