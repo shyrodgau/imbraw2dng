@@ -24989,7 +24989,8 @@ function init2() {
 	document.addEventListener('backbutton', () => {
 		imbc.handleback();
 	});
-	cordova.plugins.permissions.requestPermission(cordova.plugins.permissions.WRITE_EXTERNAL_STORAGE, () => { console.log('Perm Ok '); }, () => { console.log('Perm NOk '); });
+	cordova.plugins.permissions.requestPermission(cordova.plugins.permissions.WRITE_EXTERNAL_STORAGE, () => { console.log('W Perm Ok '); }, () => { console.log('W Perm NOk '); });
+	cordova.plugins.permissions.requestPermission(cordova.plugins.permissions.READ_EXTERNAL_STORAGE, () => { console.log('R Perm Ok '); }, () => { console.log('R Perm NOk '); });
 	imbc.checkimb();
 	window.onbeforeunload = () => {
 		imbc.savesettings();

@@ -31,8 +31,8 @@ DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS 
 ***************************************************** 
 -->
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src data: http: 192.168.0.72 *; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval'">
-<!--meta http-equiv="Content-Security-Policy" content="default-src data: http: 192.168.8.101 *; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval'"-->
+<!--meta http-equiv="Content-Security-Policy" content="default-src data: http: 192.168.0.72 *; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval'"-->
+<meta http-equiv="Content-Security-Policy" content="default-src data: http: 192.168.8.101 *; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval'">
 <meta http-equiv='cache-control' content='no-cache'>
 <meta http-equiv='expires' content='0'>
 <meta http-equiv='pragma' content='no-cache'>
@@ -3652,6 +3652,8 @@ static apptexts = [
       ]
     }
 ];
+// b64 stuff
+static b64enc = [ [ 0, 26, 65], [ 26, 52, 97 ], [ 52, 62, 48], [ 62, 63, 43 /* + */], [ 63, 64, 47 /* / */] ]; // const
 // ImBCBase: generic data
 mylang = 'en';
 withpreview = true;
@@ -20839,8 +20841,8 @@ incdcp = true;
 /* ImBCBase: debug */
 debugflag = false;
 useraw = null;
-//imbweb = 'http://192.168.8.101:8080';
-imbweb = 'http://192.168.0.72:8080';
+imbweb = 'http://192.168.8.101:8080';
+//imbweb = 'http://192.168.0.72:8080';
 filmdemo = false;
 
 constructor() {
@@ -21239,11 +21241,11 @@ handleone(orientation) {
 	}
 	let rawname = ImBCBase.basename(f.name);
 	if (rawname.substring(rawname.length - 4).toUpperCase() !== '.RAW') {
-		if (f.imbackextension && rawname.substring(rawname.length - 4).toUpperCase() !== '.JPG') {
+		/*if (f.imbackextension && rawname.substring(rawname.length - 4).toUpperCase() !== '.JPG') {
 			this.mappx(0, 'process.notraw',rawname);
 			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), f);
 			return;
-		}
+		}*/
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
 			if (this.totnum > 1) {
@@ -21906,26 +21908,46 @@ imgsdirty = true;
 mingrp = 'd'; // 'h',  day hour
 maxgrp = 'm'; // 'y', 'm' day year month
 rootfs = undefined; // FS
+subdir='';
 fto = undefined; // cordova file transfer
 constructor() {
 	super();
 }
 /* ImBCHtmlOut: output one thing via browser */
 writefile(name, type, okmsg, arr1, origname, renameidx) {
-	let b = new Blob([ arr1 ], { type: type });
+	/*let b = new Blob([ arr1 ], { type: type });
 	const outel = document.getElementById('result');
 	outel.download = name;
-	const thisurl = URL.createObjectURL(b);
-	outel.href = thisurl;
+	//const thisurl = URL.createObjectURL(b);
+	outel.href = 'data:' + type + ';base64,' + arr1.reduce((a, c) => {
+		let x = Math.abs(c).toString(16);
+		return (a + (x.length < 2 ? '0' : '') + x);	
+	}, '');
 	outel.click();
 	this.appmsgxl(false, 'words.finished');
 	this.appmsgxl(true, okmsg, name);
 	if (type !== 'application/zip')
 		this.writepostok(name);
 	return;
-	window.open(this.xl('app.helpurl'), '_system'); return false;
+	window.open(outel.href, '_system'); return false;*/
 	if (undefined === this.rootfs) {
-		const d = (cordova.platformId === 'android') ? (cordova.file.externalRootDirectory  + '/Download') : cordova.file.documentsDirectory;
+		cordova.plugins.safMediastore.selectFolder('').then((str) => {
+			const d = str;
+			//cordova.plugins.safMediastore.getFileName(str).then((d) => {
+				this.rootfs = d;
+				const a = new Date(Date.now()).toISOString();
+				this.subdir = a.substring(0,4) + a.substring(5,7) + a.substring(8,10) + '_' + a.substring(11,13) + a.substring(14,16);
+				console.log('FS: ' + d);
+				for (const o in ImBCBase.texts.process.copyokcheckdl) {
+					ImBCBase.texts.process.copyokcheckdl[o] = this.isubst(ImBCBase.texts.process.copyokcheckdl[o], 'X', d);
+				}
+				for (const o in ImBCBase.texts.process.convertedcheckdl) {
+					ImBCBase.texts.process.convertedcheckdl[o] = this.isubst(ImBCBase.texts.process.convertedcheckdl[o], 'X', d);
+				}
+				this.writefile(name, type, okmsg, arr1);
+			//});
+		});
+		/*const d = (cordova.platformId === 'android') ? (cordova.file.externalRootDirectory  + 'DCIM/ImBack') : cordova.file.documentsDirectory;
 		console.log('FS: ' + d);
 		window.resolveLocalFileSystemURL(d, (fs) => {
 			this.rootfs = fs;
@@ -21936,14 +21958,49 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 			for (const o in ImBCBase.texts.process.convertedcheckdl) {
 				ImBCBase.texts.process.convertedcheckdl[o] = this.isubst(ImBCBase.texts.process.convertedcheckdl[o], 'X', d);
 			}
-		});
+		});*/
 		return;
 	}
-	this.rootfs.getFile(name, { create: true , exclusive: true }, (fileEntry) => {
+	
+	//const b64d = /*'data:' + type + ';base64,' +*/ arr1.reduce((a, c) => {
+	//	let x = Math.abs(c).toString(16);
+	//	return (a + (x.length < 2 ? '0' : '') + x);	
+	//}, '');
+	cordova.plugins.safMediastore.writeFile({
+		data: ImBCHtml.tob64(arr1), filename: name, folder: this.rootfs, subFolder: this.subdir
+	}).then((uri) => {
+			console.log("Successful file write... " + uri);
+			cordova.plugins.safMediastore.getFileName(uri).then((f) => {console.log('F is ' + f);});
+			this.appmsgxl(false, 'words.finished');
+			this.appmsgxl(0, okmsg, name);
+			if (undefined !== renameidx) this.appmsgxl(true, 'node.renamed');
+			else this.appmsg('');
+			if (type !== 'application/zip')
+				this.writepostok(origname ? origname : name);
+	}).catch(() => {
+		/*// try renaming
+		if (undefined !== renameidx) {
+			let newname = name;
+			const ldot = name.lastIndexOf('.');
+			const lunder = name.lastIndexOf('_');
+			newname = name.substring(0, lunder) + '_';
+			if (renameidx < 100) newname += '0';
+			if (renameidx < 10) newname += '0';
+			newname += renameidx;
+			newname += '.' + name.substring(ldot + 1);
+			this.writefile(newname, type, okmsg, arr1, origname, renameidx + 1);
+		}*/
+		this.mappx(false, 'words.error');
+		this.appmsgxl(0, 'process.errsave', name);
+		this.appmsg(JSON.stringify(e), true);
+		this.stats.error++;
+		this.handlenext();
+	});
+	/*this.rootfs.getFile(name, { create: true , exclusive: true }, (fileEntry) => {
 		// Create a FileWriter object for our FileEntry (log.txt).
 		fileEntry.createWriter((fileWriter) => {
 			fileWriter.onwriteend = () => {
-				//console.log("Successful file write...");
+				console.log("Successful file write...");
 				this.appmsgxl(false, 'words.finished');
 				this.appmsgxl(0, okmsg, name);
 				if (undefined !== renameidx) this.appmsgxl(true, 'node.renamed');
@@ -21961,7 +22018,7 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 			};
 			if ((arr1.imbackextension ? arr1.data : arr1.buffer).byteLength > 20000000) {
 				this.writeslice(fileWriter, name, (arr1.imbackextension ? arr1.data : arr1.buffer), () => {
-					//console.log("Successful file write...");
+					console.log("Successful file write...");
 					this.appmsgxl(false, 'words.finished');
 					this.appmsgxl(0, okmsg, name);
 					if (undefined !== renameidx) this.appmsgxl(true, 'node.renamed');
@@ -22007,7 +22064,7 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 		this.appmsg(JSON.stringify(e), true);
 		this.stats.error++;
 		this.handlenext();
-	});
+	});*/
 	/*const outel = document.getElementById('result');
 	outel.download = name;
 	outel.href = thisurl;
@@ -24979,6 +25036,56 @@ static cvListDir(path){
     }
   );
 }
+static b64one(inb) {
+	for (const d of ImBCBase.b64enc) {
+		if (d[0] <= inb && d[1] > inb)
+			return (d[2] + (inb - d[0]));
+	}
+	return 61; /* = */
+}
+static tob64(buf) {
+	let al = Math.floor(((buf.byteLength + 2)*4)/3);
+	let res = new Uint8Array(4);
+	let ress = '';
+	let i = 0, o = 0;
+	while (i < buf.byteLength) {
+		o=0;
+		let d = buf.byteLength - i;
+		let i1 = buf[i];
+		let i2, i3;
+		res[o++] = ImBCHtml.b64one(Math.floor(i1 / 4));
+		let o2 = (i1 % 4) << 4;
+		let o3, o4;
+		if (d > 1) {
+			i2 = buf[i+1];
+			o2 = o2 + Math.floor(i2 / 16);
+			o3 = (i2 % 16) << 2;
+			if (d > 2) {
+				i3 = buf[i+2];
+				o3 = o3 + Math.floor(i3 / 64);
+				o4 = (i3 % 64);
+			}
+			else o4 = 99;
+		}
+		else {
+			o3 = 99;
+			o4 = 99;
+		}
+		res[o++] = ImBCHtml.b64one(o2);
+		res[o++] = ImBCHtml.b64one(o3);
+		res[o++] = ImBCHtml.b64one(o4);
+		ress += String.fromCharCode(...res);
+		i += 3;
+	}
+	/*let ress = '', dd=2000;
+	for (let k=0; k<al; k+=dd) {
+		if (al - k > dd)
+			ress += String.fromCharCode(...(res.slice(k, k+dd)));
+		else
+			ress += String.fromCharCode(...(res.slice(k)));
+	}*/
+	return ress; //String.fromCharCode(...res);
+}
 /* Indentation in - end of class ImBCHtml */
 }
 /* *************************************** Main class for HTML, forward E N D *************************************** */
@@ -24990,6 +25097,9 @@ function init() {
 }
 /* onload of html body */
 function init2() {
+	window.open = cordova.InAppBrowser.open;
+	//console.log('Off to ' + window.location.protocol + '//' + window.location.host + '/IMBACK/test.html');
+	//window.open(window.location.protocol + '//' + window.location.host + '/IMBACK/test.html', '_system'); return;
 	imbc = new ImBCHtml();
 	document.getElementById('normal').style['display'] = 'none';
 	imbc.appname = 'imbapp';
@@ -25004,7 +25114,10 @@ function init2() {
 	document.addEventListener('backbutton', () => {
 		imbc.handleback();
 	});
-	cordova.plugins.permissions.requestPermission(cordova.plugins.permissions.WRITE_EXTERNAL_STORAGE, () => { console.log('Perm Ok '); }, () => { console.log('Perm NOk '); });
+	cordova.plugins.permissions.requestPermission(cordova.plugins.permissions.WRITE_EXTERNAL_STORAGE, () => { console.log('W Perm Ok '); }, () => { console.log('W Perm NOk '); });
+	cordova.plugins.permissions.requestPermission(cordova.plugins.permissions.READ_EXTERNAL_STORAGE, () => { console.log('R Perm Ok '); }, () => { console.log('R Perm NOk '); });
+	cordova.plugins.permissions.requestPermission(cordova.plugins.permissions.MANAGE_EXTERNAL_STORAGE, () => { console.log('M Perm Ok '); }, () => { console.log('M Perm NOk '); });
+	cordova.plugins.permissions.requestPermission(cordova.plugins.permissions.MANAGE_MEDIA, () => { console.log('M Med Ok '); }, () => { console.log('M Med NOk '); });
 setTimeout(() => {
 	imbc.checkimb();
 }, 20000);
