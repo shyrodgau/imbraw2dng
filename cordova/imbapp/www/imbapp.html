@@ -442,6 +442,16 @@ div[data-state='load'] .btnsrow, div[data-state='wait'] .btnsrow, div[data-state
 	padding-top: 0.1em;
 	pointer-events:none;
 }
+.uhbtn > * {
+   height:1.8em;
+   vertical-align: middle;
+}
+.uhbtn { padding-right: 1em; }
+.uhbtn.active > .nact { display: none; }
+.uhbtn.active > .act { pointer-events:none; }
+.uhbtn:not(.active) > .act { display: none; }
+.uhbtn:not(.active) > .nact { cursor: pointer; }
+.uhbtn:disabled { opacity: 0.6; }
 .whbtn {
 	font-weight:bold;
 	font-size:110%;
@@ -21309,7 +21319,7 @@ handleone(orientation) {
 	}
    if (undefined !== this.rotphase) {
 	   this.rotphase ++;
-	   document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length];
+	   document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ' + this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
    }
 	const rawnamearr = new TextEncoder().encode(rawname);
 	let dateok = false;
@@ -22009,7 +22019,7 @@ writeslice(fw, name, arr, onok, onerr, off) {
 			onok();
 		else {
 			this.rotphase ++;
-			document.getElementById('delprogmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length];
+			document.getElementById('delprogmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ' + this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
 			setTimeout(() => {
 				this.rootfsx.getFile(name, { create: false }, (fileEntry) => {
 					// Create a FileWriter object for our FileEntry (log.txt).
@@ -24137,7 +24147,7 @@ handlenext() {
 			if (this.fromvisbrows) {
 				document.getElementById('progmsg').style['display'] = '';
 				this.rotphase ++;
-				document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length];
+				document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ' + this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
 			}
 			this.actnum++;
 			this.handleonex();
@@ -24154,6 +24164,10 @@ handlenext() {
 }
 /* ImBCHtml: command handler */
 custcmd(cmd, type, restargs, cb) {
+	if (this.disconnected) {
+		cb({ ok: false, cmd: 'custcmd' });
+		return;
+	}
 	this.workerstate.push({ cb: cb, type: type });
 	this.previewworker.postMessage({ cmd: 'custcmd', c:cmd, type: type, rest: restargs });
 }
@@ -25113,6 +25127,7 @@ function resolver(url, preview, notfirst)  {
 	};
 	xhr.onerror = (evt, typ) => {
 		if (undefined === typ) typ = 'err';
+		errcount++;
 		console.log('WORKER XHR err (createfx, ' + typ + ') for ' + url + ' readyState:' + xhr.readyState + ' http status:' + xhr.status + ' text: ' + xhr.statusText);
 		xhr.onerror = undefined;
 		xhr.onload = undefined;
@@ -25460,6 +25475,10 @@ function adjurl(url) {
 }
 /* WORKER: watchdog */
 function watchdog() {
+	if (errcount > 2) {
+		postMessage({ cmd: 'disconnect'});
+		return;
+	}
 	custcmdi(3019, 'document', undefined, (rc) => {
 		if (dbgflag || rc.rc) console.log('WW ' + JSON.stringify(rc));
 		if (rc.rc) errcount ++;
@@ -25518,6 +25537,7 @@ function custcmdi(c, t, restargs, cb, results) {
 	};
 	xhr.onerror = (event) => {
 		console.log('WORKER custcmd onerror: ' + thecmd + ' ' + base);
+		errcount++;
 		cb({ cmd: 'custcmd', ok: false, results: results, rc: -2, cmds: currcust });
 		currcust = undefined;
 		handlewait();
@@ -25683,9 +25703,9 @@ function readjpg(file) {
 <span class="browserx"><input type="button" value="&#x2261;" style="padding-left: 0em; margin-top: -0.3em; margin-bottom: -0.5em;font-size:200%;border:0 !important;" class="whbtn" id="hamb" onclick="imbc.handleham();"></span>
 <input type="button" value="&#x1f5d1;" class="whbtn" onclick="imbc.browserdelete()" id="delselbut" disabled style="font-family:Symbol3;padding-left: 0.3em; padding-right:0.3em;" data-mytitlexlkey="browser.delall"> 
 <input type="button" style="font-family:Symbol3;" value="&#x2b73;" class="whbtn" onclick="imbc.browserprocess()" id="doselbut" disabled data-mytitlexlkey="browser.procall"> 
-<input type="button" class="whbtn" value="&#x26f0;" id="tobrows" onclick="imbc.dispmode=2;imbc.showbrowser();imbc.closeham();" style="font-family:Symbol3;padding-left:0.3em;padding-right:0.2em;font-weight:normal;">
-<input type="button" class="whbtn photosym" value="&#x1f4f7;" id="tophot" onclick="imbc.dispmode=0;imbc.showphoto();imbc.closeham();" style="font-family:Symbol3;padding-left:0.3em;padding-right:0.2em;font-weight:normal;">
-<input type="button" class="whbtn moviesym" value="&#x1f3ac;" id="tomov" onclick="imbc.dispmode=1;imbc.showmovie();imbc.closeham();" style="font-family:Symbol3;padding-left:0.4em;padding-right:0.4em;">
+<span class="uhbtn" value="&#x26f0;" id="tobrows" onclick="imbc.dispmode=2;imbc.showbrowser();imbc.closeham();" ><img class="act" src="img/camera_preview_9b.png"><img class="nact" src="img/camera_preview_9.png"></span>
+<span class="uhbtn photosym" value="&#x1f4f7;" id="tophot" onclick="imbc.dispmode=0;imbc.showphoto();imbc.closeham();" ><img class="act" src="img/camera_preview_6b.png"><img class="nact" src="img/camera_preview_6.png"></span>
+<span class="uhbtn moviesym" id="tomov" onclick="imbc.dispmode=1;imbc.showmovie();imbc.closeham();"><img class="act" src="img/camera_preview_video_2.png"><img class="nact" src="img/camera_preview_video_1.png"></span>
 <input type="button" class="whbtn foldersym" value="&#x1f5c2;" id="toloc" onclick="imbc.dispmode=3;imbc.showlocal();imbc.closeham();" style="font-family:Symbol3;padding-left:0.2em;padding-right:0.2em;">
 <span class="whbtn disconnected" style="padding-left:0.4em;padding-right:0.4em;display:none;"> ! &#x1f593; ! &#x1f5be; ! </span>
 <input type="button" data-myvalxlkey="app.install" class="whbtn" onclick="if (bfep) bfep.prompt(); bpef=null; this.style['display']='none';" id="installbutton" style="display:none;font-weight:bold;position:absolute; right:0.5em;">
