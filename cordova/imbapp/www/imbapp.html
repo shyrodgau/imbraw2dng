@@ -21238,11 +21238,11 @@ handleone(orientation) {
 	}
 	let rawname = ImBCBase.basename(f.name);
 	if (rawname.substring(rawname.length - 4).toUpperCase() !== '.RAW') {
-	    /*if (f.imbackextension && rawname.substring(rawname.length - 4).toUpperCase() !== '.JPG') {
+	    if (f.imbackextension && rawname.substring(rawname.length - 4).toUpperCase() !== '.JPG') {
 			   this.mappx(0, 'process.notraw',rawname);
 			   this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), f);
 			   return;
-	    }*/
+	    }
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
 			if (this.totnum > 1) {
@@ -21908,125 +21908,121 @@ imgsdirty = true;
 // grouping in visual dings:
 mingrp = 'd'; // 'h',  day hour
 maxgrp = 'm'; // 'y', 'm' day year month
-rootfs = undefined; // FS
-fto = undefined; // cordova file transfer
+rootfs = undefined; // media
+rootfsx = undefined; // temp
+//subdir='';
 constructor() {
 	super();
 }
+static deesc
 /* ImBCHtmlOut: output one thing via browser */
 writefile(name, type, okmsg, arr1, origname, renameidx) {
 	if (undefined === this.rootfs) {
-		cordova.plugins.safMediastore.selectFolder('').then((str) => {
-            let d = (cordova.platformId === 'android') ? (cordova.file.externalRootDirectory  + 'Download/Imback') : cordova.file.documentsDirectory;
-            console.log('FS: ' + d);
-            window.resolveLocalFileSystemURL(d, (fs) => {
-				this.rootfs = fs;
-				for (const o in ImBCBase.texts.process.copyokcheckdl) {
-					ImBCBase.texts.process.copyokcheckdl[o] = this.isubst(ImBCBase.texts.process.copyokcheckdl[o], 'X', d);
-				}
-				for (const o in ImBCBase.texts.process.convertedcheckdl) {
-					ImBCBase.texts.process.convertedcheckdl[o] = this.isubst(ImBCBase.texts.process.convertedcheckdl[o], 'X', d);
-				}
-				this.writefile(name, type, okmsg, arr1);
-			});
-		});
-		return;
+		try {
+		   cordova.plugins.safMediastore.selectFolder('').then((str) => {
+			   const d = str;
+			   this.rootfs = d;
+			   /*const da = new Date(Date.now());
+			   const a = new Date(da -  da.getTimezoneOffset() * 60000).toISOString();
+			   this.subdir = a.substring(0,4) + a.substring(5,7) + a.substring(8,10) + '_' + a.substring(11,13) + a.substring(14,16);*/
+			   let dispstr = decodeURIComponent(str) ; /*+ '/' + this.subdir;*/
+			   console.log('FS: ' + d);
+			   for (const o in ImBCBase.texts.process.copyokcheckdl) {
+					   ImBCBase.texts.process.copyokcheckdl[o] = this.isubst(ImBCBase.texts.process.copyokcheckdl[o], 'X', dispstr);
+			   }
+			   for (const o in ImBCBase.texts.process.convertedcheckdl) {
+					   ImBCBase.texts.process.convertedcheckdl[o] = this.isubst(ImBCBase.texts.process.convertedcheckdl[o], 'X', dispstr);
+			   }
+				window.resolveLocalFileSystemURL(cordova.file.applicationStorageDirectory, (fs) => {
+					this.rootfsx = fs;
+					this.writefile(name, type, okmsg, arr1);
+				});
+		   }).catch((e) => {
+			   console.log('Unexp ' + JSON.stringify(e));
+			   this.rootfs = undefined;
+			   this.mappx(false, 'words.error');
+			   this.appmsgxl(0, 'process.errsave', name);
+			   this.appmsg(JSON.stringify(e), true);
+			   this.stats.error ++;
+			   this.handlenext();
+		   });
+		} catch(e) {
+		   console.log('Unexp 2 ' + JSON.stringify(x));
+		   this.rootfs = undefined;
+		   this.mappx(false, 'words.error');
+		   this.appmsgxl(0, 'process.errsave', name);
+		   this.appmsg(JSON.stringify(e), true);
+		   this.stats.error ++;
+		   this.handlenext();
+		};
+	   return;
 	}
-	this.rootfs.getFile(name, { create: true , exclusive: true }, (fileEntry) => {
-		// Create a FileWriter object for our FileEntry (log.txt).
+
+	this.rootfsx.getFile(name, { create: true , exclusive: false }, (fileEntry) => {
 		fileEntry.createWriter((fileWriter) => {
-			fileWriter.onwriteend = () => {
-				//console.log("Successful file write...");
-				this.appmsgxl(false, 'words.finished');
-				this.appmsgxl(0, okmsg, name);
-				if (undefined !== renameidx) this.appmsgxl(true, 'node.renamed');
-				else this.appmsg('');
-				if (type !== 'application/zip')
-					this.writepostok(origname ? origname : name);
-			};
-			fileWriter.onerror = (e) => {
-				console.log("Failed file write: " + e.toString());
-				this.mappx(false, 'words.error');
-				this.appmsgxl(0, 'process.errsave', name);
-				this.appmsg(JSON.stringify(e), true);
-				this.stats.error++;
-				this.handlenext();
-			};
-		    if ((arr1.imbackextension ? arr1.data : arr1.buffer).byteLength > 20000000) {
-				   this.writeslice(fileWriter, name, (arr1.imbackextension ? arr1.data : arr1.buffer), () => {
-						   //console.log("Successful file write...");
-						   this.appmsgxl(false, 'words.finished');
-						   this.appmsgxl(0, okmsg, name);
-						   if (undefined !== renameidx) this.appmsgxl(true, 'node.renamed');
-						   else this.appmsg('');
-						   if (type !== 'application/zip')
-								   this.writepostok(origname ? origname : name);
-				   }, (e) => {
-						   console.log("Failed file write: " + e.toString());
-						   this.mappx(false, 'words.error');
-						   this.appmsgxl(0, 'process.errsave', name);
-						   this.appmsg(JSON.stringify(e), true);
-						   this.stats.error++;
-						   this.handlenext();
-				   }, 0);
-		    } else
-				   fileWriter.write(arr1.imbackextension ? arr1.data : arr1.buffer);
+		   this.writeslice(fileWriter, name, (arr1.imbackextension ? arr1.data : arr1.buffer), () => {
+			   cordova.plugins.safMediastore.copyFile({
+					   srcfile: cordova.file.applicationStorageDirectory + '/' + name, filename: name, folder: this.rootfs /*, subFolder: this.subdir*/
+			   }).then((uri) => {
+				   console.log("Successful file write... " + uri);
+				   cordova.plugins.safMediastore.getFileName(uri).then((f) => {console.log('F is ' + f);});
+				   this.appmsgxl(false, 'words.finished');
+				   this.appmsgxl(0, okmsg, name);
+				   if (undefined !== renameidx) this.appmsgxl(true, 'node.renamed');
+				   else this.appmsg('');
+				   fileEntry.remove();
+				   if (type !== 'application/zip')
+						   this.writepostok(origname ? origname : name);
+			   }).catch((e) => {
+				   console.log("catch Failed file write 2: " + e.toString());
+				   this.mappx(false, 'words.error');
+				   this.appmsgxl(0, 'process.errsave', name);
+				   this.appmsg(JSON.stringify(e), true);
+				   this.stats.error++;
+				   this.handlenext();
+				   fileEntry.remove();
+			   });
+			   }, (e) => {
+				   console.log("Failed file write: " + e.toString());
+				   this.mappx(false, 'words.error');
+				   this.appmsgxl(0, 'process.errsave', name);
+				   this.appmsg(JSON.stringify(e), true);
+				   fileEntry.remove();
+				   this.stats.error++;
+				   this.handlenext();
+			   }, 0);
 		});
 	}, (e) => {
 		console.log('Error root get file ' + JSON.stringify(e));
-		if (e.code === 12) {
-			// try renaming
-			if (undefined !== renameidx) {
-				let newname = name;
-				const ldot = name.lastIndexOf('.');
-				const lunder = name.lastIndexOf('_');
-				newname = name.substring(0, lunder) + '_';
-				if (renameidx < 100) newname += '0';
-				if (renameidx < 10) newname += '0';
-				newname += renameidx;
-				newname += '.' + name.substring(ldot + 1);
-				this.writefile(newname, type, okmsg, arr1, origname, renameidx + 1);
-			}
-			else {
-				let newname = name;
-				const ldot = name.lastIndexOf('.');
-				newname = name.substring(0, ldot) + '_001.' + name.substring(ldot + 1);
-				this.writefile(newname, type, okmsg, arr1, name, 2);
-			}
-			return;
-		}
 		this.mappx(false, 'words.error');
 		this.appmsgxl(0, 'process.errsave', name);
 		this.appmsg(JSON.stringify(e), true);
 		this.stats.error++;
 		this.handlenext();
 	});
-	/*const outel = document.getElementById('result');
-	outel.download = name;
-	outel.href = thisurl;
-	outel.click();*/
-	//cordova.InAppBrowser.open(thisurl, '_system');
-	//ImBCHtml.cvWriteFile(name, thisurl);
+	return;
 }
 /* ImBCHtmlOut: Sliced write to file */
 writeslice(fw, name, arr, onok, onerr, off) {
-   fw.onerror = (e) => { onerr(e); }
-   fw.onwriteend = () => {
-           if (off + 20000000 >= arr.byteLength + 1)
-                   onok();
-           else {
-                   setTimeout(() => {
-                           this.rootfs.getFile(name, { create: false }, (fileEntry) => {
-                                   // Create a FileWriter object for our FileEntry (log.txt).
-                                   fileEntry.createWriter((fileWriter) => {
-                                                   this.writeslice(fileWriter, name, arr, () => onok(), (e) => onerr(e), off + 20000000);
-                                   });
-                           });
-                   }, 1);
-           }
-   };
-   fw.seek(off);
-   fw.write(arr.slice(off, off + 20000000));
+	fw.onerror = (e) => { onerr(e); }
+	fw.onwriteend = () => {
+		if (off + 20000000 > arr.byteLength)
+			onok();
+		else {
+			this.rotphase ++;
+			document.getElementById('delprogmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length];
+			setTimeout(() => {
+				this.rootfsx.getFile(name, { create: false }, (fileEntry) => {
+					// Create a FileWriter object for our FileEntry (log.txt).
+					fileEntry.createWriter((fileWriter) => {
+							this.writeslice(fileWriter, name, arr, () => onok(), (e) => onerr(e), off + 20000000);
+					});
+				});
+			}, 1);
+		}
+	};
+	fw.seek(off);
+	fw.write(arr.slice(off, off + 20000000));
 }
 /* ImBCHtmlOut: find html style for translation */
 applystyle(span, msg, base) {
@@ -22704,6 +22700,8 @@ showdisconnect(alsoerr) {
 		for (const e of document.querySelectorAll('.disconnected'))
 			e.style['display'] = '';
 	}
+	for (const e of document.querySelectorAll('.foldersym'))
+		e.style['display'] = '';
 	for (const e of document.querySelectorAll('.photosym'))
 		e.style['display'] = 'none';
 	for (const e of document.querySelectorAll('.moviesym'))
@@ -24700,6 +24698,7 @@ workermsg(msg) {
 			e.style['display'] = '';
 		this.disconnected = true;
 		this.showdisconnect(true);
+		this.showbrowser();
 		break;
 	case 'readjpg':
 		w0 = this.workerstate[0];
@@ -24894,56 +24893,6 @@ static closep(el) {
 	el.parentElement.classList.add('ggttclosed');
 	el.parentElement.parentElement.classList.remove('ggopen');
 	el.parentElement.parentElement.classList.add('ggclosed');
-}
-static b64one(inb) {
-       for (const d of ImBCBase.b64enc) {
-               if (d[0] <= inb && d[1] > inb)
-                       return (d[2] + (inb - d[0]));
-       }
-       return 61; /* = */
-}
-static tob64(buf) {
-       let al = Math.floor(((buf.byteLength + 2)*4)/3);
-       let res = new Uint8Array(4);
-       let ress = '';
-       let i = 0, o = 0;
-       while (i < buf.byteLength) {
-               o=0;
-               let d = buf.byteLength - i;
-               let i1 = buf[i];
-               let i2, i3;
-               res[o++] = ImBCHtml.b64one(Math.floor(i1 / 4));
-               let o2 = (i1 % 4) << 4;
-               let o3, o4;
-               if (d > 1) {
-                       i2 = buf[i+1];
-                       o2 = o2 + Math.floor(i2 / 16);
-                       o3 = (i2 % 16) << 2;
-                       if (d > 2) {
-                               i3 = buf[i+2];
-                               o3 = o3 + Math.floor(i3 / 64);
-                               o4 = (i3 % 64);
-                       }
-                       else o4 = 99;
-               }
-               else {
-                       o3 = 99;
-                       o4 = 99;
-               }
-               res[o++] = ImBCHtml.b64one(o2);
-               res[o++] = ImBCHtml.b64one(o3);
-               res[o++] = ImBCHtml.b64one(o4);
-               ress += String.fromCharCode(...res);
-               i += 3;
-       }
-       /*let ress = '', dd=2000;
-       for (let k=0; k<al; k+=dd) {
-               if (al - k > dd)
-                       ress += String.fromCharCode(...(res.slice(k, k+dd)));
-               else
-                       ress += String.fromCharCode(...(res.slice(k)));
-       }*/
-       return ress; //String.fromCharCode(...res);
 }
 /* Indentation in - end of class ImBCHtml */
 }
