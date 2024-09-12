@@ -21311,7 +21311,7 @@ handleone(orientation) {
 	}
 	if (undefined !== this.rotphase) {
 		this.rotphase ++;
-		document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length];
+		document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ' + this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
 	}
 	const rawnamearr = new TextEncoder().encode(rawname);
 	let dateok = false;
@@ -22035,7 +22035,7 @@ writeslice(fw, name, arr, onok, onerr, off) {
 			onok();
 		else {
 			this.rotphase ++;
-			document.getElementById('delprogmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length];
+			document.getElementById('delprogmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ' + this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
 			setTimeout(() => {
 				this.rootfsx.getFile(name, { create: false }, (fileEntry) => {
 					// Create a FileWriter object for our FileEntry (log.txt).
@@ -24163,7 +24163,7 @@ handlenext() {
 			if (this.fromvisbrows) {
 				document.getElementById('progmsg').style['display'] = '';
 				this.rotphase ++;
-				document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length];
+				document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ' + this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
 			}
 			this.actnum++;
 			this.handleonex();
@@ -24820,7 +24820,7 @@ appinfo() {
 	document.getElementById('okmsg').innerHTML += `<br><span style="font-weight:normal;font-size:75%;">Cordova Plugins: 
 	<a href="#" onclick="window.open('https://github.com/apache/cordova-plugin-inappbrowser/','_system'); return false;">InAppBrowser</a>, 
 	<a href="#" onclick="window.open('https://github.com/apache/cordova-plugin-file/','_system'); return false;">File</a>, 
-	<a href="#" onclick="window.open('https://github.com/frontyard/cordova-plugin-exoplayer/','_system'); return false;">ExoPlayer</a>`
+	<a href="#" onclick="window.open('https://github.com/shyrodgau/cordova-plugin-saf-mediastore/','_system'); return false;">SafMediastore</a>`
 	this.xlateall();
 	this.showmsg();
 }
