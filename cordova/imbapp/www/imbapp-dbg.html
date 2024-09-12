@@ -421,6 +421,7 @@ div[data-state='load'] .btnsrow, div[data-state='wait'] .btnsrow, div[data-state
 .pictitle:not(:nth-child(1)) { border-top: 1px solid black; }
 .picdeleted:before {
 	font-family: Symbol3;
+	font-weight: bold;
 	content: '\1f6c7';
 	position: absolute;
 	font-size: 25px;
@@ -428,7 +429,7 @@ div[data-state='load'] .btnsrow, div[data-state='wait'] .btnsrow, div[data-state
 	color: rgba(255,0,0,0.6);
 	text-shadow: 3px 2px white;
 	padding-left: 1.1em;
-	padding-top: 0.3em;
+	padding-top: 0.5em;
 	pointer-events:none;
 }
 .picprocd:before {
@@ -21310,6 +21311,10 @@ handleone(orientation) {
 		mode += '(' + w + ' x ' + h + ')';
 		typ = ImBCBase.infos[zz].typ;
 	}
+	if (undefined !== this.rotphase) {
+		this.rotphase ++;
+		document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length];
+	}
 	const rawnamearr = new TextEncoder().encode(rawname);
 	let dateok = false;
 	/*// date?
@@ -21907,7 +21912,8 @@ imgsdirty = true;
 // grouping in visual dings:
 mingrp = 'd'; // 'h',  day hour
 maxgrp = 'm'; // 'y', 'm' day year month
-rootfs = undefined; // FS
+rootfs = undefined; // media
+rootfsx = undefined; // temp
 subdir='';
 fto = undefined; // cordova file transfer
 constructor() {
@@ -21915,172 +21921,80 @@ constructor() {
 }
 /* ImBCHtmlOut: output one thing via browser */
 writefile(name, type, okmsg, arr1, origname, renameidx) {
-	/*let b = new Blob([ arr1 ], { type: type });
-	const outel = document.getElementById('result');
-	outel.download = name;
-	//const thisurl = URL.createObjectURL(b);
-	outel.href = 'data:' + type + ';base64,' + arr1.reduce((a, c) => {
-		let x = Math.abs(c).toString(16);
-		return (a + (x.length < 2 ? '0' : '') + x);	
-	}, '');
-	outel.click();
-	this.appmsgxl(false, 'words.finished');
-	this.appmsgxl(true, okmsg, name);
-	if (type !== 'application/zip')
-		this.writepostok(name);
-	return;
-	window.open(outel.href, '_system'); return false;*/
 	if (undefined === this.rootfs) {
-		cordova.plugins.safMediastore.selectFolder('').then((str) => {
-			const d = str;
-			//cordova.plugins.safMediastore.getFileName(str).then((d) => {
-				this.rootfs = d;
-				const a = new Date(Date.now()).toISOString();
-				this.subdir = a.substring(0,4) + a.substring(5,7) + a.substring(8,10) + '_' + a.substring(11,13) + a.substring(14,16);
-				console.log('FS: ' + d);
-				for (const o in ImBCBase.texts.process.copyokcheckdl) {
-					ImBCBase.texts.process.copyokcheckdl[o] = this.isubst(ImBCBase.texts.process.copyokcheckdl[o], 'X', d);
-				}
-				for (const o in ImBCBase.texts.process.convertedcheckdl) {
-					ImBCBase.texts.process.convertedcheckdl[o] = this.isubst(ImBCBase.texts.process.convertedcheckdl[o], 'X', d);
-				}
+	   cordova.plugins.safMediastore.selectFolder('').then((str) => {
+		   const d = str;
+		   this.rootfs = d;
+		   const a = new Date(Date.now()).toISOString();
+		   this.subdir = a.substring(0,4) + a.substring(5,7) + a.substring(8,10) + '_' + a.substring(11,13) + a.substring(14,16);
+		   console.log('FS: ' + d);
+		   for (const o in ImBCBase.texts.process.copyokcheckdl) {
+				   ImBCBase.texts.process.copyokcheckdl[o] = this.isubst(ImBCBase.texts.process.copyokcheckdl[o], 'X', d);
+		   }
+		   for (const o in ImBCBase.texts.process.convertedcheckdl) {
+				   ImBCBase.texts.process.convertedcheckdl[o] = this.isubst(ImBCBase.texts.process.convertedcheckdl[o], 'X', d);
+		   }
+			window.resolveLocalFileSystemURL(cordova.file.applicationStorageDirectory, (fs) => {
+				this.rootfsx = fs;
 				this.writefile(name, type, okmsg, arr1);
-			//});
-		});
-		/*const d = (cordova.platformId === 'android') ? (cordova.file.externalRootDirectory  + 'DCIM/ImBack') : cordova.file.documentsDirectory;
-		console.log('FS: ' + d);
-		window.resolveLocalFileSystemURL(d, (fs) => {
-			this.rootfs = fs;
-			this.writefile(name, type, okmsg, arr1);
-			for (const o in ImBCBase.texts.process.copyokcheckdl) {
-				ImBCBase.texts.process.copyokcheckdl[o] = this.isubst(ImBCBase.texts.process.copyokcheckdl[o], 'X', d);
-			}
-			for (const o in ImBCBase.texts.process.convertedcheckdl) {
-				ImBCBase.texts.process.convertedcheckdl[o] = this.isubst(ImBCBase.texts.process.convertedcheckdl[o], 'X', d);
-			}
-		});*/
-		return;
+			});
+	   });
+	   return;
 	}
-	
-	//const b64d = /*'data:' + type + ';base64,' +*/ arr1.reduce((a, c) => {
-	//	let x = Math.abs(c).toString(16);
-	//	return (a + (x.length < 2 ? '0' : '') + x);	
-	//}, '');
-	cordova.plugins.safMediastore.writeFile({
-		data: ImBCHtml.tob64(arr1), filename: name, folder: this.rootfs, subFolder: this.subdir
-	}).then((uri) => {
-			console.log("Successful file write... " + uri);
-			cordova.plugins.safMediastore.getFileName(uri).then((f) => {console.log('F is ' + f);});
-			this.appmsgxl(false, 'words.finished');
-			this.appmsgxl(0, okmsg, name);
-			if (undefined !== renameidx) this.appmsgxl(true, 'node.renamed');
-			else this.appmsg('');
-			if (type !== 'application/zip')
-				this.writepostok(origname ? origname : name);
-	}).catch(() => {
-		/*// try renaming
-		if (undefined !== renameidx) {
-			let newname = name;
-			const ldot = name.lastIndexOf('.');
-			const lunder = name.lastIndexOf('_');
-			newname = name.substring(0, lunder) + '_';
-			if (renameidx < 100) newname += '0';
-			if (renameidx < 10) newname += '0';
-			newname += renameidx;
-			newname += '.' + name.substring(ldot + 1);
-			this.writefile(newname, type, okmsg, arr1, origname, renameidx + 1);
-		}*/
+
+	this.rootfsx.getFile(name, { create: true , exclusive: false }, (fileEntry) => {
+		fileEntry.createWriter((fileWriter) => {
+		   this.writeslice(fileWriter, name, (arr1.imbackextension ? arr1.data : arr1.buffer), () => {
+			   cordova.plugins.safMediastore.copyFile({
+					   srcfile: cordova.file.applicationStorageDirectory + '/' + name, filename: name, folder: this.rootfs, subFolder: this.subdir
+			   }).then((uri) => {
+				   console.log("Successful file write... " + uri);
+				   cordova.plugins.safMediastore.getFileName(uri).then((f) => {console.log('F is ' + f);});
+				   this.appmsgxl(false, 'words.finished');
+				   this.appmsgxl(0, okmsg, name);
+				   if (undefined !== renameidx) this.appmsgxl(true, 'node.renamed');
+				   else this.appmsg('');
+				   fileEntry.remove();
+				   if (type !== 'application/zip')
+						   this.writepostok(origname ? origname : name);
+			   }).catch((e) => {
+				   console.log("catch Failed file write 2: " + e.toString());
+				   this.mappx(false, 'words.error');
+				   this.appmsgxl(0, 'process.errsave', name);
+				   this.appmsg(JSON.stringify(e), true);
+				   this.stats.error++;
+				   this.handlenext();
+				   fileEntry.remove();
+			   });
+			   }, (e) => {
+				   console.log("Failed file write: " + e.toString());
+				   this.mappx(false, 'words.error');
+				   this.appmsgxl(0, 'process.errsave', name);
+				   this.appmsg(JSON.stringify(e), true);
+				   fileEntry.remove();
+				   this.stats.error++;
+				   this.handlenext();
+			   }, 0);
+		});
+	}, (e) => {
+		console.log('Error root get file ' + JSON.stringify(e));
 		this.mappx(false, 'words.error');
 		this.appmsgxl(0, 'process.errsave', name);
 		this.appmsg(JSON.stringify(e), true);
 		this.stats.error++;
 		this.handlenext();
 	});
-	/*this.rootfs.getFile(name, { create: true , exclusive: true }, (fileEntry) => {
-		// Create a FileWriter object for our FileEntry (log.txt).
-		fileEntry.createWriter((fileWriter) => {
-			fileWriter.onwriteend = () => {
-				console.log("Successful file write...");
-				this.appmsgxl(false, 'words.finished');
-				this.appmsgxl(0, okmsg, name);
-				if (undefined !== renameidx) this.appmsgxl(true, 'node.renamed');
-				else this.appmsg('');
-				if (type !== 'application/zip')
-					this.writepostok(origname ? origname : name);
-			};
-			fileWriter.onerror = (e) => {
-				console.log("Failed file write: " + e.toString());
-				this.mappx(false, 'words.error');
-				this.appmsgxl(0, 'process.errsave', name);
-				this.appmsg(JSON.stringify(e), true);
-				this.stats.error++;
-				this.handlenext();
-			};
-			if ((arr1.imbackextension ? arr1.data : arr1.buffer).byteLength > 20000000) {
-				this.writeslice(fileWriter, name, (arr1.imbackextension ? arr1.data : arr1.buffer), () => {
-					console.log("Successful file write...");
-					this.appmsgxl(false, 'words.finished');
-					this.appmsgxl(0, okmsg, name);
-					if (undefined !== renameidx) this.appmsgxl(true, 'node.renamed');
-					else this.appmsg('');
-					if (type !== 'application/zip')
-						this.writepostok(origname ? origname : name);
-				}, (e) => {
-					console.log("Failed file write: " + e.toString());
-					this.mappx(false, 'words.error');
-					this.appmsgxl(0, 'process.errsave', name);
-					this.appmsg(JSON.stringify(e), true);
-					this.stats.error++;
-					this.handlenext();
-				}, 0);
-			} else
-				fileWriter.write(arr1.imbackextension ? arr1.data : arr1.buffer);
-		});
-	}, (e) => {
-		console.log('Error root get file ' + JSON.stringify(e));
-		if (e.code === 12) {
-			// try renaming
-			if (undefined !== renameidx) {
-				let newname = name;
-				const ldot = name.lastIndexOf('.');
-				const lunder = name.lastIndexOf('_');
-				newname = name.substring(0, lunder) + '_';
-				if (renameidx < 100) newname += '0';
-				if (renameidx < 10) newname += '0';
-				newname += renameidx;
-				newname += '.' + name.substring(ldot + 1);
-				this.writefile(newname, type, okmsg, arr1, origname, renameidx + 1);
-			}
-			else {
-				let newname = name;
-				const ldot = name.lastIndexOf('.');
-				newname = name.substring(0, ldot) + '_001.' + name.substring(ldot + 1);
-				this.writefile(newname, type, okmsg, arr1, name, 2);
-			}
-			return;
-		}
-		this.mappx(false, 'words.error');
-		this.appmsgxl(0, 'process.errsave', name);
-		this.appmsg(JSON.stringify(e), true);
-		this.stats.error++;
-		this.handlenext();
-	});*/
-	/*const outel = document.getElementById('result');
-	outel.download = name;
-	outel.href = thisurl;
-	outel.click();*/
-	//cordova.InAppBrowser.open(thisurl, '_system');
-	//ImBCHtml.cvWriteFile(name, thisurl);
+	return;
 }
 /* ImBCHtmlOut: Sliced write to file */
 writeslice(fw, name, arr, onok, onerr, off) {
 	fw.onerror = (e) => { onerr(e); }
 	fw.onwriteend = () => {
-		if (off + 20000000 >= arr.byteLength + 1)
+		if (off + 20000000 > arr.byteLength)
 			onok();
 		else {
 			setTimeout(() => {
-				this.rootfs.getFile(name, { create: false }, (fileEntry) => {
+				this.rootfsx.getFile(name, { create: false }, (fileEntry) => {
 					// Create a FileWriter object for our FileEntry (log.txt).
 					fileEntry.createWriter((fileWriter) => {
 							this.writeslice(fileWriter, name, arr, () => onok(), (e) => onerr(e), off + 20000000);
@@ -22527,7 +22441,7 @@ checkchecks() {
 /* *************************************** Main class for HTML, forward *************************************** */
 class ImBCHtml extends ImBCHtmlOut {
 /* Indentation out */
-rotphases = [ '|' , '/', '-', '\\' ]; // actually const
+rotphases = [ '-' , '/', '|', '\\', '=', '\\', '|', '/' ]; // actually const
 writestream = null;
 zipdata = null;
 zip = null;
@@ -22545,7 +22459,7 @@ constructor() {
 #loaderrunning=false; // currently handled browser raw preview download
 fromvisbrows = false;
 /* deleting */
-#rotphase = 0;
+rotphase = 0;
 /* ImBCHtml: init the worker */
 initworker() {
 	let scripttext = document.querySelector("script[type='text/js-previewworker']").textContent;
@@ -22602,7 +22516,7 @@ fselected() {
 		document.getElementById('imbvisbrows').disabled = true;
 		document.getElementById('droptarget').style['display'] = 'none';
 		document.getElementById('infile').disabled = true
-		this.#rotphase = 1;
+		this.rotphase = 1;
 		this.fromvisbrows = true;
 		this.showdlprog();
 		this.topreccheck(false);
@@ -23441,7 +23355,7 @@ topreccheck(force) {
 		if (!this.debugflag && dlbtn.classList.contains('disabled')) return;
 		if (this.actnum !== this.allfiles.length) return;
 		let selecteds = [ e ];
-		this.#rotphase = 1;
+		this.rotphase = 1;
 		this.fromvisbrows = true;
 		this.stepmode = 0;
 		this.totnum = 1;
@@ -23644,21 +23558,21 @@ dodelete(list, status) {
 		this.delcancel();
 		return;
 	}
-	else if (list === undefined && this.#rotphase !== -1) {
+	else if (list === undefined && this.rotphase !== -1) {
 		document.getElementById('delokbut').disabled = true;
 		document.getElementById('delcancelbut').disabled = true;
 		this.dodelete(this.imbeles.filter((o) => o.selected), { no: this.imbeles.filter((o) => o.selected).length, ok: 0, err: 0 });
-		this.#rotphase=0;
-		document.getElementById('delprogmsg').innerHTML = this.rotphases[this.#rotphase];
+		this.rotphase=0;
+		document.getElementById('delprogmsg').innerHTML = this.rotphases[this.rotphase];
 		return;
 	} else if (list === undefined) {
 		this.delcancel();
-		this.#rotphase = 0;
+		this.rotphase = 0;
 		document.getElementById('delprogmsg').innerHTML = '';
 	} else if (list.length > 0) {
 		this.custcmdB(4003, 'document', 'str=' + list[0].url, (res) => {
-			this.#rotphase ++;
-			document.getElementById('delprogmsg').innerHTML = this.rotphases[this.#rotphase % this.rotphases.length];
+			this.rotphase ++;
+			document.getElementById('delprogmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length];
 			if (0 <= res) {
 				status.ok++;
 				list[0].selected = false;
@@ -23679,14 +23593,14 @@ dodelete(list, status) {
 		document.getElementById('delprogmsg').innerHTML = this.xl('process.totals', status.no, status.ok, 0, status.err);
 		document.getElementById('delokbut').disabled = false;
 		document.getElementById('delcancelbut').disabled = false;
-		this.#rotphase = -1;
+		this.rotphase = -1;
 	}
 }
 /* ImBCHtml: visual browser: cancel the delete */
 delcancel() {
 	document.getElementById('delq').style['display'] = 'none';
 	document.getElementById('browser').style['display'] = '';
-	this.#rotphase = 0;
+	this.rotphase = 0;
 	document.getElementById('delprogmsg').innerHTML = '';
 	this.showmain();
 	window.scrollTo({ top: 0 });
@@ -23727,7 +23641,7 @@ browserprocess() {
 		document.getElementById('imbvisbrows').disabled = true;
 		document.getElementById('droptarget').style['display'] = 'none';
 		document.getElementById('infile').disabled = true
-		this.#rotphase = 1;
+		this.rotphase = 1;
 		this.fromvisbrows = true;
 		this.showdlprog();
 		this.#startloadimg();
@@ -24002,13 +23916,6 @@ async drophandler(ev) {
 			this.handle1imb(file);
 		});
 	}
-	/*this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
-	this.mappx(true, 'process.droppedn', this.totnum);
-	document.getElementById('imbdoit').disabled = true;
-	document.getElementById('imbvisbrows').disabled = true;
-	document.getElementById('droptarget').style['display'] = 'none';
-	document.getElementById('infile').disabled = true;
-	if (document.getElementById('infileb')) document.getElementById('infileb').disabled = true;*/
 	if (document.getElementById('fakelongexpadd')?.checked) {
 		this.addall = true;
 		this.addscaleall = document.getElementById('fakelongexpscale')?.checked;
@@ -24210,8 +24117,8 @@ handlenext() {
 		else {
 			if (this.fromvisbrows) {
 				document.getElementById('progmsg').style['display'] = '';
-				this.#rotphase ++;
-				document.getElementById('progmsg').innerHTML = this.rotphases[this.#rotphase % this.rotphases.length];
+				this.rotphase ++;
+				document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length];
 			}
 			this.actnum++;
 			this.handleonex();
@@ -24274,14 +24181,6 @@ loadimgs() {
 /* ImBCHtml: check if we are directly on a back */
 checkimb() {
 	if (null === this.previewworker) this.initworker();
-	/*if (!window.location.href.startsWith('http')) {
-		// disconnected?
-		this.disconnected = true;
-		this.showdisconnect();
-		this.showlocal();
-		ImBCHtml.openp(document.getElementById('appsettopener'));
-		return;
-	}*/
 	if (this.debugflag && document) {
 		document.getElementById('dbgcache').value = this.#maxcache;
 		//document.getElementById('debugonly').style['display'] = '';
@@ -24867,17 +24766,8 @@ appinfo() {
 		//	document.getElementById('okmsg').innerHTML += ('<br>Free: ' + Math.round(this.imbfree/100)/10 + ' KB');
 		//document.getElementById('okmsg').innerHTML += ('<br>Free: ' + this.imbfree + ' B');
 	}
-	const a = document.createElement('a');
-	//a.classList.add('aspan');
-	a.setAttribute('data-myxlkey','main.help');
-	a.onclick = () => {
-			console.log('ev click');
-		window.open(this.xl('app.helpurl'), '_system'); return false;
-	};
-	a.href=this.xl('app.helpurl');
-	//a.setAttribute('target','_system');
-	document.getElementById('okmsg').innerHTML += '<br>';
-	document.getElementById('okmsg').append(a);
+	document.getElementById('okmsg').innerHTML += `<br><a href="#" onclick="window.open(imbc.xl('app.helpurl'), '_system'); return false;" data-myxlkey="main.help"></a> `;
+	//document.getElementById('okmsg').append(a);
 	document.getElementById('okmsg').innerHTML += `<br><span style="font-weight:normal;font-size:75%;">Contains parts of <a href="#" onclick="window.open('https://fonts.google.com/noto/specimen/Noto+Sans+Symbols+2', '_system'); return false;">NotoSansSymbols2-Regular</a> font
 	licensed under <a href="#" onclick=" window.open('http://scripts.sil.org/OFL', '_system'); return false;">Open Font License</a>.</span>`;
 	// https://github.com/apache/cordova-plugin-inappbrowser/ https://github.com/apache/cordova-plugin-file/ https://github.com/frontyard/cordova-plugin-exoplayer/
@@ -24983,108 +24873,56 @@ static closep(el) {
 	el.parentElement.parentElement.classList.remove('ggopen');
 	el.parentElement.parentElement.classList.add('ggclosed');
 }
-static cvWriteFile(fname, dataObj) {
-	//ImBCHtml.cvListDir(cordova.file.externalDataDirectory);
-	window.resolveLocalFileSystemURL(cordova.file.externalDataDirectory, function (fs) {
-	//window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function (fs) {
-
-		console.log('file system open: ' + fs.name);
-		fs.getFile(fname, { create: true, exclusive: true }, function (fileEntry) {
-		//fs.getFile('Downloads/' + fname, { create: true, exclusive: false }, function (fileEntry) {
-		//fs.root.getFile('Downloads/' + fname, { create: true, exclusive: false }, function (fileEntry) {
-	
-			console.log("fileEntry is file?" + fileEntry.isFile.toString());
-			//fileEntry.name == fname;
-			//fileEntry.fullPath == fname;
-			// Create a FileWriter object for our FileEntry (log.txt).
-			fileEntry.createWriter(function (fileWriter) {
-				fileWriter.onwriteend = function() {
-					console.log("Successful file write...");
-					/*if (dataObj.type == "image/png") {
-						readBinaryFile(fileEntry);
-					}
-					else {
-						readFile(fileEntry);
-					}*/
-				};
-				fileWriter.onerror = function(e) {
-					console.log("Failed file write: " + e.toString());
-				};
-				fileWriter.write(dataObj);
-			});
-		}, (e) => {
-			console.log('Error root get file ' + JSON.stringify(e));
-		});
-	}, (e) => {
-		console.log('Error resolve ' + JSON.stringify(e));
-	});
-}
-static cvListDir(path){
-  window.resolveLocalFileSystemURL(path,
-    function (fileSystem) {
-      var reader = fileSystem.createReader();
-      reader.readEntries(
-        function (entries) {
-          console.log('EE ' + entries);
-        },
-        function (err) {
-          console.log('RR1 '  + err);
-        }
-      );
-    }, function (err) {
-      console.log('RR2 ' + err);
-    }
-  );
-}
 static b64one(inb) {
-	for (const d of ImBCBase.b64enc) {
-		if (d[0] <= inb && d[1] > inb)
-			return (d[2] + (inb - d[0]));
-	}
-	return 61; /* = */
+       for (const d of ImBCBase.b64enc) {
+               if (d[0] <= inb && d[1] > inb)
+                       return (d[2] + (inb - d[0]));
+       }
+       return 61; /* = */
 }
 static tob64(buf) {
-	let al = Math.floor(((buf.byteLength + 2)*4)/3);
-	let res = new Uint8Array(4);
-	let ress = '';
-	let i = 0, o = 0;
-	while (i < buf.byteLength) {
-		o=0;
-		let d = buf.byteLength - i;
-		let i1 = buf[i];
-		let i2, i3;
-		res[o++] = ImBCHtml.b64one(Math.floor(i1 / 4));
-		let o2 = (i1 % 4) << 4;
-		let o3, o4;
-		if (d > 1) {
-			i2 = buf[i+1];
-			o2 = o2 + Math.floor(i2 / 16);
-			o3 = (i2 % 16) << 2;
-			if (d > 2) {
-				i3 = buf[i+2];
-				o3 = o3 + Math.floor(i3 / 64);
-				o4 = (i3 % 64);
-			}
-			else o4 = 99;
-		}
-		else {
-			o3 = 99;
-			o4 = 99;
-		}
-		res[o++] = ImBCHtml.b64one(o2);
-		res[o++] = ImBCHtml.b64one(o3);
-		res[o++] = ImBCHtml.b64one(o4);
-		ress += String.fromCharCode(...res);
-		i += 3;
-	}
-	/*let ress = '', dd=2000;
-	for (let k=0; k<al; k+=dd) {
-		if (al - k > dd)
-			ress += String.fromCharCode(...(res.slice(k, k+dd)));
-		else
-			ress += String.fromCharCode(...(res.slice(k)));
-	}*/
-	return ress; //String.fromCharCode(...res);
+	//return btoa(String.fromCharCode(...buf));
+       let al = Math.floor(((buf.byteLength + 2)*4)/3);
+       let res = new Uint8Array(4);
+       let ress = '';
+       let i = 0, o = 0;
+       while (i < buf.byteLength) {
+               o=0;
+               let d = buf.byteLength - i;
+               let i1 = buf[i];
+               let i2, i3;
+               res[o++] = ImBCHtml.b64one(Math.floor(i1 / 4));
+               let o2 = (i1 % 4) << 4;
+               let o3, o4;
+               if (d > 1) {
+                       i2 = buf[i+1];
+                       o2 = o2 + Math.floor(i2 / 16);
+                       o3 = (i2 % 16) << 2;
+                       if (d > 2) {
+                               i3 = buf[i+2];
+                               o3 = o3 + Math.floor(i3 / 64);
+                               o4 = (i3 % 64);
+                       }
+                       else o4 = 99;
+               }
+               else {
+                       o3 = 99;
+                       o4 = 99;
+               }
+               res[o++] = ImBCHtml.b64one(o2);
+               res[o++] = ImBCHtml.b64one(o3);
+               res[o++] = ImBCHtml.b64one(o4);
+               ress += String.fromCharCode(...res);
+               i += 3;
+       }
+       /*let ress = '', dd=2000;
+       for (let k=0; k<al; k+=dd) {
+               if (al - k > dd)
+                       ress += String.fromCharCode(...(res.slice(k, k+dd)));
+               else
+                       ress += String.fromCharCode(...(res.slice(k)));
+       }*/
+       return ress; //String.fromCharCode(...res);
 }
 /* Indentation in - end of class ImBCHtml */
 }
@@ -25120,17 +24958,16 @@ function init2() {
 	cordova.plugins.permissions.requestPermission(cordova.plugins.permissions.MANAGE_MEDIA, () => { console.log('M Med Ok '); }, () => { console.log('M Med NOk '); });
 setTimeout(() => {
 	imbc.checkimb();
-}, 20000);
+}, 2000);
 	window.onbeforeunload = () => {
 		imbc.savesettings();
-		let ex = 0;
-		if (imbc.exitmode === 'movie') ex = 1;
-		else if (imbc.exitmode === 'browse') ex = 2;
-		imbc.custcmdB( 3001,  'document', ('par=' + ex));
-		if (document.getElementById('pages').style['display'] === 'none') {
+		if (imbc.onback === 'main') {
 			imbc.showmain();
 			return true;
 		}
+		else if (imbc.onback === 'quit')
+			imbc.doquit();
+		return false;
 	};
 }
 </script>

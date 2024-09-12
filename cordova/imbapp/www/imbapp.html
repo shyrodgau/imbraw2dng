@@ -421,13 +421,14 @@ div[data-state='load'] .btnsrow, div[data-state='wait'] .btnsrow, div[data-state
 .picdeleted:before {
 	content: '\1f6c7';
 	font-family: Symbol3;
+	font-weight: bold;
 	position: absolute;
 	font-size: 25px;
 	z-index: 99;
 	color: rgba(255,0,0,0.6);
 	text-shadow: 3px 2px white;
 	padding-left: 1.1em;
-	padding-top: 0.3em;
+	padding-top: 0.5em;
 	pointer-events:none;
 }
 .picprocd:before {
@@ -21237,11 +21238,11 @@ handleone(orientation) {
 	}
 	let rawname = ImBCBase.basename(f.name);
 	if (rawname.substring(rawname.length - 4).toUpperCase() !== '.RAW') {
-	    if (f.imbackextension && rawname.substring(rawname.length - 4).toUpperCase() !== '.JPG') {
+	    /*if (f.imbackextension && rawname.substring(rawname.length - 4).toUpperCase() !== '.JPG') {
 			   this.mappx(0, 'process.notraw',rawname);
 			   this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), f);
 			   return;
-	    }
+	    }*/
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
 			if (this.totnum > 1) {
@@ -21306,6 +21307,10 @@ handleone(orientation) {
 		mode += '(' + w + ' x ' + h + ')';
 		typ = ImBCBase.infos[zz].typ;
 	}
+   if (undefined !== this.rotphase) {
+	   this.rotphase ++;
+	   document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length];
+   }
 	const rawnamearr = new TextEncoder().encode(rawname);
 	let dateok = false;
 	/*// date?
@@ -21911,23 +21916,23 @@ constructor() {
 /* ImBCHtmlOut: output one thing via browser */
 writefile(name, type, okmsg, arr1, origname, renameidx) {
 	if (undefined === this.rootfs) {
-            const d = (cordova.platformId === 'android') ? cordova.file.externalDataDirectory  : cordova.file.documentsDirectory;
+		cordova.plugins.safMediastore.selectFolder('').then((str) => {
+            let d = (cordova.platformId === 'android') ? (cordova.file.externalRootDirectory  + 'Download/Imback') : cordova.file.documentsDirectory;
             console.log('FS: ' + d);
             window.resolveLocalFileSystemURL(d, (fs) => {
-			this.rootfs = fs;
-			this.writefile(name, type, okmsg, arr1);
-			for (const o in ImBCBase.texts.process.copyokcheckdl) {
-				ImBCBase.texts.process.copyokcheckdl[o] = this.isubst(ImBCBase.texts.process.copyokcheckdl[o], 'X', d);
-			}
-			for (const o in ImBCBase.texts.process.convertedcheckdl) {
-				ImBCBase.texts.process.convertedcheckdl[o] = this.isubst(ImBCBase.texts.process.convertedcheckdl[o], 'X', d);
-			}
+				this.rootfs = fs;
+				for (const o in ImBCBase.texts.process.copyokcheckdl) {
+					ImBCBase.texts.process.copyokcheckdl[o] = this.isubst(ImBCBase.texts.process.copyokcheckdl[o], 'X', d);
+				}
+				for (const o in ImBCBase.texts.process.convertedcheckdl) {
+					ImBCBase.texts.process.convertedcheckdl[o] = this.isubst(ImBCBase.texts.process.convertedcheckdl[o], 'X', d);
+				}
+				this.writefile(name, type, okmsg, arr1);
+			});
 		});
 		return;
 	}
-	let b = new Blob([ arr1 ], { type: type });
-	const thisurl = URL.createObjectURL(b);
-	this.rootfs.getFile(name, { create: true, exclusive: true }, (fileEntry) => {
+	this.rootfs.getFile(name, { create: true , exclusive: true }, (fileEntry) => {
 		// Create a FileWriter object for our FileEntry (log.txt).
 		fileEntry.createWriter((fileWriter) => {
 			fileWriter.onwriteend = () => {
@@ -22458,7 +22463,7 @@ checkchecks() {
 /* *************************************** Main class for HTML, forward *************************************** */
 class ImBCHtml extends ImBCHtmlOut {
 /* Indentation out */
-rotphases = [ '|' , '/', '-', '\\' ]; // actually const
+rotphases = [ '-' , '/', '|', '\\', '=', '\\', '|', '/' ]; // actually const
 writestream = null;
 zipdata = null;
 zip = null;
@@ -22476,7 +22481,7 @@ constructor() {
 #loaderrunning=false; // currently handled browser raw preview download
 fromvisbrows = false;
 /* deleting */
-#rotphase = 0;
+rotphase = 0;
 /* ImBCHtml: init the worker */
 initworker() {
 	let scripttext = document.querySelector("script[type='text/js-previewworker']").textContent;
@@ -22533,7 +22538,7 @@ fselected() {
 		document.getElementById('imbvisbrows').disabled = true;
 		document.getElementById('droptarget').style['display'] = 'none';
 		document.getElementById('infile').disabled = true
-		this.#rotphase = 1;
+		this.rotphase = 1;
 		this.fromvisbrows = true;
 		this.showdlprog();
 		this.topreccheck(false);
@@ -23372,7 +23377,7 @@ topreccheck(force) {
 		if (!this.debugflag && dlbtn.classList.contains('disabled')) return;
 		if (this.actnum !== this.allfiles.length) return;
 		let selecteds = [ e ];
-		this.#rotphase = 1;
+		this.rotphase = 1;
 		this.fromvisbrows = true;
 		this.stepmode = 0;
 		this.totnum = 1;
@@ -23575,21 +23580,21 @@ dodelete(list, status) {
 		this.delcancel();
 		return;
 	}
-	else if (list === undefined && this.#rotphase !== -1) {
+	else if (list === undefined && this.rotphase !== -1) {
 		document.getElementById('delokbut').disabled = true;
 		document.getElementById('delcancelbut').disabled = true;
 		this.dodelete(this.imbeles.filter((o) => o.selected), { no: this.imbeles.filter((o) => o.selected).length, ok: 0, err: 0 });
-		this.#rotphase=0;
-		document.getElementById('delprogmsg').innerHTML = this.rotphases[this.#rotphase];
+		this.rotphase=0;
+		document.getElementById('delprogmsg').innerHTML = this.rotphases[this.rotphase];
 		return;
 	} else if (list === undefined) {
 		this.delcancel();
-		this.#rotphase = 0;
+		this.rotphase = 0;
 		document.getElementById('delprogmsg').innerHTML = '';
 	} else if (list.length > 0) {
 		this.custcmdB(4003, 'document', 'str=' + list[0].url, (res) => {
-			this.#rotphase ++;
-			document.getElementById('delprogmsg').innerHTML = this.rotphases[this.#rotphase % this.rotphases.length];
+			this.rotphase ++;
+			document.getElementById('delprogmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length];
 			if (0 <= res) {
 				status.ok++;
 				list[0].selected = false;
@@ -23610,14 +23615,14 @@ dodelete(list, status) {
 		document.getElementById('delprogmsg').innerHTML = this.xl('process.totals', status.no, status.ok, 0, status.err);
 		document.getElementById('delokbut').disabled = false;
 		document.getElementById('delcancelbut').disabled = false;
-		this.#rotphase = -1;
+		this.rotphase = -1;
 	}
 }
 /* ImBCHtml: visual browser: cancel the delete */
 delcancel() {
 	document.getElementById('delq').style['display'] = 'none';
 	document.getElementById('browser').style['display'] = '';
-	this.#rotphase = 0;
+	this.rotphase = 0;
 	document.getElementById('delprogmsg').innerHTML = '';
 	this.showmain();
 	window.scrollTo({ top: 0 });
@@ -23658,7 +23663,7 @@ browserprocess() {
 		document.getElementById('imbvisbrows').disabled = true;
 		document.getElementById('droptarget').style['display'] = 'none';
 		document.getElementById('infile').disabled = true
-		this.#rotphase = 1;
+		this.rotphase = 1;
 		this.fromvisbrows = true;
 		this.showdlprog();
 		this.#startloadimg();
@@ -23933,13 +23938,6 @@ async drophandler(ev) {
 			this.handle1imb(file);
 		});
 	}
-	/*this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
-	this.mappx(true, 'process.droppedn', this.totnum);
-	document.getElementById('imbdoit').disabled = true;
-	document.getElementById('imbvisbrows').disabled = true;
-	document.getElementById('droptarget').style['display'] = 'none';
-	document.getElementById('infile').disabled = true;
-	if (document.getElementById('infileb')) document.getElementById('infileb').disabled = true;*/
 	if (document.getElementById('fakelongexpadd')?.checked) {
 		this.addall = true;
 		this.addscaleall = document.getElementById('fakelongexpscale')?.checked;
@@ -24141,8 +24139,8 @@ handlenext() {
 		else {
 			if (this.fromvisbrows) {
 				document.getElementById('progmsg').style['display'] = '';
-				this.#rotphase ++;
-				document.getElementById('progmsg').innerHTML = this.rotphases[this.#rotphase % this.rotphases.length];
+				this.rotphase ++;
+				document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length];
 			}
 			this.actnum++;
 			this.handleonex();
@@ -24205,14 +24203,6 @@ loadimgs() {
 /* ImBCHtml: check if we are directly on a back */
 checkimb() {
 	if (null === this.previewworker) this.initworker();
-	/*if (!window.location.href.startsWith('http')) {
-		// disconnected?
-		this.disconnected = true;
-		this.showdisconnect();
-		this.showlocal();
-		ImBCHtml.openp(document.getElementById('appsettopener'));
-		return;
-	}*/
 	if (this.debugflag && document) {
 		document.getElementById('dbgcache').value = this.#maxcache;
 		//document.getElementById('debugonly').style['display'] = '';
@@ -24223,7 +24213,6 @@ checkimb() {
 	this.custcmd([3012, 3024, [3001, 'par=2'], 3017, 2016, [2015, 'par=0'], 3014, [2015, 'par=1'], [3031, 'str=all'],  3030  ], 'document', null, (rc0, doc0) => {
 		if (0 <= rc0) {
 			this.imbmode = 2;
-			console.log(JSON.stringify(doc0));
 			this.connvers = doc0[0].querySelector('Function String').textContent; // 3012
 			this.imbfree = doc0[3].querySelector('Function Value').textContent; // 3017
 			if (this.appname !== 'imbapp') document.getElementById('onimback').style['display'] = '';
@@ -24799,14 +24788,8 @@ appinfo() {
 		//	document.getElementById('okmsg').innerHTML += ('<br>Free: ' + Math.round(this.imbfree/100)/10 + ' KB');
 		//document.getElementById('okmsg').innerHTML += ('<br>Free: ' + this.imbfree + ' B');
 	}
-	const a = document.createElement('a');
-	a.setAttribute('data-myxlkey','main.help');
-	a.onclick = () => {
-		window.open(this.xl('app.helpurl'), '_system'); return false;
-	};
-	a.href=this.xl('app.helpurl');
-	document.getElementById('okmsg').innerHTML += '<br>';
-	document.getElementById('okmsg').append(a);
+	document.getElementById('okmsg').innerHTML += `<br><a href="#" onclick="window.open(imbc.xl('app.helpurl'), '_system'); return false;" data-myxlkey="main.help"></a> `;
+	//document.getElementById('okmsg').append(a);
 	document.getElementById('okmsg').innerHTML += `<br><span style="font-weight:normal;font-size:75%;">Contains parts of <a href="#" onclick="window.open('https://fonts.google.com/noto/specimen/Noto+Sans+Symbols+2', '_system'); return false;">NotoSansSymbols2-Regular</a> font
 	licensed under <a href="#" onclick=" window.open('http://scripts.sil.org/OFL', '_system'); return false;">Open Font License</a>.</span>`;
 	// https://github.com/apache/cordova-plugin-inappbrowser/ https://github.com/apache/cordova-plugin-file/ https://github.com/frontyard/cordova-plugin-exoplayer/
@@ -24889,6 +24872,7 @@ doquit() {
 		else
 			window.close();
 	});
+
 }
 /* ImBHtml: handle back button */
 handleback() {
@@ -24911,58 +24895,55 @@ static closep(el) {
 	el.parentElement.parentElement.classList.remove('ggopen');
 	el.parentElement.parentElement.classList.add('ggclosed');
 }
-static cvWriteFile(fname, dataObj) {
-	//ImBCHtml.cvListDir(cordova.file.externalDataDirectory);
-	window.resolveLocalFileSystemURL(cordova.file.externalDataDirectory, function (fs) {
-	//window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function (fs) {
-
-		console.log('file system open: ' + fs.name);
-		fs.getFile(fname, { create: true, exclusive: true }, function (fileEntry) {
-		//fs.getFile('Downloads/' + fname, { create: true, exclusive: false }, function (fileEntry) {
-		//fs.root.getFile('Downloads/' + fname, { create: true, exclusive: false }, function (fileEntry) {
-	
-			console.log("fileEntry is file?" + fileEntry.isFile.toString());
-			//fileEntry.name == fname;
-			//fileEntry.fullPath == fname;
-			// Create a FileWriter object for our FileEntry (log.txt).
-			fileEntry.createWriter(function (fileWriter) {
-				fileWriter.onwriteend = function() {
-					console.log("Successful file write...");
-					/*if (dataObj.type == "image/png") {
-						readBinaryFile(fileEntry);
-					}
-					else {
-						readFile(fileEntry);
-					}*/
-				};
-				fileWriter.onerror = function(e) {
-					console.log("Failed file write: " + e.toString());
-				};
-				fileWriter.write(dataObj);
-			});
-		}, (e) => {
-			console.log('Error root get file ' + JSON.stringify(e));
-		});
-	}, (e) => {
-		console.log('Error resolve ' + JSON.stringify(e));
-	});
+static b64one(inb) {
+       for (const d of ImBCBase.b64enc) {
+               if (d[0] <= inb && d[1] > inb)
+                       return (d[2] + (inb - d[0]));
+       }
+       return 61; /* = */
 }
-static cvListDir(path){
-  window.resolveLocalFileSystemURL(path,
-    function (fileSystem) {
-      var reader = fileSystem.createReader();
-      reader.readEntries(
-        function (entries) {
-          console.log('EE ' + entries);
-        },
-        function (err) {
-          console.log('RR1 '  + err);
-        }
-      );
-    }, function (err) {
-      console.log('RR2 ' + err);
-    }
-  );
+static tob64(buf) {
+       let al = Math.floor(((buf.byteLength + 2)*4)/3);
+       let res = new Uint8Array(4);
+       let ress = '';
+       let i = 0, o = 0;
+       while (i < buf.byteLength) {
+               o=0;
+               let d = buf.byteLength - i;
+               let i1 = buf[i];
+               let i2, i3;
+               res[o++] = ImBCHtml.b64one(Math.floor(i1 / 4));
+               let o2 = (i1 % 4) << 4;
+               let o3, o4;
+               if (d > 1) {
+                       i2 = buf[i+1];
+                       o2 = o2 + Math.floor(i2 / 16);
+                       o3 = (i2 % 16) << 2;
+                       if (d > 2) {
+                               i3 = buf[i+2];
+                               o3 = o3 + Math.floor(i3 / 64);
+                               o4 = (i3 % 64);
+                       }
+                       else o4 = 99;
+               }
+               else {
+                       o3 = 99;
+                       o4 = 99;
+               }
+               res[o++] = ImBCHtml.b64one(o2);
+               res[o++] = ImBCHtml.b64one(o3);
+               res[o++] = ImBCHtml.b64one(o4);
+               ress += String.fromCharCode(...res);
+               i += 3;
+       }
+       /*let ress = '', dd=2000;
+       for (let k=0; k<al; k+=dd) {
+               if (al - k > dd)
+                       ress += String.fromCharCode(...(res.slice(k, k+dd)));
+               else
+                       ress += String.fromCharCode(...(res.slice(k)));
+       }*/
+       return ress; //String.fromCharCode(...res);
 }
 /* Indentation in - end of class ImBCHtml */
 }
@@ -24975,6 +24956,9 @@ function init() {
 }
 /* onload of html body */
 function init2() {
+	window.open = cordova.InAppBrowser.open;
+	//console.log('Off to ' + window.location.protocol + '//' + window.location.host + '/IMBACK/test.html');
+	//window.open(window.location.protocol + '//' + window.location.host + '/IMBACK/test.html', '_system'); return;
 	imbc = new ImBCHtml();
 	document.getElementById('normal').style['display'] = 'none';
 	imbc.appname = 'imbapp';
@@ -24991,17 +24975,18 @@ function init2() {
 	});
 	cordova.plugins.permissions.requestPermission(cordova.plugins.permissions.WRITE_EXTERNAL_STORAGE, () => { console.log('W Perm Ok '); }, () => { console.log('W Perm NOk '); });
 	cordova.plugins.permissions.requestPermission(cordova.plugins.permissions.READ_EXTERNAL_STORAGE, () => { console.log('R Perm Ok '); }, () => { console.log('R Perm NOk '); });
+	cordova.plugins.permissions.requestPermission(cordova.plugins.permissions.MANAGE_EXTERNAL_STORAGE, () => { console.log('M Perm Ok '); }, () => { console.log('M Perm NOk '); });
+	cordova.plugins.permissions.requestPermission(cordova.plugins.permissions.MANAGE_MEDIA, () => { console.log('M Med Ok '); }, () => { console.log('M Med NOk '); });
 	imbc.checkimb();
 	window.onbeforeunload = () => {
 		imbc.savesettings();
-		let ex = 0;
-		if (imbc.exitmode === 'movie') ex = 1;
-		else if (imbc.exitmode === 'browse') ex = 2;
-		imbc.custcmdB( 3001,  'document', ('par=' + ex));
-		if (document.getElementById('pages').style['display'] === 'none') {
+		if (imbc.onback === 'main') {
 			imbc.showmain();
 			return true;
 		}
+		else if (imbc.onback === 'quit')
+			imbc.doquit();
+		return false;
 	};
 }
 </script>
