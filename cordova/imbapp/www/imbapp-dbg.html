@@ -31,8 +31,8 @@ DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS 
 ***************************************************** 
 -->
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src data: http: 192.168.0.72 *; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval'">
-<meta http-equiv="Content-Security-Policy" content="default-src data: http: 192.168.8.101 *; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval'"-->
+<!--meta http-equiv="Content-Security-Policy" content="default-src data: http: 192.168.0.72 *; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval'"-->
+<meta http-equiv="Content-Security-Policy" content="default-src data: http: 192.168.8.101 *; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval'">
 <meta http-equiv='cache-control' content='no-cache'>
 <meta http-equiv='expires' content='0'>
 <meta http-equiv='pragma' content='no-cache'>
@@ -20851,8 +20851,8 @@ incdcp = true;
 /* ImBCBase: debug */
 debugflag = false;
 useraw = null;
-//imbweb = 'http://192.168.8.101:8080';
-imbweb = 'http://192.168.0.72:8080';
+imbweb = 'http://192.168.8.101:8080';
+//imbweb = 'http://192.168.0.72:8080';
 filmdemo = false;
 
 constructor() {
@@ -24190,13 +24190,17 @@ handlenext() {
 }
 /* ImBCHtml: command handler */
 custcmd(cmd, type, restargs, cb) {
+	if (this.disconnected) {
+		cb({ ok: false, cmd: 'custcmd', rc: -1 });
+		return;
+	}
 	this.workerstate.push({ cb: cb, type: type });
 	this.previewworker.postMessage({ cmd: 'custcmd', c:cmd, type: type, rest: restargs });
 }
 /* ImBCHtml: command handler BLOCKING */
 custcmdB(cmd, type, restargs, cb) {
 	if (this.disconnected) {
-		cb({ ok: false, cmd: 'custcmd' });
+		cb({ ok: false, cmd: 'custcmd', rc: -1 });
 		return;
 	}
 	document.getElementById('overlay').style['display'] = '';
@@ -24340,21 +24344,30 @@ checkimb() {
 				s.setAttribute('data-myxxlst',i); 
 				s.style['font-size'] = '66%';
 				first = true;
-				r.append(s);
+				if (i === 0)
+					document.getElementById('videosett').append(s);
+				else if (i === 1)
+					document.getElementById('photosett').append(s);
+				else
+					r.append(s);
 				for (const l of this.imbsettings) {
 					let e;
 					if (l.name && l.vals && (l.id !== '3008') && (l.id !== '2002') && (e = txt.s[i].r.find((v) => l.id === v.cmd))) {
 						const s = document.createElement('div');
-						if (first) s.style['margin-top'] = '-0.66em';
+						if (first && i === 3) s.style['margin-top'] = '-0.66em';
 						first = false;
 						const sp = document.createElement('span');
 						sp.append(e.title + ': ');
 						sp.setAttribute('data-myxxlsti',l.id);
 						sp.setAttribute('data-myxlarg0',i);
 						s.append(sp);
-						r.append(s);
+						if (i === 0)
+							document.getElementById('videosett').append(s);
+						else if (i === 1)
+							document.getElementById('photosett').append(s);
+						else
+							r.append(s);
 						const o = document.createElement('select');
-						s.append(o);
 						for (const v of l.vals) {
 							const e = document.createElement('option');
 							e.value = v.id;
@@ -24367,23 +24380,12 @@ checkimb() {
 						o.value = l.val;
 						o.onchange = () => {
 							if (l.val !== o.value) {
-								if (i === 0) {
-									this.imbmode = 1;
-									this.custcmdB([[ 3001,'par=1'], [ l.id, 'par=' + o.value ], [2015, 'par=0'], [ 3001,'par=1'], [2015, 'par=1']], 'document', '', (rc) => {
-										this.imbmode = 1;
-										if (!rc)
-											l.val = o.value;
-										else
-											alert(this.rmesc(this.xl('words.error')) + ' ' + sp.innerHTML)
-									});
-								} else {
-									this.custcmdB([[ l.id, 'par=' + o.value ], [2015, 'par=0'], [2015, 'par=1']], 'document', '', (rc) => {
-										if (!rc)
-											l.val = o.value;
-										else
-											alert(this.rmesc(this.xl('words.error')) + ' ' + sp.innerHTML)
-									});
-								}
+								this.custcmdB([[ l.id, 'par=' + o.value ], [2015, 'par=0'], [2015, 'par=1'], [l.id, 'par=' + o.value]], 'document', '', (rc) => {
+									if (!rc)
+										l.val = o.value;
+									else
+										alert(this.rmesc(this.xl('words.error')) + ' ' + sp.innerHTML)
+								});
 							}
 						}
 						s.append(o);
@@ -24394,14 +24396,12 @@ checkimb() {
 					// videoformat ??
 					const l = this.imbsettings.find((v) => (v.id === '2002'));
 					const s = document.createElement('div');
-					if (first) s.style['margin-top'] = '-0.66em';
-					first = false;
 					const sp = document.createElement('span');
 					sp.append(l.name + ': ');
 					sp.setAttribute('data-myxxlsti',l.id);
 					sp.setAttribute('data-myxlarg0',i);
 					s.append(sp);
-					r.append(s);
+					document.getElementById('videosett').append(s);
 					const o = document.createElement('select');
 					s.append(o);
 					for (const v of l.vals) {
@@ -24413,8 +24413,7 @@ checkimb() {
 					o.value = l.val;
 					o.onchange = () => {
 						if (l.val !== o.value) {
-							this.imbmode = 1;
-							this.custcmdB([ [ 3001, 'par=1'], [l.id, 'par=' + o.value], [2015, 'par=0'], [ 3001, 'par=1'], [2015, 'par=1']], 'document', '', (rc) => {
+							this.custcmdB([ [l.id, 'par=' + o.value], [2015, 'par=0'], [2015, 'par=1'], [l.id, 'par=' + o.value]], 'document', '', (rc) => {
 								this.imbmode = 1;
 								if (!rc)
 									l.val = o.value;
@@ -25664,7 +25663,7 @@ function readjpg(file) {
 <span class="grtit ggttminus" onclick="ImBCHtml.closep(this);" data-myxlkey="app.app"> APP </span>
 </div>
 <div class="igxtype">
-<div ><input type="checkbox" id="usezip" onchange="imbc.dirtysettings()"> <label for="usezip" data-myxlkey="main.usezip" id="useziplbl"></label></div>
+<div style="display:none;"><input type="checkbox" id="usezip" onchange="imbc.dirtysettings()"> <label for="usezip" data-myxlkey="main.usezip" id="useziplbl"></label></div>
 <div><span data-myxlkey="app.onexit"></span> <select id="exitsel" onchange="imbc.chgexit();"><option value="photo" data-myxlkey="app.exitphoto"> </option><option value="movie" data-myxlkey="app.exitmovie"> </option><option value="browse" data-myxlkey="app.exitbrowse"> </option></select></div>
 <div><span data-myxlkey="app.lang"></span> <select id="langsel" onchange="imbc.setlang()"><option value="99" onclick="imbc.setlang()">AUTO</option><option value="de" onclick="imbc.setlang()">DE</option><option value="en" selected onclick="imbc.setlang()">EN</option>
 <option value="ja" onclick="imbc.setlang()">JA</option><option value="fr" onclick="imbc.setlang()">FR</option><!--option value="ru" onclick="imbc.setlang()">RU</option--></select></div>
@@ -25756,7 +25755,7 @@ function readjpg(file) {
 <input type="checkbox" id="fakelongexpscale"> <label for="fakelongexpscale" data-myxlkey="main.fakelong.scale"> </label>
 </div>
 <div  style="font-size:133%;margin-top: 0.5em;"><span  data-myxlkey="main.selectrawx"></span> 
-<input  type="file" accept=".raw,.RAW" id="infile" name="infile" multiple onchange="imbc.fselected()">
+<input  type="file" accept=".*" id="infile" name="infile" multiple onchange="imbc.fselected()">
 </div><br>
 </div>
 <!-- end of the normal display -->
@@ -25786,6 +25785,9 @@ function readjpg(file) {
 	</div>
 	<!--div data-myxlkey="app.livehint" data-myxlarg0='http://192.168.1.254:8192/' style="align-self:center;margin:3em;"> </div-->
 	<img id="phpv" width="480" height="320" style="margin-left:3em;margin-right:3em;border:1em solid black;align-self:center; text-align:center; width:480px; height:320px;">
+	<div id="photosett">
+		
+	</div>
 </div>
 </div>
 <!-- end of the take photos -->
@@ -25794,6 +25796,9 @@ function readjpg(file) {
 <div style="display:flex;flex-flow:wrap;">
 <input type="button" onclick="imbc.takemovie()" style="font-weight:bold;font-size:200%;background-color:red;width:97px;height:97px;margin:10px;font-family:Symbol3;border-radius:50%;margin-right: 30px;" value="&#x1f3ac; !">&nbsp;
 	<div data-myxlkey="app.livehint" data-myxlarg0='rtsp://192.168.1.254/stream0/svc0/' style="align-self:center;margin:3em;"> </div>
+	<div id="videosett">
+		
+	</div>
 </div></div>
 <!-- end of the take movies -->
 </div><!-- end of container for navigationable pages -->
