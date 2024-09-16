@@ -22586,6 +22586,7 @@ setpvwait() {
 /* ImBCHtml: show generic msg */
 showmsg() {
 	document.getElementById('phpv').src="";
+	window.ExoPlayer.stop();
 	document.getElementById('genericok').style['display'] = '';
 	document.getElementById('pages').style['display'] = 'none';
 	this.onback = 'main';
@@ -22614,6 +22615,7 @@ showpages() {
 	document.getElementById('browseselectors').style['display'] = 'none';
 	document.getElementById('nobrowse').style['display'] = '';
 	document.getElementById('phpv').src="";
+	window.ExoPlayer.stop();
 	document.getElementById('tobrows').classList.remove('active');
 	document.getElementById('tophot').classList.remove('active');
 	document.getElementById('tomov').classList.remove('active');
@@ -22622,6 +22624,7 @@ showpages() {
 /* ImBCHtml: browserdisplay: show main screen */
 showmain() {
 	document.getElementById('phpv').src="";
+	window.ExoPlayer.stop();
 	document.getElementById('delq').style['display'] = 'none';
 	document.getElementById('genericok').style['display'] = 'none';
 	if (this.dispmode === 1) {
@@ -22638,6 +22641,7 @@ showsplash() {
 	document.getElementById('pages').style['display'] = 'none';
 	this.onback = 'quit';
 	document.getElementById('phpv').src="";
+	window.ExoPlayer.stop();
 	const norm = document.getElementById('normal');
 	if (norm) norm.style['display'] = 'none';
 	//this.dispmode = 0;
@@ -22688,6 +22692,7 @@ showmoviei() {
 	document.getElementById('tomov').classList.add('active');
 	window.scrollTo({ top: 0 });
 	this.imbmode = 1;
+	window.ExoPlayer.show({ url: 'rtsp://192.168.1.254/stream0/svc0/xxx.mp4' });
 }
 /* ImBCHtml: browserdisplay: take movies */
 showmovie() {
@@ -22739,6 +22744,7 @@ showbrowseri() {
 /* ImBCHtml: browserdisplay: open visual browser */
 showbrowser() {
 	document.getElementById('phpv').src="";
+	window.ExoPlayer.stop();
 	if (this.disconnected)
 		this.showbrowseri()
 	else if (this.imgsdirty) {
@@ -22774,6 +22780,7 @@ showlog() {
 	document.getElementById('pages').style['display'] = 'none';
 	this.onback = 'main';
 	document.getElementById('phpv').src="";
+	window.ExoPlayer.stop();
 	document.getElementById('msglog').style['display'] = '';
 	document.getElementById('dlprogress').style['display']='none';
 	window.setTimeout(() => { this.showlastmsg(); }, 100);
@@ -24066,6 +24073,7 @@ showquestion() {
 /* ImBCHtml: browserdisplay: as it says */
 shownormal() {
 	document.getElementById('phpv').src="";
+	window.ExoPlayer.stop();
 	this.custcmdB(3019, 'document', undefined, () => {
 		document.getElementById('pages').style['display'] = 'none';
 		this.onback = 'main';
@@ -24780,6 +24788,7 @@ appinfo() {
 	document.getElementById('pages').style['display'] = 'none';
 	this.onback = 'main';
 	document.getElementById('phpv').src="";
+	window.ExoPlayer.stop();
 	document.getElementById('genericok').style['border-color'] = 'grey';
 	document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('main.apptitle'));
 	document.getElementById('okmsg').innerHTML += '<br>';
@@ -24813,6 +24822,7 @@ appinfo() {
 /* ImBCHtml: take a photo */
 takephoto() {
 	document.getElementById('phpv').src="";
+	window.ExoPlayer.stop();
 	this.custcmdB(1001, 'document', 'par=0', (rc, doc) => {
 		this.imgsdirty = true;
 		if (rc >= 0) {

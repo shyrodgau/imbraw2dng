@@ -16,6 +16,7 @@
     "cordova-android": "^13.0.0",
     "cordova-plugin-android-permissions": "^1.1.5",
     "cordova-plugin-exclude-files": "^1.0.1",
+    "cordova-plugin-exoplayer": "github:frontyard/cordova-plugin-exoplayer",
     "cordova-plugin-file": "^8.1.0",
     "cordova-plugin-inappbrowser": "^6.0.0",
     "cordova-plugin-saf-mediastore": "github:shyrodgau/cordova-plugin-saf-mediastore",
@@ -26,11 +27,14 @@
       "android"
     ],
     "plugins": {
-      "cordova-plugin-file": {},
+      "cordova-plugin-exclude-files": {},
+      "cordova-plugin-saf-mediastore": {},
       "cordova-plugin-inappbrowser": {},
       "cordova-plugin-android-permissions": {},
-      "cordova-plugin-saf-mediastore": {},
-      "cordova-plugin-exclude-files": {}
+      "cordova-plugin-file": {
+        "ANDROIDX_WEBKIT_VERSION": "1.4.0"
+      },
+      "cordova-plugin-exoplayer": {}
     }
   },
   "dependencies": {
