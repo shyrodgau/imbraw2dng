@@ -447,7 +447,7 @@ body { margin: 0; }
 .biggiebtn:not(.disabled), .dlbtn:not(.disabled), .aspan { cursor: pointer; }
 .dlbtn.biggiebtn { left: .1em; margin-top: -0.1em; }
 .biggiebtn.disabled { display: none; }
-.biggiebtn.rotbtn, .biggiebtn.rotbtnr { margin-top: -0.2em; }
+.biggiebtn.rotbtn, .biggiebtn.rotbtnr { margin-top: -0.2em; font-family:Symbol3; }
 .dlbtn:not(.biggiebtn) { vertical-align: bottom; font-weight: bold; }
 .igtype { display: flex; flex-flow: wrap;border-top: 0; padding:0.1em; min-height:9em; }
 .onepic { margin: -1px; width: fit-content; display: flex; flex-direction: column; padding: 0.1em;position: relative; }
@@ -25065,7 +25065,7 @@ function init2() {
 <script type="text/js-previewworker" language="javascript">
 /* *************************************** Main class for WORKER *************************************** */
 let cmd, n, cache, ori, fl, base, msg = false;
-let progress = false, queue = [], wdtimer, currcust, dbgflag = true,	errcount = 0, constwb = false;
+let progress = false, queue = [], wdtimer, currcust, dbgflag,	errcount = 0, constwb = false;
 /* WORKER image formats */
 const infos = [ // actually const
 	{
