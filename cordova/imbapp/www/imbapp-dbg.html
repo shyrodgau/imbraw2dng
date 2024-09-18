@@ -31,8 +31,8 @@ DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS 
 ***************************************************** 
 -->
 <head>
-<!--meta http-equiv="Content-Security-Policy" content="default-src data: http: 192.168.0.72 *; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval'"-->
-<meta http-equiv="Content-Security-Policy" content="default-src data: http: 192.168.8.101 *; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval'">
+<meta http-equiv="Content-Security-Policy" content="default-src data: http: 192.168.0.72 *; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval'">
+<!--meta http-equiv="Content-Security-Policy" content="default-src data: http: 192.168.8.101 *; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval'"-->
 <meta http-equiv='cache-control' content='no-cache'>
 <meta http-equiv='expires' content='0'>
 <meta http-equiv='pragma' content='no-cache'>
@@ -448,7 +448,7 @@ body { margin: 0; }
 .biggiebtn:not(.disabled), .dlbtn:not(.disabled), .aspan { cursor: pointer; }
 .dlbtn.biggiebtn { left: .1em; margin-top: -0.1em; }
 .biggiebtn.disabled { display: none; }
-.biggiebtn.rotbtn, .biggiebtn.rotbtnr { margin-top: -0.2em; }
+.biggiebtn.rotbtn, .biggiebtn.rotbtnr { margin-top: -0.2em; font-family: Symbol3; }
 .dlbtn:not(.biggiebtn) { vertical-align: bottom; font-weight: bold; }
 .igtype { display: flex; flex-flow: wrap;border-top: 0; padding:0.1em; min-height:9em; }
 .onepic { margin: -1px; width: fit-content; display: flex; flex-direction: column; padding: 0.1em;position: relative; }
@@ -554,6 +554,7 @@ img.whbtn { height:1.33em; position:relative; top:0.5em; }
 #batt2.battmed { height: 0.5em; }
 #batt1.battlo { background-color: #ff5555; }
 #batt2.battlo { height: 0.8em; }
+.btom { border-top: 1px solid black; padding-top: 1em; }
 </style>
 <script src="cordova.js"></script>
 <!-- javascript code CURRENTLY NOT identical to imbraw2dng.js  for the classes IFDOut, TIFFOut, ZIPHelp, ImBCBase, ImBCBackw. -->
@@ -2028,6 +2029,26 @@ static texts = { // actually const
 				en: 'Quit',
 				de: 'Ende',
 				ja: 'やめる'
+			},
+			extras: {
+				en: 'Extras',
+				de: 'Extras',
+				ja: 'Extras',
+				copytoimb: {
+					de: 'Wenn Sie die imbapp.htm Seite auf ImB installieren, können Sie mit einem beliebigen Webbrowser unter der Adresse http://192.168.1.254/IMBACK/IMBAPP.HTM auch fast alles machen.',
+					en: 'When you install imbapp.htm page on ImB, you can do nearly everything with any web browser at the addresse http://192.168.1.254/IMBACK/IMBAPP.HTM.',
+					ja: 'When you install imbapp.htm page on ImB, you can do nearly everything with any web browser at the addresse http://192.168.1.254/IMBACK/IMBAPP.HTM.'
+				},
+				clearcache: {
+					de: 'Internen Zwichenspeicher löschen',
+					en: 'Clear internal cache',
+					ja: 'Clear internal cache'
+				},
+				cachesize: {
+					en: 'RAW Cache Size:',
+					de: 'RAW Zwischenspeichergröße:',
+					ja: 'RAW Cache Size:'
+				}
 			},
 		},
 		okay: {
@@ -20932,8 +20953,8 @@ incdcp = true;
 /* ImBCBase: debug */
 debugflag = false;
 useraw = null;
-imbweb = 'http://192.168.8.101:8080';
-//imbweb = 'http://192.168.0.72:8080';
+//imbweb = 'http://192.168.8.101:8080';
+imbweb = 'http://192.168.0.72:8080';
 filmdemo = false;
 
 constructor() {
@@ -22165,8 +22186,6 @@ appmsg(msg, opt) {
 	this.#dispcnt++;
 	s.id = 'mappx_' + this.#dispcnt;
 	const msgel = document.getElementById('outmsg');
-	const xmsg = document.getElementById('xmsg');
-	xmsg.style["display"] = "";
 	msgel.append(s);
 	const ll = document.getElementById('mappx_' + this.#dispcnt);
 	if (ll) {
@@ -22183,8 +22202,6 @@ appmsgxl(opt, msg, arg0, arg1, arg2, arg3) {
 	this.#dispcnt++;
 	s.id = 'mappx_' + this.#dispcnt;
 	const msgel = document.getElementById('outmsg');
-	const xmsg = document.getElementById('xmsg');
-	xmsg.style["display"] = "";
 	msgel.append(s);
 	const ll = document.getElementById('mappx_' + this.#dispcnt);
 	if (ll) {
@@ -22484,6 +22501,7 @@ parseconfig(data) {
 	if (d.zip && window.showSaveFilePicker && !this.imbcb) document.getElementById('usezip').checked = true;
 	if (d.step) this.stepmode = 1;
 	if (d.exitmode) this.exitmode = d.exitmode;
+	if (d.maxcache) this.maxcache = d.maxcache;
 	else this.stepmode = 0;
 }
 /* ImBCHtmlOut: browserdisplay: put last message viewable */
@@ -22590,7 +22608,7 @@ constructor() {
 	super();
 }
 // from the back itself
-#maxcache = 30; // max. length of cache for already downloaded raw data - you may increase or decrease this
+maxcache = 30; // max. length of cache for already downloaded raw data - you may increase or decrease this
 #cache = []; // actual cache buffer
 #loaderrunning=false; // currently handled browser raw preview download
 fromvisbrows = false;
@@ -22698,6 +22716,7 @@ showmsg() {
 	document.getElementById('phpv').src="";
 	document.getElementById('genericok').style['display'] = '';
 	document.getElementById('pages').style['display'] = 'none';
+	document.getElementById('extraid').style['display'] = 'none';
 	this.onback = 'main';
 	this.closeham();
 }
@@ -22707,6 +22726,7 @@ showpages() {
 	document.getElementById('pages').style['display'] = '';
 	const norm = document.getElementById('normal');
 	if (norm) norm.style['display'] = 'none';
+	document.getElementById('extraid').style['display'] = 'none';
 	const splash = document.getElementById('splash');
 	const quest = document.getElementById('question');
 	if (quest) quest.style['display'] = 'none';
@@ -23845,7 +23865,8 @@ savesettings() {
 					'zip': document.getElementById('usezip')?.checked,
 					'owb': document.getElementById('oldstylewb')?.checked,
 					'ndcp': !document.getElementById('incdcp')?.checked,
-					'exitmode': this.exitmode
+					'exitmode': this.exitmode,
+					'maxcache': this.maxcache
 				}
 			));
 		}
@@ -24175,6 +24196,15 @@ showquestion() {
 	document.getElementById('qhdr').innerHTML = '';
 	document.getElementById('browser').style['display'] = 'none';
 }
+/* ImBCHtml: show extras */
+showextras() {
+	document.getElementById('phpv').src="";
+	document.getElementById('pages').style['display'] = 'none';
+	this.onback = 'main';
+	window.onscroll = () => undefined;
+	window.onresize = () => undefined;
+	document.getElementById('extraid').style['display'] = '';
+}
 /* ImBCHtml: browserdisplay: as it says */
 shownormal() {
 	document.getElementById('phpv').src="";
@@ -24245,7 +24275,7 @@ rot0() {
 }
 /* ImBCHtml: visual browser: change cache size (currently only visible in debug _00) */
 chgcache() {
-	this.#maxcache = document.getElementById('dbgcache').value;
+	this.maxcache = document.getElementById('dbgcache').value;
 }
 /* ImBCHtml: continue with the next file if any */
 handlenext() {
@@ -24330,10 +24360,7 @@ loadimgs() {
 /* ImBCHtml: check if we are directly on a back */
 checkimb() {
 	if (null === this.previewworker) this.initworker();
-	if (this.debugflag && document) {
-		document.getElementById('dbgcache').value = this.#maxcache;
-		//document.getElementById('debugonly').style['display'] = '';
-	}
+	document.getElementById('dbgcache').value = this.maxcache;
 	let imblang = '';
 	this.imblang = false;
 	const ll = '00' === this.mylang ? 'en' : this.mylang;
@@ -24642,7 +24669,7 @@ findcache(url) {
 /* ImBCHtml: add to cache */
 addcache(name, entry) {
 	this.#cache.push({ url: ImBCBase.basename(name), d: entry.data, l: entry.len, reader: entry.reader });
-	if (this.#cache.length > this.#maxcache) this.#cache.splice(0,1);
+	while (this.#cache.length > this.maxcache) this.#cache.splice(0,1);
 }
 /* ImBCHtml: file/filereader like interface for imback http */
 // url can also be an imbele member
@@ -24678,7 +24705,7 @@ resolver(url, preview, onok, onerr, notfirst) {
 		if (0 >= len) len=1;
 		if (notfirst && (url.substring(url.length -4).toUpperCase() === '.RAW') && len > 10000) {
 			this.#cache.push({ url: url, d: xhr.response, l: len });
-			if (this.#cache.length > this.#maxcache) this.#cache.splice(0,1);
+			while (this.#cache.length > this.maxcache) this.#cache.splice(0,1);
 		}
 		fx.data = xhr.response;
 		fx.size = xhr.response.byteLength;
@@ -25041,6 +25068,68 @@ static closep(el) {
 	el.parentElement.parentElement.classList.remove('ggopen');
 	el.parentElement.parentElement.classList.add('ggclosed');
 }
+/* ImBCHtml: upload html */
+copytoimb() {
+	let xhr = new XMLHttpRequest();
+	xhr.responseType = 'blob';
+	xhr.onload = (/*evt*/) => {
+		if (xhr.status !== 200) {
+			console.log('XHR send exception (post5) for ');
+			document.getElementById('genericok').style['border-color'] = 'red';
+			document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.install'));
+			this.showmsg();
+			return;
+		}
+		let xhr2 = new XMLHttpRequest();
+		let fd = new FormData();
+		fd.append('fileupload1', xhr.response, 'IMBAPP.HTM');
+		fd.append('upbtn', 'Upload Files');
+		xhr2.onerror = (e) => { xhr.onerror(e); };
+		xhr2.onaboer = (e) => { xhr.onerror(e); };
+		xhr2.ontimeout = (e) => { xhr.onerror(e); };
+		xhr2.responseType = 'document';
+		xhr2.onload = () => {
+			if (xhr2.status !== 200) {
+				console.log('XHR send exception (post2) for ');
+				document.getElementById('genericok').style['border-color'] = 'red';
+				document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.install'));
+				this.showmsg();
+				return;
+			}
+			document.getElementById('genericok').style['border-color'] = 'green';
+			document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('app.okay'));
+			this.showmsg();
+		};
+		try {
+			xhr2.open('POST', this.imbweb + '/IMBACK');
+			xhr2.send(fd);
+		} catch (e) {
+			console.log('XHR send exception (post4) for ');
+			document.getElementById('genericok').style['border-color'] = 'red';
+			document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.install'));
+			this.showmsg();
+		}
+	};
+	xhr.onerror = (evt, typ) => {
+		console.log('XZY');
+		document.getElementById('genericok').style['border-color'] = 'red';
+		document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.install'));
+		this.showmsg();
+	};
+	xhr.onabort = (evt) => { xhr.onerror(evt, 'abort'); };
+	xhr.ontimeout = (evt) => { xhr.onerror(evt, 'timeout'); };
+	xhr.open('GET', this.imbweb + '/imbapp.htm');
+	xhr.setRequestHeader('Cache-control','max-stale');
+	xhr.timeout = 30000;
+	try {
+		xhr.send();
+	} catch (e) {
+		console.log('XHR send exception (post) for ');
+		document.getElementById('genericok').style['border-color'] = 'red';
+		document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.install'));
+		this.showmsg();
+	}
+}
 /* Indentation in - end of class ImBCHtml */
 }
 /* *************************************** Main class for HTML, forward E N D *************************************** */
@@ -25175,7 +25264,7 @@ onmessage = (e) => {
 		return;
 	}
 	if (progress) {
-		if (dbgflag) console.log('WORKER PUSHING ' + e.data.cmd);
+		if (dbgflag) console.log('WORKER PUSHING ' + e.data.cmd + ' [' + progress + ']');
 		queue.push(e);
 		return;
 	}
@@ -25311,10 +25400,11 @@ function resolver(url, preview, notfirst)  {
 }
 /* WORKER: handle wait queue */
 function handlewait() {
+	let p = progress;
 	progress = false;
 	if (queue.length > 0) {
 		const e = queue[0];
-		if (dbgflag) console.log('WORKER CONTINUE ' + e.data.cmd);
+		if (dbgflag) console.log('WORKER CONTINUE ' + e.data.cmd + ' [' + p + ']');
 		queue.splice(0,1);
 		onmessage(e);
 	}
@@ -25631,7 +25721,7 @@ function watchdog() {
 		}
 		else {
 			postMessage({ cmd: 'battstat', txt: rc.results });
-			if (dbgflag) console.log('WORKER WATCHDOG' + rc.results);
+			//if (dbgflag) console.log('WORKER WATCHDOG' + rc.results);
 			if (wdtimer) clearTimeout(wdtimer);
 		}
 		wdtimer = setTimeout(() => {
@@ -25676,7 +25766,7 @@ function custcmdi(c, t, restargs, cb, results) {
 			}
 		}
 		else {
-			if (dbgflag) console.log('WORKER custcmd !== 200: ' + thecmd);
+			console.log('WORKER custcmd !== 200: ' + thecmd);
 			cb({ cmd: 'custcmd', ok: false, results: (results instanceof Array) ? results : xhr.response, rc: -1, cmds: currcust });
 			currcust = undefined;
 			handlewait();
@@ -25834,14 +25924,31 @@ function readjpg(file) {
 <div id="outmsg"></div></div>
 </div>
 <!-- end of the message log, generated content appended -->
+<!-- this is the Extras -->
+<div id="extraid" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
+<div style="position:fixed; top:0; left:0; width:100%;background-color:black;z-index:997;color:white;"><div>&nbsp;<span id="extrasx"><input type="button" value="&#x2190;" class="whbtn" style="font-size:200%;padding:0 !important; border:0 !important;" onclick="imbc.showmain()"></span>
+<span class="whbtn disconnected" style="font-weight:bold;font-family:Symbol3;padding-left:0.4em;padding-right:0.4em;background-color:red !important;display:none;"> ! &#x1f593; ! </span>
+</div>
+</div>
+<div style="width: fit-content;white-space: pre-wrap;"><span style="font-weight:bold;" data-myxlkey="app.menu.extras"></span><br>
+<div>
+<div><span data-myxlkey="app.menu.extras.copytoimb"></span><br>
+<input type="button" data-myvalxlkey="app.install" onclick="imbc.copytoimb();">
+</div>
+<div class="btop"><input type="button" data-myvalxlkey="app.menu.extras.clearcache"></div>
+<div class="btop"><span data-myxlkey="app.menu.extras.cachesize">Visual Browser Cache Size:</span> <input type="number" onchange="imbc.chgcache()" id="dbgcache" style="width: 5em;"></div>
+</div></div>
+</div>
+<!-- end of the extras -->
 <div id="pages" style="display:none;"><!-- container for navigationable pages -->
 <!-- hamburger menu -->
 <div id="hammen" style="position:fixed; left: 0; width: fit-content; background-color:white; z-index:998; top:2em;color:black;display:none;border:1px solid gray;border-bottom-right-radius:10px;border-bottom-left-radius:10px;">
 <div class="hammenent" onclick="imbc.closeham();imbc.settime()"><span  style="font-family:Symbol3;">&#x1f570;</span> <span data-myxlkey='app.menu.settime'>Set ImB Time</span></div>
 <div class="hammenent" id="hamlog" onclick="imbc.closeham();imbc.showlog();"><span  style="font-family:Symbol3;">&#x1f5ce;</span> <span data-myxlkey='app.menu.msglog'>Msg Log</span></div>
 <div class="hammenent" onclick="imbc.closeham();imbc.shownormal();"><span  style="font-family:Symbol3;">&#x1f6e0;</span> <span data-myxlkey='app.menu.settings'>Settings</span></div>
-<div class="hammenent" onclick="imbc.closeham();imbc.appinfo();"><span style="font-weight:bold;">?</span> <span data-myxlkey='app.menu.info'>Info</span></div>
-<div class="hammenent" id="quitelem" onclick="imbc.closeham();imbc.doquit();"><span style="font-weight:bold;">&lt;<span style="margin-left:-0.2em;">&ndash;</span></span> <span data-myxlkey='app.menu.quit'>Quit</span></div>
+<div class="hammenent" onclick="imbc.closeham();imbc.showextras();"><span  style="font-family:Symbol3;">&#x1f578;</span> <span data-myxlkey='app.menu.extras'>Extras</span></div>
+<div class="hammenent" onclick="imbc.closeham();imbc.appinfo();" style="border-top: 1px solid black;"><span style="font-weight:bold;">?</span> <span data-myxlkey='app.menu.info'>Info</span></div>
+<div class="hammenent" id="quitelem" onclick="imbc.closeham();imbc.doquit();" style="border-top: 1px solid black;"><span style="font-weight:bold;">&lt;<span style="margin-left:-0.2em;">&ndash;</span></span> <span data-myxlkey='app.menu.quit'>Quit</span></div>
 </div>
 <!-- end of hamburger menu -->
 <!-- navigation header -->
@@ -25958,7 +26065,6 @@ function readjpg(file) {
 <!-- end of block overlay -->
 <!-- debug -->
 <div id="debugonly" style="display:none;">
-Visual Browser Cache Size: <input type="number" onchange="imbc.chgcache()" id="dbgcache" style="width: 5em;"><br>
 Debugging: <input type="file" onchange="imbc.dodebug()" accept=".html,.htm,.xml" id="dbgfsel">
 Replaceraw: <input type="file" onchange="imbc.replraw()" accept=".raw,.RAW" id="dbgreplraw"><br>
 <span style="font-weight: bold;font-family:Symbol3;">&#x1f4f7; &#x1f3a5; &#x2261; &#x1f570; &#x2190; &#x2261; &#x1f5c9; &#x1f5ce; &#x1f5cf; &#x1f5c4; &#x33d2; &#x2699;</span> <span style="font-family:Symbol3;">&#x1f4f7; &#x1f3a5; &#x2261; &#x1f570; &#x2190; &#x2261; &#x1f5c9; &#x1f5ce; &#x1f5cf; &#x1f5c4; &#x33d2; &#x2699;</span> 
