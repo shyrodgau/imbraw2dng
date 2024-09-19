@@ -30,6 +30,10 @@ Nachteile gegenüber bisherigem imbraw2dng, wenn nicht auf ImB benutzt:
 
 Die Datei [imbapp.htm](https://github.com/shyrodgau/imbraw2dng/raw/master/imbapp.htm) auf den Computer oder Smartphone herunterladen.
 
+## Android
+
+Die [echte App](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk) installieren und Extras Menü schauen.
+
 ### Mit einem Micro SD Kartenleser/Adapter
 
 Die Micro SD aus der ImB entnehmen und in (einen Adapter am) Computer stecken. Wenn keiner da, müsste ich einen alternativen Weg beschreiben, bitte frag danach.
@@ -59,9 +63,11 @@ Nicht gut getestet, bitte ein genaues Auge darauf haben und Bescheid sagen, wenn
 
 ## Als App installieren
 
-Dies könnte nicht möglich sein, weil der Standard hierfür zwingend eine https Verbindung vorsieht, die ImB nicht hergibt.
+Auf Browser als Progressive Web App könnte dies nicht möglich sein, weil der Standard hierfür zwingend eine https Verbindung vorsieht, die ImB nicht hergibt.
 
 Bei den meisten Browser sollte man aber ein Lesezeichen erstellen können, oder auf Smartphone, eine Verknüpfung auf dem Startbildschirm, was dann fast wie eine App funktioniert.
+
+Auf Android gibt es jetzt eine [echte App](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk).
 
 ## Lokal benutzen
 

@@ -29,6 +29,10 @@ Disadvantages over the classic imbraw2dng when not used on the ImB:
 
 Download the file [imbapp.htm](https://github.com/shyrodgau/imbraw2dng/raw/master/imbapp.htm) to your computer or smartphone.
 
+### Android:
+
+Install the [real app](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk) and use the extras menu.
+
 ### Using a Micro SD reader/adapter
 
 Take the Micro SD from your back and insert it into Micro SD Adapter on your computer or phone.
@@ -59,9 +63,11 @@ It has not been tested very good, please keep an eye on it and tell me if someth
 
 ## Install the APP
 
-This may not be possible at the moment because the standard requires https connection which ImB can not provide.
+As Progressive Web App in browser, this may not be possible at the moment because the standard requires https connection which ImB can not provide.
 
 But most browser should allow to either add a bookmark for it or, on mobile, add a desktop shortcut that you can use like an app.
+
+On android, you can use the [real app](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk).
 
 ## Use locally
 
