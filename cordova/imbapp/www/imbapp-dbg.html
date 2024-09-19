@@ -18615,23 +18615,10 @@ handleone(orientation) {
 	  }
 	  else {
 		setTimeout(() => {
-		  if (this.previewworker) {
 			  this.previewworker.postMessage({ cmd: 'resolveandhandle', n: (f.url ? f.url : f), o: orientation });
 			  // onmessage: { ok?, n: f.name, o: orientation, fl: fromloop, c: cacheentry }
 			  // set allfiles[this.actnum] to cacheentry.reader and call handleone(o, fl)
 			  // add cache
-		  } else {
-			  this.resolver(f, false, (url, fx, rot) => {
-					this.allfiles[this.actnum] = fx;
-					this.handleone(rot ? rot: orientation);
-				}, (url) => {
-					this.mappx(false, 'words.sorryerr');
-					this.mappx(true, 'process.erraccess', url);
-					this.stats.error ++;
-					if (undefined !== this.exitcode) this.exitcode++;
-					this.handlenext();
-			  });
-		  }
 		}, 10);
 	  }
 	  return;
@@ -21153,7 +21140,6 @@ buildpreview(f, onok, onerr, orientation, targ, afterload) {
 	let w, h, typ;
 	if (undefined === f.size) {
 		window.setTimeout(() => {
-		  if (this.previewworker) {
 		  	  let cachehit;
 		  	  if ((cachehit = this.findcache(f.url ? f.url :f))) {
 		  	  	  this.workerstate.push({ cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :f), o: orientation, onok: onok, onerr: onerr, t: targ });
@@ -21166,13 +21152,6 @@ buildpreview(f, onok, onerr, orientation, targ, afterload) {
 		  	  	  // onmessage: { pix: array, n: name, o: orientation, c: cacheentry }
 		  	  	  // ctx.putImageData(new ImageData(outpix, transpose ? h8: w8, transpose? w8 :h8), 0, 0); onok(f); add cache
 		  	  }
-		  } else {
-			  this.resolver(f, true, (url, fx) => {
-					this.buildpreview(fx, onok, onerr, orientation, targ, afterload);
-				}, (/*url*/) => {
-					onerr(f);
-			  });
-		  }
 		}, 10);
 		return;
 	}
@@ -21724,92 +21703,6 @@ addcache(name, entry) {
 	this.#cache.push({ url: ImBCBase.basename(name), d: entry.data, l: entry.len, reader: entry.reader });
 	while (this.#cache.length > this.maxcache) this.#cache.splice(0,1);
 }
-/* ImBCHtml: file/filereader like interface for imback http */
-// url can also be an imbele member
-resolver(url, preview, onok, onerr, notfirst) {
-	let rot, e = url;
-	if (url.url) {
-		e = url;
-		url = e.url;
-		rot = e.rot;
-	}
-	let fx = {
-		imbackextension: true,
-		name: url
-	};
-	const ii = this.#cache.findIndex((v) => (v.url === url));
-	if (ii !== -1) {
-		fx.data = this.#cache[ii].d;
-		fx.size = this.#cache[ii].l;
-		fx.readAsArrayBuffer = (fy) => {
-			fy.onload({
-				target: {
-					result: fy.data				}
-			});
-		};
-		window.setTimeout(() => {
-			onok(url, fx, rot);
-		}, 10);
-		return;
-	}
-	let xhr = new XMLHttpRequest();
-	xhr.onload = (/*evt*/) => {
-		let len = JSON.parse(xhr.getResponseHeader('content-length'));
-		if (0 >= len) len=1;
-		if (notfirst && (url.substring(url.length -4).toUpperCase() === '.RAW') && len > 10000) {
-			this.#cache.push({ url: url, d: xhr.response, l: len });
-			while (this.#cache.length > this.maxcache) this.#cache.splice(0,1);
-		}
-		fx.data = xhr.response;
-		fx.size = xhr.response.byteLength;
-		fx.readAsArrayBuffer = (fy) => {
-			fy.onload({
-				target: {
-					result: fy.data				}
-			});
-		};
-		xhr.onerror = undefined;
-		xhr.ontimeout = undefined;
-		xhr.onabort = undefined;
-		if (notfirst) {
-			window.setTimeout(() => {
-				onok(url, fx, rot);
-			}, 10);
-		} else this.resolver(e, preview, onok, onerr, len);
-	};
-	xhr.onerror = (evt, typ) => {
-		if (undefined === typ) typ = 'err';
-		console.log('XHR err (createfx, ' + typ + ') for ' + url + ' readyState:' + xhr.readyState + ' http status:' + xhr.status + ' text: ' + xhr.statusText);
-		xhr.onerror = undefined;
-		xhr.onload = undefined;
-		xhr.ontimeout = undefined;
-		xhr.onabort = undefined;
-		setTimeout(() => {
-			onerr(url, fx, rot);
-		}, 10);
-	};
-	xhr.onabort = (evt) => { xhr.onerror(evt, 'abort'); };
-	xhr.ontimeout = (evt) => { xhr.onerror(evt, 'timeout'); };
-	if (notfirst && preview && (url.substring(url.length -4).toUpperCase() !== '.RAW')) {
-		xhr.open('GET', globals.adjurl(url) +'?custom=1&cmd=4001');
-	} else
-		xhr.open(notfirst ? 'GET' : 'HEAD', globals.adjurl(url));
-	xhr.setRequestHeader('Cache-control','max-stale');
-	xhr.responseType = 'arraybuffer';
-	xhr.timeout = (!notfirst || notfirst < 10000000) ? 30000 : Math.round(notfirst / 600);
-	try {
-		xhr.send();
-	} catch (e) {
-		console.log('XHR send exception (createfx) for ' + url + ' ' + e.toString());
-		xhr.onerror = undefined;
-		xhr.onload = undefined;
-		xhr.ontimeout = undefined;
-		xhr.onabort = undefined;
-		window.setTimeout(() => {
-			onerr(url, fx, rot);
-		}, 10);
-	}
-}
 /* ImBCHtml: worker on message */
 workermsg(msg) {
 	const d = msg.data;
@@ -22033,7 +21926,8 @@ takephoto() {
 		this.imgsdirty = true;
 		if (rc >= 0) {
 			const e = doc.querySelector('Function FPATH');
-			const n = e.textContent;
+			const n = e?.textContent;
+			if (!n) return;
 			const r = ImBCBase.basename(n);
 			if (r.substring(r.length -4).toUpperCase() === '.JPG') {
 				document.getElementById('takejpg').src = globals.adjurl(n) +'?custom=1&cmd=4001';
@@ -22229,6 +22123,7 @@ setTimeout(() => {
 		return false;
 	};
 }
+/* *************************************** globals *************************************** */
 const globals = {
 /* Indentation out - globals */
 version: "V5.0.11_dev", // actually const
@@ -24937,7 +24832,7 @@ infos: [ // actually const
 ],
 /* ImBCBase: get white balance */
 getwb: function(view, typidx) {
-	//console.log('GWB ' + typidx + ' ' + JSON.stringify(ImBCBase.infos[typidx]));
+	//console.log('GWB ' + typidx + ' ' + JSON.stringify(globals.infos[typidx]));
 	const t = globals.infos[typidx];
 	let r=1, g=1, b=1;
 	for (let i=Math.round(0.05*t.h)*2; i<Math.ceil(0.9*t.h); i+=8) {
@@ -25167,6 +25062,7 @@ adjurl: function(url) {
 },
 /* Indentation in - end of globals */
 }
+/* *************************************** globals, E N D *************************************** */
 </script>
 <!-- WORKER -->
 <script type="text/js-previewworker" language="javascript">
@@ -25268,7 +25164,7 @@ function resolver(url, preview, notfirst)  {
 		xhr.onerror = undefined;
 		xhr.ontimeout = undefined;
 		xhr.onabort = undefined;
-		if (notfirst) {
+		//if (notfirst) {
 			if (!preview) {
 				//console.log('POSTING ' + url);
 				postMessage({ cmd: cmd, ok: true, n: url, o: ori, fl: fl, c: cache });
@@ -25277,7 +25173,7 @@ function resolver(url, preview, notfirst)  {
 			else {
 				buildpreview(fx, ori);
 			}
-		} else resolver(e, preview, len);
+		//} else resolver(e, preview, len);
 	};
 	xhr.onerror = (evt, typ) => {
 		if (undefined === typ) typ = 'err';
@@ -25299,13 +25195,15 @@ function resolver(url, preview, notfirst)  {
 	};
 	xhr.onabort = (evt) => { xhr.onerror(evt, 'abort'); };
 	xhr.ontimeout = (evt) => { xhr.onerror(evt, 'timeout'); };
-	if (notfirst && preview && (url.substring(url.length -4).toUpperCase() !== '.RAW')) {
+	//if (notfirst && preview && (url.substring(url.length -4).toUpperCase() !== '.RAW')) {
+	if (preview && (url.substring(url.length -4).toUpperCase() !== '.RAW')) {
 		xhr.open('GET', base + globals.adjurl(url) +'?custom=1&cmd=4001');
 	} else {
 		//fetch(base + adjurl(url), { mode: 'no-cors' }).then((rs) => {
 		//		console.log('RRR ' + url + ' ' + JSON.stringify(rs.url));
 		//});
-		xhr.open(notfirst ? 'GET' : 'HEAD', base + globals.adjurl(url));
+		xhr.open('GET', base + globals.adjurl(url));
+		//xhr.open(notfirst ? 'GET' : 'HEAD', base + globals.adjurl(url));
 	}
 	xhr.setRequestHeader('Cache-control','max-stale');
 	xhr.responseType = 'arraybuffer';
