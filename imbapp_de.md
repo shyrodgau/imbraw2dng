@@ -4,6 +4,8 @@
 or [in English](https://shyrodgau.github.io/imbraw2dng/imbapp)  
  [日本語](https://shyrodgau.github.io/imbraw2dng/imbapp_ja)
 
+oder [klassisch](https://shyrodgau.github.io/imbraw2dng/README_de) 
+ 
 ## Kurze Einführung
 
 Vorteile gegenüber der [APP von ImB](https://imback.eu/home/app/):
