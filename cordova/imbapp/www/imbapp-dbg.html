@@ -554,7 +554,7 @@ img.whbtn { height:1.33em; position:relative; top:0.5em; }
 #batt2.battmed { height: 0.5em; }
 #batt1.battlo { background-color: #ff5555; }
 #batt2.battlo { height: 0.8em; }
-.btom { border-top: 1px solid black; padding-top: 1em; }
+.btop { border-top: 1px solid black; padding-top: 1em; }
 </style>
 <script src="cordova.js"></script>
 <!-- javascript code CURRENTLY NOT identical to imbraw2dng.js  for the classes IFDOut, TIFFOut, ZIPHelp, ImBCBase, ImBCBackw. -->
@@ -18627,7 +18627,7 @@ handleone(orientation) {
 	if (rawname.substring(rawname.length - 4).toUpperCase() !== '.RAW') {
 		if (f.imbackextension && rawname.substring(rawname.length - 4).toUpperCase() !== '.JPG') {
 			this.mappx(0, 'process.notraw',rawname);
-			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), f);
+			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), f, rawname);
 			return;
 		}
 		const reader = f.imbackextension ? f : new FileReader();
@@ -18643,7 +18643,7 @@ handleone(orientation) {
 				out[j] = view.getUint8(j);
 			}
 			if (rawname.substring(rawname.length - 4).toUpperCase() === '.JPG') this.xexif(rawname, view);
-			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out);
+			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out, rawname);
 		}
 		reader.onerror = (evt) => {
 			console.log('Non-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
@@ -18674,7 +18674,7 @@ handleone(orientation) {
 			for (let j=0; j<view.byteLength; j++) {
 				out[j] = view.getUint8(j);
 			}
-			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out);
+			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out, rawname);
 		}
 		reader.onerror = (evt) => {
 			console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
@@ -18899,7 +18899,7 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config - chunky */
 		ti.addEntry(33421, 'SHORT', [ 2, 2 ]); /* CFA Repeat Pattern Dim */
 		ti.addEntry(33422, 'BYTE', (typ > 1 && typ < 5) ? [ 2, 1, 1, 0 ] : [ 1, 0, 2, 1 ]); /* CFA Pattern dep. on MF/35mm*/
-		this.writewrap(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted' + ((this.checkdlfolder && !this.zip) ? 'checkdl' : ''), ti.getData());
+		this.writewrap(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted' + ((this.checkdlfolder && !this.zip) ? 'checkdl' : ''), ti.getData(), rawname);
 	};
 	reader.onerror = (evt) => {
 		console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
@@ -18912,7 +18912,7 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 	reader.readAsArrayBuffer(f.imbackintension ? f.imbackintension : f);
 }
 /* ImBCBase: wrapper for zip output */
-writewrap(name, type, okmsg, arr1) {
+writewrap(name, type, okmsg, arr1, origname) {
 	if (this.zip) {
 		this.zip.add(arr1, name, () => {
 			this.mappx(true, okmsg, name);
@@ -18920,19 +18920,19 @@ writewrap(name, type, okmsg, arr1) {
 				this.zip.finish(() => {
 					let o = new Uint8Array(this.zipdata.length);
 					for (let p=0; p<this.zipdata.length; p++) o[p] = this.zipdata[p];
-					this.writefile(this.appname + '_' + ('' + Date.now()).substring(3,10) + '_out.zip', 'application/zip', 'process.copyokcheckdl', o);
+					this.writefile(this.appname + '_' + ('' + Date.now()).substring(3,10) + '_out.zip', 'application/zip', 'process.copyokcheckdl', o, origname);
 					this.zipdata = [];
 					this.zip = new ZIPHelp((data, cb) => {
 						for (let l=0; l<data.length; l++) this.zipdata.push(data[l]);
 						cb();
-						this.writepostok(name);
+						this.writepostok(origname);
 					});
 				});
 			}
-			else this.writepostok(name);
+			else this.writepostok(origname);
 		});
 	} else
-		this.writefile(name, type, okmsg, arr1);
+		this.writefile(name, type, okmsg, arr1, origname);
 }
 /* ImBCBase: handle one entry from imb PHOTO/MOVIE listing page */
 handle1imb(url, time) {
@@ -18942,6 +18942,7 @@ handle1imb(url, time) {
 	let timestx = globals.fnregex.exec(rawname);
 	let timesty = time ? globals.itsregex.exec(time) : null;
 	let timest = null, cl = '9999_99_99-99';
+	let newimbele;
 	if (this.mingrp === 'd') cl = '9999_99_99';
 	if (null !== timestx) {
 		timest = timestx[1] + '_' + timestx[3] + '_' + timestx[5] + '-' + timestx[7] + '_' + timestx[9] + '_' + timestx[11];
@@ -18953,6 +18954,25 @@ handle1imb(url, time) {
 	if (null !== timesty) {
 		timest = timesty[1] + '_' + timesty[3] + '_' + timesty[5] + '-' + timesty[7] + '_' + timesty[9] + '_' + timesty[11];
 	}
+	if (this.imbeles && this.typedclasses) {
+		newimbele = {
+			url: url.name ? url.name : url,
+			raw: rawname,
+			name: rawname,
+			ts: cl,
+			selected: false,
+			preview: null,
+			entry: null,
+			waiting: false,
+			error: false,
+			processed: false,
+			time: timest,
+			size: url?.size,
+			imbackintension: url.size ? url : undefined,
+			wasselected: (-1 !== (this.dloads.findIndex(e => (e.toUpperCase() === rawname.toUpperCase()))))
+		};
+		this.imbeles.push(newimbele);
+	}
 	if (rawname.substring(rawname.length -4).toUpperCase() === '.RAW') {
 		if (null !== timest) {
 			if (timest < this.earliestraw) this.earliestraw = timest;
@@ -18960,22 +18980,7 @@ handle1imb(url, time) {
 		}
 		this.rimbpics.push({ url: url, time: timest });
 		if (this.imbeles && this.typedclasses) {
-			this.imbeles.push({
-					type: 'RAW',
-					url: url.name ? url.name : url,
-					raw: rawname,
-					name: rawname,
-					ts: cl,
-					selected: false,
-					preview: null,
-					entry: null,
-					waiting: false,
-					error: false,
-					processed: false,
-					time: timest,
-					size: url?.size,
-					imbackintension: url.size ? url : undefined
-			});
+			newimbele.type = 'RAW';
 			if (this.untypedclasses.findIndex(v => v === cl) === -1)
 				this.untypedclasses.push(cl);
 			if (this.typedclasses.findIndex(v => v === ('RAW' + cl)) === -1)
@@ -18989,22 +18994,7 @@ handle1imb(url, time) {
 		}
 		this.imbpics.push({ url: url, time: timest });
 		if (this.imbeles && this.typedclasses) {
-			this.imbeles.push({
-					type: 'JPG',
-					url: url.name ? url.name : url,
-					raw: rawname,
-					name: rawname,
-					ts: cl,
-					selected: false,
-					preview: null,
-					entry: null,
-					waiting: false,
-					error: false,
-					processed: false,
-					time: timest,
-					size: url?.size,
-					imbackintension: url.size ? url : undefined
-			});
+			newimbele.type = 'JPG';
 			if (this.untypedclasses.findIndex(v => v === cl) === -1)
 				this.untypedclasses.push(cl);
 			if (this.typedclasses.findIndex(v => v === ('JPG' + cl)) === -1)
@@ -19018,22 +19008,7 @@ handle1imb(url, time) {
 		}
 		this.imbmovies.push({ url: url, time: timest });
 		if (this.imbeles && this.typedclasses) {
-			this.imbeles.push({
-					type: 'oth',
-					url: url.name ? url.name : url,
-					raw: rawname,
-					name: rawname,
-					ts: cl,
-					selected: false,
-					preview: null,
-					entry: null,
-					waiting: false,
-					error: false,
-					processed: false,
-					time: timest,
-					size: url?.size,
-					imbackintension: url.size ? url : undefined
-			});
+			newimbele.type = 'oth';
 			if (this.untypedclasses.findIndex(v => v === cl) === -1)
 				this.untypedclasses.push(cl);
 			if (this.typedclasses.findIndex(v => v === ('oth' + cl)) === -1)
@@ -19102,7 +19077,7 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 			   }
 				window.resolveLocalFileSystemURL(cordova.file.applicationStorageDirectory, (fs) => {
 					this.rootfsx = fs;
-					this.writefile(name, type, okmsg, arr1);
+					this.writefile(name, type, okmsg, arr1, origname);
 				});
 		   }).catch((e) => {
 			   console.log('Unexp ' + JSON.stringify(e));
@@ -19139,7 +19114,7 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 				   else this.appmsg('');
 				   fileEntry.remove();
 				   if (type !== 'application/zip')
-						   this.writepostok(origname ? origname : name);
+						   this.writepostok(origname);
 			   }).catch((e) => {
 				   console.log("catch Failed file write 2: " + e.toString());
 				   this.mappx(false, 'words.error');
@@ -19530,9 +19505,10 @@ parseconfig(data) {
 	if (this.previewworker) this.previewworker.postMessage({ cmd: 'constwb', constwb: this.constwb });
 	if (d.zip && window.showSaveFilePicker && !this.imbcb) document.getElementById('usezip').checked = true;
 	if (d.step) this.stepmode = 1;
+	else this.stepmode = 0;
 	if (d.exitmode) this.exitmode = d.exitmode;
 	if (d.maxcache) this.maxcache = d.maxcache;
-	else this.stepmode = 0;
+	if (d.dl) this.dloads = d.dl;
 }
 /* ImBCHtmlOut: browserdisplay: put last message viewable */
 showlastmsg() {
@@ -19543,17 +19519,19 @@ showlastmsg() {
 }
 /* ImBCHtmlOut: post write ok handler */
 writepostok(name) {
-	const ie = this.imbeles.find((v) => v.raw.substring(0, v.raw.length - 3) === name.substring(0, name.length - 3));
+	const ie = this.imbeles.find((v) => v.raw.toUpperCase() === name.toUpperCase());
 	if (ie) {
 		ie.wasselected = true;
 		if (ie.entry)
 			ie.entry.classList.add('picprocd');
 	}
 	this.stats.ok++;
+	this.dloads.push(name);
 	this.handlenext();
 }
 /* ImBCHtmlOut: after finishing.... */
 afterfinish() {
+	this.savesettings();
 	if (this.zip) {
 		this.zip.finish(() => {
 			if (this.writestream) {
@@ -19639,6 +19617,7 @@ constructor() {
 }
 // from the back itself
 maxcache = 30; // max. length of cache for already downloaded raw data - you may increase or decrease this
+dloads = []; // already known downloaded
 #cache = []; // actual cache buffer
 #loaderrunning=false; // currently handled browser raw preview download
 fromvisbrows = false;
@@ -20630,31 +20609,9 @@ topreccheck(force) {
 			this.loadnextimg();
 		};
 		if (to.imbackintension) {
-			if (this.previewworker) {
-				this.workerstate.push({ cmd: 'readjpg', targ: to, ele: e});
-				this.previewworker.postMessage({ cmd: 'readjpg', f: to.imbackintension});
-				return;
-			}
-			// read jpeg file for preview
-			const fr = new FileReader();
-			fr.onload = (evt) => {
-				let contents = evt.target.result;
-				contents = 'data:image/jpeg;' + contents.substring(8);
-				to.preview.src = contents;
-				/* shown in onload of img */
-			}
-			fr.onerror = (evt) => {
-				e.setAttribute('data-state', 'err');
-				console.log('JPEG preview load error for ' + url + ' ' + JSON.stringify(evt));
-				e.querySelector('.waitdiv').style['display'] = 'none';
-				e.querySelector('.errimg').style['display'] = '';
-				e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
-				e.querySelector('.dlbtn').classList.add('disabled');
-				if (this.debugflag) console.log('ldr j e lnx ' + to.raw);
-				to.nonewerr = true;
-				this.loadnextimg();
-			}
-			fr.readAsDataURL(to.imbackintension);
+			this.workerstate.push({ cmd: 'readjpg', targ: to, ele: e});
+			this.previewworker.postMessage({ cmd: 'readjpg', f: to.imbackintension});
+			return;
 		}
 		else
 			to.preview.src = globals.adjurl(url) + '?custom=1&cmd=4001';
@@ -20755,21 +20712,17 @@ browserdelete() {
 }
 /* ImBCHtml: visual browser: do delete */
 dodelete(list, status) {
-	if (list === undefined && this.imbeles.filter((o) => o.selected).length === 0) {
+	if (list === undefined && document.getElementById('delcancelbut').disabled) {
 		this.delcancel();
 		return;
 	}
-	else if (list === undefined && this.rotphase !== -1) {
+	else if (list === undefined) {
 		document.getElementById('delokbut').disabled = true;
 		document.getElementById('delcancelbut').disabled = true;
-		this.dodelete(this.imbeles.filter((o) => o.selected), { no: this.imbeles.filter((o) => o.selected).length, ok: 0, err: 0 });
 		this.rotphase=0;
 		document.getElementById('delprogmsg').innerHTML = this.rotphases[this.rotphase];
+		this.dodelete(this.imbeles.filter((o) => o.selected), { no: this.imbeles.filter((o) => o.selected).length, ok: 0, err: 0 });
 		return;
-	} else if (list === undefined) {
-		this.delcancel();
-		this.rotphase = 0;
-		document.getElementById('delprogmsg').innerHTML = '';
 	} else if (list.length > 0) {
 		this.custcmdB(4003, 'document', 'str=' + list[0].url, (res) => {
 			this.rotphase ++;
@@ -20784,16 +20737,18 @@ dodelete(list, status) {
 				if (pv?.parentElement)
 					pv.parentElement.classList.add('picdeleted');
 				this.#updateselections();
+				this.dloads = this.dloads.filter(e => e.toLowerCase() !== list[0].raw.toLowerCase());
 			} else {
 				status.err++;
 			}
 			list.splice(0,1);
-			this.dodelete(list, status);
+			return this.dodelete(list, status);
 		});
 	} else {
 		document.getElementById('delprogmsg').innerHTML = this.xl('process.totals', status.no, status.ok, 0, status.err);
 		document.getElementById('delokbut').disabled = false;
-		document.getElementById('delcancelbut').disabled = false;
+		document.getElementById('delcancelbut').disabled = true;
+		this.savesettings();
 		this.rotphase = -1;
 	}
 }
@@ -20906,7 +20861,8 @@ savesettings() {
 					'owb': document.getElementById('oldstylewb')?.checked,
 					'ndcp': !document.getElementById('incdcp')?.checked,
 					'exitmode': this.exitmode,
-					'maxcache': this.maxcache
+					'maxcache': this.maxcache,
+					'dl': this.dloads
 				}
 			));
 		}
@@ -22077,6 +22033,10 @@ copytoimb() {
 		this.showmsg();
 	}
 }
+clearcache() {
+	this.dloads = []; 
+	this.savesettings();
+}
 /* Indentation in - end of class ImBCHtml */
 }
 /* *************************************** Main class for HTML, forward E N D *************************************** */
@@ -23027,9 +22987,9 @@ texts: { // actually const
 					ja: 'Clear internal cache'
 				},
 				cachesize: {
-					en: 'RAW Cache Size:',
-					de: 'RAW Zwischenspeichergröße:',
-					ja: 'RAW Cache Size:'
+					en: 'RAW from ImB Cache Size:',
+					de: 'RAW von ImB Zwischenspeichergröße:',
+					ja: 'RAW from ImB Cache Size:'
 				}
 			},
 		},
@@ -25512,7 +25472,7 @@ function readjpg(file) {
 <span class="whbtn disconnected" style="font-weight:bold;font-family:Symbol3;padding-left:0.4em;padding-right:0.4em;background-color:red !important;display:none;"> ! &#x1f593; ! </span>
 </div>
 </div>
-<div id="xmsg" style="width: fit-content;white-space: pre;"><span style="font-weight:bold;" data-myxlkey="main.log"></span><br>
+<div style="width: fit-content;white-space: pre;"><span style="font-weight:bold;" data-myxlkey="main.log"></span><br>
 <div id="outmsg"></div></div>
 </div>
 <!-- end of the message log, generated content appended -->
@@ -25527,7 +25487,7 @@ function readjpg(file) {
 <div><span data-myxlkey="app.menu.extras.copytoimb"></span><br>
 <input type="button" data-myvalxlkey="app.install" onclick="imbc.copytoimb();">
 </div>
-<div class="btop"><input type="button" data-myvalxlkey="app.menu.extras.clearcache"></div>
+<div class="btop"><input type="button" onclick="imbc.clearcache();" data-myvalxlkey="app.menu.extras.clearcache"></div>
 <div class="btop"><span data-myxlkey="app.menu.extras.cachesize">Visual Browser Cache Size:</span> <input type="number" onchange="imbc.chgcache()" id="dbgcache" style="width: 5em;"></div>
 </div></div>
 </div>
