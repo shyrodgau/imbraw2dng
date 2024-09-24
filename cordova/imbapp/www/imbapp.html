@@ -381,7 +381,8 @@ body { margin: 0; }
 	display: block;
 }
 .gg .grtit { font-weight: bold; font-size: 125%; }
-.grtit.ggttplus, .grtit.ggttminus { font-weight: bold !important;font-family:Symbol3; }
+.grtit.ggttplus, .grtit.ggttminus { font-weight: bold !important; }
+.grtit.ggttm, .grtit.ggttp { font-family:Symbol3; }
 .igtype > * { border: 0.5px solid grey; }
 .igxtype > * { margin: 0.2em; padding: 0.5em; }
 /*.gg:not(.gl1) {
@@ -19778,7 +19779,7 @@ showphotoi() {
 	window.scrollTo({ top: 0 });
 	this.imbmode = 0;
 	setTimeout(() => {
-		document.getElementById('phpv').src=this.imbweb + ':8192'; //"http://192.168.1.254:8192";
+		document.getElementById('phpv').src=this.photourl;
 		//document.getElementById('phpv').src=window.location.protocol + '//' + window.location.hostname + ':8192'; //"http://192.168.1.254:8192";
 	},300);
 }
@@ -21318,7 +21319,7 @@ checkimb() {
 	let imblang = '';
 	this.imblang = false;
 	const ll = '00' === this.mylang ? 'en' : this.mylang;
-	this.custcmd([3012, 3024, [3001, 'par=2'], 3017, 2016, [2015, 'par=0'], 3014, [2015, 'par=1'], [3031, 'str=all'],  3030  ], 'document', null, (rc0, doc0) => {
+	this.custcmd([3012, 3024, [3001, 'par=2'], 3017, 2016, [2015, 'par=0'], 3014, [2015, 'par=1'], [3031, 'str=all'],  3030, 2019  ], 'document', null, (rc0, doc0) => {
 		if (0 <= rc0) {
 			this.imbmode = 2;
 			this.connvers = doc0[0].querySelector('Function String').textContent; // 3012
@@ -21334,6 +21335,9 @@ checkimb() {
 				while (n.nodeName !== 'Status') n = n.nextSibling;
 				this.imbsettings.push({ id: e.textContent, val: n.textContent });
 			}
+			this.videourl = doc0[10].querySelector('LIST MovieLiveViewLink').textContent;
+			document.getElementById('videohint').setAttribute('data-myxlarg0', this.videourl);
+			this.photourl = doc0[10].querySelector('LIST PhotoLiveViewLink').textContent;
 			/* what lang is the index ? */
 			for (const e of doc0[8].querySelectorAll('LIST Item Cmd')) { // 3031
 				if (e.textContent === '3008') {
@@ -21877,7 +21881,7 @@ takephoto() {
 			}
 		}
 		setTimeout(() => {
-			document.getElementById('phpv').src= this.imbweb + ':8192'; //"http://192.168.1.254:8192";
+			document.getElementById('phpv').src= this.photourl;
 		}, 300);
 	});
 }
@@ -25560,7 +25564,7 @@ function readjpg(file) {
 <div id="takemovies" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
 <div style="display:flex;flex-flow:wrap;">
 <input type="button" onclick="imbc.takemovie()" style="font-weight:bold;font-size:200%;background-color:red;width:97px;height:97px;margin:10px;font-family:Symbol3;border-radius:50%;margin-right: 30px;" value="&#x1f3ac; !">&nbsp;
-	<div data-myxlkey="app.livehint" data-myxlarg0='rtsp://192.168.1.254/stream0/svc0/' style="align-self:center;margin:3em;"> </div>
+	<div id="videohint" data-myxlkey="app.livehint" style="align-self:center;margin:3em;"> </div>
 	<div id="videosett">
 		
 	</div>
