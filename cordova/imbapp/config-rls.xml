@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget xmlns:android="http://schemas.android.com/apk/res/android" id="eu.imback.os.app" version="5.1.3" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget xmlns:android="http://schemas.android.com/apk/res/android" id="eu.imback.os.app" version="V5.1.3_f381825" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0"
+ android-versionCode="50103">
     <name>ImB HTML App</name>
     <description>ImBack HTML App</description>
     <author email="stefan@hegny.de">
@@ -15,6 +16,7 @@
         <edit-config file="AndroidManifest.xml" mode="merge" target="/manifest/application">
             <application android:usesCleartextTraffic="true"/>
         </edit-config>
+        <resource-file src="../../imbapp.htm" target="app/src/main/assets/www/res/imbapp.htm"/>
     </platform>
     <config-file target="AndroidManifest.xml" parent="/*">
         <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
