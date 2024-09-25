@@ -19012,7 +19012,8 @@ imgsdirty = true;
 // grouping in visual dings:
 mingrp = 'd'; // 'h',  day hour
 maxgrp = 'm'; // 'y', 'm' day year month
-//subdir='';
+videourl = 'unknown'; // urls queried by 201
+photourl = 'unknown';
 constructor() {
 	super();
 }
@@ -21442,6 +21443,7 @@ checkimb() {
 				e.style['display'] = 'none';
 			this.disconnected = false;
 			this.discknown = true;
+			this.showmain(); //this.loadimgs();
 		}
 		else {
 			// disconnected?
@@ -21450,10 +21452,8 @@ checkimb() {
 			this.discknown = true;
 			this.showlocal();
 			ImBCHtml.openp(document.getElementById('appsettopener'));
-			return;
 		}
 		this.xlateall();
-		this.showmain(); //this.loadimgs();
 	});
 }
 /* ImBCHtml: browserdisplay: initialize settings */

@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<widget xmlns:android="http://schemas.android.com/apk/res/android" id="eu.imback.os.app" version="5.0.A" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget xmlns:android="http://schemas.android.com/apk/res/android" id="eu.imback.os.app" version="5.1.2" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
   <name>DBG ImB HTML App</name>
   <description>DBG ImBack OS App</description>
   <author email="stefan@hegny.de">
         Stefan Hegny
     </author>
-  <content src="http://192.168.0.72:8080/imbapp-dbg.html"/>
-  <!--content src="http://192.168.8.101:8080/imbapp-dbg.html"/-->
+  <!--content src="http://192.168.0.72:8080/imbapp-dbg.html"/-->
+  <content src="http://192.168.8.101:8080/imbapp-dbg.html"/>
   <allow-intent href="http://*/*"/>
   <allow-intent href="https://*/*"/>
-  <acces origin="http://192.168.0.72:8080"/>
-  <!--acces origin="http://192.168.8.101:8080"/-->
+  <!--acces origin="http://192.168.0.72:8080"/-->
+  <acces origin="http://192.168.8.101:8080"/>
   <preference name="scheme" value="http"/>
-  <preference name="hostname" value="192.168.0.72:8080"/>
-  <!--preference name="hostname" value="192.168.8.101:8080"/-->
+  <!--preference name="hostname" value="192.168.0.72:8080"/-->
+  <preference name="hostname" value="192.168.8.101:8080"/>
   <preference name="AndroidPersistentFileLocation" value="compatibility"/>
   <preference name="AndroidXEnabled" value="true"/>
   <platform name="android">
