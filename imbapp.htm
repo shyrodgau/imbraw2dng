@@ -1123,6 +1123,7 @@ connvers = ''; // hw version from cmd 3012
 imbfree = -1;
 imbmode = -1; // movie, photo, browse
 disconnected = true;
+discknown = false; // we do not know if connected
 
 // ImBCBase: fake long exposure:
 #addimgs = [];
@@ -19717,7 +19718,7 @@ showmovie() {
 showdisconnect(alsoerr) {
 	if (this.disconnected) return;
 	this.disconnected = true;
-	if (alsoerr) {
+	if (alsoerr && this.discknown) {
 		for (const e of document.querySelectorAll('.disconnected'))
 			e.style['display'] = '';
 	}
@@ -19726,6 +19727,7 @@ showdisconnect(alsoerr) {
 		for (const e of document.querySelectorAll('.battery'))
 			e.style['display'] = 'none';
 	}
+	this.discknown = true;
 	for (const e of document.querySelectorAll('.moviesym'))
 		e.style['display'] = 'none';
 	for (const e of document.querySelectorAll('.photosym'))
@@ -21157,8 +21159,8 @@ handlenext() {
 }
 /* ImBCHtml: command handler */
 custcmd(cmd, type, restargs, cb) {
-	if (this.disconnected) {
-		cb({ ok: false, cmd: 'custcmd', rc: -1 });
+	if (this.disconnected && this.discknown) {
+		if (cb) cb({ ok: false, cmd: 'custcmd', rc: -1 });
 		return;
 	}
 	this.workerstate.push({ cb: cb, type: type });
@@ -21166,8 +21168,8 @@ custcmd(cmd, type, restargs, cb) {
 }
 /* ImBCHtml: command handler BLOCKING */
 custcmdB(cmd, type, restargs, cb) {
-	if (this.disconnected) {
-		cb({ ok: false, cmd: 'custcmd', rc: -1 });
+	if (this.disconnected && this.discknown) {
+		if (cb) cb({ ok: false, cmd: 'custcmd', rc: -1 });
 		return;
 	}
 	document.getElementById('overlay').style['display'] = '';
@@ -21215,6 +21217,14 @@ checkimb() {
 	let imblang = '';
 	this.imblang = false;
 	const ll = '00' === this.mylang ? 'en' : this.mylang;
+	if (window.location.origin.startsWith('https') || window.location.origin.startsWith('file')) {
+		this.disknown = true;
+		this.disconnected = false;
+		this.showdisconnect();
+		this.showmain();
+		this.xlateall();
+		return;
+	}
 	this.custcmd([3012, 3024, [3001, 'par=2'], 3017, 2016, [2015, 'par=0'], 3014, [2015, 'par=1'], [3031, 'str=all'],  3030, 2019  ], 'document', null, (rc0, doc0) => {
 		if (0 <= rc0) {
 			this.imbmode = 2;
@@ -21430,17 +21440,19 @@ checkimb() {
 			}
 			for (const e of document.querySelectorAll('.foldersym'))
 				e.style['display'] = 'none';
-			this.xlateall();
 			this.disconnected = false;
+			this.discknown = true;
 		}
 		else {
 			// disconnected?
 			this.disconnected = false;
 			this.showdisconnect();
+			this.discknown = true;
 			this.showlocal();
 			ImBCHtml.openp(document.getElementById('appsettopener'));
 			return;
 		}
+		this.xlateall();
 		this.showmain(); //this.loadimgs();
 	});
 }
@@ -21623,8 +21635,6 @@ workermsg(msg) {
 		break;
 	case 'disconnect':
 		if (this.disconnected) break;
-		for (const e of document.querySelectorAll('.disconnected'))
-			e.style['display'] = '';
 		this.showdisconnect(true);
 		this.showbrowser();
 		break;
