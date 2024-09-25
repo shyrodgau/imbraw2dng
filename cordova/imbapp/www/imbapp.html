@@ -1124,7 +1124,7 @@ appname = 'imbraw2dng'; // or imbapp
 connvers = ''; // hw version from cmd 3012
 imbfree = -1;
 imbmode = -1; // movie, photo, browse
-disconnected = false;
+disconnected = true;
 
 // ImBCBase: fake long exposure:
 #addimgs = [];
@@ -19821,6 +19821,8 @@ showmovie() {
 }
 /* ImBCHtml: show disconnection */
 showdisconnect(alsoerr) {
+	if (this.disconnected) return;
+	this.disconnected = true;
 	if (alsoerr) {
 		for (const e of document.querySelectorAll('.disconnected'))
 			e.style['display'] = '';
@@ -21536,10 +21538,11 @@ checkimb() {
 			for (const e of document.querySelectorAll('.foldersym'))
 				e.style['display'] = 'none';
 			this.xlateall();
+			this.disconnected = false;
 		}
 		else {
 			// disconnected?
-			this.disconnected = true;
+			this.disconnected = false;
 			this.showdisconnect();
 			this.showlocal();
 			ImBCHtml.openp(document.getElementById('appsettopener'));
@@ -21729,7 +21732,6 @@ workermsg(msg) {
 		if (this.disconnected) break;
 		for (const e of document.querySelectorAll('.disconnected'))
 			e.style['display'] = '';
-		this.disconnected = true;
 		this.showdisconnect(true);
 		this.showbrowser();
 		break;

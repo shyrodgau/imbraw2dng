@@ -1122,7 +1122,7 @@ appname = 'imbraw2dng'; // or imbapp
 connvers = ''; // hw version from cmd 3012
 imbfree = -1;
 imbmode = -1; // movie, photo, browse
-disconnected = false;
+disconnected = true;
 
 // ImBCBase: fake long exposure:
 #addimgs = [];
@@ -19715,6 +19715,8 @@ showmovie() {
 }
 /* ImBCHtml: show disconnection */
 showdisconnect(alsoerr) {
+	if (this.disconnected) return;
+	this.disconnected = true;
 	if (alsoerr) {
 		for (const e of document.querySelectorAll('.disconnected'))
 			e.style['display'] = '';
@@ -21209,10 +21211,7 @@ loadimgs() {
 /* ImBCHtml: check if we are directly on a back */
 checkimb() {
 	if (null === this.previewworker) this.initworker();
-	//if (this.debugflag && document) {
-		document.getElementById('dbgcache').value = this.maxcache;
-		//document.getElementById('debugonly').style['display'] = '';
-	//}
+	document.getElementById('dbgcache').value = this.maxcache;
 	let imblang = '';
 	this.imblang = false;
 	const ll = '00' === this.mylang ? 'en' : this.mylang;
@@ -21432,10 +21431,11 @@ checkimb() {
 			for (const e of document.querySelectorAll('.foldersym'))
 				e.style['display'] = 'none';
 			this.xlateall();
+			this.disconnected = false;
 		}
 		else {
 			// disconnected?
-			this.disconnected = true;
+			this.disconnected = false;
 			this.showdisconnect();
 			this.showlocal();
 			ImBCHtml.openp(document.getElementById('appsettopener'));
@@ -21625,7 +21625,6 @@ workermsg(msg) {
 		if (this.disconnected) break;
 		for (const e of document.querySelectorAll('.disconnected'))
 			e.style['display'] = '';
-		this.disconnected = true;
 		this.showdisconnect(true);
 		this.showbrowser();
 		break;
