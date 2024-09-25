@@ -473,13 +473,13 @@ constructor (imbcout) {
 	this.imbc = imbcout;
 }
 /* ImBCBackw: backward: handle dng like raw */
-static parseDng(f, onok, onerr) {
+parseDng(f, onok, onerr) {
 	// blindly assumes that it is one of our own DNG
 	if (undefined === f.data) {
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
 			f.data = evt.target.result;
-			ImBCBackw.parseDng(f, onok, onerr);
+			this.parseDng(f, onok, onerr);
 		}
 		reader.onerror = () => { onerr(f.name); };
 		reader.readAsArrayBuffer(f);
@@ -581,7 +581,7 @@ handleone(fx) {
 	}
 	let rawname = ImBCBase.basename(f.name);
 	if (rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
-		ImBCBackw.parseDng(f,
+		this.parseDng(f,
 			(name, fx) => {
 				this.handleone(fx);
 			},
