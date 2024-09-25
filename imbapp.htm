@@ -19110,7 +19110,7 @@ xl1(el) {
 }
 /* ImBCHtmlOut: wrapper for zip output */
 starthandleone() {
-	if (!this.imbcb && window.showSaveFilePicker && document.getElementById('usezip').checked) {
+	if (!this.imbcb && window.showSaveFilePicker && false) {
 		// zip with selected file
 		window.showSaveFilePicker({
 			types: [ { description: 'Output Zip Archive', accept: { "application/zip": [ ".zip", ".ZIP" ] } } ],
@@ -19153,7 +19153,7 @@ starthandleone() {
 				this.afterfinish();
 			});
 	}
-	else if (this.totnum > 1 && !this.imbcb && document.getElementById('usezip').checked) {
+	else if (this.totnum > 1 && !this.imbcb && false) {
 		// zip via normal download
 		this.writestream = null;
 		this.zipdata = [];
@@ -19365,7 +19365,7 @@ parseconfig(data) {
 	if (d.ndcp) this.incdcp = false; else this.incdcp = true;
 	if (d.owb) this.constwb = true; else this.constwb = false;
 	if (this.previewworker) this.previewworker.postMessage({ cmd: 'constwb', constwb: this.constwb });
-	if (d.zip && window.showSaveFilePicker && !this.imbcb) document.getElementById('usezip').checked = true;
+	//if (d.zip && window.showSaveFilePicker && !this.imbcb) document.getElementById('usezip').checked = true;
 	if (d.step) this.stepmode = 1;
 	else this.stepmode = 0;
 	if (d.exitmode) this.exitmode = d.exitmode;
