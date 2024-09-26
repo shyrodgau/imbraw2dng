@@ -20,6 +20,10 @@ Usage: open in browser and select RAW
 
 Copyright (C) 2023,2024 by Stefan Hegny, stefan@hegny.de
 
+The following copyright applies to the code inside this file with the exception of the Symbol3 font which is an excerpt from
+NotoSansSymbols2-Regular (https://fonts.google.com/noto/specimen/Noto+Sans+Symbols+2) which is licensed under the
+Open Font License (https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL)
+
 Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted.
 
 THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. 
@@ -19631,6 +19635,7 @@ showpages() {
 	document.getElementById('tophot').classList.remove('active');
 	document.getElementById('tomov').classList.remove('active');
 	document.getElementById('toloc').classList.remove('active');
+	document.getElementById('genericok').style['display'] = 'none';
 }
 /* ImBCHtml: browserdisplay: show main screen */
 showmain() {
@@ -21742,9 +21747,12 @@ appinfo() {
 	//document.getElementById('okmsg').append(a);
 	document.getElementById('okmsg').innerHTML += `<br><span style="font-weight:normal;font-size:75%;">Contains parts of <a href="#" onclick="window.open('https://fonts.google.com/noto/specimen/Noto+Sans+Symbols+2', '_system'); return false;">NotoSansSymbols2-Regular</a> font
 	licensed under <a href="#" onclick=" window.open('http://scripts.sil.org/OFL', '_system'); return false;">Open Font License</a>.
-	<br>Based on work by Michele Asciutti from the ImBack User Group.</span>`;
-	// https://github.com/apache/cordova-plugin-inappbrowser/ https://github.com/apache/cordova-plugin-file/ https://github.com/frontyard/cordova-plugin-exoplayer/
-	//document.getElementById('okmsg').innerHTML += ``
+	<br>Based on work by Michele Asciutti from the ImBack User Group.</span>
+	<br><a href="/res/LICENSE.txt">License Info:</a>
+	<br><iframe src="https://shyrodgau.github.io/imbraw2dng/LICENSE.txt" id="liciframe" style="width: 100%;">`;
+	setTimeout(() => {
+		frames['liciframe'].contentDocument.head.innerHTML += ('<style type="text/css">*{font-size:5px;}</style>');
+	}, 100);
 	this.xlateall();
 	this.showmsg();
 }

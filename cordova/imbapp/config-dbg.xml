@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <widget xmlns:android="http://schemas.android.com/apk/res/android" id="eu.imback.os.app" version="V5.1.3_f381825" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0"
  android-versionCode="50103">
-  <name>DBG ImB HTML App</name>
-  <description>DBG ImBack OS App</description>
+  <name>ImB DBG App</name>
+  <description>ImBack DBG App</description>
   <author email="stefan@hegny.de">
         Stefan Hegny
     </author>
@@ -15,13 +15,14 @@
   <preference name="scheme" value="http"/>
   <!--preference name="hostname" value="192.168.0.72:8080"/-->
   <preference name="hostname" value="192.168.8.101:8080"/>
-  <preference name="AndroidPersistentFileLocation" value="compatibility"/>
+  <preference name="AndroidPersistentFileLocation" value="Compatibility"/>
   <preference name="AndroidXEnabled" value="true"/>
   <platform name="android">
     <edit-config file="AndroidManifest.xml" mode="merge" target="/manifest/application">
       <application android:usesCleartextTraffic="true"/>
     </edit-config>
     <resource-file src="../../imbapp.htm" target="app/src/main/assets/www/res/imbapp.htm"/>
+    <resource-file src="../../LICENSE.txt" target="app/src/main/assets/www/res/LICENSE.txt"/>
   </platform>
   <config-file target="AndroidManifest.xml" parent="/*">
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
