@@ -18449,11 +18449,17 @@ findlang(i) {
 		if (!found) this.mylang = 'en';
 		found = 1;
 	}
+	else if (this.useimblang && this.lastlang) {
+		this.mylang = this.lastlang;
+		if (!found) this.mylang = 'en';
+		found = 1;
+	}
 	if ((this.useimblang !== undefined ) && i === '99') {
 		/* use lang from imb */
 		//console.log('fl 99 ' + this.imblang);
 		this.useimblang = true;
 		if (this.imblang) this.findlang(this.imblang);
+		else if (this.lastlang) this.findlang(this.lastlang);
 		if (document) document.getElementById('langsel').value = '99';
 		found = 1;
 	}
@@ -19016,10 +19022,11 @@ checkdlfolder = true;
 imblang = undefined;
 imbsettings = [];
 useimblang = false;
+lastlang = undefined; // if want to use imblang but not connected
 // exitmode for imb
 exitmode = 'photo';
 // display mode for app
-dispmode = 1;
+dispmode = 0;
 // need to load imgs from back?
 imgsdirty = true;
 // grouping in visual dings:
@@ -19475,6 +19482,7 @@ parseconfig(data) {
 	this.copyright = d.cr;
 	if (d.l !== undefined) this.findlang(d.l);
 	else this.useimblang = true;
+	if (d.ll) this.lastlang = d.ll;
 	if (d.ndcp) this.incdcp = false; else this.incdcp = true;
 	if (d.owb) this.constwb = true; else this.constwb = false;
 	if (this.previewworker) this.previewworker.postMessage({ cmd: 'constwb', constwb: this.constwb });
@@ -20801,6 +20809,11 @@ setlang() {
 		this.findlang(this.imblang);
 		document.getElementById('langsel').value = '99';
 	}
+	else if (this.mylang === '99' && this.lastlang) {
+		this.useimblang = true;
+		this.findlang(this.lastlang);
+		document.getElementById('langsel').value = '99';
+	}
 	else
 		this.useimblang = false;
 	this.xlateall();
@@ -20835,6 +20848,7 @@ savesettings() {
 					'cr': copyval,
 					'np': document.getElementById('dngpreview') ? !document.getElementById('dngpreview').checked : false,
 					'l': this.useimblang ? '99' : this.mylang,
+					'll': this.mylang,
 					'step': stepmode,
 					'version': globals.version,
 					'loca': window.location.origin,
@@ -21343,7 +21357,7 @@ checkimb() {
 	const ll = '00' === this.mylang ? 'en' : this.mylang;
 	this.custcmd([3012, 3024, [3001, 'par=2'], 3017, 2016, [2015, 'par=0'], 3014, [2015, 'par=1'], [3031, 'str=all'],  3030, 2019  ], 'document', null, (rc0, doc0) => {
 		if (0 <= rc0) {
-			this.imbmode = 1;
+			this.imbmode = 2;
 			this.connvers = doc0[0].querySelector('Function String').textContent; // 3012
 			this.imbfree = doc0[3].querySelector('Function Value').textContent; // 3017
 			if (this.appname !== 'imbapp') document.getElementById('onimback').style['display'] = '';
@@ -22079,7 +22093,7 @@ function init2() {
 	cordova.plugins.permissions.requestPermission(cordova.plugins.permissions.MANAGE_MEDIA, () => { console.log('M Med Ok '); }, () => { console.log('M Med NOk '); });
 	setTimeout(() => {
 			imbc.checkimb();
-	}, 2000);
+	}, 20000);
 	window.onbeforeunload = () => {
 		imbc.savesettings();
 		if (imbc.onback === 'main') {

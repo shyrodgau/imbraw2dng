@@ -18447,11 +18447,17 @@ findlang(i) {
 		if (!found) this.mylang = 'en';
 		found = 1;
 	}
+	else if (this.useimblang && this.lastlang) {
+		this.mylang = this.lastlang;
+		if (!found) this.mylang = 'en';
+		found = 1;
+	}
 	if ((this.useimblang !== undefined ) && i === '99') {
 		/* use lang from imb */
 		//console.log('fl 99 ' + this.imblang);
 		this.useimblang = true;
 		if (this.imblang) this.findlang(this.imblang);
+		else if (this.lastlang) this.findlang(this.lastlang);
 		if (document) document.getElementById('langsel').value = '99';
 		found = 1;
 	}
@@ -19014,10 +19020,11 @@ checkdlfolder = true;
 imblang = undefined;
 imbsettings = [];
 useimblang = false;
+lastlang = undefined; // if want to use imblang but not connected
 // exitmode for imb
 exitmode = 'photo';
 // display mode for app
-dispmode = 1;
+dispmode = 0;
 // need to load imgs from back?
 imgsdirty = true;
 // grouping in visual dings:
@@ -19473,6 +19480,7 @@ parseconfig(data) {
 	this.copyright = d.cr;
 	if (d.l !== undefined) this.findlang(d.l);
 	else this.useimblang = true;
+	if (d.ll) this.lastlang = d.ll;
 	if (d.ndcp) this.incdcp = false; else this.incdcp = true;
 	if (d.owb) this.constwb = true; else this.constwb = false;
 	if (this.previewworker) this.previewworker.postMessage({ cmd: 'constwb', constwb: this.constwb });
@@ -19844,6 +19852,8 @@ showdisconnect(alsoerr) {
 		e.style['display'] = 'none';
 	for (const e of document.querySelectorAll('.photosym'))
 		e.style['display'] = 'none';
+	document.getElementById('genadvice').style['display'] = '';
+	ImBCHtml.closep(document.getElementById('imbsettcloser'));
 	this.imgsdirty = false;
 }
 /* ImBCHtml: browserdisplay: open visual browser */
@@ -20797,6 +20807,11 @@ setlang() {
 		this.findlang(this.imblang);
 		document.getElementById('langsel').value = '99';
 	}
+	else if (this.mylang === '99' && this.lastlang) {
+		this.useimblang = true;
+		this.findlang(this.lastlang);
+		document.getElementById('langsel').value = '99';
+	}
 	else
 		this.useimblang = false;
 	this.xlateall();
@@ -20831,6 +20846,7 @@ savesettings() {
 					'cr': copyval,
 					'np': document.getElementById('dngpreview') ? !document.getElementById('dngpreview').checked : false,
 					'l': this.useimblang ? '99' : this.mylang,
+					'll': this.mylang,
 					'step': stepmode,
 					'version': globals.version,
 					'loca': window.location.origin,
@@ -21328,7 +21344,6 @@ checkimb() {
 	document.getElementById('dbgcache').value = this.maxcache;
 	let imblang = '';
 	this.imblang = false;
-	const ll = '00' === this.mylang ? 'en' : this.mylang;
 	if (window.location.origin.startsWith('https') || window.location.origin.startsWith('file')) {
 		this.disknown = true;
 		this.disconnected = false;
@@ -21337,6 +21352,7 @@ checkimb() {
 		this.xlateall();
 		return;
 	}
+	const ll = '00' === this.mylang ? 'en' : this.mylang;
 	this.custcmd([3012, 3024, [3001, 'par=2'], 3017, 2016, [2015, 'par=0'], 3014, [2015, 'par=1'], [3031, 'str=all'],  3030, 2019  ], 'document', null, (rc0, doc0) => {
 		if (0 <= rc0) {
 			this.imbmode = 2;
@@ -21555,6 +21571,8 @@ checkimb() {
 				e.style['display'] = 'none';
 			this.disconnected = false;
 			this.discknown = true;
+			document.getElementById('genadvice').style['display'] = 'none';
+			ImBCHtml.openp(document.getElementById('imbsettopener'));
 			this.showmain(); //this.loadimgs();
 		}
 		else {
@@ -21748,7 +21766,7 @@ workermsg(msg) {
 	case 'disconnect':
 		if (this.disconnected) break;
 		this.showdisconnect(true);
-		this.showbrowser();
+		if (this.onback === 'quit') this.showbrowser();
 		break;
 	case 'readjpg':
 		w0 = this.workerstate[0];
@@ -21864,7 +21882,6 @@ appinfo() {
 	setTimeout(() => {
 		frames['liciframe'].contentDocument.head.innerHTML += ('<style type="text/css">*{font-size:5px;}</style>');
 	}, 100);
-
 	this.xlateall();
 	this.showmsg();
 }
@@ -22071,9 +22088,6 @@ function init2() {
 	document.addEventListener('backbutton', () => {
 		imbc.handleback();
 	});
-	cordova.plugins.permissions.requestPermission(cordova.plugins.permissions.WRITE_EXTERNAL_STORAGE, () => { console.log('W Perm Ok '); }, () => { console.log('W Perm NOk '); });
-	cordova.plugins.permissions.requestPermission(cordova.plugins.permissions.READ_EXTERNAL_STORAGE, () => { console.log('R Perm Ok '); }, () => { console.log('R Perm NOk '); });
-	cordova.plugins.permissions.requestPermission(cordova.plugins.permissions.MANAGE_EXTERNAL_STORAGE, () => { console.log('M Perm Ok '); }, () => { console.log('M Perm NOk '); });
 	cordova.plugins.permissions.requestPermission(cordova.plugins.permissions.MANAGE_MEDIA, () => { console.log('M Med Ok '); }, () => { console.log('M Med NOk '); });
 	imbc.checkimb();
 	window.onbeforeunload = () => {
@@ -22181,10 +22195,10 @@ texts: { // actually const
 			ja: 'ここに ImB のファイルをドロップします。：  (or directories)'
 		},
 		selectraw: {
-			de: 'Oder diese Seite per WLAN <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README_de.md#gucken-auf-imback-selbst\'>direkt von ImB</a> verwenden.<br>Oder <tt>.RAW</tt> Datei(en) auswählen:',
-			en: 'Or use this page via Wifi <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\'>directly from ImB</a>.<br>Or select <tt>.RAW</tt> File(s):',
-			fr: 'Ou utiliez cette page <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\'>via Wifi sur ImB</a>.<br>Ou selectez <tt>.RAW</tt> fiche(s):',
-			ru: 'Или используйте эту страницу через Wi-Fi <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\'>прямо из ImB</a>.<br>Или выберите файл(ы) <tt>RAW</tt>:'
+			de: 'Oder diese Seite per WLAN <a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/blob/master/README_de.md#gucken-auf-imback-selbst\',\'_system\');return false;">direkt von ImB</a> verwenden.<br>Oder <tt>.RAW</tt> Datei(en) auswählen:',
+			en: 'Or use this page via Wifi <a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\',\'_system\');return false;">directly from ImB</a>.<br>Or select <tt>.RAW</tt> File(s):',
+			fr: 'Ou utiliez cette page <a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\',\'_system\');return false;">via Wifi sur ImB</a>.<br>Ou selectez <tt>.RAW</tt> fiche(s):',
+			ru: 'Или используйте эту страницу через Wi-Fi <a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\',\'_system\');return false;">прямо из ImB</a>.<br>Или выберите файл(ы) <tt>RAW</tt>:',
 			ja: 'または、このページを WiFi 経由で<a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/moredoc_ja.md#imback-での閲覧\'>ImB から直接</a>使用します。<br >または、<tt>.RAW</tt> ファイルを選択します。：'
 		},
 		selectrawx: {
@@ -22282,8 +22296,8 @@ texts: { // actually const
 			ja: '選択済み'
 		},
 		fakelong: {
-			en: 'Fake long exposure by adding up all (<a href="https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#a-lot-more-tricks-and-details">read more</a>)',
-			de: 'Langzeitbelichtung durch Addieren simulieren (<a href="github.com/shyrodgau/imbraw2dng/blob/master/README_de.md#mehr-tricks-und-details">mehr lesen</a>)',
+			en: 'Fake long exposure by adding up all (<a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#a-lot-more-tricks-and-details\',\'_system\');return false;">read more</a>)',
+			de: 'Langzeitbelichtung durch Addieren simulieren (<a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/blob/master/README_de.md#mehr-tricks-und-details\',\'_system\');return false;">mehr lesen</a>)',
 			ja: '「追加して長時間露光をシミュレートします (<a href="#" onclick=" window.open(\'https://shyrodgau.github.io/imbraw2dng/moredoc_ja#さらなるトリックと詳細\', \'_system\'); return false;">続きを読む</a>)」すべてを加算して長時間露光をシミュレートする',
 			scale: {
 				en: 'Scale values down',
@@ -25431,8 +25445,8 @@ function readjpg(file) {
 <div style="position:fixed; top:0; left:0; width:100%;background-color:black;z-index:997;color:white;"><div>&nbsp;<span id="settx"><input type="button" value="&#x2190;" class="whbtn" style="font-size:200%;padding:0 !important; border:0 !important;" onclick="imbc.showmain()"></span>
 <span class="whbtn disconnected" style="padding-left:0.4em;padding-right:0.4em;display:none;"> ! &#x1f593; ! &#x1f5be; ! </span>
 </div></div>
-<div id="appsett" class="gg ggclosed">
-<div class="ggtt titletop ggttclosed">
+<div id="appsett" class="gg ggopen">
+<div class="ggtt titletop ggttopen">
 <span class="ggttplus ggttp mmrr" id="appsettopener" onclick="ImBCHtml.openp(this);">&#x25b6;</span>
 <span class="ggttminus ggttp mmll" onclick="ImBCHtml.closep(this);">&#x25bc;</span>
 <span class="grtit ggttplus" onclick="ImBCHtml.openp(this);" data-myxlkey="app.app"> APP </span>
@@ -25447,8 +25461,8 @@ function readjpg(file) {
 </div>
 <div id="imbsett" class="gg ggopen">
 <div class="ggtt titletop ggttopen">
-<span class="ggttplus ggttp mmrr" onclick="ImBCHtml.openp(this);">&#x25b6;</span>
-<span class="ggttminus ggttp mmll" onclick="ImBCHtml.closep(this);">&#x25bc;</span>
+<span class="ggttplus ggttp mmrr" id="imbsettopener" onclick="ImBCHtml.openp(this);">&#x25b6;</span>
+<span class="ggttminus ggttp mmll" id="imbsettcloser" onclick="ImBCHtml.closep(this);">&#x25bc;</span>
 <span class="grtit ggttplus" onclick="ImBCHtml.openp(this);"> ImB </span>
 <span class="grtit ggttminus" onclick="ImBCHtml.closep(this);"> ImB </span>
 </div>
@@ -25469,7 +25483,7 @@ function readjpg(file) {
 <div ><input type="checkbox" id="copycheck" onchange="imbc.chgcopycheck()"> <label for="copycheck" data-myxlkey="process.addcopyright"></label> <input onchange="imbc.dirtysettings()" type="text" id="copytext"></input></div>
 </div>
 </div>
-<div  style="margin-top: 0.5em;" data-myxlkey="main.generaladvice"></div>
+<div  style="margin-top: 0.5em;" id="genadvice" data-myxlkey="main.generaladvice"></div>
 </div>
 <div style="display:none;" style="margin-top: 0.5em;">
 <span id="onlyhttp" data-myxlkey="browser.prefnotfile"></span>

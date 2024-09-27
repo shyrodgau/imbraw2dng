@@ -18445,11 +18445,17 @@ findlang(i) {
 		if (!found) this.mylang = 'en';
 		found = 1;
 	}
+	else if (this.useimblang && this.lastlang) {
+		this.mylang = this.lastlang;
+		if (!found) this.mylang = 'en';
+		found = 1;
+	}
 	if ((this.useimblang !== undefined ) && i === '99') {
 		/* use lang from imb */
 		//console.log('fl 99 ' + this.imblang);
 		this.useimblang = true;
 		if (this.imblang) this.findlang(this.imblang);
+		else if (this.lastlang) this.findlang(this.lastlang);
 		if (document) document.getElementById('langsel').value = '99';
 		found = 1;
 	}
@@ -19007,10 +19013,11 @@ checkdlfolder = true;
 imblang = undefined;
 imbsettings = [];
 useimblang = false;
+lastlang = undefined; // if want to use imblang but not connected
 // exitmode for imb
 exitmode = 'photo';
 // display mode for app
-dispmode = 1;
+dispmode = 0;
 // need to load imgs from back?
 imgsdirty = true;
 // grouping in visual dings:
@@ -19368,6 +19375,7 @@ parseconfig(data) {
 	this.copyright = d.cr;
 	if (d.l !== undefined) this.findlang(d.l);
 	else this.useimblang = true;
+	if (d.ll) this.lastlang = d.ll;
 	if (d.ndcp) this.incdcp = false; else this.incdcp = true;
 	if (d.owb) this.constwb = true; else this.constwb = false;
 	if (this.previewworker) this.previewworker.postMessage({ cmd: 'constwb', constwb: this.constwb });
@@ -19739,6 +19747,7 @@ showdisconnect(alsoerr) {
 	for (const e of document.querySelectorAll('.photosym'))
 		e.style['display'] = 'none';
 	document.getElementById('genadvice').style['display'] = '';
+	ImBCHtml.closep(document.getElementById('imbsettcloser'));
 	this.imgsdirty = false;
 }
 /* ImBCHtml: browserdisplay: open visual browser */
@@ -20692,6 +20701,11 @@ setlang() {
 		this.findlang(this.imblang);
 		document.getElementById('langsel').value = '99';
 	}
+	else if (this.mylang === '99' && this.lastlang) {
+		this.useimblang = true;
+		this.findlang(this.lastlang);
+		document.getElementById('langsel').value = '99';
+	}
 	else
 		this.useimblang = false;
 	this.xlateall();
@@ -20726,6 +20740,7 @@ savesettings() {
 					'cr': copyval,
 					'np': document.getElementById('dngpreview') ? !document.getElementById('dngpreview').checked : false,
 					'l': this.useimblang ? '99' : this.mylang,
+					'll': this.lastlang,
 					'step': stepmode,
 					'version': globals.version,
 					'loca': window.location.origin,
@@ -21223,7 +21238,6 @@ checkimb() {
 	document.getElementById('dbgcache').value = this.maxcache;
 	let imblang = '';
 	this.imblang = false;
-	const ll = '00' === this.mylang ? 'en' : this.mylang;
 	if (window.location.origin.startsWith('https') || window.location.origin.startsWith('file')) {
 		this.disknown = true;
 		this.disconnected = false;
@@ -21232,6 +21246,7 @@ checkimb() {
 		this.xlateall();
 		return;
 	}
+	const ll = '00' === this.mylang ? 'en' : this.mylang;
 	this.custcmd([3012, 3024, [3001, 'par=2'], 3017, 2016, [2015, 'par=0'], 3014, [2015, 'par=1'], [3031, 'str=all'],  3030, 2019  ], 'document', null, (rc0, doc0) => {
 		if (0 <= rc0) {
 			this.imbmode = 2;
@@ -21449,6 +21464,8 @@ checkimb() {
 				e.style['display'] = 'none';
 			this.disconnected = false;
 			this.discknown = true;
+			document.getElementById('genadvice').style['display'] = 'none';
+			ImBCHtml.openp(document.getElementById('imbsettopener'));
 			this.showmain(); //this.loadimgs();
 		}
 		else {
@@ -21642,7 +21659,7 @@ workermsg(msg) {
 	case 'disconnect':
 		if (this.disconnected) break;
 		this.showdisconnect(true);
-		this.showbrowser();
+		if (this.onback === 'quit') this.showbrowser();
 		break;
 	case 'readjpg':
 		w0 = this.workerstate[0];
@@ -25274,8 +25291,8 @@ function readjpg(file) {
 </div>
 <div id="imbsett" class="gg ggopen">
 <div class="ggtt titletop ggttopen">
-<span class="ggttplus ggttp mmrr" onclick="ImBCHtml.openp(this);">&#x25b6;</span>
-<span class="ggttminus ggttp mmll" onclick="ImBCHtml.closep(this);">&#x25bc;</span>
+<span class="ggttplus ggttp mmrr" id="imbsettopener" onclick="ImBCHtml.openp(this);">&#x25b6;</span>
+<span class="ggttminus ggttp mmll" id="imbsettcloser" onclick="ImBCHtml.closep(this);">&#x25bc;</span>
 <span class="grtit ggttplus" onclick="ImBCHtml.openp(this);"> ImB </span>
 <span class="grtit ggttminus" onclick="ImBCHtml.closep(this);"> ImB </span>
 </div>
@@ -25296,7 +25313,7 @@ function readjpg(file) {
 <div ><input type="checkbox" id="copycheck" onchange="imbc.chgcopycheck()"> <label for="copycheck" data-myxlkey="process.addcopyright"></label> <input onchange="imbc.dirtysettings()" type="text" id="copytext"></input></div>
 </div>
 </div>
-<div  style="margin-top: 0.5em;" id="genadvice" style="display:none;" data-myxlkey="main.generaladvice"></div>
+<div  style="margin-top: 0.5em;" id="genadvice" data-myxlkey="main.generaladvice"></div>
 </div>
 <div style="display:none;" style="margin-top: 0.5em;">
 <span id="onlyhttp" data-myxlkey="browser.prefnotfile"></span>
