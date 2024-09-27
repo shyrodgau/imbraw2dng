@@ -46,7 +46,7 @@ direkt im Internet benutzen oder auf die Festplatte oder sonstwohin kopieren.
 (**Alle Daten bleiben im Browser!**)   
 In diesem Fall müssen die Dateien von ImB per USB, Micro SD Adapter, original App oder sonstwie geholt werden.
 
-- wenn man diese Datei(en) auf die MicroSD vom ImB schiebt, ([wie macht man das?](wie-kopiere-ich-html-dateien-auf-die-microsd)), kann Holen und Konvertieren nach DNG zusammengefasst werden (JPG und Filme können auch geholt werden).   
+- <a name="gucken-auf-imback-selbst"> wenn man diese Datei(en) auf die MicroSD vom ImB schiebt, ([wie macht man das?](#wie-kopiere-ich-html-dateien-auf-die-microsd)), kann Holen und Konvertieren nach DNG zusammengefasst werden (JPG und Filme können auch geholt werden).   
 `http://192.168.1.254/IMBACK/IMBAPP.HTM` (neuer, kann auch die Zeit einstellen und Bilder und Video aufnehmen!) oder   
 `http://192.168.1.254/IMBACK/IMBRAW2DNG.HTML`  (klassisch, nur herunterladen und konvertieren)   
 **Das Gerät, auf dem die Seite geöffnet wird, muss im ImB WLAN sein.**
@@ -198,6 +198,7 @@ Nachteile gegenüber bisherigem imbraw2dng, wenn nicht auf ImB benutzt:
 Die EXIF Daten in den JPEG Bildern von ImB sind nur eingeschränkt nützlich, aber wenn sie in den DNG Dateien drin gewünscht werden, ist das möglich. Zuerst das JPEG und dann das passende RAW verarbeiten.
 "Passend" ist definiert als: Zeitunterschied < 5 sec. und Unterschied des Zähler (letzter Teil des Dateinamens) eins. Muss nicht direkt aufeinanderfolgend sein, erst alle JPEGs und dann die RAWs sollte tun.
 
+<a name="mehr-tricks-und-details">
 Wenn du eine lange Aufnahme durch mehrere kürzere simulieren willst, und das spezifische Rauschen zu vermeiden, geht das bei node.js mit den `-fla`/`-flx` Parametern.
 Oder im HTML das Häkchen unter dem blauen Bereich setzen und dann die aufzuaddierenden RAW-Dateien zusammen in das blaue Feld ziehen und ablegen.
 

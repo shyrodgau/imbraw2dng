@@ -19738,6 +19738,7 @@ showdisconnect(alsoerr) {
 		e.style['display'] = 'none';
 	for (const e of document.querySelectorAll('.photosym'))
 		e.style['display'] = 'none';
+	document.getElementById('genadvice').style['display'] = '';
 	this.imgsdirty = false;
 }
 /* ImBCHtml: browserdisplay: open visual browser */
@@ -22007,10 +22008,10 @@ texts: { // actually const
 			ja: 'ここに ImB のファイルをドロップします。：  (or directories)'
 		},
 		selectraw: {
-			de: 'Oder diese Seite per WLAN <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/moredoc_de.md#gucken-auf-imback-selbst\'>direkt von ImB</a> verwenden.<br>Oder <tt>.RAW</tt> Datei(en) auswählen:',
-			en: 'Or use this page via Wifi <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/moredoc.md#browsing-on-the-imback\'>directly from ImB</a>.<br>Or select <tt>.RAW</tt> File(s):',
-			fr: 'Ou utiliez cette page <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/moredoc.md#browsing-on-the-imback\'>via Wifi sur ImB</a>.<br>Ou selectez <tt>.RAW</tt> fiche(s):',
-			ru: 'Или используйте эту страницу через Wi-Fi <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/moredoc.md#browsing-on-the-imback\'>прямо из ImB</a>.<br>Или выберите файл(ы) <tt>RAW</tt>:',
+			de: 'Oder diese Seite per WLAN <a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/blob/master/README_de.md#gucken-auf-imback-selbst\',\'_system\');return false;">direkt von ImB</a> verwenden.<br>Oder <tt>.RAW</tt> Datei(en) auswählen:',
+			en: 'Or use this page via Wifi <a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\',\'_system\');return false;">directly from ImB</a>.<br>Or select <tt>.RAW</tt> File(s):',
+			fr: 'Ou utiliez cette page <a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\',\'_system\');return false;">via Wifi sur ImB</a>.<br>Ou selectez <tt>.RAW</tt> fiche(s):',
+			ru: 'Или используйте эту страницу через Wi-Fi <a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\',\'_system\');return false;">прямо из ImB</a>.<br>Или выберите файл(ы) <tt>RAW</tt>:',
 			ja: 'または、このページを WiFi 経由で<a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/moredoc_ja.md#imback-での閲覧\'>ImB から直接</a>使用します。<br >または、<tt>.RAW</tt> ファイルを選択します。：'
 		},
 		selectrawx: {
@@ -22108,8 +22109,8 @@ texts: { // actually const
 			ja: '選択済み'
 		},
 		fakelong: {
-			en: 'Fake long exposure by adding up all (<a href="#" onclick=" window.open(\'https://shyrodgau.github.io/imbraw2dng/moredoc#a-lot-more-tricks-and-details\', \'_system\'); return false;">read more</a>)',
-			de: 'Langzeitbelichtung durch Addieren simulieren (<a href="#" onclick=" window.open(\'https://shyrodgau.github.io/imbraw2dng/moredoc_de#mehr-tricks-und-details\', ·\'_system\'); return false;">mehr lesen</a>)',
+			en: 'Fake long exposure by adding up all (<a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#a-lot-more-tricks-and-details\',\'_system\');return false;">read more</a>)',
+			de: 'Langzeitbelichtung durch Addieren simulieren (<a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/blob/master/README_de.md#mehr-tricks-und-details\',\'_system\');return false;">mehr lesen</a>)',
 			ja: '「追加して長時間露光をシミュレートします (<a href="#" onclick=" window.open(\'https://shyrodgau.github.io/imbraw2dng/moredoc_ja#さらなるトリックと詳細\', \'_system\'); return false;">続きを読む</a>)」すべてを加算して長時間露光をシミュレートする',
 			scale: {
 				en: 'Scale values down',
@@ -25257,8 +25258,8 @@ function readjpg(file) {
 <div style="position:fixed; top:0; left:0; width:100%;background-color:black;z-index:997;color:white;"><div>&nbsp;<span id="settx"><input type="button" value="&#x2190;" class="whbtn" style="font-size:200%;padding:0 !important; border:0 !important;" onclick="imbc.showmain()"></span>
 <span class="whbtn disconnected" style="padding-left:0.4em;padding-right:0.4em;display:none;"> ! &#x1f593; ! &#x1f5be; ! </span>
 </div></div>
-<div id="appsett" class="gg ggclosed">
-<div class="ggtt titletop ggttclosed">
+<div id="appsett" class="gg ggopen">
+<div class="ggtt titletop ggttopen">
 <span class="ggttplus ggttp mmrr" id="appsettopener" onclick="ImBCHtml.openp(this);">&#x25b6;</span>
 <span class="ggttminus ggttp mmll" onclick="ImBCHtml.closep(this);">&#x25bc;</span>
 <span class="grtit ggttplus" onclick="ImBCHtml.openp(this);" data-myxlkey="app.app"> APP </span>
@@ -25295,7 +25296,7 @@ function readjpg(file) {
 <div ><input type="checkbox" id="copycheck" onchange="imbc.chgcopycheck()"> <label for="copycheck" data-myxlkey="process.addcopyright"></label> <input onchange="imbc.dirtysettings()" type="text" id="copytext"></input></div>
 </div>
 </div>
-<div  style="margin-top: 0.5em;" data-myxlkey="main.generaladvice"></div>
+<div  style="margin-top: 0.5em;" id="genadvice" style="display:none;" data-myxlkey="main.generaladvice"></div>
 </div>
 <div style="display:none;" style="margin-top: 0.5em;">
 <span id="onlyhttp" data-myxlkey="browser.prefnotfile"></span>
