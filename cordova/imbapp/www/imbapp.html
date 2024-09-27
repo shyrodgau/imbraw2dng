@@ -25339,6 +25339,10 @@ function custcmdi(c, t, restargs, cb, results) {
 		currcust = undefined;
 		handlewait();
 	};
+	xhr.ontimeout = xhr.onerror;
+	xhr.onabort = xhr.onerror;
+	if (thecmd === 3019 || thecmd === 3012)
+		xhr.timeout = 3000;
 	if (undefined === base) {
 		handlewait();
 		cb({ cmd: 'custcmd', ok: false, rc: -1, cmds: currcust });
