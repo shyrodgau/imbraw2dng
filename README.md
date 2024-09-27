@@ -188,7 +188,8 @@ Corresponding is defined as: time difference < 5 sec and counter (last part of f
 
 <a name="a-lot-more-tricks-and-details">
 If you want to simulate a long "Long exposure" by several shorter ones to avoid the specific noise, you can do so by using the `-fla`/`-flx` parameters on node.js. 
-Or set the checkbox below the blue field on the HTML page and then drag and drop the RAW-files you want to stack up together into the blue field.
+Or set the checkbox below the blue field on the HTML page and then drag and drop the RAW-files you want to stack up together into the blue field.   
+This is currently not working inside the android app.
 
 Your preferred settings can be saved in a configuration file for node.js (see above) or in the browser when you load it from a web server (internet or from ImB).
 

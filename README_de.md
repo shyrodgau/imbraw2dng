@@ -200,7 +200,8 @@ Die EXIF Daten in den JPEG Bildern von ImB sind nur eingeschränkt nützlich, ab
 
 <a name="mehr-tricks-und-details">
 Wenn du eine lange Aufnahme durch mehrere kürzere simulieren willst, und das spezifische Rauschen zu vermeiden, geht das bei node.js mit den `-fla`/`-flx` Parametern.
-Oder im HTML das Häkchen unter dem blauen Bereich setzen und dann die aufzuaddierenden RAW-Dateien zusammen in das blaue Feld ziehen und ablegen.
+Oder im HTML das Häkchen unter dem blauen Bereich setzen und dann die aufzuaddierenden RAW-Dateien zusammen in das blaue Feld ziehen und ablegen.   
+In der Android App funktioniert das im Moment nicht.
 
 Persönliche Voreinstellungen können für node.js in einer Konfigurationsdatei (siehe oben) gespeichert werden, oder im Webbrowser falls die Seite vom Netz geladen wurde (Internet oder von ImB).
 
