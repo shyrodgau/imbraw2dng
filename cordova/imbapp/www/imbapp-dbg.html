@@ -18587,7 +18587,7 @@ handleone(orientation) {
 		this.mappx(true, 'process.nothing');
 		return this.handlenext();
 	}
-	if (undefined === f.size) {
+	if (undefined === f.size && !f.data) {
 	  let cachehit;
 	  if ((cachehit = this.findcache(f.name ? f.name : f))) {
 		  this.allfiles[this.actnum] = cachehit.reader;
@@ -18603,6 +18603,18 @@ handleone(orientation) {
 	  }
 	  return;
 	}
+	else if (undefined === f.size && f.data) {
+		// from file chooser
+		f.size = f.data.byteLength;
+		f.imbackextension = true;
+		f.readAsArrayBuffer = () => {
+				f.onload({
+						target: {
+							result: f.data
+						}
+				});
+		};
+	}
 	let rawname = ImBCBase.basename(f.name);
 	if (rawname.substring(rawname.length - 4).toUpperCase() !== '.RAW') {
 		if (f.imbackextension && rawname.substring(rawname.length - 4).toUpperCase() !== '.JPG') {
@@ -18616,7 +18628,8 @@ handleone(orientation) {
 				this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
 			}
 			this.mappx(0, 'process.notraw',rawname);
-			const contents = evt.target.result;
+			let contents = evt.target.result;
+			if (contents.buffer) contents = contents.buffer;
 			const view = new DataView(contents);
 			const out = new Uint8Array(f.size);
 			for (let j=0; j<contents.byteLength; j++) {
@@ -18648,7 +18661,8 @@ handleone(orientation) {
 		this.mappx(0, 'process.unknownsize' + ((!document) ? 'x' : ''), f.size);
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
-			const contents = evt.target.result;
+			let contents = evt.target.result;
+			if (contents.buffer) contents = contents.buffer;
 			const view = new DataView(contents);
 			const out = new Uint8Array(f.size);
 			for (let j=0; j<view.byteLength; j++) {
@@ -18694,7 +18708,8 @@ handleone(orientation) {
 		if (this.totnum > 1) {
 			this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
 		}
-		const contents = evt.target.result;
+		let contents = evt.target.result;
+		if (contents.buffer) contents = contents.buffer;
 		const view = new DataView(contents);
 		if (this.addall) {
 			if (this.#addimgs.length === 0 && this.addscaleall)
@@ -19128,9 +19143,12 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 }
 /* ImBCHtmlOut: Sliced write to file */
 writeslice(fw, name, arr, onok, onerr, off) {
-	fw.onerror = (e) => { onerr(e); }
+	let le = arr.byteLength;
+	fw.onerror = (e) => {
+		onerr(e);
+	}
 	fw.onwriteend = () => {
-		if (off + 20000000 > arr.byteLength)
+		if (off + 1000000 > le)
 			onok();
 		else {
 			this.rotphase ++;
@@ -19139,14 +19157,17 @@ writeslice(fw, name, arr, onok, onerr, off) {
 				this.rootfsx.getFile(name, { create: false }, (fileEntry) => {
 					// Create a FileWriter object for our FileEntry (log.txt).
 					fileEntry.createWriter((fileWriter) => {
-							this.writeslice(fileWriter, name, arr, () => onok(), (e) => onerr(e), off + 20000000);
+							this.writeslice(fileWriter, name, arr, () => onok(), (e) => onerr(e), off + 1000000);
 					});
 				});
 			}, 1);
 		}
 	};
 	fw.seek(off);
-	fw.write(arr.slice(off, off + 20000000));
+	if (le > off + 1000000)
+		fw.write(arr.slice(off, off + 1000000));
+	else
+		fw.write(arr);
 }
 /* ImBCHtmlOut: find html style for translation */
 applystyle(span, msg, base) {
@@ -19652,6 +19673,38 @@ chgcopycheck() {
     		copytext.style['display'] = 'none';
     }
     this.dirtysettings();
+}
+/* ImBCHtml: browserdisplay: choose a file */
+fselect() {
+	if (this.actnum !== this.allfiles.length) return;
+	this.showsplash();
+	chooser.getFile().then((f) => {
+		const splash = document.getElementById('splash');
+		if (splash) splash.style['display'] = 'none';
+		if (!f) return;
+		this.checkchecks();
+		this.totnum = 1;
+		this.actnum = 0;
+		this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
+		this.allfiles = [ f ];
+		if (this.totnum > 0) {
+			this.appmsgxl(true, 'process.selectedn', this.totnum);
+			document.getElementById('imbdoit').disabled = true;
+			document.getElementById('imbvisbrows').disabled = true;
+			document.getElementById('droptarget').style['display'] = 'none';
+			document.getElementById('infile').disabled = true;
+			this.mappx(true, 'process.frombrowsern', this.totnum);
+			document.getElementById('imbdoit').disabled = true;
+			document.getElementById('imbvisbrows').disabled = true;
+			document.getElementById('droptarget').style['display'] = 'none';
+			document.getElementById('infile').disabled = true
+			this.rotphase = 1;
+			this.fromvisbrows = true;
+			this.showdlprog();
+			this.topreccheck(false);
+			this.starthandleone();
+		}
+	});
 }
 /* ImBCHtml: browserdisplay: handler for file selection input */
 fselected() {
@@ -21878,6 +21931,7 @@ appinfo() {
 	document.getElementById('okmsg').innerHTML += `<br><span style="font-weight:normal;font-size:75%;">Powered by <a href="#" onclick="window.open('https://cordova.apache.org','_system'); return false;">Apache Cordova</a> Plugins: 
 	<a href="#" onclick="window.open('https://github.com/apache/cordova-plugin-inappbrowser/','_system'); return false;">InAppBrowser</a>, 
 	<a href="#" onclick="window.open('https://github.com/apache/cordova-plugin-file/','_system'); return false;">File</a>, 
+	<a href="#" onclick="window.open('https://github.com/cyph/cordova-plugin-chooser/','_system'); return false;">Chooser</a>, 
 	<a href="#" onclick="window.open('https://github.com/shyrodgau/cordova-plugin-saf-mediastore/','_system'); return false;">SafMediastore</a><br>Based on work by Michele Asciutti from the ImBack User Group.</span>
 	<br><a href="/res/LICENSE.txt">License Info:</a>
 	<br><iframe src="/res/LICENSE.txt" id="liciframe" style="width: 100%;">`;
@@ -22150,6 +22204,10 @@ texts: { // actually const
 		}
 	},
 	main: {
+		choosefile: {
+			en: 'choose file',
+			de: 'datei auswählen'
+		},
 		coloursyourrisk: {
 			de: 'Bei Farben bin ich raus! Eigenes Risiko, fraach mich net!',
 			en: 'About colurs, I am out! Own risk, do not ask me!',
@@ -25569,8 +25627,8 @@ function readjpg(file) {
 <input type="checkbox" id="fakelongexpscale"> <label for="fakelongexpscale" data-myxlkey="main.fakelong.scale"> </label>
 </div>
 <div  style="font-size:133%;margin-top: 0.5em;"><span  data-myxlkey="main.selectrawx"></span>
-<input  type="file" accept=".*" id="infile" name="infile" multiple onchange="imbc.fselected()">
-<!--input  type="button" id="infile" name="infile" multiple onclick="imbc.fselect()" value="XX"-->
+<!--input  type="file" accept=".*" id="infile" name="infile" multiple onchange="imbc.fselected()"-->
+<input  type="button" id="infile" name="infile" multiple onclick="imbc.fselect()" data-myvalxlkey="main.choosefile" value="XX">
 </div><br>
 </div>
 <!-- end of the normal display -->
