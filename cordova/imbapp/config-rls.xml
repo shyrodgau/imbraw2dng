@@ -13,18 +13,26 @@
     <preference name="scheme" value="http" />
     <preference name="hostname" value="192.168.1.254" />
     <platform name="android">
-        <edit-config file="AndroidManifest.xml" mode="merge" target="/manifest/application">
-            <application android:usesCleartextTraffic="true"/>
-        </edit-config>
-        <resource-file src="../../imbapp.htm" target="app/src/main/assets/www/res/imbapp.htm"/>
-        <resource-file src="../../LICENSE.txt" target="app/src/main/assets/www/res/LICENSE.txt"/>
-    </platform>
-    <config-file target="AndroidManifest.xml" parent="/*">
+      <edit-config file="AndroidManifest.xml" mode="merge" target="/manifest/application">
+        <application android:usesCleartextTraffic="true" android:requestLegacyExternalStorage="true" />
+      </edit-config>
+      <resource-file src="../../imbapp.htm" target="app/src/main/assets/www/res/imbapp.htm"/>
+      <resource-file src="../../LICENSE.txt" target="app/src/main/assets/www/res/LICENSE.txt"/>
+      <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application">
+        <application android:usesCleartextTraffic="true" android:largeHeap="true" android:requestLegacyExternalStorage="true" />
+      </edit-config>
+      <config-file target="AndroidManifest.xml" parent="/*">
         <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
         <uses-permission android:name="android.permission.MANAGE_MEDIA"/>
-    </config-file>
+      </config-file>
+    </platform>
+    <platform name="ios">
+      <resource-file src="../../imbapp.htm" target="app/src/main/assets/www/res/imbapp.htm"/>
+      <resource-file src="../../LICENSE.txt" target="app/src/main/assets/www/res/LICENSE.txt"/>
+    </platform>
     <icon src="res/logo.png"/>
     <preference name="AndroidXEnabled" value="true" />
     <preference name="AndroidPersistentFileLocation" value="Compatibility" />
+    <preference name="AndroidInsecureFileModeEnabled" value="true"/>
     <exclude-files pattern="imbapp-dbg.html"/>
 </widget>

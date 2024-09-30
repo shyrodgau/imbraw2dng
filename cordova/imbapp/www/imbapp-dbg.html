@@ -19148,7 +19148,7 @@ writeslice(fw, name, arr, onok, onerr, off) {
 		onerr(e);
 	}
 	fw.onwriteend = () => {
-		if (off + 1000000 > le)
+		if (off + 10000000 > le)
 			onok();
 		else {
 			this.rotphase ++;
@@ -19157,15 +19157,15 @@ writeslice(fw, name, arr, onok, onerr, off) {
 				this.rootfsx.getFile(name, { create: false }, (fileEntry) => {
 					// Create a FileWriter object for our FileEntry (log.txt).
 					fileEntry.createWriter((fileWriter) => {
-							this.writeslice(fileWriter, name, arr, () => onok(), (e) => onerr(e), off + 1000000);
+							this.writeslice(fileWriter, name, arr, () => onok(), (e) => onerr(e), off + 10000000);
 					});
 				});
 			}, 1);
 		}
 	};
 	fw.seek(off);
-	if (le > off + 1000000)
-		fw.write(arr.slice(off, off + 1000000));
+	if (le > off + 10000000)
+		fw.write(arr.slice(off, off + 10000000));
 	else
 		fw.write(arr);
 }
@@ -19678,32 +19678,39 @@ chgcopycheck() {
 fselect() {
 	if (this.actnum !== this.allfiles.length) return;
 	this.showsplash();
-	chooser.getFile().then((f) => {
-		const splash = document.getElementById('splash');
-		if (splash) splash.style['display'] = 'none';
-		if (!f) return;
-		this.checkchecks();
-		this.totnum = 1;
-		this.actnum = 0;
-		this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
-		this.allfiles = [ f ];
-		if (this.totnum > 0) {
-			this.appmsgxl(true, 'process.selectedn', this.totnum);
-			document.getElementById('imbdoit').disabled = true;
-			document.getElementById('imbvisbrows').disabled = true;
-			document.getElementById('droptarget').style['display'] = 'none';
-			document.getElementById('infile').disabled = true;
-			this.mappx(true, 'process.frombrowsern', this.totnum);
-			document.getElementById('imbdoit').disabled = true;
-			document.getElementById('imbvisbrows').disabled = true;
-			document.getElementById('droptarget').style['display'] = 'none';
-			document.getElementById('infile').disabled = true
-			this.rotphase = 1;
-			this.fromvisbrows = true;
-			this.showdlprog();
-			this.topreccheck(false);
-			this.starthandleone();
+	chooser.getFileMetadata().then((f) => {
+		if (!f) {
+			this.showmain();
+			return;
 		}
+		cordova.plugins.safMediastore.readFile(f.uri).then((d) => {
+		   this.showmain();
+		   if (!f || !d) return;
+		   f.data = d;
+		   this.checkchecks();
+		   this.totnum = 1;
+		   this.actnum = 0;
+		   this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
+		   this.allfiles = [ f ];
+		   if (this.totnum > 0) {
+			   this.appmsgxl(true, 'process.selectedn', this.totnum);
+			   document.getElementById('imbdoit').disabled = true;
+			   document.getElementById('imbvisbrows').disabled = true;
+			   document.getElementById('droptarget').style['display'] = 'none';
+			   document.getElementById('infile').disabled = true
+			   this.rotphase = 1;
+			   this.fromvisbrows = true;
+			   this.showdlprog();
+			   this.topreccheck(false);
+			   this.starthandleone();
+		   }
+		}).catch((e) => {
+			console.log(e);
+		   this.showmain();
+		});
+	}).catch((e) => {
+		console.log(e);
+	   this.showmain();
 	});
 }
 /* ImBCHtml: browserdisplay: handler for file selection input */
@@ -19717,11 +19724,6 @@ fselected() {
 	this.allfiles = el.files;
 	if (this.totnum > 0) {
 		this.appmsgxl(true, 'process.selectedn', this.totnum);
-		document.getElementById('imbdoit').disabled = true;
-		document.getElementById('imbvisbrows').disabled = true;
-		document.getElementById('droptarget').style['display'] = 'none';
-		document.getElementById('infile').disabled = true;
-		this.mappx(true, 'process.frombrowsern', this.totnum);
 		document.getElementById('imbdoit').disabled = true;
 		document.getElementById('imbvisbrows').disabled = true;
 		document.getElementById('droptarget').style['display'] = 'none';
@@ -25620,11 +25622,13 @@ function readjpg(file) {
 <!-- end of the picture browser, generated content appended -->
 <!-- enter local files -->
 <div id="notimback" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
+<div id="droptargetwrap" style="display:none;">
 <div  style="font-size:133%;margin-top: 0.5em;" data-myxlkey="main.drophere"></div>
 <div id="droptarget" ondrop="imbc.drophandler(event);" ondragenter="imbc.prevdef(event);" ondragover="imbc.prevdef(event);" style="border: 5px solid blue;border-radius: 10px;width:300px; height:70px;background-color: rgba(0,0,255,0.2);"></div><br>
 <div  style="font-size:75%; background-color:rgba(0,0,255,0.1);width:fit-content;margin-top:-0.7em;color:#808080;">
 <input type="checkbox" id="fakelongexpadd"> <label for="fakelongexpadd" data-myxlkey="main.fakelong"> </label> - 
 <input type="checkbox" id="fakelongexpscale"> <label for="fakelongexpscale" data-myxlkey="main.fakelong.scale"> </label>
+</div>
 </div>
 <div  style="font-size:133%;margin-top: 0.5em;"><span  data-myxlkey="main.selectrawx"></span>
 <!--input  type="file" accept=".*" id="infile" name="infile" multiple onchange="imbc.fselected()"-->

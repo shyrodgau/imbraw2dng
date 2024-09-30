@@ -17,22 +17,25 @@
   <preference name="hostname" value="192.168.8.101:8080"/>
   <preference name="AndroidPersistentFileLocation" value="Compatibility"/>
   <preference name="AndroidXEnabled" value="true"/>
+  <preference name="AndroidInsecureFileModeEnabled" value="true"/>
   <platform name="android">
     <edit-config file="AndroidManifest.xml" mode="merge" target="/manifest/application">
-      <application android:usesCleartextTraffic="true"/>
-      <application android:largeHeap="true" />
+      <application android:usesCleartextTraffic="true" android:requestLegacyExternalStorage="true" />
     </edit-config>
     <resource-file src="../../imbapp.htm" target="app/src/main/assets/www/res/imbapp.htm"/>
     <resource-file src="../../LICENSE.txt" target="app/src/main/assets/www/res/LICENSE.txt"/>
     <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application">
-      <application android:largeHeap="true" />
-      <application android:usesCleartextTraffic="true"/>
+      <application android:usesCleartextTraffic="true" android:largeHeap="true" android:requestLegacyExternalStorage="true" />
     </edit-config>
+    <config-file target="AndroidManifest.xml" parent="/*">
+      <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+      <uses-permission android:name="android.permission.MANAGE_MEDIA"/>
+    </config-file>
   </platform>
-  <config-file target="AndroidManifest.xml" parent="/*">
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.MANAGE_MEDIA"/>
-  </config-file>
+    <platform name="ios">
+      <resource-file src="../../imbapp.htm" target="app/src/main/assets/www/res/imbapp.htm"/>
+      <resource-file src="../../LICENSE.txt" target="app/src/main/assets/www/res/LICENSE.txt"/>
+    </platform>
   <icon src="res/logo.png"/>
   <exclude-files pattern="imbapp.html"/>
 </widget>
