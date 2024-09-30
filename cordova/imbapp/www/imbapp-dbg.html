@@ -19164,7 +19164,7 @@ writeslice(fw, name, arr, onok, onerr, off) {
 		}
 	};
 	fw.seek(off);
-	if (le > off + 10000000)
+	if (le > 10000000)
 		fw.write(arr.slice(off, off + 10000000));
 	else
 		fw.write(arr);
