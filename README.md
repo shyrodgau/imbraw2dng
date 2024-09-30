@@ -44,7 +44,7 @@ directly from the internet or copy them anywhere you like on your harddisk or me
 (**All data will stay inside your browser!**)   
 In this case, you need to transfer the files from ImB or access the MicroSD via USB, adapter, original ImB App or whatsoever.
 
-- <a name="browsing-on-the-imback"> when you copy one (or both) of the versions onto the MicroSD into the `IMBACK` folder ([How do I do that?](#how-do-i-copy-html-files-to-the-microsd)), you can directly combine download and conversion to DNG: (videos and JPG can also be downloaded)    
+- <a name="browsing-on-the-imback">  </a>when you copy one (or both) of the versions onto the MicroSD into the `IMBACK` folder ([How do I do that?](#how-do-i-copy-html-files-to-the-microsd)), you can directly combine download and conversion to DNG: (videos and JPG can also be downloaded)    
 `http://192.168.1.254/IMBACK/IMBAPP.HTM` (newer, also allows to set the clock time, record video or take pictures!) or   
 `http://192.168.1.254/IMBACK/IMBRAW2DNG.HTML`  (classic, only download and conversion)   
 **The device where you open the page needs to be in the ImB Wifi.**
@@ -186,7 +186,7 @@ Disadvantages over the classic imbraw2dng when not used on the ImB:
 The EXIF data in the JPEG files from ImB is of limited use, but if you would like to add it to your DNG files, this is possible. Process the JPEG first and then the corresponding RAW. 
 Corresponding is defined as: time difference < 5 sec and counter (last part of filename) difference 1. It is not neccessary to be directly consecutive, first all JPEGs and then the RAWs should do it.
 
-<a name="a-lot-more-tricks-and-details">
+<a name="a-lot-more-tricks-and-details"> </a>
 If you want to simulate a long "Long exposure" by several shorter ones to avoid the specific noise, you can do so by using the `-fla`/`-flx` parameters on node.js. 
 Or set the checkbox below the blue field on the HTML page and then drag and drop the RAW-files you want to stack up together into the blue field.   
 This is currently not working inside the android app.
