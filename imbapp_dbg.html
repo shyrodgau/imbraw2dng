@@ -19102,7 +19102,7 @@ appmsgxl(opt, msg, arg0, arg1, arg2, arg3) {
 /* ImBCHtmlOut: output function to main log */
 appmsgdbg(opt, msg) {
 	const s = document.createElement('span');
-	s.innerHtml += msg;
+	s.innerHTML = msg;
 	this.#dispcnt++;
 	s.id = 'mappx_' + this.#dispcnt;
 	const msgel = document.getElementById('outmsg');
