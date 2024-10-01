@@ -19232,7 +19232,7 @@ handleonex() {
 			this.#qappx('main.file.jpeg', rawname);
 			if (f.name) {
 				// read jpeg file for preview
-				const fr = new FileReader();
+				const fr = f.imbackextension ? f : new FileReader();
 				fr.onload = (evt) => {
 					let contents = evt.target.result;
 					contents = 'data:image/jpeg;' + contents.substring(8);
@@ -19277,9 +19277,7 @@ handleonex() {
 			this.imbcb.handleone();
 		else {
 			if (!this.fromvisbrows) this.shownormal();
-			setTimeout(() => {
-				this.handleone(f.rot);
-			}, 1000);
+			this.handleone(f.rot);
 		}
 	}
 }
@@ -19580,23 +19578,46 @@ fselected() {
 	this.totnum = el.files.length;
 	this.actnum = 0;
 	this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
-	this.allfiles = el.files;
-	if (this.totnum > 0) {
-		this.appmsgxl(true, 'process.selectedn', this.totnum);
-		document.getElementById('imbdoit').disabled = true;
-		document.getElementById('imbvisbrows').disabled = true;
-		document.getElementById('droptarget').style['display'] = 'none';
-		document.getElementById('infile').disabled = true;
-		this.mappx(true, 'process.frombrowsern', this.totnum);
-		document.getElementById('imbdoit').disabled = true;
-		document.getElementById('imbvisbrows').disabled = true;
-		document.getElementById('droptarget').style['display'] = 'none';
-		document.getElementById('infile').disabled = true
-		this.rotphase = 1;
-		this.fromvisbrows = true;
-		this.showdlprog();
-		this.topreccheck(false);
-		this.starthandleone();
+	let n = 0;
+	this.rotphase = 1;
+	this.fromvisbrows = true;
+	document.getElementById('imbdoit').disabled = true;
+	document.getElementById('imbvisbrows').disabled = true;
+	document.getElementById('droptarget').style['display'] = 'none';
+	document.getElementById('infile').disabled = true
+	this.showdlprog();
+	this.topreccheck(false);
+	for (const f of el.files) {
+		let r = new FileReader();
+		let fel = {
+			size: f.size,
+			name: f.name,
+			imbackextension: true,
+			readAsArrayBuffer: (me) => {
+				if (me.buffer) {
+					me.onload( {
+						target: { result: me.buffer }
+					} );
+				} else
+					me.onerror( me.errevent );
+			}
+		};
+		this.allfiles.push(fel);
+		r.onerror = (evt) => {
+			fel.errevent = evt;
+		};
+		r.onload = (evt) => {
+			fel.buffer = evt.target.result;
+			n++;
+			this.rotphase ++;
+			document.getElementById('delprogmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length];
+			if (n === el.files.length) {
+				this.totnum = this.allfiles.length;
+				this.appmsgxl(true, 'process.selectedn', this.totnum);
+				this.starthandleone();
+			}
+		};
+		r.readAsArrayBuffer(f);
 	}
 }
 /* ImBCHtml: translation helper with title * /
@@ -21610,9 +21631,7 @@ workermsg(msg) {
 			this.allfiles[this.actnum] = fx;
 			d.c.reader = fx;
 			this.addcache(d.n, d.c);
-			setTimeout(() => {
-				this.handleone(d.o, d.fl);
-			}, 1000);
+			this.handleone(d.o, d.fl);
 		} else {
 			this.mappx(false, 'words.sorryerr');
 			this.mappx(true, 'process.erraccess', d.n);
@@ -25264,7 +25283,7 @@ function custcmdi(c, t, restargs, cb, results) {
 /* WORKER read local jpeg */
 function readjpg(file) {
 	// read jpeg file for preview
-	const fr = new FileReader();
+	const fr = file.imbackextension ? file : new FileReader();
 	fr.onload = (evt) => {
 		let contents = evt.target.result;
 		contents = 'data:image/jpeg;' + contents.substring(8);
