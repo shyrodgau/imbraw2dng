@@ -19277,7 +19277,9 @@ handleonex() {
 			this.imbcb.handleone();
 		else {
 			if (!this.fromvisbrows) this.shownormal();
-			this.handleone(f.rot);
+			setTimeout(() => {
+				this.handleone(f.rot);
+			}, 1000);
 		}
 	}
 }
@@ -21608,7 +21610,9 @@ workermsg(msg) {
 			this.allfiles[this.actnum] = fx;
 			d.c.reader = fx;
 			this.addcache(d.n, d.c);
-			this.handleone(d.o, d.fl);
+			setTimeout(() => {
+				this.handleone(d.o, d.fl);
+			}, 1000);
 		} else {
 			this.mappx(false, 'words.sorryerr');
 			this.mappx(true, 'process.erraccess', d.n);
