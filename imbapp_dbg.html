@@ -18618,7 +18618,7 @@ handleone(orientation) {
 		}
 		reader.onerror = (evt) => {
 			console.log('Non-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
-			this.appmsgdbg(true, 'Non-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
+			this.appmsgdbg(true, 'Non-RAW process reader error for ' + f.name + ' ' + globals.stringify_object(evt));
 			this.mappx(false, 'words.sorryerr');
 			this.mappx(true, 'process.errorreadingfile', f.name);
 			this.stats.error++;
@@ -18650,7 +18650,7 @@ handleone(orientation) {
 		}
 		reader.onerror = (evt) => {
 			console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
-			this.appmsgdbg(true, 'Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
+			this.appmsgdbg(true, 'Unk-RAW process reader error for ' + f.name + ' ' + globals.stringify_object(evt));
 			this.mappx(false, 'words.sorryerr');
 			this.mappx(true, 'process.errorreadingfile', f.name);
 			this.stats.error++;
@@ -18876,7 +18876,7 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 	};
 	reader.onerror = (evt) => {
 		console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
-		this.appmsgdbg(true, 'k-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
+		this.appmsgdbg(true, 'k-RAW process reader error for ' + f.name + ' ' + globals.stringify_object(evt));
 		this.mappx(false, 'words.sorryerr');
 		this.mappx(true, 'process.errorreadingfile', f.name);
 		this.stats.error++;
@@ -24897,6 +24897,27 @@ adjurl: function(url) {
 	}
 	return n;
 },
+stringify_object: function(object, depth=0, max_depth=2) {
+    // change max_depth to see more levels, for a touch event, 2 is good
+    if (depth > max_depth)
+        return 'Object';
+
+    const obj = {};
+    for (let key in object) {
+        let value = object[key];
+        if (value instanceof Node)
+            // specify which properties you want to see from the node
+            value = {id: value.id};
+        else if (value instanceof Window)
+            value = 'Window';
+        else if (value instanceof Object)
+            value = globals.stringify_object(value, depth+1, max_depth);
+
+        obj[key] = value;
+    }
+
+    return depth? obj: JSON.stringify(obj);
+}
 /* Indentation in - end of globals */
 }
 /* *************************************** globals, E N D *************************************** */
