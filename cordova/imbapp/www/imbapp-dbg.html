@@ -18225,6 +18225,7 @@ debugflag = false;
 useraw = null;
 imbweb = 'http://192.168.8.101:8080';
 //imbweb = 'http://192.168.0.72:8080';
+fromintent = false;
 filmdemo = false;
 
 constructor() {
@@ -19574,7 +19575,7 @@ afterfinish() {
 		document.getElementById('pages').style['display'] = 'none';
 		this.onback = 'main';
 		document.getElementById('progmsg').style['display'] = '';
-		document.getElementById('progokbut').disabled = false;
+		if (!this.fromintent) document.getElementById('progokbut').disabled = false;
 		document.getElementById('dlprogresslogbtn').disabled = false;
 		document.getElementById('progcancelbut').disabled = true;
 		document.getElementById('progmsg').innerHTML = this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
@@ -19809,6 +19810,10 @@ showpages() {
 }
 /* ImBCHtml: browserdisplay: show main screen */
 showmain() {
+	if (this.fromintent) {
+		this.doquit();
+		return;
+	}
 	document.getElementById('phpv').src="";
 	document.getElementById('delq').style['display'] = 'none';
 	document.getElementById('genericok').style['display'] = 'none';
@@ -19967,7 +19972,10 @@ showdlprog() {
 /* ImBCHtml: show message log */
 showlog() {
 	document.getElementById('pages').style['display'] = 'none';
-	this.onback = 'main';
+	if (this.fromintent)
+		this.onback = 'quit';
+	else
+		this.onback = 'main';
 	document.getElementById('phpv').src="";
 	document.getElementById('msglog').style['display'] = '';
 	document.getElementById('dlprogress').style['display']='none';
@@ -21935,6 +21943,7 @@ appinfo() {
 	<a href="#" onclick="window.open('https://github.com/apache/cordova-plugin-file/','_system'); return false;">File</a>, 
 	<a href="#" onclick="window.open('https://github.com/NeoLSN/cordova-plugin-android-permissions','_system'); return false;">AndroidPermissions</a>,  
 	<a href="#" onclick="window.open('https://github.com/cyph/cordova-plugin-chooser/','_system'); return false;">Chooser</a>, 
+	<a href="#" onclick="window.open('https://github.com/torsten-simon/cordova-plugin-intent/','_system'); return false;">Intent</a>,
 	<a href="#" onclick="window.open('https://github.com/shyrodgau/cordova-plugin-saf-mediastore/','_system'); return false;">SafMediastore</a><br>Based on work by Michele Asciutti from the ImBack User Group.</span>
 	<br><a href="/res/LICENSE.txt">License Info:</a>
 	<br><iframe src="/res/LICENSE.txt" id="liciframe" style="width: 100%;">`;
@@ -22005,7 +22014,7 @@ stopmovie() {
 }
 /* ImBHtml: do quit */
 doquit() {
-	this.savesettings();
+	if (!this.fromintent) this.savesettings();
 	let ex = 0;
 	if (this.exitmode === 'movie') ex = 1;
 	else if (this.exitmode === 'browse') ex = 2;
@@ -22119,6 +22128,68 @@ clearcache() {
 	this.dloads = []; 
 	this.savesettings();
 }
+intentinthandler() {
+	this.checkchecks();
+	this.totnum = this.allfiles.length;
+	this.stats.total = this.totnum;
+	this.actnum = 0;
+	this.appmsgxl(true, 'process.selectedn', this.totnum);
+	this.rotphase ++;
+	document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ';
+	this.topreccheck(false);
+	if (this.totnum > 0) {
+		this.fromintent = true;
+		this.starthandleone();
+	}
+	else
+		this.checkimb();
+}
+intenthandler(intent) {
+	this.disknown = true;
+	this.disconnected = false;
+	this.showdisconnect();
+    document.getElementById('imbdoit').disabled = true;
+    document.getElementById('imbvisbrows').disabled = true;
+    document.getElementById('droptarget').style['display'] = 'none';
+    document.getElementById('infile').disabled = true
+    this.rotphase = 1;
+    this.fromvisbrows = true;
+    this.showmain();
+	this.showdlprog();
+	let n = 0;
+    this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
+	for (const i of intent.clipItems) {
+		cordova.plugins.safMediastore.readFile(i.uri).then((d) => {
+		   if (!d) {
+			   this.mappx(false, 'words.sorryerr');
+			   this.mappx(true, 'process.errorreadingfile', i.uri);
+			   this.stats.error ++;
+			   n++;
+			   if (n === intent.clipItems.length) {
+			   	   this.intentinthandler();
+			   }
+			   return;
+		   }
+		   i.data = d;
+		   i.name = ImBCBase.basename(decodeURIComponent(i.uri));
+		   this.allfiles.push(i);
+		   n++;
+		   if (n === intent.clipItems.length) {
+			   this.intentinthandler();
+		   }
+		}).catch((e) => {
+		   console.log(e);
+		   this.mappx(false, 'words.sorryerr');
+		   this.mappx(true, 'process.errorreadingfile', i.uri);
+		   this.stats.error ++;
+		   n++;
+		   if (n === intent.clipItems.length) {
+			   this.intentinthandler();
+		   }
+		});
+	}
+	this.showdlprog();
+}
 /* Indentation in - end of class ImBCHtml */
 }
 /* *************************************** Main class for HTML, forward E N D *************************************** */
@@ -22149,7 +22220,16 @@ function init2() {
 	});
 	cordova.plugins.permissions.requestPermission(cordova.plugins.permissions.MANAGE_MEDIA, () => { console.log('M Med Ok '); }, () => { console.log('M Med NOk '); });
 	setTimeout(() => {
+		window.plugins.intent.getCordovaIntent(function (intent) {
+			if (intent.clipItems)
+				imbc.intenthandler(intent);
+			else
+				imbc.checkimb();
+		}, function(intent) {
+			// like error?
 			imbc.checkimb();
+		});
+		//imbc.checkimb();
 	}, 20000);
 	window.onbeforeunload = () => {
 		imbc.savesettings();
