@@ -19252,6 +19252,11 @@ xl1(el) {
 }
 /* ImBCHtmlOut: wrapper for zip output */
 starthandleone() {
+	if (this.allfiles.length === 0) {
+		this.totnum = 0;
+		this.afterfinish();
+		return;
+	}
 	if (!this.imbcb && window.showSaveFilePicker && false) {
 		// zip with selected file
 		window.showSaveFilePicker({
@@ -19736,12 +19741,6 @@ fselected() {
 		this.starthandleone();
 	}
 }
-/* ImBCHtml: translation helper with title * /
-#genspantitle(title, key, arg0, arg1, arg2, arg3) {
-	const s = this.genspan(key, arg0, arg1, arg2, arg3);
-	s.setAttribute('data-mytitlexlkey', title);
-	return this.xl1(s);
-}*/
 /* ImBCHtml: preview: switch preview config to jpeg img */
 setjpegpv() {
 	document.getElementById('previewwait').style['display'] = 'none';
@@ -22137,12 +22136,8 @@ intentinthandler() {
 	this.rotphase ++;
 	document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ';
 	this.topreccheck(false);
-	if (this.totnum > 0) {
-		this.fromintent = true;
-		this.starthandleone();
-	}
-	else
-		this.checkimb();
+	this.fromintent = true;
+	this.starthandleone();
 }
 intenthandler(intent) {
 	this.disknown = true;
