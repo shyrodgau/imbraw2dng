@@ -6,15 +6,15 @@
   <author email="stefan@hegny.de">
         Stefan Hegny
     </author>
-  <!--content src="http://192.168.0.72:8080/imbapp-dbg.html"/-->
-  <content src="http://192.168.8.101:8080/imbapp-dbg.html"/>
+  <content src="http://192.168.0.72:8080/imbapp-dbg.html"/>
+  <!--content src="http://192.168.8.101:8080/imbapp-dbg.html"/-->
   <allow-intent href="http://*/*"/>
   <allow-intent href="https://*/*"/>
-  <!--acces origin="http://192.168.0.72:8080"/-->
-  <acces origin="http://192.168.8.101:8080"/>
+  <acces origin="http://192.168.0.72:8080"/>
+  <!--acces origin="http://192.168.8.101:8080"/-->
   <preference name="scheme" value="http"/>
-  <!--preference name="hostname" value="192.168.0.72:8080"/-->
-  <preference name="hostname" value="192.168.8.101:8080"/>
+  <preference name="hostname" value="192.168.0.72:8080"/>
+  <!--preference name="hostname" value="192.168.8.101:8080"/-->
   <preference name="AndroidPersistentFileLocation" value="Compatibility"/>
   <preference name="AndroidXEnabled" value="true"/>
   <preference name="AndroidInsecureFileModeEnabled" value="true"/>

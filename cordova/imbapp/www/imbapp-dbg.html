@@ -35,8 +35,8 @@ DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS 
 ***************************************************** 
 -->
 <head>
-<!--meta http-equiv="Content-Security-Policy" content="default-src data: http: 192.168.0.72 *; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval'"-->
-<meta http-equiv="Content-Security-Policy" content="default-src data: http: 192.168.8.101 *; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval'">
+<meta http-equiv="Content-Security-Policy" content="default-src data: http: 192.168.0.72 *; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval'">
+<!--meta http-equiv="Content-Security-Policy" content="default-src data: http: 192.168.8.101 *; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval'"-->
 <meta http-equiv='cache-control' content='no-cache'>
 <meta http-equiv='expires' content='0'>
 <meta http-equiv='pragma' content='no-cache'>
@@ -1120,6 +1120,7 @@ class ImBCBase {
 // ImBCBase: generic data
 mylang = 'en';
 withpreview = true;
+dooverwrite = false;
 // experimental
 neutral = false;
 copyright = undefined;
@@ -18223,8 +18224,8 @@ incdcp = true;
 /* ImBCBase: debug */
 debugflag = false;
 useraw = null;
-imbweb = 'http://192.168.8.101:8080';
-//imbweb = 'http://192.168.0.72:8080';
+//imbweb = 'http://192.168.8.101:8080';
+imbweb = 'http://192.168.0.72:8080';
 fromintent = false;
 filmdemo = false;
 
@@ -19056,7 +19057,8 @@ constructor() {
 	super();
 }
 /* ImBCHtmlOut: output one thing via browser */
-writefile(name, type, okmsg, arr1, origname, renameidx) {
+writefile(name, type, okmsg, arr1, origname, renameidx/*, basename*/) {
+	//if (undefined === basename) basename = name;
 	if (undefined === this.rootfs) {
 		try {
 		   cordova.plugins.safMediastore.selectFolder('').then((str) => {
@@ -19087,7 +19089,7 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 			   this.handlenext();
 		   });
 		} catch(e) {
-		   console.log('Unexp 2 ' + JSON.stringify(x));
+		   console.log('Unexp 2 ' + JSON.stringify(e));
 		   this.rootfs = undefined;
 		   this.mappx(false, 'words.error');
 		   this.appmsgxl(0, 'process.errsave', name);
@@ -19100,9 +19102,12 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 
 	this.rootfsx.getFile(name, { create: true , exclusive: false }, (fileEntry) => {
 		fileEntry.createWriter((fileWriter) => {
-		   this.writeslice(fileWriter, name, (arr1.imbackextension ? arr1.data : arr1.buffer), () => {
+		   this.writeslice(fileWriter, name, (arr1.imbackextension ? arr1.data : arr1.buffer), () => { /* on ok */
 			   cordova.plugins.safMediastore.copyFile({
-					   srcfile: cordova.file.applicationStorageDirectory + '/' + name, filename: name, folder: this.rootfs /*, subFolder: this.subdir*/
+					   srcfile: cordova.file.applicationStorageDirectory + '/' + name,
+					   filename: name,
+					   folder: this.rootfs /*, subFolder: this.subdir*/,
+					   overwrite: this.dooverwrite
 			   }).then((uri) => {
 				   console.log("Successful file write... " + uri);
 				   cordova.plugins.safMediastore.getFileName(uri).then((f) => {console.log('F is ' + f);});
@@ -19142,7 +19147,7 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 				   this.stats.error++;
 				   this.handlenext();
 			   });
-			   }, (e) => {
+			   }, (e) => { /* on error */
 				   console.log("Failed file write: " + e.toString());
 				   this.mappx(false, 'words.error');
 				   this.appmsgxl(0, 'process.errsave', name);
@@ -19162,6 +19167,12 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 	});
 	return;
 }
+/*intwritewrapper(renameidx, writer, name, data, onok, onerr) {
+	if (undefined !== renameidx)
+		onok();
+	else
+		this.writeslice(writer, name, data, onok, onerr, 0);
+}*/
 /* ImBCHtmlOut: Sliced write to file */
 writeslice(fw, name, arr, onok, onerr, off) {
 	let le = arr.byteLength;
@@ -19539,6 +19550,8 @@ parseconfig(data) {
 	if (d.exitmode) this.exitmode = d.exitmode;
 	if (d.maxcache) this.maxcache = d.maxcache;
 	if (d.dl) this.dloads = d.dl;
+	if (d.dooverwrite)
+		this.dooverwrite = true;
 }
 /* ImBCHtmlOut: browserdisplay: put last message viewable */
 showlastmsg() {
@@ -19556,7 +19569,8 @@ writepostok(name) {
 			ie.entry.classList.add('picprocd');
 	}
 	this.stats.ok++;
-	this.dloads.push(name);
+	if (-1 === (this.dloads.findIndex(e => (e.toUpperCase() === name.toUpperCase()))))
+		this.dloads.push(name);
 	this.handlenext();
 }
 /* ImBCHtmlOut: after finishing.... */
@@ -20883,6 +20897,11 @@ chgdngpreview() {
     this.withpreview = (dngprev !== null && dngprev.checked);
     this.dirtysettings();
 }
+/* ImBCHtml: overwrite file checkbox */
+chgoverwrite() {
+	this.dooverwrite = document.getElementById('dooverwrite')?.checked;
+	this.dirtysettings();
+}
 /* ImBCHtml: translate html for new language */
 setlang() {
 	this.mylang = document.getElementById('langsel').value;
@@ -20939,7 +20958,8 @@ savesettings() {
 					'ndcp': !document.getElementById('incdcp')?.checked,
 					'exitmode': this.exitmode,
 					'maxcache': this.maxcache,
-					'dl': this.dloads
+					'dl': this.dloads,
+					'dooverwrite': this.dooverwrite
 				}
 			));
 		}
@@ -21698,6 +21718,7 @@ initsettings() {
 				document.getElementById('settingsset').setAttribute('data-myxlarg0',window.location.origin);
 				document.getElementById('setsettingsurl').setAttribute('data-myxlarg0',window.location.origin);
 				document.getElementById('exitsel').value = this.exitmode;
+				document.getElementById('dooverwrite').checked = this.dooverwrite;
 			} else {
 				document.getElementById('onlyhttp').style['display'] = 'none';
 				document.getElementById('setsettings').style['display'] = '';
@@ -22786,6 +22807,10 @@ texts: { // actually const
 			en: 'Found whitebalance $$0 / $$1 / $$2',
 			de: 'Weißabgleich $$0 / $$1 / $$2 gefunden',
 			ja: 'ホワイトバランス $$0 / $$1 / $$2 が見つかりました'
+		},
+		dooverwrite: {
+			en: 'Overwrite existing files',
+			de: 'Vorhandene Dateien überschreiben'
 		}
 	},
 	preview: {
@@ -25614,6 +25639,7 @@ function readjpg(file) {
 </div>
 <div class="igxtype">
 <div style="display:none;"><input type="checkbox" id="usezip" onchange="imbc.dirtysettings()"> <label for="usezip" data-myxlkey="main.usezip" id="useziplbl"></label></div>
+<div><input type="checkbox" onchange="imbc.chgoverwrite()" id="dooverwrite"> <label for="dooverwrite" data-myxlkey="process.dooverwrite"></div>
 <div><span data-myxlkey="app.onexit"></span> <select id="exitsel" onchange="imbc.chgexit();"><option value="photo" data-myxlkey="app.exitphoto"> </option><option value="movie" data-myxlkey="app.exitmovie"> </option><option value="browse" data-myxlkey="app.exitbrowse"> </option></select></div>
 <div><span data-myxlkey="app.lang"></span> <select id="langsel" onchange="imbc.setlang()"><option value="99" onclick="imbc.setlang()">AUTO</option><option value="de" onclick="imbc.setlang()">DE</option><option value="en" selected onclick="imbc.setlang()">EN</option>
 <option value="ja" onclick="imbc.setlang()">JA</option><option value="fr" onclick="imbc.setlang()">FR</option><!--option value="ru" onclick="imbc.setlang()">RU</option--></select></div>

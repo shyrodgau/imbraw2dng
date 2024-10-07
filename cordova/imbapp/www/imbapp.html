@@ -1119,6 +1119,7 @@ class ImBCBase {
 // ImBCBase: generic data
 mylang = 'en';
 withpreview = true;
+dooverwrite = false;
 // experimental
 neutral = false;
 copyright = undefined;
@@ -19055,6 +19056,7 @@ constructor() {
 }
 /* ImBCHtmlOut: output one thing via browser */
 writefile(name, type, okmsg, arr1, origname, renameidx) {
+	//if (undefined === basename) basename = name;
 	if (undefined === this.rootfs) {
 		try {
 		   cordova.plugins.safMediastore.selectFolder('').then((str) => {
@@ -19085,7 +19087,7 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 			   this.handlenext();
 		   });
 		} catch(e) {
-		   console.log('Unexp 2 ' + JSON.stringify(x));
+		   console.log('Unexp 2 ' + JSON.stringify(e));
 		   this.rootfs = undefined;
 		   this.mappx(false, 'words.error');
 		   this.appmsgxl(0, 'process.errsave', name);
@@ -19098,14 +19100,12 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 
 	this.rootfsx.getFile(name, { create: true , exclusive: false }, (fileEntry) => {
 		fileEntry.createWriter((fileWriter) => {
-		   this.writeslice(fileWriter, name, (arr1.imbackextension ? arr1.data : arr1.buffer), () => {
-		   	   cordova.plugins.safMediastore.readFile(this.rootfs + '/' + name).then((e) => {
-		   	   		   console.log("Read succ " +  ' ' + name);
-		   	   }).catch((e) => {
-		   	   	   console.log("Read FAIL " + e + ' ' + name);
-		   	   });
+		   this.writeslice(fileWriter, name, (arr1.imbackextension ? arr1.data : arr1.buffer), () => { /* on ok */
 			   cordova.plugins.safMediastore.copyFile({
-					   srcfile: cordova.file.applicationStorageDirectory + '/' + name, filename: name, folder: this.rootfs /*, subFolder: this.subdir*/
+					   srcfile: cordova.file.applicationStorageDirectory + '/' + name,
+					   filename: name,
+					   folder: this.rootfs /*, subFolder: this.subdir*/,
+					   overwrite: this.dooverwrite
 			   }).then((uri) => {
 				   console.log("Successful file write... " + uri);
 				   cordova.plugins.safMediastore.getFileName(uri).then((f) => {console.log('F is ' + f);});
@@ -19117,15 +19117,35 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 				   if (type !== 'application/zip')
 						   this.writepostok(origname);
 			   }).catch((e) => {
+		   	   	   fileEntry.remove();
+			   	   if ('File exists' === e) {
+						if (undefined !== renameidx) {
+							let newname = name;
+							const ldot = name.lastIndexOf('.');
+							const lunder = name.lastIndexOf('_');
+							newname = name.substring(0, lunder) + '_';
+							if (renameidx < 100) newname += '0';
+							if (renameidx < 10) newname += '0';
+							newname += renameidx;
+							newname += '.' + name.substring(ldot + 1);
+							this.writefile(newname, type, okmsg, arr1, origname, renameidx + 1);
+						}
+						else {
+							let newname = name;
+							const ldot = name.lastIndexOf('.');
+							newname = name.substring(0, ldot) + '_001.' + name.substring(ldot + 1);
+							this.writefile(newname, type, okmsg, arr1, origname, 2);
+						}
+						return;
+			   	   }
 				   console.log("catch Failed file write 2: " + e.toString());
 				   this.mappx(false, 'words.error');
 				   this.appmsgxl(0, 'process.errsave', name);
 				   this.appmsg(JSON.stringify(e), true);
 				   this.stats.error++;
 				   this.handlenext();
-				   fileEntry.remove();
 			   });
-			   }, (e) => {
+			   }, (e) => { /* on error */
 				   console.log("Failed file write: " + e.toString());
 				   this.mappx(false, 'words.error');
 				   this.appmsgxl(0, 'process.errsave', name);
@@ -19522,6 +19542,8 @@ parseconfig(data) {
 	if (d.exitmode) this.exitmode = d.exitmode;
 	if (d.maxcache) this.maxcache = d.maxcache;
 	if (d.dl) this.dloads = d.dl;
+	if (d.dooverwrite)
+		this.dooverwrite = true;
 }
 /* ImBCHtmlOut: browserdisplay: put last message viewable */
 showlastmsg() {
@@ -19539,7 +19561,8 @@ writepostok(name) {
 			ie.entry.classList.add('picprocd');
 	}
 	this.stats.ok++;
-	this.dloads.push(name);
+	if (-1 === (this.dloads.findIndex(e => (e.toUpperCase() === name.toUpperCase()))))
+		this.dloads.push(name);
 	this.handlenext();
 }
 /* ImBCHtmlOut: after finishing.... */
@@ -20866,6 +20889,11 @@ chgdngpreview() {
     this.withpreview = (dngprev !== null && dngprev.checked);
     this.dirtysettings();
 }
+/* ImBCHtml: overwrite file checkbox */
+chgoverwrite() {
+	this.dooverwrite = document.getElementById('dooverwrite')?.checked;
+	this.dirtysettings();
+}
 /* ImBCHtml: translate html for new language */
 setlang() {
 	this.mylang = document.getElementById('langsel').value;
@@ -20922,7 +20950,8 @@ savesettings() {
 					'ndcp': !document.getElementById('incdcp')?.checked,
 					'exitmode': this.exitmode,
 					'maxcache': this.maxcache,
-					'dl': this.dloads
+					'dl': this.dloads,
+					'dooverwrite': this.dooverwrite
 				}
 			));
 		}
@@ -21681,6 +21710,7 @@ initsettings() {
 				document.getElementById('settingsset').setAttribute('data-myxlarg0',window.location.origin);
 				document.getElementById('setsettingsurl').setAttribute('data-myxlarg0',window.location.origin);
 				document.getElementById('exitsel').value = this.exitmode;
+				document.getElementById('dooverwrite').checked = this.dooverwrite;
 			} else {
 				document.getElementById('onlyhttp').style['display'] = 'none';
 				document.getElementById('setsettings').style['display'] = '';
@@ -22767,6 +22797,10 @@ texts: { // actually const
 			en: 'Found whitebalance $$0 / $$1 / $$2',
 			de: 'Weißabgleich $$0 / $$1 / $$2 gefunden',
 			ja: 'ホワイトバランス $$0 / $$1 / $$2 が見つかりました'
+		},
+		dooverwrite: {
+			en: 'Overwrite existing files',
+			de: 'Vorhandene Dateien überschreiben'
 		}
 	},
 	preview: {
@@ -25595,6 +25629,7 @@ function readjpg(file) {
 </div>
 <div class="igxtype">
 <div style="display:none;"><input type="checkbox" id="usezip" onchange="imbc.dirtysettings()"> <label for="usezip" data-myxlkey="main.usezip" id="useziplbl"></label></div>
+<div><input type="checkbox" onchange="imbc.chgoverwrite()" id="dooverwrite"> <label for="dooverwrite" data-myxlkey="process.dooverwrite"></div>
 <div><span data-myxlkey="app.onexit"></span> <select id="exitsel" onchange="imbc.chgexit();"><option value="photo" data-myxlkey="app.exitphoto"> </option><option value="movie" data-myxlkey="app.exitmovie"> </option><option value="browse" data-myxlkey="app.exitbrowse"> </option></select></div>
 <div><span data-myxlkey="app.lang"></span> <select id="langsel" onchange="imbc.setlang()"><option value="99" onclick="imbc.setlang()">AUTO</option><option value="de" onclick="imbc.setlang()">DE</option><option value="en" selected onclick="imbc.setlang()">EN</option>
 <option value="ja" onclick="imbc.setlang()">JA</option><option value="fr" onclick="imbc.setlang()">FR</option><!--option value="ru" onclick="imbc.setlang()">RU</option--></select></div>
