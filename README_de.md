@@ -14,7 +14,7 @@ auch in verschiedenen Sprachen als `imbraw2dng_XX.html` (siehe [Internationalisi
 
 - `imbapp.htm` - neue [app-artige Version davon](https://shyrodgau.github.io/imbraw2dng/imbapp.htm)
 
-- `imbapp.apk` - [Echte Android App](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk)
+- `imbapp.apk` - [Echte Android App](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk). Für Apple, [hier](#iphone) schauen.
 
 - [`imbraw2dng.js`](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) - Node.js Version für Benutzung auf der Kommandozeile   
 auch in verschiedenen Sprachen als `imbraw2dng_XX.js` (siehe [Internationalisierung](#internationalisierung))

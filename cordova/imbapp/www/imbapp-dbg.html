@@ -19114,13 +19114,33 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 				   if (type !== 'application/zip')
 						   this.writepostok(origname);
 			   }).catch((e) => {
+		   	   	   fileEntry.remove();
+			   	   if ('File exists' === e) {
+						if (undefined !== renameidx) {
+							let newname = name;
+							const ldot = name.lastIndexOf('.');
+							const lunder = name.lastIndexOf('_');
+							newname = name.substring(0, lunder) + '_';
+							if (renameidx < 100) newname += '0';
+							if (renameidx < 10) newname += '0';
+							newname += renameidx;
+							newname += '.' + name.substring(ldot + 1);
+							this.writefile(newname, type, okmsg, arr1, origname, renameidx + 1);
+						}
+						else {
+							let newname = name;
+							const ldot = name.lastIndexOf('.');
+							newname = name.substring(0, ldot) + '_001.' + name.substring(ldot + 1);
+							this.writefile(newname, type, okmsg, arr1, origname, 2);
+						}
+						return;
+			   	   }
 				   console.log("catch Failed file write 2: " + e.toString());
 				   this.mappx(false, 'words.error');
 				   this.appmsgxl(0, 'process.errsave', name);
 				   this.appmsg(JSON.stringify(e), true);
 				   this.stats.error++;
 				   this.handlenext();
-				   fileEntry.remove();
 			   });
 			   }, (e) => {
 				   console.log("Failed file write: " + e.toString());

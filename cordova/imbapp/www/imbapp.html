@@ -19099,6 +19099,11 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 	this.rootfsx.getFile(name, { create: true , exclusive: false }, (fileEntry) => {
 		fileEntry.createWriter((fileWriter) => {
 		   this.writeslice(fileWriter, name, (arr1.imbackextension ? arr1.data : arr1.buffer), () => {
+		   	   cordova.plugins.safMediastore.readFile(this.rootfs + '/' + name).then((e) => {
+		   	   		   console.log("Read succ " +  ' ' + name);
+		   	   }).catch((e) => {
+		   	   	   console.log("Read FAIL " + e + ' ' + name);
+		   	   });
 			   cordova.plugins.safMediastore.copyFile({
 					   srcfile: cordova.file.applicationStorageDirectory + '/' + name, filename: name, folder: this.rootfs /*, subFolder: this.subdir*/
 			   }).then((uri) => {

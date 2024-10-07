@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <widget xmlns:android="http://schemas.android.com/apk/res/android" id="eu.imback.os.app" version="V5.1.4_92fce49" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0"
- android-versionCode="50104">
+ android-versionCode="50300">
   <name>ImB DBG App</name>
   <description>ImBack DBG App</description>
   <author email="stefan@hegny.de">
@@ -36,14 +36,6 @@
 	<action android:name="android.intent.action.SEND" />
 	<action android:name="android.intent.action.SEND_MULTIPLE" />
 	<category android:name="android.intent.category.DEFAULT" />
-	<!--data android:scheme="content" android:pathSuffix="JPG" android:host="" android:mimeType="image/jpeg" />
-	<data android:scheme="content" android:pathSuffix="RAW" android:host="" android:mimeType="application/octet-stream" />
-	<data android:scheme="file" android:pathSuffix="JPEG" android:host="" android:mimeType="image/jpeg" />
-	<data android:scheme="file" android:pathSuffix="jpeg" android:host="" android:mimeType="image/jpeg" />
-	<data android:scheme="file" android:pathSuffix="JPG" android:host="" android:mimeType="image/jpeg" />
-	<data android:scheme="file" android:pathSuffix="jpg" android:host="" android:mimeType="image/jpeg" />
-	<data android:scheme="file" android:pathSuffix="raw" android:host="" android:mimeType="application/octet-stream" />
-	<data android:scheme="file" android:pathSuffix="RAW" android:host="" android:mimeType="application/octet-stream" /-->
 	<data android:mimeType="application/octet-stream" />
 	<data android:mimeType="image/jpeg" />
       </intent-filter>

@@ -13,7 +13,7 @@ also in different languages as `imbraw2dng_XX.html` (see [Internationalization](
 
 - `imbapp.htm` - new [App-Like version of it](https://shyrodgau.github.io/imbraw2dng/imbapp.htm)
 
-- `imbapp.apk` - [Real Android app](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk)
+- `imbapp.apk` - [Real Android app](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk).  For Apple, see [here](#iphone).
 
 - [`imbraw2dng.js`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js) - Node.js version for command line use   
 also in different languages as `imbraw2dng_XX.js`  (see [Internationalization](#internationalization))
