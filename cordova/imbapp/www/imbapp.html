@@ -19365,7 +19365,7 @@ handleonex() {
 			this.#qappx('main.file.jpeg', rawname);
 			if (f.name) {
 				// read jpeg file for preview
-				const fr = new FileReader();
+				const fr = f.imbackextension ? f : new FileReader();
 				fr.onload = (evt) => {
 					let contents = evt.target.result;
 					contents = 'data:image/jpeg;' + contents.substring(8);
@@ -19611,6 +19611,12 @@ afterfinish() {
 		document.getElementById('progcancelbut').disabled = true;
 		document.getElementById('progmsg').innerHTML = this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
 		this.loadnextimg();
+		if (this.stats.error > 0)
+			document.getElementById('dlprogress').style['border-color'] = 'red';
+		else if (this.stats.skipped > 0)
+			document.getElementById('dlprogress').style['border-color'] = 'yellow';
+		else if (this.stats.ok > 0)
+			document.getElementById('dlprogress').style['border-color'] = 'green';
 	}
 	document.getElementById('imbdoit').disabled = false;
 	document.getElementById('imbvisbrows').disabled = false;
@@ -19806,6 +19812,7 @@ showmsg() {
 /* ImBCHtml: show the normal pages */
 showpages() {
 	this.onback = 'quit';
+	document.getElementById('dlprogress').style['border-color'] = 'grey';
 	document.getElementById('pages').style['display'] = '';
 	const norm = document.getElementById('normal');
 	if (norm) norm.style['display'] = 'none';
@@ -19991,11 +19998,13 @@ showdlprog() {
 	document.getElementById('progokbut').disabled = true;
 	this.closeham();
 	document.getElementById('progmsg').innerHTML = '...';
+	document.getElementById('dlprogress').style['border-color'] = 'grey';
 	document.getElementById('pages').style['display'] = 'none';
 	this.onback = 'nothing';
 }
 /* ImBCHtml: show message log */
 showlog() {
+	document.getElementById('dlprogress').style['border-color'] = 'grey';
 	document.getElementById('pages').style['display'] = 'none';
 	if (this.fromintent)
 		this.onback = 'quit';
