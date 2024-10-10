@@ -20582,7 +20582,7 @@ topreccheck(force) {
 		};
 		to.preview.onerror = (ev) => {
 			e.setAttribute('data-state', 'err');
-			console.log('JPEG preview load error for ' + url + ' ' + JSON.stringify(ev));
+			console.log('JPEG preview load error for ' + url + ' ' + ev.toString());
 			e.querySelector('.waitdiv').style['display'] = 'none';
 			e.querySelector('.errimg').style['display'] = '';
 			e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
@@ -21772,15 +21772,15 @@ workermsg(msg) {
 			w0.targ.preview.src = d.c;
 		}
 		else {
-			let e = d.ele;
+			let e = w0.ele;
 			e.setAttribute('data-state', 'err');
-			console.log('JPEG preview load error for ' + d.raw);
+			console.log('JPEG preview load error for ' + w0.targ.raw + ' ' + d.evt);
 			e.querySelector('.waitdiv').style['display'] = 'none';
 			e.querySelector('.errimg').style['display'] = '';
 			e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
 			e.querySelector('.dlbtn').classList.add('disabled');
-			if (this.debugflag) console.log('ldr j e lnx ' + d.raw);
-			d.nonewerr = true;
+			if (this.debugflag) console.log('ldr j e lnx ' + w0.targ);
+			w0.targ.nonewerr = true;
 			this.loadnextimg();
 		}
 		break;
@@ -24765,7 +24765,7 @@ getwb: function(view, typidx) {
 			//	console.log('i ' + i + ' j ' + j + ' R ' + lr + ' G ' + lg + ' B ' + lb + ' P ' + p);
 			//if (r + g == 2) {
 			//	console.log('R G B ' + x[0] + ' ' + x[1] + ' ' + x[2] + ' P ' + p + ' LB ' + lb + ' LR ' + lr + ' LG ' + lg);
-			}
+			//}
 			b += (lb)/(p);
 			g += (lg)/(p);
 			r += (lr)/(p);
@@ -25350,10 +25350,10 @@ function readjpg(file) {
 		let contents = evt.target.result;
 		contents = 'data:image/jpeg;' + contents.substring(8);
 		/* shown in onload of img */
-		postMessage({ cmd: cmd, ok: true, c: contents });
+		postMessage({ cmd: 'readjpg', ok: true, c: contents });
 	}
 	fr.onerror = (evt) => {
-		postMessage({ cmd: cmd, ok: false });
+		postMessage({ cmd: 'readjpg', ok: false, evt: evt.toString() });
 	}
 	fr.readAsDataURL(file);
 }
