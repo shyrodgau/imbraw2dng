@@ -18629,7 +18629,7 @@ handleone(orientation) {
 	}
 	let w, h, mode = "??";
 	let typ = 0;
-	const zz = globals.infos.findIndex(v => v.size === f.size);
+	let zz = globals.infos.findIndex(v => v.size === f.size);
 	if (zz === -1) {
 		if (this.totnum > 1) {
 			this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
@@ -18772,6 +18772,7 @@ handleone(orientation) {
 					o+=3;
 				}
 				if (typ !== 5) {
+					// film is 12bit already anyway
 					zz += 32;
 					typ += 32;
 				}
@@ -18781,6 +18782,7 @@ handleone(orientation) {
 					this.#historystring += (')/' + npic);
 				}
 				this.#addimgs = [];
+				this.addall = false;
 			}
 			else {
 				return this.handlenext();
@@ -18847,7 +18849,7 @@ handleone(orientation) {
 			}
 		}
 		ti.addEntry(50706, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Version */
-		if (this.copyright != '') {
+		if (this.copyright != '' && this.copyright !== undefined) {
 			// do UTF-8 bytes instead of ASCII if necessary
 			let bytes = new TextEncoder().encode(this.copyright);
 			//console.log('cr str ' + this.copyright.length + ' bytes ' + bytes.length);
@@ -21067,13 +21069,16 @@ async drophandler(ev) {
 		this.addall = true;
 		this.addscaleall = document.getElementById('fakelongexpscale')?.checked;
 		if (document.getElementById('fakelongexpadd')) document.getElementById('fakelongexpadd').checked = false;
+		this.closeham();
+		this.aftercheck();
+		document.getElementById('selall').click();
+		this.browserprocess();
 	} else {
 		this.addall = false;
 		this.addscaleall = false;
+		this.closeham();
+		this.aftercheck(); this.showbrowser();
 	}
-	this.closeham();
-	this.aftercheck(); this.showbrowser();
-	//this.starthandleone();
 }
 /* ImBCHtml: browserdisplay: some handler on the drop rectangle */
 prevdef(ev) {
