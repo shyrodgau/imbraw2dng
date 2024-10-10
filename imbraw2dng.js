@@ -19495,7 +19495,7 @@ static getwb(view, typidx) {
 			//	console.log('i ' + i + ' j ' + j + ' R ' + lr + ' G ' + lg + ' B ' + lb + ' P ' + p);
 			//if (r + g == 2) {
 			//	console.log('R G B ' + x[0] + ' ' + x[1] + ' ' + x[2] + ' P ' + p + ' LB ' + lb + ' LR ' + lr + ' LG ' + lg);
-			}
+			//}
 			b += (lb)/(p);
 			g += (lg)/(p);
 			r += (lr)/(p);
