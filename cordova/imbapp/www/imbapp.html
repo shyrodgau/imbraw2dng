@@ -21868,6 +21868,7 @@ workermsg(msg) {
 			this.handlenext(d.fl);
 		}
 		break;
+	/*eslint no-fallthrough: ["error", { "commentPattern": "no break" }]*/
 	case 'resolveandpreview':
 		// onmessage: { pix: array, n: name, o: orientation, t: targ, onok, onerr, c: cacheentry }
 		if (d.pix) this.addcache(d.n, d.c);
@@ -25361,10 +25362,11 @@ onmessage = (e) => {
 		console.log('WORKER SEEMS OK');
 		msg = true;
 	}
+	/*eslint no-fallthrough: ["error", { "commentPattern": "no break" }]*/
 	switch (cmd) {
 	case 'seturl':
 		base = e.data.url;
-		// NO break;
+		// no break;
 	case 'watchdog':
 		progress = cmd;
 		watchdog();
