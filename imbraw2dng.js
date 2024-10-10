@@ -566,7 +566,7 @@ handleone(fx) {
 	}
 	if (undefined === f.size) {
 		setTimeout(() => {
-		  this.imbc.resolver(f, false, (url, fx) => {
+		  this.imbc.resolver(f, (url, fx) => {
 				this.imbc.allfiles[this.imbc.actnum] = fx;
 				this.handleone(fx);
 			}, (url) => {
@@ -19104,7 +19104,7 @@ handleone(orientation, fromloop) {
 	}
 	if (undefined === f.size) {
 		setTimeout(() => {
-		  this.resolver(f, false, (url, fx, rot) => {
+		  this.resolver(f, (url, fx, rot) => {
 				this.allfiles[this.actnum] = fx;
 				this.handleone(rot ? rot: orientation, fromloop);
 			}, (url) => {
@@ -19878,7 +19878,7 @@ handlerecurse(already, index) {
 	});
 }
 /* ImBCNodeOut: nodejs: file/filereader like interface for node js */
-resolver(url, preview, onok, onerr) {
+resolver(url, onok, onerr) {
 	if (url.url) {
 		let e = url;
 		url = e.url;

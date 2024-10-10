@@ -21605,6 +21605,8 @@ addcache(name, entry) {
 workermsg(msg) {
 	const d = msg.data;
 	let w0;
+	let doc;
+	let stat;
 	//console.log('from worker ' + JSON.stringify(d));
 	switch (d.cmd) {
 	case 'resolveandhandle':
@@ -21711,19 +21713,19 @@ workermsg(msg) {
 		else {
 			let e = d.ele;
 			e.setAttribute('data-state', 'err');
-			console.log('JPEG preview load error for ' + url + ' ' + JSON.stringify(evt));
+			console.log('JPEG preview load error for ' + d.raw);
 			e.querySelector('.waitdiv').style['display'] = 'none';
 			e.querySelector('.errimg').style['display'] = '';
 			e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
 			e.querySelector('.dlbtn').classList.add('disabled');
-			if (this.debugflag) console.log('ldr j e lnx ' + to.raw);
-			to.nonewerr = true;
+			if (this.debugflag) console.log('ldr j e lnx ' + d.raw);
+			d.nonewerr = true;
 			this.loadnextimg();
 		}
 		break;
 	case 'battstat':
-		let doc = (new DOMParser()).parseFromString(d.txt, 'text/xml');
-		let stat = doc.querySelector('Function Value').textContent;
+		doc = (new DOMParser()).parseFromString(d.txt, 'text/xml');
+		stat = doc.querySelector('Function Value').textContent;
 		if (stat === '0') stat = 'hi';
 		else if (stat >= '2') stat = 'lo';
 		else stat = 'med';
@@ -21934,7 +21936,7 @@ clearcache() {
 }
 /* *************************************** Main class for HTML, forward E N D *************************************** */
 /* outside of classes: */
-let imbc, bfep;
+let imbc;
 /* onload of html body */
 function init() {
 	imbc = new ImBCHtml();
@@ -25369,7 +25371,7 @@ function readjpg(file) {
 <span class="whbtn disconnected" style="font-weight:bold;font-family:Symbol3;padding-left:0.4em;padding-right:0.4em;background-color:red !important;display:none;"> ! &#x1f593; ! </span>
 </div>
 </div>
-<div style="width: fit-content;white-space: pre;"><span style="font-weight:bold;" data-myxlkey="main.log"></span><br>
+<div id="xmsg" style="width: fit-content;white-space: pre;"><span style="font-weight:bold;" data-myxlkey="main.log"></span><br>
 <div id="outmsg"></div></div>
 </div>
 <!-- end of the message log, generated content appended -->
@@ -25410,7 +25412,7 @@ function readjpg(file) {
 <input type="button" class="uhbtn moviesym" value="&#x1f4fd;" id="tomov" onclick="imbc.dispmode=1;imbc.showmovie();imbc.closeham();" style="font-family:Symbol3;font-weight:normal;">
 <input type="button" class="uhbtn foldersym" value="&#x1f5c2;" id="toloc" onclick="imbc.dispmode=3;imbc.showlocal();imbc.closeham();" style="font-family:Symbol3;">
 <span class="whbtn disconnected" style="padding-left:0.4em;padding-right:0.4em;display:none;"> ! &#x1f593; ! &#x1f5be; ! </span>
-<input type="button" data-myvalxlkey="app.install" class="whbtn" onclick="if (bfep) bfep.prompt(); bpef=null; this.style['display']='none';" id="installbutton" style="display:none;font-weight:bold;position:absolute; right:0.5em;">
+<!--input type="button" data-myvalxlkey="app.install" class="whbtn" onclick="if (bfep) bfep.prompt(); bpef=null; this.style['display']='none';" id="installbutton" style="display:none;font-weight:bold;position:absolute; right:0.5em;"-->
 </div>
 <div id="browseselectors" style="margin-bottom:0.3em;font-size:85%;">&nbsp;<span data-myxlkey="main.sort" style="display:none;"></span> <label for="sbytype"><input type="checkbox" id="sbytype" onclick="imbc.buildtree()"><span data-myxlkey="browser.bytype"></span></label> - <label for="solder">
 <input type="checkbox" id="solder" onclick="imbc.buildtree()"><span data-myxlkey="browser.olderfirst"></span></label> -

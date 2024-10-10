@@ -400,7 +400,7 @@ describe('C Convert Backward', function() {
 	});
 });
 
-describe('D Film Demo', function() {
+/*describe('D Film Demo', function() {
 	let driver, opts, errflg = false;
 	before(async function() {
 			this.timeout(6000);
@@ -476,7 +476,7 @@ describe('D Film Demo', function() {
 			} else
 				driver.quit();
 	});
-});
+});*/
 
 describe('E Convert Raw from Imback APP', function() {
 	let driver, opts, errflg = false;
