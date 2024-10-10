@@ -683,18 +683,17 @@ addEntry(tag, type, value) {
 getData(offset) {
 	let ioff = 0, data = new Uint8Array(this.#imglen + (12 * this.#entrys.length) + this.#currentoff + 16);
 	if (this.#imgdata?.getUint8) {
-		for (let z=0; z<this.#imgdata.byteLength; z++) {
-			if (this.#imglen === 30607488) {
-				if ((z%3) === 0)
-					data[ioff++] = this.#imgdata.getUint8(z+2);
-				else if ((z%3) === 2)
-					data[ioff++] = this.#imgdata.getUint8(z-2);
-				else
-					data[ioff++] = this.#imgdata.getUint8(z);
+		if (-1 !== globals.twelvebitsizes.indexOf(this.#imglen)) {
+			for (let z=0; z<this.#imgdata.byteLength; z+=3) {
+				let n = this.#imgdata.getUint8(z);
+				data[ioff++] = this.#imgdata.getUint8(z+2);
+				data[ioff++] = this.#imgdata.getUint8(z+1);
+				data[ioff++] = n;
 			}
-			else
-				data[ioff++] = this.#imgdata.getUint8(z);
 		}
+		else
+			for (let z=0; z<this.#imgdata.byteLength; z++)
+				data[ioff++] = this.#imgdata.getUint8(z);
 	} else if (this.#imgdata) {
 		for (let z=0; z<this.#imgdata.length; z++)
 			data[ioff++] = this.#imgdata[z];
@@ -18607,7 +18606,8 @@ handleone(orientation) {
 				this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
 			}
 			this.mappx(0, 'process.notraw',rawname);
-			const contents = evt.target.result;
+			let contents = evt.target.result;
+			if (contents.buffer) contents = contents.buffer;
 			const view = new DataView(contents);
 			const out = new Uint8Array(f.size);
 			for (let j=0; j<contents.byteLength; j++) {
@@ -18639,7 +18639,8 @@ handleone(orientation) {
 		this.mappx(0, 'process.unknownsize' + ((!document) ? 'x' : ''), f.size);
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
-			const contents = evt.target.result;
+			let contents = evt.target.result;
+			if (contents.buffer) contents = contents.buffer;
 			const view = new DataView(contents);
 			const out = new Uint8Array(f.size);
 			for (let j=0; j<view.byteLength; j++) {
@@ -18679,14 +18680,15 @@ handleone(orientation) {
 	let { date, datestr, nn } = ImBCBase.nametotime(rawname);
 	if (date && datestr) dateok = true;
 	else datestr = '';
+	let whitelvl = 0;
 
 	const reader = f.imbackextension ? f : new FileReader();
 	reader.onload = async (evt) => {
 		if (this.totnum > 1) {
 			this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
 		}
-		const contents = evt.target.result;
-		const view = new DataView(contents);
+		let contents = evt.target.result;
+		let view = new DataView(contents);
 		if (this.addall) {
 			if (this.#addimgs.length === 0 && this.addscaleall)
 				this.#historystring='(';
@@ -18699,23 +18701,82 @@ handleone(orientation) {
 			else
 				this.#historystring += ('+' + rawname);
 			if (this.actnum === this.totnum - 1) {
-				this.appmsg('', true);
-				let npic = this.#addimgs.length;
-				for (let j=0; j < w*h; j++) {
-					let res = 0;
-					for (const k of this.#addimgs) {
-						try {
-							res += k.getUint8(j);
-						} catch { ; }
-					}
-					if (this.addscaleall) {
-						res = Math.floor(res / npic);
-					}
-					if (res > 255) {
-						view.setUint8(j, 255);
-					}
-					else view.setUint8(j, res);
+				const npic = this.#addimgs.length;
+				const fc = Math.ceil(npic / 16);
+				if (typ !== 5) {
+					whitelvl = 255 * this.#addimgs.length;
+					if (whitelvl > 4095) whitelvl = 4095;
 				}
+				this.appmsg('', true);
+				let nv = new Uint16Array(w*h);
+				if (typ === 5) {
+					/* FILM */
+					let o=0;
+					for (let j=0; j < w*h; j+=3) {
+						let res = 0;
+						for (const k of this.#addimgs) {
+							try {
+								res += ((k.getUint8(j+2) << 4) + ((k.getUint8(j+1) >> 4) & 15) - 240);
+							} catch { ; }
+						}
+						if (this.addscaleall) {
+							res = Math.floor(res / npic);
+						}
+						if (res +240 > 4095) {
+							console.log('res overflow 5 ' + res);
+							nv[o++] = 4095;
+						}
+						else nv[o++] = res + 240;
+						res = 0;
+						for (const k of this.#addimgs) {
+							try {
+								res += ((k.getUint8(j+0) & 255) + ((k.getUint8(j+1) & 15) << 8) - 240);
+							} catch { ; }
+						}
+						if (this.addscaleall) {
+							res = Math.floor(res / npic);
+						}
+						if (res +240 > 4095) {
+							console.log('res overflow 6 ' + res);
+							nv[o++] = 4095;
+						}
+						else nv[o++] = res + 240;
+					}
+				} else {
+					/* 8 bit per sample */
+					for (let j=0; j < w*h; j++) {
+						let res = 0;
+						for (const k of this.#addimgs) {
+							try {
+								res += k.getUint8(j);
+							} catch { ; }
+						}
+						if (this.addscaleall && npic > 16) {
+							res = Math.floor(res / fc);
+						}
+						if (res > 4095) {
+							console.log('res overflow ' + res);
+							nv[j] = 4095;
+							whitelvl = 4095;
+						}
+						else nv[j] = res;
+					}
+				}
+				rawname = rawname.substring(0, rawname.length - 4) + '_MULTI.raw';
+				let nnv = new ArrayBuffer(w * h * 3 / 2);
+				let nvv = new DataView(nnv);
+				for (let j=0, o=0; j<w*h; j+=2) {
+					nvv.setUint8(o, nv[j+1] & 255);
+					nvv.setUint8(o+1, (nv[j+1] >> 8) + ((nv[j] & 15) << 4));
+					nvv.setUint8(o+2, (nv[j] >> 4));
+					o+=3;
+				}
+				if (typ !== 5) {
+					zz += 32;
+					typ += 32;
+				}
+				contents = nnv;
+				view = nvv; //new DataView(nnv);
 				if (this.addscaleall) {
 					this.#historystring += (')/' + npic);
 				}
@@ -18726,7 +18787,7 @@ handleone(orientation) {
 			}
 		}
 		this.mappx(0, 'process.processing', rawname);
-		this.mappx(0, 'process.assuming', globals.types[typ], mode);
+		this.mappx(0, 'process.assuming', globals.types[typ < 32 ? typ : typ - 32], mode);
 		if (dateok) {
 			this.mappx(0, 'process.datetime', datestr);
 		}
@@ -18758,10 +18819,10 @@ handleone(orientation) {
 			ti.addEntry(283, 'RATIONAL', [ 30, 1 ]); /* y resolution */
 		}
 		ti.addEntry(271, 'ASCII', 'ImBack'); /* Make */
-		ti.addEntry(50708, 'ASCII', 'ImBack' + ' ' + globals.types[typ]); /* Unique model */
-		ti.addEntry(272, 'ASCII', globals.types[typ]); /* Model */
+		ti.addEntry(50708, 'ASCII', 'ImBack' + ' ' + globals.types[typ < 32 ? typ : typ - 32]); /* Unique model */
+		ti.addEntry(272, 'ASCII', globals.types[typ < 32 ? typ : typ - 32]); /* Model */
 		ti.addEntry(274, 'SHORT', [ ori ]); /* Orientation */
-		ti.addEntry(305, 'ASCII', this.appname + ' ' + globals.version); /* SW and version */
+		ti.addEntry(305, 'ASCII', 'imbraw2dng ' + globals.version); /* SW and version */
 		if (this.#historystring.length && !this.filmdemo)
 			ti.addEntry(37395, 'ASCII', this.#historystring); /* image history */
 		this.#historystring = '';
@@ -18786,7 +18847,7 @@ handleone(orientation) {
 			}
 		}
 		ti.addEntry(50706, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Version */
-		if (this.copyright !== undefined && this.copyright !== '') {
+		if (this.copyright != '') {
 			// do UTF-8 bytes instead of ASCII if necessary
 			let bytes = new TextEncoder().encode(this.copyright);
 			//console.log('cr str ' + this.copyright.length + ' bytes ' + bytes.length);
@@ -18796,7 +18857,7 @@ handleone(orientation) {
 				ti.addEntry(33432, 'BYTE', bytes); /* copyright */
 		}
 		ti.addEntry(50707, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Backward Version */
-		ti.addEntry(50717, 'LONG', [ (typ === 5) ? 4095 : 255 ]); /* White level */
+		ti.addEntry(50717, 'LONG', [ (typ >= 5) ? (whitelvl > 0 ?  whitelvl : 4095) : 255 ]); /* White level */
 		if (typ === 5) ti.addEntry(50714, 'SHORT', [ 240, 240, 240, 240 ] ); /* Blacklevel */
 		if (typ === 5) ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
 		if (!this.neutral) {
@@ -18863,13 +18924,13 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		}
 		/* **** RAW image **** */
 		ti.addImageStrip(0, view, w, h);
-		ti.addEntry(258 , 'SHORT', [ (typ === 5) ? 12 : 8 ]); /* BitsPerSample */
+		ti.addEntry(258 , 'SHORT', [ (typ >= 5) ? 12 : 8 ]); /* BitsPerSample */
 		ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression - none */
 		ti.addEntry(262, 'SHORT', [ 0x8023 ]); /* Photometric - CFA */
 		ti.addEntry(277, 'SHORT', [ 1 ]); /* Samples per Pixel */
 		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config - chunky */
 		ti.addEntry(33421, 'SHORT', [ 2, 2 ]); /* CFA Repeat Pattern Dim */
-		ti.addEntry(33422, 'BYTE', (typ > 1 && typ < 5) ? [ 2, 1, 1, 0 ] : [ 1, 0, 2, 1 ]); /* CFA Pattern dep. on MF/35mm*/
+		ti.addEntry(33422, 'BYTE', ((typ > 1 && typ < 5) || typ > 33) ? [ 2, 1, 1, 0 ] : [ 1, 0, 2, 1 ]); /* CFA Pattern dep. on MF/35mm*/
 		this.writewrap(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted' + ((this.checkdlfolder && !this.zip) ? 'checkdl' : ''), ti.getData(), rawname);
 	};
 	reader.onerror = (evt) => {
@@ -24620,6 +24681,7 @@ fnregexx: /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0
 orients: [ '', 'none', '', 'upsidedown', '', '', 'clockwise', '', 'counterclockwise' ], // actually const
 oriecw: [ 1, 6, 3, 8 ], // clockwise indices // actually const
 types: [ "unknown", "ImB35mm", "MF 6x7 ", "MF6x4.5", "MF 6x6 ", "Film35 " ], // all length 7, actually const
+twelvebitsizes: [ 9706416, 11501280, 14709888, 17428128, 17915904, 19406448, 21098880, 23003136, 23887872 ],
 infos: [ // actually const
 	{
 		size: 14065920,
@@ -24689,11 +24751,11 @@ infos: [ // actually const
 /* ImBCBase: get white balance */
 getwb: function(view, typidx) {
 	//console.log('GWB ' + typidx + ' ' + JSON.stringify(globals.infos[typidx]));
-	const t = globals.infos[typidx];
+	const t = globals.infos[typidx < 32 ? typidx : typidx - 32];
 	let r=1, g=1, b=1;
 	for (let i=Math.round(0.05*t.h)*2; i<Math.ceil(0.9*t.h); i+=8) {
 		for (let j=Math.round(0.05*t.w)*2; j<Math.ceil(0.9*t.w); j+=8) {
-			let x = globals.getPix(j, i, t.w, view, t.typ);
+			let x = globals.getPix(j, i, t.w, view, typidx < 32 ? t.typ : 32 + t.typ);
 			let lr = x[0];
 			let lg = x[1] + 1;
 			let lb = x[2];
@@ -24701,11 +24763,15 @@ getwb: function(view, typidx) {
 			if (p < 3 || p > (3*250)) continue;
 			//if (((i*t.w + j) % 50000) < 10)
 			//	console.log('i ' + i + ' j ' + j + ' R ' + lr + ' G ' + lg + ' B ' + lb + ' P ' + p);
+			//if (r + g == 2) {
+			//	console.log('R G B ' + x[0] + ' ' + x[1] + ' ' + x[2] + ' P ' + p + ' LB ' + lb + ' LR ' + lr + ' LG ' + lg);
+			}
 			b += (lb)/(p);
 			g += (lg)/(p);
 			r += (lr)/(p);
 		}
 	}
+	//console.log('ER EG EB ' + r + ' ' + g + ' ' + b);
 	if ((r > b) && (r > g)) {
 		return [ 10, 10, Math.ceil(300000*g/r), 300000, Math.ceil(300000*b/r), 300000 ];
 	}
@@ -24720,77 +24786,106 @@ getwb: function(view, typidx) {
 getPix: function(x, y, w, view, typ) {
 	let outrgb = [];
 	let reds = [];
-	let w3 = w + (w>>1);
-	let xx = x + (x>>1);
-	if (typ === 5) {
-		reds.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-240)/16);
-		reds.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-240)/16);
-		reds.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-240)/16);
-		reds.push(((view.getUint8((y+2)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-240)/16);
+	const w3 = w + (w>>1);
+	const xx = x + (x>>1);
+	const dd = (typ === 5) ? 240 : 0;
+	if (typ === 5 || typ == 33) {
+		/* film or stacked 35mm */
+		reds.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>4);
+		reds.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>4);
+		reds.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>4);
+		reds.push(((view.getUint8((y+2)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>4);
+	}
+	else if (typ > 33) {
+		/* stacked mf */
+		reds.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>4);
+		reds.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>4);
+		reds.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>4);
+		reds.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>4);
 	}
 	else if (typ > 1) {
+		/* mf */
 		reds.push(view.getUint8((y+1)*w + x + 1));
 		reds.push(view.getUint8((y+1)*w + x + 3));
-		reds.push(view.getUint8((y+1)*w + x + 2*w + 1));
-		reds.push(view.getUint8((y+1)*w + x + 2*w + 3));
+		reds.push(view.getUint8((y+3)*w + x + 1));
+		reds.push(view.getUint8((y+3)*w + x + 3));
 	} else {
+		/* 35mm */
 		reds.push(view.getUint8(y*w + x + 1));
 		reds.push(view.getUint8(y*w + x + 3));
-		reds.push(view.getUint8(y*w + x + 2*w + 1));
-		reds.push(view.getUint8(y*w + x + 2*w + 3));
+		reds.push(view.getUint8((y+2)*w + x + 1));
+		reds.push(view.getUint8((y+2)*w + x + 3));
 	}
 	reds.sort(function(a,b) { return a - b; });
 	// median of red pixels
 	outrgb.push((reds[1] + reds[2]) / 2.0);
 	let greens = [];
-	if (typ === 5) {
-		greens.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF0) >> 4))-240)/16);
-		greens.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF) << 8))-240)/16);
-		greens.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF0) >> 4))-240)/16);
-		greens.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF) << 8))-240)/16);
-		greens.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF0) >> 4))-240)/16);
-		greens.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF) << 8))-240)/16);
-		greens.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF0) >> 4))-240)/16);
-		greens.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF) << 8))-240)/16);
+	if (typ === 5 || typ == 33) {
+		/* film or stacked 35mm */
+		greens.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF0) >> 4))-dd)>>4);
+		greens.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF0) >> 4))-dd)>>4);
+		greens.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF) << 8))-dd)>>4);
+		greens.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF) << 8))-dd)>>4);
+		greens.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF0) >> 4))-dd)>>4);
+		greens.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF0) >> 4))-dd)>>4);
+		greens.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF) << 8))-dd)>>4);
+		greens.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF) << 8))-dd)>>4);
+	}
+	else if (typ > 33) {
+		/* stacked mf */
+		greens.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>4);
+		greens.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>4);
+		greens.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>4);
+		greens.push((((view.getUint8((y+1)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>4);
+		greens.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>4);
+		greens.push(((view.getUint8((y+2)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>4);
+		greens.push((((view.getUint8((y+3)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>4);
+		greens.push((((view.getUint8((y+3)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>4);
 	}
 	else if (typ > 1) {
 		greens.push(view.getUint8(y*w + x + 1));
-		greens.push(view.getUint8(y*w + x + w));
 		greens.push(view.getUint8(y*w + x + 3));
-		greens.push(view.getUint8(y*w + x + 2 + w));
-		greens.push(view.getUint8(y*w + x + 2*w + 1));
-		greens.push(view.getUint8(y*w + x + 3*w));
-		greens.push(view.getUint8(y*w + x + 2*w + 3));
-		greens.push(view.getUint8(y*w + x + 3*w + 2));
+		greens.push(view.getUint8((y+1)*w + x));
+		greens.push(view.getUint8((y+1)*w + x + 2));
+		greens.push(view.getUint8((y+2)*w + x + 1));
+		greens.push(view.getUint8((y+2)*w + x + 3));
+		greens.push(view.getUint8((y+3)*w + x));
+		greens.push(view.getUint8((y+3)*w + x + 2));
 	} else {
 		greens.push(view.getUint8(y*w + x));
-		greens.push(view.getUint8(y*w + x + w + 1));
 		greens.push(view.getUint8(y*w + x + 2));
-		greens.push(view.getUint8(y*w + x + 3 + w));
-		greens.push(view.getUint8(y*w + x + 2*w));
-		greens.push(view.getUint8(y*w + x + 3*w +1));
-		greens.push(view.getUint8(y*w + x + 2*w + 2));
-		greens.push(view.getUint8(y*w + x + 3*w + 3));
+		greens.push(view.getUint8((y+1)*w + x + 1));
+		greens.push(view.getUint8((y+1)*w + x + 3));
+		greens.push(view.getUint8((y+2)*w + x));
+		greens.push(view.getUint8((y+2)*w + x + 2));
+		greens.push(view.getUint8((y+3)*w + x + 1));
+		greens.push(view.getUint8((y+3)*w + x + 3));
 	}
 	greens.sort(function(a,b) { return a - b; });
 	outrgb.push((greens[3] + greens[4]) / 2.0);
 	let blues = [];
-	if (typ == 5) {
-		blues.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-240)/16);
-		blues.push((((view.getUint8((y+1)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-240)/16);
-		blues.push((((view.getUint8((y+3)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-240)/16);
-		blues.push((((view.getUint8((y+3)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-240)/16);
+	if (typ == 5 || typ == 33) {
+		blues.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>4);
+		blues.push((((view.getUint8((y+1)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>4);
+		blues.push((((view.getUint8((y+3)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>4);
+		blues.push((((view.getUint8((y+3)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>4);
+	}
+	else if (typ > 33) {
+		blues.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>4);
+		blues.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>4);
+		blues.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>4);
+		blues.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>4);
 	}
 	else if (typ > 1) {
 		blues.push(view.getUint8(y*w + x));
 		blues.push(view.getUint8(y*w + x + 2));
-		blues.push(view.getUint8(y*w + x + 2*w));
-		blues.push(view.getUint8(y*w + x + 2*w + 2));
+		blues.push(view.getUint8((y+2)*w + x));
+		blues.push(view.getUint8((y+2)*w + x + 2));
 	} else {
 		blues.push(view.getUint8((y+1)*w + x));
 		blues.push(view.getUint8((y+1)*w + x + 2));
-		blues.push(view.getUint8((y+1)*w + x + 2*w));
-		blues.push(view.getUint8((y+1)*w + x + 2*w + 2));
+		blues.push(view.getUint8((y+3)*w + x));
+		blues.push(view.getUint8((y+3)*w + x + 2));
 	}
 	blues.sort(function(a,b) { return a - b; });
 	outrgb.push((blues[1] + blues[2]) / 2.0);
@@ -25240,14 +25335,6 @@ function custcmdi(c, t, restargs, cb, results) {
 		xhr.responseType = 'arraybuffer';
 		xhr.send();
 	}
-	/*else if (thecmd === 3015 && dbgflag) {
-		setTimeout(() => {
-			xhr.open('GET', base + '/?custom=1&cmd=' + thecmd + (therest ? ('&'  + therest): ''));
-			xhr.setRequestHeader('Cache-control','no-cache, no-store, max-age=0');
-			xhr.responseType = 'arraybuffer';
-			xhr.send();
-		}, 30000);
-	}*/
 	else {
 		xhr.open('GET', base+ '/i' + thecmd + '.xml' + (therest ? ('?'  + therest): ''));
 		xhr.setRequestHeader('Cache-control','no-cache, no-store, max-age=0');
