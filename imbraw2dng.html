@@ -19386,7 +19386,7 @@ handleone(orientation, fromloop) {
 				if (typ === 5) {
 					/* FILM */
 					let o=0;
-					for (let j=0; j < w*h; j+=3) {
+					for (let j=0; j < (w*h*3)/2; j+=3) {
 						let res = 0;
 						for (const k of this.#addimgs) {
 							try {
