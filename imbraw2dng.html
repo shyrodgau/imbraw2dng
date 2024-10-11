@@ -19795,6 +19795,8 @@ static buildpvarray(view, typ, w, h, orientation, scale, wb) {
 	let rowiterstart, rowiterend;
 	let coliterstart, coliterend;
 	let transpose = false;
+	if (typ === 5 && orientation === 0)
+		orientation = 3;
 	if (orientation === 3) {
 		rowiterstart = -1*(h8 -1);
 		rowiterend = 1;
@@ -19991,7 +19993,7 @@ untypedclasses = []; // elements for groups with type for visual browser
 typedclasses = []; // elements for groups with type for visual browser
 imbeles = [];
 // current preview image
-currentrot = 1; // see oriecw above
+currentrot = 0; // see oriecw above, 0 means unknown
 // single-step/process all/skip all
 stepmode = 1;
 // bottom most text index
@@ -20201,7 +20203,7 @@ handleonex() {
 				this.setnopv();
 			} else {
 				this.#qappx('main.file',rawname);
-				this.buildpreview(f, () => { this.setrawpv(); }, () => { this.setpverr(); });
+				this.buildpreview(f, (rot) => { this.currentrot = rot; this.setrawpv(); }, () => { this.setpverr(); }, 0);
 			}
 		}
 	}
@@ -20950,7 +20952,7 @@ topreccheck(force) {
 	}
 	let rotbtn = ne.querySelector('.rotbtn');
 	if (e.type === 'RAW') {
-		e.rot = 1;
+		e.rot = 0;
 		//rotbtn.id = 'rot_b_' + e.raw + '_Y';
 		rotbtn.classList.add('disabled');
 		rotbtn.onclick = () => {
@@ -21062,7 +21064,8 @@ topreccheck(force) {
 	else if (type === 'RAW') {
 		let afterloadcalled = false;
 		if (this.debugflag) console.log('li raw start bpv ' + url);
-		this.buildpreview((this.debugflag && this.useraw) ? this.useraw : url, () => { /* on ok: */
+		this.buildpreview((this.debugflag && this.useraw) ? this.useraw : url, (xrot) => { /* on ok: */
+			if (to.rot === 0) to.rot = xrot;
 			e.setAttribute('data-state', 'ok');
 			e.querySelector('.waitdiv').style['display'] = 'none';
 			e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.remove('disabled') });
@@ -21525,7 +21528,7 @@ buildpreview(f, onok, onerr, orientation, targ, afterload) {
                 transpose = true;
         }
 		ctx.putImageData(new ImageData(outpix, transpose ? h8: w8, transpose? w8 :h8), 0, 0);
-		onok(f);
+		onok(orientation !== 0 ? orientation : (typ === 5 ? 3 : 1));
 	};
 	reader.onerror = (/*evt*/) => {
 		console.log('preview: error reading ' + f.name);
@@ -21623,8 +21626,8 @@ rot180() {
 rot0() {
 	if (1 === this.currentrot) return;
 	this.setpvwait();
-	this.currentrot = 1;
-	this.buildpreview(this.allfiles[this.actnum], () => { this.setrawpv(); }, () => { this.setpverr(); }, 1);
+	this.currentrot = 0;
+	this.buildpreview(this.allfiles[this.actnum], (rot) => { this.currentrot = rot; this.setrawpv(); }, () => { this.setpverr(); }, 0);
 }
 /* ImBCHtml: visual browser: change cache size (currently only visible in debug _00) */
 chgcache() {

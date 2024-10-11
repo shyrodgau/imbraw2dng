@@ -18797,7 +18797,7 @@ handleone(orientation) {
 		let transp = false;
 		if (ori !== 1) {
 			this.mappx(0, 'process.orientation', this.xl0('preview.orients.' + globals.orients[ori]));
-			//if (ori === 6 || ori === 8) transp = true;
+			if (ori === 6 || ori === 8) transp = true;
 		}
 		const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : globals.getwb(view, zz);
 		//console.log('WB ' + JSON.stringify(wb));
@@ -18811,7 +18811,7 @@ handleone(orientation) {
 			/* **** PREVIEW image **** */
 			let scale = 32;
 			if (w < 4096 && h < 4096) scale=16;
-			ti.addImageStrip(1, globals.buildpvarray(view, typ, w, h, 1, scale, wb), Math.floor(transp ? (h+scale-1)/scale:(w+scale-1)/scale), Math.floor(transp ? (w+scale-1)/scale: (h+scale-1)/scale));
+			ti.addImageStrip(1, globals.buildpvarray(view, typ, w, h, ori, scale, wb), Math.floor(transp ? (h+scale-1)/scale:(w+scale-1)/scale), Math.floor(transp ? (w+scale-1)/scale: (h+scale-1)/scale));
 			ti.addEntry(258 , 'SHORT', [ 8, 8, 8 ]); /* BitsPerSample */
 			ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression - none */
 			ti.addEntry(262, 'SHORT', [ 2 ]); /* Photometric - RGB */
@@ -20480,6 +20480,8 @@ topreccheck(force) {
 		ne.querySelector('.eepvx').innerHTML = '&#x1f4f7;';
 		if (e.imbackintension?.size && e.imbackintension?.size > 30000000)
 			e.rot = 3;
+		else if (e.imbackintension?.size && e.imbackintension?.size < 30000000)
+			e.rot = 1;
 		else
 			e.rot = 0;
 		//rotbtn.id = 'rot_b_' + e.raw + '_Y';
