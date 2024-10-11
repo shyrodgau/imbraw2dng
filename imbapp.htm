@@ -18797,7 +18797,7 @@ handleone(orientation) {
 		let transp = false;
 		if (ori !== 1) {
 			this.mappx(0, 'process.orientation', this.xl0('preview.orients.' + globals.orients[ori]));
-			if (ori === 6 || ori === 8) transp = true;
+			//if (ori === 6 || ori === 8) transp = true;
 		}
 		const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : globals.getwb(view, zz);
 		//console.log('WB ' + JSON.stringify(wb));
@@ -18811,7 +18811,7 @@ handleone(orientation) {
 			/* **** PREVIEW image **** */
 			let scale = 32;
 			if (w < 4096 && h < 4096) scale=16;
-			ti.addImageStrip(1, globals.buildpvarray(view, typ, w, h, ori, scale, wb), Math.floor(transp ? (h+scale-1)/scale:(w+scale-1)/scale), Math.floor(transp ? (w+scale-1)/scale: (h+scale-1)/scale));
+			ti.addImageStrip(1, globals.buildpvarray(view, typ, w, h, 1, scale, wb), Math.floor(transp ? (h+scale-1)/scale:(w+scale-1)/scale), Math.floor(transp ? (w+scale-1)/scale: (h+scale-1)/scale));
 			ti.addEntry(258 , 'SHORT', [ 8, 8, 8 ]); /* BitsPerSample */
 			ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression - none */
 			ti.addEntry(262, 'SHORT', [ 2 ]); /* Photometric - RGB */
@@ -20607,7 +20607,8 @@ topreccheck(force) {
 	else {
 		let afterloadcalled = false;
 		if (this.debugflag) console.log('li raw start bpv ' + url);
-		this.buildpreview((this.debugflag && this.useraw) ? this.useraw : (to.imbackintension ? to.imbackintension : url), () => { /* on ok: */
+		this.buildpreview((this.debugflag && this.useraw) ? this.useraw : (to.imbackintension ? to.imbackintension : url), (xrot) => { /* on ok: */
+			if (to.rot === 0) to.rot = xrot;
 			e.setAttribute('data-state', 'ok');
 			e.querySelector('.waitdiv').style['display'] = 'none';
 			e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.remove('disabled') });
@@ -21745,7 +21746,7 @@ workermsg(msg) {
 					transpose = true;
 			}
 			ctx.putImageData(new ImageData(outpix, transpose ? h8: w8, transpose? w8 :h8), 0, 0);
-			w0.onok(f);
+			w0.onok(d.xori);
 		} else {
 			w0.onerr(d.n);
 		}
@@ -25100,11 +25101,11 @@ onmessage = (e) => {
 };
 /* WORKER: handle communication */
 function resolver(url, preview, notfirst)  {
-	let e = url;
+	let e = url, ori = 0;
 	if (url.url) {
 		e = url;
 		url = e.url;
-		//rot = e.rot;
+		ori = e.rot;
 	}
 	let fx = {
 		imbackextension: true,
@@ -25216,7 +25217,7 @@ function buildpreview(f, orientation) {
 		//console.log(JSON.stringify(wb));
 		let outpix = globals.buildpvarray(view, typ, w, h, orientation, false, wb);
 		// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
-		postMessage({ cmd: cmd, pix: outpix, n: n, o: ori, c: cache });
+		postMessage({ cmd: cmd, pix: outpix, n: n, o: ori, c: cache, xori: (typ === 5 && ori === 0) ? 3 : ((ori === 0) ? 1 : ori) });
 		handlewait();
 	};
 	reader.onerror = (/*evt*/) => {
@@ -25254,7 +25255,7 @@ function buildpreviewcache(f, orientation) {
 		}, 300);
 	}
 	else*/ {
-		postMessage({ cmd: cmd, pix: outpix, n: n, o: ori, c: cache });
+		postMessage({ cmd: cmd, pix: outpix, n: n, o: ori, c: cache, xori: (typ === 5 && ori === 0) ? 3 : ori });
 		handlewait();
 	}
 }

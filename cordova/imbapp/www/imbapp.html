@@ -20639,7 +20639,10 @@ topreccheck(force) {
 	if (e.type === 'RAW') {
 		ne.querySelector('.eepvx').style['font-family'] = 'Symbol3';
 		ne.querySelector('.eepvx').innerHTML = '&#x1f4f7;';
-		e.rot = 1;
+		if (e.imbackintension?.size && e.imbackintension?.size > 30000000)
+			e.rot = 3;
+		else
+			e.rot = 0;
 		//rotbtn.id = 'rot_b_' + e.raw + '_Y';
 		rotbtn.classList.add('disabled');
 		rotbtn.onclick = () => {
@@ -22088,7 +22091,7 @@ takephoto() {
 					document.getElementById('takeerr').style['display'] = '';
 					document.getElementById('takeraw').style['display'] = 'none';
 					document.getElementById('takewait').style['display'] = 'none';
-				}, 1, document.getElementById('takeraw'));
+				}, 0, document.getElementById('takeraw'));
 				// raw
 			}
 		}
@@ -25217,6 +25220,8 @@ buildpvarray: function(view, typ, w, h, orientation, scale, wb) {
 	let rowiterstart, rowiterend;
 	let coliterstart, coliterend;
 	let transpose = false;
+	if (typ === 5 && orientation === 0)
+		orientation = 3;
 	if (orientation === 3) {
 		rowiterstart = -1*(h8 -1);
 		rowiterend = 1;
