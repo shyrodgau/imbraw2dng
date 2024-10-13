@@ -18223,7 +18223,7 @@ incdcp = true;
 debugflag = false;
 useraw = null;
 imbweb = 'http://192.168.1.254';
-fromintent = false;
+fromintent = false; // 1: normal 2: stack/fakelong (> 1 DNG)  3: backward (== 1 DNG)
 filmdemo = false;
 
 constructor() {
@@ -19111,11 +19111,13 @@ rootfs = undefined; // media
 rootfsx = undefined; // temp
 videourl = 'unknown'; // urls queried by 201
 photourl = 'unknown';
+cancelled = false;
 constructor() {
 	super();
 }
 /* ImBCHtmlOut: output one thing via browser */
 writefile(name, type, okmsg, arr1, origname, renameidx) {
+	if (this.cancelled) this.handlenext();
 	//if (undefined === basename) basename = name;
 	if (undefined === this.rootfs) {
 		try {
@@ -20894,10 +20896,11 @@ dodelete(list, status) {
 				status.err++;
 			}
 			list.splice(0,1);
+			document.getElementById('delprogmsg').innerHTML = this.xl('process.totals', status.no, status.ok, 0, status.err);
 			return this.dodelete(list, status);
 		});
 	} else {
-		document.getElementById('delprogmsg').innerHTML = this.xl('process.totals', status.no, status.ok, 0, status.err);
+		document.getElementById('delprogmsg').innerHTML = this.rotphases[2];
 		document.getElementById('delokbut').disabled = false;
 		document.getElementById('delcancelbut').disabled = true;
 		this.savesettings();
@@ -21375,6 +21378,13 @@ shownormal() {
 }
 /* ImBCHtml: preview: skip handler in the step preview */
 skipthis() {
+	if (this.cancelled) {
+		this.showdisconnect(true);
+		this.shownormal();
+		this.handlenext();
+		return;
+	}
+	this.cancelled = true;
 	if (document.getElementById('doforall').checked || this.appname === 'imbapp') this.stepmode = 2;
 	if (this.totnum > 1) {
 		this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
@@ -22242,6 +22252,24 @@ clearcache() {
 	this.savesettings();
 }
 intentinthandler() {
+	if (this.allfiles.length > 1) {
+		// only DNG for mode 2, stack?
+		let onlydng = true;
+		this.allfiles.map((mi) => { if (mi.name.substring(mi.name.length -4).toUpperCase() !== '.DNG') onlydng = false; });
+		if (onlydng) {
+			// ask if average or sum...
+			this.fromintent = 2;
+//			return;
+		}
+	}
+	if (this.allfiles.length === 1) {
+		// only DNG for mode 3, backward?
+		if (this.allfiles[0].name.substring(this.allfiles[0].name.length -4).toUpperCase() === '.DNG') {
+			// backward goes loose
+			this.fromintent = 3;
+//			return;
+		}
+	}
 	this.checkchecks();
 	this.totnum = this.allfiles.length;
 	this.stats.total = this.totnum;

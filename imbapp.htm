@@ -19088,11 +19088,13 @@ mingrp = 'd'; // 'h',  day hour
 maxgrp = 'm'; // 'y', 'm' day year month
 videourl = 'unknown'; // urls queried by 201
 photourl = 'unknown';
+cancelled = false;
 constructor() {
 	super();
 }
 /* ImBCHtmlOut: output one thing via browser */
 writefile(name, type, okmsg, arr1, origname) {
+	if (this.cancelled) this.handlenext();
 	let b = new Blob([ arr1 ], { type: type });
 	const outel = document.getElementById('result');
 	outel.download = name;
@@ -20733,10 +20735,11 @@ dodelete(list, status) {
 				status.err++;
 			}
 			list.splice(0,1);
+			document.getElementById('delprogmsg').innerHTML = this.xl('process.totals', status.no, status.ok, 0, status.err);
 			return this.dodelete(list, status);
 		});
 	} else {
-		document.getElementById('delprogmsg').innerHTML = this.xl('process.totals', status.no, status.ok, 0, status.err);
+		document.getElementById('delprogmsg').innerHTML = this.rotphases[2];
 		document.getElementById('delokbut').disabled = false;
 		document.getElementById('delcancelbut').disabled = true;
 		this.savesettings();
@@ -21208,6 +21211,13 @@ shownormal() {
 }
 /* ImBCHtml: preview: skip handler in the step preview */
 skipthis() {
+	if (this.cancelled) {
+		this.showdisconnect(true);
+		this.shownormal();
+		this.handlenext();
+		return;
+	}
+	this.cancelled = true;
 	if (document.getElementById('doforall').checked || this.appname === 'imbapp') this.stepmode = 2;
 	if (this.totnum > 1) {
 		this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
@@ -25257,7 +25267,7 @@ function buildpreviewcache(f, orientation) {
 		}, 300);
 	}
 	else*/ {
-		postMessage({ cmd: cmd, pix: outpix, n: n, o: ori, c: cache, xori: (typ === 5 && ori === 0) ? 3 : ori });
+		postMessage({ cmd: cmd, pix: outpix, n: n, o: ori, c: cache, xori: (typ === 5 && ori === 0) ? 3 : ((ori === 0) ? 1 : ori) });
 		handlewait();
 	}
 }
