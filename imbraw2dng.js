@@ -19432,6 +19432,8 @@ static buildpvarray(view, typ, w, h, orientation, scale, wb) {
 	let rowiterstart, rowiterend;
 	let coliterstart, coliterend;
 	let transpose = false;
+	if (typ === 5 && orientation === 0)
+		orientation = 3;
 	if (orientation === 3) {
 		rowiterstart = -1*(h8 -1);
 		rowiterend = 1;
@@ -19472,24 +19474,19 @@ static buildpvarray(view, typ, w, h, orientation, scale, wb) {
 	}
 	// cut off top and bottom 7%
 	let cntx = 0, allmin = 0, allmax = 255;
-	while (cntx < (cnt * 0.07))
+	while (cntx < (cnt * 0.03))
 		cntx += hist[allmin++];
-	allmin --;
+	if (allmin > 0) allmin --;
 	cntx = 0;
-	while (cntx < (cnt * 0.07))
+	while (cntx < (cnt * 0.03))
 		cntx += hist[allmax--];
-	allmax++;
+	if (allmax < 255) allmax++;
 	let fact;
-	if (allmax > 247 && allmin < 8) fact = 1;
-	/*else if (allmax - allmin < 33) {
-		const d = ((255-33-allmin)/2)
-		if (allmin < 255-33) {
-			allmin += d;
-			allmax += d;
-		}
-		fact = 8;
-	}*/
-	else fact = 240/(allmax - allmin);
+	if (allmax > 247 && allmin < 8) {
+		fact = 1;
+		allmin = 0;
+	}
+	else fact = 245/(allmax - allmin);
 	//console.log('ai ' + allmin + ' aa ' + allmax + ' ff ' + fact);
 	const o = scale ? 3 : 4;
 	const uic = new Uint8ClampedArray(h8 * w8 * o);
