@@ -19134,7 +19134,7 @@ starthandleone() {
 		this.afterfinish();
 		return;
 	}
-	if (!this.imbcb && window.showSaveFilePicker && false) {
+	/*if (!this.imbcb && window.showSaveFilePicker && false) {
 		// zip with selected file
 		window.showSaveFilePicker({
 			types: [ { description: 'Output Zip Archive', accept: { "application/zip": [ ".zip", ".ZIP" ] } } ],
@@ -19187,7 +19187,7 @@ starthandleone() {
 		});
 		this.handleonex();
 	}
-	else this.handleonex();
+	else*/ this.handleonex();
 }
 /* ImBCHtmlOut: main handler function for one file */
 handleonex() {
@@ -22172,7 +22172,7 @@ function init2() {
 /* *************************************** globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.3.5_6c9d367", // actually const // VERSION EYECATCHER
+version: "V5.3.6_a05c460", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 texts: { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
