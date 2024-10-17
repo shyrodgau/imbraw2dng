@@ -1,4 +1,4 @@
-#/usr/bin/bash -vx
+#!/usr/bin/bash
 
 # insert the DCP profile values into the js code to build the DNG
 
@@ -108,7 +108,11 @@ insdyn ~/prog/imbraw2dng/imbraw2dng/imbraw2dng.js 1
 insdyn ~/prog/imbraw2dng/imbraw2dng/imbraw2dng.js 2
 insdyn ~/prog/imbraw2dng/imbraw2dng/imbraw2dng.html 2
 insdyn ~/prog/imbraw2dng/imbraw2dng/imbraw2dng.html 1
-insdyn ~/prog/imbraw2dng/imbraw2dng/imbapp.html 2
-insdyn ~/prog/imbraw2dng/imbraw2dng/imbapp.html 1
+insdyn ~/prog/imbraw2dng/imbraw2dng/imbapp.htm 2
+insdyn ~/prog/imbraw2dng/imbraw2dng/imbapp.htm 1
 insdyn ~/prog/imbraw2dng/imbraw2dng/imbapp_00.html 2
 insdyn ~/prog/imbraw2dng/imbraw2dng/imbapp_00.html 1
+insdyn ~/prog/imbraw2dng/imbraw2dng/cordova/imbapp/www/imbapp.html 2
+insdyn ~/prog/imbraw2dng/imbraw2dng/cordova/imbapp/www/imbapp.html 1
+insdyn ~/prog/imbraw2dng/imbraw2dng/cordova/imbapp/www/imbapp-dbg.html 2
+insdyn ~/prog/imbraw2dng/imbraw2dng/cordova/imbapp/www/imbapp-dbg.html 1
