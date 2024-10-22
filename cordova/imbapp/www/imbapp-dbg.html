@@ -35,13 +35,14 @@ DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS 
 ***************************************************** 
 -->
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src data: http: 192.168.0.72 *; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval'">
-<!--meta http-equiv="Content-Security-Policy" content="default-src data: http: 192.168.8.101 *; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval'"-->
+<!--meta http-equiv="Content-Security-Policy" content="default-src data: http: 192.168.0.72 *; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval'"-->
+<meta http-equiv="Content-Security-Policy" content="default-src data: http: 192.168.8.101 *; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval'">
 <meta http-equiv='cache-control' content='no-cache'>
 <meta http-equiv='expires' content='0'>
 <meta http-equiv='pragma' content='no-cache'>
 <meta name="viewport" content="width=200, initial-scale=1" />
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>ImB RAW to DNG Converter V???</title>
 <link rel="shortcut icon" type="image/x-icon" href="data:image/x-icon;base64,AAABAAEAICAAAAEACACoCAAAFgAAACgAAAAgAAAAQAAAAAEACAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAcAAAAAAQEAAQEBAAAHBwAACgoAAAs
 LAAAMDAAADQ0AAA8PAAASEgAAFRUAABcXAAAaGgAAHBwAACAgAAEjIgANIicAAiQl
@@ -88,7 +89,7 @@ LCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwgAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAA">
-<title>ImB RAW to DNG Converter V???</title>
+<!-- *************************************** CSS *************************************** -->
 <style type="text/css">
 @font-face  {
 	font-family:'Symbol3';
@@ -529,6 +530,7 @@ img.whbtn { height:1.33em; position:relative; top:0.5em; }
 #batt2.battlo { height: 0.8em; }
 .btop { border-top: 1px solid black; padding-top: 1em; }
 </style>
+<!-- *************************************** CSS End *************************************** -->
 <script src="cordova.js"></script>
 <!-- javascript code CURRENTLY NOT identical to imbraw2dng.js  for the classes IFDOut, TIFFOut, ZIPHelp, ImBCBase, ImBCBackw. -->
 <script type="text/javascript" language="javascript">
@@ -686,18 +688,17 @@ addEntry(tag, type, value) {
 getData(offset) {
 	let ioff = 0, data = new Uint8Array(this.#imglen + (12 * this.#entrys.length) + this.#currentoff + 16);
 	if (this.#imgdata?.getUint8) {
-		for (let z=0; z<this.#imgdata.byteLength; z++) {
-			if (this.#imglen === 30607488) {
-				if ((z%3) === 0)
-					data[ioff++] = this.#imgdata.getUint8(z+2);
-				else if ((z%3) === 2)
-					data[ioff++] = this.#imgdata.getUint8(z-2);
-				else
-					data[ioff++] = this.#imgdata.getUint8(z);
+		if (-1 !== globals.twelvebitsizes.indexOf(this.#imglen)) {
+			for (let z=0; z<this.#imgdata.byteLength; z+=3) {
+				let n = this.#imgdata.getUint8(z);
+				data[ioff++] = this.#imgdata.getUint8(z+2);
+				data[ioff++] = this.#imgdata.getUint8(z+1);
+				data[ioff++] = n;
 			}
-			else
-				data[ioff++] = this.#imgdata.getUint8(z);
 		}
+		else
+			for (let z=0; z<this.#imgdata.byteLength; z++)
+				data[ioff++] = this.#imgdata.getUint8(z);
 	} else if (this.#imgdata) {
 		for (let z=0; z<this.#imgdata.length; z++)
 			data[ioff++] = this.#imgdata[z];
@@ -1121,6 +1122,7 @@ class ImBCBase {
 mylang = 'en';
 withpreview = true;
 dooverwrite = false;
+autotime = false;
 // experimental
 neutral = false;
 copyright = undefined;
@@ -18022,9 +18024,9 @@ incdcp = true;
 /* ImBCBase: debug */
 debugflag = false;
 useraw = null;
-//imbweb = 'http://192.168.8.101:8080';
-imbweb = 'http://192.168.0.72:8080';
-fromintent = false;
+imbweb = 'http://192.168.8.101:8080';
+//imbweb = 'http://192.168.0.72:8080';
+fromintent = false; // 1: normal 2: stack/fakelong (> 1 DNG)  3: backward (== 1 DNG)
 filmdemo = false;
 
 constructor() {
@@ -18451,7 +18453,7 @@ handleone(orientation) {
 	}
 	let w, h, mode = "??";
 	let typ = 0;
-	const zz = globals.infos.findIndex(v => v.size === f.size);
+	let zz = globals.infos.findIndex(v => v.size === f.size);
 	if (zz === -1) {
 		if (this.totnum > 1) {
 			this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
@@ -18502,6 +18504,7 @@ handleone(orientation) {
 	let { date, datestr, nn } = ImBCBase.nametotime(rawname);
 	if (date && datestr) dateok = true;
 	else datestr = '';
+	let whitelvl = 0;
 
 	const reader = f.imbackextension ? f : new FileReader();
 	reader.onload = async (evt) => {
@@ -18509,8 +18512,7 @@ handleone(orientation) {
 			this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
 		}
 		let contents = evt.target.result;
-		if (contents.buffer) contents = contents.buffer;
-		const view = new DataView(contents);
+		let view = new DataView(contents);
 		if (this.addall) {
 			if (this.#addimgs.length === 0 && this.addscaleall)
 				this.#historystring='(';
@@ -18523,34 +18525,95 @@ handleone(orientation) {
 			else
 				this.#historystring += ('+' + rawname);
 			if (this.actnum === this.totnum - 1) {
-				this.appmsg('', true);
-				let npic = this.#addimgs.length;
-				for (let j=0; j < w*h; j++) {
-					let res = 0;
-					for (const k of this.#addimgs) {
-						try {
-							res += k.getUint8(j);
-						} catch { ; }
-					}
-					if (this.addscaleall) {
-						res = Math.floor(res / npic);
-					}
-					if (res > 255) {
-						view.setUint8(j, 255);
-					}
-					else view.setUint8(j, res);
+				const npic = this.#addimgs.length;
+				const fc = Math.ceil(npic / 16);
+				if (typ !== 5) {
+					whitelvl = 255 * this.#addimgs.length;
+					if (whitelvl > 4095) whitelvl = 4095;
 				}
+				this.appmsg('', true);
+				let nv = new Uint16Array(w*h);
+				if (typ === 5) {
+					/* FILM */
+					let o=0;
+					for (let j=0; j < (w*h*3)/2; j+=3) {
+						let res = 0;
+						for (const k of this.#addimgs) {
+							try {
+								res += ((k.getUint8(j+2) << 4) + ((k.getUint8(j+1) >> 4) & 15) - 240);
+							} catch { ; }
+						}
+						if (this.addscaleall) {
+							res = Math.floor(res / npic);
+						}
+						if (res +240 > 4095) {
+							console.log('res overflow 5 ' + res);
+							nv[o++] = 4095;
+						}
+						else nv[o++] = res + 240;
+						res = 0;
+						for (const k of this.#addimgs) {
+							try {
+								res += ((k.getUint8(j+0) & 255) + ((k.getUint8(j+1) & 15) << 8) - 240);
+							} catch { ; }
+						}
+						if (this.addscaleall) {
+							res = Math.floor(res / npic);
+						}
+						if (res +240 > 4095) {
+							console.log('res overflow 6 ' + res);
+							nv[o++] = 4095;
+						}
+						else nv[o++] = res + 240;
+					}
+				} else {
+					/* 8 bit per sample */
+					for (let j=0; j < w*h; j++) {
+						let res = 0;
+						for (const k of this.#addimgs) {
+							try {
+								res += k.getUint8(j);
+							} catch { ; }
+						}
+						if (this.addscaleall && npic > 16) {
+							res = Math.floor(res / fc);
+						}
+						if (res > 4095) {
+							console.log('res overflow ' + res);
+							nv[j] = 4095;
+							whitelvl = 4095;
+						}
+						else nv[j] = res;
+					}
+				}
+				rawname = rawname.substring(0, rawname.length - 4) + '_MULTI.raw';
+				let nnv = new ArrayBuffer(w * h * 3 / 2);
+				let nvv = new DataView(nnv);
+				for (let j=0, o=0; j<w*h; j+=2) {
+					nvv.setUint8(o, nv[j+1] & 255);
+					nvv.setUint8(o+1, (nv[j+1] >> 8) + ((nv[j] & 15) << 4));
+					nvv.setUint8(o+2, (nv[j] >> 4));
+					o+=3;
+				}
+				if (typ !== 5) {
+					// film is 12bit already anyway
+					zz += 32;
+					typ += 32;
+				}
+				contents = nnv;
+				view = nvv; //new DataView(nnv);
 				if (this.addscaleall) {
 					this.#historystring += (')/' + npic);
 				}
 				this.#addimgs = [];
+				this.addall = false;
 			}
 			else {
 				return this.handlenext();
 			}
 		}
 		this.mappx(0, 'process.processing', rawname);
-		this.mappx(0, 'process.assuming', globals.types[typ], mode);
+		this.mappx(0, 'process.assuming', globals.types[typ < 32 ? typ : typ - 32], mode);
 		if (dateok) {
 			this.mappx(0, 'process.datetime', datestr);
 		}
@@ -18582,10 +18645,10 @@ handleone(orientation) {
 			ti.addEntry(283, 'RATIONAL', [ 30, 1 ]); /* y resolution */
 		}
 		ti.addEntry(271, 'ASCII', 'ImBack'); /* Make */
-		ti.addEntry(50708, 'ASCII', 'ImBack' + ' ' + globals.types[typ]); /* Unique model */
-		ti.addEntry(272, 'ASCII', globals.types[typ]); /* Model */
+		ti.addEntry(50708, 'ASCII', 'ImBack' + ' ' + globals.types[typ < 32 ? typ : typ - 32]); /* Unique model */
+		ti.addEntry(272, 'ASCII', globals.types[typ < 32 ? typ : typ - 32]); /* Model */
 		ti.addEntry(274, 'SHORT', [ ori ]); /* Orientation */
-		ti.addEntry(305, 'ASCII', this.appname + ' ' + globals.version); /* SW and version */
+		ti.addEntry(305, 'ASCII', 'imbraw2dng ' + globals.version); /* SW and version */
 		if (this.#historystring.length && !this.filmdemo)
 			ti.addEntry(37395, 'ASCII', this.#historystring); /* image history */
 		this.#historystring = '';
@@ -18610,7 +18673,7 @@ handleone(orientation) {
 			}
 		}
 		ti.addEntry(50706, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Version */
-		if (this.copyright !== undefined && this.copyright !== '') {
+		if (this.copyright != '' && this.copyright !== undefined) {
 			// do UTF-8 bytes instead of ASCII if necessary
 			let bytes = new TextEncoder().encode(this.copyright);
 			//console.log('cr str ' + this.copyright.length + ' bytes ' + bytes.length);
@@ -18620,7 +18683,7 @@ handleone(orientation) {
 				ti.addEntry(33432, 'BYTE', bytes); /* copyright */
 		}
 		ti.addEntry(50707, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Backward Version */
-		ti.addEntry(50717, 'LONG', [ (typ === 5) ? 4095 : 255 ]); /* White level */
+		ti.addEntry(50717, 'LONG', [ (typ >= 5) ? (whitelvl > 0 ?  whitelvl : 4095) : 255 ]); /* White level */
 		if (typ === 5) ti.addEntry(50714, 'SHORT', [ 240, 240, 240, 240 ] ); /* Blacklevel */
 		if (typ === 5) ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
 		if (!this.neutral) {
@@ -18687,13 +18750,13 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		}
 		/* **** RAW image **** */
 		ti.addImageStrip(0, view, w, h);
-		ti.addEntry(258 , 'SHORT', [ (typ === 5) ? 12 : 8 ]); /* BitsPerSample */
+		ti.addEntry(258 , 'SHORT', [ (typ >= 5) ? 12 : 8 ]); /* BitsPerSample */
 		ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression - none */
 		ti.addEntry(262, 'SHORT', [ 0x8023 ]); /* Photometric - CFA */
 		ti.addEntry(277, 'SHORT', [ 1 ]); /* Samples per Pixel */
 		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config - chunky */
 		ti.addEntry(33421, 'SHORT', [ 2, 2 ]); /* CFA Repeat Pattern Dim */
-		ti.addEntry(33422, 'BYTE', (typ > 1 && typ < 5) ? [ 2, 1, 1, 0 ] : [ 1, 0, 2, 1 ]); /* CFA Pattern dep. on MF/35mm*/
+		ti.addEntry(33422, 'BYTE', ((typ > 1 && typ < 5) || typ > 33) ? [ 2, 1, 1, 0 ] : [ 1, 0, 2, 1 ]); /* CFA Pattern dep. on MF/35mm*/
 		this.writewrap(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted' + ((this.checkdlfolder && !this.zip) ? 'checkdl' : ''), ti.getData(), rawname);
 	};
 	reader.onerror = (evt) => {
@@ -18851,11 +18914,13 @@ rootfs = undefined; // media
 rootfsx = undefined; // temp
 videourl = 'unknown'; // urls queried by 201
 photourl = 'unknown';
+cancelled = false;
 constructor() {
 	super();
 }
 /* ImBCHtmlOut: output one thing via browser */
-writefile(name, type, okmsg, arr1, origname, renameidx/*, basename*/) {
+writefile(name, type, okmsg, arr1, origname, renameidx) {
+	if (this.cancelled) this.handlenext();
 	//if (undefined === basename) basename = name;
 	if (undefined === this.rootfs) {
 		try {
@@ -18965,12 +19030,6 @@ writefile(name, type, okmsg, arr1, origname, renameidx/*, basename*/) {
 	});
 	return;
 }
-/*intwritewrapper(renameidx, writer, name, data, onok, onerr) {
-	if (undefined !== renameidx)
-		onok();
-	else
-		this.writeslice(writer, name, data, onok, onerr, 0);
-}*/
 /* ImBCHtmlOut: Sliced write to file */
 writeslice(fw, name, arr, onok, onerr, off) {
 	let le = arr.byteLength;
@@ -19086,7 +19145,7 @@ starthandleone() {
 		this.afterfinish();
 		return;
 	}
-	if (!this.imbcb && window.showSaveFilePicker && false) {
+	/*if (!this.imbcb && window.showSaveFilePicker && false) {
 		// zip with selected file
 		window.showSaveFilePicker({
 			types: [ { description: 'Output Zip Archive', accept: { "application/zip": [ ".zip", ".ZIP" ] } } ],
@@ -19139,7 +19198,7 @@ starthandleone() {
 		});
 		this.handleonex();
 	}
-	else this.handleonex();
+	else*/ this.handleonex();
 }
 /* ImBCHtmlOut: main handler function for one file */
 handleonex() {
@@ -19171,7 +19230,7 @@ handleonex() {
 			this.#qappx('main.file.jpeg', rawname);
 			if (f.name) {
 				// read jpeg file for preview
-				const fr = new FileReader();
+				const fr = f.imbackextension ? f : new FileReader();
 				fr.onload = (evt) => {
 					let contents = evt.target.result;
 					contents = 'data:image/jpeg;' + contents.substring(8);
@@ -19350,6 +19409,8 @@ parseconfig(data) {
 	if (d.dl) this.dloads = d.dl;
 	if (d.dooverwrite)
 		this.dooverwrite = true;
+	if (d.autotime)
+		this.autotime = true;
 }
 /* ImBCHtmlOut: browserdisplay: put last message viewable */
 showlastmsg() {
@@ -19417,6 +19478,12 @@ afterfinish() {
 		document.getElementById('progcancelbut').disabled = true;
 		document.getElementById('progmsg').innerHTML = this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
 		this.loadnextimg();
+		if (this.stats.error > 0)
+			document.getElementById('dlprogress').style['border-color'] = 'red';
+		else if (this.stats.skipped > 0)
+			document.getElementById('dlprogress').style['border-color'] = 'yellow';
+		else if (this.stats.ok > 0)
+			document.getElementById('dlprogress').style['border-color'] = 'green';
 	}
 	document.getElementById('imbdoit').disabled = false;
 	document.getElementById('imbvisbrows').disabled = false;
@@ -19612,6 +19679,7 @@ showmsg() {
 /* ImBCHtml: show the normal pages */
 showpages() {
 	this.onback = 'quit';
+	document.getElementById('dlprogress').style['border-color'] = 'grey';
 	document.getElementById('pages').style['display'] = '';
 	const norm = document.getElementById('normal');
 	if (norm) norm.style['display'] = 'none';
@@ -19797,11 +19865,13 @@ showdlprog() {
 	document.getElementById('progokbut').disabled = true;
 	this.closeham();
 	document.getElementById('progmsg').innerHTML = '...';
+	document.getElementById('dlprogress').style['border-color'] = 'grey';
 	document.getElementById('pages').style['display'] = 'none';
 	this.onback = 'nothing';
 }
 /* ImBCHtml: show message log */
 showlog() {
+	document.getElementById('dlprogress').style['border-color'] = 'grey';
 	document.getElementById('pages').style['display'] = 'none';
 	if (this.fromintent)
 		this.onback = 'quit';
@@ -20376,7 +20446,12 @@ topreccheck(force) {
 	if (e.type === 'RAW') {
 		ne.querySelector('.eepvx').style['font-family'] = 'Symbol3';
 		ne.querySelector('.eepvx').innerHTML = '&#x1f4f7;';
-		e.rot = 1;
+		if (e.imbackintension?.size && e.imbackintension?.size > 30000000)
+			e.rot = 3;
+		else if (e.imbackintension?.size && e.imbackintension?.size < 30000000)
+			e.rot = 1;
+		else
+			e.rot = 0;
 		//rotbtn.id = 'rot_b_' + e.raw + '_Y';
 		rotbtn.classList.add('disabled');
 		rotbtn.onclick = () => {
@@ -20482,7 +20557,7 @@ topreccheck(force) {
 		};
 		to.preview.onerror = (ev) => {
 			e.setAttribute('data-state', 'err');
-			console.log('JPEG preview load error for ' + url + ' ' + JSON.stringify(ev));
+			console.log('JPEG preview load error for ' + url + ' ' + ev.toString());
 			e.querySelector('.waitdiv').style['display'] = 'none';
 			e.querySelector('.errimg').style['display'] = '';
 			e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
@@ -20502,7 +20577,8 @@ topreccheck(force) {
 	else {
 		let afterloadcalled = false;
 		if (this.debugflag) console.log('li raw start bpv ' + url);
-		this.buildpreview((this.debugflag && this.useraw) ? this.useraw : (to.imbackintension ? to.imbackintension : url), () => { /* on ok: */
+		this.buildpreview((this.debugflag && this.useraw) ? this.useraw : (to.imbackintension ? to.imbackintension : url), (xrot) => { /* on ok: */
+			if (to.rot === 0) to.rot = xrot;
 			e.setAttribute('data-state', 'ok');
 			e.querySelector('.waitdiv').style['display'] = 'none';
 			e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.remove('disabled') });
@@ -20625,10 +20701,11 @@ dodelete(list, status) {
 				status.err++;
 			}
 			list.splice(0,1);
+			document.getElementById('delprogmsg').innerHTML = this.xl('process.totals', status.no, status.ok, 0, status.err);
 			return this.dodelete(list, status);
 		});
 	} else {
-		document.getElementById('delprogmsg').innerHTML = this.xl('process.totals', status.no, status.ok, 0, status.err);
+		document.getElementById('delprogmsg').innerHTML = this.rotphases[2];
 		document.getElementById('delokbut').disabled = false;
 		document.getElementById('delcancelbut').disabled = true;
 		this.savesettings();
@@ -20727,6 +20804,7 @@ dirtysettings() {
 		document.getElementById('settingsset').setAttribute('data-myxlarg0',window.location.origin);
 		document.getElementById('setsettingsurl').setAttribute('data-myxlarg0',window.location.origin);
 	}
+	this.autotime = document.getElementById('autotime').checked;
 	if (this.appname === 'imbapp') this.savesettings();
 }
 /* ImBCHtml: browserdisplay: save settings */
@@ -20757,7 +20835,8 @@ savesettings() {
 					'exitmode': this.exitmode,
 					'maxcache': this.maxcache,
 					'dl': this.dloads,
-					'dooverwrite': this.dooverwrite
+					'dooverwrite': this.dooverwrite,
+					'autotime': this.autotime
 				}
 			));
 		}
@@ -20973,13 +21052,16 @@ async drophandler(ev) {
 		this.addall = true;
 		this.addscaleall = document.getElementById('fakelongexpscale')?.checked;
 		if (document.getElementById('fakelongexpadd')) document.getElementById('fakelongexpadd').checked = false;
+		this.closeham();
+		this.aftercheck();
+		document.getElementById('selall').click();
+		this.browserprocess();
 	} else {
 		this.addall = false;
 		this.addscaleall = false;
+		this.closeham();
+		this.aftercheck(); this.showbrowser();
 	}
-	this.closeham();
-	this.aftercheck(); this.showbrowser();
-	//this.starthandleone();
 }
 /* ImBCHtml: browserdisplay: some handler on the drop rectangle */
 prevdef(ev) {
@@ -21103,6 +21185,13 @@ shownormal() {
 }
 /* ImBCHtml: preview: skip handler in the step preview */
 skipthis() {
+	if (this.cancelled) {
+		this.showdisconnect(true);
+		this.shownormal();
+		this.handlenext();
+		return;
+	}
+	this.cancelled = true;
 	if (document.getElementById('doforall').checked || this.appname === 'imbapp') this.stepmode = 2;
 	if (this.totnum > 1) {
 		this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
@@ -21475,7 +21564,8 @@ checkimb() {
 			this.discknown = true;
 			document.getElementById('genadvice').style['display'] = 'none';
 			ImBCHtml.openp(document.getElementById('imbsettopener'));
-			this.showmain(); //this.loadimgs();
+			this.showmain();
+			if (this.autotime) this.settime();
 		}
 		else {
 			// disconnected?
@@ -21517,6 +21607,7 @@ initsettings() {
 				document.getElementById('setsettingsurl').setAttribute('data-myxlarg0',window.location.origin);
 				document.getElementById('exitsel').value = this.exitmode;
 				document.getElementById('dooverwrite').checked = this.dooverwrite;
+				document.getElementById('autotime').checked = this.autotime;
 			} else {
 				document.getElementById('onlyhttp').style['display'] = 'none';
 				document.getElementById('setsettings').style['display'] = '';
@@ -21574,6 +21665,8 @@ addcache(name, entry) {
 workermsg(msg) {
 	const d = msg.data;
 	let w0;
+	let doc;
+	let stat;
 	//console.log('from worker ' + JSON.stringify(d));
 	switch (d.cmd) {
 	case 'resolveandhandle':
@@ -21603,6 +21696,7 @@ workermsg(msg) {
 			this.handlenext(d.fl);
 		}
 		break;
+	/*eslint no-fallthrough: ["error", { "commentPattern": "no break" }]*/
 	case 'resolveandpreview':
 		// onmessage: { pix: array, n: name, o: orientation, t: targ, onok, onerr, c: cacheentry }
 		if (d.pix) this.addcache(d.n, d.c);
@@ -21642,7 +21736,7 @@ workermsg(msg) {
 					transpose = true;
 			}
 			ctx.putImageData(new ImageData(outpix, transpose ? h8: w8, transpose? w8 :h8), 0, 0);
-			w0.onok(f);
+			w0.onok(d.xori);
 		} else {
 			w0.onerr(d.n);
 		}
@@ -21678,21 +21772,21 @@ workermsg(msg) {
 			w0.targ.preview.src = d.c;
 		}
 		else {
-			let e = d.ele;
+			let e = w0.ele;
 			e.setAttribute('data-state', 'err');
-			console.log('JPEG preview load error for ' + url + ' ' + JSON.stringify(evt));
+			console.log('JPEG preview load error for ' + w0.targ.raw + ' ' + d.evt);
 			e.querySelector('.waitdiv').style['display'] = 'none';
 			e.querySelector('.errimg').style['display'] = '';
 			e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
 			e.querySelector('.dlbtn').classList.add('disabled');
-			if (this.debugflag) console.log('ldr j e lnx ' + to.raw);
-			to.nonewerr = true;
+			if (this.debugflag) console.log('ldr j e lnx ' + w0.targ);
+			w0.targ.nonewerr = true;
 			this.loadnextimg();
 		}
 		break;
 	case 'battstat':
-		let doc = (new DOMParser()).parseFromString(d.txt, 'text/xml');
-		let stat = doc.querySelector('Function Value').textContent;
+		doc = (new DOMParser()).parseFromString(d.txt, 'text/xml');
+		stat = doc.querySelector('Function Value').textContent;
 		if (stat === '0') stat = 'hi';
 		else if (stat >= '2') stat = 'lo';
 		else stat = 'med';
@@ -21780,7 +21874,7 @@ appinfo() {
 	<a href="#" onclick="window.open('https://github.com/apache/cordova-plugin-inappbrowser/','_system'); return false;">InAppBrowser</a>, 
 	<a href="#" onclick="window.open('https://github.com/apache/cordova-plugin-file/','_system'); return false;">File</a>, 
 	<a href="#" onclick="window.open('https://github.com/NeoLSN/cordova-plugin-android-permissions','_system'); return false;">AndroidPermissions</a>,  
-	<a href="#" onclick="window.open('https://github.com/cyph/cordova-plugin-chooser/','_system'); return false;">Chooser</a>, 
+	<a href="#" onclick="window.open('https://github.com/cyph/cordova-plugin-chooser/','_system'); return false;">Chooser</a>,
 	<a href="#" onclick="window.open('https://github.com/torsten-simon/cordova-plugin-intent/','_system'); return false;">Intent</a>,
 	<a href="#" onclick="window.open('https://github.com/shyrodgau/cordova-plugin-saf-mediastore/','_system'); return false;">SafMediastore</a><br>Based on work by Michele Asciutti from the ImBack User Group.</span>
 	<br><a href="/res/LICENSE.txt">License Info:</a>
@@ -21822,7 +21916,7 @@ takephoto() {
 					document.getElementById('takeerr').style['display'] = '';
 					document.getElementById('takeraw').style['display'] = 'none';
 					document.getElementById('takewait').style['display'] = 'none';
-				}, 1, document.getElementById('takeraw'));
+				}, 0, document.getElementById('takeraw'));
 				// raw
 			}
 		}
@@ -21967,6 +22061,24 @@ clearcache() {
 	this.savesettings();
 }
 intentinthandler() {
+	if (this.allfiles.length > 1) {
+		// only DNG for mode 2, stack?
+		let onlydng = true;
+		this.allfiles.map((mi) => { if (mi.name.substring(mi.name.length -4).toUpperCase() !== '.DNG') onlydng = false; });
+		if (onlydng) {
+			// ask if average or sum...
+			this.fromintent = 2;
+//			return;
+		}
+	}
+	if (this.allfiles.length === 1) {
+		// only DNG for mode 3, backward?
+		if (this.allfiles[0].name.substring(this.allfiles[0].name.length -4).toUpperCase() === '.DNG') {
+			// backward goes loose
+			this.fromintent = 3;
+//			return;
+		}
+	}
 	this.checkchecks();
 	this.totnum = this.allfiles.length;
 	this.stats.total = this.totnum;
@@ -22028,7 +22140,7 @@ intenthandler(intent) {
 }
 /* *************************************** Main class for HTML, forward E N D *************************************** */
 /* outside of classes: */
-let imbc, bfep;
+let imbc;
 /* onload of html body */
 function init() {
 	document.addEventListener('deviceready', () => { init2(); });
@@ -22064,7 +22176,7 @@ function init2() {
 			imbc.checkimb();
 		});
 		//imbc.checkimb();
-	}, 20000);
+	}, 2000);
 	window.onbeforeunload = () => {
 		imbc.savesettings();
 		if (imbc.onback === 'main') {
@@ -22079,7 +22191,7 @@ function init2() {
 /* *************************************** globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.2.1_7122cb2", // actually const
+version: "V5.3.6_e4fdc16", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 texts: { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -23028,6 +23140,10 @@ texts: { // actually const
 			en: 'For live view, point media player to <a href="#" window.open(imbc.xl(\'$$0\'), \'_system\'); return false;">$$0</a>',
 			de: 'Für Live Bild, mit Mediaplayer auf <a href="#" window.open(imbc.xl(\'$$0\'), \'_system\'); return false;">$$0</a> gehen',
 			ja: 'ライブ画像については、メディア プレーヤーで <a href="#" window.open(imbc.xl(\'$$0\'), \'_system\'); return false;">$$0</a> にアクセスしてください'
+		},
+		autotime: {
+			en: 'Automatically set ImB Time on connect',
+			de: 'ImB Zeit beim Verbinden automatisch setzen'
 		}
 	}
 },
@@ -24730,6 +24846,7 @@ fnregexx: /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0
 orients: [ '', 'none', '', 'upsidedown', '', '', 'clockwise', '', 'counterclockwise' ], // actually const
 oriecw: [ 1, 6, 3, 8 ], // clockwise indices // actually const
 types: [ "unknown", "ImB35mm", "MF 6x7 ", "MF6x4.5", "MF 6x6 ", "Film35 " ], // all length 7, actually const
+twelvebitsizes: [ 9706416, 11501280, 14709888, 17428128, 17915904, 19406448, 21098880, 23003136, 23887872, 30607488 ],
 infos: [ // actually const
 	{
 		size: 14065920,
@@ -24799,11 +24916,11 @@ infos: [ // actually const
 /* ImBCBase: get white balance */
 getwb: function(view, typidx) {
 	//console.log('GWB ' + typidx + ' ' + JSON.stringify(globals.infos[typidx]));
-	const t = globals.infos[typidx];
+	const t = globals.infos[typidx < 32 ? typidx : typidx - 32];
 	let r=1, g=1, b=1;
 	for (let i=Math.round(0.05*t.h)*2; i<Math.ceil(0.9*t.h); i+=8) {
 		for (let j=Math.round(0.05*t.w)*2; j<Math.ceil(0.9*t.w); j+=8) {
-			let x = globals.getPix(j, i, t.w, view, t.typ);
+			let x = globals.getPix(j, i, t.w, view, typidx < 32 ? t.typ : 32 + t.typ);
 			let lr = x[0];
 			let lg = x[1] + 1;
 			let lb = x[2];
@@ -24811,11 +24928,15 @@ getwb: function(view, typidx) {
 			if (p < 3 || p > (3*250)) continue;
 			//if (((i*t.w + j) % 50000) < 10)
 			//	console.log('i ' + i + ' j ' + j + ' R ' + lr + ' G ' + lg + ' B ' + lb + ' P ' + p);
+			//if (r + g == 2) {
+			//	console.log('R G B ' + x[0] + ' ' + x[1] + ' ' + x[2] + ' P ' + p + ' LB ' + lb + ' LR ' + lr + ' LG ' + lg);
+			//}
 			b += (lb)/(p);
 			g += (lg)/(p);
 			r += (lr)/(p);
 		}
 	}
+	//console.log('ER EG EB ' + r + ' ' + g + ' ' + b);
 	if ((r > b) && (r > g)) {
 		return [ 10, 10, Math.ceil(300000*g/r), 300000, Math.ceil(300000*b/r), 300000 ];
 	}
@@ -24830,77 +24951,106 @@ getwb: function(view, typidx) {
 getPix: function(x, y, w, view, typ) {
 	let outrgb = [];
 	let reds = [];
-	let w3 = w + (w>>1);
-	let xx = x + (x>>1);
-	if (typ === 5) {
-		reds.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-240)/16);
-		reds.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-240)/16);
-		reds.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-240)/16);
-		reds.push(((view.getUint8((y+2)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-240)/16);
+	const w3 = w + (w>>1);
+	const xx = x + (x>>1);
+	const dd = (typ === 5) ? 240 : 0;
+	if (typ === 5 || typ == 33) {
+		/* film or stacked 35mm */
+		reds.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>4);
+		reds.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>4);
+		reds.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>4);
+		reds.push(((view.getUint8((y+2)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>4);
+	}
+	else if (typ > 33) {
+		/* stacked mf */
+		reds.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>4);
+		reds.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>4);
+		reds.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>4);
+		reds.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>4);
 	}
 	else if (typ > 1) {
+		/* mf */
 		reds.push(view.getUint8((y+1)*w + x + 1));
 		reds.push(view.getUint8((y+1)*w + x + 3));
-		reds.push(view.getUint8((y+1)*w + x + 2*w + 1));
-		reds.push(view.getUint8((y+1)*w + x + 2*w + 3));
+		reds.push(view.getUint8((y+3)*w + x + 1));
+		reds.push(view.getUint8((y+3)*w + x + 3));
 	} else {
+		/* 35mm */
 		reds.push(view.getUint8(y*w + x + 1));
 		reds.push(view.getUint8(y*w + x + 3));
-		reds.push(view.getUint8(y*w + x + 2*w + 1));
-		reds.push(view.getUint8(y*w + x + 2*w + 3));
+		reds.push(view.getUint8((y+2)*w + x + 1));
+		reds.push(view.getUint8((y+2)*w + x + 3));
 	}
 	reds.sort(function(a,b) { return a - b; });
 	// median of red pixels
 	outrgb.push((reds[1] + reds[2]) / 2.0);
 	let greens = [];
-	if (typ === 5) {
-		greens.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF0) >> 4))-240)/16);
-		greens.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF) << 8))-240)/16);
-		greens.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF0) >> 4))-240)/16);
-		greens.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF) << 8))-240)/16);
-		greens.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF0) >> 4))-240)/16);
-		greens.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF) << 8))-240)/16);
-		greens.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF0) >> 4))-240)/16);
-		greens.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF) << 8))-240)/16);
+	if (typ === 5 || typ == 33) {
+		/* film or stacked 35mm */
+		greens.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF0) >> 4))-dd)>>4);
+		greens.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF0) >> 4))-dd)>>4);
+		greens.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF) << 8))-dd)>>4);
+		greens.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF) << 8))-dd)>>4);
+		greens.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF0) >> 4))-dd)>>4);
+		greens.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF0) >> 4))-dd)>>4);
+		greens.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF) << 8))-dd)>>4);
+		greens.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF) << 8))-dd)>>4);
+	}
+	else if (typ > 33) {
+		/* stacked mf */
+		greens.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>4);
+		greens.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>4);
+		greens.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>4);
+		greens.push((((view.getUint8((y+1)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>4);
+		greens.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>4);
+		greens.push(((view.getUint8((y+2)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>4);
+		greens.push((((view.getUint8((y+3)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>4);
+		greens.push((((view.getUint8((y+3)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>4);
 	}
 	else if (typ > 1) {
 		greens.push(view.getUint8(y*w + x + 1));
-		greens.push(view.getUint8(y*w + x + w));
 		greens.push(view.getUint8(y*w + x + 3));
-		greens.push(view.getUint8(y*w + x + 2 + w));
-		greens.push(view.getUint8(y*w + x + 2*w + 1));
-		greens.push(view.getUint8(y*w + x + 3*w));
-		greens.push(view.getUint8(y*w + x + 2*w + 3));
-		greens.push(view.getUint8(y*w + x + 3*w + 2));
+		greens.push(view.getUint8((y+1)*w + x));
+		greens.push(view.getUint8((y+1)*w + x + 2));
+		greens.push(view.getUint8((y+2)*w + x + 1));
+		greens.push(view.getUint8((y+2)*w + x + 3));
+		greens.push(view.getUint8((y+3)*w + x));
+		greens.push(view.getUint8((y+3)*w + x + 2));
 	} else {
 		greens.push(view.getUint8(y*w + x));
-		greens.push(view.getUint8(y*w + x + w + 1));
 		greens.push(view.getUint8(y*w + x + 2));
-		greens.push(view.getUint8(y*w + x + 3 + w));
-		greens.push(view.getUint8(y*w + x + 2*w));
-		greens.push(view.getUint8(y*w + x + 3*w +1));
-		greens.push(view.getUint8(y*w + x + 2*w + 2));
-		greens.push(view.getUint8(y*w + x + 3*w + 3));
+		greens.push(view.getUint8((y+1)*w + x + 1));
+		greens.push(view.getUint8((y+1)*w + x + 3));
+		greens.push(view.getUint8((y+2)*w + x));
+		greens.push(view.getUint8((y+2)*w + x + 2));
+		greens.push(view.getUint8((y+3)*w + x + 1));
+		greens.push(view.getUint8((y+3)*w + x + 3));
 	}
 	greens.sort(function(a,b) { return a - b; });
 	outrgb.push((greens[3] + greens[4]) / 2.0);
 	let blues = [];
-	if (typ == 5) {
-		blues.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-240)/16);
-		blues.push((((view.getUint8((y+1)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-240)/16);
-		blues.push((((view.getUint8((y+3)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-240)/16);
-		blues.push((((view.getUint8((y+3)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-240)/16);
+	if (typ == 5 || typ == 33) {
+		blues.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>4);
+		blues.push((((view.getUint8((y+1)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>4);
+		blues.push((((view.getUint8((y+3)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>4);
+		blues.push((((view.getUint8((y+3)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>4);
+	}
+	else if (typ > 33) {
+		blues.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>4);
+		blues.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>4);
+		blues.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>4);
+		blues.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>4);
 	}
 	else if (typ > 1) {
 		blues.push(view.getUint8(y*w + x));
 		blues.push(view.getUint8(y*w + x + 2));
-		blues.push(view.getUint8(y*w + x + 2*w));
-		blues.push(view.getUint8(y*w + x + 2*w + 2));
+		blues.push(view.getUint8((y+2)*w + x));
+		blues.push(view.getUint8((y+2)*w + x + 2));
 	} else {
 		blues.push(view.getUint8((y+1)*w + x));
 		blues.push(view.getUint8((y+1)*w + x + 2));
-		blues.push(view.getUint8((y+1)*w + x + 2*w));
-		blues.push(view.getUint8((y+1)*w + x + 2*w + 2));
+		blues.push(view.getUint8((y+3)*w + x));
+		blues.push(view.getUint8((y+3)*w + x + 2));
 	}
 	blues.sort(function(a,b) { return a - b; });
 	outrgb.push((blues[1] + blues[2]) / 2.0);
@@ -24919,6 +25069,8 @@ buildpvarray: function(view, typ, w, h, orientation, scale, wb) {
 	let rowiterstart, rowiterend;
 	let coliterstart, coliterend;
 	let transpose = false;
+	if (typ === 5 && orientation === 0)
+		orientation = 3;
 	if (orientation === 3) {
 		rowiterstart = -1*(h8 -1);
 		rowiterend = 1;
@@ -24959,24 +25111,19 @@ buildpvarray: function(view, typ, w, h, orientation, scale, wb) {
 	}
 	// cut off top and bottom 7%
 	let cntx = 0, allmin = 0, allmax = 255;
-	while (cntx < (cnt * 0.07))
+	while (cntx < (cnt * 0.03))
 		cntx += hist[allmin++];
-	allmin --;
+	if (allmin > 0) allmin --;
 	cntx = 0;
-	while (cntx < (cnt * 0.07))
+	while (cntx < (cnt * 0.03))
 		cntx += hist[allmax--];
-	allmax++;
+	if (allmax < 255) allmax++;
 	let fact;
-	if (allmax > 247 && allmin < 8) fact = 1;
-	/*else if (allmax - allmin < 33) {
-		const d = ((255-33-allmin)/2)
-		if (allmin < 255-33) {
-			allmin += d;
-			allmax += d;
-		}
-		fact = 8;
-	}*/
-	else fact = 240/(allmax - allmin);
+	if (allmax > 247 && allmin < 8) {
+		fact = 1;
+		allmin = 0;
+	}
+	else fact = 245/(allmax - allmin);
 	//console.log('ai ' + allmin + ' aa ' + allmax + ' ff ' + fact);
 	const o = scale ? 3 : 4;
 	const uic = new Uint8ClampedArray(h8 * w8 * o);
@@ -25034,7 +25181,7 @@ adjurl: function(url) {
 <script type="text/js-previewworker" language="javascript">
 /* *************************************** Main class for WORKER *************************************** */
 let cmd, n, cache, ori, fl, base, msg = false;
-let progress = false, queue = [], wdtimer, currcust, dbgflag = true,	errcount = 0, constwb = false;
+let progress = false, queue = [], wdtimer, currcust, dbgflag,	errcount = 0, constwb = false;
 /* WORKER onmessage */
 onmessage = (e) => {
 	//console.log('WORKER received ' + e.data.cmd);
@@ -25064,10 +25211,11 @@ onmessage = (e) => {
 		console.log('WORKER SEEMS OK');
 		msg = true;
 	}
+	/*eslint no-fallthrough: ["error", { "commentPattern": "no break" }]*/
 	switch (cmd) {
 	case 'seturl':
 		base = e.data.url;
-		// NO break;
+		// no break;
 	case 'watchdog':
 		progress = cmd;
 		watchdog();
@@ -25103,11 +25251,11 @@ onmessage = (e) => {
 };
 /* WORKER: handle communication */
 function resolver(url, preview, notfirst)  {
-	let e = url;
+	let e = url, ori = 0;
 	if (url.url) {
 		e = url;
 		url = e.url;
-		//rot = e.rot;
+		ori = e.rot;
 	}
 	let fx = {
 		imbackextension: true,
@@ -25219,7 +25367,7 @@ function buildpreview(f, orientation) {
 		//console.log(JSON.stringify(wb));
 		let outpix = globals.buildpvarray(view, typ, w, h, orientation, false, wb);
 		// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
-		postMessage({ cmd: cmd, pix: outpix, n: n, o: ori, c: cache });
+		postMessage({ cmd: cmd, pix: outpix, n: n, o: ori, c: cache, xori: (typ === 5 && ori === 0) ? 3 : ((ori === 0) ? 1 : ori) });
 		handlewait();
 	};
 	reader.onerror = (/*evt*/) => {
@@ -25257,7 +25405,7 @@ function buildpreviewcache(f, orientation) {
 		}, 300);
 	}
 	else*/ {
-		postMessage({ cmd: cmd, pix: outpix, n: n, o: ori, c: cache });
+		postMessage({ cmd: cmd, pix: outpix, n: n, o: ori, c: cache, xori: (typ === 5 && ori === 0) ? 3 : ((ori === 0) ? 1 : ori) });
 		handlewait();
 	}
 }
@@ -25350,14 +25498,6 @@ function custcmdi(c, t, restargs, cb, results) {
 		xhr.responseType = 'arraybuffer';
 		xhr.send();
 	}
-	/*else if (thecmd === 3015 && dbgflag) {
-		setTimeout(() => {
-			xhr.open('GET', base + '/?custom=1&cmd=' + thecmd + (therest ? ('&'  + therest): ''));
-			xhr.setRequestHeader('Cache-control','no-cache, no-store, max-age=0');
-			xhr.responseType = 'arraybuffer';
-			xhr.send();
-		}, 30000);
-	}*/
 	else {
 		xhr.open('GET', base+ '/i' + thecmd + '.xml' + (therest ? ('?'  + therest): ''));
 		xhr.setRequestHeader('Cache-control','no-cache, no-store, max-age=0');
@@ -25368,15 +25508,15 @@ function custcmdi(c, t, restargs, cb, results) {
 /* WORKER read local jpeg */
 function readjpg(file) {
 	// read jpeg file for preview
-	const fr = new FileReader();
+	const fr = file.imbackextension ? file : new FileReader();
 	fr.onload = (evt) => {
 		let contents = evt.target.result;
 		contents = 'data:image/jpeg;' + contents.substring(8);
 		/* shown in onload of img */
-		postMessage({ cmd: cmd, ok: true, c: contents });
+		postMessage({ cmd: 'readjpg', ok: true, c: contents });
 	}
 	fr.onerror = (evt) => {
-		postMessage({ cmd: cmd, ok: false });
+		postMessage({ cmd: 'readjpg', ok: false, evt: evt.toString() });
 	}
 	fr.readAsDataURL(file);
 }
@@ -25438,8 +25578,9 @@ function readjpg(file) {
 <div class="igxtype">
 <div style="display:none;"><input type="checkbox" id="usezip" onchange="imbc.dirtysettings()"> <label for="usezip" data-myxlkey="main.usezip" id="useziplbl"></label></div>
 <div><input type="checkbox" onchange="imbc.chgoverwrite()" id="dooverwrite"> <label for="dooverwrite" data-myxlkey="process.dooverwrite"></div>
+<div><input type="checkbox" id="autotime" onchange="imbc.dirtysettings()"> <label for="autotime" data-myxlkey="app.autotime"> </label></div>
 <div><span data-myxlkey="app.onexit"></span> <select id="exitsel" onchange="imbc.chgexit();"><option value="photo" data-myxlkey="app.exitphoto"> </option><option value="movie" data-myxlkey="app.exitmovie"> </option><option value="browse" data-myxlkey="app.exitbrowse"> </option></select></div>
-<div><span data-myxlkey="app.lang"></span> <select id="langsel" onchange="imbc.setlang()"><option value="99" onclick="imbc.setlang()">AUTO</option><option value="de" onclick="imbc.setlang()">DE</option><option value="en" selected onclick="imbc.setlang()">EN</option>
+<div><span data-myxlkey="app.lang"></span> <select id="langsel" onchange="imbc.setlang()"><option value="99" onclick="imbc.setlang()">ImB</option><option value="de" onclick="imbc.setlang()">DE</option><option value="en" selected onclick="imbc.setlang()">EN</option>
 <option value="ja" onclick="imbc.setlang()">JA</option><option value="fr" onclick="imbc.setlang()">FR</option><!--option value="ru" onclick="imbc.setlang()">RU</option--></select></div>
 </div>
 </div>
@@ -25461,10 +25602,10 @@ function readjpg(file) {
 <span class="grtit ggttminus" onclick="ImBCHtml.closep(this);"> DNG </span>
 </div>
 <div class="igxtype">
-<div ><input type="checkbox" id="dngpreview" checked onchange="imbc.chgdngpreview()"> <label for="dngpreview" data-myxlkey="process.addpreview"></label></div>
-<div ><input type="checkbox" id="oldstylewb" onchange="imbc.dirtysettings()"> <label for="oldstylewb" style="background-color: #ffffcc;" data-myxlkey="process.oldstylewb"></label></div>
-<div ><input type="checkbox" id="incdcp" checked onchange="imbc.dirtysettings()"> <label for="incdcp" style="background-color: #ffffcc;" data-myxlkey="process.includedcp"></label></div>
 <div ><input type="checkbox" id="copycheck" onchange="imbc.chgcopycheck()"> <label for="copycheck" data-myxlkey="process.addcopyright"></label> <input onchange="imbc.dirtysettings()" type="text" id="copytext"></input></div>
+<div ><input type="checkbox" id="dngpreview" checked onchange="imbc.chgdngpreview()"> <label for="dngpreview" data-myxlkey="process.addpreview"></label></div>
+<div ><input type="checkbox" id="oldstylewb" onchange="imbc.dirtysettings()"> <label for="oldstylewb" data-myxlkey="process.oldstylewb"></label></div>
+<div ><input type="checkbox" id="incdcp" checked onchange="imbc.dirtysettings()"> <label for="incdcp" data-myxlkey="process.includedcp"></label></div>
 </div>
 </div>
 <div  style="margin-top: 0.5em;" id="genadvice" data-myxlkey="main.generaladvice"></div>
@@ -25526,7 +25667,7 @@ function readjpg(file) {
 <input type="button" class="uhbtn moviesym" value="&#x1f4fd;" id="tomov" onclick="imbc.dispmode=1;imbc.showmovie();imbc.closeham();" style="font-family:Symbol3;font-weight:normal;">
 <input type="button" class="uhbtn foldersym" value="&#x1f5c2;" id="toloc" onclick="imbc.dispmode=3;imbc.showlocal();imbc.closeham();" style="font-family:Symbol3;">
 <span class="whbtn disconnected" style="padding-left:0.4em;padding-right:0.4em;display:none;"> ! &#x1f593; ! &#x1f5be; ! </span>
-<input type="button" data-myvalxlkey="app.install" class="whbtn" onclick="if (bfep) bfep.prompt(); bpef=null; this.style['display']='none';" id="installbutton" style="display:none;font-weight:bold;position:absolute; right:0.5em;">
+<!--input type="button" data-myvalxlkey="app.install" class="whbtn" onclick="if (bfep) bfep.prompt(); bpef=null; this.style['display']='none';" id="installbutton" style="display:none;font-weight:bold;position:absolute; right:0.5em;"-->
 </div>
 <div id="browseselectors" style="margin-bottom:0.3em;font-size:85%;">&nbsp;<span data-myxlkey="main.sort" style="display:none;"></span> <label for="sbytype"><input type="checkbox" id="sbytype" onclick="imbc.buildtree()"><span data-myxlkey="browser.bytype"></span></label> - <label for="solder">
 <input type="checkbox" id="solder" onclick="imbc.buildtree()"><span data-myxlkey="browser.olderfirst"></span></label> -
@@ -25550,7 +25691,7 @@ function readjpg(file) {
 <input type="checkbox" id="fakelongexpscale"> <label for="fakelongexpscale" data-myxlkey="main.fakelong.scale"> </label>
 </div>
 </div>
-<div  style="font-size:133%;margin-top: 0.5em;"><span  data-myxlkey="main.selectrawx"></span>
+<div  style="font-size:133%;margin-top: 0.5em;"><span  data-myxlkey="main.selectrawx"></span> 
 <!--input  type="file" accept=".*" id="infile" name="infile" multiple onchange="imbc.fselected()"-->
 <input  type="button" id="infile" name="infile" multiple onclick="imbc.fselect()" data-myvalxlkey="main.choosefile" value="XX">
 </div><br>

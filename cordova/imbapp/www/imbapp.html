@@ -1121,6 +1121,7 @@ class ImBCBase {
 mylang = 'en';
 withpreview = true;
 dooverwrite = false;
+autotime = false;
 // experimental
 neutral = false;
 copyright = undefined;
@@ -19406,6 +19407,8 @@ parseconfig(data) {
 	if (d.dl) this.dloads = d.dl;
 	if (d.dooverwrite)
 		this.dooverwrite = true;
+	if (d.autotime)
+		this.autotime = true;
 }
 /* ImBCHtmlOut: browserdisplay: put last message viewable */
 showlastmsg() {
@@ -20799,6 +20802,7 @@ dirtysettings() {
 		document.getElementById('settingsset').setAttribute('data-myxlarg0',window.location.origin);
 		document.getElementById('setsettingsurl').setAttribute('data-myxlarg0',window.location.origin);
 	}
+	this.autotime = document.getElementById('autotime').checked;
 	if (this.appname === 'imbapp') this.savesettings();
 }
 /* ImBCHtml: browserdisplay: save settings */
@@ -20829,7 +20833,8 @@ savesettings() {
 					'exitmode': this.exitmode,
 					'maxcache': this.maxcache,
 					'dl': this.dloads,
-					'dooverwrite': this.dooverwrite
+					'dooverwrite': this.dooverwrite,
+					'autotime': this.autotime
 				}
 			));
 		}
@@ -21557,7 +21562,8 @@ checkimb() {
 			this.discknown = true;
 			document.getElementById('genadvice').style['display'] = 'none';
 			ImBCHtml.openp(document.getElementById('imbsettopener'));
-			this.showmain(); //this.loadimgs();
+			this.showmain();
+			if (this.autotime) this.settime();
 		}
 		else {
 			// disconnected?
@@ -21599,6 +21605,7 @@ initsettings() {
 				document.getElementById('setsettingsurl').setAttribute('data-myxlarg0',window.location.origin);
 				document.getElementById('exitsel').value = this.exitmode;
 				document.getElementById('dooverwrite').checked = this.dooverwrite;
+				document.getElementById('autotime').checked = this.autotime;
 			} else {
 				document.getElementById('onlyhttp').style['display'] = 'none';
 				document.getElementById('setsettings').style['display'] = '';
@@ -23129,6 +23136,10 @@ texts: { // actually const
 			en: 'For live view, point media player to <a href="#" window.open(imbc.xl(\'$$0\'), \'_system\'); return false;">$$0</a>',
 			de: 'Für Live Bild, mit Mediaplayer auf <a href="#" window.open(imbc.xl(\'$$0\'), \'_system\'); return false;">$$0</a> gehen',
 			ja: 'ライブ画像については、メディア プレーヤーで <a href="#" window.open(imbc.xl(\'$$0\'), \'_system\'); return false;">$$0</a> にアクセスしてください'
+		},
+		autotime: {
+			en: 'Automatically set ImB Time on connect',
+			de: 'ImB Zeit beim Verbinden automatisch setzen'
 		}
 	}
 },
@@ -25563,8 +25574,9 @@ function readjpg(file) {
 <div class="igxtype">
 <div style="display:none;"><input type="checkbox" id="usezip" onchange="imbc.dirtysettings()"> <label for="usezip" data-myxlkey="main.usezip" id="useziplbl"></label></div>
 <div><input type="checkbox" onchange="imbc.chgoverwrite()" id="dooverwrite"> <label for="dooverwrite" data-myxlkey="process.dooverwrite"></div>
+<div><input type="checkbox" id="autotime" onchange="imbc.dirtysettings()"> <label for="autotime" data-myxlkey="app.autotime"> </label></div>
 <div><span data-myxlkey="app.onexit"></span> <select id="exitsel" onchange="imbc.chgexit();"><option value="photo" data-myxlkey="app.exitphoto"> </option><option value="movie" data-myxlkey="app.exitmovie"> </option><option value="browse" data-myxlkey="app.exitbrowse"> </option></select></div>
-<div><span data-myxlkey="app.lang"></span> <select id="langsel" onchange="imbc.setlang()"><option value="99" onclick="imbc.setlang()">AUTO</option><option value="de" onclick="imbc.setlang()">DE</option><option value="en" selected onclick="imbc.setlang()">EN</option>
+<div><span data-myxlkey="app.lang"></span> <select id="langsel" onchange="imbc.setlang()"><option value="99" onclick="imbc.setlang()">ImB</option><option value="de" onclick="imbc.setlang()">DE</option><option value="en" selected onclick="imbc.setlang()">EN</option>
 <option value="ja" onclick="imbc.setlang()">JA</option><option value="fr" onclick="imbc.setlang()">FR</option><!--option value="ru" onclick="imbc.setlang()">RU</option--></select></div>
 </div>
 </div>
@@ -25586,10 +25598,10 @@ function readjpg(file) {
 <span class="grtit ggttminus" onclick="ImBCHtml.closep(this);"> DNG </span>
 </div>
 <div class="igxtype">
-<div ><input type="checkbox" id="dngpreview" checked onchange="imbc.chgdngpreview()"> <label for="dngpreview" data-myxlkey="process.addpreview"></label></div>
-<div ><input type="checkbox" id="oldstylewb" onchange="imbc.dirtysettings()"> <label for="oldstylewb" style="background-color: #ffffcc;" data-myxlkey="process.oldstylewb"></label></div>
-<div ><input type="checkbox" id="incdcp" checked onchange="imbc.dirtysettings()"> <label for="incdcp" style="background-color: #ffffcc;" data-myxlkey="process.includedcp"></label></div>
 <div ><input type="checkbox" id="copycheck" onchange="imbc.chgcopycheck()"> <label for="copycheck" data-myxlkey="process.addcopyright"></label> <input onchange="imbc.dirtysettings()" type="text" id="copytext"></input></div>
+<div ><input type="checkbox" id="dngpreview" checked onchange="imbc.chgdngpreview()"> <label for="dngpreview" data-myxlkey="process.addpreview"></label></div>
+<div ><input type="checkbox" id="oldstylewb" onchange="imbc.dirtysettings()"> <label for="oldstylewb" data-myxlkey="process.oldstylewb"></label></div>
+<div ><input type="checkbox" id="incdcp" checked onchange="imbc.dirtysettings()"> <label for="incdcp" data-myxlkey="process.includedcp"></label></div>
 </div>
 </div>
 <div  style="margin-top: 0.5em;" id="genadvice" data-myxlkey="main.generaladvice"></div>
