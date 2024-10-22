@@ -81,7 +81,7 @@ Click on `Choose file` and select the `imbapp.htm` you just downloaded. Click `u
 
 ## Usage
 
-You can drag and drop all files from the I'm back (i.e. from the micro SD inserted into your PC or the USB mass storage) into the blue field. It will then copy all non-RAW 
+You can drag and drop all directories or files from the I'm back (i.e. from the micro SD inserted into your PC or the USB mass storage) into the blue field. It will then copy all non-RAW 
 files exactly and convert the RAW files to DNG, replacing the `.raw`/`.RAW` file extension with `.dng`. When you use the `Choose Files` button, you can select RAW files directly. 
 
 Your browser will download them according to its download settings, so it might pop up a dialog where to save it for each file if so configured, or 
@@ -170,7 +170,7 @@ Disadvantages over the APP from ImB:
 - no tough guy looking at you
 
 Differences over the APP from ImB:
-- time on device not set automatically on connect, click menu manually
+- time on device not set automatically on connect, click menu manually (or use Setting to do it automatically)
 
 Advantages over the my classic `imbraw2dng.html` when used on the ImB:
 - can set the time of the ImB

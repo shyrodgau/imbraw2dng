@@ -82,7 +82,7 @@ Neues Browserfenster (oder Registerkarte) verwenden, um auf  [http://192.168.1.2
 
 ## Benutzung
 
-Man kann alle Dateien vom I'm back (also von der in den PC gesteckten micro-SD-Karte oder dem USB Massenspeicher) in das blaue Feld ziehen und ablegen. 
+Man kann alle Verzeichnisse oder Dateien vom I'm back (also von der in den PC gesteckten micro-SD-Karte oder dem USB Massenspeicher) in das blaue Feld ziehen und ablegen. 
 Dann werden nicht-RAW Dateien eins-zu-eins kopiert und die RAW-Dateien nach DNG konvertiert, wobei die `.raw`/`.RAW` Dateiendung 
 durch `.dng` ersetzt wird. 
 Mit der `Choose Files` Schaltfläche können RAW Dateien direkt ausgewählt werden. 
@@ -182,7 +182,7 @@ Nachteile gegenüber APP vom ImB:
 - kein knuffiger Kerl guckt dich an
 
 Unterschiede gegenüber APP von ImB:
-- Zeit wird nicht bei jeder Verbindung einstellt, muss manuell aus Menü gewählt werden
+- Zeit wird nicht bei jeder Verbindung einstellt, muss manuell aus Menü gewählt werden (oder in Einstellungen auf automatisch ändern)
 
 Vorteile gegenüber meinem klassischen `imbraw2dng.html`, wenn es auf ImB benutzt wird:
 - Kann die Zeit auf ImB setzen
