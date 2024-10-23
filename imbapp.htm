@@ -24986,6 +24986,9 @@ function resolver(url, preview, notfirst)  {
 	xhr.setRequestHeader('Cache-control','max-stale');
 	xhr.responseType = 'arraybuffer';
 	xhr.timeout = (!notfirst || notfirst < 10000000) ? 30000 : Math.round(notfirst / 600);
+	if (!preview && (url.substring(url.length -4).toUpperCase() === '.MP4')) {
+		xhr.timeout = -1;
+	}
 	try {
 		xhr.send();
 	} catch (e) {
