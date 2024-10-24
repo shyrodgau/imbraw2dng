@@ -35,7 +35,7 @@ DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS 
 ***************************************************** 
 -->
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src data: http: 192.168.1.254 *; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval'">
+<meta http-equiv="Content-Security-Policy" content="default-src data: 'self' http: 192.168.1.254 *; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval'">
 <meta http-equiv='cache-control' content='no-cache'>
 <meta http-equiv='expires' content='0'>
 <meta http-equiv='pragma' content='no-cache'>
@@ -18240,10 +18240,10 @@ findlang(i) {
 		this.debugflag = true;
 		if (this.previewworker) this.previewworker.postMessage({ cmd: 'setdbg' });
 	}
-	if ('zZ' === i || window?.location.href.startsWith('http://1')) {
+	/*if ('zZ' === i || window?.location.href.startsWith('http://1')) {
 		this.imbweb = window.location.origin;
-		if (this.previewworker) this.previewworker.postMessage({ cmd: 'seturl', url: this.imbweb });
-	}
+	}*/
+	if (this.previewworker) this.previewworker.postMessage({ cmd: 'seturl', url: this.imbweb });
 	if (this.useimblang && this.imblang) {
 		this.mylang = this.imblang;
 		if (!found) this.mylang = 'en';
@@ -18938,14 +18938,28 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 			   }
 				window.resolveLocalFileSystemURL(cordova.file.applicationStorageDirectory, (fs) => {
 					this.rootfsx = fs;
-					this.writefile(name, type, okmsg, arr1, origname);
+					let rr = this.rootfsx.createReader();
+					rr.readEntries((ee) => {
+						//console.log('ROK ' + ee.toString());
+						for (const e of ee) {
+							if (e.isFile) e.remove();
+						}
+						this.writefile(name, type, okmsg, arr1, origname);
+					}, (ee) => {
+						console.log('RNOK ' + ee.toString());
+						this.writefile(name, type, okmsg, arr1, origname);
+					});
 				});
 		   }).catch((e) => {
 			   console.log('Unexp ' + JSON.stringify(e));
 			   this.rootfs = undefined;
 			   this.mappx(false, 'words.error');
-			   this.appmsgxl(0, 'process.errsave', name);
-			   this.appmsg(JSON.stringify(e), true);
+			   if (origname.substring(origname.length -4).toUpperCase() === '.MP4') {
+				   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + '/IMBACK/MOVIE/' + origname);
+			   } else {
+			   	   this.appmsgxl(0, 'process.errsave', name);
+			   	   this.appmsg(JSON.stringify(e), true);
+			   }
 			   this.stats.error ++;
 			   this.handlenext();
 		   });
@@ -18953,8 +18967,12 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 		   console.log('Unexp 2 ' + JSON.stringify(e));
 		   this.rootfs = undefined;
 		   this.mappx(false, 'words.error');
-		   this.appmsgxl(0, 'process.errsave', name);
-		   this.appmsg(JSON.stringify(e), true);
+		   if (origname.substring(origname.length -4).toUpperCase() === '.MP4') {
+			   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + '/IMBACK/MOVIE/' + origname);
+		   } else {
+			   this.appmsgxl(0, 'process.errsave', name);
+			   this.appmsg(JSON.stringify(e), true);
+		   }
 		   this.stats.error ++;
 		   this.handlenext();
 		};
@@ -19003,16 +19021,24 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 			   	   }
 				   console.log("catch Failed file write 2: " + e.toString());
 				   this.mappx(false, 'words.error');
-				   this.appmsgxl(0, 'process.errsave', name);
-				   this.appmsg(JSON.stringify(e), true);
+				   if (origname.substring(origname.length -4).toUpperCase() === '.MP4') {
+					   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + '/IMBACK/MOVIE/' + origname);
+				   } else {
+					   this.appmsgxl(0, 'process.errsave', name);
+					   this.appmsg(JSON.stringify(e), true);
+				   }
 				   this.stats.error++;
 				   this.handlenext();
 			   });
 			   }, (e) => { /* on error */
 				   console.log("Failed file write: " + e.toString());
 				   this.mappx(false, 'words.error');
-				   this.appmsgxl(0, 'process.errsave', name);
-				   this.appmsg(JSON.stringify(e), true);
+				   if (origname.substring(origname.length -4).toUpperCase() === '.MP4') {
+					   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + '/IMBACK/MOVIE/' + origname);
+				   } else {
+					   this.appmsgxl(0, 'process.errsave', name);
+					   this.appmsg(JSON.stringify(e), true);
+				   }
 				   fileEntry.remove();
 				   this.stats.error++;
 				   this.handlenext();
@@ -19021,8 +19047,12 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 	}, (e) => {
 		console.log('Error root get file ' + JSON.stringify(e));
 		this.mappx(false, 'words.error');
-		this.appmsgxl(0, 'process.errsave', name);
-		this.appmsg(JSON.stringify(e), true);
+	    if (origname.substring(origname.length -4).toUpperCase() === '.MP4') {
+		   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + '/IMBACK/MOVIE/' + origname);
+	    } else {
+			this.appmsgxl(0, 'process.errsave', name);
+			this.appmsg(JSON.stringify(e), true);
+		}
 		this.stats.error++;
 		this.handlenext();
 	});
@@ -19243,12 +19273,12 @@ handleonex() {
 			}
 			else {
 				// simply set image src
-				document.getElementById('jpegpreview').src = globals.adjurl(f)+'?custom=1&cmd=4001';
+				document.getElementById('jpegpreview').src = this.imbweb + globals.adjurl(f)+'?custom=1&cmd=4001';
 			}
 		}
 		else if (rawname.substring(rawname.length -4).toUpperCase() === '.MP4') {
 			// simply set image src
-			document.getElementById('jpegpreview').src = globals.adjurl(f)+'?custom=1&cmd=4001';
+			document.getElementById('jpegpreview').src = this.imbweb + globals.adjurl(f)+'?custom=1&cmd=4001';
 			this.#qappx('main.file', rawname);
 		}
 		else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
@@ -20570,7 +20600,7 @@ topreccheck(force) {
 			return;
 		}
 		else
-			to.preview.src = globals.adjurl(url) + '?custom=1&cmd=4001';
+			to.preview.src = this.imbweb + globals.adjurl(url) + '?custom=1&cmd=4001';
 	}
 	else {
 		let afterloadcalled = false;
@@ -21333,14 +21363,14 @@ checkimb() {
 	document.getElementById('dbgcache').value = this.maxcache;
 	let imblang = '';
 	this.imblang = false;
-	if (window.location.origin.startsWith('https') || window.location.origin.startsWith('file')) {
+	/*if (window.location.origin.startsWith('https') || window.location.origin.startsWith('file')) {
 		this.disknown = true;
 		this.disconnected = false;
 		this.showdisconnect();
 		this.showmain();
 		this.xlateall();
 		return;
-	}
+	}*/
 	const ll = '00' === this.mylang ? 'en' : this.mylang;
 	this.custcmd([3012, 3024, [3001, 'par=2'], 3017, 2016, [2015, 'par=0'], 3014, [2015, 'par=1'], [3031, 'str=all'],  3030, 2019  ], 'document', null, (rc0, doc0) => {
 		if (0 <= rc0) {
@@ -21875,8 +21905,8 @@ appinfo() {
 	<a href="#" onclick="window.open('https://github.com/cyph/cordova-plugin-chooser/','_system'); return false;">Chooser</a>,
 	<a href="#" onclick="window.open('https://github.com/torsten-simon/cordova-plugin-intent/','_system'); return false;">Intent</a>,
 	<a href="#" onclick="window.open('https://github.com/shyrodgau/cordova-plugin-saf-mediastore/','_system'); return false;">SafMediastore</a><br>Based on work by Michele Asciutti from the ImBack User Group.</span>
-	<br><a href="/res/LICENSE.txt">License Info:</a>
-	<br><iframe src="/res/LICENSE.txt" id="liciframe" style="width: 100%;">`;
+	<br><a href="http://localhost/res/LICENSE.txt">License Info:</a>
+	<br><iframe src="http://localhost/res/LICENSE.txt" id="liciframe" style="width: 100%;">`;
 	setTimeout(() => {
 		frames['liciframe'].contentDocument.head.innerHTML += ('<style type="text/css">*{font-size:5px;}</style>');
 	}, 100);
@@ -21894,7 +21924,7 @@ takephoto() {
 			if (!n) return;
 			const r = ImBCBase.basename(n);
 			if (r.substring(r.length -4).toUpperCase() === '.JPG') {
-				document.getElementById('takejpg').src = globals.adjurl(n) +'?custom=1&cmd=4001';
+				document.getElementById('takejpg').src = this.imbweb + globals.adjurl(n) +'?custom=1&cmd=4001';
 				document.getElementById('takejpg').style['display'] = '';
 				document.getElementById('takenone').style['display'] = 'none';
 				document.getElementById('takeerr').style['display'] = 'none';
@@ -22042,7 +22072,7 @@ copytoimb() {
    };
    xhr.onabort = (evt) => { xhr.onerror(evt, 'abort'); };
    xhr.ontimeout = (evt) => { xhr.onerror(evt, 'timeout'); };
-   xhr.open('GET', this.imbweb + '/res/imbapp.htm');
+   xhr.open('GET', 'http://localhost/res/imbapp.htm');
    xhr.setRequestHeader('Cache-control','max-stale');
    xhr.timeout = 30000;
    try {
@@ -22646,6 +22676,12 @@ texts: { // actually const
 			en: 'Could not write file $$0',
 			fr: 'Impossible d\'écrire le fiche $$0.',
 			ja: 'ファイル $$0 に書き込めませんでした'
+		},
+		errsavetrybrowser: {
+			de: 'Konnte Datei $$0 nicht speichern. <br><a href="#" onclick="window.open(\'$$1\', \'_system\'); return false;">Herunterladen über Browser versuchen</a>',
+			en: 'Could not write file $$0. <br><a href="#" onclick="window.open(\'$$1\', \'_system\'); return false;">Try download via Browser</a>',
+			fr: 'Impossible d\'écrire le fiche $$0. <br><a href="#" onclick="window.open(\'$$1\', \'_system\'); return false;">Try download via Browser</a>',
+			ja: 'ファイル $$0 に書き込めませんでした <br><a href="#" onclick="window.open(\'$$1\', \'_system\'); return false;">Try download via Browser</a>'
 		},
 		droppedn: {
 			de: '$$0 Datei(en) wurden abgelegt.',
@@ -25490,19 +25526,17 @@ function custcmdi(c, t, restargs, cb, results) {
 	if (undefined === base) {
 		handlewait();
 		cb({ cmd: 'custcmd', ok: false, rc: -1, cmds: currcust });
+		return;
 	}
 	else if (base.startsWith('http://192.168.1.254')) {
 		xhr.open('GET', base + '/?custom=1&cmd=' + thecmd + (therest ? ('&'  + therest): ''));
-		xhr.setRequestHeader('Cache-control','no-cache, no-store, max-age=0');
-		xhr.responseType = 'arraybuffer';
-		xhr.send();
 	}
 	else {
 		xhr.open('GET', base+ '/i' + thecmd + '.xml' + (therest ? ('?'  + therest): ''));
-		xhr.setRequestHeader('Cache-control','no-cache, no-store, max-age=0');
-		xhr.responseType = 'arraybuffer';
-		xhr.send();
 	}
+	xhr.setRequestHeader('Cache-control','no-cache, no-store, max-age=0');
+	xhr.responseType = 'arraybuffer';
+	xhr.send();
 }
 /* WORKER read local jpeg */
 function readjpg(file) {

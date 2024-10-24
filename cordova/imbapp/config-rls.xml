@@ -6,12 +6,10 @@
     <author email="stefan@hegny.de">
         Stefan Hegny
     </author>
-    <content src="http://192.168.1.254/imbapp.html" />
+    <content src="/imbapp.html" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
     <acces origin="http://192.168.1.254" />
-    <preference name="scheme" value="http" />
-    <preference name="hostname" value="192.168.1.254" />
     <preference name="AndroidPersistentFileLocation" value="Compatibility" />
     <preference name="AndroidXEnabled" value="true" />
     <preference name="AndroidInsecureFileModeEnabled" value="true"/>
