@@ -9,8 +9,7 @@
   <content src="/imbapp-dbg.html"/>
   <allow-intent href="http://*/*"/>
   <allow-intent href="https://*/*"/>
-  <!--acces origin="http://192.168.0.72:8080"/-->
-  <acces origin="http://192.168.8.101:8080"/>
+  <acces origin="*"/>
   <preference name="AndroidPersistentFileLocation" value="Compatibility"/>
   <preference name="AndroidXEnabled" value="true"/>
   <preference name="AndroidInsecureFileModeEnabled" value="true"/>

@@ -18412,7 +18412,7 @@ handleone(orientation) {
 				out[j] = view.getUint8(j);
 			}
 			if (rawname.substring(rawname.length - 4).toUpperCase() === '.JPG') this.xexif(rawname, view);
-			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out, rawname);
+			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out, f.name);
 		}
 		reader.onerror = (evt) => {
 			console.log('Non-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
@@ -18444,7 +18444,7 @@ handleone(orientation) {
 			for (let j=0; j<view.byteLength; j++) {
 				out[j] = view.getUint8(j);
 			}
-			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out, rawname);
+			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out, f.name);
 		}
 		reader.onerror = (evt) => {
 			console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
@@ -18731,7 +18731,7 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config - chunky */
 		ti.addEntry(33421, 'SHORT', [ 2, 2 ]); /* CFA Repeat Pattern Dim */
 		ti.addEntry(33422, 'BYTE', ((typ > 1 && typ < 5) || typ > 33) ? [ 2, 1, 1, 0 ] : [ 1, 0, 2, 1 ]); /* CFA Pattern dep. on MF/35mm*/
-		this.writewrap(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted' + ((this.checkdlfolder && !this.zip) ? 'checkdl' : ''), ti.getData(), rawname);
+		this.writewrap(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted' + ((this.checkdlfolder && !this.zip) ? 'checkdl' : ''), ti.getData(), f.name);
 	};
 	reader.onerror = (evt) => {
 		console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
@@ -19265,15 +19265,15 @@ showlastmsg() {
 }
 /* ImBCHtmlOut: post write ok handler */
 writepostok(name) {
-	const ie = this.imbeles.find((v) => v.raw.toUpperCase() === name.toUpperCase());
+	const ie = this.imbeles.find((v) => v.raw.toUpperCase() === ImBCBase.basename(name).toUpperCase());
 	if (ie) {
 		ie.wasselected = true;
 		if (ie.entry)
 			ie.entry.classList.add('picprocd');
 	}
 	this.stats.ok++;
-	if (-1 === (this.dloads.findIndex(e => (e.toUpperCase() === name.toUpperCase()))))
-		this.dloads.push(name);
+	if (-1 === (this.dloads.findIndex(e => (e.toUpperCase() === ImBCBase.basename(name).toUpperCase()))))
+		this.dloads.push(ImBCBase.basename(name));
 	this.handlenext();
 }
 /* ImBCHtmlOut: after finishing.... */

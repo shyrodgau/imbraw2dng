@@ -18419,7 +18419,7 @@ handleone(orientation) {
 	if (rawname.substring(rawname.length - 4).toUpperCase() !== '.RAW') {
 		if (f.imbackextension && rawname.substring(rawname.length - 4).toUpperCase() !== '.JPG') {
 			this.mappx(0, 'process.notraw',rawname);
-			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), f, rawname);
+			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), f, f.name);
 			return;
 		}
 		const reader = f.imbackextension ? f : new FileReader();
@@ -18436,7 +18436,7 @@ handleone(orientation) {
 				out[j] = view.getUint8(j);
 			}
 			if (rawname.substring(rawname.length - 4).toUpperCase() === '.JPG') this.xexif(rawname, view);
-			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out, rawname);
+			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out, f.name);
 		}
 		reader.onerror = (evt) => {
 			console.log('Non-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
@@ -18468,7 +18468,7 @@ handleone(orientation) {
 			for (let j=0; j<view.byteLength; j++) {
 				out[j] = view.getUint8(j);
 			}
-			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out, rawname);
+			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out, f.name);
 		}
 		reader.onerror = (evt) => {
 			console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
@@ -18755,7 +18755,7 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config - chunky */
 		ti.addEntry(33421, 'SHORT', [ 2, 2 ]); /* CFA Repeat Pattern Dim */
 		ti.addEntry(33422, 'BYTE', ((typ > 1 && typ < 5) || typ > 33) ? [ 2, 1, 1, 0 ] : [ 1, 0, 2, 1 ]); /* CFA Pattern dep. on MF/35mm*/
-		this.writewrap(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted' + ((this.checkdlfolder && !this.zip) ? 'checkdl' : ''), ti.getData(), rawname);
+		this.writewrap(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted' + ((this.checkdlfolder && !this.zip) ? 'checkdl' : ''), ti.getData(), f.name);
 	};
 	reader.onerror = (evt) => {
 		console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
@@ -18769,7 +18769,7 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 }
 /* ImBCBase: wrapper for zip output */
 writewrap(name, type, okmsg, arr1, origname) {
-	if (this.zip) {
+	/*if (this.zip) {
 		this.zip.add(arr1, name, () => {
 			this.mappx(true, okmsg, name);
 			if (this.zipdata && this.zipdata.length > ImBCHtml.zipmax) {
@@ -18787,7 +18787,7 @@ writewrap(name, type, okmsg, arr1, origname) {
 			}
 			else this.writepostok(origname);
 		});
-	} else
+	} else*/
 		this.writefile(name, type, okmsg, arr1, origname);
 }
 /* ImBCBase: handle one entry from imb PHOTO/MOVIE listing page */
@@ -18954,11 +18954,11 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 			   console.log('Unexp ' + JSON.stringify(e));
 			   this.rootfs = undefined;
 			   this.mappx(false, 'words.error');
-			   if (origname.substring(origname.length -4).toUpperCase() === '.MP4') {
-				   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + '/IMBACK/MOVIE/' + origname);
+			   if (origname.substring(origname.length -4).toUpperCase() !== '.RAW' || name.substring(name.length -4).toUpperCase() !== '.DNG') {
+				   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + globals.adjurl(origname));
 			   } else {
-			   	   this.appmsgxl(0, 'process.errsave', name);
-			   	   this.appmsg(JSON.stringify(e), true);
+				   this.appmsgxl(0, 'process.errsave', name);
+				   this.appmsg(JSON.stringify(e), true);
 			   }
 			   this.stats.error ++;
 			   this.handlenext();
@@ -18967,8 +18967,8 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 		   console.log('Unexp 2 ' + JSON.stringify(e));
 		   this.rootfs = undefined;
 		   this.mappx(false, 'words.error');
-		   if (origname.substring(origname.length -4).toUpperCase() === '.MP4') {
-			   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + '/IMBACK/MOVIE/' + origname);
+		   if (origname.substring(origname.length -4).toUpperCase() !== '.RAW' || name.substring(name.length -4).toUpperCase() !== '.DNG') {
+			   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + globals.adjurl(origname));
 		   } else {
 			   this.appmsgxl(0, 'process.errsave', name);
 			   this.appmsg(JSON.stringify(e), true);
@@ -19021,8 +19021,8 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 			   	   }
 				   console.log("catch Failed file write 2: " + e.toString());
 				   this.mappx(false, 'words.error');
-				   if (origname.substring(origname.length -4).toUpperCase() === '.MP4') {
-					   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + '/IMBACK/MOVIE/' + origname);
+				   if (origname.substring(origname.length -4).toUpperCase() !== '.RAW' || name.substring(name.length -4).toUpperCase() !== '.DNG') {
+					   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + globals.adjurl(origname));
 				   } else {
 					   this.appmsgxl(0, 'process.errsave', name);
 					   this.appmsg(JSON.stringify(e), true);
@@ -19033,8 +19033,8 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 			   }, (e) => { /* on error */
 				   console.log("Failed file write: " + e.toString());
 				   this.mappx(false, 'words.error');
-				   if (origname.substring(origname.length -4).toUpperCase() === '.MP4') {
-					   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + '/IMBACK/MOVIE/' + origname);
+				   if (origname.substring(origname.length -4).toUpperCase() !== '.RAW' || name.substring(name.length -4).toUpperCase() !== '.DNG') {
+					   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + globals.adjurl(origname));
 				   } else {
 					   this.appmsgxl(0, 'process.errsave', name);
 					   this.appmsg(JSON.stringify(e), true);
@@ -19047,12 +19047,12 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 	}, (e) => {
 		console.log('Error root get file ' + JSON.stringify(e));
 		this.mappx(false, 'words.error');
-	    if (origname.substring(origname.length -4).toUpperCase() === '.MP4') {
-		   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + '/IMBACK/MOVIE/' + origname);
+	    if (origname.substring(origname.length -4).toUpperCase() !== '.RAW' || name.substring(name.length -4).toUpperCase() !== '.DNG') {
+		   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + globals.adjurl(origname));
 	    } else {
-			this.appmsgxl(0, 'process.errsave', name);
-			this.appmsg(JSON.stringify(e), true);
-		}
+		   this.appmsgxl(0, 'process.errsave', name);
+		   this.appmsg(JSON.stringify(e), true);
+	    }
 		this.stats.error++;
 		this.handlenext();
 	});
@@ -19449,15 +19449,15 @@ showlastmsg() {
 }
 /* ImBCHtmlOut: post write ok handler */
 writepostok(name) {
-	const ie = this.imbeles.find((v) => v.raw.toUpperCase() === name.toUpperCase());
+	const ie = this.imbeles.find((v) => v.raw.toUpperCase() === ImBCBase.basename(name).toUpperCase());
 	if (ie) {
 		ie.wasselected = true;
 		if (ie.entry)
 			ie.entry.classList.add('picprocd');
 	}
 	this.stats.ok++;
-	if (-1 === (this.dloads.findIndex(e => (e.toUpperCase() === name.toUpperCase()))))
-		this.dloads.push(name);
+	if (-1 === (this.dloads.findIndex(e => (e.toUpperCase() === ImBCBase.basename(name).toUpperCase()))))
+		this.dloads.push(ImBCBase.basename(name));
 	this.handlenext();
 }
 /* ImBCHtmlOut: after finishing.... */
@@ -20837,7 +20837,7 @@ dirtysettings() {
 }
 /* ImBCHtml: browserdisplay: save settings */
 savesettings() {
-	if (window.location.origin.startsWith('http') && window.localStorage) {
+	/*if (window.location.origin.startsWith('http') && window.localStorage) {*/
 		try {
 			const copytext = document.getElementById('copytext');
 			const copycheck = document.getElementById('copycheck');
@@ -20872,7 +20872,7 @@ savesettings() {
 			console.log(JSON.stringify(e));
 		}
 		this.initsettings();
-	}
+	/*}*/
 }
 /* ImBCHtml: try lang from node param */
 trylang(i) {
@@ -21608,7 +21608,7 @@ checkimb() {
 }
 /* ImBCHtml: browserdisplay: initialize settings */
 initsettings() {
-	if (window.location.origin.startsWith('http') && window.localStorage) {
+	/*if (window.location.origin.startsWith('http') && window.localStorage) {*/
 		try {
 			let e = window.localStorage.getItem(this.appname + '_json');
 			if (e) {
@@ -21649,11 +21649,11 @@ initsettings() {
 			document.getElementById('settingsset').style['display'] = 'none';
 			this.xlateall();
 		}
-	} else {
+	/*} else {
 		document.getElementById('onlyhttp').style['display'] = '';
 		document.getElementById('setsettings').style['display'] = 'none';
 		document.getElementById('settingsset').style['display'] = 'none';
-	}
+	}*/
 	this.xlateall();
 }
 /* ImBCHtml: find in cache */
