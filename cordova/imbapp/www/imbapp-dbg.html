@@ -3,7 +3,6 @@
 ***************************************************** 
 
 imbapp.html
-/* TEST VERSION USING THE MOBILE APP PROTOCOL - WORKS ONLY WHEN COPIED TO IMBACK MICRO SD */
 
 Convert RAW from I'm back(R)(https://imback.eu) into DNG
 
@@ -18877,6 +18876,168 @@ handle1imb(url, time) {
 		this.appmsgxl(0, 'onimback.strangename', rawname);
 	}
 }
+/* *************************************** Backward helper *************************************** */
+/* ImBCBackw: backward: handle dng like raw */
+parseDng(f, onok, onerr) {
+	// blindly assumes that it is one of our own DNG
+	if (undefined === f.data) {
+		const reader = f.imbackextension ? f : new FileReader();
+		reader.onload = (evt) => {
+			f.data = evt.target.result;
+			this.parseDng(f, onok, onerr);
+		}
+		reader.onerror = () => { onerr(f.name); };
+		reader.readAsArrayBuffer(f);
+		return;
+	}
+	const v = new DataView(f.data);
+	const ifd = TIFFOut.readint(v, 4);
+	const zz = globals.infos.findIndex(v => v.size === ifd - 8);
+	const nent = TIFFOut.readshort(v, ifd);
+	let subifdstart = -1, rawstripstart = -1, datalen = -1;
+	let off = ifd+2;
+	if (TIFFOut.readshort(v, 2) !== 42 || TIFFOut.readshort(v,0) !== 18761 /* 0x4949 */ || zz === -1) {
+		// seek sub ifd then therein the stripoffsets
+		for (let k=0; k<((nent<50)? nent: 0); k++) {
+			let tag = TIFFOut.readshort(v, off);
+			if (tag === 330) {
+				subifdstart = TIFFOut.readint(v, off+8);
+				break;
+			}
+			off += 12;
+		}
+		if (-1 !== subifdstart) {
+			let subnent = TIFFOut.readshort(v, subifdstart);
+			off = subifdstart + 2;
+			for (let j=0; j<((subnent < 50)? subnent: 0); j++) {
+				let stag = TIFFOut.readshort(v, off);
+				if (stag === 273) {
+					rawstripstart = TIFFOut.readint(v, off+8);
+					break;
+				}
+				off += 12;
+			}
+			if (-1 !== rawstripstart) {
+				datalen = subifdstart - rawstripstart;
+				const zzz = globals.infos.findIndex(v => v.size === datalen);
+				if (-1 === zzz) {
+					this.appmsg('Works only for originally created DNGs.', true);
+					return onerr(f.name);
+				}
+			}
+			else {
+				this.appmsg('Works only for originally created DNGs.', true);
+				return onerr(f.name);
+			}
+		}
+		else {
+			this.appmsg('Works only for originally created DNGs.', true);
+			return onerr(f.name);
+		}
+	}
+	else {
+		rawstripstart = 8;
+		datalen = ifd - 8;
+	}
+	let fx = {
+		imbackextension: true,
+		name: f.name.substring(0, f.name.length - 4) + '.raw',
+		size: datalen,
+		data: f.data.slice(rawstripstart, datalen + rawstripstart)
+	};
+	if (-1 !== globals.twelvebitsizes.indexOf(datalen)) {
+		const v = new DataView(fx.data);
+		for (let k=0; k < datalen; k+=3) {
+			let i = v.getUint8(k);
+			v.setUint8(k, v.getUint8(k+2));
+			v.setUint8(k+2, i);
+		}
+	}
+	fx.readAsArrayBuffer = (fy) => {
+		fy.onload({
+				target: { result: fy.data }
+		});
+	};
+	setTimeout(() => {
+			onok(f.name, fx, fx.rot);
+	});
+}
+/* ImBCBackw: backward: actual processing function for one file */
+handleoneback(fx) {
+	const f = (fx !== undefined) ? fx : this.allfiles[this.actnum];
+	if (undefined === f) {
+		this.appmsgxl(true, 'process.nothing');
+		return this.handlenext();
+	}
+	if (undefined === f.size && !f.data) {
+		this.appmsg('Error reading DNG: ' + f.name);
+		if (undefined !== this.exitcode) this.exitcode++;
+		this.stats.error++;
+		this.handlenext();
+		return;
+	}
+	else if (undefined === f.size && f.data) {
+		// from file chooser
+		f.size = f.data.byteLength;
+		f.imbackextension = true;
+		f.readAsArrayBuffer = () => {
+				f.onload({
+						target: {
+							result: f.data
+						}
+				});
+		};
+	}
+	let rawname = ImBCBase.basename(f.name);
+	if (rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
+		this.parseDng(f,
+			(name, fx) => {
+				this.handleoneback(fx);
+			},
+			() => {
+				this.appmsg('Error reading DNG: ' + f.name);
+				if (undefined !== this.exitcode) this.exitcode++;
+				this.stats.error++;
+				this.handlenext();
+			});
+		return;
+	}
+	else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
+		this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
+		this.appmsg('Seems not to be DNG: ' + f.name, true);
+		this.stats.error++;
+		return this.handlenext();
+	}
+	const zz = globals.infos.findIndex(v => v.size === f.size);
+	if (zz !== -1) {
+		this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ");
+		const reader = f.imbackextension ? f : new FileReader();
+		reader.onload = (evt) => {
+			const contents = evt.target.result;
+			const view = new DataView(contents);
+			const out = new Uint8Array(f.size);
+			for (let j=0; j<view.byteLength; j++) {
+				out[j] = view.getUint8(j);
+			}
+			this.writefile(rawname, 'application/octet-stream', 'process.converted', out, f.name);
+		}
+		reader.onerror = (evt) => {
+			console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
+			this.appmsg('Error processing or reading file ' +  f.name, true);
+			this.stats.error++;
+			if (undefined !== this.exitcode) this.exitcode++;
+			this.handlenext();
+		}
+		reader.readAsArrayBuffer(f);
+	} else {
+		this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
+		this.appmsg('Size of raw data of ' + f.name + ' seems not to match known formats, ignoring...', true);
+		this.stats.error++;
+		if (undefined !== this.exitcode) this.exitcode++;
+		this.handlenext();
+	}
+}
+/* *************************************** Backward helper E N D *************************************** */
 /* Indentation in - end of class ImBCBase */
 }
 /* *************************************** BASE class E N D *************************************** */
@@ -18919,6 +19080,8 @@ constructor() {
 }
 /* ImBCHtmlOut: output one thing via browser */
 writefile(name, type, okmsg, arr1, origname, renameidx) {
+	let ext1 = name.substring(name.length -4).toUpperCase();
+	let ext2 = origname.substring(origname.length -4).toUpperCase()
 	if (this.cancelled) this.handlenext();
 	//if (undefined === basename) basename = name;
 	if (undefined === this.rootfs) {
@@ -18955,7 +19118,7 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 			   console.log('Unexp ' + JSON.stringify(e));
 			   this.rootfs = undefined;
 			   this.mappx(false, 'words.error');
-			   if (origname.substring(origname.length -4).toUpperCase() !== '.RAW' || name.substring(name.length -4).toUpperCase() !== '.DNG') {
+			   if (ext1 !== '.RAW' && ext1 !== '.DNG' && ext2 !== '.RAW' && ext2 !== '.DNG') {
 				   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + globals.adjurl(origname));
 			   } else {
 				   this.appmsgxl(0, 'process.errsave', name);
@@ -18968,7 +19131,7 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 		   console.log('Unexp 2 ' + JSON.stringify(e));
 		   this.rootfs = undefined;
 		   this.mappx(false, 'words.error');
-		   if (origname.substring(origname.length -4).toUpperCase() !== '.RAW' || name.substring(name.length -4).toUpperCase() !== '.DNG') {
+		   if (ext1 !== '.RAW' && ext1 !== '.DNG' && ext2 !== '.RAW' && ext2 !== '.DNG') {
 			   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + globals.adjurl(origname));
 		   } else {
 			   this.appmsgxl(0, 'process.errsave', name);
@@ -18979,9 +19142,9 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 		};
 	   return;
 	}
-	
+
 	let iname = ImBCBase.basename(origname ? origname : name)
-	
+
 	let mmv = (fe) => {
 			   cordova.plugins.safMediastore.copyFile({
 					   srcfile: cordova.file.applicationStorageDirectory + '/' + iname,
@@ -19024,7 +19187,7 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 			   	   }
 				   console.log("catch Failed file write 2: " + e.toString());
 				   this.mappx(false, 'words.error');
-				   if (origname.substring(origname.length -4).toUpperCase() !== '.RAW' || name.substring(name.length -4).toUpperCase() !== '.DNG') {
+				   if (ext1 !== '.RAW' && ext1 !== '.DNG' && ext2 !== '.RAW' && ext2 !== '.DNG') {
 					   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + globals.adjurl(origname));
 				   } else {
 					   this.appmsgxl(0, 'process.errsave', name);
@@ -19046,7 +19209,7 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 			   }, (e) => { /* on error */
 				   console.log("Failed file write: " + e.toString());
 				   this.mappx(false, 'words.error');
-				   if (origname.substring(origname.length -4).toUpperCase() !== '.RAW' || name.substring(name.length -4).toUpperCase() !== '.DNG') {
+				   if (ext1 !== '.RAW' && ext1 !== '.DNG' && ext2 !== '.RAW' && ext2 !== '.DNG') {
 					   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + globals.adjurl(origname));
 				   } else {
 					   this.appmsgxl(0, 'process.errsave', name);
@@ -19060,7 +19223,7 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 	}, (e) => {
 		console.log('Error root get file ' + JSON.stringify(e));
 		this.mappx(false, 'words.error');
-	    if (origname.substring(origname.length -4).toUpperCase() !== '.RAW' || name.substring(name.length -4).toUpperCase() !== '.DNG') {
+	    if (ext1 !== '.RAW' && ext1 !== '.DNG' && ext2 !== '.RAW' && ext2 !== '.DNG') {
 		   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + globals.adjurl(origname));
 	    } else {
 		   this.appmsgxl(0, 'process.errsave', name);
@@ -19185,6 +19348,9 @@ starthandleone() {
 		this.totnum = 0;
 		this.afterfinish();
 		return;
+	}
+	else if (this.fromintent === 3) {
+		return this.handleoneback();
 	}
 	/*if (!this.imbcb && window.showSaveFilePicker && false) {
 		// zip with selected file
@@ -19475,7 +19641,7 @@ writepostok(name) {
 }
 /* ImBCHtmlOut: after finishing.... */
 afterfinish() {
-	this.savesettings();
+	if (!this.fromintent) this.savesettings();
 	if (this.zip) {
 		this.zip.finish(() => {
 			if (this.writestream) {
@@ -20149,7 +20315,7 @@ buildtree() {
 		// display not none, check pos
 		let rect = p.getBoundingClientRect();
 		let t = 0;
-		let brh = document.getElementById('browseheader'), brhe = brh?.getBoundingClientRect();
+		let brh = document.getElementById('navheader'), brhe = brh?.getBoundingClientRect();
 		if (brhe) t = brhe.height;
 		if (rect.top < window.innerHeight && rect.bottom > t && rect.width > 0) {
 			// visible
@@ -22106,6 +22272,7 @@ clearcache() {
 	this.savesettings();
 }
 intentinthandler() {
+	this.fromintent = 1;
 	if (this.allfiles.length > 1) {
 		// only DNG for mode 2, stack?
 		let onlydng = true;
@@ -22121,7 +22288,6 @@ intentinthandler() {
 		if (this.allfiles[0].name.substring(this.allfiles[0].name.length -4).toUpperCase() === '.DNG') {
 			// backward goes loose
 			this.fromintent = 3;
-//			return;
 		}
 	}
 	this.checkchecks();
@@ -22132,11 +22298,10 @@ intentinthandler() {
 	this.rotphase ++;
 	document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ';
 	this.topreccheck(false);
-	this.fromintent = true;
 	this.starthandleone();
 }
 intenthandler(intent) {
-	this.disknown = true;
+	this.discknown = true;
 	this.disconnected = false;
 	this.showdisconnect();
     document.getElementById('imbdoit').disabled = true;
