@@ -3,7 +3,6 @@
 ***************************************************** 
 
 imbapp.html
-/* TEST VERSION USING THE MOBILE APP PROTOCOL - WORKS ONLY WHEN COPIED TO IMBACK MICRO SD */
 
 Convert RAW from I'm back(R)(https://imback.eu) into DNG
 
@@ -18918,6 +18917,8 @@ constructor() {
 }
 /* ImBCHtmlOut: output one thing via browser */
 writefile(name, type, okmsg, arr1, origname, renameidx) {
+	let ext1 = name.substring(name.length -4).toUpperCase();
+	let ext2 = origname.substring(origname.length -4).toUpperCase()
 	if (this.cancelled) this.handlenext();
 	//if (undefined === basename) basename = name;
 	if (undefined === this.rootfs) {
@@ -18954,7 +18955,7 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 			   console.log('Unexp ' + JSON.stringify(e));
 			   this.rootfs = undefined;
 			   this.mappx(false, 'words.error');
-			   if (origname.substring(origname.length -4).toUpperCase() !== '.RAW' || name.substring(name.length -4).toUpperCase() !== '.DNG') {
+			   if (ext1 !== '.RAW' && ext1 !== '.DNG' && ext2 !== '.RAW' && ext2 !== '.DNG') {
 				   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + globals.adjurl(origname));
 			   } else {
 				   this.appmsgxl(0, 'process.errsave', name);
@@ -18967,7 +18968,7 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 		   console.log('Unexp 2 ' + JSON.stringify(e));
 		   this.rootfs = undefined;
 		   this.mappx(false, 'words.error');
-		   if (origname.substring(origname.length -4).toUpperCase() !== '.RAW' || name.substring(name.length -4).toUpperCase() !== '.DNG') {
+		   if (ext1 !== '.RAW' && ext1 !== '.DNG' && ext2 !== '.RAW' && ext2 !== '.DNG') {
 			   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + globals.adjurl(origname));
 		   } else {
 			   this.appmsgxl(0, 'process.errsave', name);
@@ -18979,11 +18980,11 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 	   return;
 	}
 
-	this.rootfsx.getFile(name, { create: true , exclusive: false }, (fileEntry) => {
-		fileEntry.createWriter((fileWriter) => {
-		   this.writeslice(fileWriter, name, (arr1.imbackextension ? arr1.data : arr1.buffer), () => { /* on ok */
+	let iname = ImBCBase.basename(origname ? origname : name)
+
+	let mmv = (fe) => {
 			   cordova.plugins.safMediastore.copyFile({
-					   srcfile: cordova.file.applicationStorageDirectory + '/' + name,
+					   srcfile: cordova.file.applicationStorageDirectory + '/' + iname,
 					   filename: name,
 					   folder: this.rootfs /*, subFolder: this.subdir*/,
 					   overwrite: this.dooverwrite
@@ -18994,13 +18995,14 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 				   this.appmsgxl(0, okmsg, name);
 				   if (undefined !== renameidx) this.appmsgxl(true, 'node.renamed');
 				   else this.appmsg('');
-				   fileEntry.remove();
+				   fe.remove();
 				   if (type !== 'application/zip')
 						   this.writepostok(origname);
 			   }).catch((e) => {
-		   	   	   fileEntry.remove();
+			   	   //fe.remove();
 			   	   if ('File exists' === e) {
 						if (undefined !== renameidx) {
+							console.log('EEXIST N ');
 							let newname = name;
 							const ldot = name.lastIndexOf('.');
 							const lunder = name.lastIndexOf('_');
@@ -19012,6 +19014,7 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 							this.writefile(newname, type, okmsg, arr1, origname, renameidx + 1);
 						}
 						else {
+							console.log('EEXIST 1 ');
 							let newname = name;
 							const ldot = name.lastIndexOf('.');
 							newname = name.substring(0, ldot) + '_001.' + name.substring(ldot + 1);
@@ -19021,7 +19024,7 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 			   	   }
 				   console.log("catch Failed file write 2: " + e.toString());
 				   this.mappx(false, 'words.error');
-				   if (origname.substring(origname.length -4).toUpperCase() !== '.RAW' || name.substring(name.length -4).toUpperCase() !== '.DNG') {
+				   if (ext1 !== '.RAW' && ext1 !== '.DNG' && ext2 !== '.RAW' && ext2 !== '.DNG') {
 					   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + globals.adjurl(origname));
 				   } else {
 					   this.appmsgxl(0, 'process.errsave', name);
@@ -19030,10 +19033,20 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 				   this.stats.error++;
 				   this.handlenext();
 			   });
+	}
+
+	this.rootfsx.getFile(iname, { create: true , exclusive: false }, (fileEntry) => {
+		if (undefined !== renameidx) {
+			return mmv(fileEntry);
+		}
+		fileEntry.createWriter((fileWriter) => {
+		   this.writeslice(fileWriter, iname, (arr1.imbackextension ? arr1.data : arr1.buffer), () => { /* on ok */
+		   	    //console.log('sliced ');
+		   	   	mmv(fileEntry);
 			   }, (e) => { /* on error */
 				   console.log("Failed file write: " + e.toString());
 				   this.mappx(false, 'words.error');
-				   if (origname.substring(origname.length -4).toUpperCase() !== '.RAW' || name.substring(name.length -4).toUpperCase() !== '.DNG') {
+				   if (ext1 !== '.RAW' && ext1 !== '.DNG' && ext2 !== '.RAW' && ext2 !== '.DNG') {
 					   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + globals.adjurl(origname));
 				   } else {
 					   this.appmsgxl(0, 'process.errsave', name);
@@ -19047,7 +19060,7 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 	}, (e) => {
 		console.log('Error root get file ' + JSON.stringify(e));
 		this.mappx(false, 'words.error');
-	    if (origname.substring(origname.length -4).toUpperCase() !== '.RAW' || name.substring(name.length -4).toUpperCase() !== '.DNG') {
+	    if (ext1 !== '.RAW' && ext1 !== '.DNG' && ext2 !== '.RAW' && ext2 !== '.DNG') {
 		   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + globals.adjurl(origname));
 	    } else {
 		   this.appmsgxl(0, 'process.errsave', name);
@@ -20136,7 +20149,7 @@ buildtree() {
 		// display not none, check pos
 		let rect = p.getBoundingClientRect();
 		let t = 0;
-		let brh = document.getElementById('browseheader'), brhe = brh?.getBoundingClientRect();
+		let brh = document.getElementById('navheader'), brhe = brh?.getBoundingClientRect();
 		if (brhe) t = brhe.height;
 		if (rect.top < window.innerHeight && rect.bottom > t && rect.width > 0) {
 			// visible
