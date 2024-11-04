@@ -18010,8 +18010,7 @@ U0r2UddZ/4hfTNaTdoyJ5R8h8YTb7h7lS+8GPfnrKf5lQ9A/vLP4R8kZ0xf2Y/6+
 GnL2aPdT/nlytmNnoCgzgJw5KL1PkVEe8vesq9nMsZCD5JuyZoaQ8xa1NuxnAoqB
 z2CRSOZ9FpRzj3ISs/8I2NXQI/nMlxVkzujoDcafhTpWPH7CRJE9dvJHdzGWCqAL
 j0uw5WTtMHd/CHsnHDioef5kIslcm37GJ6ZuBejdb0XYCyRehecrzqovAz+QHSfC
-/kTwbP72GsaRnIf+AYswS+zJWd6b7syd8w04/z+gyxV+4NQOAA==
-`;
+/kTwbP72GsaRnIf+AYswS+zJWd6b7syd8w04/z+gyxV+4NQOAA==`;
 //  ProfileLookTableData  unpack
 dcpProfileLookTableData_u='';
 ////    DYNAMIC SOURCE END: /home/hegny/prog/imbraw2dng/github/profiles/DCP/ImBack ImB35mm.dcp
@@ -18022,9 +18021,9 @@ incdcp = true;
 /* ImBCBase: debug */
 debugflag = false;
 useraw = null;
-//imbweb = 'http://192.168.8.101:8080';
-imbweb = 'http://192.168.0.72:8080';
-fromintent = false; // 1: normal 2: stack/fakelong (> 1 DNG)  3: backward (== 1 DNG)
+imbweb = 'http://192.168.8.101:8080';
+//imbweb = 'http://192.168.0.72:8080';
+fromintent = false; // 1: normal 2: stack/fakelong (> 1 DNG, to raw phase)  3: backward (== 1 DNG)  4: to dng phase when stacking 
 filmdemo = false;
 
 constructor() {
@@ -18510,6 +18509,7 @@ handleone(orientation) {
 			this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
 		}
 		let contents = evt.target.result;
+		if (contents.buffer) contents = contents.buffer;
 		let view = new DataView(contents);
 		if (this.addall) {
 			if (this.#addimgs.length === 0 && this.addscaleall)
@@ -18891,6 +18891,10 @@ parseDng(f, onok, onerr) {
 		return;
 	}
 	const v = new DataView(f.data);
+	if (v.byteLength < 12) {
+		this.appmsg('Works only for originally created DNGs.');
+		return onerr(f.name);
+	}
 	const ifd = TIFFOut.readint(v, 4);
 	const zz = globals.infos.findIndex(v => v.size === ifd - 8);
 	const nent = TIFFOut.readshort(v, ifd);
@@ -18921,17 +18925,17 @@ parseDng(f, onok, onerr) {
 				datalen = subifdstart - rawstripstart;
 				const zzz = globals.infos.findIndex(v => v.size === datalen);
 				if (-1 === zzz) {
-					this.appmsg('Works only for originally created DNGs.', true);
+					this.appmsg('Works only for originally created DNGs.');
 					return onerr(f.name);
 				}
 			}
 			else {
-				this.appmsg('Works only for originally created DNGs.', true);
+				this.appmsg('Works only for originally created DNGs.');
 				return onerr(f.name);
 			}
 		}
 		else {
-			this.appmsg('Works only for originally created DNGs.', true);
+			this.appmsg('Works only for originally created DNGs.');
 			return onerr(f.name);
 		}
 	}
@@ -18995,7 +18999,7 @@ handleoneback(fx) {
 				this.handleoneback(fx);
 			},
 			() => {
-				this.appmsg('Error reading DNG: ' + f.name);
+				this.appmsg('Error reading DNG: ' + f.name, true);
 				if (undefined !== this.exitcode) this.exitcode++;
 				this.stats.error++;
 				this.handlenext();
@@ -19004,7 +19008,7 @@ handleoneback(fx) {
 	}
 	else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
 		this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
-		this.appmsg('Seems not to be DNG: ' + f.name, true);
+		this.appmsg('Seems not to be DNG: ' + f.name, true, true);
 		this.stats.error++;
 		return this.handlenext();
 	}
@@ -19019,7 +19023,16 @@ handleoneback(fx) {
 			for (let j=0; j<view.byteLength; j++) {
 				out[j] = view.getUint8(j);
 			}
-			this.writefile(rawname, 'application/octet-stream', 'process.converted', out, f.name);
+			if (this.fromintent === 3)
+				this.writefile(rawname, 'application/octet-stream', 'process.converted', out, f.name);
+			else {
+				this.allfiles[this.actnum] = {
+					data: out,
+					name: rawname
+				};
+				this.mappx(true, 'process.converted', rawname);
+				this.handlenext();
+			}
 		}
 		reader.onerror = (evt) => {
 			console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
@@ -19349,7 +19362,7 @@ starthandleone() {
 		this.afterfinish();
 		return;
 	}
-	else if (this.fromintent === 3) {
+	else if (this.fromintent === 3 || this.fromintent === 2) {
 		return this.handleoneback();
 	}
 	/*if (!this.imbcb && window.showSaveFilePicker && false) {
@@ -19913,6 +19926,7 @@ showpages() {
 	document.getElementById('tomov').classList.remove('active');
 	document.getElementById('toloc').classList.remove('active');
 	document.getElementById('genericok').style['display'] = 'none';
+	document.getElementById('scaledownquest').style['display'] = 'none';
 }
 /* ImBCHtml: browserdisplay: show main screen */
 showmain() {
@@ -21475,16 +21489,34 @@ handlenext() {
 				document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ' + this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
 			}
 			this.actnum++;
-			this.handleonex();
+			if (this.fromintent === 2 || this.fromintent === 3)
+				this.handleoneback();
+			else
+				this.handleonex();
 		}
 		return;
 	}
-	if (this.actnum < this.allfiles.length - 1) {
-		this.actnum++;
-		this.handleonex();
+	if (this.fromintent !== 2 && this.fromintent !== 3) {
+		if (this.actnum < this.allfiles.length - 1) {
+			this.actnum++;
+			this.handleonex();
+		} else {
+			this.afterfinish();
+			//this.shownormal();
+		}
 	} else {
-		this.afterfinish();
-		//this.shownormal();
+		if (this.actnum < this.allfiles.length - 1) {
+			this.actnum++;
+			this.handleoneback();
+		} else if (this.fromintent === 2 && this.stats.error === 0) {
+			this.actnum = 0;
+			this.addall = true;
+			this.fromintent = 4;
+			this.stats.ok = 0;
+			this.handleonex();
+		} else {
+			this.afterfinish();
+		}
 	}
 }
 /* ImBCHtml: command handler */
@@ -22271,7 +22303,7 @@ clearcache() {
 	this.dloads = []; 
 	this.savesettings();
 }
-intentinthandler() {
+intentinthandler(optarg) {
 	this.fromintent = 1;
 	if (this.allfiles.length > 1) {
 		// only DNG for mode 2, stack?
@@ -22279,8 +22311,16 @@ intentinthandler() {
 		this.allfiles.map((mi) => { if (mi.name.substring(mi.name.length -4).toUpperCase() !== '.DNG') onlydng = false; });
 		if (onlydng) {
 			// ask if average or sum...
+			if (!optarg) {
+				document.getElementById('dlprogress').style['display']='none';
+				document.getElementById('scaledownquest').style['display'] = '';
+				return;
+			}
+			this.fromintent = false;
+			this.showmain();
 			this.fromintent = 2;
-//			return;
+			this.showdlprog();
+			if (document.getElementById('scalednbox').checked) this.addscaleall = true;
 		}
 	}
 	if (this.allfiles.length === 1) {
@@ -22386,7 +22426,7 @@ function init2() {
 			imbc.checkimb();
 		});
 		//imbc.checkimb();
-	}, 20000);
+	}, 2000);
 	window.onbeforeunload = () => {
 		imbc.savesettings();
 		if (imbc.onback === 'main') {
@@ -25821,8 +25861,8 @@ function readjpg(file) {
 <div class="igxtype">
 <div ><input type="checkbox" id="copycheck" onchange="imbc.chgcopycheck()"> <label for="copycheck" data-myxlkey="process.addcopyright"></label> <input onchange="imbc.dirtysettings()" type="text" id="copytext"></input></div>
 <div ><input type="checkbox" id="dngpreview" checked onchange="imbc.chgdngpreview()"> <label for="dngpreview" data-myxlkey="process.addpreview"></label></div>
-<div ><input type="checkbox" id="oldstylewb" onchange="imbc.dirtysettings()"> <label for="oldstylewb" data-myxlkey="process.oldstylewb"></label></div>
 <div ><input type="checkbox" id="incdcp" checked onchange="imbc.dirtysettings()"> <label for="incdcp" data-myxlkey="process.includedcp"></label></div>
+<div ><input type="checkbox" id="oldstylewb" onchange="imbc.dirtysettings()"> <label for="oldstylewb" data-myxlkey="process.oldstylewb"></label></div>
 </div>
 </div>
 <div  style="margin-top: 0.5em;" id="genadvice" data-myxlkey="main.generaladvice"></div>
@@ -25984,6 +26024,13 @@ function readjpg(file) {
 <input id="confirmbut" type="button" data-myvalxlkey="del.question.ok" onclick="imbc.showmain(); this.parentElement.style['display'] = 'none';">
 </div>
 <!-- end of the generic ok/error -->
+<!-- fakelong/stack question scale? -->
+<div id="scaledownquest" style="border: 5px solid grey; border-radius: 20px; padding: 20px;display:none;width:fit-content;">
+<div data-myxlkey="main.fakelong"></div>
+<div><input type="checkbox" id="scalednbox"> <label for="scalednbox" data-myxlkey="main.fakelong.scale"> </label></div>
+<input type="button" data-myvalxlkey="del.question.ok" onclick="imbc.intentinthandler(true); this.parentElement.style['display'] = 'none';">
+</div>
+<!-- end of fakelong/stack question scale? -->
 <!-- block overlay -->
 <div class="overlay" id="overlay" style="display:none;">&nbsp;</div>
 <!-- end of block overlay -->

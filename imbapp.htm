@@ -18852,6 +18852,181 @@ handle1imb(url, time) {
 		this.appmsgxl(0, 'onimback.strangename', rawname);
 	}
 }
+/* *************************************** Backward helper *************************************** */
+/* ImBCBackw: backward: handle dng like raw */
+parseDng(f, onok, onerr) {
+	// blindly assumes that it is one of our own DNG
+	if (undefined === f.data) {
+		const reader = f.imbackextension ? f : new FileReader();
+		reader.onload = (evt) => {
+			f.data = evt.target.result;
+			this.parseDng(f, onok, onerr);
+		}
+		reader.onerror = () => { onerr(f.name); };
+		reader.readAsArrayBuffer(f);
+		return;
+	}
+	const v = new DataView(f.data);
+	if (v.byteLength < 12) {
+		this.appmsg('Works only for originally created DNGs.');
+		return onerr(f.name);
+	}
+	const ifd = TIFFOut.readint(v, 4);
+	const zz = globals.infos.findIndex(v => v.size === ifd - 8);
+	const nent = TIFFOut.readshort(v, ifd);
+	let subifdstart = -1, rawstripstart = -1, datalen = -1;
+	let off = ifd+2;
+	if (TIFFOut.readshort(v, 2) !== 42 || TIFFOut.readshort(v,0) !== 18761 /* 0x4949 */ || zz === -1) {
+		// seek sub ifd then therein the stripoffsets
+		for (let k=0; k<((nent<50)? nent: 0); k++) {
+			let tag = TIFFOut.readshort(v, off);
+			if (tag === 330) {
+				subifdstart = TIFFOut.readint(v, off+8);
+				break;
+			}
+			off += 12;
+		}
+		if (-1 !== subifdstart) {
+			let subnent = TIFFOut.readshort(v, subifdstart);
+			off = subifdstart + 2;
+			for (let j=0; j<((subnent < 50)? subnent: 0); j++) {
+				let stag = TIFFOut.readshort(v, off);
+				if (stag === 273) {
+					rawstripstart = TIFFOut.readint(v, off+8);
+					break;
+				}
+				off += 12;
+			}
+			if (-1 !== rawstripstart) {
+				datalen = subifdstart - rawstripstart;
+				const zzz = globals.infos.findIndex(v => v.size === datalen);
+				if (-1 === zzz) {
+					this.appmsg('Works only for originally created DNGs.');
+					return onerr(f.name);
+				}
+			}
+			else {
+				this.appmsg('Works only for originally created DNGs.');
+				return onerr(f.name);
+			}
+		}
+		else {
+			this.appmsg('Works only for originally created DNGs.');
+			return onerr(f.name);
+		}
+	}
+	else {
+		rawstripstart = 8;
+		datalen = ifd - 8;
+	}
+	let fx = {
+		imbackextension: true,
+		name: f.name.substring(0, f.name.length - 4) + '.raw',
+		size: datalen,
+		data: f.data.slice(rawstripstart, datalen + rawstripstart)
+	};
+	if (-1 !== globals.twelvebitsizes.indexOf(datalen)) {
+		const v = new DataView(fx.data);
+		for (let k=0; k < datalen; k+=3) {
+			let i = v.getUint8(k);
+			v.setUint8(k, v.getUint8(k+2));
+			v.setUint8(k+2, i);
+		}
+	}
+	fx.readAsArrayBuffer = (fy) => {
+		fy.onload({
+				target: { result: fy.data }
+		});
+	};
+	setTimeout(() => {
+			onok(f.name, fx, fx.rot);
+	});
+}
+/* ImBCBackw: backward: actual processing function for one file */
+handleoneback(fx) {
+	const f = (fx !== undefined) ? fx : this.allfiles[this.actnum];
+	if (undefined === f) {
+		this.appmsgxl(true, 'process.nothing');
+		return this.handlenext();
+	}
+	if (undefined === f.size && !f.data) {
+		this.appmsg('Error reading DNG: ' + f.name);
+		if (undefined !== this.exitcode) this.exitcode++;
+		this.stats.error++;
+		this.handlenext();
+		return;
+	}
+	else if (undefined === f.size && f.data) {
+		// from file chooser
+		f.size = f.data.byteLength;
+		f.imbackextension = true;
+		f.readAsArrayBuffer = () => {
+				f.onload({
+						target: {
+							result: f.data
+						}
+				});
+		};
+	}
+	let rawname = ImBCBase.basename(f.name);
+	if (rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
+		this.parseDng(f,
+			(name, fx) => {
+				this.handleoneback(fx);
+			},
+			() => {
+				this.appmsg('Error reading DNG: ' + f.name, true);
+				if (undefined !== this.exitcode) this.exitcode++;
+				this.stats.error++;
+				this.handlenext();
+			});
+		return;
+	}
+	else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
+		this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
+		this.appmsg('Seems not to be DNG: ' + f.name, true, true);
+		this.stats.error++;
+		return this.handlenext();
+	}
+	const zz = globals.infos.findIndex(v => v.size === f.size);
+	if (zz !== -1) {
+		this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ");
+		const reader = f.imbackextension ? f : new FileReader();
+		reader.onload = (evt) => {
+			const contents = evt.target.result;
+			const view = new DataView(contents);
+			const out = new Uint8Array(f.size);
+			for (let j=0; j<view.byteLength; j++) {
+				out[j] = view.getUint8(j);
+			}
+			//if (this.fromintent === 3)
+				this.writefile(rawname, 'application/octet-stream', 'process.converted', out, f.name);
+			/*else {
+				this.allfiles[this.actnum] = {
+					data: out,
+					name: rawname
+				};
+				this.mappx(true, 'process.converted', rawname);
+				this.handlenext();
+			}*/
+		}
+		reader.onerror = (evt) => {
+			console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
+			this.appmsg('Error processing or reading file ' +  f.name, true);
+			this.stats.error++;
+			if (undefined !== this.exitcode) this.exitcode++;
+			this.handlenext();
+		}
+		reader.readAsArrayBuffer(f);
+	} else {
+		this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
+		this.appmsg('Size of raw data of ' + f.name + ' seems not to match known formats, ignoring...', true);
+		this.stats.error++;
+		if (undefined !== this.exitcode) this.exitcode++;
+		this.handlenext();
+	}
+}
+/* *************************************** Backward helper E N D *************************************** */
 /* Indentation in - end of class ImBCBase */
 }
 /* *************************************** BASE class E N D *************************************** */
@@ -19942,7 +20117,7 @@ buildtree() {
 		// display not none, check pos
 		let rect = p.getBoundingClientRect();
 		let t = 0;
-		let brh = document.getElementById('browseheader'), brhe = brh?.getBoundingClientRect();
+		let brh = document.getElementById('navheader'), brhe = brh?.getBoundingClientRect();
 		if (brhe) t = brhe.height;
 		if (rect.top < window.innerHeight && rect.bottom > t && rect.width > 0) {
 			// visible
@@ -25271,8 +25446,8 @@ function readjpg(file) {
 <div class="igxtype">
 <div ><input type="checkbox" id="copycheck" onchange="imbc.chgcopycheck()"> <label for="copycheck" data-myxlkey="process.addcopyright"></label> <input onchange="imbc.dirtysettings()" type="text" id="copytext"></input></div>
 <div ><input type="checkbox" id="dngpreview" checked onchange="imbc.chgdngpreview()"> <label for="dngpreview" data-myxlkey="process.addpreview"></label></div>
-<div ><input type="checkbox" id="oldstylewb" onchange="imbc.dirtysettings()"> <label for="oldstylewb" data-myxlkey="process.oldstylewb"></label></div>
 <div ><input type="checkbox" id="incdcp" checked onchange="imbc.dirtysettings()"> <label for="incdcp" data-myxlkey="process.includedcp"></label></div>
+<div ><input type="checkbox" id="oldstylewb" onchange="imbc.dirtysettings()"> <label for="oldstylewb" data-myxlkey="process.oldstylewb"></label></div>
 </div>
 </div>
 <div  style="margin-top: 0.5em;" id="genadvice" data-myxlkey="main.generaladvice"></div>
@@ -25309,7 +25484,7 @@ function readjpg(file) {
 <!-- end of the extras -->
 <div id="pages" style="display:none;"><!-- container for navigationable pages -->
 <!-- hamburger menu -->
-<div id="hammen" style="position:fixed; left: 0; width: fit-content; background-color:white; z-index:998; top:2em;color:black;display:none;border:1px solid gray;border-bottom-right-radius:10px;border-bottom-left-radius:10px;">
+<div id="hammen" style="position:fixed; inset:unset; left: 0; width: fit-content; background-color:white; top:2em;color:black;display:none;border:1px solid gray;border-bottom-right-radius:10px;border-bottom-left-radius:10px;">
 <div class="hammenent" onclick="imbc.closeham();imbc.settime()"><span  style="font-family:Symbol3;">&#x1f570;</span> <span data-myxlkey='app.menu.settime'>Set ImB Time</span></div>
 <div class="hammenent" id="hamlog" onclick="imbc.closeham();imbc.showlog();"><span  style="font-family:Symbol3;">&#x1f5ce;</span> <span data-myxlkey='app.menu.msglog'>Msg Log</span></div>
 <div class="hammenent" onclick="imbc.closeham();imbc.shownormal();"><span  style="font-family:Symbol3;">&#x1f6e0;</span> <span data-myxlkey='app.menu.settings'>Settings</span></div>
@@ -25351,7 +25526,8 @@ function readjpg(file) {
 <div id="droptarget" ondrop="imbc.drophandler(event);" ondragenter="imbc.prevdef(event);" ondragover="imbc.prevdef(event);" style="border: 5px solid blue;border-radius: 10px;width:300px; height:70px;background-color: rgba(0,0,255,0.2);"></div><br>
 <div  style="font-size:75%; background-color:rgba(0,0,255,0.1);width:fit-content;margin-top:-0.7em;color:#808080;">
 <input type="checkbox" id="fakelongexpadd"> <label for="fakelongexpadd" data-myxlkey="main.fakelong"> </label> - 
-<input type="checkbox" id="fakelongexpscale"> <label for="fakelongexpscale" data-myxlkey="main.fakelong.scale"> </label>
+<input type="checkbox" id="fakelongexpscale"> <label for="fakelongexpscale" data-myxlkey="main.fakelong.scale"> </label><br>
+<input type="checkbox" id="makebackw"> <label for="makebackw" ><span data-myxlkey="main.backw.title"></span> <span data-myxlkey="main.backw.drophere"></span> </label>
 </div>
 <div  style="font-size:133%;margin-top: 0.5em;"><span  data-myxlkey="main.selectrawx"></span> 
 <input  type="file" accept=".*" id="infile" name="infile" multiple onchange="imbc.fselected()">

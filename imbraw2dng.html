@@ -18933,9 +18933,9 @@ findlang(i) {
 			break;
 		}
 	}
-	if ('zZ' === i || ('00' === this.mylang && document && window?.location.href.startsWith('http://127.0.0.1:8889'))) {
+	if ('zZ' === i || ('00' === this.mylang && document && window?.location.href.startsWith('http://127.0.0.1:'))) {
 		this.mylang = 'en';
-		this.imbweb = 'http://127.0.0.1:8889';
+		this.imbweb = 'http://' + window.location.host;
 	}
 	else if (!found) {
 		this.mylang = 'en';
