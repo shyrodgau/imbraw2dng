@@ -2,7 +2,8 @@
 /* 
 ***************************************************** 
 
-imbraw2dng.js
+imbraw2dng(_LL).js
+imbdng2raw.js
 
 Convert RAW from I'm back(R)(https://imback.eu) into DNG
 
@@ -32,6 +33,18 @@ Options:
  -----
  -- - treat rest of parameters as local files or dirs
  <files-or-dirs> - process local files or directories recursively, e.g. on MicroSD from ImB
+
+*****************************************************
+
+Usage: node imbdng2raw.js [-d dir] [ [--] <files>* ]
+Options:
+ -h - show this help
+ -d dir - put output files into dir
+ -----
+ -- - treat rest of parameters as local files or dirs
+ <files> - process local files
+
+*****************************************************
 
 The following js code is identical to the js inside imbraw2dng.html for the classes IFDOut, TIFFOut, ZIPHelp, ImBCBase, ImBCBackw.
 

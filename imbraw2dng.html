@@ -2,7 +2,8 @@
 <!--
 ***************************************************** 
 
-imbraw2dng.html
+imbraw2dng(_LL).html
+imbdng2raw(_LL).html
 
 Convert RAW from I'm back(R)(https://imback.eu) into DNG
 
@@ -20985,6 +20986,8 @@ dodelete(list) {
 			const pv = list[0].preview;
 			if (pv)
 				pv.classList.add('picdeleted');
+			if (pv?.parentElement)
+				pv.parentElement.classList.add('picdeleted');
 			list.splice(0,1);
 			this.dodelete(list);
 			xhr.onerror = undefined;
