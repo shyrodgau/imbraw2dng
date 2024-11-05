@@ -157,6 +157,8 @@ About configuration see [imbraw2dng.json](imbraw2dng.json).
 
 ## Tipps, tricks, internals and details
 
+### Comparison
+
 Concerning `IMBAPP.HTM` and the Android app:    
 Advantages over the [APP from ImB](https://imback.eu/home/app/):
 - you can use it on any browser
@@ -181,23 +183,32 @@ Advantages over the my classic `imbraw2dng.html` when used on the ImB:
 Disadvantages over the classic imbraw2dng when not used on the ImB:
 - step-by-step is gone, either process all (file select button) or use app-like the picture browser (on drag and drop)
 
+### EXIF
 
-
-The EXIF data in the JPEG files from ImB is of limited use, but if you would like to add it to your DNG files, this is possible. Process the JPEG first and then the corresponding RAW. 
+The EXIF data in the JPEG files from ImB is of limited use, because it reflects the perspective of the ImB optics and sensor and not of the actual camera. But if you would like to add it to your DNG files, this is possible. Process the JPEG first and then the corresponding RAW.
 Corresponding is defined as: time difference < 5 sec and counter (last part of filename) difference 1. It is not neccessary to be directly consecutive, first all JPEGs and then the RAWs should do it.
 
-<a name="a-lot-more-tricks-and-details"> </a>
+### Long Exposure<a name="a-lot-more-tricks-and-details"> </a>
+
 If you want to simulate a long "Long exposure" by several shorter ones to avoid the specific noise, you can do so by using the `-fla`/`-flx` parameters on node.js. 
 Or set the checkbox below the blue field on the HTML page and then drag and drop the RAW-files you want to stack up together into the blue field.   
-This is currently not working inside the android app.
+In the app, you first need to convert all RAWs to DNGs. Then select the DNGs you want to stack in your file browser and share these with the ImB OS App.
 
-Your preferred settings can be saved in a configuration file for node.js (see above) or in the browser when you load it from a web server (internet or from ImB).
+### Revert to RAW
 
-You are welcome to browse the code, help translation or optimizing!
+If you want back the original raw for an original converted DNG in the app, select only one single DNG in the file browser and share it with the ImB OS App.
+
+Or use [imbdng2raw.html](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html) or [imbdng2raw.js](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js)
 
 ### iPhone
 
 The android app consists of the same HTML/Javascript code as the html pages but wrapped with Apache Cordova. Building an IOS App should be possible similarly, but I neither own a Mac nor an iphone. If someone would like to help out??
+
+### etc.
+
+Your preferred settings can be saved in a configuration file for node.js (see above) or in the browser when you load it from a web server (internet or from ImB).
+
+You are welcome to browse the code, help translation or optimizing!
 
 ---------------------------
 
