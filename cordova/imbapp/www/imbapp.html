@@ -892,7 +892,7 @@ getData() {
 			lastlen += 2;
 			TIFFOut.writeinttoout(data, num, lastlen);
 			lastlen += 4;
-			if (ee.l * num <= 4) {
+			if (ee.l * num <= 4 && tag !== 40965) {
 				TIFFOut.writeinttoout(data, addr, lastlen);
 			}
 			else {
@@ -18311,13 +18311,17 @@ xexif(name, view) {
 			console.log('EXIF: TYP NOT FOUND ' + typ);
 			continue;
 		}
-		if (ee.l * num <= 4)
+		if (tag === 40965) {
+			/* add interop, assume two entries (2x12 + 2 for the number of entries) */
+			if (addr + 26 > maxdat) maxdat = addr + 26;
+		}
+		else if (ee.l * num <= 4)
 			continue;
 		if (addr < exifoff) {
 			console.log('EXIF OFFSET BEFORE IFD');
 			continue;
 		}
-		if (tag == 37510) {
+		/*if (tag == 37510) {
 			// fix user comment encoding
 			view.setUint8(addr + baseoff, 0x41);
 			view.setUint8(addr + baseoff + 1, 0x53);
@@ -18327,6 +18331,13 @@ xexif(name, view) {
 			view.setUint8(addr + baseoff + 5, 0x00);
 			view.setUint8(addr + baseoff + 6, 0x00);
 			view.setUint8(addr + baseoff + 7, 0x00);
+		}
+		else*/ if (tag === 37500) {
+			// strip maker notes
+			view.setUint8(off-8, 1);
+			view.setUint8(off-7, 0);
+			view.setUint8(off-6, 0);
+			view.setUint8(off-5, 0);
 		}
 		if (addr + ee.l * num > maxdat) maxdat = addr + ee.l * num;
 		// we correct the addresses so that 0 is start of exif ifd
@@ -18340,8 +18351,9 @@ xexif(name, view) {
 		view.setUint8(off-1, addr % 256);
 		addr = Math.floor(addr / 256);
 	}
-	if (maxdat === 0) maxdat = off;
-	if (maxdat - off > 10000) return;
+	if (maxdat === 0) maxdat = off+12;
+	else maxdat += 12;
+	if (maxdat - off > 100000) return;
 	let na = [];
 	for (let z = baseoff+exifoff; z<maxdat; z++)
 		na.push(view.getUint8(z));
