@@ -19269,7 +19269,7 @@ writeslice(fw, name, arr, onok, onerr, off) {
 			onok();
 		else {
 			this.rotphase ++;
-			document.getElementById('delprogmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ' + this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
+			document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ' + this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
 			setTimeout(() => {
 				this.rootfsx.getFile(name, { create: false }, (fileEntry) => {
 					// Create a FileWriter object for our FileEntry (log.txt).
@@ -20904,10 +20904,12 @@ browserdelete() {
 /* ImBCHtml: visual browser: do delete */
 dodelete(list, status) {
 	if (list === undefined && document.getElementById('delcancelbut').disabled) {
+		/* ok press after end */
 		this.delcancel();
 		return;
 	}
 	else if (list === undefined) {
+		/* initial call */
 		document.getElementById('delokbut').disabled = true;
 		document.getElementById('delcancelbut').disabled = true;
 		this.rotphase=0;
@@ -20915,9 +20917,10 @@ dodelete(list, status) {
 		this.dodelete(this.imbeles.filter((o) => o.selected), { no: this.imbeles.filter((o) => o.selected).length, ok: 0, err: 0 });
 		return;
 	} else if (list.length > 0) {
+		/* processing */
 		this.custcmdB(4003, 'document', 'str=' + list[0].url, (res) => {
 			this.rotphase ++;
-			document.getElementById('delprogmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length];
+			document.getElementById('delprogmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ' +  this.xl('process.totals', status.no, status.ok, 0, status.err);
 			if (0 <= res) {
 				status.ok++;
 				list[0].selected = false;
@@ -20933,11 +20936,11 @@ dodelete(list, status) {
 				status.err++;
 			}
 			list.splice(0,1);
-			document.getElementById('delprogmsg').innerHTML = this.xl('process.totals', status.no, status.ok, 0, status.err);
 			return this.dodelete(list, status);
 		});
 	} else {
-		document.getElementById('delprogmsg').innerHTML = this.rotphases[2];
+		/* list finished */
+		document.getElementById('delprogmsg').innerHTML = this.xl('process.totals', status.no, status.ok, 0, status.err);
 		document.getElementById('delokbut').disabled = false;
 		document.getElementById('delcancelbut').disabled = true;
 		this.savesettings();
