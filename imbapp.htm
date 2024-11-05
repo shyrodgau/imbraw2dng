@@ -19540,6 +19540,7 @@ ziperr = false;
 previewworker = null;
 workerstate = [];
 onback = 'quit'; // 'main', 'quit', 'nothing'
+showham = false;
 constructor() {
 	super();
 }
@@ -21804,14 +21805,22 @@ workermsg(msg) {
 }
 /* ImBCHtml: handle click on hamburger */
 handleham() {
-	if (document.getElementById('hammen').style['display'] === 'none')
+	if (this.showham) {
+		//this.showham = false;
+		return;
+	}
+	document.getElementById('hammen').showPopover();
+	//this.showham = true;
+	/*if (document.getElementById('hammen').style['display'] === 'none')
 		document.getElementById('hammen').style['display'] = ''
 	else
-		document.getElementById('hammen').style['display'] = 'none'
+		document.getElementById('hammen').style['display'] = 'none'*/
 }
 /* ImBCHtml: close hamburger */
 closeham() {
-	document.getElementById('hammen').style['display'] = 'none';
+	document.getElementById('hammen').hidePopover();
+	//this.showham = false;
+	//document.getElementById('hammen').style['display'] = 'none';
 }
 /* ImBCHtml: exit mode select change */
 chgexit() {
@@ -25484,7 +25493,7 @@ function readjpg(file) {
 <!-- end of the extras -->
 <div id="pages" style="display:none;"><!-- container for navigationable pages -->
 <!-- hamburger menu -->
-<div id="hammen" style="position:fixed; left: 0; width: fit-content; background-color:white; z-index:998; top:2em;color:black;display:none;border:1px solid gray;border-bottom-right-radius:10px;border-bottom-left-radius:10px;">
+<div id="hammen" style="position:fixed; left: 0; width: fit-content; background-color:white; inset:unset; top:2em;color:black;border:1px solid gray;border-bottom-right-radius:10px;border-bottom-left-radius:10px;" popover="auto" ontoggle="imbc.showham = !imbc.showham;">
 <div class="hammenent" onclick="imbc.closeham();imbc.settime()"><span  style="font-family:Symbol3;">&#x1f570;</span> <span data-myxlkey='app.menu.settime'>Set ImB Time</span></div>
 <div class="hammenent" id="hamlog" onclick="imbc.closeham();imbc.showlog();"><span  style="font-family:Symbol3;">&#x1f5ce;</span> <span data-myxlkey='app.menu.msglog'>Msg Log</span></div>
 <div class="hammenent" onclick="imbc.closeham();imbc.shownormal();"><span  style="font-family:Symbol3;">&#x1f6e0;</span> <span data-myxlkey='app.menu.settings'>Settings</span></div>
