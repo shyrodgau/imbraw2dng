@@ -512,6 +512,13 @@ describe('E Convert Raw from Imback APP', function() {
 				.click()
 				.pause(600)
 				.perform();
+			const fi2 = await driver.findElement(By.id('SELC_2024_02_17'));
+			await driver.actions({ async: true })
+				.move({ origin: fi2 })
+				.pause(300)
+				.click()
+				.pause(600)
+				.perform();
 			const sor = await driver.findElement(By.id('sbytype'));
 			await driver.actions({ async: true })
 				.move({ origin: sor })
