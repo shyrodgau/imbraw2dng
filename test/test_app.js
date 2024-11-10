@@ -9,7 +9,7 @@ const TESTDAT0='/home/hegny/prog/imbraw2dng/samples';
 
 const TESTURL='http://127.0.0.1:8889/';
 
-const FILELIST=[ '2024_0217_121752_001.dng', '2029_0710_010203_001.dng', '2024_0217_121754_002.JPG', '2029_0707_120426_021.dng' ];
+const FILELIST=[ '2024_0217_121752_001.dng', '2029_0710_010203_001.dng', '2024_0217_121754_002.JPG', '2024_0217_121754_002_001.JPG', '2024_0217_121752_001_001.dng', '2029_0707_120426_021.dng' ];
 
 // test executable path:
 const TESTEXES='/home/hegny/prog/imbraw2dng/github';
@@ -79,14 +79,29 @@ async function runTest() {
 	//console.log(JSON.stringify(ctxx));
 	//await driver.context('NATIVE_APP');
     const logbut = await driver.$('#dlprogresslogbtn');
+    const okbut = await driver.$('#progokbut');
     while (1) {
 		const cliki = await logbut.getAttribute('disabled')
 		//console.log('CLICK *** ' + cliki + '*** CLIC ');
 		if (!cliki) break;
 		await sleep(500);
 	}
+	await okbut.click();
+	await driver.pause(2000);
 	//await driver.pause(27000);
+	await sbytype.click();
+	await driver.pause(2000);
+    await imgrp2.click();
+	await driver.pause(7000);
+    await selbut.click();
+	await driver.pause(7000);
     //const fold = await driver.$('=USE THIS FOLDER');
+    while (1) {
+		const cliki = await logbut.getAttribute('disabled')
+		//console.log('CLICK *** ' + cliki + '*** CLIC ');
+		if (!cliki) break;
+		await sleep(500);
+	}
     await logbut.click();
 	await driver.pause(1000);
     const msglog = await driver.$('#outmsg');
