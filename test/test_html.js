@@ -540,6 +540,30 @@ describe('E Convert Raw from Imback APP', function() {
 				.click()
 				.pause(1900)
 				.perform();
+			await driver.actions({ async: true })
+				.move({ origin: sor })
+				.pause(300)
+				.click()
+				.pause(600)
+				.perform();
+			await driver.actions({ async: true })
+				.move({ origin: fi2 })
+				.pause(300)
+				.click()
+				.pause(600)
+				.perform();
+			await driver.actions({ async: true })
+				.move({ origin: rcw })
+				.pause(300)
+				.click()
+				.pause(2600)
+				.perform();
+			await driver.actions({ async: true })
+				.move({ origin: okb })
+				.pause(300)
+				.click()
+				.pause(1900)
+				.perform();
 			const hm = await driver.findElement(By.id('hamb'));
 			await driver.actions({ async: true })
 				.move({ origin: hm })
