@@ -39,6 +39,7 @@ DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS 
 <meta http-equiv='pragma' content='no-cache'>
 <meta name="viewport" content="width=200, initial-scale=1" />
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>ImB RAW to DNG Converter V???</title>
 <link rel="shortcut icon" type="image/x-icon" href="data:image/x-icon;base64,AAABAAEAICAAAAEACACoCAAAFgAAACgAAAAgAAAAQAAAAAEACAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAcAAAAAAQEAAQEBAAAHBwAACgoAAAs
 LAAAMDAAADQ0AAA8PAAASEgAAFRUAABcXAAAaGgAAHBwAACAgAAEjIgANIicAAiQl
@@ -85,7 +86,6 @@ LCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwgAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAA">
-<title>ImB RAW to DNG Converter V???</title>
 <style type="text/css">
 @font-face  {
 	font-family:'Symbol3';
@@ -396,7 +396,7 @@ body { margin: 0; }
 	margin:0.2em;
 }*/
 #overlay {
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: rgba(0, 0, 55, 0.4);
     z-index: 999;
     position: fixed;
     left: -20%;
@@ -404,6 +404,18 @@ body { margin: 0; }
     width: 150%;
     height: 150%;
 }​
+.mymodal:-internal-dialog-in-top-layer::backdrop {
+    background-color: rgba(0, 0, 65, 0.4) !important;
+    width:100%;
+    heigth:100%;
+    overflow:hidden;
+}
+.mymodal::backdrop {
+    background: rgba(0, 0, 65, 0.4) !important;
+}
+.mymodal {
+	margin-left:12%; margin-top:19%;
+}
 /*.gl1 > .ggtt span.gtype { display: inline !important; }*/
 .ggttopen { border-bottom: 0 !important; }
 /*.ggopen {  border: 2px solid white; border-radius: 5px; border-top: 0;border-left: 0; border-right:0;}*/
@@ -518,13 +530,16 @@ div[data-state='load'] .btnsrow, div[data-state='wait'] .btnsrow, div[data-state
 img.whbtn { height:1.33em; position:relative; top:0.5em; }
 #hammen > * { padding:0.5em; margin:0.5em;cursor:pointer; }
 .hammenent:hover { background-color: #cccccc; }
-#batt1.batthi { background-color: #55ff55; }
-#batt2.batthi { height: 0; }
-#batt1.battmed { background-color: yellow; }
-#batt2.battmed { height: 0.5em; }
-#batt1.battlo { background-color: #ff5555; }
-#batt2.battlo { height: 0.8em; }
+.batt1.batthi { background-color: #55ff55; }
+.batt2.batthi { height: 0; }
+.batt1.battmed { background-color: yellow; }
+.batt2.battmed { height: 0.5em; }
+.batt1.battlo { background-color: #ff5555; }
+.batt2.battlo { height: 0.8em; }
 .btop { border-top: 1px solid black; padding-top: 1em; }
+body:has(dialog[open]), html:has(dialog[open]) {
+  overflow: hidden;
+}
 </style>
 <!-- javascript code CURRENTLY NOT identical to imbraw2dng.js  for the classes IFDOut, TIFFOut, ZIPHelp, ImBCBase, ImBCBackw. -->
 <script type="text/javascript" language="javascript">
@@ -1285,8 +1300,7 @@ X8RX46vhF+H9aTX8Ij5fXI38xTxiYjX8Yj45oxp+MdPiavjFfGRNteJzcsyhavgl
 9JDBL+NvejLkL+PLJjL46OmBMvjl3DREBr+c17vJ4FfwlVEy+BXYF2XwK/halAx+
 Bdcly+BXYp7J4KOHSmXwK/lGjQw+emOmDH4l2yySwa/iiFUKv4qnbFL4Vbxvl0zx
 eT47H1b41ZzUqPCref5FhV/NOjcUvow9Hyh8GZ9/rvBl3P6vwpdxxVeFP+H/vv8H
-dbUD5wggAAA=
-`;
+dbUD5wggAAA=`;
 //  ProfileToneCurve  unpack
 dcpProfileToneCurve_u='';
 //  ProfileHueSatMapData1  b64 gz
@@ -18005,8 +18019,7 @@ U0r2UddZ/4hfTNaTdoyJ5R8h8YTb7h7lS+8GPfnrKf5lQ9A/vLP4R8kZ0xf2Y/6+
 GnL2aPdT/nlytmNnoCgzgJw5KL1PkVEe8vesq9nMsZCD5JuyZoaQ8xa1NuxnAoqB
 z2CRSOZ9FpRzj3ISs/8I2NXQI/nMlxVkzujoDcafhTpWPH7CRJE9dvJHdzGWCqAL
 j0uw5WTtMHd/CHsnHDioef5kIslcm37GJ6ZuBejdb0XYCyRehecrzqovAz+QHSfC
-/kTwbP72GsaRnIf+AYswS+zJWd6b7syd8w04/z+gyxV+4NQOAA==
-`;
+/kTwbP72GsaRnIf+AYswS+zJWd6b7syd8w04/z+gyxV+4NQOAA==`;
 //  ProfileLookTableData  unpack
 dcpProfileLookTableData_u='';
 ////    DYNAMIC SOURCE END: /home/hegny/prog/imbraw2dng/github/profiles/DCP/ImBack ImB35mm.dcp
@@ -18266,6 +18279,8 @@ findlang(i) {
 }
 /* ImBCBase: extract exif from jpeg */
 xexif(name, view) {
+	if (-1 !== this.#exififds.findIndex(v => v.name === name))
+		return;
 	if (view.getUint8(0) !== 0xff) return; /* JFIF */
 	if (view.getUint8(1) !== 0xd8) return;
 	if (view.getUint8(2) !== 0xff) return; /* APP1 */
@@ -18545,6 +18560,7 @@ handleone(orientation) {
 			this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
 		}
 		let contents = evt.target.result;
+		if (contents.buffer) contents = contents.buffer;
 		let view = new DataView(contents);
 		if (this.addall) {
 			if (this.#addimgs.length === 0 && this.addscaleall)
@@ -18566,58 +18582,62 @@ handleone(orientation) {
 				}
 				this.appmsg('', true);
 				let nv = new Uint16Array(w*h);
-				if (typ === 5) {
-					/* FILM */
-					let o=0;
-					for (let j=0; j < (w*h*3)/2; j+=3) {
-						let res = 0;
-						for (const k of this.#addimgs) {
-							try {
-								res += ((k.getUint8(j+2) << 4) + ((k.getUint8(j+1) >> 4) & 15) - 240);
-							} catch { ; }
+				try {
+					if (typ === 5) {
+						/* FILM */
+						let o=0;
+						for (let j=0; j < (w*h*3)/2; j+=3) {
+							let res = 0;
+							for (const k of this.#addimgs) {
+								try {
+									res += ((k.getUint8(j+2) << 4) + ((k.getUint8(j+1) >> 4) & 15) - 240);
+								} catch { ; }
+							}
+							if (this.addscaleall) {
+								res = Math.floor(res / npic);
+							}
+							if (res +240 > 4095) {
+								console.log('res overflow 5 ' + res);
+								nv[o++] = 4095;
+							}
+							else nv[o++] = res + 240;
+							res = 0;
+							for (const k of this.#addimgs) {
+								try {
+									res += ((k.getUint8(j+0) & 255) + ((k.getUint8(j+1) & 15) << 8) - 240);
+								} catch { ; }
+							}
+							if (this.addscaleall) {
+								res = Math.floor(res / npic);
+							}
+							if (res +240 > 4095) {
+								console.log('res overflow 6 ' + res);
+								nv[o++] = 4095;
+							}
+							else nv[o++] = res + 240;
 						}
-						if (this.addscaleall) {
-							res = Math.floor(res / npic);
+					} else {
+						/* 8 bit per sample */
+						for (let j=0; j < w*h; j++) {
+							let res = 0;
+							for (const k of this.#addimgs) {
+								try {
+									res += k.getUint8(j);
+								} catch { ; }
+							}
+							if (this.addscaleall && npic > 16) {
+								res = Math.floor(res / fc);
+							}
+							if (res > 4095) {
+								console.log('res overflow ' + res);
+								nv[j] = 4095;
+								whitelvl = 4095;
+							}
+							else nv[j] = res;
 						}
-						if (res +240 > 4095) {
-							console.log('res overflow 5 ' + res);
-							nv[o++] = 4095;
-						}
-						else nv[o++] = res + 240;
-						res = 0;
-						for (const k of this.#addimgs) {
-							try {
-								res += ((k.getUint8(j+0) & 255) + ((k.getUint8(j+1) & 15) << 8) - 240);
-							} catch { ; }
-						}
-						if (this.addscaleall) {
-							res = Math.floor(res / npic);
-						}
-						if (res +240 > 4095) {
-							console.log('res overflow 6 ' + res);
-							nv[o++] = 4095;
-						}
-						else nv[o++] = res + 240;
 					}
-				} else {
-					/* 8 bit per sample */
-					for (let j=0; j < w*h; j++) {
-						let res = 0;
-						for (const k of this.#addimgs) {
-							try {
-								res += k.getUint8(j);
-							} catch { ; }
-						}
-						if (this.addscaleall && npic > 16) {
-							res = Math.floor(res / fc);
-						}
-						if (res > 4095) {
-							console.log('res overflow ' + res);
-							nv[j] = 4095;
-							whitelvl = 4095;
-						}
-						else nv[j] = res;
-					}
+				} catch (e) {
+					this.stats.error++;
 				}
 				rawname = rawname.substring(0, rawname.length - 4) + '_MULTI.raw';
 				let nnv = new ArrayBuffer(w * h * 3 / 2);
@@ -19029,16 +19049,24 @@ handleoneback(fx) {
 	}
 	let rawname = ImBCBase.basename(f.name);
 	if (rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
-		this.parseDng(f,
-			(name, fx) => {
-				this.handleoneback(fx);
-			},
-			() => {
-				this.appmsg('Error reading DNG: ' + f.name, true);
-				if (undefined !== this.exitcode) this.exitcode++;
-				this.stats.error++;
-				this.handlenext();
-			});
+		try {
+			this.parseDng(f,
+				(name, fx) => {
+					this.handleoneback(fx);
+				},
+				() => {
+					this.appmsg('Error reading DNG: ' + f.name, true);
+					if (undefined !== this.exitcode) this.exitcode++;
+					this.stats.error++;
+					this.handlenext();
+				});
+		} catch (e) {
+			console.log(e);
+			this.appmsg('Error reading DNG: ' + f.name, true);
+			if (undefined !== this.exitcode) this.exitcode++;
+			this.stats.error++;
+			this.handlenext();
+		}
 		return;
 	}
 	else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
@@ -19058,16 +19086,7 @@ handleoneback(fx) {
 			for (let j=0; j<view.byteLength; j++) {
 				out[j] = view.getUint8(j);
 			}
-			//if (this.fromintent === 3)
-				this.writefile(rawname, 'application/octet-stream', 'process.converted', out, f.name);
-			/*else {
-				this.allfiles[this.actnum] = {
-					data: out,
-					name: rawname
-				};
-				this.mappx(true, 'process.converted', rawname);
-				this.handlenext();
-			}*/
+			this.writefile(rawname, 'application/octet-stream', 'process.converted', out, f.name);
 		}
 		reader.onerror = (evt) => {
 			console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
@@ -19126,7 +19145,7 @@ constructor() {
 }
 /* ImBCHtmlOut: output one thing via browser */
 writefile(name, type, okmsg, arr1, origname) {
-	if (this.cancelled) this.handlenext();
+	if (this.cancelled) return this.handlenext();
 	let b = new Blob([ arr1 ], { type: type });
 	const outel = document.getElementById('result');
 	outel.download = name;
@@ -19548,8 +19567,8 @@ afterfinish() {
 	this.allfiles = [];
 	if (this.fromvisbrows) {
 		this.fromvisbrows = false;
-		document.getElementById('pages').style['display'] = 'none';
-		this.onback = 'main';
+		//document.getElementById('pages').style['display'] = 'none';
+		this.onback = 'closeprog';
 		document.getElementById('progmsg').style['display'] = '';
 		document.getElementById('progokbut').disabled = false;
 		document.getElementById('dlprogresslogbtn').disabled = false;
@@ -19598,7 +19617,7 @@ zipname = '';
 ziperr = false;
 previewworker = null;
 workerstate = [];
-onback = 'quit'; // 'main', 'quit', 'nothing'
+onback = 'quit'; // 'main', 'quit', 'nothing', 'close...', 'canceldl'
 showham = false;
 constructor() {
 	super();
@@ -19744,14 +19763,26 @@ setpvwait() {
 	document.getElementById('preview').style['display'] = 'none';
 	document.getElementById('previewwait').style['display'] = '';
 }
+/* ImBCHtml: use generic msg for alert */
+myalert(txt) {
+	document.getElementById('phpv').src="";
+	document.getElementById('overlay').style['display'] = 'none';
+	//document.getElementById('pages').style['display'] = 'none';
+	document.getElementById('extraid').style['display'] = 'none';
+	document.getElementById('genericok').style['border-color'] = 'red';
+	document.getElementById('okmsg').innerHTML = txt;
+	document.getElementById('genericok').showModal();
+	this.onback = 'closegeneric';
+}
 /* ImBCHtml: show generic msg */
 showmsg() {
+	//this.closeham();
 	document.getElementById('phpv').src="";
-	document.getElementById('genericok').style['display'] = '';
-	document.getElementById('pages').style['display'] = 'none';
-	document.getElementById('extraid').style['display'] = 'none';
-	this.onback = 'main';
-	this.closeham();
+	document.getElementById('overlay').style['display'] = 'none';
+	//document.getElementById('pages').style['display'] = 'none';
+	//document.getElementById('extraid').style['display'] = 'none';
+	document.getElementById('genericok').showModal();
+	this.onback = 'closegeneric';
 }
 /* ImBCHtml: show the normal pages */
 showpages() {
@@ -19765,7 +19796,7 @@ showpages() {
 	const quest = document.getElementById('question');
 	if (quest) quest.style['display'] = 'none';
 	if (splash) splash.style['display'] = 'none';
-	document.getElementById('dlprogress').style['display'] = 'none';
+	document.getElementById('dlprogress').close();
 	window.onscroll = undefined;
 	window.onresize = undefined;
 	document.getElementById('msglog').style['display'] = 'none';
@@ -19782,13 +19813,13 @@ showpages() {
 	document.getElementById('tophot').classList.remove('active');
 	document.getElementById('tomov').classList.remove('active');
 	document.getElementById('toloc').classList.remove('active');
-	document.getElementById('genericok').style['display'] = 'none';
+	document.getElementById('genericok').close();
 }
 /* ImBCHtml: browserdisplay: show main screen */
 showmain() {
 	document.getElementById('phpv').src="";
-	document.getElementById('delq').style['display'] = 'none';
-	document.getElementById('genericok').style['display'] = 'none';
+	document.getElementById('delq').close();
+	document.getElementById('genericok').close();
 	if (this.dispmode === 1) {
 		this.showmovie();
 	} else if (this.dispmode === 0) {
@@ -19812,7 +19843,7 @@ showsplash() {
 	if (splash) splash.style['display'] = '';
 	document.getElementById('progokbut').disabled = true;
 	document.getElementById('progcancelbut').disabled = false;
-	document.getElementById('dlprogress').style['display'] = 'none';
+	document.getElementById('dlprogress').close();
 	window.onscroll = undefined;
 	window.onresize = undefined;
 	document.getElementById('msglog').style['display'] = 'none';
@@ -19930,15 +19961,15 @@ showlocal() {
 }
 /* ImBCHtml: show download progress (start) */
 showdlprog() {
-	document.getElementById('dlprogress').style['display']='';
+	document.getElementById('dlprogress').showModal();
 	document.getElementById('dlprogresslogbtn').style['display'] = '';
 	document.getElementById('dlprogresslogbtn').disabled = true;
 	document.getElementById('progcancelbut').disabled = false;
 	document.getElementById('progokbut').disabled = true;
-	this.closeham();
+	//this.closeham();
 	document.getElementById('progmsg').innerHTML = '...';
 	document.getElementById('dlprogress').style['border-color'] = 'grey';
-	document.getElementById('pages').style['display'] = 'none';
+	//document.getElementById('pages').style['display'] = 'none';
 	this.onback = 'nothing';
 }
 /* ImBCHtml: show message log */
@@ -19948,7 +19979,7 @@ showlog() {
 	this.onback = 'main';
 	document.getElementById('phpv').src="";
 	document.getElementById('msglog').style['display'] = '';
-	document.getElementById('dlprogress').style['display']='none';
+	document.getElementById('dlprogress').close();
 	window.setTimeout(() => { this.showlastmsg(); }, 100);
 }
 /* ImBCHtml: visual browser: prepare the browser display, group the stuff */
@@ -20731,12 +20762,12 @@ loadnextimg() {
 browserdelete() {
 	document.getElementById('del_text').setAttribute('data-myxlarg0', this.imbeles.filter((o) => o.selected).length);
 	this.xl1(document.getElementById('del_text'));
-	document.getElementById('delq').style['display'] = '';
-	document.getElementById('pages').style['display'] = 'none';
-	this.onback = 'nothing';
+	//document.getElementById('pages').style['display'] = 'none';
 	document.getElementById('delokbut').disabled = false;
 	document.getElementById('delcancelbut').disabled = false;
-	window.scrollTo({ top: 0 });
+	document.getElementById('delprogmsg').innerHTML = '';
+	document.getElementById('delq').showModal();
+	this.onback = 'closedelprog';
 }
 /* ImBCHtml: visual browser: do delete */
 dodelete(list, status) {
@@ -20755,6 +20786,7 @@ dodelete(list, status) {
 		return;
 	} else if (list.length > 0) {
 		/* processing */
+		this.onback = 'nothing';
 		this.custcmdB(4003, 'document', 'str=' + list[0].url, (res) => {
 			this.rotphase ++;
 			document.getElementById('delprogmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ' +  this.xl('process.totals', status.no, status.ok, 0, status.err);
@@ -20780,18 +20812,19 @@ dodelete(list, status) {
 		document.getElementById('delprogmsg').innerHTML = this.xl('process.totals', status.no, status.ok, 0, status.err);
 		document.getElementById('delokbut').disabled = false;
 		document.getElementById('delcancelbut').disabled = true;
+		this.onback = 'closedelprog';
 		this.savesettings();
 		this.rotphase = -1;
 	}
 }
 /* ImBCHtml: visual browser: cancel the delete */
 delcancel() {
-	document.getElementById('delq').style['display'] = 'none';
+	document.getElementById('delq').close();
 	document.getElementById('browser').style['display'] = '';
 	this.rotphase = 0;
 	document.getElementById('delprogmsg').innerHTML = '';
-	this.showmain();
-	window.scrollTo({ top: 0 });
+	//this.showmain();
+	//window.scrollTo({ top: 0 });
 }
 /* ImBCHtml: visual browser: process browser selected */
 browserprocess() {
@@ -20824,6 +20857,7 @@ browserprocess() {
 	this.actnum = 0;
 	this.allfiles = selecteds;
 	if (this.totnum > 0) {
+		this.showlog();
 		this.mappx(true, 'process.frombrowsern', this.totnum);
 		document.getElementById('imbdoit').disabled = true;
 		document.getElementById('imbvisbrows').disabled = true;
@@ -20832,6 +20866,7 @@ browserprocess() {
 		this.rotphase = 1;
 		this.fromvisbrows = true;
 		this.showdlprog();
+		this.onback = 'canceldl';
 		this.#startloadimg();
 		this.topreccheck(false);
 	} else {
@@ -21118,14 +21153,14 @@ async drophandler(ev) {
 		this.addall = true;
 		this.addscaleall = document.getElementById('fakelongexpscale')?.checked;
 		if (document.getElementById('fakelongexpadd')) document.getElementById('fakelongexpadd').checked = false;
-		this.closeham();
+		//this.closeham();
 		this.aftercheck();
 		document.getElementById('selall').click();
 		this.browserprocess();
 	} else {
 		this.addall = false;
 		this.addscaleall = false;
-		this.closeham();
+		//this.closeham();
 		this.aftercheck(); this.showbrowser();
 	}
 }
@@ -21251,21 +21286,23 @@ shownormal() {
 }
 /* ImBCHtml: preview: skip handler in the step preview */
 skipthis() {
-	if (this.cancelled) {
+	/*if (this.cancelled) {
 		this.showdisconnect(true);
 		this.shownormal();
-		this.handlenext();
+		//this.handlenext();
 		return;
-	}
+	}*/
+	this.onback = 'nothing';
 	this.cancelled = true;
+	document.getElementById('skipthis').disabled = true;
 	if (document.getElementById('doforall').checked || this.appname === 'imbapp') this.stepmode = 2;
-	if (this.totnum > 1) {
+	if (this.appname !== 'imbapp' && this.totnum > 1) {
 		this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
 	}
-	if (document.getElementById('doforall').checked || this.appname === 'imbapp') {
+	if (this.appname !== 'imbapp' && document.getElementById('doforall').checked) {
 		this.appmsgxl(true, 'process.skipped.remaining', this.totnum - this.actnum);
 		this.stats.skipped += (this.totnum - this.actnum);
-	} else {
+	} else if (this.appname !== 'imbapp') {
 		let rawname = ImBCBase.basename(this.allfiles[this.actnum].name ? this.allfiles[this.actnum].name : this.allfiles[this.actnum]);
 		this.appmsgxl(true, 'process.skipped', rawname);
 		this.stats.skipped ++;
@@ -21317,6 +21354,14 @@ chgcache() {
 }
 /* ImBCHtml: continue with the next file if any */
 handlenext() {
+	if (this.cancelled) {
+		this.appmsg('', true);
+		this.appmsgxl(true, 'process.skipped.remaining', this.totnum - this.actnum);
+		this.stats.skipped += (this.totnum - this.actnum);
+		this.afterfinish();
+		this.cancelled = false;
+		return;
+	}
 	if (this.#loaderrunning === 'blah!') {
 		if (this.debugflag) console.log('HN fl an ' + this.actnum + ' aflen ' + this.allfiles.length);
 		if (this.actnum >= this.allfiles.length - 1) {
@@ -21330,13 +21375,13 @@ handlenext() {
 				document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ' + this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
 			}
 			this.actnum++;
-			this.handleonex();
+			setTimeout(() => { this.handleonex(); }, 100);
 		}
 		return;
 	}
 	if (this.actnum < this.allfiles.length - 1) {
 		this.actnum++;
-		this.handleonex();
+		setTimeout(() => { this.handleonex(); }, 100);
 	} else {
 		this.afterfinish();
 		//this.shownormal();
@@ -21548,7 +21593,7 @@ checkimb() {
 									if (!rc)
 										l.val = o.value;
 									else {
-										alert(this.rmesc(this.xl('words.error')) + ' ' + sp.innerHTML)
+										this.myalert(this.rmesc(this.xl('words.error')) + ' ' + sp.innerHTML)
 										o.value = l.val;
 									}
 								});
@@ -21586,7 +21631,7 @@ checkimb() {
 								if (!rc)
 									l.val = o.value;
 								else {
-									alert(this.rmesc(this.xl('words.error')) + ' ' + l.name)
+									this.myalert(this.rmesc(this.xl('words.error')) + ' ' + l.name)
 									o.value = l.val;
 								}
 							});
@@ -21620,7 +21665,7 @@ checkimb() {
 						if (!rc)
 							l.val = o.value;
 						else
-							alert(this.rmesc(this.xl('words.error')) + ' ' + l.name)
+							this.myalert(this.rmesc(this.xl('words.error')) + ' ' + l.name)
 					});
 			}
 			for (const e of document.querySelectorAll('.foldersym'))
@@ -21867,22 +21912,12 @@ workermsg(msg) {
 }
 /* ImBCHtml: handle click on hamburger */
 handleham() {
-	if (this.showham) {
-		//this.showham = false;
-		return;
-	}
+	if (this.showham) return;
 	document.getElementById('hammen').showPopover();
-	//this.showham = true;
-	/*if (document.getElementById('hammen').style['display'] === 'none')
-		document.getElementById('hammen').style['display'] = ''
-	else
-		document.getElementById('hammen').style['display'] = 'none'*/
 }
 /* ImBCHtml: close hamburger */
 closeham() {
 	document.getElementById('hammen').hidePopover();
-	//this.showham = false;
-	//document.getElementById('hammen').style['display'] = 'none';
 }
 /* ImBCHtml: exit mode select change */
 chgexit() {
@@ -21906,18 +21941,18 @@ settime() {
 					document.getElementById('genericok').style['border-color'] = 'red';
 					document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.menu.settime'));
 				}
+				this.showmsg();
 			});
 		} else {
 			document.getElementById('genericok').style['border-color'] = 'red';
 			document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.menu.settime'));
+			this.showmsg();
 		}
-		this.showmsg();
 	});
 }
 /* ImBCHtml: info screen */
 appinfo() {
-	document.getElementById('pages').style['display'] = 'none';
-	this.onback = 'main';
+	//document.getElementById('pages').style['display'] = 'none';
 	document.getElementById('phpv').src="";
 	document.getElementById('genericok').style['border-color'] = 'grey';
 	document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('main.apptitle'));
@@ -21943,10 +21978,10 @@ appinfo() {
 	licensed under <a href="#" onclick=" window.open('http://scripts.sil.org/OFL', '_system'); return false;">Open Font License</a>.
 	<br>Based on work by Michele Asciutti from the ImBack User Group.</span>
 	<br><a href="https://shyrodgau.github.io/imbraw2dng/LICENSE.txt">License Info:</a>
-	<br><iframe src="https://shyrodgau.github.io/imbraw2dng/LICENSE.txt" id="liciframe" style="width: 100%;">`;
-	setTimeout(() => {
+	<br><iframe src="https://shyrodgau.github.io/imbraw2dng/LICENSE.txt" id="liciframe" style="width: 100%;zoom:50%;">`;
+	/*setTimeout(() => {
 		frames['liciframe'].contentDocument.head.innerHTML += ('<style type="text/css">*{font-size:5px;}</style>');
-	}, 100);
+	}, 100);*/
 	this.xlateall();
 	this.showmsg();
 }
@@ -21995,16 +22030,19 @@ takemovie() {
 	this.custcmdB(2001, 'document', 'par=1', (rc/*, doc*/) => {
 		this.imgsdirty = true;
 		if (rc >= 0) {
-			document.getElementById('pages').style['display'] = 'none';
+			this.movierec = true;
+			//document.getElementById('pages').style['display'] = 'none';
 			this.onback = 'nothing';
-			document.getElementById('movieprogress').style['display'] = '';
-			document.getElementById('takemovies').style['display'] = 'none';
+			document.getElementById('movieprogress').showModal();
+			//document.getElementById('takemovies').style['display'] = 'none';
 		}
 	});
 }
 /* ImBCHtml: stop a movie */
 stopmovie() {
-	document.getElementById('movieprogress').style['display'] = 'none';
+	if (!this.movierec) return;
+	this.movierec = false;
+	document.getElementById('movieprogress').close();
 	this.custcmdB(2001, 'document', 'par=0', (/*rc, doc*/) => {
 		this.showmain();
 	});
@@ -22035,7 +22073,7 @@ dopoweroff() {
    else if (this.exitmode === 'browse') ex = 2;
    this.custcmdB( [[3001, ('par=' + ex)], [ 8006, 'par=4']] , 'document', null, (rc) => {
            if (rc) {
-                   alert(this.rmesc(this.xl('words.error')) + ' ' + this.xl('app.menu.poweroff'));
+                   this.myalert(this.rmesc(this.xl('words.error')) + ' ' + this.xl('app.menu.poweroff'));
                    return;
                 }
         });
@@ -22046,6 +22084,17 @@ handleback() {
 		this.showmain();
 	else if (this.onback === 'quit')
 		this.doquit();
+	else if (this.onback === 'closeprog')
+		if (this.fromintent)
+			this.showlog();
+		else
+			this.showbrowser();
+	else if (this.onback === 'closegeneric')
+		document.getElementById('genericok').close();
+	else if (this.onback === 'closedelprog')
+		this.delcancel();
+	else if (this.onback === 'canceldl')
+		this.skipthis();
 }
 /* ImBCHtml: open parent */
 static openp(el) {
@@ -22064,6 +22113,17 @@ static closep(el) {
 clearcache() {
    this.dloads = []; 
    this.savesettings();
+}
+modalkeyev(ev) {
+	//console.log(ev);
+	if (window.getComputedStyle(document.getElementById('delq'))['display'] !== 'none') {
+		if (!document.getElementById('delcancelbut').disabled)
+			return true;
+	}
+	if (ev.keyCode === 27)
+		return false;
+	else
+		return true;
 }
 /* Indentation in - end of class ImBCHtml */
 }
@@ -22097,7 +22157,7 @@ function init() {
 		else if (imbc.exitmode === 'browse') ex = 2;
 		imbc.custcmdB( 3001,  'document', ('par=' + ex));
 		if (document.getElementById('pages').style['display'] === 'none') {
-			imbc.showmain();
+			imbc.handleback();
 			return true;
 		}
 	};
@@ -22110,7 +22170,7 @@ window.addEventListener('pageshow', function (event) {
 /* *************************************** globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.3.10_c67733", // actually const
+version: "V5.3.9_e04e4fb", // actually const
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 texts: { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -22498,7 +22558,7 @@ texts: { // actually const
 			de: 'Nach $$0 kopiert (Downloads-Ordner prüfen)</b>&nbsp;',
 			en: 'Copied to $$0 (Check Downloads Folder)</b>&nbsp;',
             fr: 'Copié sur $$0 (Vérifier le dossier de téléchargements/Downloads)</b>&nbsp;',
-            ja: '$$0 にコピーされました (ダウンロードフォルダーを確認)</b>&nbsp;'
+            ja: '$$0 に変換されました (ダウンロードフォルダーを確認してください)</b>&nbsp;'
 		},
 		copyok: {
 			de: 'Nach $$0 kopiert',
@@ -25480,6 +25540,8 @@ function readjpg(file) {
 <!-- the normal display/settings -->
 <div id="normal"  style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
 <div style="position:fixed; top:0; left:0; width:100%;background-color:black;z-index:997;color:white;"><div>&nbsp;<span id="settx"><input type="button" value="&#x2190;" class="whbtn" style="font-size:200%;padding:0 !important; border:0 !important;" onclick="imbc.showmain()"></span>
+<span style="display:inline-block;margin-left: -1.5em;"><span class="batt1 battlo battery" style="font-weight:bold; display: inline-block; width: 1em; height:1.3em; vertical-align:bottom;position:relative; top: 0em;"><span>&#xa0;</span></span>
+<span class="batt2 battlo battery" style="position: relative; left: -1.1em; font-weight:bold; display: inline-block; color:green;width: 0.7em;background-color: black;top: 0.2em;"><span>&#xa0;</span></span></span>
 <span class="whbtn disconnected" style="padding-left:0.4em;padding-right:0.4em;display:none;"> ! &#x1f593; ! &#x1f5be; ! </span>
 </div></div>
 <div id="appsett" class="gg ggopen">
@@ -25533,6 +25595,8 @@ function readjpg(file) {
 <!-- this is the messagelog, generated content appended -->
 <div id="msglog" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
 <div style="position:fixed; top:0; left:0; width:100%;background-color:black;z-index:997;color:white;"><div>&nbsp;<span id="msglogx"><input type="button" value="&#x2190;" class="whbtn" style="font-size:200%;padding:0 !important; border:0 !important;" onclick="imbc.showmain()"></span>
+<span style="display:inline-block;margin-left: -1.5em;"><span class="batt1 battlo battery" style="font-weight:bold; display: inline-block; width: 1em; height:1.3em; vertical-align:bottom;position:relative; top: 0em;"><span>&#xa0;</span></span>
+<span class="batt2 battlo battery" style="position: relative; left: -1.1em; font-weight:bold; display: inline-block; color:green;width: 0.7em;background-color: black;top: 0.2em;"><span>&#xa0;</span></span></span>
 <span class="whbtn disconnected" style="font-weight:bold;font-family:Symbol3;padding-left:0.4em;padding-right:0.4em;background-color:red !important;display:none;"> ! &#x1f593; ! </span>
 </div>
 </div>
@@ -25543,6 +25607,8 @@ function readjpg(file) {
 <!-- this is the Extras -->
 <div id="extraid" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
 <div style="position:fixed; top:0; left:0; width:100%;background-color:black;z-index:997;color:white;"><div>&nbsp;<span id="extrasx"><input type="button" value="&#x2190;" class="whbtn" style="font-size:200%;padding:0 !important; border:0 !important;" onclick="imbc.showmain()"></span>
+<span style="display:inline-block;margin-left: -1.5em;"><span class="batt1 battlo battery" style="font-weight:bold; display: inline-block; width: 1em; height:1.3em; vertical-align:bottom;position:relative; top: 0em;"><span>&#xa0;</span></span>
+<span class="batt2 battlo battery" style="position: relative; left: -1.1em; font-weight:bold; display: inline-block; color:green;width: 0.7em;background-color: black;top: 0.2em;"><span>&#xa0;</span></span></span>
 <span class="whbtn disconnected" style="font-weight:bold;font-family:Symbol3;padding-left:0.4em;padding-right:0.4em;background-color:red !important;display:none;"> ! &#x1f593; ! </span>
 </div>
 </div>
@@ -25568,14 +25634,14 @@ function readjpg(file) {
 <!-- navigation header -->
 <div id="navheader" style="position:fixed; top:0; width:100%;background-color:black;z-index:997;color:white;"><div>&nbsp;
 <span class="browserx"><input type="button" value="&#x2261;" style="padding-left: 0em; margin-top: -0.3em; margin-bottom: -0.5em;font-size:200%;border:0 !important;margin-right: 0;padding-right: 0;" class="whbtn" id="hamb" onclick="imbc.handleham();"></span>
-<span id="batt1" class="battlo battery" style="font-weight:bold; display: inline-block; width: 1em; height:1.3em; vertical-align:bottom;position:relative; top: -0.7em;"><span>&#xa0;</span></span>
-<span id="batt2" class="battlo battery" style="position: relative; left: -1.1em; font-weight:bold; display: inline-block; color:green;width: 0.7em;background-color: black;margin-right: 1em;top: -0.3em;"><span>&#xa0;</span></span>
+<span id="batt1" class="batt1 battlo battery" style="font-weight:bold; display: inline-block; width: 1em; height:1.3em; vertical-align:bottom;position:relative; top: -0.7em;"><span>&#xa0;</span></span>
+<span id="batt2" class="batt2 battlo battery" style="position: relative; left: -1.1em; font-weight:bold; display: inline-block; color:green;width: 0.7em;background-color: black;margin-right: 1em;top: -0.3em;"><span>&#xa0;</span></span>
 <input type="button" value="&#x1f5d1;" class="uhbtn" onclick="imbc.browserdelete()" id="delselbut" disabled style="font-family:Symbol3;font-weight: normal;" data-mytitlexlkey="browser.delall"> 
 <input type="button" style="font-family:Symbol3;" value="&#x2b73;" class="uhbtn" onclick="imbc.browserprocess()" id="doselbut" disabled data-mytitlexlkey="browser.procall"> 
-<input type="button" class="uhbtn" value="&#x1f3d4;" id="tobrows" onclick="imbc.dispmode=2;imbc.showbrowser();imbc.closeham();" style="font-family:Symbol3;">
-<input type="button" class="uhbtn photosym" value="&#x1f4f7;" id="tophot" onclick="imbc.dispmode=0;imbc.showphoto();imbc.closeham();" style="font-family:Symbol3;font-weight:normal;">
-<input type="button" class="uhbtn moviesym" value="&#x1f4fd;" id="tomov" onclick="imbc.dispmode=1;imbc.showmovie();imbc.closeham();" style="font-family:Symbol3;font-weight:normal;">
-<input type="button" class="uhbtn foldersym" value="&#x1f5c2;" id="toloc" onclick="imbc.dispmode=3;imbc.showlocal();imbc.closeham();" style="font-family:Symbol3;">
+<input type="button" class="uhbtn" value="&#x1f3d4;" id="tobrows" onclick="imbc.dispmode=2;imbc.showbrowser();" style="font-family:Symbol3;">
+<input type="button" class="uhbtn photosym" value="&#x1f4f7;" id="tophot" onclick="imbc.dispmode=0;imbc.showphoto();" style="font-family:Symbol3;font-weight:normal;">
+<input type="button" class="uhbtn moviesym" value="&#x1f4fd;" id="tomov" onclick="imbc.dispmode=1;imbc.showmovie();" style="font-family:Symbol3;font-weight:normal;">
+<input type="button" class="uhbtn foldersym" value="&#x1f5c2;" id="toloc" onclick="imbc.dispmode=3;imbc.showlocal();" style="font-family:Symbol3;">
 <span class="whbtn disconnected" style="padding-left:0.4em;padding-right:0.4em;display:none;"> ! &#x1f593; ! &#x1f5be; ! </span>
 <!--input type="button" data-myvalxlkey="app.install" class="whbtn" onclick="if (bfep) bfep.prompt(); bpef=null; this.style['display']='none';" id="installbutton" style="display:none;font-weight:bold;position:absolute; right:0.5em;"-->
 </div>
@@ -25649,31 +25715,32 @@ function readjpg(file) {
 <!-- end of the take movies -->
 </div><!-- end of container for navigationable pages -->
 <!-- this is the wait for stop movie -->
-<div id="movieprogress" style="border: 5px solid blue; border-radius: 20px; padding: 20px;display:none;width:fit-content;">
+<dialog class="mymodal" id="movieprogress" style="border: 5px solid blue; border-radius: 20px; padding: 20px;width:fit-content;" onkeyup="return imbc.modalkeyev(event);" onkeydown="return imbc.modalkeyev(event);" onclose="imbc.stopmovie();this.close();">
 <div style="font-weight:bold;" id="progmoviemsg">&#x23f1;</div>
-<input id="stopbut" type="button" value="&#x2bc3;"  onclick="imbc.stopmovie()" style="font-size: 300%;color: red;font-family:Symbol3;width:1.5em; height:1.5em; border-radius:50%;">
-</div>
+<input id="stopbut" type="button" value="&#x2bc3;"  onclick="imbc.stopmovie()" style="font-size: 300%;color: red;font-family:Symbol3;width:1.5em; height:1.5em; border-radius:50%;" onkeyup="return imbc.modalkeyev(event);" onkeydown="return imbc.modalkeyev(event);">
+</dialog>
 <!-- end of the wait for stop movie -->
 <!-- this is the delete question/progress -->
-<div id="delq" style="border: 5px solid red; border-radius: 20px; padding: 20px;display:none;width:fit-content;">
+<dialog class="mymodal" id="delq" style="border: 5px solid red; border-radius: 20px; padding: 20px;width:fit-content;" onkeyup="return imbc.modalkeyev(event);" onkeydown="return imbc.modalkeyev(event);">
 <span id="del_text" data-myxlarg0="0" data-myxlkey="del.question"></span><br>
-<input id="delcancelbut" type="button" data-myvalxlkey="del.question.cancel" onclick="imbc.delcancel()"> - <input id="delokbut" type="button" data-myvalxlkey="del.question.ok" onclick="imbc.dodelete()"><br>
+<input id="delcancelbut" type="button" data-myvalxlkey="del.question.cancel" onclick="imbc.delcancel()" onkeyup="return imbc.modalkeyev(event);" onkeydown="return imbc.modalkeyev(event);"> - 
+<input id="delokbut" type="button" data-myvalxlkey="del.question.ok" onclick="imbc.dodelete()" onkeyup="return imbc.modalkeyev(event);" onkeydown="return imbc.modalkeyev(event);"><br>
 <div style="font-weight:bold;" id="delprogmsg"></div>
-</div>
+</dialog>
 <!-- end of the delete question/progress -->
 <!-- this is the download progress -->
-<div id="dlprogress" style="border: 5px solid grey; border-radius: 20px; padding: 20px;display:none;width:fit-content;">
+<dialog class="mymodal" id="dlprogress" style="border: 5px solid grey; border-radius: 20px; padding: 20px;width:fit-content;" onkeyup="return imbc.modalkeyev(event);" onkeydown="return imbc.modalkeyev(event);">
 <div style="font-weight:bold;" id="progmsg"></div>
-<input id="progokbut" type="button" data-myvalxlkey="del.question.ok" onclick="imbc.showbrowser()" disabled>
-<input id="progcancelbut" type="button" data-myvalxlkey="del.question.cancel" onclick="imbc.skipthis()">
-<input id="dlprogresslogbtn" type="button" data-myvalxlkey="app.menu.msglog" onclick="imbc.showlog()" disabled>
-</div>
+<input id="progokbut" type="button" data-myvalxlkey="del.question.ok" onclick="imbc.showbrowser()" disabled onkeyup="return imbc.modalkeyev(event);" onkeydown="return imbc.modalkeyev(event);">
+<input id="progcancelbut" type="button" data-myvalxlkey="del.question.cancel" onclick="imbc.skipthis()" onkeyup="return imbc.modalkeyev(event);" onkeydown="return imbc.modalkeyev(event);">
+<input id="dlprogresslogbtn" type="button" data-myvalxlkey="app.menu.msglog" onclick="imbc.showlog()" disabled onkeyup="return imbc.modalkeyev(event);" onkeydown="return imbc.modalkeyev(event);">
+</dialog>
 <!-- end of the download progress -->
 <!-- generic OK/error -->
-<div id="genericok" style="border: 5px solid grey; border-radius: 20px; padding: 20px;display:none;width:fit-content;">
+<dialog id="genericok" class="mymodal" style="border: 5px solid grey; border-radius: 20px; padding: 20px;width:fit-content;">
 <div style="font-weight:bold;" id="okmsg"></div>
-<input id="confirmbut" type="button" data-myvalxlkey="del.question.ok" onclick="imbc.showmain(); this.parentElement.style['display'] = 'none';">
-</div>
+<input id="confirmbut" type="button" data-myvalxlkey="del.question.ok" onclick="this.parentElement.close();">
+</dialog>
 <!-- end of the generic ok/error -->
 <!-- block overlay -->
 <div class="overlay" id="overlay" style="display:none;">&nbsp;</div>
