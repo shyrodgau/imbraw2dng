@@ -35,16 +35,16 @@ find ~/Downloads -newer ~/Downloads/imbraw2dng_test_${testid}_startmark -type f 
 rm ~/Downloads/imbraw2dng_test_${testid}_endmark ~/Downloads/imbraw2dng_test_${testid}_startmark
 
 touch ~/Downloads/imbraw2dng_test_${testid}_startmark
-#( python3 -m http.server 8080 > ${log}_http 2>&1 )&
-#ps -ef|grep -q 'appiu[m]'
-#if [ $? -ne 0 ]; then
-#	( PATH="/opt/google/android-studio/cmdline-tools/latest/bin/:/opt/google/android-studio/emulator/:$PATH" ANDROID_SDK_ROOT=/opt/google/android-studio ANDROID_HOME=/opt/google/android-studio appium \
-#		server -a 127.0.0.1 --allow-insecure chromedriver_autodownload --allow-insecure adb_shell  > /dev/null 2>&1 ) &
-#	sleep 6
-#fi
+( python3 -m http.server 8080 > ${log}_http 2>&1 )&
+ps -ef|grep -q 'appiu[m]'
+if [ $? -ne 0 ]; then
+	( PATH="/opt/google/android-studio/cmdline-tools/latest/bin/:/opt/google/android-studio/emulator/:$PATH" ANDROID_SDK_ROOT=/opt/google/android-studio ANDROID_HOME=/opt/google/android-studio appium \
+		server -a 127.0.0.1 --allow-insecure chromedriver_autodownload,adb_shell  > /dev/null 2>&1 ) &
+	sleep 6
+fi
 
 
-#${TESTWORK}/test_app.js 2>&1 | tee -a $log 2>&1
+${TESTWORK}/test_app.js 2>&1 | tee -a $log 2>&1
 sleep 3
 touch ~/Downloads/imbraw2dng_test_${testid}_endmark
 
