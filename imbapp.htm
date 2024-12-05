@@ -343,9 +343,12 @@ AAAAAQAAAADiGmLjAAAAANTwQIsAAAAA4xSRiXicY2AUYGD6/Y+BgYHt9P9GZmbm\
 E0AmIwMyYAEAhmYFNAAAAAPoAzMAAAAABAAAAAbL/2v//gAyAGkAeAB4AI4AKgBl\
 /8UAiwAVAAUANP/L//8AQAAX/97//v/bABAAAA==');
 }
-@media (max-width: 600px) {
+@media (max-width: 800px) {
 div#xmsg {
 	white-space: pre-wrap !important;
+}
+.mymodal {
+	margin-left: 2% !important;
 }
 }
 body { margin: 0; }
@@ -406,15 +409,18 @@ body { margin: 0; }
 }​
 .mymodal:-internal-dialog-in-top-layer::backdrop {
     background-color: rgba(0, 0, 65, 0.4) !important;
-    width:100%;
-    heigth:100%;
+    width:100vw;
+    height:100vh;
     overflow:hidden;
 }
 .mymodal::backdrop {
     background: rgba(0, 0, 65, 0.4) !important;
+    width:100vw;
+    height:100vh;
+    overflow:hidden;
 }
 .mymodal {
-	margin-left:12%; margin-top:19%;
+	margin-left:12vw; margin-top:19vh;
 }
 /*.gl1 > .ggtt span.gtype { display: inline !important; }*/
 .ggttopen { border-bottom: 0 !important; }
@@ -538,7 +544,9 @@ img.whbtn { height:1.33em; position:relative; top:0.5em; }
 .batt2.battlo { height: 0.8em; }
 .btop { border-top: 1px solid black; padding-top: 1em; }
 body:has(dialog[open]), html:has(dialog[open]) {
-  overflow: hidden;
+  overflow: hidden !important;
+  width:100vw !important;
+  height:100vh !important;
 }
 </style>
 <!-- javascript code CURRENTLY NOT identical to imbraw2dng.js  for the classes IFDOut, TIFFOut, ZIPHelp, ImBCBase, ImBCBackw. -->
@@ -19142,6 +19150,11 @@ photourl = 'unknown';
 cancelled = false;
 constructor() {
 	super();
+	if (undefined === document.getElementById('thebody').popover) {
+		document.getElementById('hammen').style['z-index'] = 998;
+		document.getElementById('hammen').style['display'] = 'none';
+		console.log
+	}
 }
 /* ImBCHtmlOut: output one thing via browser */
 writefile(name, type, okmsg, arr1, origname) {
@@ -19796,7 +19809,7 @@ showpages() {
 	const quest = document.getElementById('question');
 	if (quest) quest.style['display'] = 'none';
 	if (splash) splash.style['display'] = 'none';
-	document.getElementById('dlprogress').close();
+	this.closedlprog();
 	window.onscroll = undefined;
 	window.onresize = undefined;
 	document.getElementById('msglog').style['display'] = 'none';
@@ -19843,7 +19856,7 @@ showsplash() {
 	if (splash) splash.style['display'] = '';
 	document.getElementById('progokbut').disabled = true;
 	document.getElementById('progcancelbut').disabled = false;
-	document.getElementById('dlprogress').close();
+	this.closedlprog();
 	window.onscroll = undefined;
 	window.onresize = undefined;
 	document.getElementById('msglog').style['display'] = 'none';
@@ -19962,6 +19975,9 @@ showlocal() {
 /* ImBCHtml: show download progress (start) */
 showdlprog() {
 	document.getElementById('dlprogress').showModal();
+	document.querySelector('body').style['overflow'] = 'hidden';
+	document.querySelector('body').style['max-width'] = '100vw';
+	document.querySelector('body').style['max-height'] = '100vh';
 	document.getElementById('dlprogresslogbtn').style['display'] = '';
 	document.getElementById('dlprogresslogbtn').disabled = true;
 	document.getElementById('progcancelbut').disabled = false;
@@ -19972,6 +19988,12 @@ showdlprog() {
 	//document.getElementById('pages').style['display'] = 'none';
 	this.onback = 'nothing';
 }
+closedlprog() {
+	document.querySelector('body').style['overflow'] = '';
+	document.querySelector('body').style['max-width'] = '';
+	document.querySelector('body').style['max-height'] = '';
+	document.getElementById('dlprogress').close();
+}
 /* ImBCHtml: show message log */
 showlog() {
 	document.getElementById('dlprogress').style['border-color'] = 'grey';
@@ -19979,7 +20001,7 @@ showlog() {
 	this.onback = 'main';
 	document.getElementById('phpv').src="";
 	document.getElementById('msglog').style['display'] = '';
-	document.getElementById('dlprogress').close();
+	this.closedlprog();
 	window.setTimeout(() => { this.showlastmsg(); }, 100);
 }
 /* ImBCHtml: visual browser: prepare the browser display, group the stuff */
@@ -21912,12 +21934,33 @@ workermsg(msg) {
 }
 /* ImBCHtml: handle click on hamburger */
 handleham() {
-	if (this.showham) return;
-	document.getElementById('hammen').showPopover();
+	if (undefined !== document.getElementById('thebody').popover) {
+		if (this.showham) {
+			document.getElementById('hammen').hidePopover();
+			setTimeout(() => { this.showham = false; }, 100);
+		} else {
+			document.getElementById('hammen').showPopover();
+			setTimeout(() => { this.showham = true; }, 100);
+		}
+	} else {
+       if (document.getElementById('hammen').style['display'] === 'none')
+               document.getElementById('hammen').style['display'] = ''
+       else
+               document.getElementById('hammen').style['display'] = 'none'
+	}
+	return false;
 }
 /* ImBCHtml: close hamburger */
 closeham() {
-	document.getElementById('hammen').hidePopover();
+	if (undefined !== document.getElementById('thebody').popover) {
+			document.getElementById('hammen').hidePopover();
+			setTimeout(() => { this.showham = false; }, 100);
+	} else {
+       document.getElementById('hammen').style['display'] = 'none';
+	}
+}
+toggleham(ev) {
+	console.log(ev);
 }
 /* ImBCHtml: exit mode select change */
 chgexit() {
@@ -22212,6 +22255,11 @@ texts: { // actually const
 		}
 	},
 	main: {
+		choosefile: {
+			en: 'choose file',
+			de: 'datei auswählen',
+			ja: 'ファイルを選択'
+		},
 		coloursyourrisk: {
 			de: 'Bei Farben bin ich raus! Eigenes Risiko, fraach mich net!',
 			en: 'About colurs, I am out! Own risk, do not ask me!',
@@ -25465,19 +25513,17 @@ function custcmdi(c, t, restargs, cb, results) {
 	if (undefined === base) {
 		handlewait();
 		cb({ cmd: 'custcmd', ok: false, rc: -1, cmds: currcust });
+		return;
 	}
 	else if (base.startsWith('http://192.168.1.254')) {
 		xhr.open('GET', base + '/?custom=1&cmd=' + thecmd + (therest ? ('&'  + therest): ''));
-		xhr.setRequestHeader('Cache-control','no-cache, no-store, max-age=0');
-		xhr.responseType = 'arraybuffer';
-		xhr.send();
 	}
 	else {
 		xhr.open('GET', base+ '/i' + thecmd + '.xml' + (therest ? ('?'  + therest): ''));
-		xhr.setRequestHeader('Cache-control','no-cache, no-store, max-age=0');
-		xhr.responseType = 'arraybuffer';
-		xhr.send();
 	}
+	xhr.setRequestHeader('Cache-control','no-cache, no-store, max-age=0');
+	xhr.responseType = 'arraybuffer';
+	xhr.send();
 }
 /* WORKER read local jpeg */
 function readjpg(file) {
@@ -25593,14 +25639,14 @@ function readjpg(file) {
 </div>
 <!-- end of the normal display/settings -->
 <!-- this is the messagelog, generated content appended -->
-<div id="msglog" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
+<div id="msglog" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;width:100vw; height:100vh; overflow:scroll;">
 <div style="position:fixed; top:0; left:0; width:100%;background-color:black;z-index:997;color:white;"><div>&nbsp;<span id="msglogx"><input type="button" value="&#x2190;" class="whbtn" style="font-size:200%;padding:0 !important; border:0 !important;" onclick="imbc.showmain()"></span>
 <span style="display:inline-block;margin-left: -1.5em;"><span class="batt1 battlo battery" style="font-weight:bold; display: inline-block; width: 1em; height:1.3em; vertical-align:bottom;position:relative; top: 0em;"><span>&#xa0;</span></span>
 <span class="batt2 battlo battery" style="position: relative; left: -1.1em; font-weight:bold; display: inline-block; color:green;width: 0.7em;background-color: black;top: 0.2em;"><span>&#xa0;</span></span></span>
 <span class="whbtn disconnected" style="font-weight:bold;font-family:Symbol3;padding-left:0.4em;padding-right:0.4em;background-color:red !important;display:none;"> ! &#x1f593; ! </span>
 </div>
 </div>
-<div id="xmsg" style="width: fit-content;white-space: pre;"><span style="font-weight:bold;" data-myxlkey="main.log"></span><br>
+<div id="xmsg" style="width: fit-content;white-space: pre;max-width:100%;max-height:100%; overflow:scroll;"><span style="font-weight:bold;" data-myxlkey="main.log"></span><br>
 <div id="outmsg"></div></div>
 </div>
 <!-- end of the message log, generated content appended -->
@@ -25621,7 +25667,7 @@ function readjpg(file) {
 <!-- end of the extras -->
 <div id="pages" style="display:none;"><!-- container for navigationable pages -->
 <!-- hamburger menu -->
-<div id="hammen" style="position:fixed; left: 0; width: fit-content; background-color:white; inset:unset; top:2em;color:black;border:1px solid gray;border-bottom-right-radius:10px;border-bottom-left-radius:10px;" popover="auto" ontoggle="imbc.showham = !imbc.showham;">
+<div id="hammen" style="position:fixed; left: 0; width: fit-content; background-color:white; inset:unset; top:2em;color:black;border:1px solid gray;border-bottom-right-radius:10px;border-bottom-left-radius:10px;" popover="auto" ontoggle="imbc.toggleham(event);">
 <div class="hammenent" onclick="imbc.closeham();imbc.settime()"><span  style="font-family:Symbol3;">&#x1f570;</span> <span data-myxlkey='app.menu.settime'>Set ImB Time</span></div>
 <div class="hammenent" id="hamlog" onclick="imbc.closeham();imbc.showlog();"><span  style="font-family:Symbol3;">&#x1f5ce;</span> <span data-myxlkey='app.menu.msglog'>Msg Log</span></div>
 <div class="hammenent" onclick="imbc.closeham();imbc.shownormal();"><span  style="font-family:Symbol3;">&#x1f6e0;</span> <span data-myxlkey='app.menu.settings'>Settings</span></div>
@@ -25633,7 +25679,7 @@ function readjpg(file) {
 <!-- end of hamburger menu -->
 <!-- navigation header -->
 <div id="navheader" style="position:fixed; top:0; width:100%;background-color:black;z-index:997;color:white;"><div>&nbsp;
-<span class="browserx"><input type="button" value="&#x2261;" style="padding-left: 0em; margin-top: -0.3em; margin-bottom: -0.5em;font-size:200%;border:0 !important;margin-right: 0;padding-right: 0;" class="whbtn" id="hamb" onclick="imbc.handleham();"></span>
+<span class="browserx"><input type="button" value="&#x2261;" style="padding-left: 0em; margin-top: -0.3em; margin-bottom: -0.5em;font-size:200%;border:0 !important;margin-right: 0;padding-right: 0;" class="whbtn" id="hamb" onclick="return imbc.handleham();"></span>
 <span id="batt1" class="batt1 battlo battery" style="font-weight:bold; display: inline-block; width: 1em; height:1.3em; vertical-align:bottom;position:relative; top: -0.7em;"><span>&#xa0;</span></span>
 <span id="batt2" class="batt2 battlo battery" style="position: relative; left: -1.1em; font-weight:bold; display: inline-block; color:green;width: 0.7em;background-color: black;margin-right: 1em;top: -0.3em;"><span>&#xa0;</span></span>
 <input type="button" value="&#x1f5d1;" class="uhbtn" onclick="imbc.browserdelete()" id="delselbut" disabled style="font-family:Symbol3;font-weight: normal;" data-mytitlexlkey="browser.delall"> 
