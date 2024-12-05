@@ -399,7 +399,7 @@ body { margin: 0; }
 	margin:0.2em;
 }*/
 #overlay {
-    background-color: rgba(0, 0, 55, 0.4);
+    background-color: rgba(0, 0, 55, 0.3);
     z-index: 999;
     position: fixed;
     left: -20%;
@@ -19466,7 +19466,7 @@ imbdoit() {
 		document.getElementById('imbdoit').disabled = true;
 		document.getElementById('imbvisbrows').disabled = true;
 		document.getElementById('droptarget').style['display'] = 'none';
-		document.getElementById('infile').disabled = true
+		document.getElementById('infile').disabled = true;
 		this.starthandleone();
 	}
 	else this.mappx(true, 'onimback.nomatch');
@@ -19544,6 +19544,7 @@ writepostok(name) {
 }
 /* ImBCHtmlOut: after finishing.... */
 afterfinish() {
+	this.rotphase = -1;
 	this.savesettings();
 	if (this.zip) {
 		this.zip.finish(() => {
@@ -19641,7 +19642,7 @@ dloads = []; // already known downloaded
 #cache = []; // actual cache buffer
 #loaderrunning=false; // currently handled browser raw preview download
 fromvisbrows = false;
-/* deleting */
+/* deleting/downloading */
 rotphase = 0;
 /* ImBCHtml: init the worker */
 initworker() {
@@ -19699,7 +19700,6 @@ fselected() {
 	this.actnum = 0;
 	this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
 	let n = 0;
-	this.rotphase = 1;
 	this.fromvisbrows = true;
 	document.getElementById('imbdoit').disabled = true;
 	document.getElementById('imbvisbrows').disabled = true;
@@ -19993,6 +19993,7 @@ closedlprog() {
 	document.querySelector('body').style['max-width'] = '';
 	document.querySelector('body').style['max-height'] = '';
 	document.getElementById('dlprogress').close();
+	this.#startloadimg();
 }
 /* ImBCHtml: show message log */
 showlog() {
@@ -20753,6 +20754,9 @@ loadnextimg() {
 			this.starthandleone();
 		}, 33);
 		return;
+	} else if (this.rotphase >= 1) {
+		this.#loaderrunning = false;
+		return;
 	}
 	let e = this.#findnexttoload();
 	if (!e) {
@@ -20790,6 +20794,7 @@ browserdelete() {
 	document.getElementById('delprogmsg').innerHTML = '';
 	document.getElementById('delq').showModal();
 	this.onback = 'closedelprog';
+	this.rotphase = 1;
 }
 /* ImBCHtml: visual browser: do delete */
 dodelete(list, status) {
@@ -20802,7 +20807,7 @@ dodelete(list, status) {
 		/* initial call */
 		document.getElementById('delokbut').disabled = true;
 		document.getElementById('delcancelbut').disabled = true;
-		this.rotphase=0;
+		this.rotphase=1;
 		document.getElementById('delprogmsg').innerHTML = this.rotphases[this.rotphase];
 		this.dodelete(this.imbeles.filter((o) => o.selected), { no: this.imbeles.filter((o) => o.selected).length, ok: 0, err: 0 });
 		return;
@@ -20845,6 +20850,8 @@ delcancel() {
 	document.getElementById('browser').style['display'] = '';
 	this.rotphase = 0;
 	document.getElementById('delprogmsg').innerHTML = '';
+	this.#startloadimg();
+	this.onback = 'quit';
 	//this.showmain();
 	//window.scrollTo({ top: 0 });
 }
@@ -21382,6 +21389,7 @@ handlenext() {
 		this.stats.skipped += (this.totnum - this.actnum);
 		this.afterfinish();
 		this.cancelled = false;
+		this.#startloadimg();
 		return;
 	}
 	if (this.#loaderrunning === 'blah!') {
@@ -21389,6 +21397,7 @@ handlenext() {
 		if (this.actnum >= this.allfiles.length - 1) {
 			this.#loaderrunning = false;
 			this.afterfinish();
+			this.#startloadimg();
 		}
 		else {
 			if (this.fromvisbrows) {
@@ -21406,6 +21415,7 @@ handlenext() {
 		setTimeout(() => { this.handleonex(); }, 100);
 	} else {
 		this.afterfinish();
+		this.#startloadimg();
 		//this.shownormal();
 	}
 }
@@ -22213,7 +22223,7 @@ window.addEventListener('pageshow', function (event) {
 /* *************************************** globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.4.1_8a4adf7", // actually const
+version: "V5.4.2_cec04fb", // actually const
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 texts: { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -25420,13 +25430,13 @@ function buildpreviewcache(f, orientation) {
 	//console.log(JSON.stringify(wb));
 	let outpix = globals.buildpvarray(view, typ, w, h, orientation, false, wb);
 	// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
-	/*if (dbgflag) {
+	if (dbgflag) {
 		setTimeout(() => {
-			postMessage({ cmd: cmd, pix: outpix, n: n, o: ori, c: cache });
+			postMessage({ cmd: cmd, pix: outpix, n: n, o: ori, c: cache, xori: (typ === 5 && ori === 0) ? 3 : ((ori === 0) ? 1 : ori) });
 			handlewait();
-		}, 300);
+		}, 900);
 	}
-	else*/ {
+	else {
 		postMessage({ cmd: cmd, pix: outpix, n: n, o: ori, c: cache, xori: (typ === 5 && ori === 0) ? 3 : ((ori === 0) ? 1 : ori) });
 		handlewait();
 	}
@@ -25639,14 +25649,14 @@ function readjpg(file) {
 </div>
 <!-- end of the normal display/settings -->
 <!-- this is the messagelog, generated content appended -->
-<div id="msglog" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;width:100vw; height:100vh; overflow:scroll;">
+<div id="msglog" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;width:100vw; height:100vh; overflow:auto;">
 <div style="position:fixed; top:0; left:0; width:100%;background-color:black;z-index:997;color:white;"><div>&nbsp;<span id="msglogx"><input type="button" value="&#x2190;" class="whbtn" style="font-size:200%;padding:0 !important; border:0 !important;" onclick="imbc.showmain()"></span>
 <span style="display:inline-block;margin-left: -1.5em;"><span class="batt1 battlo battery" style="font-weight:bold; display: inline-block; width: 1em; height:1.3em; vertical-align:bottom;position:relative; top: 0em;"><span>&#xa0;</span></span>
 <span class="batt2 battlo battery" style="position: relative; left: -1.1em; font-weight:bold; display: inline-block; color:green;width: 0.7em;background-color: black;top: 0.2em;"><span>&#xa0;</span></span></span>
 <span class="whbtn disconnected" style="font-weight:bold;font-family:Symbol3;padding-left:0.4em;padding-right:0.4em;background-color:red !important;display:none;"> ! &#x1f593; ! </span>
 </div>
 </div>
-<div id="xmsg" style="width: fit-content;white-space: pre;max-width:100%;max-height:100%; overflow:scroll;"><span style="font-weight:bold;" data-myxlkey="main.log"></span><br>
+<div id="xmsg" style="width: fit-content;white-space: pre;max-width:100%;max-height:100%; overflow:auto;"><span style="font-weight:bold;" data-myxlkey="main.log"></span><br>
 <div id="outmsg"></div></div>
 </div>
 <!-- end of the message log, generated content appended -->
