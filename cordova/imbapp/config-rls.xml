@@ -16,6 +16,7 @@
     <platform name="android">
       <preference name="AndroidWindowSplashScreenAnimatedIcon" value="www/img/logo.png" />
       <resource-file src="../../imbapp.htm" target="app/src/main/assets/www/res/imbapp.htm"/>
+      <resource-file src="imbapp.html" target="app/src/main/assets/www/imbapp.html"/>
       <resource-file src="../../LICENSE.txt" target="app/src/main/assets/www/res/LICENSE.txt"/>
       <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application">
         <application android:usesCleartextTraffic="true" android:largeHeap="true" android:requestLegacyExternalStorage="true" />
@@ -37,6 +38,7 @@
     </platform>
     <platform name="ios">
       <resource-file src="../../imbapp.htm" target="app/src/main/assets/www/res/imbapp.htm"/>
+      <resource-file src="imbapp.html" target="app/src/main/assets/www/imbapp.html"/>
       <resource-file src="../../LICENSE.txt" target="app/src/main/assets/www/res/LICENSE.txt"/>
     </platform>
     <icon src="res/logo.png"/>
