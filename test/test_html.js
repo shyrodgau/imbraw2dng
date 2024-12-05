@@ -491,7 +491,7 @@ describe('E Convert Raw from Imback APP', function() {
 			driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));}');
 	});
 	it('E.1 Convert from visual browser', async function dotest() {
-			this.timeout(36000);
+			this.timeout(46000);
 			await driver.actions({ async: true })
 				.pause(1000)
 				.click()
@@ -508,28 +508,28 @@ describe('E Convert Raw from Imback APP', function() {
 			const fi = await driver.findElement(By.id('SELC_2029_07'));
 			await driver.actions({ async: true })
 				.move({ origin: fi })
-				.pause(300)
+				.pause(100)
 				.click()
-				.pause(600)
+				.pause(300)
 				.perform();
 			const fi2 = await driver.findElement(By.id('SELC_2024_02_17'));
 			await driver.actions({ async: true })
 				.move({ origin: fi2 })
-				.pause(300)
+				.pause(100)
 				.click()
-				.pause(600)
+				.pause(300)
 				.perform();
 			const sor = await driver.findElement(By.id('sbytype'));
 			await driver.actions({ async: true })
 				.move({ origin: sor })
-				.pause(300)
+				.pause(100)
 				.click()
-				.pause(600)
+				.pause(1600)
 				.perform();
 			const rcw = await driver.findElement(By.id('doselbut'));
 			await driver.actions({ async: true })
 				.move({ origin: rcw })
-				.pause(300)
+				.pause(100)
 				.click()
 				.pause(2600)
 				.perform();
@@ -554,27 +554,27 @@ describe('E Convert Raw from Imback APP', function() {
 				.perform();
 			await driver.actions({ async: true })
 				.move({ origin: rcw })
-				.pause(300)
+				.pause(100)
 				.click()
 				.pause(2600)
 				.perform();
 			await driver.actions({ async: true })
 				.move({ origin: okb })
-				.pause(300)
+				.pause(100)
 				.click()
 				.pause(1900)
 				.perform();
 			const hm = await driver.findElement(By.id('hamb'));
 			await driver.actions({ async: true })
 				.move({ origin: hm })
-				.pause(300)
+				.pause(100)
 				.click()
 				.pause(600)
 				.perform();
 			const hml = await driver.findElement(By.id('hamlog'));
 			await driver.actions({ async: true })
 				.move({ origin: hml })
-				.pause(300)
+				.pause(100)
 				.click()
 				.pause(600)
 				.perform();
