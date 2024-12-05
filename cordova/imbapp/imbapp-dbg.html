@@ -21044,7 +21044,9 @@ delcancel() {
 	this.rotphase = 0;
 	document.getElementById('delprogmsg').innerHTML = '';
 	this.#startloadimg();
-	this.onback = 'quit';
+	setTimeout(() => {
+			this.onback = 'quit';
+	}, 300);
 	//this.showmain();
 	//window.scrollTo({ top: 0 });
 }
@@ -22613,7 +22615,7 @@ function init2() {
 /* *************************************** globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.4.1_8a4adf7", // actually const // VERSION EYECATCHER
+version: "V5.4.2_c6a3533", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 texts: { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
