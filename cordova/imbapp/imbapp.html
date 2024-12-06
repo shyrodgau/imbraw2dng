@@ -18614,6 +18614,7 @@ handleone(orientation) {
 				this.appmsg('', true);
 				let nv = new Uint16Array(w*h);
 				try {
+					let ovflag = false, ov5flag = false, ov6flag = false;
 					if (typ === 5) {
 						/* FILM */
 						let o=0;
@@ -18626,7 +18627,9 @@ handleone(orientation) {
 								res = Math.floor(res / npic);
 							}
 							if (res +240 > 4095) {
-								console.log('res overflow 5 ' + res);
+								if (!ov5flag)
+									console.log('res overflow 5 ' + res);
+								ov5flag = true;
 								nv[o++] = 4095;
 							}
 							else nv[o++] = res + 240;
@@ -18638,7 +18641,9 @@ handleone(orientation) {
 								res = Math.floor(res / npic);
 							}
 							if (res +240 > 4095) {
-								console.log('res overflow 6 ' + res);
+								if (!ov6flag)
+									console.log('res overflow 6 ' + res);
+								ov6flag = true;
 								nv[o++] = 4095;
 							}
 							else nv[o++] = res + 240;
@@ -18654,7 +18659,9 @@ handleone(orientation) {
 								res = Math.floor(res / fc);
 							}
 							if (res > 4095) {
-								console.log('res overflow ' + res);
+								if (!ovflag)
+									console.log('res overflow ' + res);
+								ovflag = true;
 								nv[j] = 4095;
 								whitelvl = 4095;
 							}
@@ -18663,6 +18670,7 @@ handleone(orientation) {
 					}
 				} catch (e) {
 					this.stats.error++;
+					this.appmsg('Format Error', true);
 				}
 				rawname = rawname.substring(0, rawname.length - 4) + '_MULTI.raw';
 				let nnv = new ArrayBuffer(w * h * 3 / 2);

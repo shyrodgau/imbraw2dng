@@ -19045,58 +19045,64 @@ handleone(orientation, fromloop) {
 				}
 				this.appmsg('', true);
 				let nv = new Uint16Array(w*h);
-				if (typ === 5) {
-					/* FILM */
-					let o=0;
-					for (let j=0; j < (w*h*3)/2; j+=3) {
-						let res = 0;
-						for (const k of this.#addimgs) {
-							try {
+				try {
+					let ovflag = false, ov5flag = false, ov6flag = false;
+					if (typ === 5) {
+						/* FILM */
+						let o=0;
+						for (let j=0; j < (w*h*3)/2; j+=3) {
+							let res = 0;
+							for (const k of this.#addimgs) {
 								res += ((k.getUint8(j+2) << 4) + ((k.getUint8(j+1) >> 4) & 15) - 240);
-							} catch { ; }
-						}
-						if (this.addscaleall) {
-							res = Math.floor(res / npic);
-						}
-						if (res +240 > 4095) {
-							console.log('res overflow 5 ' + res);
-							nv[o++] = 4095;
-						}
-						else nv[o++] = res + 240;
-						res = 0;
-						for (const k of this.#addimgs) {
-							try {
+							}
+							if (this.addscaleall) {
+								res = Math.floor(res / npic);
+							}
+							if (res +240 > 4095) {
+								if (!ov5flag)
+									console.log('res overflow 5 ' + res);
+								ov5flag = true;
+								nv[o++] = 4095;
+							}
+							else nv[o++] = res + 240;
+							res = 0;
+							for (const k of this.#addimgs) {
 								res += ((k.getUint8(j+0) & 255) + ((k.getUint8(j+1) & 15) << 8) - 240);
-							} catch { ; }
+							}
+							if (this.addscaleall) {
+								res = Math.floor(res / npic);
+							}
+							if (res +240 > 4095) {
+								if (!ov6flag)
+									console.log('res overflow 6 ' + res);
+								ov6flag = true;
+								nv[o++] = 4095;
+							}
+							else nv[o++] = res + 240;
 						}
-						if (this.addscaleall) {
-							res = Math.floor(res / npic);
-						}
-						if (res +240 > 4095) {
-							console.log('res overflow 6 ' + res);
-							nv[o++] = 4095;
-						}
-						else nv[o++] = res + 240;
-					}
-				} else {
-					/* 8 bit per sample */
-					for (let j=0; j < w*h; j++) {
-						let res = 0;
-						for (const k of this.#addimgs) {
-							try {
+					} else {
+						/* 8 bit per sample */
+						for (let j=0; j < w*h; j++) {
+							let res = 0;
+							for (const k of this.#addimgs) {
 								res += k.getUint8(j);
-							} catch { ; }
+							}
+							if (this.addscaleall && npic > 16) {
+								res = Math.floor(res / fc);
+							}
+							if (res > 4095) {
+								if (!ovflag)
+									console.log('res overflow ' + res);
+								ovflag = true;
+								nv[j] = 4095;
+								whitelvl = 4095;
+							}
+							else nv[j] = res;
 						}
-						if (this.addscaleall && npic > 16) {
-							res = Math.floor(res / fc);
-						}
-						if (res > 4095) {
-							if (this.addscaleall) console.log('res overflow ' + res);
-							nv[j] = 4095;
-							whitelvl = 4095;
-						}
-						else nv[j] = res;
 					}
+				} catch (e) {
+					this.stats.error++;
+					this.appmsg('Format Error', true);
 				}
 				rawname = rawname.substring(0, rawname.length - 4) + '_MULTI.raw';
 				let nnv = new ArrayBuffer(w * h * 3 / 2);
