@@ -19695,12 +19695,11 @@ chgcopycheck() {
 }
 /* ImBCHtml: browserdisplay: handler for file selection input */
 fselected() {
-	if (this.actnum !== this.allfiles.length) return;
+	if (this.actnum !== this.allfiles.length || document.getElementById('infile').files.length === 0) return;
+	this.rotphase = 1;
 	this.checkchecks();
 	const el = document.getElementById('infile');
-	this.totnum = el.files.length;
 	this.actnum = 0;
-	this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
 	let n = 0;
 	this.fromvisbrows = true;
 	document.getElementById('imbdoit').disabled = true;
@@ -19733,8 +19732,9 @@ fselected() {
 			document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ';
 			if (n === el.files.length) {
 				this.totnum = this.allfiles.length;
+				this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
 				this.appmsgxl(true, 'process.selectedn', this.totnum);
-				this.starthandleone();
+				this.#startloadimg();
 			}
 		};
 		r.onload = (evt) => {
@@ -19744,8 +19744,9 @@ fselected() {
 			document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ';
 			if (n === el.files.length) {
 				this.totnum = this.allfiles.length;
+				this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
 				this.appmsgxl(true, 'process.selectedn', this.totnum);
-				this.starthandleone();
+				this.#startloadimg();
 			}
 		};
 		r.readAsArrayBuffer(f);
@@ -20757,7 +20758,7 @@ loadnextimg() {
 		}, 33);
 		return;
 	} else if (this.rotphase >= 1) {
-		this.#loaderrunning = false;
+		//this.#loaderrunning = false;
 		return;
 	}
 	let e = this.#findnexttoload();
@@ -22225,7 +22226,7 @@ window.addEventListener('pageshow', function (event) {
 /* *************************************** globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.4.2_e64a963", // actually const
+version: "V5.4.3_fb89317", // actually const
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 texts: { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
