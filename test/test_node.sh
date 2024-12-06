@@ -108,7 +108,7 @@ tn=$(( $tn + 1 ))
 echo '##########    5    ##########'
 echo Test ${tn} convert all recursive
 set -x
-${TESTEXES}/imbraw2dng.js -r ${TESTDAT}/IMBACK/*/*.[rRmMjJ]*
+${TESTEXES}/imbraw2dng.js -r -R -J -O ${TESTDAT}/IMBACK/*/
 rc=$?
 n=$( ls .|wc -l )
 set +x
@@ -116,7 +116,7 @@ if [ $rc -ne 0 ]; then
 	echo Test ${tn} failed $rc
 	exit 5
 fi
-sumnum=$(( $sumnum + $rawcnt ))
+sumnum=$(( $sumnum + $rawcnt + 2 ))
 if [ $n -ne $sumnum ]; then
 	echo Test ${tn} failed NO $n
 	exit 5

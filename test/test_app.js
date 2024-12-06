@@ -58,12 +58,15 @@ async function runTest() {
   	// empty the dir, first add a file so it is not empty
   	driver.executeScript('mobile: pushFile', [{remotePath: '/storage/emulated/0/DCIM/nn/x', payload: 'bml4Cg=='}]);
   	driver.executeScript('mobile: shell', [{command:'rm', args: [ '/storage/emulated/0/DCIM/nn/*' ]}]);
-	await driver.pause(5000);
+	await driver.pause(4000);
     const batteryItem = await driver.$('#tobrows');
     await batteryItem.click();
-	await driver.pause(2000);
+	await driver.pause(4000);
     const imgrp = await driver.$('#SELC_2029_07');
     await imgrp.click();
+	await driver.pause(5000);
+    const rotvio = await driver.$('#gg_2029_07_07_X .rotbtnr');
+    await rotvio.click();
     const imgrp2 = await driver.$('#SELC_2024_02_17');
     await imgrp2.click();
 	await driver.pause(2000);
@@ -72,6 +75,14 @@ async function runTest() {
 	await driver.pause(7000);
 	/*const mp4s = await driver.$('#SELC_oth2024_02');
 	await mp4s.click();*/
+    const delbut = await driver.$('#delselbut');
+    await delbut.click();
+	await driver.pause(700);
+    const delokbut = await driver.$('#delokbut');
+    await delokbut.click();
+	await driver.pause(3000);
+    await delokbut.click();
+	await driver.pause(2000);
     const selbut = await driver.$('#doselbut');
     await selbut.click();
 	await driver.pause(7000);

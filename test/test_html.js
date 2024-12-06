@@ -491,7 +491,7 @@ describe('E Convert Raw from Imback APP', function() {
 			driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));}');
 	});
 	it('E.1 Convert from visual browser', async function dotest() {
-			this.timeout(46000);
+			this.timeout(56000);
 			await driver.actions({ async: true })
 				.pause(1000)
 				.click()
@@ -517,6 +517,13 @@ describe('E Convert Raw from Imback APP', function() {
 				.move({ origin: fi2 })
 				.pause(100)
 				.click()
+				.pause(3000)
+				.perform();
+			const rotvio = await driver.findElement(By.css('#gg_2029_07_07_X .rotbtnr'));
+			await driver.actions({ async: true })
+				.move({ origin: rotvio })
+				.pause(100)
+				.click()
 				.pause(300)
 				.perform();
 			const sor = await driver.findElement(By.id('sbytype'));
@@ -525,6 +532,22 @@ describe('E Convert Raw from Imback APP', function() {
 				.pause(100)
 				.click()
 				.pause(1600)
+				.perform();
+			const del = await driver.findElement(By.id('delselbut'));
+			await driver.actions({ async: true })
+				.move({ origin: del })
+				.pause(100)
+				.click()
+				.pause(600)
+				.perform();
+			const delok = await driver.findElement(By.id('delokbut'));
+			await driver.actions({ async: true })
+				.move({ origin: delok })
+				.pause(100)
+				.click()
+				.pause(3000)
+				.click()
+				.pause(1000)
 				.perform();
 			const rcw = await driver.findElement(By.id('doselbut'));
 			await driver.actions({ async: true })
