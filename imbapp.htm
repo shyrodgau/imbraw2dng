@@ -20758,7 +20758,7 @@ loadnextimg() {
 		}, 33);
 		return;
 	} else if (this.rotphase >= 1) {
-		//this.#loaderrunning = false;
+		if (this.#loaderrunning !== 'blah!') this.#loaderrunning = false;
 		return;
 	}
 	let e = this.#findnexttoload();
@@ -22226,7 +22226,7 @@ window.addEventListener('pageshow', function (event) {
 /* *************************************** globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.4.3_fb89317", // actually const
+version: "V5.4.3_451230e", // actually const
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 texts: { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
