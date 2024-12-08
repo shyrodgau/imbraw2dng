@@ -18952,7 +18952,7 @@ parseDng(f, onok, onerr) {
 			this.parseDng(f, onok, onerr);
 		}
 		reader.onerror = () => { onerr(f.name); };
-		reader.readAsArrayBuffer(f);
+		reader.readAsArrayBuffer(f.imbackintension ? f.imbackintension : f);
 		return;
 	}
 	const v = new DataView(f.data);
@@ -19385,8 +19385,8 @@ handleonex() {
 		}
 	}
 	else { // normal processing without question
-		if (this.imbcb)
-			this.imbcb.handleone();
+		if (document.getElementById('makebackw')?.checked)
+			this.handleoneback();
 		else {
 			if (!this.fromvisbrows) this.shownormal();
 			this.handleone(f.rot);
@@ -20000,12 +20000,12 @@ closedlprog() {
 }
 /* ImBCHtml: show message log */
 showlog() {
+	document.getElementById('splash').style['display'] = 'none';
 	document.getElementById('dlprogress').style['border-color'] = 'grey';
 	document.getElementById('pages').style['display'] = 'none';
 	this.onback = 'main';
 	document.getElementById('phpv').src="";
 	document.getElementById('msglog').style['display'] = '';
-	this.closedlprog();
 	window.setTimeout(() => { this.showlastmsg(); }, 100);
 }
 /* ImBCHtml: visual browser: prepare the browser display, group the stuff */
@@ -20180,10 +20180,8 @@ buildtree() {
 		this.#addsorted(e);
 		this.#doopen(e, true);
 	}
-	this.imgsdirty = false;
 	this.#startloadimg();
 	this.xlateall();
-	this.showmain();
 }
 /* ImBCHtml: visual browser: find next to load */
 /* four phases, finding a match for one skips all following phases */
@@ -20746,7 +20744,7 @@ topreccheck(force) {
 /* ImBCHtml: visual browser or from imback: load next from todo list */
 loadnextimg() {
 	if (this.debugflag) console.log('L  N  I');
-	if (this.allfiles.length > 0 && this.actnum <= this.allfiles.length - 1) {
+	if (this.#loaderrunning !== 'blah!' && this.allfiles.length > 0 && this.actnum <= this.allfiles.length - 1) {
 		//e = this.allfiles[this.actnum];
 		this.#loaderrunning = 'blah!';
 		window.setTimeout(() => {
@@ -20854,7 +20852,9 @@ delcancel() {
 	this.rotphase = 0;
 	document.getElementById('delprogmsg').innerHTML = '';
 	this.#startloadimg();
-	this.onback = 'quit';
+	setTimeout(() => {
+		this.onback = 'quit';
+	},300);
 	//this.showmain();
 	//window.scrollTo({ top: 0 });
 }
@@ -20895,7 +20895,6 @@ browserprocess() {
 		document.getElementById('imbvisbrows').disabled = true;
 		document.getElementById('droptarget').style['display'] = 'none';
 		document.getElementById('infile').disabled = true
-		this.rotphase = 1;
 		this.fromvisbrows = true;
 		this.showdlprog();
 		this.onback = 'canceldl';
@@ -21135,9 +21134,13 @@ async drophandler(ev) {
 		let mapped = [];
 		if (-1 !== m0.findIndex(e => e.isDirectory)) {
 			for (let i =0; i < m0.length; i++) {
-				if (!m0[i].isDirectory)
+				if (!m0[i].isDirectory) {
 					 //auxfiles.push(mm[i].getAsFile());
-					 this.handle1imb(mm[i].getAsFile())
+				 	 if (document.getElementById('makebackw')?.checked)
+				 	 	 this.allfiles.push(mm[i].getAsFile());
+				 	 else
+				 	 	 this.handle1imb(mm[i].getAsFile());
+				}
 			}
 			for (let i =0; i < m0.length; i++) {
 				if (m0[i].isDirectory) {
@@ -21162,7 +21165,12 @@ async drophandler(ev) {
 				});
 			}
 			let a = await this.dirtraverse(mapped);
-			for (const x of a) this.handle1imb(x);
+			for (const x of a) {
+				 if (document.getElementById('makebackw')?.checked)
+					 this.allfiles.push(x);
+				 else
+					 this.handle1imb(x);
+			}
 			//this.allfiles = a.concat(auxfiles);
 			//for (const j of auxfiles) this.allfiles.push(j);
 			//this.totnum = this.allfiles.length;
@@ -21171,24 +21179,50 @@ async drophandler(ev) {
 			this.totnum = [...ev.dataTransfer.items].length;
 			[...ev.dataTransfer.items].forEach((item/*, i*/) => {
 				//this.allfiles.push(item.getAsFile());
-				this.handle1imb(item.getAsFile());
+				 if (document.getElementById('makebackw')?.checked)
+					 this.allfiles.push(item.getAsFile());
+				 else
+					 this.handle1imb(item.getAsFile());
 			});
 		}
 	} else {
 		this.totnum = [...ev.dataTransfer.files].length;
 		[...ev.dataTransfer.files].forEach((file/*, i*/) => {
 			//this.allfiles.push(file);
+			 if (document.getElementById('makebackw')?.checked)
+				 this.allfiles.push(file);
+			 else
+				 this.handle1imb(file);
 			this.handle1imb(file);
 		});
 	}
 	if (document.getElementById('fakelongexpadd')?.checked) {
 		this.addall = true;
 		this.addscaleall = document.getElementById('fakelongexpscale')?.checked;
-		if (document.getElementById('fakelongexpadd')) document.getElementById('fakelongexpadd').checked = false;
+		document.getElementById('fakelongexpadd').checked = false;
 		//this.closeham();
 		this.aftercheck();
 		document.getElementById('selall').click();
 		this.browserprocess();
+	} else if (document.getElementById('makebackw')?.checked) {
+		this.totnum = this.allfiles.length;
+		this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
+		this.actnum = 0;
+		if (this.totnum > 0) {
+			this.showlog();
+			this.mappx(true, 'process.frombrowsern', this.totnum);
+			document.getElementById('imbdoit').disabled = true;
+			document.getElementById('imbvisbrows').disabled = true;
+			document.getElementById('droptarget').style['display'] = 'none';
+			document.getElementById('infile').disabled = true
+			this.fromvisbrows = true;
+			this.showdlprog();
+			this.#loaderrunning = 'blah!';
+			this.starthandleone();
+			//this.topreccheck(false);
+		} else {
+			this.showbrowseri();
+		}
 	} else {
 		this.addall = false;
 		this.addscaleall = false;
@@ -21466,11 +21500,13 @@ loadimgs() {
 	this.typedclasses = [];
 	this.imbeles = [];
 	this.custcmd([ [3001, 'par=2'], 3015 ] , 'document', null, (rc, doc) => {
+		this.imgsdirty = false;
 		if (rc >= 0) {
 			for (const e of doc[1].querySelectorAll('LIST ALLFile File FPATH'))
 				this.handle1imb(e.textContent, e.parentElement.querySelector('TIME').textContent);
 			if (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0) {
 				this.aftercheck();
+				this.showbrowser();
 			}
 		}
 	});
@@ -22141,10 +22177,7 @@ handleback() {
 	else if (this.onback === 'quit')
 		this.doquit();
 	else if (this.onback === 'closeprog')
-		if (this.fromintent)
-			this.showlog();
-		else
-			this.showbrowser();
+		this.showbrowser();
 	else if (this.onback === 'closegeneric')
 		document.getElementById('genericok').close();
 	else if (this.onback === 'closedelprog')
@@ -22226,7 +22259,7 @@ window.addEventListener('pageshow', function (event) {
 /* *************************************** globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.4.3_451230e", // actually const
+version: "V5.4.3_c864a26", // actually const
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 texts: { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -25659,7 +25692,7 @@ function readjpg(file) {
 <span class="whbtn disconnected" style="font-weight:bold;font-family:Symbol3;padding-left:0.4em;padding-right:0.4em;background-color:red !important;display:none;"> ! &#x1f593; ! </span>
 </div>
 </div>
-<div id="xmsg" style="width: fit-content;white-space: pre;max-width:100%;max-height:100%; overflow:auto;"><span style="font-weight:bold;" data-myxlkey="main.log"></span><br>
+<div id="xmsg" style="width: fit-content;white-space: pre;min-width:100%;min-height:100%; overflow:auto;"><span style="font-weight:bold;" data-myxlkey="main.log"></span><br>
 <div id="outmsg"></div></div>
 </div>
 <!-- end of the message log, generated content appended -->
@@ -25792,7 +25825,7 @@ function readjpg(file) {
 <div style="font-weight:bold;" id="progmsg"></div>
 <input id="progokbut" type="button" data-myvalxlkey="del.question.ok" onclick="imbc.showbrowser()" disabled onkeyup="return imbc.modalkeyev(event);" onkeydown="return imbc.modalkeyev(event);">
 <input id="progcancelbut" type="button" data-myvalxlkey="del.question.cancel" onclick="imbc.skipthis()" onkeyup="return imbc.modalkeyev(event);" onkeydown="return imbc.modalkeyev(event);">
-<input id="dlprogresslogbtn" type="button" data-myvalxlkey="app.menu.msglog" onclick="imbc.showlog()" disabled onkeyup="return imbc.modalkeyev(event);" onkeydown="return imbc.modalkeyev(event);">
+<input id="dlprogresslogbtn" type="button" data-myvalxlkey="app.menu.msglog" onclick="imbc.closedlprog();imbc.showlog()" disabled onkeyup="return imbc.modalkeyev(event);" onkeydown="return imbc.modalkeyev(event);">
 </dialog>
 <!-- end of the download progress -->
 <!-- generic OK/error -->
