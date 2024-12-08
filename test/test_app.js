@@ -58,14 +58,15 @@ async function runTest() {
   	// empty the dir, first add a file so it is not empty
   	driver.executeScript('mobile: pushFile', [{remotePath: '/storage/emulated/0/DCIM/nn/x', payload: 'bml4Cg=='}]);
   	driver.executeScript('mobile: shell', [{command:'rm', args: [ '/storage/emulated/0/DCIM/nn/*' ]}]);
-	await driver.pause(4000);
+	await driver.pause(3000);
     const batteryItem = await driver.$('#tobrows');
     await batteryItem.click();
 	await driver.pause(4000);
     const imgrp = await driver.$('#SELC_2029_07');
     await imgrp.click();
-	await driver.pause(5000);
+	await driver.pause(3000);
     const rotvio = await driver.$('#gg_2029_07_07_X .rotbtnr');
+	await driver.pause(3000);
     await rotvio.click();
     const imgrp2 = await driver.$('#SELC_2024_02_17');
     await imgrp2.click();
