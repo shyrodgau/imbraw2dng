@@ -19738,6 +19738,7 @@ fselected() {
 				this.totnum = this.allfiles.length;
 				this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
 				this.appmsgxl(true, 'process.selectedn', this.totnum);
+				this.showlog();
 				this.#startloadimg();
 			}
 		};
@@ -19750,6 +19751,7 @@ fselected() {
 				this.totnum = this.allfiles.length;
 				this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
 				this.appmsgxl(true, 'process.selectedn', this.totnum);
+				this.showlog();
 				this.#startloadimg();
 			}
 		};
