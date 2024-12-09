@@ -22263,7 +22263,7 @@ window.addEventListener('pageshow', function (event) {
 /* *************************************** globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.4.3_266a622", // actually const
+version: "V5.4.4_4fb9754", // actually const
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 texts: { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -24994,15 +24994,15 @@ getwb: function(view, typidx) {
 			let lg = x[1] + 1;
 			let lb = x[2];
 			let p = Math.sqrt(lg*lg + lb*lb + lr*lr);
-			if (p < 3 || p > (3*250)) continue;
+			if (p < 3 || p > (433)) continue;
 			//if (((i*t.w + j) % 50000) < 10)
 			//	console.log('i ' + i + ' j ' + j + ' R ' + lr + ' G ' + lg + ' B ' + lb + ' P ' + p);
 			//if (r + g == 2) {
 			//	console.log('R G B ' + x[0] + ' ' + x[1] + ' ' + x[2] + ' P ' + p + ' LB ' + lb + ' LR ' + lr + ' LG ' + lg);
 			//}
-			b += (lb)/(p);
-			g += (lg)/(p);
-			r += (lr)/(p);
+			b += ((lb)/(p)>1) ? 1 : (lb)/(p);
+			g += ((lg)/(p)>1) ? 1 : (lg)/(p);
+			r += ((lr)/(p)>1) ? 1 : (lr)/(p);
 		}
 	}
 	//console.log('ER EG EB ' + r + ' ' + g + ' ' + b);
