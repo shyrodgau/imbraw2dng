@@ -22369,7 +22369,13 @@ dopoweroff() {
 }
 /* ImBHtml: handle back button */
 handleback() {
-	if (this.onback === 'main')
+	if (this.onback === 'mainorquit') {
+		if (window.getComputedStyle(document.getElementById('pages'))['display'] !== 'none')
+			this.doquit();
+		else
+			this.showmain();
+	}
+	else if (this.onback === 'main')
 		this.showmain();
 	else if (this.onback === 'quit')
 		this.doquit();
@@ -22385,7 +22391,7 @@ handleback() {
 	else if (this.onback === 'closegeneric') {
 		document.getElementById('genericok').close();
 		setTimeout(() => {
-			this.onback = 'quit';
+			this.onback = 'mainorquit';
 		},300);
 	}
 	else if (this.onback === 'closedelprog')
@@ -22628,7 +22634,7 @@ function init2() {
 /* *************************************** globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.4.5_15f17b9", // actually const // VERSION EYECATCHER
+version: "V5.4.5_f1d57c4", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 texts: { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -26217,7 +26223,7 @@ function readjpg(file) {
 <!-- generic OK/error -->
 <dialog class="mymodal" id="genericok" style="border: 5px solid grey; border-radius: 20px; padding: 20px;width:fit-content;">
 <div style="font-weight:bold;" id="okmsg"></div>
-<input id="confirmbut" type="button" data-myvalxlkey="del.question.ok" onclick="this.parentElement.close();">
+<input id="confirmbut" type="button" data-myvalxlkey="del.question.ok" onclick="this.parentElement.close();imbc.onback = 'mainorquit';">
 </dialog>
 <!-- end of the generic ok/error -->
 <!-- fakelong/stack question scale? -->
