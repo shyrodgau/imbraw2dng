@@ -439,12 +439,13 @@ body { margin: 0; }
 .dlbtn.biggiebtn { left: .1em; margin-top: -0.1em; }
 .biggiebtn.disabled { display: none; }
 .biggiebtn.rotbtn, .biggiebtn.rotbtnr { margin-top: -0.2em; font-family:Symbol3;}
+.biggiebtn.rotbtnr { margin-top: -0.2em; font-family:Symbol3; text-shadow: -0.1em 0.07em white !important;}
 .dlbtn:not(.biggiebtn) { vertical-align: bottom; font-weight: bold; }
 .igtype { display: flex; flex-flow: wrap;border-top: 0; padding:0.1em; min-height:9em; }
 .onepic { margin: -1px; width: fit-content; display: flex; flex-direction: column; padding: 0.1em;position: relative; }
 .eepvx { color: #777777; font-size: 100px; align-self: center; font-weight: bold; pointer-events:none;}
 .errimg { width: 163px;color: red; height:90px;font-size: 80px; text-align: center; font-weight: bold; }
-.waitdiv { color: #444444; width:163px;font-size: 80px; height:90px;text-align: center; font-weight: bold; pointer-events:none; pointer-events:none; }
+.waitdiv { color: #444444; width:163px;font-size: 80px; height:90px;text-align: center; font-weight: bold; pointer-events:none; }
 .eeraw, .eejpg { align-self: center; max-width: 163px; max-height: 117px;}
 /*.onepic > :nth-child(1) { margin-top: -0.2em; margin-bottom: 0.1em;}*/
 #previewwait {
@@ -22635,7 +22636,7 @@ function init2() {
 /* *************************************** globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.4.6_d4fc600", // actually const // VERSION EYECATCHER
+version: "V5.4.7__d_e_v_", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 texts: { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -26264,8 +26265,8 @@ Replaceraw: <input type="file" onchange="imbc.replraw()" accept=".raw,.RAW" id="
 		<div class="btnsrow">
 			<!--span class="biggiebtn bigbtn" style="left: 0.4em;">⛶</span-->
 			<span class="dlbtn biggiebtn" style="font-family:Symbol3;">&#x2b73;</span>
-			<span class="biggiebtn rotbtn" style="left: 0.6em;">↷</span>
-			<span class="biggiebtn rotbtnr" style="left: 1.6em;">&#x21b6;</span>
+			<span class="biggiebtn rotbtn" style="left: 0.6em;">&#x2b6e;</span>
+			<span class="biggiebtn rotbtnr" style="left: 1.6em;">&#x2b6f;</span>
 		</div>
 		</div>
 	</div>
