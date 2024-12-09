@@ -800,7 +800,7 @@ add(data, name, cb) {
 /* *************************************** Main class *************************************** */
 class ImBCBase {
 /* Indentation out */
-static version = "V5.4.5_a849592"; // actually const
+static version = "V5.4.6_d_e_v__"; // actually const // VERSION EYECATCHER
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -18606,7 +18606,6 @@ incdcp = true;
 debugflag = false;
 useraw = null;
 imbweb = 'http://192.168.1.254';
-filmdemo = false;
 
 constructor() {
 }
@@ -19165,8 +19164,10 @@ handleone(orientation, fromloop) {
 		ti.addEntry(272, 'ASCII', ImBCBase.types[typ < 32 ? typ : typ - 32]); /* Model */
 		ti.addEntry(274, 'SHORT', [ ori ]); /* Orientation */
 		ti.addEntry(305, 'ASCII', 'imbraw2dng ' + ImBCBase.version); /* SW and version */
-		if (this.#historystring.length && !this.filmdemo)
+		if (this.#historystring.length)
 			ti.addEntry(37395, 'ASCII', this.#historystring); /* image history */
+		else
+			ti.addEntry(37395, 'BYTE', rawnamearr); /* Raw file name in history */
 		this.#historystring = '';
 		if (dateok) {
 			ti.addEntry(306, 'ASCII', datestr); /* datetime */
@@ -19203,7 +19204,7 @@ handleone(orientation, fromloop) {
 		if (typ === 5) ti.addEntry(50714, 'SHORT', [ 240, 240, 240, 240 ] ); /* Blacklevel */
 		if (typ === 5) ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
 		if (!this.neutral) {
-			if (!this.filmdemo) ti.addEntry(50827, 'BYTE', rawnamearr); /* Raw file name */
+			ti.addEntry(50827, 'BYTE', rawnamearr); /* Raw file name */
 			ti.addEntry(50728, 'RATIONAL', wb); /* As shot neutral */
 			/*  new:  */
 			if (this.incdcp) {
@@ -19971,27 +19972,27 @@ readconfig(callback, tryno) {
 	if (undefined === tryno) {
 		xch = '.';
 		dotflag = true;
-		this.#configfiles[0] = './.imbraw2dng' + (this.filmdemo?'_film':'') + '.json';
+		this.#configfiles[0] = './.imbraw2dng.json';
 	}
 	else if (1 === tryno && process.env.HOME) {
 		xch = process.env.HOME + this.pa.sep + '.config';
 		dotflag = false;
-		this.#configfiles.push(process.env.HOME + this.pa.sep + '.config' + this.pa.sep + 'imbraw2dng' + (this.filmdemo?'_film':'') + '.json');
+		this.#configfiles.push(process.env.HOME + this.pa.sep + '.config' + this.pa.sep + 'imbraw2dng.json');
 	}
 	else if (2 === tryno && process.env.XDG_CONFIG_HOME) {
 		xch = process.env.XDG_CONFIG_HOME;
 		dotflag = false;
-		this.#configfiles.push(process.env.XDG_CONFIG_HOME + this.pa.sep + 'imbraw2dng' + (this.filmdemo?'_film':'') + '.json');
+		this.#configfiles.push(process.env.XDG_CONFIG_HOME + this.pa.sep + 'imbraw2dng.json');
 	}
 	else {
 		return callback();
 	}
-	this.fs.readFile(xch + this.pa.sep + (dotflag ? '.' : '' ) + 'imbraw2dng' + (this.filmdemo?'_film':'') + '.json', 'utf8',
+	this.fs.readFile(xch + this.pa.sep + (dotflag ? '.' : '' ) + 'imbraw2dng.json', 'utf8',
 		(err, data) => {
 			//console.log(' READ: ' + xch + this.pa.sep + 'imbraw2dng.json' + ' ' + JSON.stringify(err) + ' ' + JSON.stringify(data));
 			if (!err) {
 				this.parseconfig(data);
-				this.#configloaded = (xch + this.pa.sep + (dotflag ? '.' : '' ) + 'imbraw2dng' + (this.filmdemo?'_film':'') + '.json');
+				this.#configloaded = (xch + this.pa.sep + (dotflag ? '.' : '' ) + 'imbraw2dng.json');
 				callback();
 			}
 			else if (!tryno) {
@@ -20453,10 +20454,5 @@ if (ImBCBase.basename(process.argv[1].toUpperCase()).indexOf('IMBDNG2RAW') !== -
 }
 else {
 	imbc = new ImBCNode();
-	if (ImBCBase.basename(process.argv[1].toUpperCase()).indexOf('IMBRAW2DNG_FILM') !== -1) {
-		imbc.filmdemo = true;
-		ImBCBase.version = 'V4.ZZZZZ';
-
-	}
 }
 imbc.startnode();

@@ -18738,6 +18738,7 @@ handleone(orientation) {
 		ti.addEntry(305, 'ASCII', 'imbraw2dng ' + globals.version); /* SW and version */
 		if (this.#historystring.length && !this.filmdemo)
 			ti.addEntry(37395, 'ASCII', this.#historystring); /* image history */
+		else if (!this.filmdemo) ti.addEntry(37395, 'BYTE', rawnamearr); /* Raw file name in history */
 		this.#historystring = '';
 		if (dateok) {
 			ti.addEntry(306, 'ASCII', datestr); /* datetime */
@@ -22637,7 +22638,7 @@ function init2() {
 /* *************************************** globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.4.5_a849592", // actually const // VERSION EYECATCHER
+version: "V5.4.6_d_e_v__", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 texts: { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },

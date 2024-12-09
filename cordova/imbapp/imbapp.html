@@ -18045,7 +18045,6 @@ debugflag = false;
 useraw = null;
 imbweb = 'http://192.168.1.254';
 fromintent = false; // 1: normal 2: stack/fakelong (> 1 DNG, to raw phase)  3: backward (== 1 DNG)  4: to dng phase when stacking
-filmdemo = false;
 
 constructor() {
 }
@@ -18735,8 +18734,10 @@ handleone(orientation) {
 		ti.addEntry(272, 'ASCII', globals.types[typ < 32 ? typ : typ - 32]); /* Model */
 		ti.addEntry(274, 'SHORT', [ ori ]); /* Orientation */
 		ti.addEntry(305, 'ASCII', 'imbraw2dng ' + globals.version); /* SW and version */
-		if (this.#historystring.length && !this.filmdemo)
+		if (this.#historystring.length)
 			ti.addEntry(37395, 'ASCII', this.#historystring); /* image history */
+		else
+			ti.addEntry(37395, 'BYTE', rawnamearr); /* Raw file name in history */
 		this.#historystring = '';
 		if (dateok) {
 			ti.addEntry(306, 'ASCII', datestr); /* datetime */
@@ -18773,7 +18774,7 @@ handleone(orientation) {
 		if (typ === 5) ti.addEntry(50714, 'SHORT', [ 240, 240, 240, 240 ] ); /* Blacklevel */
 		if (typ === 5) ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
 		if (!this.neutral) {
-			if (!this.filmdemo) ti.addEntry(50827, 'BYTE', rawnamearr); /* Raw file name */
+			ti.addEntry(50827, 'BYTE', rawnamearr); /* Raw file name */
 			ti.addEntry(50728, 'RATIONAL', wb); /* As shot neutral */
 			/*  new:  */
 			if (this.incdcp) {
@@ -22634,7 +22635,7 @@ function init2() {
 /* *************************************** globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.4.5_a849592", // actually const // VERSION EYECATCHER
+version: "V5.4.6_d_e_v__", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 texts: { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
