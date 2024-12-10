@@ -19313,10 +19313,14 @@ handleone(orientation, fromloop) {
 		ti.addEntry(272, 'ASCII', ImBCBase.types[typ < 32 ? typ : typ - 32]); /* Model */
 		ti.addEntry(274, 'SHORT', [ ori ]); /* Orientation */
 		ti.addEntry(305, 'ASCII', 'imbraw2dng ' + ImBCBase.version); /* SW and version */
-		if (this.#historystring.length)
+		if (!this.#historystring?.length)
+			this.#historystring = rawname;
+		// do UTF-8 bytes instead of ASCII if necessary
+		let hbytes = new TextEncoder().encode(this.#historystring);
+		if (hbytes.length === this.#historystring.length)
 			ti.addEntry(37395, 'ASCII', this.#historystring); /* image history */
 		else
-			ti.addEntry(37395, 'BYTE', rawnamearr); /* Raw file name in history */
+			ti.addEntry(37395, 'BYTES', hbytes); /* Raw file name in history */
 		this.#historystring = '';
 		if (dateok) {
 			ti.addEntry(306, 'ASCII', datestr); /* datetime */
