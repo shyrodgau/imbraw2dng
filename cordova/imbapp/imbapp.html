@@ -20887,12 +20887,14 @@ topreccheck(force) {
 	if (e.type === 'RAW') {
 		ne.querySelector('.eepvx').style['font-family'] = 'Symbol3';
 		ne.querySelector('.eepvx').innerHTML = '&#x1f4f7;';
-		if (e.imbackintension?.size && e.imbackintension?.size > 30000000)
-			e.rot = 3;
-		else if (e.imbackintension?.size && e.imbackintension?.size < 30000000)
-			e.rot = 1;
-		else
-			e.rot = 0;
+		if (undefined === e.rot) {
+			if (e.imbackintension?.size && e.imbackintension?.size > 30000000)
+				e.rot = 3;
+			else if (e.imbackintension?.size && e.imbackintension?.size < 30000000)
+				e.rot = 1;
+			else
+				e.rot = 0;
+		}
 		//rotbtn.id = 'rot_b_' + e.raw + '_Y';
 		rotbtn.classList.add('disabled');
 		rotbtn.onclick = () => {
@@ -22724,7 +22726,7 @@ function init2() {
 /* *************************************** globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.4.7__d_e_v_", // actually const // VERSION EYECATCHER
+version: "V5.5.0_071263b", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 texts: { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
