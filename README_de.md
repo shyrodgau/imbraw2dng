@@ -194,7 +194,7 @@ Vorteile gegenüber meinem klassischen `imbraw2dng.html`, wenn es auf ImB benutz
 
 
 Nachteile gegenüber bisherigem imbraw2dng, wenn nicht auf ImB benutzt:
-- schrittweise Verarbeitung gibt es nicht mehr, es wird entweder alles (wenn man Dateien auswählt) verarbeitet oder der Bild-Browser präsentiert (bei drag-and-drop)
+- schrittweise Verarbeitung gibt es nicht mehr, es wird entweder alles (wenn man Dateien auswählt) verarbeitet oder der Bild-Browser präsentiert (bei drag-and-drop). Jetzt auch mit Lupe und Navigation darin.
 
 ### EXIF
 

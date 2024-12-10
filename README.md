@@ -181,7 +181,7 @@ Advantages over the my classic `imbraw2dng.html` when used on the ImB:
 - can set image parameters (size, EV...)
 
 Disadvantages over the classic imbraw2dng when not used on the ImB:
-- step-by-step is gone, either process all (file select button) or use app-like the picture browser (on drag and drop)
+- step-by-step is gone, either process all (file select button) or use app-like the picture browser (on drag and drop). Also now magnification glass with navigation.
 
 ### EXIF
 
