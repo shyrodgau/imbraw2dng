@@ -438,11 +438,11 @@ body { margin: 0; }
 .ggclosed > .gg, .ggclosed .igtype, .ggclosed .igxtype { display: none !important; }
 .ggttminus, .ggttplus { cursor: pointer; display: inline-block; font-weight:normal !important; }
 .biggiebtn:not(.disabled), .dlbtn:not(.disabled), .aspan { cursor: pointer; }
-.dlbtn.biggiebtn { left: .1em; margin-top: -0.1em; }
+.dlbtn.biggiebtn { left: .1em; margin-top: -0em; }
 .biggiebtn.disabled { display: none; }
-.biggiebtn.rotbtn, .biggiebtn.rotbtnr { margin-top: -0.2em; font-family:Symbol3;}
-.biggiebtn.magbtn, .biggiebtn.trashbin { margin-top: -0.1em; font-family:Symbol3;}
-.biggiebtn.rotbtnr { margin-top: -0.2em; font-family:Symbol3; text-shadow: -0.1em 0.07em white !important;}
+.biggiebtn.rotbtn, .biggiebtn.rotbtnr { margin-top: -0em; font-family:Symbol3;}
+.biggiebtn.magbtn, .biggiebtn.trashbin { margin-top: 0.1em; font-family:Symbol3;}
+.biggiebtn.rotbtnr { margin-top: -0em; font-family:Symbol3; text-shadow: -0.1em 0.07em white !important;}
 .dlbtn:not(.biggiebtn) { vertical-align: bottom; font-weight: bold; }
 .igtype { display: flex; flex-flow: wrap;border-top: 0; padding:0.1em; min-height:9em; }
 .onepic { margin: -1px; width: fit-content; display: flex; flex-direction: column; padding: 0.1em;position: relative; }
@@ -464,10 +464,10 @@ body { margin: 0; }
 	text-align: end;
 	font-weight: bold;
 }
-#xmag .btnsrow { position: fixed !important; top: 2em !important; }
-.btnsrow { position: absolute; top: 1.5em; left: 0.1em; height: 1em; width: 3em; /*background-color: rgba(200,200,180,0.3);*/ }
+#xmag .btnsrow { position: fixed !important; top: 2em !important;background: none !important; padding:0 !important;}
+.btnsrow { position: absolute; top: 2em; left: 0.5em; height: 0.8em; width: 5em; padding:0.3em;background-color: rgba(200,200,180,0.7); }
 div[data-state='load'] .btnsrow, div[data-state='wait'] .btnsrow, div[data-state='err'] .btnsrow { display: none; }
-.oth_CL .btnsrow, .JPG_CL .btnsrow { width: 1em; }
+.oth_CL .btnsrow, .JPG_CL .btnsrow { width: 2em; }
 .JPG_CL .rotbtn, .oth_CL .rotbtn { display: none; }
 .JPG_CL .rotbtnr, .oth_CL .rotbtnr { display: none; }
 .JPG_CL .eeraw, .oth_CL .eeraw, .RAW_CL .eejpg { display: none; }
@@ -558,10 +558,10 @@ body:has(dialog[open]), html:has(dialog[open]) {
 .backnextmag {
 	position:fixed;
 	top:48vh;
-	background-color:rgba(200,200,200,0.5);
+	background-color:rgba(220,220,220,0.6);
 	cursor:pointer;
 	font-weight:bold;
-	border: 3px solid rgba(20,20,20,0.5);
+	border: 3px solid rgba(10,10,10,0.6);
 	padding: 6px;
 	border-radius:18px;
 }
@@ -20803,6 +20803,7 @@ topreccheck(force) {
 				magb.onclick = () => {
 					this.showmag(e);
 				};
+				magb.style['left'] = '0.8em';
 			}
 		}
 	}
@@ -25930,7 +25931,7 @@ function readjpg(file) {
 			<span class="blink">.</span><span class="blink2">.</span><span class="blink3">.</span>
 		</div>
 		<div class="btnsrow" style="diplay:none;font-size:200%;">
-			<span class="biggiebtn" style="top:0.01em;left:3.8em;border:0.15em solid black;"><input type="checkbox" class="selcb" style="transform:scale(2);" onclick="imbc.selmag()"></span>
+			<span class="biggiebtn" style="top:0.1em;left:3.8em;border:0.15em solid black;"><input type="checkbox" class="selcb" style="transform:scale(2);" onclick="imbc.selmag()"></span>
 			<span class="dlbtn biggiebtn" style="font-family:Symbol3;" onclick="imbc.dlmag();">&#x2b73;</span>
 			<span class="biggiebtn rotbtn" style="left: 0.6em;" onclick="imbc.rotmag();">&#x2b6e;</span>
 			<span class="biggiebtn rotbtnr" style="left: 1.6em;" onclick="imbc.rotmag(true);">&#x2b6f;</span>
@@ -26093,7 +26094,7 @@ Replaceraw: <input type="file" onchange="imbc.replraw()" accept=".raw,.RAW" id="
 <a style="display: none;" id="result">x</a>
 <!-- templates -->
 <template id="onepict">
-	<div class="onepic">
+	<div class="onepic" onmouseover="this.querySelector('.btnsrow').style['display'] = ''" onmouseleave="this.querySelector('.btnsrow').style['display'] = 'none';">
 		<div class="labelholder">
 			<label class="pictitle">
 				<input type="checkbox" class="selcb">
@@ -26107,12 +26108,11 @@ Replaceraw: <input type="file" onchange="imbc.replraw()" accept=".raw,.RAW" id="
 		<div style="display:none;" class="waitdiv">
 			<span class="blink">.</span><span class="blink2">.</span><span class="blink3">.</span>
 		</div>
-		<div class="btnsrow">
-			<!--span class="biggiebtn bigbtn" style="left: 0.4em;">⛶</span-->
-			<span class="dlbtn biggiebtn" style="font-family:Symbol3;">&#x2b73;</span>
-			<span class="biggiebtn rotbtn" style="left: 0.6em;">&#x2b6e;</span>
-			<span class="biggiebtn rotbtnr" style="left: 1.6em;">&#x2b6f;</span>
-			<span class="biggiebtn magbtn" style="left: 2.6em;">&#x1f50d;</span>
+		<div class="btnsrow" style="display:none;">
+			<span class="dlbtn biggiebtn" style="font-family:Symbol3;left:0.1em;">&#x2b73;</span>
+			<span class="biggiebtn rotbtn" style="left: 0.8em;">&#x2b6e;</span>
+			<span class="biggiebtn rotbtnr" style="left: 1.8em;">&#x2b6f;</span>
+			<span class="biggiebtn magbtn" style="left: 2.8em;">&#x1f50d;</span>
 		</div>
 		</div>
 	</div>
