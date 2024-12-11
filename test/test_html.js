@@ -400,84 +400,6 @@ describe('C Convert Backward', function() {
 	});
 });
 
-/*describe('D Film Demo', function() {
-	let driver, opts, errflg = false;
-	before(async function() {
-			this.timeout(6000);
-			//const chromcapa = Capabilities.chrome();
-			const opts = [ 'prefs', { 'download.default_directory': '/home/hegny/Downloads/testoutputdir' } ];
-			//chromcapa.set('chromeOptions', opts);
-			driver = await new Builder().forBrowser(Browser.CHROME).build();
-			//driver = await new Builder().forBrowser(Browser.CHROME).withCapabilities(chromcapa).build();
-			await driver.get(TESTURL + 'IMBACK/imbraw2dng_film.html');
-			driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));}');
-	});
-	it('D.1 Convert Without Question', async function dotest() {
-			this.timeout(36000);
-			const owb = await driver.findElement(By.id('oldstylewb'));
-			const osel = await owb.isSelected();
-			if (!osel) {
-				console.log('......turning on old style wb');
-				await driver.actions({ async: true })
-					.move({ origin: owb })
-					.pause(600)
-					.click()
-					.pause(200)
-					.perform();
-			}
-			const cb2 = await driver.findElement(By.id('incdcp'));
-			const sel2 = await cb2.isSelected();
-			if (sel2) {
-				console.log('......turning off include DCP');
-				await driver.actions({ async: true })
-					.move({ origin: cb2 })
-					.pause(200)
-					.click()
-					.pause(200)
-					.perform();
-			}
-			const pv = await driver.findElement(By.id('dngpreview'));
-			const psel = await pv.isSelected();
-			if (psel) {
-				console.log('......turning off preview');
-				await driver.actions({ async: true })
-					.move({ origin: pv })
-					.pause(200)
-					.click()
-					.pause(300)
-					.perform();
-			}
-			const cb = await driver.findElement(By.id('steppreview'));
-			const sel = await cb.isSelected();
-			console.log('......turning off single step');
-			await driver.actions({ async: true })
-				.move({ origin: cb })
-				.pause(300)
-				.click()
-				.pause(300)
-				.perform();
-			const fi = await driver.findElement(By.id('infile'));
-			await fi.clear();
-			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2029_0710_010203_001.raw');
-			await driver.actions({async: true})
-				.pause(3000).move({ origin: cb }).pause(300).perform();
-	});
-	after(async function() {
-			let me = await driver.findElement(By.id('thebody'));
-			let ma = await me.getAttribute('data-err');
-			console.log('Message Content:');
-			console.log('= = = = = = = = = = = = = = = = = = =');
-			let m = await driver.findElement(By.id('xmsg'));
-			let t = await m.getText();
-			console.log(t);
-			console.log('= = = = = = = = = = = = = = = = = = =');
-			if (ma) {
-				console.log('***ERR: ' + ma);
-			} else
-				driver.quit();
-	});
-});*/
-
 describe('E Convert Raw from Imback APP', function() {
 	let driver, opts, errflg = false;
 	before(async function() {
@@ -491,7 +413,7 @@ describe('E Convert Raw from Imback APP', function() {
 			driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));}');
 	});
 	it('E.1 Convert from visual browser', async function dotest() {
-			this.timeout(56000);
+			this.timeout(76000);
 			await driver.actions({ async: true })
 				.pause(1000)
 				.click()
@@ -519,6 +441,11 @@ describe('E Convert Raw from Imback APP', function() {
 				.click()
 				.pause(3000)
 				.perform();
+			const rotviox = await driver.findElement(By.css('#gg_2029_07_07_X .onepic'));
+			await driver.actions({ async: true })
+				.move({ origin: rotviox })
+				.pause(300)
+				.perform();
 			const rotvio = await driver.findElement(By.css('#gg_2029_07_07_X .rotbtnr'));
 			await driver.actions({ async: true })
 				.move({ origin: rotvio })
@@ -532,6 +459,39 @@ describe('E Convert Raw from Imback APP', function() {
 				.pause(100)
 				.click()
 				.pause(1600)
+				.perform();
+			const zoom0x = await driver.findElement(By.css('#gg_RAW2029_07_10_X .onepic'));
+			await driver.actions({ async: true })
+				.move({ origin: zoom0x })
+				.pause(300)
+				.perform();
+			const zoom0 = await driver.findElement(By.css('#gg_RAW2029_07_10_X .magbtn'));
+			await driver.actions({ async: true })
+				.move({ origin: zoom0 })
+				.pause(100)
+				.click()
+				.pause(2900)
+				.perform();
+			const zoomr = await driver.findElement(By.id('backnr'));
+			await driver.actions({ async: true })
+				.move({ origin: zoomr })
+				.pause(500)
+				.click()
+				.pause(2900)
+				.perform();
+			const rrr = await driver.findElement(By.css('#xmag .rotbtn'));
+			await driver.actions({ async: true })
+				.move({ origin: rrr })
+				.pause(100)
+				.click()
+				.pause(2900)
+				.perform();
+			const bbb = await driver.findElement(By.css('#magnix .whbtn'));
+			await driver.actions({ async: true })
+				.move({ origin: bbb })
+				.pause(100)
+				.click()
+				.pause(900)
 				.perform();
 			const del = await driver.findElement(By.id('delselbut'));
 			await driver.actions({ async: true })

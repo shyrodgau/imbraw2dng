@@ -65,15 +65,39 @@ async function runTest() {
     const imgrp = await driver.$('#SELC_2029_07');
     await imgrp.click();
 	await driver.pause(3000);
+    const rotviox = await driver.$('#gg_2029_07_07_X .eeraw');
+    await rotviox.click();
+	await driver.pause(300);
     const rotvio = await driver.$('#gg_2029_07_07_X .rotbtnr');
-	await driver.pause(3000);
     await rotvio.click();
+	await driver.pause(3000);
     const imgrp2 = await driver.$('#SELC_2024_02_17');
     await imgrp2.click();
 	await driver.pause(2000);
 	const sbytype = await driver.$('#sbytype');
 	await sbytype.click();
-	await driver.pause(7000);
+	await driver.pause(3000);
+
+	//const zoom0x = await driver.$('#gg_RAW2029_07_07_X .eeraw');
+	//await zoom0x.click();
+	await driver.pause(800);
+	const zoom0 = await driver.$('#gg_RAW2029_07_07_X .magbtn');
+	await zoom0.click();
+	await driver.pause(4000);
+	const rrr = await driver.$('#xmag .rotbtn');
+	await rrr.click();
+	await driver.pause(6000);
+	const rrrr = await driver.$('#xmag .rotbtnr');
+	await rrrr.click();
+	await driver.pause(6000);
+	const zoomr = await driver.$('#backnr');
+	await zoomr.click();
+	await driver.pause(6000);
+	const bbb = await driver.$('#magnix .whbtn');
+	await bbb.click();
+	await driver.pause(3000);
+
+
 	/*const mp4s = await driver.$('#SELC_oth2024_02');
 	await mp4s.click();*/
     const delbut = await driver.$('#delselbut');
