@@ -466,7 +466,7 @@ body { margin: 0; }
 	text-align: end;
 	font-weight: bold;
 }
-#xmag .btnsrow { position: fixed !important; top: 2em !important;background: none !important; padding:0 !important;}
+#xmag .btnsrow { position: fixed !important; bottom: 1em !important;top:auto !important;background: none !important; padding:0 !important;}
 .btnsrow { position: absolute; top: 2em; left: 0.5em; height: 0.8em; width: 5em; padding:0.3em;background-color: rgba(200,200,180,0.7); }
 div[data-state='load'] .btnsrow, div[data-state='wait'] .btnsrow, div[data-state='err'] .btnsrow { display: none; }
 .oth_CL .btnsrow, .JPG_CL .btnsrow { width: 2em; }
@@ -22746,7 +22746,7 @@ function init2() {
 /* *************************************** globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.5.0_a529544", // actually const // VERSION EYECATCHER
+version: "V5.5.1_3a85ff8", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 texts: { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -26199,21 +26199,21 @@ function readjpg(file) {
 </div>
 <!-- end of the message log, generated content appended -->
 <!-- this is the magnification -->
-<div id="magni" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;width:100vw; height:100vh; overflow:auto;">
-<div style="position:fixed; top:0; left:0; width:100%;background-color:black;z-index:997;color:white;"><div>&nbsp;<span id="magnix"><input type="button" value="&#x2190;" class="whbtn" style="font-size:200%;padding:0 !important; border:0 !important;" onclick="imbc.closemag()"></span>
+<div id="magni" style="display:none;flex-direction:column;width:100%; height:100%; overflow:auto;">
+<div style="position:fixed; top:0; left:0; width:100%;background-color:black;z-index:997;color:white;"><div>&nbsp;<span id="magnix"><input type="button" value="&#x2190;" class="whbtn" style="font-size:133%;padding:0 !important; border:0 !important;" onclick="imbc.closemag()"></span>
 <span style="display:inline-block;margin-left: -1.5em;"><span class="batt1 battlo battery" style="font-weight:bold; display: inline-block; width: 1em; height:1.3em; vertical-align:bottom;position:relative; top: 0em;"><span>&#xa0;</span></span>
 <span class="batt2 battlo battery" style="position: relative; left: -1.1em; font-weight:bold; display: inline-block; color:green;width: 0.7em;background-color: black;top: 0.2em;"><span>&#xa0;</span></span></span>
-<span style="font-size:150%; color:white; font-weight:bold;" id="magtext"></span>
+<span style="font-size:133%; color:white; font-weight:bold;" id="magtext"></span>
 <span class="whbtn disconnected" style="font-weight:bold;font-family:Symbol3;padding-left:0.4em;padding-right:0.4em;background-color:red !important;display:none;"> ! &#x1f593; ! </span>
 </div>
 </div>
-<div id="xmag" style="width: fit-content;min-width:100%;min-height:95%; overflow:auto;background-color:#446688;">
+<div id="xmag" style="width: fit-content;min-width:100%;min-height:90%; overflow:auto;background-color:#446688;">
 	<div class="magpic">
-		<div style="width:100vw; height:95vh; margin:0px; align-self:center; text-align:center; vertical-align: middle;border-top: 2em solid #446688;">
+		<div style="width:100%; height:95%; margin:0px; align-self:center; text-align:center; align-content:center;padding-top: 2em;">
 		<div class="errimg" style="display:none;background-color:#aaaaaa;width:100%;height:100%;">X</div>
-		<img class="eejpg" style="display:none;max-width:90vw;max-height:75vh;border:0.5em solid white;">
+		<img class="eejpg" style="display:none;max-width:85vw;max-height:70vh;border:0.5em solid white;">
 		<div class="eepvx" style="background-color:#aaaaaa;width:100%;height:100%;">?</div>
-		<canvas class="eeraw" style="display:none;max-width:90vw;max-height:75vh;border:0.5em solid white;"></canvas>
+		<canvas class="eeraw" style="display:none;max-width:85vw;max-height:70vh;border:0.5em solid white;"></canvas>
 		<div style="display:none;background-color:#aaaaaa;width:100%;height:100%;" class="waitdiv">
 			<span class="blink">.</span><span class="blink2">.</span><span class="blink3">.</span>
 		</div>
