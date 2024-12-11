@@ -555,6 +555,16 @@ body:has(dialog[open]), html:has(dialog[open]) {
   width:100vw !important;
   height:100vh !important;
 }
+.backnextmag {
+	position:fixed;
+	top:48vh;
+	background-color:rgba(200,200,200,0.5);
+	cursor:pointer;
+	font-weight:bold;
+	border: 3px solid rgba(20,20,20,0.5);
+	padding: 6px;
+	border-radius:18px;
+}
 </style>
 <!-- javascript code CURRENTLY NOT identical to imbraw2dng.js  for the classes IFDOut, TIFFOut, ZIPHelp, ImBCBase, ImBCBackw. -->
 <script type="text/javascript" language="javascript">
@@ -18704,7 +18714,7 @@ handleone(orientation) {
 			/* **** PREVIEW image **** */
 			let scale = 32;
 			if (w < 4096 && h < 4096) scale=16;
-			ti.addImageStrip(1, globals.buildpvarray(view, typ, w, h, ori, scale, wb), Math.floor(transp ? (h+scale-1)/scale:(w+scale-1)/scale), Math.floor(transp ? (w+scale-1)/scale: (h+scale-1)/scale));
+			ti.addImageStrip(1, globals.buildpvarray(view, 0, typ, w, h, ori, scale, wb), Math.floor(transp ? (h+scale-1)/scale:(w+scale-1)/scale), Math.floor(transp ? (w+scale-1)/scale: (h+scale-1)/scale));
 			ti.addEntry(258 , 'SHORT', [ 8, 8, 8 ]); /* BitsPerSample */
 			ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression - none */
 			ti.addEntry(262, 'SHORT', [ 2 ]); /* Photometric - RGB */
@@ -19399,7 +19409,7 @@ handleonex() {
 				this.setnopv();
 			} else {
 				this.#qappx('main.file',rawname);
-				this.buildpreview(f, () => { this.setrawpv(); }, () => { this.setpverr(); });
+				this.buildpreview(f, 1, () => { this.setrawpv(); }, () => { this.setpverr(); });
 			}
 		}
 	}
@@ -19603,7 +19613,7 @@ afterfinish() {
 	if (this.fromvisbrows) {
 		this.fromvisbrows = false;
 		//document.getElementById('pages').style['display'] = 'none';
-		this.onback = 'closeprog';
+		this.modalback = 'closeprog';
 		document.getElementById('progmsg').style['display'] = '';
 		document.getElementById('progokbut').disabled = false;
 		document.getElementById('dlprogresslogbtn').disabled = false;
@@ -19653,6 +19663,7 @@ ziperr = false;
 previewworker = null;
 workerstate = [];
 onback = 'quit'; // 'main', 'quit', 'nothing', 'close...', 'canceldl'
+modalback = '';
 showham = false;
 constructor() {
 	super();
@@ -19809,7 +19820,7 @@ myalert(txt) {
 	document.getElementById('genericok').style['border-color'] = 'red';
 	document.getElementById('okmsg').innerHTML = txt;
 	document.getElementById('genericok').showModal();
-	this.onback = 'closegeneric';
+	this.modalback = 'closegeneric';
 }
 /* ImBCHtml: show generic msg */
 showmsg() {
@@ -19819,7 +19830,7 @@ showmsg() {
 	//document.getElementById('pages').style['display'] = 'none';
 	//document.getElementById('extraid').style['display'] = 'none';
 	document.getElementById('genericok').showModal();
-	this.onback = 'closegeneric';
+	this.modalback = 'closegeneric';
 }
 /* ImBCHtml: show the normal pages */
 showpages() {
@@ -20056,6 +20067,8 @@ showdisconnect(alsoerr) {
 	for (const e of document.querySelectorAll('.moviesym'))
 		e.style['display'] = 'none';
 	for (const e of document.querySelectorAll('.photosym'))
+		e.style['display'] = 'none';
+	for (const e of document.querySelectorAll('.trashbin'))
 		e.style['display'] = 'none';
 	document.getElementById('genadvice').style['display'] = '';
 	ImBCHtml.closep(document.getElementById('imbsettcloser'));
@@ -20883,7 +20896,9 @@ dlmag() {
 	else {
 		let afterloadcalled = false;
 		if (this.debugflag) console.log('li raw start bpv ' + url);
-		this.buildpreview((this.debugflag && this.useraw) ? this.useraw : (to.imbackintension ? to.imbackintension : url), (xrot) => { /* on ok: */
+		this.buildpreview((this.debugflag && this.useraw) ? this.useraw : (to.imbackintension ? to.imbackintension : url),
+				to.isbig ? 2 : 1,
+				(xrot) => { /* on ok: */
 			if (to.rot === 0) to.rot = xrot;
 			e.setAttribute('data-state', 'ok');
 			e.querySelector('.waitdiv').style['display'] = 'none';
@@ -20976,7 +20991,7 @@ browserdelete() {
 	document.getElementById('delcancelbut').disabled = false;
 	document.getElementById('delprogmsg').innerHTML = '';
 	document.getElementById('delq').showModal();
-	this.onback = 'closedelprog';
+	this.modalback = 'closedelprog';
 	this.rotphase = 1;
 }
 /* ImBCHtml: visual browser: delete from magnified view */
@@ -20988,7 +21003,7 @@ magdelete() {
 	document.getElementById('delcancelbut').disabled = false;
 	document.getElementById('delprogmsg').innerHTML = '';
 	document.getElementById('delq').showModal();
-	this.onback = 'closedelprog';
+	this.modalback = 'closedelprog';
 	this.rotphase = 1;
 }
 /* ImBCHtml: visual browser: do delete */
@@ -21011,7 +21026,7 @@ dodelete(list, status) {
 		return;
 	} else if (list.length > 0) {
 		/* processing */
-		this.onback = 'nothing';
+		this.modalback = 'nothing';
 		this.custcmdB(4003, 'document', 'str=' + list[0].url, (res) => {
 			this.rotphase ++;
 			document.getElementById('delprogmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ' +  this.xl('process.totals', status.no, status.ok, 0, status.err);
@@ -21045,7 +21060,7 @@ dodelete(list, status) {
 		document.getElementById('delprogmsg').innerHTML = this.xl('process.totals', status.no, status.ok, 0, status.err);
 		document.getElementById('delokbut').disabled = false;
 		document.getElementById('delcancelbut').disabled = true;
-		this.onback = 'closedelprog';
+		this.modalback = 'closedelprog';
 		this.savesettings();
 		this.rotphase = -1;
 	}
@@ -21057,9 +21072,6 @@ delcancel() {
 	this.rotphase = 0;
 	document.getElementById('delprogmsg').innerHTML = '';
 	this.#startloadimg();
-	setTimeout(() => {
-		this.onback = 'quit';
-	},300);
 }
 /* ImBCHtml: visual browser: process browser selected */
 browserprocess() {
@@ -21100,7 +21112,7 @@ browserprocess() {
 		document.getElementById('infile').disabled = true
 		this.fromvisbrows = true;
 		this.showdlprog();
-		this.onback = 'canceldl';
+		this.modalback = 'canceldl';
 		this.#startloadimg();
 		this.topreccheck(false);
 	} else {
@@ -21428,19 +21440,19 @@ prevdef(ev) {
 }
 /* ImBCHtml: browserdisplay: put preview into canvas */
 // orientation: 1: norm, 3: rot 180, 6 rot 90 CW, 8: rot 270 CCW
-buildpreview(f, onok, onerr, orientation, targ, afterload) {
+buildpreview(f, size, onok, onerr, orientation, targ, afterload) {
 	let w, h, typ;
 	if (undefined === f.size) {
 		window.setTimeout(() => {
 		  let cachehit;
 		  if ((cachehit = this.findcache(f.url ? f.url :f))) {
 			  this.workerstate.push({ cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :f), o: orientation, onok: onok, onerr: onerr, t: targ });
-			  this.previewworker.postMessage({ cmd: 'previewfromcache', c: { n: cachehit.url, d: cachehit.d, l: cachehit.l} , n: (f.url ? f.url :f), o: orientation });
+			  this.previewworker.postMessage({ cmd: 'previewfromcache', c: { n: cachehit.url, d: cachehit.d, l: cachehit.l} , n: (f.url ? f.url :f), o: orientation, size: size });
 			  // onmessage: { pix: array, c: cache, n: name, o: orientation }
 			  // ctx.putImageData(new ImageData(outpix, transpose ? h8: w8, transpose? w8 :h8), 0, 0); onok(f)
 		  } else {
 			  this.workerstate.push({ cmd: 'resolveandpreview', c: cachehit, n: (f.url ? f.url :f), o: orientation, onok: onok, onerr: onerr, t: targ, afterload: afterload });
-			  this.previewworker.postMessage({ cmd: 'resolveandpreview', n: (f.url ? f.url :f), o: orientation });
+			  this.previewworker.postMessage({ cmd: 'resolveandpreview', n: (f.url ? f.url :f), o: orientation, size: size });
 			  // onmessage: { pix: array, n: name, o: orientation, c: cacheentry }
 			  // ctx.putImageData(new ImageData(outpix, transpose ? h8: w8, transpose? w8 :h8), 0, 0); onok(f); add cache
 		  }
@@ -21462,8 +21474,11 @@ buildpreview(f, onok, onerr, orientation, targ, afterload) {
 		canv = targ;
 	else
 		canv = document.getElementById('preview');
-	const w8 = Math.floor((w+7)/8);
-	const h8 = Math.floor((h+7)/8);
+	let sf = 8;
+	if (size === 2) sf = 4;
+	else if (size === 1) sf = 16;
+	const w8 = Math.floor((w+sf-1)/sf);
+	const h8 = Math.floor((h+sf-1)/sf);
 	canv.width = w8;
 	canv.height = h8;
 	if (orientation === 6 || orientation === 8) {
@@ -21479,7 +21494,7 @@ buildpreview(f, onok, onerr, orientation, targ, afterload) {
 		const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : globals.getwb(view, zz);
 		let transpose = false;
 		if (this.debugflag) console.log(JSON.stringify(wb));
-		let outpix = globals.buildpvarray(view, typ, w, h, orientation, false, wb);
+		let outpix = globals.buildpvarray(view, size, typ, w, h, orientation, false, wb);
         if (orientation === 6 || orientation === 8) {
                 transpose = true;
         }
@@ -21585,7 +21600,7 @@ procthis() {
 	let j = globals.oriecw.indexOf(this.currentrot);
 	j = ((j + r) % 4);
 	this.currentrot = globals.oriecw[j];
-	this.buildpreview(this.allfiles[this.actnum], () => { this.setrawpv(); }, () => { this.setpverr(); }, this.currentrot);
+	this.buildpreview(this.allfiles[this.actnum], 2, () => { this.setrawpv(); }, () => { this.setpverr(); }, this.currentrot);
 }
 /* ImBCHtml: previewquestion: handler for clockwise rotation */
 rotcw() {
@@ -21604,7 +21619,7 @@ rot0() {
 	if (1 === this.currentrot) return;
 	this.setpvwait();
 	this.currentrot = 1;
-	this.buildpreview(this.allfiles[this.actnum], () => { this.setrawpv(); }, () => { this.setpverr(); }, 1);
+	this.buildpreview(this.allfiles[this.actnum], 2, () => { this.setrawpv(); }, () => { this.setpverr(); }, 1);
 }
 /* ImBCHtml: visual browser: change cache size (currently only visible in debug _00) */
 chgcache() {
@@ -22082,8 +22097,11 @@ workermsg(msg) {
 				canv = w0.t;
 			else
 				canv = document.getElementById('preview');
-			const w8 = Math.floor((w+7)/8);
-			const h8 = Math.floor((h+7)/8);
+			let sf = 8;
+			if (d.size === 2) sf = 4;
+			else if (d.size === 1) sf = 16;
+			const w8 = Math.floor((w+sf-1)/sf);
+			const h8 = Math.floor((h+sf-1)/sf);
 			canv.width = w8;
 			canv.height = h8;
 			if (d.o === 6 || d.o === 8) {
@@ -22282,7 +22300,7 @@ takephoto() {
 				document.getElementById('takeerr').style['display'] = 'none';
 				document.getElementById('takeraw').style['display'] = 'none';
 				document.getElementById('takewait').style['display'] = '';
-				this.buildpreview(n, () => {
+				this.buildpreview(n, 2, () => {
 					document.getElementById('takeraw').style['display'] = '';
 					document.getElementById('takewait').style['display'] = 'none';
 				}, () => {
@@ -22353,29 +22371,35 @@ dopoweroff() {
  }
 /* ImBHtml: handle back button */
 handleback() {
-	if (this.onback === 'mainorquit') {
+	let b = this.onback;
+	if (this.modalback.length > 0) {
+		b = this.modalback;
+		this.modalback = '';
+	}
+	if (b === 'mainorquit') {
 		if (window.getComputedStyle(document.getElementById('pages'))['display'] !== 'none')
 			this.doquit();
 		else
 			this.showmain();
 	}
-	else if (this.onback === 'main')
+	else if (b === 'main')
 		this.showmain();
-	else if (this.onback === 'quit')
+	else if (b === 'quit')
 		this.doquit();
-	else if (this.onback === 'closeprog')
-		this.showbrowser();
-	else if (this.onback === 'closegeneric') {
+	else if (b === 'closeprog')
+		if (this.fromintent) {
+			this.closedlprog();
+		}
+		else
+			this.showbrowser();
+	else if (b === 'closegeneric') {
 		document.getElementById('genericok').close();
-		setTimeout(() => {
-			this.onback = 'mainorquit';
-		},300);
 	}
-	else if (this.onback === 'closedelprog')
+	else if (b === 'closedelprog')
 		this.delcancel();
-	else if (this.onback === 'canceldl')
+	else if (b === 'canceldl')
 		this.skipthis();
-	else if (this.onback === 'closemag')
+	else if (b === 'closemag')
 		this.closemag();
 }
 /* ImBCHtml: open parent */
@@ -25309,9 +25333,11 @@ getPix: function(x, y, w, view, typ) {
 	return outrgb;
 },
 /* ImBCBase: build preview in array */
-buildpvarray: function(view, typ, w, h, orientation, scale, wb) {
+buildpvarray: function(view, size, typ, w, h, orientation, scale, wb) {
 	if (undefined === wb) wb = [ 6, 10, 1, 1, 6, 10 ];
-	const sfact = scale ? scale : 8;
+	let sfact = scale ? scale : 8;
+	if (size === 2) sfact = 4;
+	else if (size === 1) sfact = 16;
 	const w8 = Math.floor((w+(sfact -1))/sfact);
 	const h8 = Math.floor((h+(sfact -1))/sfact);
 	const rfact = (wb[1]/wb[0]);
@@ -25432,7 +25458,7 @@ adjurl: function(url) {
 <!-- WORKER -->
 <script type="text/js-previewworker" language="javascript">
 /* *************************************** Main class for WORKER *************************************** */
-let cmd, n, cache, ori, fl, base, msg = false;
+let cmd, n, cache, ori, fl, base, msg = false, siz;
 let progress = false, queue = [], wdtimer, currcust, dbgflag,	errcount = 0, constwb = false;
 /* WORKER onmessage */
 onmessage = (e) => {
@@ -25458,6 +25484,7 @@ onmessage = (e) => {
 	cmd = e.data.cmd;
 	ori = e.data.o;
 	fl = e.data.fl;
+	siz = e.data.size;
 	cache = {};
 	if (!msg) {
 		console.log('WORKER SEEMS OK');
@@ -25480,7 +25507,7 @@ onmessage = (e) => {
 		break;
 	case 'previewfromcache':
 		progress = cmd;
-		buildpreviewcache(e.data.c, e.data.o);
+		buildpreviewcache(e.data.c, e.data.size, e.data.o);
 		// this.previewworker.postMessage({ cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :f), o: orientation });
 		// onmessage: { pix: array, c: cache, n: n, o: orientation }
 		break;
@@ -25533,11 +25560,11 @@ function resolver(url, preview, notfirst)  {
 		//if (notfirst) {
 			if (!preview) {
 				//console.log('POSTING ' + url);
-				postMessage({ cmd: cmd, ok: true, n: url, o: ori, fl: fl, c: cache });
+				postMessage({ cmd: cmd, ok: true, n: url, o: ori, fl: fl, c: cache, size: siz });
 				handlewait();
 			}
 			else {
-				buildpreview(fx, ori);
+				buildpreview(fx, siz, ori);
 			}
 		//} else resolver(e, preview, len);
 	};
@@ -25601,7 +25628,7 @@ function handlewait() {
 }
 /* WORKER: browserdisplay: build preview */
 // orientation: 1: norm, 3: rot 180, 6 rot 90 CW, 8: rot 270 CCW
-function buildpreview(f, orientation) {
+function buildpreview(f, size, orientation) {
 	let w, h, typ;
 	const zz = globals.infos.findIndex(v => v.size === f.size);
 	if (zz === -1) {
@@ -25620,9 +25647,9 @@ function buildpreview(f, orientation) {
 		const view = new DataView(contents);
 		const wb = constwb ? [ 6, 10, 1, 1, 6, 10 ] : globals.getwb(view, zz);
 		//console.log(JSON.stringify(wb));
-		let outpix = globals.buildpvarray(view, typ, w, h, orientation, false, wb);
+		let outpix = globals.buildpvarray(view, size, typ, w, h, orientation, false, wb);
 		// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
-		postMessage({ cmd: cmd, pix: outpix, n: n, o: ori, c: cache, xori: (typ === 5 && ori === 0) ? 3 : ((ori === 0) ? 1 : ori) });
+		postMessage({ cmd: cmd, pix: outpix, n: n, o: ori, c: cache, xori: (typ === 5 && ori === 0) ? 3 : ((ori === 0) ? 1 : ori), size: size });
 		handlewait();
 	};
 	reader.onerror = (/*evt*/) => {
@@ -25634,7 +25661,7 @@ function buildpreview(f, orientation) {
 }
 /* WORKER: browserdisplay: build preview from cache */
 // orientation: 1: norm, 3: rot 180, 6 rot 90 CW, 8: rot 270 CCW
-function buildpreviewcache(f, orientation) {
+function buildpreviewcache(f, size, orientation) {
 	let w, h, typ;
 	const zz = globals.infos.findIndex(v => v.size === f.l);
 	if (zz === -1) {
@@ -25651,16 +25678,16 @@ function buildpreviewcache(f, orientation) {
 	const view = new DataView(contents);
 	const wb = constwb ? [ 6, 10, 1, 1, 6, 10 ] : globals.getwb(view, zz);
 	//console.log(JSON.stringify(wb));
-	let outpix = globals.buildpvarray(view, typ, w, h, orientation, false, wb);
+	let outpix = globals.buildpvarray(view, size, typ, w, h, orientation, false, wb);
 	// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
 	if (dbgflag) {
 		setTimeout(() => {
-			postMessage({ cmd: cmd, pix: outpix, n: n, o: ori, c: cache, xori: (typ === 5 && ori === 0) ? 3 : ((ori === 0) ? 1 : ori) });
+			postMessage({ cmd: cmd, pix: outpix, n: n, o: ori, c: cache, xori: (typ === 5 && ori === 0) ? 3 : ((ori === 0) ? 1 : ori), size: size });
 			handlewait();
 		}, 900);
 	}
 	else {
-		postMessage({ cmd: cmd, pix: outpix, n: n, o: ori, c: cache, xori: (typ === 5 && ori === 0) ? 3 : ((ori === 0) ? 1 : ori) });
+		postMessage({ cmd: cmd, pix: outpix, n: n, o: ori, c: cache, xori: (typ === 5 && ori === 0) ? 3 : ((ori === 0) ? 1 : ori), size: size });
 		handlewait();
 	}
 }
@@ -25908,8 +25935,8 @@ function readjpg(file) {
 			<span class="biggiebtn rotbtn" style="left: 0.6em;" onclick="imbc.rotmag();">&#x2b6e;</span>
 			<span class="biggiebtn rotbtnr" style="left: 1.6em;" onclick="imbc.rotmag(true);">&#x2b6f;</span>
 			<span class="biggiebtn trashbin" style="left: 2.6em;" onclick="imbc.magdelete();">&#x1f5d1;</span>
-			<div style="position:fixed;left:3vw;top:48vh;background-color:rgba(128,128,128,0.5);cursor:pointer;" onclick="imbc.magnav();">&lt;</div>
-			<div style="position:fixed;right:3vw;top:48vh;background-color:rgba(128,128,128,0.5);cursor:pointer;" onclick="imbc.magnav(true);">&gt;</div>
+			<div class="backnextmag" id="backnl" style="left:3vw;" onclick="imbc.magnav();">&lt;</div>
+			<div class="backnextmag" id="backnr" style="right:3vw;" onclick="imbc.magnav(true);">&gt;</div>
 		</div>
 		</div>
 	</div>
@@ -26050,7 +26077,7 @@ function readjpg(file) {
 <!-- generic OK/error -->
 <dialog id="genericok" class="mymodal" style="border: 5px solid grey; border-radius: 20px; padding: 20px;width:fit-content;">
 <div style="font-weight:bold;" id="okmsg"></div>
-<input id="confirmbut" type="button" data-myvalxlkey="del.question.ok" onclick="this.parentElement.close();imbc.onback = 'mainorquit';">
+<input id="confirmbut" type="button" data-myvalxlkey="del.question.ok" onclick="this.parentElement.close();imbc.modalback = 'mainorquit';">
 </dialog>
 <!-- end of the generic ok/error -->
 <!-- block overlay -->
