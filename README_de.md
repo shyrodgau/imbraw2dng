@@ -129,10 +129,6 @@ als `imbraw2dng_XX.html` abspeichert, wobei `XX` das Sprachkürzel ist, öffnet 
 du beim Übersetzen helfen magst, übersetze die Seite, die du gerade liest oder schau [hier](https://shyrodgau.github.io/imbraw2dng/translations.xls) und nimm Kontakt
 auf.
 
-Wenn man [node.js](https://nodejs.org) Version &ge; V20.10(LTS) hat, kann man die Datei [imbraw2dng.js](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.js), 
-unter dem Namen `imbraw2dng_00.js` abspeichern und `node imbraw2dng_00.js -CSV > meinetexte.csv` aufrufen, um eine aktuelle Textliste für Übersetzung zu bekommen.
-
-
 ## Kommandozeile mit node.js
 
 Sofern man [node.js](https://nodejs.org) in Version &ge; V20.10(LTS) hat, kann man die Konvertierung auf der Kommandozeile durchführen. Hierzu die Datei 

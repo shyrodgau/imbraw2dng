@@ -120,9 +120,6 @@ The current supported langauges are english (EN), japanese (JA) and german (DE).
 is the language shortcut, it will open the page directly in that language. If you want to contribute to translating, translate what you are reading now or look 
 [here](https://shyrodgau.github.io/imbraw2dng/translations.xls) and get in contact!
 
-When you have [node.js](https://nodejs.org) version &ge; V20.10(LTS), you can get the file [imbraw2dng.js](https://github.com/shyrodgau/imbraw2dng/raw/master/imbraw2dng.js), 
-save it as `imbraw2dng_00.js` and then call `node imbraw2dng_00.js -CSV > mytexts.csv` to generate a current CSV with texts to be translated.
-
 ## Command line using node.js
 
 If and when you have [node.js](https://nodejs.org) version &ge; V20.10(LTS) installed, you can do the conversion via command line by getting the file 
