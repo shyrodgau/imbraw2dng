@@ -474,7 +474,6 @@ div[data-state='load'] .btnsrow, div[data-state='wait'] .btnsrow, div[data-state
 .JPG_CL .rotbtnr, .oth_CL .rotbtnr { display: none; }
 .JPG_CL .eeraw, .oth_CL .eeraw, .RAW_CL .eejpg { display: none; }
 .biggiebtn { position: absolute; top: -0.2em; font-weight:bold; font-size:120%; text-shadow: 0.1em 0.07em 0 white; z-index: 900;}
-.picbig { scale: 3; position: absolute; z-index: 990; border: 3px solid white; left: 66%;}
 .pictitle { z-index: 90; font-size:66%; }
 .pictitle:not(:nth-child(1)) { border-top: 1px solid black; }
 .onepic .picdeleted:before {
@@ -20968,9 +20967,6 @@ topreccheck(force) {
 		e.preview.style['display'] = 'none';
 		ne.querySelector('.eepvx').style['display'] = '';
 		ne.querySelector('.waitdiv').style['display'] = 'none';
-		e.preview.onmouseout = (/*ev*/) => {
-			e.preview.classList.remove('picbig');
-		}
 		const magb = ne.querySelector('.magbtn');
 		if (magb) {
 			magb.onclick = () => {
@@ -20989,9 +20985,6 @@ topreccheck(force) {
 		ne.querySelector('.waitdiv').style['display'] = 'none';
 		//e.preview.classList.add('eewait');
 		e.preview.style['display'] = 'none';
-		e.preview.onmouseout = (/*ev*/) => {
-			e.preview.classList.remove('picbig');
-		}
 		if (e.type === 'JPG') {
 			const magb = ne.querySelector('.magbtn');
 			if (magb) {
@@ -22743,7 +22736,7 @@ function init2() {
 /* *************************************** globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.5.1_3a85ff8", // actually const // VERSION EYECATCHER
+version: "V5.5.1_7ab1608", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 texts: { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
