@@ -20935,6 +20935,7 @@ topreccheck(force) {
 			ne.querySelector('.dlbtn').classList.add('disabled');
 			ne.setAttribute('data-state', 'wait');
 			this.#startloadimg();
+			rotbtn.parentElement.style['display'] = 'none';
 		};
 	} else {
 		rotbtn.remove();
@@ -20954,6 +20955,7 @@ topreccheck(force) {
 			ne.querySelector('.dlbtn').classList.add('disabled');
 			ne.setAttribute('data-state', 'wait');
 			this.#startloadimg();
+			rotbtnr.parentElement.style['display'] = 'none';
 		};
 	} else {
 		rotbtnr.remove();
@@ -20972,6 +20974,7 @@ topreccheck(force) {
 		this.showlog();
 		this.showdlprog();
 		this.#startloadimg();
+		dlbtn.parentElement.style['display'] = 'none';
 	};
 	
 	if (e.type === 'RAW') {
@@ -20985,6 +20988,7 @@ topreccheck(force) {
 		if (magb) {
 			magb.onclick = () => {
 				this.showmag(e);
+				magb.parentElement.style['display'] = 'none';
 			};
 		}
 	} else /*if (e.type === 'JPG')*/ {
@@ -21004,6 +21008,7 @@ topreccheck(force) {
 			if (magb) {
 				magb.onclick = () => {
 					this.showmag(e);
+					magb.parentElement.style['display'] = 'none';
 				};
 				magb.style['left'] = '0.8em';
 			}
@@ -22752,7 +22757,7 @@ function init2() {
 /* *************************************** globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.5.1_eb29f28", // actually const // VERSION EYECATCHER
+version: "V5.5.2_3828eb9", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 texts: { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
