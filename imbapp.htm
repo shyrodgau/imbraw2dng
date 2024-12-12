@@ -18748,9 +18748,10 @@ handleone(orientation) {
 		ti.addEntry(50708, 'ASCII', 'ImBack' + ' ' + globals.types[typ < 32 ? typ : typ - 32]); /* Unique model */
 		ti.addEntry(272, 'ASCII', globals.types[typ < 32 ? typ : typ - 32]); /* Model */
 		ti.addEntry(274, 'SHORT', [ ori ]); /* Orientation */
-		ti.addEntry(305, 'ASCII', 'imbraw2dng ' + globals.version); /* SW and version */
+		ti.addEntry(305, 'ASCII', 'imbapp.htm ' + globals.version); /* SW and version */
 		if (!this.#historystring?.length)
 			this.#historystring = rawname;
+		this.#historystring += (',imbapp.htm ' + globals.version);
 		// do UTF-8 bytes instead of ASCII if necessary
 		let hbytes = new TextEncoder().encode(this.#historystring);
 		if (hbytes.length === this.#historystring.length)
@@ -22490,7 +22491,7 @@ window.addEventListener('pageshow', function (event) {
 /* *************************************** globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.5.2_3828eb9", // actually const // VERSION EYECATCHER
+version: "V5.5.2_2e95e17", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 texts: { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -26028,6 +26029,7 @@ function readjpg(file) {
 <div  style="font-size:133%;margin-top: 0.5em;"><span  data-myxlkey="main.selectrawx"></span> 
 <input  type="file" accept=".*" id="infile" name="infile" multiple onchange="imbc.fselected()">
 </div><br>
+<div class="notwhenbackw" style="margin-top: 0.5em;" data-myxlkey="main.generaladvice"></div>
 </div>
 <!-- end of the normal display -->
 <!-- this is the take photos page -->
