@@ -59,8 +59,8 @@ async function runTest() {
   	driver.executeScript('mobile: pushFile', [{remotePath: '/storage/emulated/0/DCIM/nn/x', payload: 'bml4Cg=='}]);
   	driver.executeScript('mobile: shell', [{command:'rm', args: [ '/storage/emulated/0/DCIM/nn/*' ]}]);
 	await driver.pause(3000);
-    const batteryItem = await driver.$('#tobrows');
-    await batteryItem.click();
+    //const batteryItem = await driver.$('#tobrows');
+    //await batteryItem.click();
 	await driver.pause(4000);
     const imgrp = await driver.$('#SELC_2029_07');
     await imgrp.click();
@@ -78,8 +78,7 @@ async function runTest() {
 	await sbytype.click();
 	await driver.pause(3000);
 
-	//const zoom0x = await driver.$('#gg_RAW2029_07_07_X .eeraw');
-	//await zoom0x.click();
+	await rotviox.click();
 	await driver.pause(800);
 	const zoom0 = await driver.$('#gg_RAW2029_07_07_X .magbtn');
 	await zoom0.click();

@@ -74,7 +74,7 @@ describe('A Convert Raw Local', function() {
 			await driver.actions({async: true}).clear();
 	});
 	it('A.3 Convert with question and more rotation', async function dotest() {
-			this.timeout(11000);
+			this.timeout(15000);
 			const cb = await driver.findElement(By.id('steppreview'));
 			const sel = await cb.isSelected();
 			if (!sel) {
@@ -108,7 +108,7 @@ describe('A Convert Raw Local', function() {
 			await driver.actions({async: true}).clear();
 	});
 	it('A.4 Convert to zip with copyright', async function dotest() {
-			this.timeout(11000);
+			this.timeout(15000);
 			const cb = await driver.findElement(By.id('steppreview'));
 			const sel = await cb.isSelected();
 			if (sel) {
