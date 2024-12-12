@@ -25393,8 +25393,10 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb) {
 		coliterstart = 0;
 		coliterend = w8;
 	}
-	let hist = new Array(256);
-	for (let i = 0; i < 256; i++) hist[i] = 0;
+	let rhist = new Array(256), ghist = new Array(256), bhist = new Array(256);
+	for (let i = 0; i < 256; i++) {
+		rhist[i] = 0; ghist[i] = 0; bhist[i] = 0;
+	}
 	let cnt = 0;
 	for (let i = rowiterstart; i < rowiterend; i +=1) {
 		for (let j = coliterstart; j < coliterend; j+=1) {
@@ -25402,27 +25404,55 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb) {
 			outpix.push(a[0]);
 			outpix.push(a[1]);
 			outpix.push(a[2]);
-			const v = Math.ceil((rfact*a[0] + gfact*a[1] + bfact*a[2])/3);
-			if (v >= 255) hist[255]++;
-			else hist[v]++;
+			rhist[a[0]]++;
+			ghist[a[2]]++;
+			bhist[a[2]]++;
 			cnt++;
 		}
 	}
-	// cut off top and bottom 7%
-	let cntx = 0, allmin = 0, allmax = 255;
+	// cut off top and bottom 0.2 and 3%
+	let cntx = 0, rallmin = 0, rallmax = 255;
 	while (cntx < (cnt * 0.03))
-		cntx += hist[allmin++];
-	if (allmin > 0) allmin --;
+		cntx += rhist[rallmin++];
+	if (rallmin > 0) rallmin --;
+	cntx = 0;
+	while (cntx < (cnt * 0.002))
+		cntx += rhist[rallmax--];
+	if (rallmax < 255) rallmax++;
+	let gallmin = 0, gallmax = 255;
 	cntx = 0;
 	while (cntx < (cnt * 0.03))
-		cntx += hist[allmax--];
-	if (allmax < 255) allmax++;
+		cntx += ghist[gallmin++];
+	if (gallmin > 0) gallmin --;
+	cntx = 0;
+	while (cntx < (cnt * 0.002))
+		cntx += ghist[gallmax--];
+	if (gallmax < 255) gallmax++;
+	let ballmin = 0, ballmax = 255;
+	cntx = 0;
+	while (cntx < (cnt * 0.03))
+		cntx += bhist[ballmin++];
+	if (ballmin > 0) ballmin --;
+	cntx = 0;
+	while (cntx < (cnt * 0.002))
+		cntx += bhist[ballmax--];
+	if (ballmax < 255) ballmax++;
+	let allmin = Math.min(rallmin, gallmin, ballmin);
+	let allmax = Math.max(rallmax, gallmax, ballmax);
 	let fact;
 	if (allmax > 247 && allmin < 8) {
 		fact = 1;
 		allmin = 0;
+		//console.log('Fact 1 ' + fact + ' i ' + allmin + ' a ' + allmax);
 	}
-	else fact = 245/(allmax - allmin);
+	else if (allmin === allmax) {
+		fact = 1;
+		//console.log('Fact 2 ' + fact + ' i ' + allmin + ' a ' + allmax);
+	}
+	else {
+		fact = 254/(allmax - allmin);
+		//console.log('Fact 3 ' + fact + ' i ' + allmin + ' a ' + allmax);
+	}
 	//console.log('ai ' + allmin + ' aa ' + allmax + ' ff ' + fact);
 	const o = scale ? 3 : 4;
 	const uic = new Uint8ClampedArray(h8 * w8 * o);
@@ -25432,30 +25462,27 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb) {
 			let ng = ((outpix[3*((i * w8) + j) + 1] * gfact) - allmin) * fact + allmin;
 			let nb = ((outpix[3*((i * w8) + j) + 2] * bfact) - allmin) * fact + allmin;
 			if (nr >= 255) {
-				if (ng < 250) ng = Math.round(ng * 255 / nr);
-				if (nb < 250) nb = Math.round(nb * 255 / nr);
+				if (ng < 250) ng = Math.floor(ng * 255 / nr);
+				if (nb < 250) nb = Math.floor(nb * 255 / nr);
 				nr = 255;
 			}
 			else if (nr <= 0) nr = 0;
 			if (ng >= 255) {
-				if (nr < 250) nr = Math.round(nr * 255 / ng);
-				if (nr >= 255) nr = 255;
-				if (nb < 250) nb = Math.round(nb * 255 / ng);
+				if (nr < 250) nr = Math.floor(nr * 255 / ng);
+				if (nb < 250) nb = Math.floor(nb * 255 / ng);
 				ng = 255;
 			}
 			else if (ng <= 0) ng = 0;
 			if (nb >= 255) {
-				if (ng < 250) ng = Math.round(ng * 255 / nb);
-				if (ng >= 255) ng = 255;
-				if (nr < 250) nr = Math.round(nr * 255 / nb);
-				if (nr >= 255) nr = 255;
+				if (ng < 250) ng = Math.floor(ng * 255 / nb);
+				if (nr < 250) nr = Math.floor(nr * 255 / nb);
 				nb = 255;
 			}
 			else if (nb <= 0) nb = 0;
 			// maybe some brightening gamma?
-			uic[o * ((i*w8) + j)] = 255-Math.round(255*((255-nr)/255)*((255-nr)/255));
-			uic[o * ((i*w8) + j) + 1] = 255-Math.round(255*((255-ng)/255)*((255-ng)/255));
-			uic[o * ((i*w8) + j) + 2] = 255-Math.round(255*((255-nb)/255)*((255-nb)/255));
+			uic[o * ((i*w8) + j)] = 255-Math.floor(255*((255-nr)/255)*((255-nr)/255));
+			uic[o * ((i*w8) + j) + 1] = 255-Math.floor(255*((255-ng)/255)*((255-ng)/255));
+			uic[o * ((i*w8) + j) + 2] = 255-Math.floor(255*((255-nb)/255)*((255-nb)/255));
 			if (!scale) uic[o * ((i*w8) + j) + 3] = 255;
 		}
 	}
