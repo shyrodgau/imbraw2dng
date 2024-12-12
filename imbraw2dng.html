@@ -949,7 +949,7 @@ add(data, name, cb) {
 /* *************************************** Main class *************************************** */
 class ImBCBase {
 /* Indentation out */
-static version = "V5.5.1_7ab1608"; // actually const // VERSION EYECATCHER
+static version = "V5.5.2_2e95e17"; // actually const // VERSION EYECATCHER
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -19315,6 +19315,7 @@ handleone(orientation, fromloop) {
 		ti.addEntry(305, 'ASCII', 'imbraw2dng ' + ImBCBase.version); /* SW and version */
 		if (!this.#historystring?.length)
 			this.#historystring = rawname;
+		this.#historystring += (',imbraw2dng ' + ImBCBase.version);
 		// do UTF-8 bytes instead of ASCII if necessary
 		let hbytes = new TextEncoder().encode(this.#historystring);
 		if (hbytes.length === this.#historystring.length)
@@ -21777,10 +21778,10 @@ function init() {
 <div id="normal" style="margin-top: 0.5em;">
 <div class="notwhenbackw"><input type="checkbox" id="steppreview" onchange="imbc.dirtysettings()" checked><label for="steppreview" data-myxlkey="process.singlestep"></label></div>
 <div class="notwhenbackw"><input type="checkbox" id="dngpreview" checked onchange="imbc.chgdngpreview()"><label for="dngpreview" data-myxlkey="process.addpreview"></label></div>
-<div class="notwhenbackw"><input type="checkbox" id="oldstylewb" onchange="imbc.dirtysettings()"><label for="oldstylewb" style="background-color: #ffffcc;" data-myxlkey="process.oldstylewb"></label></div>
-<div class="notwhenbackw"><input type="checkbox" id="incdcp" checked onchange="imbc.dirtysettings()"><label for="incdcp" style="background-color: #ffffcc;" data-myxlkey="process.includedcp"></label></div>
+<div class="notwhenbackw"><input type="checkbox" id="incdcp" checked onchange="imbc.dirtysettings()"><label for="incdcp" data-myxlkey="process.includedcp"></label></div>
 <div class="notwhenbackw"><input type="checkbox" id="copycheck" onchange="imbc.chgcopycheck()"><label for="copycheck" data-myxlkey="process.addcopyright"></label> <input onchange="imbc.dirtysettings()" type="text" id="copytext"></input></div>
 <div class="notwhenbackw"><input type="checkbox" id="usezip" onchange="imbc.dirtysettings()"><label for="usezip" data-myxlkey="main.usezip" id="useziplbl"></label> <input type="checkbox" id="choosezipdest" onchange="imbc.dirtysettings()"><label for="choosezipdest" data-myxlkey="main.usezip.choosedest" id="useziplbl"></label></div>
+<div class="notwhenbackw"><input type="checkbox" id="oldstylewb" onchange="imbc.dirtysettings()"><label for="oldstylewb" data-myxlkey="process.oldstylewb"></label></div>
 <div class="notwhenbackw" style="margin-top: 0.5em;">
 <span id="onlyhttp" data-myxlkey="browser.prefnotfile"></span>
 <span id="settingsset" data-myxlkey="browser.settingsset"></span>

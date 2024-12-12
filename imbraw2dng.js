@@ -800,7 +800,7 @@ add(data, name, cb) {
 /* *************************************** Main class *************************************** */
 class ImBCBase {
 /* Indentation out */
-static version = "V5.5.1_7ab1608"; // actually const // VERSION EYECATCHER
+static version = "V5.5.2_2e95e17"; // actually const // VERSION EYECATCHER
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -19166,6 +19166,7 @@ handleone(orientation, fromloop) {
 		ti.addEntry(305, 'ASCII', 'imbraw2dng ' + ImBCBase.version); /* SW and version */
 		if (!this.#historystring?.length)
 			this.#historystring = rawname;
+		this.#historystring += (',imbraw2dng ' + ImBCBase.version);
 		// do UTF-8 bytes instead of ASCII if necessary
 		let hbytes = new TextEncoder().encode(this.#historystring);
 		if (hbytes.length === this.#historystring.length)
