@@ -19150,7 +19150,7 @@ handleone(orientation, fromloop) {
 			/* **** PREVIEW image **** */
 			let scale = 32;
 			if (w < 4096 && h < 4096) scale=16;
-			ti.addImageStrip(1, ImBCBase.buildpvarray(view, typ, w, h, ori, scale, wb), Math.floor(transp ? (h+scale-1)/scale:(w+scale-1)/scale), Math.floor(transp ? (w+scale-1)/scale: (h+scale-1)/scale));
+			ti.addImageStrip(1, ImBCBase.buildpvarray(view, 0, typ, w, h, ori, scale, wb), Math.floor(transp ? (h+scale-1)/scale:(w+scale-1)/scale), Math.floor(transp ? (w+scale-1)/scale: (h+scale-1)/scale));
 			ti.addEntry(258 , 'SHORT', [ 8, 8, 8 ]); /* BitsPerSample */
 			ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression - none */
 			ti.addEntry(262, 'SHORT', [ 2 ]); /* Photometric - RGB */
@@ -19460,9 +19460,11 @@ static getPix(x, y, w, view, typ) {
 	return outrgb;
 }
 /* ImBCBase: build preview in array */
-static buildpvarray(view, typ, w, h, orientation, scale, wb) {
+static buildpvarray(view, size, typ, w, h, orientation, scale, wb) {
 	if (undefined === wb) wb = [ 6, 10, 1, 1, 6, 10 ];
-	const sfact = scale ? scale : 8;
+	let sfact = scale ? scale : 8;
+	if (size === 2) sfact = 4;
+	else if (size === 1) sfact = 16;
 	const w8 = Math.floor((w+(sfact -1))/sfact);
 	const h8 = Math.floor((h+(sfact -1))/sfact);
 	const rfact = (wb[1]/wb[0]);

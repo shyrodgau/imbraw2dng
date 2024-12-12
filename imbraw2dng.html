@@ -19299,7 +19299,7 @@ handleone(orientation, fromloop) {
 			/* **** PREVIEW image **** */
 			let scale = 32;
 			if (w < 4096 && h < 4096) scale=16;
-			ti.addImageStrip(1, ImBCBase.buildpvarray(view, typ, w, h, ori, scale, wb), Math.floor(transp ? (h+scale-1)/scale:(w+scale-1)/scale), Math.floor(transp ? (w+scale-1)/scale: (h+scale-1)/scale));
+			ti.addImageStrip(1, ImBCBase.buildpvarray(view, 0, typ, w, h, ori, scale, wb), Math.floor(transp ? (h+scale-1)/scale:(w+scale-1)/scale), Math.floor(transp ? (w+scale-1)/scale: (h+scale-1)/scale));
 			ti.addEntry(258 , 'SHORT', [ 8, 8, 8 ]); /* BitsPerSample */
 			ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression - none */
 			ti.addEntry(262, 'SHORT', [ 2 ]); /* Photometric - RGB */
@@ -19609,9 +19609,11 @@ static getPix(x, y, w, view, typ) {
 	return outrgb;
 }
 /* ImBCBase: build preview in array */
-static buildpvarray(view, typ, w, h, orientation, scale, wb) {
+static buildpvarray(view, size, typ, w, h, orientation, scale, wb) {
 	if (undefined === wb) wb = [ 6, 10, 1, 1, 6, 10 ];
-	const sfact = scale ? scale : 8;
+	let sfact = scale ? scale : 8;
+	if (size === 2) sfact = 4;
+	else if (size === 1) sfact = 16;
 	const w8 = Math.floor((w+(sfact -1))/sfact);
 	const h8 = Math.floor((h+(sfact -1))/sfact);
 	const rfact = (wb[1]/wb[0]);
@@ -20024,7 +20026,7 @@ handleonex() {
 				this.setnopv();
 			} else {
 				this.#qappx('main.file',rawname);
-				this.buildpreview(f, (rot) => { this.currentrot = rot; this.setrawpv(); }, () => { this.setpverr(); }, 0);
+				this.buildpreview(f, 2, (rot) => { this.currentrot = rot; this.setrawpv(); }, () => { this.setpverr(); }, 0);
 			}
 		}
 	}
@@ -20885,7 +20887,7 @@ topreccheck(force) {
 	else if (type === 'RAW') {
 		let afterloadcalled = false;
 		if (this.debugflag) console.log('li raw start bpv ' + url);
-		this.buildpreview((this.debugflag && this.useraw) ? this.useraw : url, (xrot) => { /* on ok: */
+		this.buildpreview((this.debugflag && this.useraw) ? this.useraw : url, 1, (xrot) => { /* on ok: */
 			if (to.rot === 0) to.rot = xrot;
 			e.setAttribute('data-state', 'ok');
 			e.querySelector('.waitdiv').style['display'] = 'none';
@@ -21298,12 +21300,12 @@ prevdef(ev) {
 }
 /* ImBCHtml: browserdisplay: put preview into canvas */
 // orientation: 1: norm, 3: rot 180, 6 rot 90 CW, 8: rot 270 CCW
-buildpreview(f, onok, onerr, orientation, targ, afterload) {
+buildpreview(f, size, onok, onerr, orientation, targ, afterload) {
 	let w, h, typ;
 	if (undefined === f.size) {
 		window.setTimeout(() => {
 		  this.resolver(f, (url, fx) => {
-				this.buildpreview(fx, onok, onerr, orientation, targ, afterload);
+				this.buildpreview(fx, size, onok, onerr, orientation, targ, afterload);
 			}, (/*url*/) => {
 				onerr(f);
 		  });
@@ -21325,8 +21327,11 @@ buildpreview(f, onok, onerr, orientation, targ, afterload) {
 		canv = targ;
 	else
 		canv = document.getElementById('preview');
-	const w8 = Math.floor((w+7)/8);
-	const h8 = Math.floor((h+7)/8);
+	let sf = 8;
+	if (size === 2) sf = 4;
+	else if (size === 1) sf = 16;
+	const w8 = Math.floor((w+sf-1)/sf);
+	const h8 = Math.floor((h+sf-1)/sf);
 	canv.width = w8;
 	canv.height = h8;
 	if (orientation === 6 || orientation === 8) {
@@ -21346,7 +21351,7 @@ buildpreview(f, onok, onerr, orientation, targ, afterload) {
 		const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : ImBCBase.getwb(view, zz);
 		let transpose = false;
 		console.log(JSON.stringify(wb));
-		let outpix = ImBCBase.buildpvarray(view, typ, w, h, orientation, false, wb);
+		let outpix = ImBCBase.buildpvarray(view, size, typ, w, h, orientation, false, wb);
         if (orientation === 6 || orientation === 8) {
                 transpose = true;
         }
@@ -21431,7 +21436,7 @@ procthis() {
 	let j = ImBCBase.oriecw.indexOf(this.currentrot);
 	j = ((j + r) % 4);
 	this.currentrot = ImBCBase.oriecw[j];
-	this.buildpreview(this.allfiles[this.actnum], () => { this.setrawpv(); }, () => { this.setpverr(); }, this.currentrot);
+	this.buildpreview(this.allfiles[this.actnum], 2, () => { this.setrawpv(); }, () => { this.setpverr(); }, this.currentrot);
 }
 /* ImBCHtml: previewquestion: handler for clockwise rotation */
 rotcw() {
@@ -21450,7 +21455,7 @@ rot0() {
 	if (1 === this.currentrot) return;
 	this.setpvwait();
 	this.currentrot = 0;
-	this.buildpreview(this.allfiles[this.actnum], (rot) => { this.currentrot = rot; this.setrawpv(); }, () => { this.setpverr(); }, 0);
+	this.buildpreview(this.allfiles[this.actnum], 2, (rot) => { this.currentrot = rot; this.setrawpv(); }, () => { this.setpverr(); }, 0);
 }
 /* ImBCHtml: visual browser: change cache size (currently only visible in debug _00) */
 chgcache() {
@@ -21816,7 +21821,7 @@ function init() {
 <!-- normal preview with question -->
 <div id="question" style="display:none;background-color:#ddffaa;border: 5px solid #33ff33; border-radius: 10px;width: fit-content;padding:2em;">
 <div style="font-weight:bold;" id="qhdr">&nbsp;</div>
-<canvas id="preview"></canvas><img style="display:none;max-width:550px; max-height:550px;" id="jpegpreview" onload="imbc.setjpegpv()" onerror="imbc.setpverr()"><div id="previewerr" data-myxlkey="preview.err"></div><div id="previewwait">
+<canvas id="preview" style="max-width:75vw; max-height:50vh;"></canvas><img style="display:none;max-width:75vw; max-height:50vh;" id="jpegpreview" onload="imbc.setjpegpv()" onerror="imbc.setpverr()"><div id="previewerr" data-myxlkey="preview.err"></div><div id="previewwait">
 <span class="blink">.</span><span class="blink2">.</span><span class="blink3">.</span></div><br>
 <div id="rotations"><input type="button" id="procthiscw" data-myvalxlkey="preview.rotcw" onclick="imbc.rotcw()" style="padding:0.5em; margin:0.5em;margin-left:2.5em;">
 <input type="button" id="procthisccw" data-myvalxlkey="preview.rotccw" onclick="imbc.rotccw()" style="padding:0.5em; margin:0.5em;">
@@ -21869,7 +21874,7 @@ Replaceraw: <input type="file" onchange="imbc.replraw()" accept=".raw,.RAW" id="
 			<span class="blink">.</span><span class="blink2">.</span><span class="blink3">.</span>
 		</div>
 		<div class="btnsrow">
-			<span class="biggiebtn bigbtn" style="left: 0.4em; margin-top: -0.5em;">⛶</span>
+			<span class="biggiebtn bigbtn" style="left: 0.4em; margin-top: -0.1em;">⛶</span>
 			<span class="dlbtn biggiebtn" style="font-size: 133%;">↓</span>
 			<span class="biggiebtn rotbtn" style="left: 2.4em;">↷</span>
 		</div>
