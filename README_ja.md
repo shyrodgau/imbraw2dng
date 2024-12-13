@@ -3,12 +3,12 @@
 
 そのほとんどはフリーソフトウェア ([0 条項 BSD ライセンス](LICENSE.txt)) であり、商用サポートは提供されていません。
 
-または [ドイツ語](https://shyrodgau.github.io/imbraw2dng/README_de)
-[英語](https://shyrodgau.github.io/imbraw2dng/README)
+または [ドイツ語](https://shyrodgau.github.io/imbraw2dng/README_de)   
+  [英語](https://shyrodgau.github.io/imbraw2dng/README)
 
 ## ここで見つけるもの
 
-- `imbraw2dng.html` - [オリジナル コンバーター](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html)。ハードディスク、インターネット、または ImB から直接ブラウザーで使用する
+- `imbraw2dng.html` - [オリジナル コンバーター](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_ja.html)。ハードディスク、インターネット、または ImB から直接ブラウザーで使用する
 `imbraw2dng_XX.html` としてさまざまな言語でも使用できます ([国際化](#国際化) を参照)
 
 - `imbapp.htm` - 新しい [アプリのようなバージョン](https://shyrodgau.github.io/imbraw2dng/imbapp.htm)
@@ -39,7 +39,7 @@ Android を使用している場合は、[Android アプリ](https://shyrodgau.g
 
 PC またはスマートフォンのブラウザーで使用したい場合は、次の選択肢があります。
 
-- [新しい `IMBAPP.HTM`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) または [従来の `IMBRAW2DNG.HTML`](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) のいずれか (または両方) をインターネットから直接使用するか、ハードディスクまたはメモリ上の任意の場所にコピーします。
+- [新しい `IMBAPP.HTM`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) または [従来の `IMBRAW2DNG.HTML`](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_ja.html) のいずれか (または両方) をインターネットから直接使用するか、ハードディスクまたはメモリ上の任意の場所にコピーします。
 （**すべてのデータはブラウザ内に残ります！**）
 この場合、ImB からファイルを転送するか、USB、アダプタ、オリジナルの ImB アプリなどを介して MicroSD にアクセスする必要があります。
 
