@@ -8,6 +8,7 @@ imbdng2raw.js
 Convert RAW from I'm back(R)(https://imback.eu) into DNG
 
 Based on work by Michele Asciutti.
+Japanese translations by Sadami Inoue.
 
 https://github.com/shyrodgau/imbraw2dng
 
@@ -1008,9 +1009,9 @@ static texts = { // actually const
 			}
 		},
 		newmsg: {
-			en: 'New! <a href="imbraw2dng_ja.html">Japanese translation</a> thanks to Sadami Inoue! <a href="https://github.com/shyrodgau/imbraw2dng/issues" target="_new">Report bugs</a>',
-			de: 'Neu! <a href="imbraw2dng_ja.html">Japanische Übersetung</a> Danke an Sadami Inoue! <a href="https://github.com/shyrodgau/imbraw2dng/issues" target="_new">Fehler melden</a>',
-			ja: 'Japanese translation thanks to Sadami Inoue! <a href="https://github.com/shyrodgau/imbraw2dng/issues" target="_new">バグ報告</a>'
+			en: '<a href="https://github.com/shyrodgau/imbraw2dng/issues" target="_new">Report bugs</a>',
+			de: '<a href="https://github.com/shyrodgau/imbraw2dng/issues" target="_new">Fehler melden</a>',
+			ja: '<a href="https://github.com/shyrodgau/imbraw2dng/issues" target="_new">バグ報告</a>'
 		}
 	},
 	browser: {
@@ -1620,9 +1621,9 @@ static texts = { // actually const
 			ja: '\u001b[2mNo json 構成ファイルが見つかりません、検索: $$0\u001b[0m'
 		},
 		newmsg: {
-			en: '\u001b[1mNew! Japanese translation thanks to Sadami Inoue!\u001b[0m Report Bugs: https://github.com/shyrodgau/imbraw2dng/issues',
-			de: '\u001b[1mNeu! Japanische Übersetzung, danke an Sadami Inoue!\u001b[0m Fehler melden: https://github.com/shyrodgau/imbraw2dng/issues',
-			ja: '\u001b[1mNew! Japanese translation thanks to Sadami Inoue!\u001b[0m バグ報告: https://github.com/shyrodgau/imbraw2dng/issues'
+			en: 'Report Bugs: https://github.com/shyrodgau/imbraw2dng/issues',
+			de: 'Fehler melden: https://github.com/shyrodgau/imbraw2dng/issues',
+			ja: 'バグ報告: https://github.com/shyrodgau/imbraw2dng/issues'
 		}
 	}
 };
