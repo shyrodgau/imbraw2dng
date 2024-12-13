@@ -17,7 +17,40 @@ const {Builder, forBrowser, By, until, Browser, Capabilities} = require('seleniu
 //const { suite, test } = require('selenium-webdriver/testing');
 //const { ChromeOptions } = require('selenium-webdriver/chrome');
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
+function waitfor(driver, what, id, cnt=0) {
+	if (cnt > 200) {
+		console.log('W I xx ' + what + ' ' + id);
+		return new Promise((resolve, reject) => {
+			resolve(null);
+		});
+	}
+	return new Promise((resolve, reject) => {
+		driver.findElement(((what === 'id')?By.id:By.css)(id)).then(async (res) => {
+			if (res) {
+				res.isDisplayed().then(async (fl) => {
+					if (fl)
+						resolve(res);
+					else {
+						//console.log('W I 1 ' + what + ' ' + id);
+						await sleep(50);
+						resolve(await waitfor(driver, what, id, cnt+1));
+					}
+				});
+			}
+			else {
+				//console.log('W I 2 ' + what + ' ' + id);
+				await sleep(50);
+				resolve(await waitfor(driver, what, id, cnt+1));
+			}
+		}).catch((e) => {
+			console.log(e);
+		})
+	})
+}
 describe('A Convert Raw Local', function() {
 	let driver, opts, errflg = false;
 	before(async function() {
@@ -32,7 +65,7 @@ describe('A Convert Raw Local', function() {
 	});
 	it('A.1 Convert without question', async function dotest() {
 			this.timeout(6000);
-			const cb = await driver.findElement(By.id('steppreview'));
+			const cb = await waitfor(driver, 'id', 'steppreview');
 			const sel = await cb.isSelected();
 			console.log('......turning off single step');
 			await driver.actions({ async: true })
@@ -44,13 +77,13 @@ describe('A Convert Raw Local', function() {
 			const sel2 = await cb.isSelected();
 			const fi = await driver.findElement(By.id('infile'));
 			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw');
-			await driver.actions({async: true}).pause(1900).perform();
+			await driver.actions({async: true}).pause(900).perform();
 			await driver.actions({async: true}).clear();
 			await fi.clear();
 	});
 	it('A.2 Convert with question and rotation', async function dotest() {
 			this.timeout(9000);
-			const cb = await driver.findElement(By.id('steppreview'));
+			const cb = await waitfor(driver, 'id', 'steppreview');
 			const sel = await cb.isSelected();
 			if (!sel) {
 				console.log('......turning on single step');
@@ -61,7 +94,7 @@ describe('A Convert Raw Local', function() {
 					.pause(300)
 					.perform();
 			}
-			const fi = await driver.findElement(By.id('infile'));
+			const fi = await waitfor(driver, 'id', 'infile');
 			await fi.clear();
 			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2024_1015_123011_001.raw');
 			const rcw = await driver.findElement(By.id('procthiscw'));
@@ -70,7 +103,7 @@ describe('A Convert Raw Local', function() {
 			const doit = await driver.findElement(By.id('procthis'));
 			await driver.actions({async: true})
 				.move({origin: doit}).pause(300).click().pause(300).perform();
-			await driver.actions({async: true}).pause(1900).perform();
+			await driver.actions({async: true}).pause(900).perform();
 			await driver.actions({async: true}).clear();
 	});
 	it('A.3 Convert with question and more rotation', async function dotest() {
@@ -300,24 +333,32 @@ describe('B Convert Raw from Imback', function() {
 			const doit = await driver.findElement(By.id('imbdoit'));
 			await driver.actions({ async: true })
 				.move({ origin: doit })
-				.pause(900)
+				.pause(90)
 				.click()
 				.pause(900)
 				.perform();
-			await driver.actions({async: true}).pause(1900);
+			await driver.actions({async: true}).pause(100);
 			await driver.actions({async: true}).clear();
+			const stpv = await waitfor(driver, 'id', 'steppreview');
 			await driver.actions({async: true})
-				.pause(7000).move({ origin: cb }).pause(3000).click().pause(700).perform();
+				.pause(700).move({ origin: stpv }).pause(300).click().pause(700).perform();
 			await fi.clear();
 	});
 	it('B.2 Convert from visual browser', async function dotest() {
 			this.timeout(36000);
-			const cb = await driver.findElement(By.id('imbvisbrows'));
+			const cb = await waitfor(driver, 'id', 'imbvisbrows');
 			await driver.actions({ async: true })
 				.move({ origin: cb })
 				.pause(300)
 				.click()
 				.pause(300)
+				.perform();
+			const fix = await waitfor(driver, 'css', '#gg_2029_X .ggttpp');
+			await driver.actions({ async: true })
+				.move({ origin: fix })
+				.pause(300)
+				.click()
+				.pause(600)
 				.perform();
 			const fi = await driver.findElement(By.id('SELC_2029'));
 			await driver.actions({ async: true })
@@ -382,7 +423,7 @@ describe('C Convert Backward', function() {
 			await fi.clear();
 			await fi.sendKeys('/home/hegny/Downloads/mf6x6_large_1.dng\n/home/hegny/Downloads/kb_large_10.dng');
 			await driver.actions({async: true})
-				.pause(3000).move({ origin: fi }).pause(300).perform();
+				.pause(300).move({ origin: fi }).pause(1000).perform();
 	});
 	after(async function() {
 			let me = await driver.findElement(By.id('thebody'));
@@ -403,7 +444,7 @@ describe('C Convert Backward', function() {
 describe('E Convert Raw from Imback APP', function() {
 	let driver, opts, errflg = false;
 	before(async function() {
-			this.timeout(6000);
+			this.timeout(66000);
 			//const chromcapa = Capabilities.chrome();
 			const opts = [ 'prefs', { 'download.default_directory': '/home/hegny/Downloads/testoutputdir' } ];
 			//chromcapa.set('chromeOptions', opts);
@@ -430,70 +471,80 @@ describe('E Convert Raw from Imback APP', function() {
 			const fi = await driver.findElement(By.id('SELC_2029_07'));
 			await driver.actions({ async: true })
 				.move({ origin: fi })
-				.pause(100)
+				.pause(10)
 				.click()
+				.pause(10)
+				.perform();
+			const fiyy = await driver.findElement(By.id('gg_2019_01_01_X'));
+			await driver.actions({ async: true })
+				.move({ origin: fiyy })
 				.pause(300)
+				.perform();
+			const fiy = await waitfor(driver, 'css', '#gg_2019_01_01_X .eeraw');
+			await driver.actions({ async: true })
+				.move({ origin: fiy })
+				.pause(2000)
 				.perform();
 			const fi2 = await driver.findElement(By.id('SELC_2024_02_17'));
 			await driver.actions({ async: true })
 				.move({ origin: fi2 })
-				.pause(100)
+				.pause(10)
 				.click()
-				.pause(3000)
+				.pause(30)
 				.perform();
 			const rotviox = await driver.findElement(By.css('#gg_2029_07_07_X .onepic'));
 			await driver.actions({ async: true })
 				.move({ origin: rotviox })
-				.pause(300)
+				.pause(30)
 				.perform();
-			const rotvio = await driver.findElement(By.css('#gg_2029_07_07_X .rotbtnr'));
+			const rotvio = await waitfor(driver, 'css', '#gg_2029_07_07_X .rotbtnr');
 			await driver.actions({ async: true })
 				.move({ origin: rotvio })
-				.pause(100)
+				.pause(10)
 				.click()
-				.pause(300)
+				.pause(30)
 				.perform();
 			const sor = await driver.findElement(By.id('sbytype'));
 			await driver.actions({ async: true })
 				.move({ origin: sor })
-				.pause(100)
+				.pause(10)
 				.click()
-				.pause(1600)
+				.pause(600)
 				.perform();
 			const zoom0x = await driver.findElement(By.css('#gg_RAW2029_07_10_X .onepic'));
 			await driver.actions({ async: true })
 				.move({ origin: zoom0x })
-				.pause(300)
+				.pause(30)
 				.perform();
 			const zoom0 = await driver.findElement(By.css('#gg_RAW2029_07_10_X .magbtn'));
 			await driver.actions({ async: true })
 				.move({ origin: zoom0 })
-				.pause(100)
+				.pause(10)
 				.click()
-				.pause(2900)
+				.pause(90)
 				.perform();
-			const zoomr = await driver.findElement(By.id('backnr'));
+			const zoomr = waitfor(driver, 'id', 'backnr');
 			await driver.actions({ async: true })
 				.move({ origin: zoomr })
-				.pause(500)
+				.pause(50)
 				.click()
-				.pause(2900)
+				.pause(20)
 				.perform();
-			const rrr = await driver.findElement(By.css('#xmag .rotbtn'));
+			const rrr = await waitfor(driver, 'css', '#xmag .rotbtn');
 			await driver.actions({ async: true })
 				.move({ origin: rrr })
 				.pause(100)
 				.click()
-				.pause(2900)
+				.pause(1900)
 				.perform();
-			const bbb = await driver.findElement(By.css('#magnix .whbtn'));
+			const bbb = await waitfor(driver, 'css', '#magnix .whbtn');
 			await driver.actions({ async: true })
 				.move({ origin: bbb })
 				.pause(100)
 				.click()
-				.pause(900)
+				.pause(90)
 				.perform();
-			const del = await driver.findElement(By.id('delselbut'));
+			const del = await waitfor(driver, 'id', 'delselbut');
 			await driver.actions({ async: true })
 				.move({ origin: del })
 				.pause(100)
@@ -514,17 +565,18 @@ describe('E Convert Raw from Imback APP', function() {
 				.move({ origin: rcw })
 				.pause(100)
 				.click()
-				.pause(2600)
+				.pause(600)
 				.perform();
-			const okb = await driver.findElement(By.id('progokbut'));
+			const okb = await waitfor(driver, 'id', 'progokbut');
 			await driver.actions({ async: true })
 				.move({ origin: okb })
 				.pause(300)
 				.click()
-				.pause(1900)
+				.pause(900)
 				.perform();
+			const sorb = await waitfor(driver, 'id', 'sbytype');
 			await driver.actions({ async: true })
-				.move({ origin: sor })
+				.move({ origin: sorb })
 				.pause(300)
 				.click()
 				.pause(600)
@@ -539,22 +591,23 @@ describe('E Convert Raw from Imback APP', function() {
 				.move({ origin: rcw })
 				.pause(100)
 				.click()
-				.pause(2600)
+				.pause(600)
 				.perform();
+			const okbb = await waitfor(driver, 'id', 'progokbut');
 			await driver.actions({ async: true })
-				.move({ origin: okb })
+				.move({ origin: okbb })
 				.pause(100)
 				.click()
-				.pause(1900)
+				.pause(900)
 				.perform();
-			const hm = await driver.findElement(By.id('hamb'));
+			const hm = await waitfor(driver, 'id', 'hamb');
 			await driver.actions({ async: true })
 				.move({ origin: hm })
 				.pause(100)
 				.click()
 				.pause(600)
 				.perform();
-			const hml = await driver.findElement(By.id('hamlog'));
+			const hml = await waitfor(driver, 'id', 'hamlog');
 			await driver.actions({ async: true })
 				.move({ origin: hml })
 				.pause(100)

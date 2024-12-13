@@ -52,69 +52,123 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function waitfor(driver, id, cnt=0) {
+	if (cnt > 200) {
+		console.log('W I xx ' + id);
+		return new Promise((resolve, reject) => {
+			resolve(null);
+		});
+	}
+	return new Promise((resolve, reject) => {
+	  try {
+		driver.$(id).then(async (res) => {
+			if (res) {
+				res.isDisplayed().then(async (fl) => {
+					if (fl)
+						resolve(res);
+					else {
+						//console.log('W I 1 ' + id);
+						await sleep(50);
+						resolve(await waitfor(driver, id, cnt+1));
+					}
+				});
+			}
+			else {
+				//console.log('W I 2 ' + id);
+				await sleep(50);
+				resolve(await waitfor(driver, id, cnt+1));
+			}
+		}).catch((e) => {
+			console.log(e);
+		});
+	  } catch (e) {
+				(async () => { //console.log('W I 3 ' + id);
+				await sleep(100);
+				resolve(await waitfor(driver, id, cnt+1)); })();
+	  }
+	})
+}
+
 async function runTest() {
   const driver = await remote(wdOpts);
   try {
   	// empty the dir, first add a file so it is not empty
   	driver.executeScript('mobile: pushFile', [{remotePath: '/storage/emulated/0/DCIM/nn/x', payload: 'bml4Cg=='}]);
   	driver.executeScript('mobile: shell', [{command:'rm', args: [ '/storage/emulated/0/DCIM/nn/*' ]}]);
-	await driver.pause(3000);
+	await driver.pause(300);
     //const batteryItem = await driver.$('#tobrows');
     //await batteryItem.click();
-	await driver.pause(4000);
+	await driver.pause(400);
     const imgrp = await driver.$('#SELC_2029_07');
     await imgrp.click();
-	await driver.pause(3000);
-    const rotviox = await driver.$('#gg_2029_07_07_X .eeraw');
+	await driver.pause(300);
+    const rotviox = await waitfor(driver, '#gg_2029_07_07_X .eeraw');
+	await driver.pause(300);
     await rotviox.click();
 	await driver.pause(300);
-    const rotvio = await driver.$('#gg_2029_07_07_X .rotbtnr');
+    const rotvio = await waitfor(driver, '#gg_2029_07_07_X .rotbtnr');
     await rotvio.click();
-	await driver.pause(3000);
-    const imgrp2 = await driver.$('#SELC_2024_02_17');
+	await driver.pause(600);
+    const rotviox2 = await waitfor(driver, '#gg_2029_07_07_X .eeraw');
+	await driver.pause(900);
+	await driver.executeScript('mobile:swipeGesture', [{left:300,top:300,width:10,height:1200,direction:'up',percent:0.95}]);
+	const iyy2 = await waitfor(driver, '#div_2019_0101_002053_001_RAW_X .eeraw');
+	await driver.pause(300);
+	await driver.executeScript('mobile:swipeGesture', [{left:300,top:300,width:10,height:1000,direction:'down',percent:0.7}]);
+    const imgrpz = await waitfor(driver, '#gg_2024_02_19_X');
+    const imgrp2 = await waitfor(driver, '#SELC_2024_02_17');
+	await driver.executeScript('mobile:swipeGesture', [{left:300,top:300,width:10,height:50,direction:'up',percent:0.3}]);
     await imgrp2.click();
-	await driver.pause(2000);
-	const sbytype = await driver.$('#sbytype');
+	await driver.pause(1000);
+	const sbytype = await waitfor(driver, '#sbytype');
 	await sbytype.click();
-	await driver.pause(3000);
+	await driver.pause(300);
 
 	await rotviox.click();
-	await driver.pause(800);
-	const zoom0 = await driver.$('#gg_RAW2029_07_07_X .magbtn');
+	const zoom0 = await waitfor(driver,'#gg_RAW2029_07_07_X .magbtn');
 	await zoom0.click();
-	await driver.pause(4000);
-	const rrr = await driver.$('#xmag .rotbtn');
+	await driver.pause(400);
+	const rrr = await waitfor(driver, '#xmag .rotbtn');
 	await rrr.click();
-	await driver.pause(6000);
-	const rrrr = await driver.$('#xmag .rotbtnr');
+	await driver.pause(600);
+	const rrrr = await waitfor(driver, '#xmag .rotbtnr');
 	await rrrr.click();
-	await driver.pause(6000);
-	const zoomr = await driver.$('#backnr');
+	await driver.pause(600);
+	const zoomr = await waitfor(driver, '#backnr');
 	await zoomr.click();
-	await driver.pause(6000);
-	const bbb = await driver.$('#magnix .whbtn');
+	await driver.pause(600);
+	const rawbig = await waitfor(driver, '#magni .eeraw');
+	await driver.pause(600);
+	const bbb = await waitfor(driver, '#magnix .whbtn');
+	await driver.pause(900);
 	await bbb.click();
-	await driver.pause(3000);
+	await driver.pause(300);
 
 
 	/*const mp4s = await driver.$('#SELC_oth2024_02');
 	await mp4s.click();*/
-    const delbut = await driver.$('#delselbut');
+    const delbut = await waitfor(driver,'#delselbut');
     await delbut.click();
 	await driver.pause(700);
-    const delokbut = await driver.$('#delokbut');
+    const delokbut = await waitfor(driver,'#delokbut');
     await delokbut.click();
-	await driver.pause(3000);
+	await driver.pause(1000);
+    while (1) {
+		const cliki = await delokbut.getAttribute('disabled')
+		//console.log('CLICK *** ' + cliki + '*** CLIC ');
+		if (!cliki) break;
+		await sleep(500);
+	}
     await delokbut.click();
-	await driver.pause(2000);
+	await driver.pause(1000);
     const selbut = await driver.$('#doselbut');
     await selbut.click();
-	await driver.pause(7000);
+	await driver.pause(1000);
 	//const ctxx = await driver.getContexts();
 	//console.log(JSON.stringify(ctxx));
 	//await driver.context('NATIVE_APP');
-    const logbut = await driver.$('#dlprogresslogbtn');
-    const okbut = await driver.$('#progokbut');
+    const logbut = await waitfor(driver, '#dlprogresslogbtn');
+    const okbut = await waitfor(driver, '#progokbut');
     while (1) {
 		const cliki = await logbut.getAttribute('disabled')
 		//console.log('CLICK *** ' + cliki + '*** CLIC ');
@@ -122,14 +176,18 @@ async function runTest() {
 		await sleep(500);
 	}
 	await okbut.click();
-	await driver.pause(2000);
+	await driver.pause(200);
 	//await driver.pause(27000);
-	await sbytype.click();
-	await driver.pause(2000);
-    await imgrp2.click();
-	await driver.pause(7000);
-    await selbut.click();
-	await driver.pause(7000);
+	const sbytype2 = await waitfor(driver, '#sbytype');
+	await sbytype2.click();
+	await driver.pause(200);
+    const imgrp2b = await waitfor(driver, '#SELC_2024_02_17');
+    await imgrp2b.click();
+	await driver.pause(700);
+    const selbut2 = await driver.$('#doselbut');
+    await selbut2.click();
+	await driver.pause(1000);
+	const logbut2 = await driver.$('#dlprogresslogbtn');
     //const fold = await driver.$('=USE THIS FOLDER');
     while (1) {
 		const cliki = await logbut.getAttribute('disabled')
