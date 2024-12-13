@@ -949,7 +949,7 @@ add(data, name, cb) {
 /* *************************************** Main class *************************************** */
 class ImBCBase {
 /* Indentation out */
-static version = "V5.5.2_3c371fd"; // actually const // VERSION EYECATCHER
+static version = "V5.5.3_4245115"; // actually const // VERSION EYECATCHER
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -19701,7 +19701,7 @@ static buildpvarray(view, size, typ, w, h, orientation, scale, wb) {
 		allmin = 0;
 		//console.log('Fact 1 ' + fact + ' i ' + allmin + ' a ' + allmax);
 	}
-	else if (allmin === allmax) {
+	else if (allmax - allmin < 1) {
 		fact = 1;
 		//console.log('Fact 2 ' + fact + ' i ' + allmin + ' a ' + allmax);
 	}
@@ -20777,7 +20777,7 @@ topreccheck(force) {
 	e.entry = document.querySelector('#onepict').content.querySelector('.onepic').cloneNode(true);
 	const ne = e.entry;
 	if (e.wasselected) ne.classList.add('picprocd');
-	ne.id = 'div_' + e.raw + '_X';
+	ne.id = 'div_' + e.raw.replace('.','_') + '_X';
 	ne.classList.add(e.type + '_CL');
 	let rawname = ImBCBase.basename(e.url);
 	//e.entry.classList.add('ET_' + e.type + rawname.substring(0,12));
@@ -20785,7 +20785,7 @@ topreccheck(force) {
 	const topline = ne.querySelector('.pictitle');
 	const check = ne.querySelector('.pictitle input');
 	//check.name = 'cb_sel_' + e.raw + '_X';
-	check.id = 'cb_sel_' + e.raw + '_X';
+	check.id = 'cb_sel_' + e.raw.replace('.','_') + '_X';
 	check.checked = e.selected;
 	check.onclick = () => {
 		e.selected = check.checked;

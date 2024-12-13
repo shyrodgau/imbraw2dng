@@ -800,7 +800,7 @@ add(data, name, cb) {
 /* *************************************** Main class *************************************** */
 class ImBCBase {
 /* Indentation out */
-static version = "V5.5.2_3c371fd"; // actually const // VERSION EYECATCHER
+static version = "V5.5.3_4245115"; // actually const // VERSION EYECATCHER
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -19552,7 +19552,7 @@ static buildpvarray(view, size, typ, w, h, orientation, scale, wb) {
 		allmin = 0;
 		//console.log('Fact 1 ' + fact + ' i ' + allmin + ' a ' + allmax);
 	}
-	else if (allmin === allmax) {
+	else if (allmax - allmin < 1) {
 		fact = 1;
 		//console.log('Fact 2 ' + fact + ' i ' + allmin + ' a ' + allmax);
 	}
