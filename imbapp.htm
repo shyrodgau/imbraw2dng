@@ -19161,7 +19161,6 @@ handleoneback(fx) {
 					data: out,
 					name: rawname
 				};
-				//this.mappx(true, 'process.converted', rawname);
 				this.handlenext();
 			}
 		}
@@ -19210,7 +19209,7 @@ lastlang = undefined; // if want to use imblang but not connected
 // exitmode for imb
 exitmode = 'photo';
 // display mode for app
-dispmode = 2;
+dispmode = 2; // 0:photo, 1:movie, 2:browser, (not yet 3:local files)
 // need to load imgs from back?
 imgsdirty = true;
 // grouping in visual dings:
@@ -20049,12 +20048,10 @@ showmain() {
 	} else if (this.dispmode === 2) {
 		if (this.imgsdirty) {
 			this.loadimgs();
-		}
-		if (this.imbeles.length > 0) {
+		} else
 			this.showbrowser();
-		}
-	}
-	this.showlocal();
+	} else
+		this.showlocal();
 }
 /* ImBCHtml: browserdisplay: show slpash */
 showsplash() {
@@ -20199,6 +20196,10 @@ showdlprog() {
 	this.onback = 'nothing';
 }
 closedlprog() {
+	if (!document.getElementById('dlprogress').open)
+		return;
+	this.modalback = '';
+	this.onback = 'mainorquit';
 	document.querySelector('body').style['overflow'] = '';
 	document.querySelector('body').style['max-width'] = '';
 	document.querySelector('body').style['max-height'] = '';
@@ -20792,6 +20793,7 @@ topreccheck(force) {
 			ne.querySelector('.dlbtn').classList.add('disabled');
 			ne.setAttribute('data-state', 'wait');
 			this.#startloadimg();
+			rotbtn.parentElement.style['display'] = 'none';
 		};
 	} else {
 		rotbtn.remove();
@@ -20811,6 +20813,7 @@ topreccheck(force) {
 			ne.querySelector('.dlbtn').classList.add('disabled');
 			ne.setAttribute('data-state', 'wait');
 			this.#startloadimg();
+			rotbtnr.parentElement.style['display'] = 'none';
 		};
 	} else {
 		rotbtnr.remove();
@@ -20829,6 +20832,7 @@ topreccheck(force) {
 		this.showlog();
 		this.showdlprog();
 		this.#startloadimg();
+		dlbtn.parentElement.style['display'] = 'none';
 	};
 	
 	if (e.type === 'RAW') {
@@ -20842,6 +20846,7 @@ topreccheck(force) {
 		if (magb) {
 			magb.onclick = () => {
 				this.showmag(e);
+				magb.parentElement.style['display'] = 'none';
 			};
 		}
 	} else /*if (e.type === 'JPG')*/ {
@@ -20861,6 +20866,7 @@ topreccheck(force) {
 			if (magb) {
 				magb.onclick = () => {
 					this.showmag(e);
+					magb.parentElement.style['display'] = 'none';
 				};
 				magb.style['left'] = '0.8em';
 			}
@@ -21797,7 +21803,8 @@ loadimgs() {
 			} else {
 				this.showmain();
 			}
-		}
+		} else
+			this.showlocal();
 	});
 }
 /* ImBCHtml: check if we are directly on a back */
@@ -22032,9 +22039,12 @@ checkimb() {
 			this.disconnected = false;
 			this.discknown = true;
 			document.getElementById('genadvice').style['display'] = 'none';
-			ImBCHtml.openp(document.getElementById('imbsettopener'));
-			this.showmain();
 			if (this.autotime) this.settime();
+			ImBCHtml.openp(document.getElementById('imbsettopener'));
+			if (this.dispmode === 2) {
+				this.loadimgs();
+			} else
+				this.showmain();
 		}
 		else {
 			// disconnected?

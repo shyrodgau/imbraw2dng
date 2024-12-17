@@ -492,7 +492,7 @@ handleone(fx) {
 		this.imbc.appmsgxl(true, 'process.nothing');
 		return this.imbc.handlenext();
 	}
-	if (undefined === f.size) {
+	if (undefined === f.size && !f.data) {
 		setTimeout(() => {
 		  this.imbc.resolver(f, (url, fx) => {
 				this.imbc.allfiles[this.imbc.actnum] = fx;
@@ -506,6 +506,18 @@ handleone(fx) {
 		  });
 		});
 		return;
+	}
+	else if (undefined === f.size && f.data) {
+		// from file chooser
+		f.size = f.data.byteLength;
+		f.imbackextension = true;
+		f.readAsArrayBuffer = () => {
+				f.onload({
+						target: {
+							result: f.data
+						}
+				});
+		};
 	}
 	let rawname = ImBCBase.basename(f.name);
 	if (rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
@@ -532,7 +544,8 @@ handleone(fx) {
 		this.imbc.appmsg("[" + (1 + this.imbc.actnum) + " / " + this.imbc.totnum + "] ");
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
-			const contents = evt.target.result;
+			let contents = evt.target.result;
+			if (contents.buffer) contents = contents.buffer;
 			const view = new DataView(contents);
 			const out = new Uint8Array(f.size);
 			for (let j=0; j<view.byteLength; j++) {
@@ -18752,9 +18765,10 @@ findlang(i) {
 			break;
 		}
 	}
-	if ('zZ' === i || ('00' === this.mylang && document && window?.location.href.startsWith('http://127.0.0.1:8889'))) {
+	if ('zZ' === i || ('00' === this.mylang && document && window?.location.href.startsWith('http://127.0.0.1:'))) {
 		this.mylang = 'en';
-		this.imbweb = 'http://127.0.0.1:8889';
+		if (document) this.imbweb = 'http://' + window.location.host;
+		else this.imbweb = 'http://127.0.0.1:8889';
 	}
 	else if (!found) {
 		this.mylang = 'en';
@@ -18894,9 +18908,9 @@ handleone(orientation) {
 	}
 	if (undefined === f.size && !f.data) {
 		setTimeout(() => {
-		  this.resolver(f, (url, fx, rot) => {
+		  this.resolver(f, (url, fx) => {
 				this.allfiles[this.actnum] = fx;
-				this.handleone(rot ? rot: orientation);
+				this.handleone(orientation);
 			}, (url) => {
 				this.mappx(false, 'words.sorryerr');
 				this.mappx(true, 'process.erraccess', url);
@@ -18927,7 +18941,8 @@ handleone(orientation) {
 				this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
 			}
 			this.mappx(0, 'process.notraw',rawname);
-			const contents = evt.target.result;
+			let contents = evt.target.result;
+			if (contents.buffer) contents = contents.buffer;
 			const view = new DataView(contents);
 			const out = new Uint8Array(f.size);
 			for (let j=0; j<contents.byteLength; j++) {
@@ -18959,7 +18974,8 @@ handleone(orientation) {
 		this.mappx(0, 'process.unknownsize' + ((!document) ? 'x' : ''), f.size);
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
-			const contents = evt.target.result;
+			let contents = evt.target.result;
+			if (contents.buffer) contents = contents.buffer;
 			const view = new DataView(contents);
 			const out = new Uint8Array(f.size);
 			for (let j=0; j<view.byteLength; j++) {
@@ -19005,7 +19021,7 @@ handleone(orientation) {
 		let contents = evt.target.result;
 		if (contents.buffer) contents = contents.buffer;
 		let view = new DataView(contents);
-		if (this.addall && this.allfiles.length > 0) {
+		if (this.addall) {
 			if (this.#addimgs.length === 0 && this.addscaleall)
 				this.#historystring='(';
 			else if (this.#addimgs.length === 0)
@@ -19129,8 +19145,8 @@ handleone(orientation) {
 		}
 		const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : ImBCBase.getwb(view, zz);
 		//console.log('WB ' + JSON.stringify(wb));
-		if (!this.constwb)
-			this.mappx(0, 'process.foundwb', Math.round(100*wb[0]/wb[1]), Math.round(100*wb[2]/wb[3]), Math.round(100*wb[4]/wb[5]));
+		//if (!this.constwb)
+		//	this.mappx(0, 'process.foundwb', Math.round(100*wb[0]/wb[1]), Math.round(100*wb[2]/wb[3]), Math.round(100*wb[4]/wb[5]));
 		/* Here comes the actual building of the DNG */
 		let ti = new TIFFOut();
 		ti.addIfd(); /* **************************************** */
@@ -19318,7 +19334,7 @@ static getwb(view, typidx) {
 			let lg = x[1] + 1;
 			let lb = x[2];
 			let p = Math.sqrt(lg*lg + lb*lb + lr*lr);
-			if (p < 3 || p > 433) continue;
+			if (p < 3 || p > (433)) continue;
 			//if (((i*t.w + j) % 50000) < 10)
 			//	console.log('i ' + i + ' j ' + j + ' R ' + lr + ' G ' + lg + ' B ' + lb + ' P ' + p);
 			//if (r + g == 2) {
