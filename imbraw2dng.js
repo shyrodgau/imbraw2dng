@@ -485,91 +485,6 @@ class ImBCBackw {
 constructor (imbcout) {
 	this.imbc = imbcout;
 }
-/* ImBCBackw: backward: handle dng like raw */
-parseDng(f, onok, onerr) {
-	// blindly assumes that it is one of our own DNG
-	if (undefined === f.data) {
-		const reader = f.imbackextension ? f : new FileReader();
-		reader.onload = (evt) => {
-			f.data = evt.target.result;
-			this.parseDng(f, onok, onerr);
-		}
-		reader.onerror = () => { onerr(f.name); };
-		reader.readAsArrayBuffer(f);
-		return;
-	}
-	const v = new DataView(f.data);
-	const ifd = TIFFOut.readint(v, 4);
-	const zz = ImBCBase.infos.findIndex(v => v.size === ifd - 8);
-	const nent = TIFFOut.readshort(v, ifd);
-	let subifdstart = -1, rawstripstart = -1, datalen = -1;
-	let off = ifd+2;
-	if (TIFFOut.readshort(v, 2) !== 42 || TIFFOut.readshort(v,0) !== 18761 /* 0x4949 */ || zz === -1) {
-		// seek sub ifd then therein the stripoffsets
-		for (let k=0; k<((nent<50)? nent: 0); k++) {
-			let tag = TIFFOut.readshort(v, off);
-			if (tag === 330) {
-				subifdstart = TIFFOut.readint(v, off+8);
-				break;
-			}
-			off += 12;
-		}
-		if (-1 !== subifdstart) {
-			let subnent = TIFFOut.readshort(v, subifdstart);
-			off = subifdstart + 2;
-			for (let j=0; j<((subnent < 50)? subnent: 0); j++) {
-				let stag = TIFFOut.readshort(v, off);
-				if (stag === 273) {
-					rawstripstart = TIFFOut.readint(v, off+8);
-					break;
-				}
-				off += 12;
-			}
-			if (-1 !== rawstripstart) {
-				datalen = subifdstart - rawstripstart;
-				const zzz = ImBCBase.infos.findIndex(v => v.size === datalen);
-				if (-1 === zzz) {
-					this.imbc.appmsg('Works only for originally created DNGs.', true);
-					return onerr(f.name);
-				}
-			}
-			else {
-				this.imbc.appmsg('Works only for originally created DNGs.', true);
-				return onerr(f.name);
-			}
-		}
-		else {
-			this.imbc.appmsg('Works only for originally created DNGs.', true);
-			return onerr(f.name);
-		}
-	}
-	else {
-		rawstripstart = 8;
-		datalen = ifd - 8;
-	}
-	let fx = {
-		imbackextension: true,
-		name: f.name.substring(0, f.name.length - 4) + '.raw',
-		size: datalen,
-		data: f.data.slice(rawstripstart, datalen + rawstripstart)
-	};
-	if (datalen === 30607488) {
-		const v = new DataView(fx.data);
-		for (let k=0; k < datalen; k+=3) {
-			let i = v.getUint8(k);
-			v.setUint8(k, v.getUint8(k+2));
-			v.setUint8(k+2, i);
-		}
-	}
-	fx.readAsArrayBuffer = (fy) => {
-		fy.onload({
-				target: { result: fy.data }
-		});
-	};
-	setTimeout(() => {
-			onok(f.name, fx, fx.rot);
-	});
-}
 /* ImBCBackw: backward: actual processing function for one file */
 handleone(fx) {
 	const f = (fx !== undefined) ? fx : this.imbc.allfiles[this.imbc.actnum];
@@ -594,7 +509,7 @@ handleone(fx) {
 	}
 	let rawname = ImBCBase.basename(f.name);
 	if (rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
-		this.parseDng(f,
+		this.imbc.parseDng(f,
 			(name, fx) => {
 				this.handleone(fx);
 			},
@@ -801,7 +716,7 @@ add(data, name, cb) {
 /* *************************************** Main class *************************************** */
 class ImBCBase {
 /* Indentation out */
-static version = "V5.5.3_2fc2d0b"; // actually const // VERSION EYECATCHER
+static version = "V5.5.3_@_d_e_v"; // actually const // VERSION EYECATCHER
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -1732,6 +1647,7 @@ static infos = [ // actually const
 		typ: 1,
 		mode: "Small-angle"
 	},
+	/* 12 bit down here: */
 	/* Film ! */
 	{
 		size: 30607488,
@@ -1739,7 +1655,56 @@ static infos = [ // actually const
 		h:3912,
 		typ: 5,
 		mode: ''
-	}
+	},
+	{ /* MF 6x7 */
+		size: 23887872,
+		w: 4608,
+		h: 3456,
+		typ: 34,
+		mode: "stacked"
+	},
+	{ /* MF 6x4.5 */
+		size: 19406448,
+		w: 4152, h: 3116,
+		typ: 35,
+		mode: "stacked"
+	},
+	{
+		size: 14709888,
+		w: 3616, h: 2712,
+		typ: 35,
+		mode: "Medium-angle stacked"
+	},
+	{
+		size: 9706416,
+		w: 2936, h: 2204,
+		typ: 35,
+		mode: "Small-angle stacked"
+	},
+	{ /* MF 6x6 */
+		size: 17915904,
+		w: 3456, h: 3456,
+		typ: 37,
+		mode: "stacked"
+	},
+	{ /* 35mm */
+		size: 23003136,
+		w: 4608, h: 3328,
+		typ: 33,
+		mode: "stacked"
+	},
+	{
+		size: 17428128,
+		w: 4012, h: 2896,
+		typ: 33,
+		mode: "Medium-angle stacked"
+	},
+	{
+		size: 11501280,
+		w: 3260, h: 2352,
+		typ: 33,
+		mode: "Small-angle stacked"
+	},
 ];
 //////// DYNAMIC SOURCE 1
 ////////////////////////////////////////////
@@ -18607,6 +18572,8 @@ incdcp = true;
 debugflag = false;
 useraw = null;
 imbweb = 'http://192.168.1.254';
+// mis-nomer from app
+fromintent = false; // 1: normal 2: stack/fakelong (> 1 DNG, to raw phase)  3: backward (== 1 DNG)  4: to dng phase when stacking 
 
 constructor() {
 }
@@ -18919,26 +18886,38 @@ static async mydecode(data, act) {
 }
 
 /* ImBCBase: actual processing function for one file */
-handleone(orientation, fromloop) {
+handleone(orientation) {
 	const f = (this.debugflag && this.useraw) ? this.useraw : this.allfiles[this.actnum];
 	if (undefined === f) {
 		this.mappx(true, 'process.nothing');
-		return this.handlenext(fromloop);
+		return this.handlenext();
 	}
-	if (undefined === f.size) {
+	if (undefined === f.size && !f.data) {
 		setTimeout(() => {
 		  this.resolver(f, (url, fx, rot) => {
 				this.allfiles[this.actnum] = fx;
-				this.handleone(rot ? rot: orientation, fromloop);
+				this.handleone(rot ? rot: orientation);
 			}, (url) => {
 				this.mappx(false, 'words.sorryerr');
 				this.mappx(true, 'process.erraccess', url);
 				this.stats.error ++;
 				if (undefined !== this.exitcode) this.exitcode++;
-				this.handlenext(fromloop);
+				this.handlenext();
 		  });
 		});
 		return;
+	}
+	else if (undefined === f.size && f.data) {
+		// from file chooser
+		f.size = f.data.byteLength;
+		f.imbackextension = true;
+		f.readAsArrayBuffer = () => {
+				f.onload({
+						target: {
+							result: f.data
+						}
+				});
+		};
 	}
 	let rawname = ImBCBase.basename(f.name);
 	if (rawname.substring(rawname.length - 4).toUpperCase() !== '.RAW') {
@@ -18955,7 +18934,7 @@ handleone(orientation, fromloop) {
 				out[j] = view.getUint8(j);
 			}
 			if (rawname.substring(rawname.length - 4).toUpperCase() === '.JPG') this.xexif(rawname, view);
-			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out, fromloop);
+			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out);
 		}
 		reader.onerror = (evt) => {
 			console.log('Non-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
@@ -18963,7 +18942,7 @@ handleone(orientation, fromloop) {
 			this.mappx(true, 'process.errorreadingfile', f.name);
 			this.stats.error++;
 			if (undefined !== this.exitcode) this.exitcode++;
-			this.handlenext(fromloop);
+			this.handlenext();
 		}
 		reader.readAsArrayBuffer(f);
 		return;
@@ -18986,7 +18965,7 @@ handleone(orientation, fromloop) {
 			for (let j=0; j<view.byteLength; j++) {
 				out[j] = view.getUint8(j);
 			}
-			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out, fromloop);
+			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out);
 		}
 		reader.onerror = (evt) => {
 			console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
@@ -18994,7 +18973,7 @@ handleone(orientation, fromloop) {
 			this.mappx(true, 'process.errorreadingfile', f.name);
 			this.stats.error++;
 			if (undefined !== this.exitcode) this.exitcode++;
-			this.handlenext(fromloop);
+			this.handlenext();
 		}
 		reader.readAsArrayBuffer(f);
 		return;
@@ -19024,8 +19003,9 @@ handleone(orientation, fromloop) {
 			this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
 		}
 		let contents = evt.target.result;
+		if (contents.buffer) contents = contents.buffer;
 		let view = new DataView(contents);
-		if (this.addall) {
+		if (this.addall && this.allfiles.length > 0) {
 			if (this.#addimgs.length === 0 && this.addscaleall)
 				this.#historystring='(';
 			else if (this.#addimgs.length === 0)
@@ -19039,46 +19019,53 @@ handleone(orientation, fromloop) {
 			if (this.actnum === this.totnum - 1) {
 				const npic = this.#addimgs.length;
 				const fc = Math.ceil(npic / 16);
-				if (typ !== 5) {
+				if (typ < 5) {
 					whitelvl = 255 * this.#addimgs.length;
 					if (whitelvl > 4095) whitelvl = 4095;
 				}
+				else
+					whitelvl = 4095;
 				this.appmsg('', true);
 				let nv = new Uint16Array(w*h);
 				try {
 					let ovflag = false, ov5flag = false, ov6flag = false;
-					if (typ === 5) {
-						/* FILM */
+					if (typ >= 5) {
+						let delta = (typ === 5)  ? 240:0;
+						/* FILM or stacked already */
 						let o=0;
 						for (let j=0; j < (w*h*3)/2; j+=3) {
 							let res = 0;
 							for (const k of this.#addimgs) {
-								res += ((k.getUint8(j+2) << 4) + ((k.getUint8(j+1) >> 4) & 15) - 240);
+								let r = (k.getUint8(j+2) << 4) + ((k.getUint8(j+1) >> 4) & 15);
+								if (r >= delta) r -= delta;
+								res += r;
 							}
 							if (this.addscaleall) {
 								res = Math.floor(res / npic);
 							}
-							if (res +240 > 4095) {
+							if (res +delta > 4095) {
 								if (!ov5flag)
 									console.log('res overflow 5 ' + res);
 								ov5flag = true;
 								nv[o++] = 4095;
 							}
-							else nv[o++] = res + 240;
+							else nv[o++] = res + delta;
 							res = 0;
 							for (const k of this.#addimgs) {
-								res += ((k.getUint8(j+0) & 255) + ((k.getUint8(j+1) & 15) << 8) - 240);
+								let r = (k.getUint8(j+0) & 255) + ((k.getUint8(j+1) & 15) << 8);
+								if (r >= delta) r -= delta;
+								res += r;
 							}
 							if (this.addscaleall) {
 								res = Math.floor(res / npic);
 							}
-							if (res +240 > 4095) {
+							if (res +delta > 4095) {
 								if (!ov6flag)
 									console.log('res overflow 6 ' + res);
 								ov6flag = true;
 								nv[o++] = 4095;
 							}
-							else nv[o++] = res + 240;
+							else nv[o++] = res + delta;
 						}
 					} else {
 						/* 8 bit per sample */
@@ -19113,7 +19100,8 @@ handleone(orientation, fromloop) {
 					nvv.setUint8(o+2, (nv[j] >> 4));
 					o+=3;
 				}
-				if (typ !== 5) {
+				if (typ < 5) {
+					// film or already stacked is 12bit already anyway
 					zz += 32;
 					typ += 32;
 				}
@@ -19125,7 +19113,7 @@ handleone(orientation, fromloop) {
 				this.#addimgs = [];
 			}
 			else {
-				return this.handlenext(fromloop);
+				return this.handlenext();
 			}
 		}
 		this.mappx(0, 'process.processing', rawname);
@@ -19136,7 +19124,7 @@ handleone(orientation, fromloop) {
 		let ori = orientation ? orientation : (typ === 5 ? 3 : 1);
 		let transp = false;
 		if (ori !== 1) {
-			this.mappx(0, 'process.orientation', this.xl0('preview.orients.' + ImBCBase.orients[ori]));
+			//this.mappx(0, 'process.orientation', this.xl0('preview.orients.' + ImBCBase.orients[ori]));
 			if (ori === 6 || ori === 8) transp = true;
 		}
 		const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : ImBCBase.getwb(view, zz);
@@ -19284,7 +19272,7 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config - chunky */
 		ti.addEntry(33421, 'SHORT', [ 2, 2 ]); /* CFA Repeat Pattern Dim */
 		ti.addEntry(33422, 'BYTE', ((typ > 1 && typ < 5) || typ > 33) ? [ 2, 1, 1, 0 ] : [ 1, 0, 2, 1 ]); /* CFA Pattern dep. on MF/35mm*/
-		this.writewrap(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted' + ((this.checkdlfolder && !this.zip) ? 'checkdl' : ''), ti.getData(), fromloop);
+		this.writewrap(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted' + ((this.checkdlfolder && !this.zip) ? 'checkdl' : ''), ti.getData());
 	};
 	reader.onerror = (evt) => {
 		console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
@@ -19292,17 +19280,17 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		this.mappx(true, 'process.errorreadingfile', f.name);
 		this.stats.error++;
 		if (undefined !== this.exitcode) this.exitcode++;
-		this.handlenext(fromloop);
+		this.handlenext();
 	};
 	reader.readAsArrayBuffer(f);
 }
 /* ImBCBase: wrapper for zip output */
-writewrap(name, type, okmsg, arr1, fromloop) {
+writewrap(name, type, okmsg, arr1) {
 	if (this.zip) {
 		this.zip.add(arr1, name, () => {
 			this.mappx(true, okmsg, name);
-			this.writepostok(name, fromloop);
-			if (this.zipdata && this.zipdata.length > ImBCHtml.zipmax) {
+			this.writepostok(name);
+			if (this.zipdata && (!this.zipname?.length) && this.zipdata.length > ImBCBase.zipmax) {
 				this.zip.finish(() => {
 					let o = new Uint8Array(this.zipdata.length);
 					for (let p=0; p<this.zipdata.length; p++) o[p] = this.zipdata[p];
@@ -19316,7 +19304,7 @@ writewrap(name, type, okmsg, arr1, fromloop) {
 			}
 		});
 	} else
-		this.writefile(name, type, okmsg, arr1, fromloop);
+		this.writefile(name, type, okmsg, arr1);
 }
 /* ImBCBase: get white balance */
 static getwb(view, typidx) {
@@ -19330,7 +19318,7 @@ static getwb(view, typidx) {
 			let lg = x[1] + 1;
 			let lb = x[2];
 			let p = Math.sqrt(lg*lg + lb*lb + lr*lr);
-			if (p < 3 || p > (433)) continue;
+			if (p < 3 || p > 433) continue;
 			//if (((i*t.w + j) % 50000) < 10)
 			//	console.log('i ' + i + ' j ' + j + ' R ' + lr + ' G ' + lg + ' B ' + lb + ' P ' + p);
 			//if (r + g == 2) {
@@ -19685,6 +19673,194 @@ handle1imb(url) {
 		}
 	}
 }
+/* *************************************** Backward helper STUFF *************************************** */
+/* ImBCBackw: backward: handle dng like raw */
+parseDng(f, onok, onerr) {
+	// blindly assumes that it is one of our own DNG
+	if (undefined === f.data) {
+		const reader = f.imbackextension ? f : new FileReader();
+		reader.onload = (evt) => {
+			f.data = evt.target.result;
+			this.parseDng(f, onok, onerr);
+		}
+		reader.onerror = () => { onerr(f.name); };
+		reader.readAsArrayBuffer(f);
+		return;
+	}
+	const v = new DataView(f.data);
+	const ifd = TIFFOut.readint(v, 4);
+	const zz = ImBCBase.infos.findIndex(v => v.size === ifd - 8);
+	const nent = TIFFOut.readshort(v, ifd);
+	let subifdstart = -1, rawstripstart = -1, datalen = -1;
+	let off = ifd+2;
+	if (TIFFOut.readshort(v, 2) !== 42 || TIFFOut.readshort(v,0) !== 18761 /* 0x4949 */ || zz === -1) {
+		// seek sub ifd then therein the stripoffsets
+		for (let k=0; k<((nent<50)? nent: 0); k++) {
+			let tag = TIFFOut.readshort(v, off);
+			if (tag === 330) {
+				subifdstart = TIFFOut.readint(v, off+8);
+				break;
+			}
+			off += 12;
+		}
+		if (-1 !== subifdstart) {
+			let subnent = TIFFOut.readshort(v, subifdstart);
+			off = subifdstart + 2;
+			for (let j=0; j<((subnent < 50)? subnent: 0); j++) {
+				let stag = TIFFOut.readshort(v, off);
+				if (stag === 273) {
+					rawstripstart = TIFFOut.readint(v, off+8);
+					break;
+				}
+				off += 12;
+			}
+			if (-1 !== rawstripstart) {
+				datalen = subifdstart - rawstripstart;
+				const zzz = ImBCBase.infos.findIndex(v => v.size === datalen);
+				if (-1 === zzz) {
+					this.imbc.appmsg('Works only for originally created DNGs.', true);
+					return onerr(f.name);
+				}
+			}
+			else {
+				this.imbc.appmsg('Works only for originally created DNGs.', true);
+				return onerr(f.name);
+			}
+		}
+		else {
+			this.imbc.appmsg('Works only for originally created DNGs.', true);
+			return onerr(f.name);
+		}
+	}
+	else {
+		rawstripstart = 8;
+		datalen = ifd - 8;
+	}
+	let fx = {
+		imbackextension: true,
+		name: f.name.substring(0, f.name.length - 4) + '.raw',
+		size: datalen,
+		data: f.data.slice(rawstripstart, datalen + rawstripstart)
+	};
+	if (-1 !== ImBCBase.twelvebitsizes.indexOf(datalen)) {
+		const v = new DataView(fx.data);
+		for (let k=0; k < datalen; k+=3) {
+			let i = v.getUint8(k);
+			v.setUint8(k, v.getUint8(k+2));
+			v.setUint8(k+2, i);
+		}
+	}
+	fx.readAsArrayBuffer = (fy) => {
+		fy.onload({
+				target: { result: fy.data }
+		});
+	};
+	setTimeout(() => {
+			onok(f.name, fx, fx.rot);
+	});
+}
+/* ImBCBase: help for multi actual processing function for one file */
+handleoneback(fx) {
+	const f = (fx !== undefined) ? fx : this.allfiles[this.actnum];
+	if (undefined === f) {
+		this.appmsgxl(true, 'process.nothing');
+		return this.handlenext();
+	}
+	if (undefined === f.size && !f.data) {
+		setTimeout(() => {
+		  this.resolver(f, (url, fx) => {
+				this.allfiles[this.actnum] = fx;
+				this.handleoneback(fx);
+			}, (url) => {
+				this.mappx(false, 'words.sorryerr');
+				this.appmsgxl(true, 'process.erraccess', url);
+				this.stats.error ++;
+				if (undefined !== this.exitcode) this.exitcode++;
+				this.handlenext();
+		  });
+		});
+		return;
+	}
+	else if (undefined === f.size && f.data) {
+		// from file chooser
+		f.size = f.data.byteLength;
+		f.imbackextension = true;
+		f.readAsArrayBuffer = () => {
+				f.onload({
+						target: {
+							result: f.data
+						}
+				});
+		};
+	}
+	let rawname = ImBCBase.basename(f.name);
+	if (rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
+		try {
+			this.parseDng(f,
+				(name, fx) => {
+					this.handleoneback(fx);
+				},
+				() => {
+					this.appmsg('Error reading DNG: ' + f.name, true);
+					if (undefined !== this.exitcode) this.exitcode++;
+					this.stats.error++;
+					this.handlenext();
+				});
+		} catch (e) {
+			console.log(e);
+			this.appmsg('Error reading DNG: ' + f.name, true);
+			if (undefined !== this.exitcode) this.exitcode++;
+			this.stats.error++;
+			this.handlenext();
+		}
+		return;
+	}
+	else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
+		this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
+		this.appmsg('Seems not to be DNG: ' + f.name, true);
+		this.stats.error++;
+		return this.handlenext();
+	}
+	const zz = ImBCBase.infos.findIndex(v => v.size === f.size);
+	if (zz !== -1) {
+		const reader = f.imbackextension ? f : new FileReader();
+		reader.onload = (evt) => {
+			let contents = evt.target.result;
+			if (contents.buffer) contents = contents.buffer;
+			const view = new DataView(contents);
+			const out = new Uint8Array(f.size);
+			for (let j=0; j<view.byteLength; j++) {
+				out[j] = view.getUint8(j);
+			}
+			if (this.fromintent !== 2)
+				this.writefile(rawname, 'application/octet-stream', 'process.converted', out, f.name);
+			else {
+				this.allfiles[this.actnum] = {
+					data: out,
+					name: rawname
+				};
+				//this.mappx(true, 'process.converted', rawname);
+				this.handlenext();
+			}
+		}
+		reader.onerror = (evt) => {
+			this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ");
+			console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
+			this.appmsg('Error processing or reading file ' +  f.name, true);
+			this.stats.error++;
+			if (undefined !== this.exitcode) this.exitcode++;
+			this.handlenext();
+		}
+		reader.readAsArrayBuffer(f);
+	} else {
+		this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
+		this.appmsg('Size of raw data of ' + f.name + ' seems not to match known formats, ignoring...', true);
+		this.stats.error++;
+		if (undefined !== this.exitcode) this.exitcode++;
+		this.handlenext();
+	}
+}
+/* *************************************** Backward helper STUFF E N D *************************************** */
 /* Indentation in - end of class ImBCBase */
 }
 /* *************************************** BASE class E N D *************************************** */
@@ -19721,7 +19897,7 @@ constructor() {
 }
 
 /* ImBCNodeOut: output one thing via nodejs */
-writefile(name, type, okmsg, arr1, fromloop, renameidx) {
+writefile(name, type, okmsg, arr1, renameidx) {
 	let outfile;
 	if (this.outdir.length > 0 && this.outdir.substring(this.outdir.length - 1) !== this.pa.sep)
 		outfile = this.outdir + this.pa.sep + name;
@@ -19741,13 +19917,13 @@ writefile(name, type, okmsg, arr1, fromloop, renameidx) {
 						if (renameidx < 10) newname += '0';
 						newname += renameidx;
 						newname += '.' + name.substring(ldot + 1);
-						this.writefile(newname, type, okmsg, arr1, fromloop, renameidx + 1);
+						this.writefile(newname, type, okmsg, arr1, renameidx + 1);
 					}
 					else {
 						let newname = name;
 						const ldot = name.lastIndexOf('.');
 						newname = name.substring(0, ldot) + '_001.' + name.substring(ldot + 1);
-						this.writefile(newname, type, okmsg, arr1, fromloop, 2);
+						this.writefile(newname, type, okmsg, arr1, 2);
 					}
 					return;
 				}
@@ -19756,7 +19932,7 @@ writefile(name, type, okmsg, arr1, fromloop, renameidx) {
 				this.appmsg(JSON.stringify(err), true);
 				this.stats.error++;
 				if (undefined !== this.exitcode) this.exitcode++;
-				this.handlenext(fromloop);
+				this.handlenext();
 			}
 			else {
 				this.appmsgxl(false, 'words.finished');
@@ -19764,7 +19940,7 @@ writefile(name, type, okmsg, arr1, fromloop, renameidx) {
 				if (undefined !== renameidx) this.appmsgxl(true, 'node.renamed');
 				else this.appmsg('');
 				this.stats.ok++;
-				this.handlenext(fromloop);
+				this.handlenext();
 			}
 	});
 }
@@ -19955,8 +20131,11 @@ handleonex() {
 	this.currentrot = 1;
 	if (this.imbcb)
 		this.imbcb.handleone();
-	else
+	else if (this.fromintent === 2)
+		this.handleoneback();
+	else {
 		this.handleone(f.rot);
+	}
 }
 /* ImBCNodeOut: handle the normal selection from imback (do it button), also for nodejs */
 imbdoit() {
@@ -20075,7 +20254,24 @@ constructor() {
 #connmsg = false;
 
 /* ImBCNode: continue with the next file if any */
-handlenext(/*fromloop*/) {
+handlenext() {
+	if (this.fromintent === 2 || this.fromintent === 3) {
+		if (this.actnum < this.allfiles.length - 1) {
+			this.actnum++;
+			setTimeout(() => { this.handleonex(); }, 100);
+		} else if (this.fromintent === 2 && this.stats.error === 0) {
+			this.actnum = 0;
+			this.addall = true;
+			this.fromintent = 4;
+			this.stats.ok = 0;
+			setTimeout(() => { this.handleonex(); }, 100);
+		} else {
+			this.appmsg('');
+			this.mappx(true, 'process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
+			require('process').exit(this.exitcode);
+		}
+		return;
+	}
 	if (this.actnum < this.allfiles.length - 1) {
 		this.actnum++;
 		this.handleonex();
@@ -20164,9 +20360,9 @@ checkimb(type, found) {
 	});
 }
 /* ImBCNode: post write ok handler */
-writepostok(name, fromloop) {
+writepostok() {
 	this.stats.ok++;
-	this.handlenext(fromloop);
+	this.handlenext();
 }
 /* ImBCNode: nodejs: show help */
 #help(caller) {
@@ -20236,10 +20432,12 @@ startnode(notfirst) {
 				else if (v ==='-fla') {
 					this.addall = true;
 					this.addscaleall = false;
+					this.fromintent = 2;
 				}
 				else if (v ==='-flx') {
 					this.addall = true;
 					this.addscaleall = true;
+					this.fromintent = 2;
 				}
 				else if (v ==='-nc') {
 					this.withcolours = false;
@@ -20343,7 +20541,7 @@ startnode(notfirst) {
 
 	if (wanthelp || (this.typeflags === 0 && this.totnum === 0)) {
 		this.#help(process.argv[1]);
-		console.log(this.xl0('main.coloursyourrisk'));
+		//console.log(this.xl0('main.coloursyourrisk'));
 		console.log('');
 		this.configinfo();
 		return;
@@ -20352,8 +20550,8 @@ startnode(notfirst) {
 		console.log(this.subst(this.xl0('node.help')[0], ImBCBase.version));
 		console.log(this.rmesc(this.xl0('node.newmsg')));
 		console.log('');
-		console.log(this.xl0('main.coloursyourrisk'));
-		console.log('');
+		//console.log(this.xl0('main.coloursyourrisk'));
+		//console.log('');
 		this.configinfo();
 		if (this.typeflags === 0) this.typeflags = 7;
 		this.handlerecurse();
@@ -20362,8 +20560,8 @@ startnode(notfirst) {
 		console.log(this.subst(this.xl0('node.help')[0], ImBCBase.version));
 		console.log(this.rmesc(this.xl0('node.newmsg')));
 		console.log('');
-		console.log(this.xl0('main.coloursyourrisk'));
-		console.log('');
+		//console.log(this.xl0('main.coloursyourrisk'));
+		//console.log('');
 		this.configinfo();
 		this.checkimb();
 	}
@@ -20449,7 +20647,7 @@ startnode() {
 	}
 }
 /* ImBCNodeBackw: continue with the next file if any */
-handlenext(/*fromloop*/) {
+handlenext() {
 	if (this.actnum < this.allfiles.length - 1) {
 		this.actnum++;
 		this.handleonex();

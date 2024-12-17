@@ -299,6 +299,45 @@ echo Test ${tn} okay
 tn=$(( $tn + 1 ))
 
 
+echo '##########    15    ##########'
+echo Test ${tn} stacking DNG
+set -x
+${TESTEXES}/imbraw2dng.js -fla 2023_0314_231116_004.dng 2029_0707_120426_021.dng 2023_0311_120252_002.dng 
+rc=$?
+n=$( ls .|wc -l )
+set +x
+if [ $rc -ne 0 ]; then
+	echo Test ${tn} failed $rc
+	exit $tn
+fi
+sumnum=$(( $sumnum + 1 ))
+if [ $n -ne $sumnum ]; then
+	echo Test ${tn} failed NO $n
+	exit $tn
+fi
+echo Test ${tn} okay
+tn=$(( $tn + 1 ))
+
+echo '##########    15    ##########'
+echo Test ${tn} stacking RAW
+set -x
+${TESTEXES}/imbraw2dng.js -flx -d stackraw.zip ${TESTDAT}/IMBACK/*/*.[rR]* 
+rc=$?
+n=$( ls .|wc -l )
+set +x
+if [ $rc -ne 0 ]; then
+	echo Test ${tn} failed $rc
+	exit $tn
+fi
+sumnum=$(( $sumnum + 1 ))
+if [ $n -ne $sumnum ]; then
+	echo Test ${tn} failed NO $n
+	exit $tn
+fi
+echo Test ${tn} okay
+tn=$(( $tn + 1 ))
+
+
 ############ etc.
 
 echo

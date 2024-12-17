@@ -18066,6 +18066,8 @@ incdcp = true;
 debugflag = false;
 useraw = null;
 imbweb = 'http://192.168.1.254';
+// mis-nomer from app
+fromintent = false; // 1: normal 2: stack/fakelong (> 1 DNG, to raw phase)  3: backward (== 1 DNG)  4: to dng phase when stacking 
 
 constructor() {
 }
@@ -18622,46 +18624,53 @@ handleone(orientation) {
 			if (this.actnum === this.totnum - 1) {
 				const npic = this.#addimgs.length;
 				const fc = Math.ceil(npic / 16);
-				if (typ !== 5) {
+				if (typ < 5) {
 					whitelvl = 255 * this.#addimgs.length;
 					if (whitelvl > 4095) whitelvl = 4095;
 				}
+				else
+					whitelvl = 4095;
 				this.appmsg('', true);
 				let nv = new Uint16Array(w*h);
 				try {
 					let ovflag = false, ov5flag = false, ov6flag = false;
-					if (typ === 5) {
-						/* FILM */
+					if (typ >= 5) {
+						let delta = (typ === 5)  ? 240:0;
+						/* FILM or stacked already */
 						let o=0;
 						for (let j=0; j < (w*h*3)/2; j+=3) {
 							let res = 0;
 							for (const k of this.#addimgs) {
-								res += ((k.getUint8(j+2) << 4) + ((k.getUint8(j+1) >> 4) & 15) - 240);
+								let r = (k.getUint8(j+2) << 4) + ((k.getUint8(j+1) >> 4) & 15);
+								if (r >= delta) r -= delta;
+								res += r;
 							}
 							if (this.addscaleall) {
 								res = Math.floor(res / npic);
 							}
-							if (res +240 > 4095) {
+							if (res +delta > 4095) {
 								if (!ov5flag)
 									console.log('res overflow 5 ' + res);
 								ov5flag = true;
 								nv[o++] = 4095;
 							}
-							else nv[o++] = res + 240;
+							else nv[o++] = res + delta;
 							res = 0;
 							for (const k of this.#addimgs) {
-								res += ((k.getUint8(j+0) & 255) + ((k.getUint8(j+1) & 15) << 8) - 240);
+								let r = (k.getUint8(j+0) & 255) + ((k.getUint8(j+1) & 15) << 8);
+								if (r >= delta) r -= delta;
+								res += r;
 							}
 							if (this.addscaleall) {
 								res = Math.floor(res / npic);
 							}
-							if (res +240 > 4095) {
+							if (res +delta > 4095) {
 								if (!ov6flag)
 									console.log('res overflow 6 ' + res);
 								ov6flag = true;
 								nv[o++] = 4095;
 							}
-							else nv[o++] = res + 240;
+							else nv[o++] = res + delta;
 						}
 					} else {
 						/* 8 bit per sample */
@@ -18696,8 +18705,8 @@ handleone(orientation) {
 					nvv.setUint8(o+2, (nv[j] >> 4));
 					o+=3;
 				}
-				if (typ !== 5) {
-					// film is 12bit already anyway
+				if (typ < 5) {
+					// film or already stacked is 12bit already anyway
 					zz += 32;
 					typ += 32;
 				}
@@ -18721,13 +18730,13 @@ handleone(orientation) {
 		let ori = orientation ? orientation : (typ === 5 ? 3 : 1);
 		let transp = false;
 		if (ori !== 1) {
-			this.mappx(0, 'process.orientation', this.xl0('preview.orients.' + globals.orients[ori]));
+			//this.mappx(0, 'process.orientation', this.xl0('preview.orients.' + globals.orients[ori]));
 			if (ori === 6 || ori === 8) transp = true;
 		}
 		const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : globals.getwb(view, zz);
 		//console.log('WB ' + JSON.stringify(wb));
-		if (!this.constwb)
-			this.mappx(0, 'process.foundwb', Math.round(100*wb[0]/wb[1]), Math.round(100*wb[2]/wb[3]), Math.round(100*wb[4]/wb[5]));
+		//if (!this.constwb)
+		//	this.mappx(0, 'process.foundwb', Math.round(100*wb[0]/wb[1]), Math.round(100*wb[2]/wb[3]), Math.round(100*wb[4]/wb[5]));
 		/* Here comes the actual building of the DNG */
 		let ti = new TIFFOut();
 		ti.addIfd(); /* **************************************** */
@@ -19136,18 +19145,28 @@ handleoneback(fx) {
 	}
 	const zz = globals.infos.findIndex(v => v.size === f.size);
 	if (zz !== -1) {
-		this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ");
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
-			const contents = evt.target.result;
+			let contents = evt.target.result;
+			if (contents.buffer) contents = contents.buffer;
 			const view = new DataView(contents);
 			const out = new Uint8Array(f.size);
 			for (let j=0; j<view.byteLength; j++) {
 				out[j] = view.getUint8(j);
 			}
-			this.writefile(rawname, 'application/octet-stream', 'process.converted', out, f.name);
+			if (this.fromintent !== 2)
+				this.writefile(rawname, 'application/octet-stream', 'process.converted', out, f.name);
+			else {
+				this.allfiles[this.actnum] = {
+					data: out,
+					name: rawname
+				};
+				//this.mappx(true, 'process.converted', rawname);
+				this.handlenext();
+			}
 		}
 		reader.onerror = (evt) => {
+			this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ");
 			console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
 			this.appmsg('Error processing or reading file ' +  f.name, true);
 			this.stats.error++;
@@ -19437,7 +19456,7 @@ handleonex() {
 		}
 	}
 	else { // normal processing without question
-		if (document.getElementById('makebackw')?.checked)
+		if (document.getElementById('makebackw')?.checked || this.fromintent === 2)
 			this.handleoneback();
 		else {
 			if (!this.fromvisbrows) this.shownormal();
@@ -19788,6 +19807,16 @@ fselected() {
 				this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
 				this.appmsgxl(true, 'process.selectedn', this.totnum);
 				this.showlog();
+				if (document.getElementById('fakelongexpadd')?.checked) {
+					this.fromintent = 2;
+					this.stepmode = 0;
+					this.addall = true;
+					this.addscaleall = document.getElementById('fakelongexpscale')?.checked;
+					//if (document.getElementById('fakelongexpadd')) document.getElementById('fakelongexpadd').checked = false;
+				} else {
+					this.addall = false;
+					this.addscaleall = false;
+				}
 				this.#startloadimg();
 			}
 		};
@@ -19801,6 +19830,16 @@ fselected() {
 				this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
 				this.appmsgxl(true, 'process.selectedn', this.totnum);
 				this.showlog();
+				if (document.getElementById('fakelongexpadd')?.checked) {
+					this.fromintent = 2;
+					this.stepmode = 0;
+					this.addall = true;
+					this.addscaleall = document.getElementById('fakelongexpscale')?.checked;
+					//if (document.getElementById('fakelongexpadd')) document.getElementById('fakelongexpadd').checked = false;
+				} else {
+					this.addall = false;
+					this.addscaleall = false;
+				}
 				this.#startloadimg();
 			}
 		};
@@ -21361,7 +21400,7 @@ async drophandler(ev) {
 			for (let i =0; i < m0.length; i++) {
 				if (!m0[i].isDirectory) {
 					 //auxfiles.push(mm[i].getAsFile());
-				 	 if (document.getElementById('makebackw')?.checked)
+				 	 if (document.getElementById('makebackw')?.checked || document.getElementById('fakelongexpadd')?.checked)
 				 	 	 this.allfiles.push(mm[i].getAsFile());
 				 	 else
 				 	 	 this.handle1imb(mm[i].getAsFile());
@@ -21391,7 +21430,7 @@ async drophandler(ev) {
 			}
 			let a = await this.dirtraverse(mapped);
 			for (const x of a) {
-				 if (document.getElementById('makebackw')?.checked)
+				 if (document.getElementById('makebackw')?.checked || document.getElementById('fakelongexpadd')?.checked)
 					 this.allfiles.push(x);
 				 else
 					 this.handle1imb(x);
@@ -21404,7 +21443,7 @@ async drophandler(ev) {
 			this.totnum = [...ev.dataTransfer.items].length;
 			[...ev.dataTransfer.items].forEach((item/*, i*/) => {
 				//this.allfiles.push(item.getAsFile());
-				 if (document.getElementById('makebackw')?.checked)
+				 if (document.getElementById('makebackw')?.checked || document.getElementById('fakelongexpadd')?.checked)
 					 this.allfiles.push(item.getAsFile());
 				 else
 					 this.handle1imb(item.getAsFile());
@@ -21414,7 +21453,7 @@ async drophandler(ev) {
 		this.totnum = [...ev.dataTransfer.files].length;
 		[...ev.dataTransfer.files].forEach((file/*, i*/) => {
 			//this.allfiles.push(file);
-			 if (document.getElementById('makebackw')?.checked)
+			 if (document.getElementById('makebackw')?.checked || document.getElementById('fakelongexpadd')?.checked)
 				 this.allfiles.push(file);
 			 else
 				 this.handle1imb(file);
@@ -21424,11 +21463,26 @@ async drophandler(ev) {
 	if (document.getElementById('fakelongexpadd')?.checked) {
 		this.addall = true;
 		this.addscaleall = document.getElementById('fakelongexpscale')?.checked;
-		document.getElementById('fakelongexpadd').checked = false;
+		//document.getElementById('fakelongexpadd').checked = false;
 		//this.closeham();
 		this.aftercheck();
 		document.getElementById('selall').click();
-		this.browserprocess();
+		this.fromintent = 2;
+		//this.browserprocess();
+		this.showlog();
+		this.mappx(true, 'process.frombrowsern', this.totnum);
+		document.getElementById('imbdoit').disabled = true;
+		document.getElementById('imbvisbrows').disabled = true;
+		document.getElementById('droptarget').style['display'] = 'none';
+		document.getElementById('infile').disabled = true
+		this.fromvisbrows = true;
+		this.showdlprog();
+		this.#loaderrunning = 'blah!';
+		this.totnum = this.allfiles.length;
+		this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
+		this.actnum = 0;
+		this.starthandleone();
+
 	} else if (document.getElementById('makebackw')?.checked) {
 		this.totnum = this.allfiles.length;
 		this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
@@ -21510,7 +21564,8 @@ buildpreview(f, size, onok, onerr, orientation, targ, afterload) {
 	const reader = f.imbackextension ? f : new FileReader();
 	reader.onload = (evt) => {
 		if (undefined !== afterload) afterload();
-		const contents = evt.target.result;
+		let contents = evt.target.result;
+		if (contents.buffer) contents = contents.buffer;
 		const view = new DataView(contents);
 		const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : globals.getwb(view, zz);
 		let transpose = false;
@@ -21655,6 +21710,21 @@ handlenext() {
 		this.afterfinish();
 		this.cancelled = false;
 		this.#startloadimg();
+		return;
+	}
+	if (this.fromintent === 2 || this.fromintent === 3) {
+		if (this.actnum < this.allfiles.length - 1) {
+			this.actnum++;
+			setTimeout(() => { this.handleonex(); }, 100);
+		} else if (this.fromintent === 2 && this.stats.error === 0) {
+			this.actnum = 0;
+			this.addall = true;
+			this.fromintent = 4;
+			this.stats.ok = 0;
+			setTimeout(() => { this.handleonex(); }, 100);
+		} else {
+			this.afterfinish();
+		}
 		return;
 	}
 	if (this.#loaderrunning === 'blah!') {
@@ -22492,7 +22562,7 @@ window.addEventListener('pageshow', function (event) {
 /* *************************************** globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.5.3_2fc2d0b", // actually const // VERSION EYECATCHER
+version: "V5.5.3_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 texts: { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -25202,6 +25272,7 @@ infos: [ // actually const
 		typ: 1,
 		mode: "Small-angle"
 	},
+	/* 12 bit down here: */
 	/* Film ! */
 	{
 		size: 30607488,
@@ -25209,7 +25280,56 @@ infos: [ // actually const
 		h:3912,
 		typ: 5,
 		mode: ''
-	}
+	},
+	{ /* MF 6x7 */
+		size: 23887872,
+		w: 4608,
+		h: 3456,
+		typ: 34,
+		mode: "stacked"
+	},
+	{ /* MF 6x4.5 */
+		size: 19406448,
+		w: 4152, h: 3116,
+		typ: 35,
+		mode: "stacked"
+	},
+	{
+		size: 14709888,
+		w: 3616, h: 2712,
+		typ: 35,
+		mode: "Medium-angle stacked"
+	},
+	{
+		size: 9706416,
+		w: 2936, h: 2204,
+		typ: 35,
+		mode: "Small-angle stacked"
+	},
+	{ /* MF 6x6 */
+		size: 17915904,
+		w: 3456, h: 3456,
+		typ: 37,
+		mode: "stacked"
+	},
+	{ /* 35mm */
+		size: 23003136,
+		w: 4608, h: 3328,
+		typ: 33,
+		mode: "stacked"
+	},
+	{
+		size: 17428128,
+		w: 4012, h: 2896,
+		typ: 33,
+		mode: "Medium-angle stacked"
+	},
+	{
+		size: 11501280,
+		w: 3260, h: 2352,
+		typ: 33,
+		mode: "Small-angle stacked"
+	},
 ],
 /* ImBCBase: get white balance */
 getwb: function(view, typidx) {
@@ -25223,7 +25343,7 @@ getwb: function(view, typidx) {
 			let lg = x[1] + 1;
 			let lb = x[2];
 			let p = Math.sqrt(lg*lg + lb*lb + lr*lr);
-			if (p < 3 || p > (433)) continue;
+			if (p < 3 || p > 433) continue;
 			//if (((i*t.w + j) % 50000) < 10)
 			//	console.log('i ' + i + ' j ' + j + ' R ' + lr + ' G ' + lg + ' B ' + lb + ' P ' + p);
 			//if (r + g == 2) {
@@ -25692,7 +25812,8 @@ function buildpreview(f, size, orientation) {
 
 	const reader = f.imbackextension ? f : new FileReader();
 	reader.onload = (evt) => {
-		const contents = evt.target.result;
+		let contents = evt.target.result;
+		if (contents.buffer) contents = contents.buffer;
 		const view = new DataView(contents);
 		const wb = constwb ? [ 6, 10, 1, 1, 6, 10 ] : globals.getwb(view, zz);
 		//console.log(JSON.stringify(wb));
@@ -25858,7 +25979,7 @@ function readjpg(file) {
 <div style="font-weight:bold;display:none;"><span class="notwhenbackw" data-myxlkey='main.title'> </span><span class="onlywhenbackw" style="display:none;" data-myxlkey='main.backw.title'> </span>  - 
  <a target="_new" data-myhrefxlkey="main.helplink" data-myxlkey='main.help'></a>
 <span class="notwhenbackw" data-myxlkey="main.newmsg"/></div>
-<br><div class="notwhenbackw" style="display:none;"><span data-myxlkey="main.coloursyourrisk"> </span>&nbsp;<!--b style="background-color:#888888; text-shadow: 0.07em 0.12em 0 #FFFFFF;font-size:200%;">&#x26f6; &#x1f5d1; &#x2715;</b-->&nbsp;<br></div>
+<br><div class="notwhenbackw" style="display:none;">&nbsp;<!--b style="background-color:#888888; text-shadow: 0.07em 0.12em 0 #FFFFFF;font-size:200%;">&#x26f6; &#x1f5d1; &#x2715;</b-->&nbsp;<br></div>
 <!-- splash -->
 <div id="splash" style="width:100%; height:100%; font-weight:bold; font-size:200%;color:white;background-color:black;">
 <div style="text-align:center; width:100%;" ><span data-myxlkey="main.apptitle"> </span> <span id="mainversion"> </span></div>

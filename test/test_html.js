@@ -677,3 +677,112 @@ describe('F Convert Raw Local APP', function() {
 });
 
 
+describe('G Stacking DNG and RAW on old html', function() {
+	let driver, opts, errflg = false;
+	before(async function() {
+			this.timeout(6000);
+			//const chromcapa = Capabilities.chrome();
+			const opts = [ 'prefs', { 'download.default_directory': '/home/hegny/Downloads/testoutputdir' } ];
+			//chromcapa.set('chromeOptions', opts);
+			driver = await new Builder().forBrowser(Browser.CHROME).build();
+			//driver = await new Builder().forBrowser(Browser.CHROME).withCapabilities(chromcapa).build();
+			await driver.get(TESTURL + 'IMBACK/imbraw2dng.html');
+			driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));}');
+	});
+	it('G.1 Convert stacking RAW', async function dotest() {
+			this.timeout(36000);
+			const zipb = await driver.findElement(By.id('fakelongexpadd'));
+			await driver.actions({async: true})
+				.pause(200).move({origin: zipb}).pause(300).click().pause(300).perform();
+			const fi = await driver.findElement(By.id('infile'));
+			await fi.clear();
+			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw\n' + TESTDAT + '/IMBACK/PHOTO/2024_1015_123011_001.raw');
+			await driver.actions({async: true})
+				.pause(300).move({ origin: fi }).pause(1000).perform();
+	});
+	it('G.2 Convert stacking DNG', async function dotest() {
+			this.timeout(36000);
+			const fi = await driver.findElement(By.id('infile'));
+			await fi.clear();
+			await fi.sendKeys('/home/hegny/Downloads/mf6x6_large_1.dng\n/home/hegny/Downloads/kb_large_10.dng');
+			await driver.actions({async: true})
+				.pause(300).move({ origin: fi }).pause(1000).perform();
+	});
+	after(async function() {
+			let me = await driver.findElement(By.id('thebody'));
+			let ma = await me.getAttribute('data-err');
+			console.log('Message Content:');
+			console.log('= = = = = = = = = = = = = = = = = = =');
+			let m = await driver.findElement(By.id('xmsg'));
+			let t = await m.getText();
+			console.log(t);
+			console.log('= = = = = = = = = = = = = = = = = = =');
+			if (ma) {
+				console.log('***ERR: ' + ma);
+			} else
+				driver.quit();
+	});
+});
+
+describe('H Stack DNG and Raw Local APP', function() {
+	let driver, opts, errflg = false;
+	before(async function() {
+			this.timeout(36000);
+			//const chromcapa = Capabilities.chrome();
+			//const opts = [ 'prefs', { 'download.default_directory': '/home/hegny/Downloads/testoutputdir' } ];
+			//chromcapa.set('chromeOptions', opts);
+			driver = await new Builder().forBrowser(Browser.CHROME).build();
+			//driver = await new Builder().forBrowser(Browser.CHROME).withCapabilities(chromcapa).build();
+			await driver.get('file://' + TESTDAT + '/IMBACK/imbapp.htm');
+			driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));}');
+	});
+	it('H.1 stack raw', async function dotest() {
+			this.timeout(6000);
+			const zipb = await waitfor(driver, 'id', 'fakelongexpadd');
+			await driver.actions({async: true})
+				.pause(200).move({origin: zipb}).pause(300).click().pause(300).perform();
+			const fi = await driver.findElement(By.id('infile'));
+			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw\n' + TESTDAT + '/IMBACK/PHOTO/2024_1015_123011_001.raw');
+			await driver.actions({async: true}).pause(900).perform();
+			await driver.actions({async: true}).clear();
+			const okb = await driver.findElement(By.id('progokbut'));
+			await driver.actions({ async: true })
+				.move({ origin: okb })
+				.pause(300)
+				.click()
+				.pause(900)
+				.perform();
+			//await fi.clear();
+	});
+	it('H.1 stack DNG', async function dotest() {
+			this.timeout(6000);
+			const fi = await waitfor(driver, 'id', 'infile');
+			await fi.sendKeys('/home/hegny/Downloads/mf6x6_large_1.dng\n/home/hegny/Downloads/kb_large_10.dng');
+			await driver.actions({async: true}).pause(900).perform();
+			await driver.actions({async: true}).clear();
+			const okc = await driver.findElement(By.id('dlprogresslogbtn'));
+			await driver.actions({ async: true })
+				.move({ origin: okc })
+				.pause(300)
+				.click()
+				.pause(900)
+				.perform();
+			//await fi.clear();
+	});
+	after(async function() {
+			this.timeout(36000);
+			let me = await driver.findElement(By.id('thebody'));
+			let ma = await me.getAttribute('data-err');
+			console.log('Message Content:');
+			console.log('= = = = = = = = = = = = = = = = = = =');
+			let m = await driver.findElement(By.id('xmsg'));
+			let t = await m.getText();
+			console.log(t);
+			console.log('= = = = = = = = = = = = = = = = = = =');
+			if (ma) {
+				console.log('***ERR: ' + ma);
+			} else
+				driver.quit();
+	});
+});
+

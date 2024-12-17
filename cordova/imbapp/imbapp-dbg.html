@@ -18733,7 +18733,7 @@ handleone(orientation) {
 		let ori = orientation ? orientation : (typ === 5 ? 3 : 1);
 		let transp = false;
 		if (ori !== 1) {
-			this.mappx(0, 'process.orientation', this.xl0('preview.orients.' + globals.orients[ori]));
+			//this.mappx(0, 'process.orientation', this.xl0('preview.orients.' + globals.orients[ori]));
 			if (ori === 6 || ori === 8) transp = true;
 		}
 		const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : globals.getwb(view, zz);
@@ -22761,7 +22761,7 @@ function init2() {
 /* *************************************** globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.5.3_2fc2d0b", // actually const // VERSION EYECATCHER
+version: "V5.5.3_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 texts: { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -26138,7 +26138,7 @@ function readjpg(file) {
 <div style="font-weight:bold;display:none;"><span class="notwhenbackw" data-myxlkey='main.title'> </span><span class="onlywhenbackw" style="display:none;" data-myxlkey='main.backw.title'> </span>  - 
  <a target="_new" data-myhrefxlkey="main.helplink" data-myxlkey='main.help'></a>
 <span class="notwhenbackw" data-myxlkey="main.newmsg"/></div>
-<br><div class="notwhenbackw" style="display:none;"><span data-myxlkey="main.coloursyourrisk"> </span>&nbsp;<!--b style="background-color:#888888; text-shadow: 0.07em 0.12em 0 #FFFFFF;font-size:200%;">&#x26f6; &#x1f5d1; &#x2715;</b-->&nbsp;<br></div>
+<br><div class="notwhenbackw" style="display:none;">&nbsp;<!--b style="background-color:#888888; text-shadow: 0.07em 0.12em 0 #FFFFFF;font-size:200%;">&#x26f6; &#x1f5d1; &#x2715;</b-->&nbsp;<br></div>
 <!-- splash -->
 <div id="splash" style="width:100%; height:100%; font-weight:bold; font-size:200%;color:white;background-color:black;">
 <div style="text-align:center; width:100%;" ><span data-myxlkey="main.apptitle"> </span> <span id="mainversion"> </span></div>
