@@ -729,7 +729,7 @@ add(data, name, cb) {
 /* *************************************** Main class *************************************** */
 class ImBCBase {
 /* Indentation out */
-static version = "V5.5.3_@_d_e_v"; // actually const // VERSION EYECATCHER
+static version = "V5.5.4_fbc1c47"; // actually const // VERSION EYECATCHER
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
