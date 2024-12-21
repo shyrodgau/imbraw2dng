@@ -107,7 +107,7 @@ describe('A Convert Raw Local', function() {
 			await driver.actions({async: true}).clear();
 	});
 	it('A.3 Convert with question and more rotation', async function dotest() {
-			this.timeout(19000);
+			this.timeout(29000);
 			const cb = await driver.findElement(By.id('steppreview'));
 			const sel = await cb.isSelected();
 			if (!sel) {
@@ -516,7 +516,7 @@ describe('E Convert Raw from Imback APP', function() {
 				.move({ origin: zoom0x })
 				.pause(30)
 				.perform();
-			const zoom0 = await driver.findElement(By.css('#gg_RAW2029_07_10_X .magbtn'));
+			const zoom0 = await waitfor(driver, 'css','#gg_RAW2029_07_10_X .magbtn');
 			await driver.actions({ async: true })
 				.move({ origin: zoom0 })
 				.pause(10)
@@ -698,7 +698,7 @@ describe('G Stacking DNG and RAW on old html', function() {
 			await fi.clear();
 			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw\n' + TESTDAT + '/IMBACK/PHOTO/2024_1015_123011_001.raw');
 			await driver.actions({async: true})
-				.pause(300).move({ origin: fi }).pause(1000).perform();
+				.pause(300).move({ origin: fi }).pause(2000).perform();
 	});
 	it('G.2 Convert stacking DNG', async function dotest() {
 			this.timeout(36000);
@@ -706,7 +706,7 @@ describe('G Stacking DNG and RAW on old html', function() {
 			await fi.clear();
 			await fi.sendKeys('/home/hegny/Downloads/mf6x6_large_1.dng\n/home/hegny/Downloads/kb_large_10.dng');
 			await driver.actions({async: true})
-				.pause(300).move({ origin: fi }).pause(1000).perform();
+				.pause(300).move({ origin: fi }).pause(2000).perform();
 	});
 	after(async function() {
 			let me = await driver.findElement(By.id('thebody'));
@@ -727,7 +727,7 @@ describe('G Stacking DNG and RAW on old html', function() {
 describe('H Stack DNG and Raw Local APP', function() {
 	let driver, opts, errflg = false;
 	before(async function() {
-			this.timeout(36000);
+			this.timeout(39000);
 			//const chromcapa = Capabilities.chrome();
 			//const opts = [ 'prefs', { 'download.default_directory': '/home/hegny/Downloads/testoutputdir' } ];
 			//chromcapa.set('chromeOptions', opts);
@@ -737,7 +737,7 @@ describe('H Stack DNG and Raw Local APP', function() {
 			driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));}');
 	});
 	it('H.1 stack raw', async function dotest() {
-			this.timeout(6000);
+			this.timeout(9000);
 			const zipb = await waitfor(driver, 'id', 'fakelongexpadd');
 			await driver.actions({async: true})
 				.pause(200).move({origin: zipb}).pause(300).click().pause(300).perform();
@@ -750,12 +750,12 @@ describe('H Stack DNG and Raw Local APP', function() {
 				.move({ origin: okb })
 				.pause(300)
 				.click()
-				.pause(900)
+				.pause(1900)
 				.perform();
 			//await fi.clear();
 	});
 	it('H.1 stack DNG', async function dotest() {
-			this.timeout(6000);
+			this.timeout(9000);
 			const fi = await waitfor(driver, 'id', 'infile');
 			await fi.sendKeys('/home/hegny/Downloads/mf6x6_large_1.dng\n/home/hegny/Downloads/kb_large_10.dng');
 			await driver.actions({async: true}).pause(900).perform();
@@ -765,7 +765,7 @@ describe('H Stack DNG and Raw Local APP', function() {
 				.move({ origin: okc })
 				.pause(300)
 				.click()
-				.pause(900)
+				.pause(1900)
 				.perform();
 			//await fi.clear();
 	});
