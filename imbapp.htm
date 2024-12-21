@@ -22523,6 +22523,14 @@ static togglep(el) {
 	else
 		ImBCHtml.openp(el);
 }
+/* ImBCHtml: de-select already downloaded */
+deselcop(el) {
+	this.imbeles.filter((el) => (el?.wasselected && el?.selected)).forEach((i) => {
+		if (i.entry) i.entry.querySelector('input.selcb').click();
+		i.selected = false;
+	});
+	this.#updateselections();
+}
 clearcache() {
    this.dloads = []; 
    this.savesettings();
@@ -22577,7 +22585,7 @@ window.addEventListener('pageshow', function (event) {
 /* *************************************** globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.5.4_@_d_e_v", // actually const // VERSION EYECATCHER
+version: "V5.5.5_b82e4cd", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 texts: { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -26169,7 +26177,8 @@ function readjpg(file) {
 <input type="checkbox" id="solder" onclick="imbc.buildtree()"><span data-myxlkey="browser.olderfirst"></span></label> -
  <span id="brnsel" class="selnumber">?</span> / <span id="brntot">?</span> <label for="selall" data-mytitlexlkey="browser.selall.tooltip">
  <input onclick="imbc.topreccheck()" type="checkbox" id="selall"><!--span data-myxlkey="browser.selall"></span--></label><!-- - --> 
- </div>
+&nbsp;<div style="display:inline-block;height:1.2em;background-color:#888888; font-family:Symbol3;text-shadow: 1px 1px white;border:0;border-radius:4px;cursor:pointer;font-weight:bold;" onclick="imbc.deselcop();"><span style="color:green;font-size:75%;"> &#x1f6c7;</span><span style="color:green;"> &#x2713; </span></div>
+</div>
  <div id="nobrowse">&nbsp;</div>
 </div>
 <!-- end of navigation header -->
