@@ -878,7 +878,7 @@ add(data, name, cb) {
 /* *************************************** Main class *************************************** */
 class ImBCBase {
 /* Indentation out */
-static version = "V5.5.4_fbc1c47"; // actually const // VERSION EYECATCHER
+static version = "V5.5.4_@_d_e_v"; // actually const // VERSION EYECATCHER
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -18914,10 +18914,10 @@ findlang(i) {
 			break;
 		}
 	}
-	if ('zZ' === i || ('00' === this.mylang && document && window?.location.href.startsWith('http://127.0.0.1:'))) {
+	if ('zZ' === i || ('00' === this.mylang && document && (window?.location.href.startsWith('http://127.0.0.1:') || window?.location.href.startsWith('http://192')))) {
 		this.mylang = 'en';
 		if (document) this.imbweb = 'http://' + window.location.host;
-		else this.imbweb = 'http://127.0.0.1:8889';
+		else this.imbweb = window?.location.href;
 	}
 	else if (!found) {
 		this.mylang = 'en';
@@ -20913,6 +20913,7 @@ topreccheck(force) {
 		if (u.ischild) continue;
 		if (arr.filter((o) => u.title.substring(0,len) === o.title.substring(0,len)).length === 1) {
 			u.level --;
+			u.title = u.title.substring(0,len);
 			u.entry.classList.add('gl' + u.level);
 			u.entry.classList.remove('gl' + (u.level + 1));
 		} else if (arr.findIndex((o) => o.title === u.title.substring(0,len)) === -1) {
@@ -22023,7 +22024,7 @@ function init() {
  <a target="_new" data-myhrefxlkey="main.helplink" data-myxlkey='main.help'></a>
 <select id="langsel" onchange="imbc.setlang()" value="en"><option value="de" onclick="imbc.setlang()">DE</option><option value="en" selected onclick="imbc.setlang()">EN</option>
 <option value="ja" onclick="imbc.setlang()">JA</option><option value="fr" onclick="imbc.setlang()">FR</option><!--option value="ru" onclick="imbc.setlang()">RU</option--></select> <span class="notwhenbackw" data-myxlkey="main.newmsg"/></div>
-<br><div class="notwhenbackw">&nbsp;<!--b style="background-color:#888888; text-shadow: 0.07em 0.12em 0 #FFFFFF;font-size:200%;">&#x26f6; &#x1f5d1; &#x2715;</b-->&nbsp;<br></div>
+<br><!--div class="notwhenbackw">&nbsp;<!--b style="background-color:#888888; text-shadow: 0.07em 0.12em 0 #FFFFFF;font-size:200%;">&#x26f6; &#x1f5d1; &#x2715;</b- ->&nbsp;<br></div-->
 <!-- the normal display -->
 <div id="normal" style="margin-top: 0.5em;">
 <div class="notwhenbackw"><input type="checkbox" id="steppreview" onchange="imbc.dirtysettings()" checked><label for="steppreview" data-myxlkey="process.singlestep"></label></div>
@@ -22072,7 +22073,7 @@ function init() {
 <!-- normal preview with question -->
 <div id="question" style="display:none;background-color:#ddffaa;border: 5px solid #33ff33; border-radius: 10px;width: fit-content;padding:2em;">
 <div style="font-weight:bold;" id="qhdr">&nbsp;</div>
-<canvas id="preview" style="max-width:75vw; max-height:50vh;"></canvas><img style="display:none;max-width:75vw; max-height:50vh;" id="jpegpreview" onload="imbc.setjpegpv()" onerror="imbc.setpverr()"><div id="previewerr" data-myxlkey="preview.err"></div><div id="previewwait">
+<canvas id="preview" style="max-width:85vw; max-height:63vh;"></canvas><img style="display:none;max-width:75vw; max-height:50vh;" id="jpegpreview" onload="imbc.setjpegpv()" onerror="imbc.setpverr()"><div id="previewerr" data-myxlkey="preview.err"></div><div id="previewwait">
 <span class="blink">.</span><span class="blink2">.</span><span class="blink3">.</span></div><br>
 <div id="rotations"><input type="button" id="procthiscw" data-myvalxlkey="preview.rotcw" onclick="imbc.rotcw()" style="padding:0.5em; margin:0.5em;margin-left:2.5em;">
 <input type="button" id="procthisccw" data-myvalxlkey="preview.rotccw" onclick="imbc.rotccw()" style="padding:0.5em; margin:0.5em;">

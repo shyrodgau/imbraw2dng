@@ -446,7 +446,7 @@ body { margin: 0; }
 .ggttminus { font-size: 133%; }
 .ggttclosed > div > .ggtt { display: none; }
 .ggclosed > .gg, .ggclosed .igtype, .ggclosed .igxtype { display: none !important; }
-.ggttminus, .ggttplus { cursor: pointer; display: inline-block; font-weight:normal !important; }
+.ggttminus, .ggttplus, .gtype { cursor: pointer; display: inline-block; font-weight:normal !important; }
 .biggiebtn:not(.disabled), .dlbtn:not(.disabled), .aspan { cursor: pointer; }
 .dlbtn.biggiebtn { left: .1em; margin-top: -0em; }
 .biggiebtn.disabled { display: none; }
@@ -20307,7 +20307,6 @@ showbrowseri() {
 	window.onscroll = () => { this.addallimgs();this.checkscroll(); };
 	window.onresize = () => { this.addallimgs();this.checkscroll(); };
 	this.addallimgs();
-	this.#startloadimg();
 }
 /* ImBCHtml: browserdisplay: open visual browser */
 showbrowser() {
@@ -20675,6 +20674,7 @@ buildtree() {
 	e.classList.remove('ggopen');
 	if (recurse && gr.smembers)
 		for (const m of gr.smembers) this.#doclose(m, recurse);
+	this.addallimgs();
 }
 /* ImBCHtml: visual browser: recursive fold open */
 #doopen(gr, recurse) {
@@ -22551,6 +22551,13 @@ static closep(el) {
 	el.parentElement.parentElement.classList.remove('ggopen');
 	el.parentElement.parentElement.classList.add('ggclosed');
 }
+/* ImBCHtml: toggle parent */
+static togglep(el) {
+	if (el.parentElement.classList.contains('ggttopen'))
+		ImBCHtml.closep(el);
+	else
+		ImBCHtml.openp(el);
+}
 /* ImBCHtml: upload html */
 copytoimb() {
    let xhr = new XMLHttpRequest();
@@ -22773,7 +22780,7 @@ function init2() {
 /* *************************************** globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.5.4_fbc1c47", // actually const // VERSION EYECATCHER
+version: "V5.5.4_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 texts: { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -25933,6 +25940,7 @@ function resolver(url, preview, notfirst)  {
 	};
 	let xhr = new XMLHttpRequest();
 	xhr.onload = (/*evt*/) => {
+		if (errcount) errcount--;
 		let len = JSON.parse(xhr.getResponseHeader('content-length'));
 		if (0 >= len) len=1;
 		cache.data = xhr.response;
@@ -25948,16 +25956,14 @@ function resolver(url, preview, notfirst)  {
 		xhr.onerror = undefined;
 		xhr.ontimeout = undefined;
 		xhr.onabort = undefined;
-		//if (notfirst) {
-			if (!preview) {
-				//console.log('POSTING ' + url);
-				postMessage({ cmd: cmd, ok: true, n: url, o: ori, fl: fl, c: cache, size: siz });
-				handlewait();
-			}
-			else {
-				buildpreview(fx, siz, ori);
-			}
-		//} else resolver(e, preview, len);
+		if (!preview) {
+			//console.log('POSTING ' + url);
+			postMessage({ cmd: cmd, ok: true, n: url, o: ori, fl: fl, c: cache, size: siz });
+			handlewait();
+		}
+		else {
+			buildpreview(fx, siz, ori);
+		}
 	};
 	xhr.onerror = (evt, typ) => {
 		if (undefined === typ) typ = 'err';
@@ -25979,13 +25985,9 @@ function resolver(url, preview, notfirst)  {
 	};
 	xhr.onabort = (evt) => { xhr.onerror(evt, 'abort'); };
 	xhr.ontimeout = (evt) => { xhr.onerror(evt, 'timeout'); };
-	//if (notfirst && preview && (url.substring(url.length -4).toUpperCase() !== '.RAW')) {
 	if (preview && (url.substring(url.length -4).toUpperCase() !== '.RAW')) {
 		xhr.open('GET', base + globals.adjurl(url) +'?custom=1&cmd=4001');
 	} else {
-		//fetch(base + adjurl(url), { mode: 'no-cors' }).then((rs) => {
-		//		console.log('RRR ' + url + ' ' + JSON.stringify(rs.url));
-		//});
 		xhr.open('GET', base + globals.adjurl(url));
 	}
 	xhr.setRequestHeader('Cache-control','max-stale');
@@ -26092,10 +26094,10 @@ function watchdog() {
 		if (dbgflag || rc.rc) console.log('WW ' + JSON.stringify(rc));
 		if (rc.rc) {
 			errcount ++;
-			if (errcount > 2) {
+			/*if (errcount > 2) {
 				postMessage({ cmd: 'disconnect'});
 				return;
-			}
+			}*/
 		}
 		else {
 			postMessage({ cmd: 'battstat', txt: rc.results });
@@ -26115,6 +26117,11 @@ function custcmd (c, t, restargs) {
 /* WORKER: internal command handler */
 function custcmdi(c, t, restargs, cb, results) {
 	let thecmd = c, therest = restargs;
+	if (undefined === base) {
+		cb({ cmd: 'custcmd', ok: false, rc: -1, cmds: currcust });
+		handlewait();
+		return;
+	}
 	if (c instanceof Array) {
 		if (results === undefined) results = [];
 		if (c[0] instanceof Array) {
@@ -26129,6 +26136,7 @@ function custcmdi(c, t, restargs, cb, results) {
 	const xhr = new XMLHttpRequest();
 	xhr.onload = (/*event*/) => {
 		if (xhr.status === 200) {
+			if (errcount) errcount--;
 			let resp = xhr.response;
 			if (t === 'document')
 				resp = (new TextDecoder()).decode(xhr.response);
@@ -26140,7 +26148,6 @@ function custcmdi(c, t, restargs, cb, results) {
 				cb({ cmd: 'custcmd', ok: true, results: (results instanceof Array) ? results : resp, rc: 0, cmds: currcust });
 				currcust = undefined;
 				handlewait();
-				//cb(0, (results instanceof Array) ? results : xhr.response);
 			}
 		}
 		else {
@@ -26161,12 +26168,7 @@ function custcmdi(c, t, restargs, cb, results) {
 	xhr.onabort = xhr.onerror;
 	if (thecmd === 3019 || thecmd === 3012)
 		xhr.timeout = 3000;
-	if (undefined === base) {
-		handlewait();
-		cb({ cmd: 'custcmd', ok: false, rc: -1, cmds: currcust });
-		return;
-	}
-	else if (base.startsWith('http://192.168.1.254')) {
+	if (base.startsWith('http://192.168.1.254')) {
 		xhr.open('GET', base + '/?custom=1&cmd=' + thecmd + (therest ? ('&'  + therest): ''));
 	}
 	else {
@@ -26526,7 +26528,7 @@ Replaceraw: <input type="file" onchange="imbc.replraw()" accept=".raw,.RAW" id="
 	<div class="ggtt ggttopen titletop">
 		<span class="ggttplus ggttp mmrr">&#x25b6;</span>
 		<span class="ggttminus ggttm mmll">&#x25bc;</span>
-		<span class="gtype" style="display: inline;"></span>
+		<span class="gtype" onclick="ImBCHtml.togglep(this);imbc.addallimgs();" style="display: inline;"></span>
 		<span class="grtit ggttminus" onclick="ImBCHtml.closep(this);imbc.addallimgs();"></span>
 		<span class="grtit ggttplus"  onclick="ImBCHtml.openp(this);imbc.addallimgs();"></span>
 		<span class="selnumber">0</span> / <span class="totno"></span><input type="checkbox" class="selcb" data-mytitlexlkey="browser.selall.tooltip">
