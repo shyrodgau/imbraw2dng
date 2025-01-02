@@ -729,7 +729,7 @@ add(data, name, cb) {
 /* *************************************** Main class *************************************** */
 class ImBCBase {
 /* Indentation out */
-static version = "V5.9.1_587b778"; // actually const // VERSION EYECATCHER
+static version = "V5.9.2_bde4ff8"; // actually const // VERSION EYECATCHER
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -19046,6 +19046,7 @@ handleone(orientation) {
 				if (typ === 5) {
 					/* film */
 					fc = (npic / 16);
+					if (fc < 1) fc = 1;
 					targbits = 16;
 					whitelvl = Math.ceil(4095 * this.#addimgs.length / fc);
 					if (whitelvl > 65535) whitelvl = 65535;
@@ -19053,6 +19054,7 @@ handleone(orientation) {
 				else if (npic > 16) {
 					/* MF or 35mm */
 					fc = (npic / 256);
+					if (fc < 1) fc = 1;
 					targbits = 16;
 					whitelvl = Math.ceil(255 * this.#addimgs.length / fc);
 					if (whitelvl > 65535) whitelvl = 65535;
