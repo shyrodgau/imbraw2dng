@@ -729,7 +729,7 @@ add(data, name, cb) {
 /* *************************************** Main class *************************************** */
 class ImBCBase {
 /* Indentation out */
-static version = "V5.5.5_bd4c1e8"; // actually const // VERSION EYECATCHER
+static version = "V5.5.5_@_d_e_v"; // actually const // VERSION EYECATCHER
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -1669,14 +1669,14 @@ static infos = [ // actually const
 		typ: 5,
 		mode: ''
 	},
-	{ /* MF 6x7 */
+	/*{ /* MF 6x7 * /
 		size: 23887872,
 		w: 4608,
 		h: 3456,
 		typ: 34,
 		mode: "stacked"
 	},
-	{ /* MF 6x4.5 */
+	{ /* MF 6x4.5 * /
 		size: 19406448,
 		w: 4152, h: 3116,
 		typ: 35,
@@ -1694,13 +1694,13 @@ static infos = [ // actually const
 		typ: 35,
 		mode: "Small-angle stacked"
 	},
-	{ /* MF 6x6 */
+	{ /* MF 6x6 * /
 		size: 17915904,
 		w: 3456, h: 3456,
 		typ: 37,
 		mode: "stacked"
 	},
-	{ /* 35mm */
+	{ /* 35mm * /
 		size: 23003136,
 		w: 4608, h: 3328,
 		typ: 33,
@@ -1717,7 +1717,7 @@ static infos = [ // actually const
 		w: 3260, h: 2352,
 		typ: 33,
 		mode: "Small-angle stacked"
-	},
+	},*/
 ];
 //////// DYNAMIC SOURCE 1
 ////////////////////////////////////////////
@@ -18765,10 +18765,14 @@ findlang(i) {
 			break;
 		}
 	}
-	if ('zZ' === i || ('00' === this.mylang && document && window?.location.href.startsWith('http://127.0.0.1:'))) {
+	if ('zZ' === i) {
+		this.mylang = 'en';
+		this.imbweb = 'http://127.0.0.1:8889';
+	}
+	else if ('00' === this.mylang && document && (window?.location.href.startsWith('http://127.0.0.1:') || window?.location.href.startsWith('http://192'))) {
 		this.mylang = 'en';
 		if (document) this.imbweb = 'http://' + window.location.host;
-		else this.imbweb = 'http://127.0.0.1:8889';
+		else if (window) this.imbweb = window?.location.href;
 	}
 	else if (!found) {
 		this.mylang = 'en';
@@ -19011,7 +19015,8 @@ handleone(orientation) {
 	let { date, datestr, nn } = ImBCBase.nametotime(rawname);
 	if (date && datestr) dateok = true;
 	else datestr = '';
-	let whitelvl = 0;
+	let whitelvl = 255;
+	if (typ === 5) whitelvl = 4095;
 
 	const reader = f.imbackextension ? f : new FileReader();
 	reader.onload = async (evt) => {
@@ -19021,10 +19026,11 @@ handleone(orientation) {
 		let contents = evt.target.result;
 		if (contents.buffer) contents = contents.buffer;
 		let view = new DataView(contents);
-		if (this.addall) {
-			if (this.#addimgs.length === 0 && this.addscaleall)
-				this.#historystring='(';
-			else if (this.#addimgs.length === 0)
+		let targbits = 8;
+		if (typ === 5)
+			targbits = 12;
+		if (this.addall && this.totnum > 1) {
+			if (this.#addimgs.length === 0)
 				this.#historystring='';
 			this.#addimgs.push(view);
 			this.mappx(0, 'main.fakelong.added', rawname);
@@ -19034,19 +19040,37 @@ handleone(orientation) {
 				this.#historystring += ('+' + rawname);
 			if (this.actnum === this.totnum - 1) {
 				const npic = this.#addimgs.length;
-				const fc = Math.ceil(npic / 16);
-				if (typ < 5) {
+				let fc = 0; //Math.ceil(npic / 16);
+				const delta = (typ === 5)  ? 240:0;
+				targbits = 12;
+				if (typ === 5) {
+					/* film */
+					fc = (npic / 16);
+					targbits = 16;
+					whitelvl = Math.ceil(4095 * this.#addimgs.length / fc);
+					if (whitelvl > 65535) whitelvl = 65535;
+				}
+				else if (npic > 16) {
+					/* MF or 35mm */
+					fc = (npic / 256);
+					targbits = 16;
+					whitelvl = Math.ceil(255 * this.#addimgs.length / fc);
+					if (whitelvl > 65535) whitelvl = 65535;
+				}
+				else {
+					/* MF or 35mm */
+					fc = 1; //Math.ceil(npic / 16);
+					targbits = 12;
 					whitelvl = 255 * this.#addimgs.length;
 					if (whitelvl > 4095) whitelvl = 4095;
 				}
-				else
-					whitelvl = 4095;
+				/*else
+					whitelvl = 4095;*/
 				this.appmsg('', true);
 				let nv = new Uint16Array(w*h);
 				try {
 					let ovflag = false, ov5flag = false, ov6flag = false;
 					if (typ >= 5) {
-						let delta = (typ === 5)  ? 240:0;
 						/* FILM or stacked already */
 						let o=0;
 						for (let j=0; j < (w*h*3)/2; j+=3) {
@@ -19056,14 +19080,14 @@ handleone(orientation) {
 								if (r >= delta) r -= delta;
 								res += r;
 							}
-							if (this.addscaleall) {
-								res = Math.floor(res / npic);
+							if (this.addscaleall && fc) {
+								res = Math.floor(res / fc);
 							}
-							if (res +delta > 4095) {
+							if (res +delta > whitelvl) {
 								if (!ov5flag)
 									console.log('res overflow 5 ' + res);
 								ov5flag = true;
-								nv[o++] = 4095;
+								nv[o++] = whitelvl;
 							}
 							else nv[o++] = res + delta;
 							res = 0;
@@ -19072,14 +19096,14 @@ handleone(orientation) {
 								if (r >= delta) r -= delta;
 								res += r;
 							}
-							if (this.addscaleall) {
-								res = Math.floor(res / npic);
+							if (this.addscaleall && fc) {
+								res = Math.floor(res / fc);
 							}
-							if (res +delta > 4095) {
+							if (res +delta > whitelvl) {
 								if (!ov6flag)
 									console.log('res overflow 6 ' + res);
 								ov6flag = true;
-								nv[o++] = 4095;
+								nv[o++] = whitelvl;
 							}
 							else nv[o++] = res + delta;
 						}
@@ -19090,15 +19114,15 @@ handleone(orientation) {
 							for (const k of this.#addimgs) {
 								res += k.getUint8(j);
 							}
-							if (this.addscaleall && npic > 16) {
+							if (this.addscaleall && fc) {
 								res = Math.floor(res / fc);
 							}
-							if (res > 4095) {
+							if (res > whitelvl) {
 								if (!ovflag)
 									console.log('res overflow ' + res);
 								ovflag = true;
-								nv[j] = 4095;
-								whitelvl = 4095;
+								nv[j] = whitelvl;
+								//whitelvl = whitelvl;
 							}
 							else nv[j] = res;
 						}
@@ -19108,23 +19132,37 @@ handleone(orientation) {
 					this.appmsg('Format Error', true);
 				}
 				rawname = rawname.substring(0, rawname.length - 4) + '_MULTI.raw';
-				let nnv = new ArrayBuffer(w * h * 3 / 2);
-				let nvv = new DataView(nnv);
-				for (let j=0, o=0; j<w*h; j+=2) {
-					nvv.setUint8(o, nv[j+1] & 255);
-					nvv.setUint8(o+1, (nv[j+1] >> 8) + ((nv[j] & 15) << 4));
-					nvv.setUint8(o+2, (nv[j] >> 4));
-					o+=3;
+				if (12 === targbits) {
+					let nnv = new ArrayBuffer(w * h * 3 / 2);
+					let nvv = new DataView(nnv);
+					for (let j=0, o=0; j<w*h; j+=2) {
+						nvv.setUint8(o, nv[j+1] & 255);
+						nvv.setUint8(o+1, (nv[j+1] >> 8) + ((nv[j] & 15) << 4));
+						nvv.setUint8(o+2, (nv[j] >> 4));
+						o+=3;
+					}
+					if (typ < 5) {
+						// film or already stacked is 12bit already anyway
+						zz += 32;
+						typ += 32;
+					}
+					contents = nnv;
+					view = nvv; //new DataView(nnv);
+				} else {
+					let nnv = new ArrayBuffer(w * h * 2);
+					let nvv = new DataView(nnv);
+					for (let j=0, o=0; j<w*h; j++) {
+						nvv.setUint8(o, nv[j] & 255);
+						nvv.setUint8(o+1, (nv[j] >> 8) & 255);
+						o+=2;
+					}
+					zz += 64;
+					typ += 64;
+					contents = nnv;
+					view = nvv; //new DataView(nnv);
 				}
-				if (typ < 5) {
-					// film or already stacked is 12bit already anyway
-					zz += 32;
-					typ += 32;
-				}
-				contents = nnv;
-				view = nvv; //new DataView(nnv);
-				if (this.addscaleall) {
-					this.#historystring += (')/' + npic);
+				if (fc > 1) {
+					this.#historystring = '(' + this.#historystring + ')/' + Math.round(fc*100)/100;
 				}
 				this.#addimgs = [];
 			}
@@ -19133,17 +19171,17 @@ handleone(orientation) {
 			}
 		}
 		this.mappx(0, 'process.processing', rawname);
-		this.mappx(0, 'process.assuming', ImBCBase.types[typ < 32 ? typ : typ - 32], mode);
+		this.mappx(0, 'process.assuming', ImBCBase.types[typ < 32 ? typ : ((typ< 64)? (typ - 32) : (typ - 64))], mode);
 		if (dateok) {
 			this.mappx(0, 'process.datetime', datestr);
 		}
-		let ori = orientation ? orientation : (typ === 5 ? 3 : 1);
+		let ori = orientation ? orientation : ((typ % 32) === 5 ? 3 : 1);
 		let transp = false;
 		if (ori !== 1) {
 			//this.mappx(0, 'process.orientation', this.xl0('preview.orients.' + ImBCBase.orients[ori]));
 			if (ori === 6 || ori === 8) transp = true;
 		}
-		const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : ImBCBase.getwb(view, zz);
+		const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : ImBCBase.getwb(view, zz, whitelvl);
 		//console.log('WB ' + JSON.stringify(wb));
 		//if (!this.constwb)
 		//	this.mappx(0, 'process.foundwb', Math.round(100*wb[0]/wb[1]), Math.round(100*wb[2]/wb[3]), Math.round(100*wb[4]/wb[5]));
@@ -19155,7 +19193,7 @@ handleone(orientation) {
 			/* **** PREVIEW image **** */
 			let scale = 32;
 			if (w < 4096 && h < 4096) scale=16;
-			ti.addImageStrip(1, ImBCBase.buildpvarray(view, 0, typ, w, h, ori, scale, wb), Math.floor(transp ? (h+scale-1)/scale:(w+scale-1)/scale), Math.floor(transp ? (w+scale-1)/scale: (h+scale-1)/scale));
+			ti.addImageStrip(1, ImBCBase.buildpvarray(view, 0, typ, w, h, ori, scale, wb, whitelvl), Math.floor(transp ? (h+scale-1)/scale:(w+scale-1)/scale), Math.floor(transp ? (w+scale-1)/scale: (h+scale-1)/scale));
 			ti.addEntry(258 , 'SHORT', [ 8, 8, 8 ]); /* BitsPerSample */
 			ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression - none */
 			ti.addEntry(262, 'SHORT', [ 2 ]); /* Photometric - RGB */
@@ -19165,8 +19203,8 @@ handleone(orientation) {
 			ti.addEntry(283, 'RATIONAL', [ 30, 1 ]); /* y resolution */
 		}
 		ti.addEntry(271, 'ASCII', 'ImBack'); /* Make */
-		ti.addEntry(50708, 'ASCII', 'ImBack' + ' ' + ImBCBase.types[typ < 32 ? typ : typ - 32]); /* Unique model */
-		ti.addEntry(272, 'ASCII', ImBCBase.types[typ < 32 ? typ : typ - 32]); /* Model */
+		ti.addEntry(50708, 'ASCII', 'ImBack' + ' ' + ImBCBase.types[typ < 32 ? typ : ((typ< 64)? (typ - 32) : (typ - 64))]); /* Unique model */
+		ti.addEntry(272, 'ASCII', ImBCBase.types[typ < 32 ? typ : ((typ< 64)? (typ - 32) : (typ - 64))]); /* Model */
 		ti.addEntry(274, 'SHORT', [ ori ]); /* Orientation */
 		ti.addEntry(305, 'ASCII', 'imbraw2dng ' + ImBCBase.version); /* SW and version */
 		if (!this.#historystring?.length)
@@ -19211,8 +19249,8 @@ handleone(orientation) {
 		}
 		ti.addEntry(50707, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Backward Version */
 		ti.addEntry(50717, 'LONG', [ (typ >= 5) ? (whitelvl > 0 ?  whitelvl : 4095) : 255 ]); /* White level */
-		if (typ === 5) ti.addEntry(50714, 'SHORT', [ 240, 240, 240, 240 ] ); /* Blacklevel */
-		if (typ === 5) ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
+		if ((typ % 32)  === 5) ti.addEntry(50714, 'SHORT', [ 240, 240, 240, 240 ] ); /* Blacklevel */
+		if ((typ % 32)  === 5) ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
 		if (!this.neutral) {
 			ti.addEntry(50827, 'BYTE', rawnamearr); /* Raw file name */
 			ti.addEntry(50728, 'RATIONAL', wb); /* As shot neutral */
@@ -19277,17 +19315,17 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		}
 		/* **** RAW image **** */
 		ti.addImageStrip(0, view, w, h);
-		ti.addEntry(258 , 'SHORT', [ (typ >= 5) ? 12 : 8 ]); /* BitsPerSample */
+		ti.addEntry(258 , 'SHORT', [ targbits ]); /* BitsPerSample */
 		ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression - none */
 		ti.addEntry(50707, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Backward Version */
 		ti.addEntry(50717, 'LONG', [ (typ >= 5) ? (whitelvl > 0 ?  whitelvl : 4095) : 255 ]); /* White level */
-		if (typ === 5) ti.addEntry(50714, 'SHORT', [ 240, 240, 240, 240 ] ); /* Blacklevel */
-		if (typ === 5) ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
+		if ((typ % 32)  === 5) ti.addEntry(50714, 'SHORT', [ 240, 240, 240, 240 ] ); /* Blacklevel */
+		if ((typ % 32)  === 5) ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
 		ti.addEntry(262, 'SHORT', [ 0x8023 ]); /* Photometric - CFA */
 		ti.addEntry(277, 'SHORT', [ 1 ]); /* Samples per Pixel */
 		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config - chunky */
 		ti.addEntry(33421, 'SHORT', [ 2, 2 ]); /* CFA Repeat Pattern Dim */
-		ti.addEntry(33422, 'BYTE', ((typ > 1 && typ < 5) || typ > 33) ? [ 2, 1, 1, 0 ] : [ 1, 0, 2, 1 ]); /* CFA Pattern dep. on MF/35mm*/
+		ti.addEntry(33422, 'BYTE', ((typ > 1 && typ < 5) || (typ > 33 && typ < 64) || (typ > 65 && typ < 69)) ? [ 2, 1, 1, 0 ] : [ 1, 0, 2, 1 ]); /* CFA Pattern dep. on MF/35mm*/
 		this.writewrap(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted' + ((this.checkdlfolder && !this.zip) ? 'checkdl' : ''), ti.getData());
 	};
 	reader.onerror = (evt) => {
@@ -19323,13 +19361,13 @@ writewrap(name, type, okmsg, arr1) {
 		this.writefile(name, type, okmsg, arr1);
 }
 /* ImBCBase: get white balance */
-static getwb(view, typidx) {
+static getwb(view, typidx, whitelvl) {
 	//console.log('GWB ' + typidx + ' ' + JSON.stringify(ImBCBase.infos[typidx]));
-	const t = ImBCBase.infos[typidx < 32 ? typidx : typidx - 32];
+	const t = ImBCBase.infos[typidx < 32 ? typidx : ((typidx< 64)? (typidx - 32) : (typidx - 64))];
 	let r=1, g=1, b=1;
 	for (let i=Math.round(0.05*t.h)*2; i<Math.ceil(0.9*t.h); i+=8) {
 		for (let j=Math.round(0.05*t.w)*2; j<Math.ceil(0.9*t.w); j+=8) {
-			let x = ImBCBase.getPix(j, i, t.w, view, typidx < 32 ? t.typ : 32 + t.typ);
+			let x = ImBCBase.getPix(j, i, t.w, view, typidx < 32 ? t.typ : (typidx < 64 ? 32 + t.typ : 64 + t.typ), whitelvl);
 			let lr = x[0];
 			let lg = x[1] + 1;
 			let lb = x[2];
@@ -19357,25 +19395,44 @@ static getwb(view, typidx) {
 	}
 }
 /* ImBCBase: get one downsampled median image value [ r g b ] */
-static getPix(x, y, w, view, typ) {
+static getPix(x, y, w, view, typ, whitelvl) {
 	let outrgb = [];
 	let reds = [];
-	const w3 = w + (w>>1);
-	const xx = x + (x>>1);
-	const dd = (typ === 5) ? 240 : 0;
+	const w3 = w + (typ >= 64 ? w : (w>>1));
+	const xx = x + (typ >= 64 ? x : (x>>1));
+	let shiftr = 0, wbx = 255;
+	while (whitelvl > wbx) {
+		wbx = (2*(wbx+1)) -1; 
+		shiftr ++;
+	}
+	const dd = (typ === 5 || typ === 69) ? 240 : 0;
 	if (typ === 5 || typ == 33) {
 		/* film or stacked 35mm */
-		reds.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>4);
-		reds.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>4);
-		reds.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>4);
-		reds.push(((view.getUint8((y+2)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>4);
+		reds.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+2)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+	}
+	else if (typ === 69 || typ == 65) {
+		/* 16 bit film or 35mm */
+		reds.push(((view.getUint8((y+0)*w3 + xx+2) +  ((view.getUint8((y+0)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+0)*w3 + xx+6) +  ((view.getUint8((y+0)*w3 + xx+7)) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+2)*w3 + xx+2) +  ((view.getUint8((y+2)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+2)*w3 + xx+6) +  ((view.getUint8((y+2)*w3 + xx+7)) << 8))-dd)>>shiftr);
+	}
+	else if (typ > 64) {
+		/* 16 bit mf */
+		reds.push(((view.getUint8((y+1)*w3 + xx+2) +  ((view.getUint8((y+1)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+1)*w3 + xx+6) +  ((view.getUint8((y+1)*w3 + xx+7)) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+3)*w3 + xx+2) +  ((view.getUint8((y+3)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+3)*w3 + xx+6) +  ((view.getUint8((y+3)*w3 + xx+7)) << 8))-dd)>>shiftr);
 	}
 	else if (typ > 33) {
 		/* stacked mf */
-		reds.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>4);
-		reds.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>4);
-		reds.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>4);
-		reds.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>4);
+		reds.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
 	}
 	else if (typ > 1) {
 		/* mf */
@@ -19396,25 +19453,47 @@ static getPix(x, y, w, view, typ) {
 	let greens = [];
 	if (typ === 5 || typ == 33) {
 		/* film or stacked 35mm */
-		greens.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF0) >> 4))-dd)>>4);
-		greens.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF0) >> 4))-dd)>>4);
-		greens.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF) << 8))-dd)>>4);
-		greens.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF) << 8))-dd)>>4);
-		greens.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF0) >> 4))-dd)>>4);
-		greens.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF0) >> 4))-dd)>>4);
-		greens.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF) << 8))-dd)>>4);
-		greens.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF) << 8))-dd)>>4);
+		greens.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+	}
+	else if (typ === 69 || typ == 65) {
+		/* 16 bit film or stacked 35mm */
+		greens.push((((view.getUint8((y+0)*w3 + xx+0)) +  ((view.getUint8((y+0)*w3 + xx+1) <<8)))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+0)*w3 + xx+4)) +  ((view.getUint8((y+0)*w3 + xx+5) <<8)))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+2) +  ((view.getUint8((y+1)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+6) +  ((view.getUint8((y+1)*w3 + xx+7)) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+2)*w3 + xx+0)) +  ((view.getUint8((y+2)*w3 + xx+1)) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+2)*w3 + xx+4)) +  ((view.getUint8((y+2)*w3 + xx+5)) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+3)*w3 + xx+2) +  ((view.getUint8((y+3)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+3)*w3 + xx+6) +  ((view.getUint8((y+3)*w3 + xx+7)) << 8))-dd)>>shiftr);
+	}
+	else if (typ > 64) {
+		/* 16 bit mf */
+		greens.push((((view.getUint8((y+0)*w3 + xx+2)) +  ((view.getUint8((y+0)*w3 + xx+3) <<8)))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+0)*w3 + xx+6)) +  ((view.getUint8((y+0)*w3 + xx+7) <<8)))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1)) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+4) +  ((view.getUint8((y+1)*w3 + xx+5)) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+2)*w3 + xx+2)) +  ((view.getUint8((y+2)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+2)*w3 + xx+6)) +  ((view.getUint8((y+2)*w3 + xx+7)) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+3)*w3 + xx+1)) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+3)*w3 + xx+4) +  ((view.getUint8((y+3)*w3 + xx+5)) << 8))-dd)>>shiftr);
 	}
 	else if (typ > 33) {
 		/* stacked mf */
-		greens.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>4);
-		greens.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>4);
-		greens.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>4);
-		greens.push((((view.getUint8((y+1)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>4);
-		greens.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>4);
-		greens.push(((view.getUint8((y+2)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>4);
-		greens.push((((view.getUint8((y+3)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>4);
-		greens.push((((view.getUint8((y+3)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>4);
+		greens.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+1)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+2)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+3)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+3)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
 	}
 	else if (typ > 1) {
 		greens.push(view.getUint8(y*w + x + 1));
@@ -19438,17 +19517,29 @@ static getPix(x, y, w, view, typ) {
 	greens.sort(function(a,b) { return a - b; });
 	outrgb.push((greens[3] + greens[4]) / 2.0);
 	let blues = [];
-	if (typ == 5 || typ == 33) {
-		blues.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>4);
-		blues.push((((view.getUint8((y+1)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>4);
-		blues.push((((view.getUint8((y+3)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>4);
-		blues.push((((view.getUint8((y+3)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>4);
+	if (typ === 5 || typ === 33) {
+		blues.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+1)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+3)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+3)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+	}
+	else if (typ === 69 || typ === 65) {
+		blues.push((((view.getUint8((y+1)*w3 + xx+0)) +  ((view.getUint8((y+1)*w3 + xx+1) ) <<8))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+1)*w3 + xx+4)) +  ((view.getUint8((y+1)*w3 + xx+5) ) <<8))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+3)*w3 + xx+0)) +  ((view.getUint8((y+3)*w3 + xx+1) ) <<8))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+3)*w3 + xx+4)) +  ((view.getUint8((y+3)*w3 + xx+5) ) <<8))-dd)>>shiftr);
+	}
+	else if (typ > 65) {
+		blues.push((((view.getUint8((y+0)*w3 + xx+0)) +  ((view.getUint8((y+0)*w3 + xx+1) ) <<8))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+0)*w3 + xx+4)) +  ((view.getUint8((y+0)*w3 + xx+5) ) <<8))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+2)*w3 + xx+0)) +  ((view.getUint8((y+2)*w3 + xx+1) ) <<8))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+2)*w3 + xx+4)) +  ((view.getUint8((y+2)*w3 + xx+5) ) <<8))-dd)>>shiftr);
 	}
 	else if (typ > 33) {
-		blues.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>4);
-		blues.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>4);
-		blues.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>4);
-		blues.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>4);
+		blues.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
 	}
 	else if (typ > 1) {
 		blues.push(view.getUint8(y*w + x));
@@ -19466,7 +19557,7 @@ static getPix(x, y, w, view, typ) {
 	return outrgb;
 }
 /* ImBCBase: build preview in array */
-static buildpvarray(view, size, typ, w, h, orientation, scale, wb) {
+static buildpvarray(view, size, typ, w, h, orientation, scale, wb, whitelvl) {
 	if (undefined === wb) wb = [ 6, 10, 1, 1, 6, 10 ];
 	let sfact = scale ? scale : 8;
 	if (size === 2) sfact = 4;
@@ -19480,7 +19571,7 @@ static buildpvarray(view, size, typ, w, h, orientation, scale, wb) {
 	let rowiterstart, rowiterend;
 	let coliterstart, coliterend;
 	let transpose = false;
-	if (typ === 5 && orientation === 0)
+	if ((typ % 32) === 5 && orientation === 0)
 		orientation = 3;
 	if (orientation === 3) {
 		rowiterstart = -1*(h8 -1);
@@ -19512,7 +19603,7 @@ static buildpvarray(view, size, typ, w, h, orientation, scale, wb) {
 	let cnt = 0;
 	for (let i = rowiterstart; i < rowiterend; i +=1) {
 		for (let j = coliterstart; j < coliterend; j+=1) {
-			let a = ImBCBase.getPix(Math.abs(transpose ? i :j)*sfact, Math.abs(transpose ? j :i)*sfact, w, view, typ);
+			let a = ImBCBase.getPix(Math.abs(transpose ? i :j)*sfact, Math.abs(transpose ? j :i)*sfact, w, view, typ, whitelvl);
 			outpix.push(a[0]);
 			outpix.push(a[1]);
 			outpix.push(a[2]);
@@ -19734,17 +19825,17 @@ parseDng(f, onok, onerr) {
 				datalen = subifdstart - rawstripstart;
 				const zzz = ImBCBase.infos.findIndex(v => v.size === datalen);
 				if (-1 === zzz) {
-					this.imbc.appmsg('Works only for originally created DNGs.', true);
+					this.appmsg('Works only for originally created DNGs.', true);
 					return onerr(f.name);
 				}
 			}
 			else {
-				this.imbc.appmsg('Works only for originally created DNGs.', true);
+				this.appmsg('Works only for originally created DNGs.', true);
 				return onerr(f.name);
 			}
 		}
 		else {
-			this.imbc.appmsg('Works only for originally created DNGs.', true);
+			this.appmsg('Works only for originally created DNGs.', true);
 			return onerr(f.name);
 		}
 	}
