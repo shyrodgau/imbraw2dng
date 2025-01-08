@@ -263,7 +263,10 @@ addEntry(tag, type, value) {
 		if (type === 'BYTE' || type === 'SBYTE' || type === 'UNDEFINED') {
 			for (let k=0; k<l; k++) e.value[k] = value[k];
 		} else if (type === 'ASCII') {
-			for (let k=0; k<l-1; k++) e.value[k] = value.charCodeAt(k) % 256;
+			if (value.charCodeAt)
+				for (let k=0; k<l-1; k++) e.value[k] = value.charCodeAt(k) % 256;
+			else
+				for (let k=0; k<l-1; k++) e.value[k] = value[k];
 		} else if (type === 'LONG') {
 			TIFFOut.writeinttoout(e.value, value[0], 0);
 		} else if (type === 'SLONG') {
@@ -301,7 +304,10 @@ addEntry(tag, type, value) {
 				this.#dyndata.push(0); this.#currentoff++;
 			}
 		} else if (type === 'ASCII') {
-			for (let k=0; k<l-1; k++) this.#dyndata.push(value.charCodeAt(k) % 256);
+			if (value.charCodeAt)
+				for (let k=0; k<l-1; k++) this.#dyndata.push(value.charCodeAt(k) % 256);
+			else
+				for (let k=0; k<l-1; k++) this.#dyndata.push(value[k]);
 			this.#dyndata.push(0);
 			this.#currentoff += l;
 			if (this.#currentoff % 2) { // alignment
@@ -877,8 +883,9 @@ add(data, name, cb) {
 /* *************************************** ZIP Helper class E N D *************************************** */
 /* *************************************** Main class *************************************** */
 class ImBCBase {
+static progname = '';
 /* Indentation out */
-static version = "V5.9.2_bde4ff8"; // actually const // VERSION EYECATCHER
+static version = "V5.9.2_@_d_e_v"; // actually const // VERSION EYECATCHER
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -1216,6 +1223,11 @@ static texts = { // actually const
 			fr: 'Horodatage invalide: $$0',
 			ja: '無効なタイムスタンプ: $$0'
 		},
+		invaltimediff: {
+			de: 'Ungültige Zeitanpassung: $$0',
+			en: 'Invalid time adjustment: $$0',
+			ja: '無効なタイムスタンプ: $$0'
+		},
 	},
 	process: {
 		singlestep: {
@@ -1225,9 +1237,17 @@ static texts = { // actually const
 			ja: 'プレビューありでシングルステップ'
 		},
 		addcopyright: {
-			en: 'Add copyright',
-			de: 'Copyright hinzufügen',
+			en: 'Copyright',
+			de: 'Copyright',
 			ja: '著作権を追加'
+		},
+		addartist: {
+			en: 'Artist/Creator',
+			de: 'Künstler/Ersteller'
+		},
+		metadata: {
+			en: 'Metadata:',
+			de: 'Metadaten:'
 		},
 		nothing: {
 			de: 'Nichts ausgewählt.. ?',
@@ -1578,6 +1598,7 @@ static texts = { // actually const
 				' \u001b[1m-R\u001b[0m - get RAW from ImB connected via Wifi or from given directories',
 				' \u001b[1m-J\u001b[0m - get JPEG from ImB connected via Wifi or from given directories',
 				' \u001b[1m-O\u001b[0m - get non-RAW/non-JPEG from ImB connected via Wifi or from given directories',
+				' \u001b[1m-da correcttimestamp=cameratimestamp\u001b[0m - correct times in yyyy_mm_dd-hh_mm_ss format',
 				' \u001b[1m-n yyyy_mm_dd-hh_mm_ss\u001b[0m (or prefix of any length) - select only newer than this timestamp from ImB or from given directories',
 				' -----',
 				' \u001b[1m--\u001b[0m - treat rest of parameters as local files or dirs',
@@ -1630,6 +1651,7 @@ static texts = { // actually const
 				' \u001b[1m-R\u001b[0m - RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen konvertieren',
 				' \u001b[1m-J\u001b[0m - JPEG von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren',
 				' \u001b[1m-O\u001b[0m - Nicht-JPEG/Nicht-RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren',
+				' \u001b[1m-da richtigezeit=kamerazeit\u001b[0m - Zeiten im yyyy_mm_dd-hh_mm_ss Format anpassen',
 				' \u001b[1m-n yyyy_mm_dd-hh_mm_ss\u001b[0m (oder beliebig langer Anfang davon) - nur Dateien neuer als dieser Zeitstempel von ImB oder übergebenen Verzeichnissen holen',
 				' -----',
 				' \u001b[1m--\u001b[0m - weitere Parameter als lokale Dateien oder Ordner betrachten',
@@ -1710,7 +1732,9 @@ mylang = 'en';
 withpreview = true;
 // experimental
 neutral = false;
+metadata = false;
 copyright = '';
+artist = '';
 // { name: 'xxx.jpg', data: array-ifd... }
 #exififds = [];
 
@@ -1738,6 +1762,9 @@ latestjpg='0000';
 earliestraw='9999';
 latestraw='0000';
 
+// generic user input timestamp always complete
+//                       y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
+static fulltsregex = /^([02-3][0-9][0-9][0-9])([^0-9])([01][0-9])([^0-9])([0123][0-9])([^0-9])([012][0-9])([^0-9])([0-5][0-9])([^0-9])([0-5][0-9])$/ // actually const
 // generic user input timestamp (any prefix)
 //                  y      y     y     y      .      m     m     .      d      d      .      h     h      .      m     m      .      s     s
 static tsregex = /^[02-3]([0-9]([0-9]([0-9](([^0-9])[01]([0-9](([^0-9])[0123]([0-9](([^0-9])[012]([0-9](([^0-9])[0-5]([0-9](([^0-9])[0-5]([0-9])?)?)?)?)?)?)?)?)?)?)?)?)?$/ // actually const
@@ -19022,20 +19049,35 @@ xexif(name, view) {
 	this.#exififds.push( { name: name, data: na } );
 }
 /* ImBCBase: time values from filename */
-static nametotime(name) {
+static nametotime(name, corrdelta=0) {
 	let res = ImBCBase.fnregexx.exec(name);
 	if (res !== null) {
-		const yr = Number.parseInt(res[1]);
-		const mon = Number.parseInt(res[3]);
-		const day = Number.parseInt(res[5]);
-		const hr = Number.parseInt(res[7]);
-		const min = Number.parseInt(res[9]);
-		const sec = Number.parseInt(res[11]);
-		const nn = Number.parseInt(res[13]);
-		const dd = new Date(yr, mon -1, day, hr, min, sec);
-		const datestr = "" + yr + ":" + ((mon < 10) ? "0":"") + mon + ":" + ((day < 10) ? "0":"") + day + " "+
+		let yr = Number.parseInt(res[1]);
+		let mon = Number.parseInt(res[3]);
+		let day = Number.parseInt(res[5]);
+		let hr = Number.parseInt(res[7]);
+		let min = Number.parseInt(res[9]);
+		let sec = Number.parseInt(res[11]);
+		let nn = Number.parseInt(res[13]);
+		let newname = name;
+		let datestr = "" + yr + "-" + ((mon < 10) ? "0":"") + mon + "-" + ((day < 10) ? "0":"") + day + "T"+
 			((hr < 10) ? "0":"") + hr + ":" + ((min < 10) ? "0":"") + min + ":" + ((sec < 10) ? "0":"") + sec;
-		return { date: dd, datestr: datestr, nn: nn, yr: yr, mon: mon, day: day, hr: hr, min: min, sec: sec }
+		if (corrdelta !== 0) {
+			let nd = new Date(new Date(datestr).valueOf() + corrdelta - (60000*new Date().getTimezoneOffset())).toISOString();
+			yr = Number.parseInt(nd.substring(0,4));
+			mon = Number.parseInt(nd.substring(5,7));
+			day = Number.parseInt(nd.substring(8,10));
+			hr = Number.parseInt(nd.substring(11,13));
+			min = Number.parseInt(nd.substring(14,16));
+			sec = Number.parseInt(nd.substring(17));
+			newname = yr + res[2] + ((mon < 10) ? "0":"") + mon + res[4] + ((day < 10) ? "0":"") + day + res[6]+
+				((hr < 10) ? "0":"") + hr + res[8] + ((min < 10) ? "0":"") + min + res[10] + ((sec < 10) ? "0":"") + sec + '_' + ((nn < 100) ? "0":"") + ((nn < 10) ? "0":"") + nn;
+			if (name.indexOf('.') !== -1) newname += name.substring(name.indexOf('.'));
+		}
+		const dd = new Date(yr, mon -1, day, hr, min, sec);
+		datestr = "" + yr + ":" + ((mon < 10) ? "0":"") + mon + ":" + ((day < 10) ? "0":"") + day + " "+
+			((hr < 10) ? "0":"") + hr + ":" + ((min < 10) ? "0":"") + min + ":" + ((sec < 10) ? "0":"") + sec;
+		return { date: dd, datestr: datestr, nn: nn, yr: yr, mon: mon, day: day, hr: hr, min: min, sec: sec, newname: newname }
 	}
 	else return {};
 }
@@ -19154,14 +19196,10 @@ handleone(orientation) {
 		mode += '(' + w + ' x ' + h + ')';
 		typ = ImBCBase.infos[zz].typ;
 	}
-	const rawnamearr = new TextEncoder().encode(rawname);
 	let dateok = false;
-	/*// date?
-	if (undefined !== f.datestr) {
-		datestr = f.datestr;
-		dateok = true;
-	}*/
-	let { date, datestr, nn } = ImBCBase.nametotime(rawname);
+	let { date, datestr, nn, newname } = ImBCBase.nametotime(rawname, this.corrdelta);
+	if (this.corrdelta && this.corrdelta > 0 && newname?.length) rawname = newname;
+	const rawnamearr = new TextEncoder().encode(rawname);
 	if (date && datestr) dateok = true;
 	else datestr = '';
 	let whitelvl = 255;
@@ -19326,7 +19364,7 @@ handleone(orientation) {
 		if (dateok) {
 			this.mappx(0, 'process.datetime', datestr);
 		}
-		let ori = orientation ? orientation : ((typ % 32)  === 5 ? 3 : 1);
+		let ori = orientation ? orientation : ((typ % 32) === 5 ? 3 : 1);
 		let transp = false;
 		if (ori !== 1) {
 			//this.mappx(0, 'process.orientation', this.xl0('preview.orients.' + ImBCBase.orients[ori]));
@@ -19357,16 +19395,16 @@ handleone(orientation) {
 		ti.addEntry(50708, 'ASCII', 'ImBack' + ' ' + ImBCBase.types[typ < 32 ? typ : ((typ< 64)? (typ - 32) : (typ - 64))]); /* Unique model */
 		ti.addEntry(272, 'ASCII', ImBCBase.types[typ < 32 ? typ : ((typ< 64)? (typ - 32) : (typ - 64))]); /* Model */
 		ti.addEntry(274, 'SHORT', [ ori ]); /* Orientation */
-		ti.addEntry(305, 'ASCII', 'imbraw2dng ' + ImBCBase.version); /* SW and version */
+		ti.addEntry(305, 'ASCII', ImBCBase.progname + ' ' + ImBCBase.version); /* SW and version */
 		if (!this.#historystring?.length)
 			this.#historystring = rawname;
-		this.#historystring += (',imbraw2dng ' + ImBCBase.version);
+		this.#historystring += (', ' + ImBCBase.progname + ' ' + ImBCBase.version);
 		// do UTF-8 bytes instead of ASCII if necessary
 		let hbytes = new TextEncoder().encode(this.#historystring);
 		if (hbytes.length === this.#historystring.length)
 			ti.addEntry(37395, 'ASCII', this.#historystring); /* image history */
 		else
-			ti.addEntry(37395, 'BYTES', hbytes); /* Raw file name in history */
+			ti.addEntry(37395, 'ASCII', hbytes); /* Raw file name in history */
 		this.#historystring = '';
 		if (dateok) {
 			ti.addEntry(306, 'ASCII', datestr); /* datetime */
@@ -19374,7 +19412,7 @@ handleone(orientation) {
 			// do we have exifdata ?
 			let odate = date, onn = nn, cand=[];
 			for (const e of this.#exififds) {
-				let { date, nn } = ImBCBase.nametotime(e.name);
+				let { date, nn } = ImBCBase.nametotime(e.name, this.corrdelta);
 				if (date) {
 					//console.log('DGT ' + date.getTime() + ' OGT ' + odate.getTime() + ' nn ' + nn + ' onn ' + onn);
 					if (Math.abs(date.getTime() - odate.getTime()) < 5000 && Math.abs(nn -onn) < 2) {
@@ -19389,20 +19427,85 @@ handleone(orientation) {
 			}
 		}
 		ti.addEntry(50706, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Version */
-		if (this.copyright != '') {
+		if (this.copyright?.length && this.metadata) {
 			// do UTF-8 bytes instead of ASCII if necessary
 			let bytes = new TextEncoder().encode(this.copyright);
-			//console.log('cr str ' + this.copyright.length + ' bytes ' + bytes.length);
 			if (bytes.length === this.copyright.length)
 				ti.addEntry(33432, 'ASCII', this.copyright); /* copyright */
 			else
 				ti.addEntry(33432, 'BYTE', bytes); /* copyright */
+		}
+		if (this.metadata && this.artist?.length) {
+			// do UTF-8 bytes instead of ASCII if necessary
+			let bytes = new TextEncoder().encode(this.artist);
+			if (bytes.length === this.artist.length)
+				ti.addEntry(315, 'ASCII', this.artist); /* artist */
+			else
+				ti.addEntry(315, 'BYTE', bytes); /* artist */
 		}
 		ti.addEntry(50707, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Backward Version */
 		ti.addEntry(50717, 'LONG', [ (typ >= 5) ? (whitelvl > 0 ?  whitelvl : 4095) : 255 ]); /* White level */
 		if ((typ % 32)  === 5) ti.addEntry(50714, 'SHORT', [ 240, 240, 240, 240 ] ); /* Blacklevel */
 		if ((typ % 32)  === 5) ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
 		if (!this.neutral) {
+			const xmp1 = `<?xpacket begin='`;
+			const xmp2 = `' id='W5M0MpCehiHzreSzNTczkc9d'?><x:xmpmeta xmlns:x='adobe:ns:meta/'><rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'><rdf:Description rdf:about='' xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:xmp='http://ns.adobe.com/xap/1.0/'>`;
+  			const xmp3 = `</rdf:Description></rdf:RDF></x:xmpmeta><?xpacket end='r'?>`;
+			let artbytes = [], rightbytes = [];
+			let xmpx = [ xmp1, xmp2 ];
+			if (this.metadata && this.artist?.length) {
+				xmpx[xmpx.length-1] += `<dc:creator><rdf:Seq><rdf:li>`;
+    			artbytes = new TextEncoder().encode(this.artist);
+    			xmpx.push(`</rdf:li></rdf:Seq></dc:creator>`);
+			}
+			if (this.metadata && this.copyright?.length) {
+				xmpx[xmpx.length-1] += `<dc:rights><rdf:Alt><rdf:li xml:lang='x-default'>`;
+    			rightbytes = new TextEncoder().encode(this.copyright);
+    			xmpx.push(`</rdf:li></rdf:Alt></dc:rights>`);
+			}
+			let swbytes = new TextEncoder().encode(ImBCBase.progname + ' ' + ImBCBase.version);
+			let datbytes = [];
+			xmpx[xmpx.length-1] += `<xmp:CreatorTool>`;
+			xmpx.push(`</xmp:CreatorTool>`);
+			if (dateok) {
+				xmpx[xmpx.length-1] += `<xmp:ModifyDate>`;
+				xmpx.push(`</xmp:ModifyDate>`);
+				datbytes = new TextEncoder().encode(datestr.substring(0,4)+'-'+ datestr.substring(5,7)+'-'+datestr.substring(8,10)+'T'+datestr.substring(11));
+			}
+			xmpx[xmpx.length-1] += xmp3;
+			const xmprdf = new Uint8Array(artbytes.length + rightbytes.length + swbytes.length + datbytes.length + 3 + xmpx.reduce((sum, a) => (sum + new TextEncoder().encode(a).length), 0));
+			let o=0;
+			for (let c = 0; c < xmpx.length; c++) {
+				const et = new TextEncoder().encode(xmpx[c]);
+				xmprdf.set(et, o);
+				o += et.length;
+				if (c === 0) {
+					// BOM like thingy
+					xmprdf.set(new Uint8Array([239, 187, 191]), o);
+					o+=3;
+				}
+				else if (artbytes?.length) {
+					xmprdf.set(artbytes, o);
+					o += artbytes.length;
+					artbytes = undefined;
+				}
+				else if (rightbytes?.length) {
+					xmprdf.set(rightbytes, o);
+					o += rightbytes.length;
+					rightbytes = undefined;
+				}
+				else if (swbytes?.length) {
+					xmprdf.set(swbytes, o);
+					o += swbytes.length;
+					swbytes = undefined;
+				}
+				else if (datbytes?.length) {
+					xmprdf.set(datbytes, o);
+					o += datbytes.length;
+					datbytes = undefined;
+				}
+			}
+			ti.addEntry(700, 'BYTE', xmprdf); /* XMP */
 			ti.addEntry(50827, 'BYTE', rawnamearr); /* Raw file name */
 			ti.addEntry(50728, 'RATIONAL', wb); /* As shot neutral */
 			/*  new:  */
@@ -19845,7 +19948,7 @@ static buildpvarray(view, size, typ, w, h, orientation, scale, wb, whitelvl) {
 /* ImBCBase: handle one entry from imb PHOTO/MOVIE listing page */
 handle1imb(url) {
 	let rawname = ImBCBase.basename(url);
-	if (rawname.substring(0,10).toUpperCase() === 'IMBRAW2DNG') return;
+	if (rawname.substring(0,10).toUpperCase() === 'IMBRAW2DNG' || rawname.substring(0,6).toUpperCase() === 'IMBAPP' || rawname.substring(0,5).toUpperCase() === 'INDEX') return;
 	let timestx = ImBCBase.fnregex.exec(rawname);
 	let timest = null, cl = '9999_99_99-99';
 	if (null !== timestx) {
@@ -20392,15 +20495,15 @@ imbdoit() {
 			return;
 		}
 	}
-	if (document.getElementById('rpicfromimb').checked) {
-		for (const e of this.rimbpics) {
+	if (document.getElementById('picfromimb').checked) {
+		for (const e of this.imbpics) {
 			let rawname = ImBCBase.basename(e);
 			if (this.comptime(rawname, compval))
 				selecteds.push(e);
 		}
 	}
-	if (document.getElementById('picfromimb').checked) {
-		for (const e of this.imbpics) {
+	if (document.getElementById('rpicfromimb').checked) {
+		for (const e of this.rimbpics) {
 			let rawname = ImBCBase.basename(e);
 			if (this.comptime(rawname, compval))
 				selecteds.push(e);
@@ -20413,13 +20516,13 @@ imbdoit() {
 				selecteds.push(e);
 		}
 	}
-	selecteds.sort((a, b) => {
+	/*selecteds.sort((a, b) => {
 		let ra = ImBCBase.basename(a);
 		let rb = ImBCBase.basename(b);
 		if (ra < rb) return -1;
 		else if (ra === rb) return 0;
 		else return 1;
-	});
+	});*/
 	this.checkchecks();
 	this.totnum = selecteds.length;
 	this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
@@ -20461,13 +20564,16 @@ parseconfig(data) {
 	const d = JSON.parse(data);
 	if (d.np) this.withpreview = false;
 	else this.withpreview = true;
-	if (undefined !== d.cr) this.copyright = d.cr;
+	if (undefined !== d.cr && d.cr !== 'undefined') this.copyright = d.cr;
+	if (undefined !== d.at && d.at !== 'undefined') this.artist = d.at;
 	if (d.l) this.trylang(d.l);
 	if (d.ndcp) this.incdcp = false; else this.incdcp = true;
 	if (d.owb) this.constwb = true; else this.constwb = false;
 	if (d.zip && window.showSaveFilePicker && !this.imbcb) document.getElementById('usezip').checked = true;
 	if (d.step) this.stepmode = 1;
 	else this.stepmode = 0;
+	if (d.meta === undefined) this.metadata = true;
+	else this.metadata = d.meta;
 }
 /* ImBCHtmlOut: browserdisplay: put last message viewable */
 showlastmsg() {
@@ -20535,8 +20641,9 @@ checkchecks() {
 	if (stepprev !== null && stepprev.checked) this.stepmode = 1;
 	const copytext = document.getElementById('copytext');
 	const copycheck = document.getElementById('copycheck');
-	this.copyright = '';
-	if (copycheck !== null && copycheck.checked && copytext !== null && copytext.value !== '') this.copyright = copytext.value;
+	this.copyright = copytext?.value?.length ? copytext.value : '';
+	this.artist = document.getElementById('artist')?.value?.length ? document.getElementById('artist')?.value : '';
+	this.metadata = copycheck?.checked; 
 	const oldwb = document.getElementById('oldstylewb');
 	this.constwb = (oldwb !== null && oldwb.checked);
 	const incdcp = document.getElementById('incdcp');
@@ -20567,13 +20674,13 @@ constructor() {
 /* ImBCHtml: browserdisplay: copyright checkbox change */
 chgcopycheck() {
     const copytext = document.getElementById('copytext');
+    const artist = document.getElementById('artist');
     const copycheck = document.getElementById('copycheck');
-    if (null !== copytext) {
-    	if (null !== copycheck && copycheck.checked)
-    		copytext.style['display'] = '';
-    	else
-    		copytext.style['display'] = 'none';
-    }
+    this.metadata = copycheck?.checked;
+    if (null !== copytext)
+   		copytext.disabled = !this.metadata;
+    if (null !== artist)
+    	artist.disabled = !this.metadata;
     this.dirtysettings();
 }
 /* ImBCHtml: browserdisplay: handler for file selection input */
@@ -21376,8 +21483,9 @@ browserprocess() {
     this.stepmode = 0;
     const copytext = document.getElementById('copytext');
     const copycheck = document.getElementById('copycheck');
-	this.copyright = '';
-	if (copycheck !== null && copycheck.checked && copytext !== null && copytext.value !== '') this.copyright = copytext.value;
+	this.copyright = copytext?.value?.length ? copytext.value : '';
+	this.artist = document.getElementById('artist')?.value?.length ? document.getElementById('artist')?.value : '';
+	this.metadata = copycheck?.checked; 
 	this.totnum = selecteds.length;
 	this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
 	this.actnum = 0;
@@ -21423,16 +21531,14 @@ savesettings() {
 		try {
 			const copytext = document.getElementById('copytext');
 			const copycheck = document.getElementById('copycheck');
-			let copyval = ''
-			if (copycheck !== null && copytext !== null && copycheck.checked) {
-				copyval = copytext.value;
-			}
 			let stepmode = 0;
 			const stepprev = document.getElementById('steppreview');
 			if (stepprev !== null && stepprev.checked) stepmode = 1;
-			window.localStorage.setItem('imbraw2dng_json', JSON.stringify(
+			window.localStorage.setItem('imbapp_json', JSON.stringify(
 				{
-					'cr': copyval,
+					'meta': copycheck?.checked,
+					'cr': copytext?.value,
+					'at': document.getElementById('artist')?.value,
 					'np': document.getElementById('dngpreview') ? !document.getElementById('dngpreview').checked : false,
 					'l': this.mylang,
 					'step': stepmode,
@@ -21883,18 +21989,25 @@ checkimb(type) {
 initsettings() {
 	if (window.location.origin.startsWith('http') && window.localStorage) {
 		try {
-			let e = window.localStorage.getItem('imbraw2dng_json');
+			let e = window.localStorage.getItem('imbapp_json');
 			if (e) {
 				this.parseconfig(e);
 				const copytext = document.getElementById('copytext');
+				const artist = document.getElementById('artist');
 				const copycheck = document.getElementById('copycheck');
 				const stepprev = document.getElementById('steppreview');
 				const incdcp = document.getElementById('incdcp');
 				const oldstylewb = document.getElementById('oldstylewb');
-				if (copycheck !== null && copytext !== null) {
-					copycheck.checked = (this.copyright.length > 0);
-					copytext.value = this.copyright;
-					copytext.style['display'] = (this.copyright.length > 0) ? '' : 'none';
+				if (copycheck !== null) {
+					copycheck.checked = this.metadata;
+					if (copytext) {
+						if (this.copyright?.length) copytext.value = this.copyright;
+						copytext.disabled = !this.metadata;
+					}
+					if (artist) {
+						if (this.artist?.length) artist.value = this.artist;
+						artist.disabled = !this.metadata;
+					}
 				}
 				if (stepprev !== null) stepprev.checked = (this.stepmode===1);
 				if (incdcp !== null) incdcp.checked = this.incdcp;
@@ -22101,9 +22214,11 @@ function init() {
 		imbc = new ImBCHtmlBackw();
 		for (const o of document.getElementsByClassName('onlywhenbackw')) o.style['display']='';
 		for (const o of document.getElementsByClassName('notwhenbackw')) o.style['display']='none';
+		ImBCBase.progname = 'imbdng2raw.html';
 	}
 	else {
 		imbc = new ImBCHtml();
+		ImBCBase.progname = 'imbraw2dng.html';
 		imbc.chgcopycheck();
 		imbc.initsettings();
 		if (!window.showSaveFilePicker) {
@@ -22129,9 +22244,14 @@ function init() {
 <div class="notwhenbackw"><input type="checkbox" id="steppreview" onchange="imbc.dirtysettings()" checked><label for="steppreview" data-myxlkey="process.singlestep"></label></div>
 <div class="notwhenbackw"><input type="checkbox" id="dngpreview" checked onchange="imbc.chgdngpreview()"><label for="dngpreview" data-myxlkey="process.addpreview"></label></div>
 <div class="notwhenbackw"><input type="checkbox" id="incdcp" checked onchange="imbc.dirtysettings()"><label for="incdcp" data-myxlkey="process.includedcp"></label></div>
-<div class="notwhenbackw"><input type="checkbox" id="copycheck" onchange="imbc.chgcopycheck()"><label for="copycheck" data-myxlkey="process.addcopyright"></label> <input onchange="imbc.dirtysettings()" type="text" id="copytext"></input></div>
 <div class="notwhenbackw"><input type="checkbox" id="usezip" onchange="imbc.dirtysettings()"><label for="usezip" data-myxlkey="main.usezip" id="useziplbl"></label> <input type="checkbox" id="choosezipdest" onchange="imbc.dirtysettings()"><label for="choosezipdest" data-myxlkey="main.usezip.choosedest" id="useziplbl"></label></div>
 <div class="notwhenbackw"><input type="checkbox" id="oldstylewb" onchange="imbc.dirtysettings()"><label for="oldstylewb" data-myxlkey="process.oldstylewb"></label></div>
+<div class="notwhenbackw"><input type="checkbox" id="copycheck" onchange="imbc.chgcopycheck()"><label for="copycheck" data-myxlkey="process.metadata"></label> 
+<br>
+<span data-myxlkey="process.addcopyright"></span> <input onchange="imbc.dirtysettings()" type="text" id="copytext"></input>
+<br>
+<span data-myxlkey="process.addartist"></span> <input onchange="imbc.dirtysettings()" type="text" id="artist"></input>
+</div>
 <div class="notwhenbackw" style="margin-top: 0.5em;">
 <span id="onlyhttp" data-myxlkey="browser.prefnotfile"></span>
 <span id="settingsset" data-myxlkey="browser.settingsset"></span>

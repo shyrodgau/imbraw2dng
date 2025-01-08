@@ -164,7 +164,7 @@ tn=$(( $tn + 1 ))
 echo '##########    8    ##########'
 echo Test ${tn} convert again but no thum but copyright and zip
 set -x
-${TESTEXES}/imbraw2dng.js -np -cr 'testcopyright' -d test2.zip ${TESTDAT}/IMBACK/*/*.[rRmMjJ]*
+${TESTEXES}/imbraw2dng.js -np -cr 'testcopyright debugging' -d test2.zip ${TESTDAT}/IMBACK/*/*.[rRmMjJ]*
 rc=$?
 n=$( ls .|wc -l )
 set +x
@@ -184,7 +184,7 @@ tn=$(( $tn + 1 ))
 echo '##########    9    ##########'
 echo Test ${tn} convert again but no thum but copyright and rename
 set -x
-${TESTEXES}/imbraw2dng.js -np -cr 'testcopyright' -r ${TESTDAT}/IMBACK/*/*.[rRmMjJ]*
+${TESTEXES}/imbraw2dng.js -np -cr 'testcopyright debugging' -r ${TESTDAT}/IMBACK/*/*.[rRmMjJ]*
 rc=$?
 n=$( ls .|wc -l )
 set +x
@@ -203,7 +203,7 @@ tn=$(( $tn + 1 ))
 echo '##########    10    ##########'
 echo Test ${tn} convert from imback
 set -x
-${TESTEXES}/imbraw2dng_zZ.js -np -cr 'testcopyright' -r -R -O -n 2023 -d fromback.zip
+${TESTEXES}/imbraw2dng_zZ.js -np -at 'test creator debugging' -r -R -O -n 2023 -d fromback.zip
 rc=$?
 n=$( ls .|wc -l )
 set +x
@@ -222,7 +222,7 @@ tn=$(( $tn + 1 ))
 echo '##########    11    ##########'
 echo Test ${tn} embed exif
 set -x
-${TESTEXES}/imbraw2dng.js -d withexif1.zip -cr 'testcopyright' ${TESTDAT}/IMBACK/PHOTO/2024_0217_121754_002.JPG ${TESTDAT}/IMBACK/PHOTO/2024_0217_121752_001.RAW
+${TESTEXES}/imbraw2dng.js -d withexif1.zip -cr 'testcopyright debugging'  -at 'test creator debugging' ${TESTDAT}/IMBACK/PHOTO/2024_0217_121754_002.JPG ${TESTDAT}/IMBACK/PHOTO/2024_0217_121752_001.RAW
 rc=$?
 n=$( ls .|wc -l )
 set +x

@@ -54,14 +54,14 @@ function waitfor(driver, what, id, cnt=0) {
 describe('A Convert Raw Local', function() {
 	let driver, opts, errflg = false;
 	before(async function() {
-			this.timeout(6000);
+			this.timeout(36000);
 			//const chromcapa = Capabilities.chrome();
 			//const opts = [ 'prefs', { 'download.default_directory': '/home/hegny/Downloads/testoutputdir' } ];
 			//chromcapa.set('chromeOptions', opts);
 			driver = await new Builder().forBrowser(Browser.CHROME).build();
 			//driver = await new Builder().forBrowser(Browser.CHROME).withCapabilities(chromcapa).build();
 			await driver.get(TESTURL + 'IMBACK/imbraw2dng.html');
-			driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));}');
+			driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));alert(JSON.stringify(e));}');
 	});
 	it('A.1 Convert without question', async function dotest() {
 			this.timeout(6000);
@@ -304,14 +304,14 @@ describe('A Convert Raw Local', function() {
 describe('B Convert Raw from Imback', function() {
 	let driver, opts, errflg = false;
 	before(async function() {
-			this.timeout(6000);
+			this.timeout(36000);
 			//const chromcapa = Capabilities.chrome();
 			const opts = [ 'prefs', { 'download.default_directory': '/home/hegny/Downloads/testoutputdir' } ];
 			//chromcapa.set('chromeOptions', opts);
 			driver = await new Builder().forBrowser(Browser.CHROME).build();
 			//driver = await new Builder().forBrowser(Browser.CHROME).withCapabilities(chromcapa).build();
 			await driver.get(TESTURL + 'IMBACK/imbraw2dng_00.html');
-			driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));}');
+			driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));alert(JSON.stringify(e));}');
 	});
 	it('B.1 Convert without question', async function dotest() {
 			this.timeout(36000);
@@ -408,7 +408,7 @@ describe('B Convert Raw from Imback', function() {
 describe('C Convert Backward', function() {
 	let driver, opts, errflg = false;
 	before(async function() {
-			this.timeout(6000);
+			this.timeout(36000);
 			//const chromcapa = Capabilities.chrome();
 			const opts = [ 'prefs', { 'download.default_directory': '/home/hegny/Downloads/testoutputdir' } ];
 			//chromcapa.set('chromeOptions', opts);
@@ -680,7 +680,7 @@ describe('F Convert Raw Local APP', function() {
 describe('G Stacking DNG and RAW on old html', function() {
 	let driver, opts, errflg = false;
 	before(async function() {
-			this.timeout(6000);
+			this.timeout(36000);
 			//const chromcapa = Capabilities.chrome();
 			const opts = [ 'prefs', { 'download.default_directory': '/home/hegny/Downloads/testoutputdir' } ];
 			//chromcapa.set('chromeOptions', opts);
