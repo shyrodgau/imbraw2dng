@@ -22501,7 +22501,7 @@ appinfo() {
 		//	document.getElementById('okmsg').innerHTML += ('<br>Free: ' + Math.round(this.imbfree/100)/10 + ' KB');
 		//document.getElementById('okmsg').innerHTML += ('<br>Free: ' + this.imbfree + ' B');
 	}
-	document.getElementById('okmsg').innerHTML += `<br><a href="#" onclick="window.open(imbc.xl('app.helpurl'), '_system'); return false;" data-myxlkey="main.help"></a> `;
+	document.getElementById('okmsg').innerHTML += `<br><a href="#" onclick="window.open(imbc.xl('app.helpurl'), '_system'); return false;" data-myxlkey="main.help"></a> - <span data-myxlkey="main.newmsg"/>`;
 	//document.getElementById('okmsg').append(a);
 	document.getElementById('okmsg').innerHTML += `<br><span style="font-weight:normal;font-size:75%;">Contains parts of <a href="#" onclick="window.open('https://fonts.google.com/noto/specimen/Noto+Sans+Symbols+2', '_system'); return false;">NotoSansSymbols2-Regular</a> font
 	licensed under <a href="#" onclick=" window.open('http://scripts.sil.org/OFL', '_system'); return false;">Open Font License</a>.</span>`;
@@ -22898,7 +22898,7 @@ function init2() {
 /* *************************************** globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.9.3_c0ec113", // actually const // VERSION EYECATCHER
+version: "V5.9.3_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 texts: { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -22994,11 +22994,9 @@ texts: { // actually const
 			ja: 'ここに ImB のファイルをドロップします。：  (or directories)'
 		},
 		selectraw: {
-			de: 'Oder diese Seite per WLAN <a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/blob/master/README_de.md#gucken-auf-imback-selbst\',\'_system\');return false;">direkt von ImB</a> verwenden.<br>Oder <tt>.RAW</tt> Datei(en) auswählen:',
-			en: 'Or use this page via Wifi <a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\',\'_system\');return false;">directly from ImB</a>.<br>Or select <tt>.RAW</tt> File(s):',
-			fr: 'Ou utiliez cette page <a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\',\'_system\');return false;">via Wifi sur ImB</a>.<br>Ou selectez <tt>.RAW</tt> fiche(s):',
-			ru: 'Или используйте эту страницу через Wi-Fi <a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\',\'_system\');return false;">прямо из ImB</a>.<br>Или выберите файл(ы) <tt>RAW</tt>:',
-			ja: 'または、このページを WiFi 経由で<a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/moredoc_ja.md#imback-での閲覧\'>ImB から直接</a>使用します。<br >または、<tt>.RAW</tt> ファイルを選択します。：'
+			de: 'Oder diese Seite per WLAN <a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README_de#browsing-on-the-imback\',\'_system\');return false;">direkt von ImB</a> verwenden.<br>Oder <tt>.RAW</tt> Datei(en) auswählen:',
+			en: 'Or use this page via Wifi <a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README#browsing-on-the-imback\',\'_system\');return false;">directly from ImB</a>.<br>Or select <tt>.RAW</tt> File(s):',
+			ja: 'または、このページを WiFi 経由で<a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README_ja#browsing-on-the-imback\',\'_system\');return false;">ImB から直接</a>使用します。<br >または、<tt>.RAW</tt> ファイルを選択します。：'
 		},
 		selectrawx: {
 			de: 'Oder <tt>.RAW</tt> Datei(en) auswählen:',
@@ -23095,9 +23093,9 @@ texts: { // actually const
 			ja: '選択済み'
 		},
 		fakelong: {
-			en: 'Fake long exposure by adding up all (<a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#a-lot-more-tricks-and-details\',\'_system\');return false;">read more</a>)',
-			de: 'Langzeitbelichtung durch Addieren simulieren (<a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/blob/master/README_de.md#mehr-tricks-und-details\',\'_system\');return false;">mehr lesen</a>)',
-			ja: '「追加して長時間露光をシミュレートします (<a href="#" onclick=" window.open(\'https://shyrodgau.github.io/imbraw2dng/moredoc_ja#さらなるトリックと詳細\', \'_system\'); return false;">続きを読む</a>)」すべてを加算して長時間露光をシミュレートする',
+			en: 'Fake long exposure by adding up all (<a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README#a-lot-more-tricks-and-details\',\'_system\');return false;">read more</a>)',
+			de: 'Langzeitbelichtung durch Addieren simulieren (<a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README_de#a-lot-more-tricks-and-details\',\'_system\');return false;">mehr lesen</a>)',
+			ja: '「追加して長時間露光をシミュレートします (<a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README_ja#a-lot-more-tricks-and-details\',\'_system\');return false;">続きを読む</a>)」すべてを加算して長時間露光をシミュレートする',
 			scale: {
 				en: 'Scale values down',
 				de: 'Werte dabei herunterskalieren',
@@ -23120,9 +23118,9 @@ texts: { // actually const
 			}
 		},
 		newmsg: {
-			en: '<a href="https://github.com/shyrodgau/imbraw2dng/issues" target="_new">Report bugs</a>',
-			de: '<a href="https://github.com/shyrodgau/imbraw2dng/issues" target="_new">Fehler melden</a>',
-			ja: '<a href="https://github.com/shyrodgau/imbraw2dng/issues" target="_new">バグ報告</a>'
+			en: '<a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/issues\',\'_system\');return false;">Report bugs</a>',
+			de: '<a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/issues\',\'_system\');return false;">Fehler melden</a>',
+			ja: '<a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/issues\',\'_system\');return false;">バグ報告</a>'
 		}
 	},
 	browser: {

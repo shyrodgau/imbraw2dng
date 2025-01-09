@@ -738,7 +738,7 @@ add(data, name, cb) {
 class ImBCBase {
 static progname = '';
 /* Indentation out */
-static version = "V5.9.3_c0ec113"; // actually const // VERSION EYECATCHER
+static version = "V5.9.3_@_d_e_v"; // actually const // VERSION EYECATCHER
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -1439,7 +1439,7 @@ static texts = { // actually const
 				' \u001b[1m-owb\u001b[0m - Use old style constant white balance',
 				' \u001b[1m-ndcp\u001b[0m - Do not include new DNG Camera profile',
 				' \u001b[1m-cr \'copyright...\'\u001b[0m - add copyright to DNG',
-				' \u001b[1m-at \'author...\'\u001b[0m - add author/creator to DNG',
+				' \u001b[1m-at \'author...\'\u001b[0m - add artist/creator to DNG',
 				' \u001b[1m-fla\u001b[0m, \u001b[1m-flx\u001b[0m - add multiple images to fake long exposure, flx scales down',
 				' \u001b[1m-R\u001b[0m - get RAW from ImB connected via Wifi or from given directories',
 				' \u001b[1m-J\u001b[0m - get JPEG from ImB connected via Wifi or from given directories',
@@ -1494,7 +1494,7 @@ static texts = { // actually const
 				' \u001b[1m-owb\u001b[0m - Alten konstanten Weißabgleich verwenden',
 				' \u001b[1m-ndcp\u001b[0m - neues DCP Profil nicht einbetten',
 				' \u001b[1m-cr \'copyright...\'\u001b[0m - Copyright dem DNG hinzufügen',
-				' \u001b[1m-at \'autor...\'\u001b[0m - Autor/Künstler zum DNG hinzufügen',
+				' \u001b[1m-at \'autor...\'\u001b[0m - Künstler/Ersteller zum DNG hinzufügen',
 				' \u001b[1m-fla\u001b[0m, \u001b[1m-flx\u001b[0m - mehrere Bilder als Langzeitbelichtung aufaddieren, flx skaliert dabei herunter',
 				' \u001b[1m-R\u001b[0m - RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen konvertieren',
 				' \u001b[1m-J\u001b[0m - JPEG von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren',

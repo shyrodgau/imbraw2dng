@@ -885,7 +885,7 @@ add(data, name, cb) {
 class ImBCBase {
 static progname = '';
 /* Indentation out */
-static version = "V5.9.3_c0ec113"; // actually const // VERSION EYECATCHER
+static version = "V5.9.3_@_d_e_v"; // actually const // VERSION EYECATCHER
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -974,11 +974,9 @@ static texts = { // actually const
 			ja: 'ここに ImB のファイルをドロップします。: '
 		},
 		selectraw: {
-			de: 'Oder diese Seite per WLAN <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README_de.md#gucken-auf-imback-selbst\'>direkt von ImB</a> verwenden.<br>Oder <tt>.RAW</tt> Datei(en) auswählen:',
-			en: 'Or use this page via Wifi <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\'>directly from ImB</a>.<br>Or select <tt>.RAW</tt> File(s):',
-			fr: 'Ou utiliez cette page <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\'>via Wifi sur ImB</a>.<br>Ou selectez <tt>.RAW</tt> fiche(s):',
-			ru: 'Или используйте эту страницу через Wi-Fi <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\'>прямо из ImB</a>.<br>Или выберите файл(ы) <tt>RAW</tt>:',
-			ja: 'または、Wifi 経由で <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/moredoc_ja.md#imback-での閲覧\'>ImB から直接</a>このページを使用します。<br> または、 <tt>.RAW</tt> ファイルを選択します。:'
+			de: 'Oder diese Seite per WLAN <a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README_de#browsing-on-the-imback\',\'_system\');return false;">direkt von ImB</a> verwenden.<br>Oder <tt>.RAW</tt> Datei(en) auswählen:',
+			en: 'Or use this page via Wifi <a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README#browsing-on-the-imback\',\'_system\');return false;">directly from ImB</a>.<br>Or select <tt>.RAW</tt> File(s):',
+			ja: 'または、このページを WiFi 経由で<a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README_ja#browsing-on-the-imback\',\'_system\');return false;">ImB から直接</a>使用します。<br >または、<tt>.RAW</tt> ファイルを選択します。：'
 		},
 		stillcounting: {
 			de: '... zähle ... ',
@@ -1068,9 +1066,9 @@ static texts = { // actually const
 			ja: '選択済み'
 		},
 		fakelong: {
-			en: 'Fake long exposure by adding up all (<a href="https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#a-lot-more-tricks-and-details">read more</a>)',
-			de: 'Langzeitbelichtung durch Addieren simulieren (<a href="github.com/shyrodgau/imbraw2dng/blob/master/README_de.md#mehr-tricks-und-details">mehr lesen</a>)',
-			ja: 'すべてを加算して長時間露光をシミュレートする',
+			en: 'Fake long exposure by adding up all (<a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README#a-lot-more-tricks-and-details\',\'_system\');return false;">read more</a>)',
+			de: 'Langzeitbelichtung durch Addieren simulieren (<a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README_de#a-lot-more-tricks-and-details\',\'_system\');return false;">mehr lesen</a>)',
+			ja: '「追加して長時間露光をシミュレートします (<a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README_ja#a-lot-more-tricks-and-details\',\'_system\');return false;">続きを読む</a>)」すべてを加算して長時間露光をシミュレートする',
 			scale: {
 				en: 'Scale values down',
 				de: 'Werte dabei herunterskalieren',
@@ -1093,9 +1091,9 @@ static texts = { // actually const
 			}
 		},
 		newmsg: {
-			en: '<a href="https://github.com/shyrodgau/imbraw2dng/issues" target="_new">Report bugs</a>',
-			de: '<a href="https://github.com/shyrodgau/imbraw2dng/issues" target="_new">Fehler melden</a>',
-			ja: '<a href="https://github.com/shyrodgau/imbraw2dng/issues" target="_new">バグ報告</a>'
+			en: '<a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/issues\',\'_system\');return false;">Report bugs</a>',
+			de: '<a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/issues\',\'_system\');return false;">Fehler melden</a>',
+			ja: '<a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/issues\',\'_system\');return false;">バグ報告</a>'
 		}
 	},
 	browser: {
