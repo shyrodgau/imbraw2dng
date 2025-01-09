@@ -327,6 +327,15 @@ describe('B Convert Raw from Imback', function() {
 				.click()
 				.pause(900)
 				.perform();
+			const cpc = await waitfor(driver, 'id', 'copycheck');
+			await driver.actions({ async: true })
+				.move({ origin: cpc })
+				.pause(100)
+				.click()
+				.pause(600)
+				.perform();
+			const copytext = await waitfor(driver,'id','artist');
+			await copytext.sendKeys('isch debugging');
 			const sel2 = await cb.isSelected();
 			const fi = await driver.findElement(By.id('imbstartts'));
 			await fi.sendKeys('2025');
@@ -587,6 +596,36 @@ describe('E Convert Raw from Imback APP', function() {
 				.click()
 				.pause(600)
 				.perform();
+			const hm = await waitfor(driver, 'id', 'hamb');
+			await driver.actions({ async: true })
+				.move({ origin: hm })
+				.pause(100)
+				.click()
+				.pause(600)
+				.perform();
+			const hms = await waitfor(driver, 'id', 'hamsett');
+			await driver.actions({ async: true })
+				.move({ origin: hms })
+				.pause(100)
+				.click()
+				.pause(600)
+				.perform();
+			const cpc = await waitfor(driver, 'id', 'copycheck');
+			await driver.actions({ async: true })
+				.move({ origin: cpc })
+				.pause(100)
+				.click()
+				.pause(600)
+				.perform();
+			const copytext = await waitfor(driver,'id','artist');
+			await copytext.sendKeys('isch debugging');
+			const setb = await waitfor(driver, 'id', 'settback');
+			await driver.actions({ async: true })
+				.move({ origin: setb })
+				.pause(100)
+				.click()
+				.pause(600)
+				.perform();
 			await driver.actions({ async: true })
 				.move({ origin: rcw })
 				.pause(100)
@@ -600,9 +639,9 @@ describe('E Convert Raw from Imback APP', function() {
 				.click()
 				.pause(900)
 				.perform();
-			const hm = await waitfor(driver, 'id', 'hamb');
+			const hm2 = await waitfor(driver, 'id', 'hamb');
 			await driver.actions({ async: true })
-				.move({ origin: hm })
+				.move({ origin: hm2 })
 				.pause(100)
 				.click()
 				.pause(600)

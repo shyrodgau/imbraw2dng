@@ -18866,10 +18866,16 @@ handleone(orientation) {
 		}
 		if (!this.neutral) {
 			const xmp1 = `<?xpacket begin='`;
-			const xmp2 = `' id='W5M0MpCehiHzreSzNTczkc9d'?><x:xmpmeta xmlns:x='adobe:ns:meta/'><rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'><rdf:Description rdf:about='' xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:xmp='http://ns.adobe.com/xap/1.0/'>`;
-  			const xmp3 = `</rdf:Description></rdf:RDF></x:xmpmeta><?xpacket end='r'?>`;
-			let artbytes = [], rightbytes = [];
+			const xmp2 = `' id='W5M0MpCehiHzreSzNTczkc9d'?><x:xmpmeta xmlns:x='adobe:ns:meta/'><rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'><rdf:Description rdf:about='' xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:xmp='http://ns.adobe.com/xap/1.0/' dc:source='`;
+			const xmp3 = `' xmp:ModifyDate='`;
+			const xmp4 = `' xmp:CreatorTool='`;
+			const xmp5 = `'>`;
+  			const xmp6 = `</rdf:Description></rdf:RDF></x:xmpmeta><?xpacket end='r'?>`;
+			let artbytes =  [], rightbytes = [];
 			let xmpx = [ xmp1, xmp2 ];
+			if (dateok) xmpx.push(xmp3);
+			xmpx.push(xmp4);
+			xmpx.push(xmp5);
 			if (this.metadata && this.artist?.length) {
 				xmpx[xmpx.length-1] += `<dc:creator><rdf:Seq><rdf:li>`;
     			artbytes = new TextEncoder().encode(this.artist);
@@ -18880,18 +18886,12 @@ handleone(orientation) {
     			rightbytes = new TextEncoder().encode(this.copyright);
     			xmpx.push(`</rdf:li></rdf:Alt></dc:rights>`);
 			}
-			xmpx[xmpx.length-1] += `<dc:source>`;
-			xmpx.push(`</dc:source>`);
 			let swbytes = new TextEncoder().encode(ImBCBase.progname + ' ' + globals.version);
 			let datbytes = [];
-			xmpx[xmpx.length-1] += `<xmp:CreatorTool>`;
-			xmpx.push(`</xmp:CreatorTool>`);
 			if (dateok) {
-				xmpx[xmpx.length-1] += `<xmp:ModifyDate>`;
-				xmpx.push(`</xmp:ModifyDate>`);
 				datbytes = new TextEncoder().encode(datestr.substring(0,4)+'-'+ datestr.substring(5,7)+'-'+datestr.substring(8,10)+'T'+datestr.substring(11));
 			}
-			xmpx[xmpx.length-1] += xmp3;
+			xmpx[xmpx.length-1] += xmp6;
 			const xmprdf = new Uint8Array(artbytes.length + rightbytes.length + swbytes.length + hxbytes.length + datbytes.length + 3 + xmpx.reduce((sum, a) => (sum + new TextEncoder().encode(a).length), 0));
 			let o=0;
 			for (let c = 0; c < xmpx.length; c++) {
@@ -18903,6 +18903,21 @@ handleone(orientation) {
 					xmprdf.set(new Uint8Array([239, 187, 191]), o);
 					o+=3;
 				}
+				else if (hxbytes?.length) {
+					xmprdf.set(hxbytes, o);
+					o += hxbytes.length;
+					hxbytes = undefined;
+				}
+				else if (datbytes?.length) {
+					xmprdf.set(datbytes, o);
+					o += datbytes.length;
+					datbytes = undefined;
+				}
+				else if (swbytes?.length) {
+					xmprdf.set(swbytes, o);
+					o += swbytes.length;
+					swbytes = undefined;
+				}
 				else if (artbytes?.length) {
 					xmprdf.set(artbytes, o);
 					o += artbytes.length;
@@ -18912,21 +18927,6 @@ handleone(orientation) {
 					xmprdf.set(rightbytes, o);
 					o += rightbytes.length;
 					rightbytes = undefined;
-				}
-				else if (hxbytes?.length) {
-					xmprdf.set(hxbytes, o);
-					o += hxbytes.length;
-					hxbytes = undefined;
-				}
-				else if (swbytes?.length) {
-					xmprdf.set(swbytes, o);
-					o += swbytes.length;
-					swbytes = undefined;
-				}
-				else if (datbytes?.length) {
-					xmprdf.set(datbytes, o);
-					o += datbytes.length;
-					datbytes = undefined;
 				}
 			}
 			ti.addEntry(700, 'BYTE', xmprdf); /* XMP */
@@ -26418,7 +26418,7 @@ function readjpg(file) {
 <!-- end of normal preview with question (unused in app) -->
 <!-- the normal display/settings -->
 <div id="normal"  style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
-<div style="position:fixed; top:0; left:0; width:100%;background-color:black;z-index:997;color:white;"><div>&nbsp;<span id="settx"><input type="button" value="&#x2b60;" class="whbtn lbtn" style="padding:0 !important; border:0 !important;" onclick="imbc.showmain()"></span>
+<div style="position:fixed; top:0; left:0; width:100%;background-color:black;z-index:997;color:white;"><div>&nbsp;<span id="settx"><input id="settback" type="button" value="&#x2b60;" class="whbtn lbtn" style="padding:0 !important; border:0 !important;" onclick="imbc.showmain()"></span>
 <span style="display:inline-block;margin-left: -1.5em;"><span class="batt1 battlo battery" style="font-weight:bold; display: inline-block; width: 1em; height:1.3em; vertical-align:bottom;position:relative; top: 0em;"><span>&#xa0;</span></span>
 <span class="batt2 battlo battery" style="position: relative; left: -1.1em; font-weight:bold; display: inline-block; color:green;width: 0.7em;background-color: black;top: 0.2em;"><span>&#xa0;</span></span></span>
 <span class="whbtn disconnected" style="padding-left:0.4em;padding-right:0.4em;display:none;"> ! &#x1f593; ! &#x1f5be; ! </span>
@@ -26460,9 +26460,9 @@ function readjpg(file) {
 <div ><input type="checkbox" id="dngpreview" checked onchange="imbc.chgdngpreview()"> <label for="dngpreview" data-myxlkey="process.addpreview"></label></div>
 <div ><input type="checkbox" id="incdcp" checked onchange="imbc.dirtysettings()"> <label for="incdcp" data-myxlkey="process.includedcp"></label></div>
 <div ><input type="checkbox" id="oldstylewb" onchange="imbc.dirtysettings()"> <label for="oldstylewb" data-myxlkey="process.oldstylewb"></label></div>
-<div><input type="checkbox" id="copycheck" onchange="imbc.chgcopycheck()"> <label for="copycheck" data-myxlkey="process.metadata"></label></div>
-<div ><span data-myxlkey="process.addcopyright"></span> <input onchange="imbc.dirtysettings()" type="text" id="copytext"></input></div>
-<div ><span data-myxlkey="process.addartist">Artist</span> <input onchange="imbc.dirtysettings()" type="text" id="artist"></input></div>
+<div style="border:5px solid #50a070;max-width:fit-content;border-radius:10px;padding:2px;background-color:rgba(80,160,112,0.3);"><div><input type="checkbox" id="copycheck" onchange="imbc.chgcopycheck()"> <label for="copycheck" data-myxlkey="process.metadata"></label></div>
+<div ><span data-myxlkey="process.addcopyright"></span> <input onchange="imbc.dirtysettings()" type="text" id="copytext" size="22"></input></div>
+<div ><span data-myxlkey="process.addartist">Artist</span> <input onchange="imbc.dirtysettings()" type="text" id="artist" size="22"></input></div></div>
 </div>
 </div>
 <div  style="margin-top: 0.5em;" id="genadvice" data-myxlkey="main.generaladvice"></div>
@@ -26542,7 +26542,7 @@ function readjpg(file) {
 <div id="hammen" style="position:fixed; left: 0; width: fit-content; background-color:white; inset:unset; top:2em;color:black;border:1px solid gray;border-bottom-right-radius:10px;border-bottom-left-radius:10px;" popover="auto" ontoggle="imbc.toggleham(event);">
 <div class="hammenent" onclick="imbc.closeham();imbc.settime()"><span  style="font-family:Symbol3;">&#x1f570;</span> <span data-myxlkey='app.menu.settime'>Set ImB Time</span></div>
 <div class="hammenent" id="hamlog" onclick="imbc.closeham();imbc.showlog();"><span  style="font-family:Symbol3;">&#x1f5ce;</span> <span data-myxlkey='app.menu.msglog'>Msg Log</span></div>
-<div class="hammenent" onclick="imbc.closeham();imbc.shownormal();"><span  style="font-family:Symbol3;">&#x1f6e0;</span> <span data-myxlkey='app.menu.settings'>Settings</span></div>
+<div class="hammenent" id="hamsett" onclick="imbc.closeham();imbc.shownormal();"><span  style="font-family:Symbol3;">&#x1f6e0;</span> <span data-myxlkey='app.menu.settings'>Settings</span></div>
 <div class="hammenent" onclick="imbc.closeham();imbc.showextras();"><span  style="font-family:Symbol3;">&#x1f578;</span> <span data-myxlkey='app.menu.extras'>Extras</span></div>
 <div class="hammenent" onclick="imbc.closeham();imbc.appinfo();" style="border-top: 1px solid black;"><span style="font-family:Symbol3;">&#x1f6c8;</span> <span data-myxlkey='app.menu.info'>Info</span></div>
 <div class="hammenent" id="powerelem" onclick="imbc.closeham();imbc.dopoweroff();" style="border-top: 1px solid black;"><span  style="font-family:Symbol3;">&#x23fb;</span> <span data-myxlkey='app.menu.poweroff'>Power Off</span></div>

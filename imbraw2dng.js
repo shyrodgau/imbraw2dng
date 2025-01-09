@@ -19296,10 +19296,16 @@ handleone(orientation) {
 		}
 		if (!this.neutral) {
 			const xmp1 = `<?xpacket begin='`;
-			const xmp2 = `' id='W5M0MpCehiHzreSzNTczkc9d'?><x:xmpmeta xmlns:x='adobe:ns:meta/'><rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'><rdf:Description rdf:about='' xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:xmp='http://ns.adobe.com/xap/1.0/'>`;
-  			const xmp3 = `</rdf:Description></rdf:RDF></x:xmpmeta><?xpacket end='r'?>`;
+			const xmp2 = `' id='W5M0MpCehiHzreSzNTczkc9d'?><x:xmpmeta xmlns:x='adobe:ns:meta/'><rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'><rdf:Description rdf:about='' xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:xmp='http://ns.adobe.com/xap/1.0/' dc:source='`;
+			const xmp3 = `' xmp:ModifyDate='`;
+			const xmp4 = `' xmp:CreatorTool='`;
+			const xmp5 = `'>`;
+  			const xmp6 = `</rdf:Description></rdf:RDF></x:xmpmeta><?xpacket end='r'?>`;
 			let artbytes =  [], rightbytes = [];
 			let xmpx = [ xmp1, xmp2 ];
+			if (dateok) xmpx.push(xmp3);
+			xmpx.push(xmp4);
+			xmpx.push(xmp5);
 			if (this.metadata && this.artist?.length) {
 				xmpx[xmpx.length-1] += `<dc:creator><rdf:Seq><rdf:li>`;
     			artbytes = new TextEncoder().encode(this.artist);
@@ -19310,18 +19316,12 @@ handleone(orientation) {
     			rightbytes = new TextEncoder().encode(this.copyright);
     			xmpx.push(`</rdf:li></rdf:Alt></dc:rights>`);
 			}
-			xmpx[xmpx.length-1] += `<dc:source>`;
-			xmpx.push(`</dc:source>`);
 			let swbytes = new TextEncoder().encode(ImBCBase.progname + ' ' + ImBCBase.version);
 			let datbytes = [];
-			xmpx[xmpx.length-1] += `<xmp:CreatorTool>`;
-			xmpx.push(`</xmp:CreatorTool>`);
 			if (dateok) {
-				xmpx[xmpx.length-1] += `<xmp:ModifyDate>`;
-				xmpx.push(`</xmp:ModifyDate>`);
 				datbytes = new TextEncoder().encode(datestr.substring(0,4)+'-'+ datestr.substring(5,7)+'-'+datestr.substring(8,10)+'T'+datestr.substring(11));
 			}
-			xmpx[xmpx.length-1] += xmp3;
+			xmpx[xmpx.length-1] += xmp6;
 			const xmprdf = new Uint8Array(artbytes.length + rightbytes.length + swbytes.length + hxbytes.length + datbytes.length + 3 + xmpx.reduce((sum, a) => (sum + new TextEncoder().encode(a).length), 0));
 			let o=0;
 			for (let c = 0; c < xmpx.length; c++) {
@@ -19333,6 +19333,21 @@ handleone(orientation) {
 					xmprdf.set(new Uint8Array([239, 187, 191]), o);
 					o+=3;
 				}
+				else if (hxbytes?.length) {
+					xmprdf.set(hxbytes, o);
+					o += hxbytes.length;
+					hxbytes = undefined;
+				}
+				else if (datbytes?.length) {
+					xmprdf.set(datbytes, o);
+					o += datbytes.length;
+					datbytes = undefined;
+				}
+				else if (swbytes?.length) {
+					xmprdf.set(swbytes, o);
+					o += swbytes.length;
+					swbytes = undefined;
+				}
 				else if (artbytes?.length) {
 					xmprdf.set(artbytes, o);
 					o += artbytes.length;
@@ -19343,54 +19358,8 @@ handleone(orientation) {
 					o += rightbytes.length;
 					rightbytes = undefined;
 				}
-				else if (hxbytes?.length) {
-					xmprdf.set(hxbytes, o);
-					o += hxbytes.length;
-					hxbytes = undefined;
-				}
-				else if (swbytes?.length) {
-					xmprdf.set(swbytes, o);
-					o += swbytes.length;
-					swbytes = undefined;
-				}
-				else if (datbytes?.length) {
-					xmprdf.set(datbytes, o);
-					o += datbytes.length;
-					datbytes = undefined;
-				}
 			}
 			ti.addEntry(700, 'BYTE', xmprdf); /* XMP */
-/*
-<?xpacket begin='﻿' id='W5M0MpCehiHzreSzNTczkc9d'?>
-<x:xmpmeta xmlns:x='adobe:ns:meta/'>
-<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
- <rdf:Description rdf:about=''
-  xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:xmp='http://ns.adobe.com/xap/1.0/'>
-  <dc:creator>
-   <rdf:Seq>
-    <rdf:li>isch</rdf:li>
-    <rdf:li>Rodgau</rdf:li>
-   </rdf:Seq>
-  </dc:creator>
-  <dc:rights>
-   <rdf:Alt>
-    <rdf:li xml:lang='x-default'>2024 shy</rdf:li>
-   </rdf:Alt>
-  </dc:rights>
-  <dc:subject>
-   <rdf:Bag>
-    <rdf:li>some thing</rdf:li>
-    <rdf:li>some thing 2</rdf:li>
-    <rdf:li>some thing 3</rdf:li>
-   </rdf:Bag>
-  </dc:subject>
-  <xmp:CreatorTool>imbraw2dng V5.5.2_abcdefg</xmp:CreatorTool>
-  <xmp:ModifyDate>2025-01-04T17:07:27</xmp:ModifyDate>
- </rdf:Description>
-</rdf:RDF>
-</x:xmpmeta>
-<?xpacket end='r'?>
-*/
 			ti.addEntry(50827, 'BYTE', rawnamearr); /* Raw file name */
 			ti.addEntry(50728, 'RATIONAL', wb); /* As shot neutral */
 			/*  new:  */
