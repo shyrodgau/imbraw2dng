@@ -18080,8 +18080,8 @@ incdcp = true;
 /* ImBCBase: debug */
 debugflag = false;
 useraw = null;
-//imbweb = 'http://192.168.8.101:8080';
-imbweb = 'http://192.168.0.72:8080';
+imbweb = 'http://192.168.8.101:8080';
+//imbweb = 'http://192.168.0.72:8080';
 fromintent = false; // 1: normal 2: stack/fakelong (> 1 DNG, to raw phase)  3: backward (== 1 DNG)  4: to dng phase when stacking 
 
 constructor() {
@@ -18817,9 +18817,10 @@ handleone(orientation) {
 		ti.addEntry(305, 'ASCII', ImBCBase.progname + ' ' + globals.version); /* SW and version */
 		if (!this.#historystring?.length)
 			this.#historystring = rawname;
-		this.#historystring += (', ' + ImBCBase.progname + ' ' + globals.version);
+		let hxbytes = new TextEncoder().encode(this.#historystring);
 		// do UTF-8 bytes instead of ASCII if necessary
-		let hbytes = new TextEncoder().encode(this.#historystring);
+		this.#historystring += (',' + ImBCBase.progname + ' ' + ImBCBase.version);
+		const hbytes = new TextEncoder().encode(this.#historystring);
 		if (hbytes.length === this.#historystring.length)
 			ti.addEntry(37395, 'ASCII', this.#historystring); /* image history */
 		else
@@ -18863,10 +18864,6 @@ handleone(orientation) {
 			else
 				ti.addEntry(315, 'BYTE', bytes); /* artist */
 		}
-		ti.addEntry(50707, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Backward Version */
-		ti.addEntry(50717, 'LONG', [ (typ >= 5) ? (whitelvl > 0 ?  whitelvl : 4095) : 255 ]); /* White level */
-		if (typ === 5) ti.addEntry(50714, 'SHORT', [ 240, 240, 240, 240 ] ); /* Blacklevel */
-		if (typ === 5) ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
 		if (!this.neutral) {
 			const xmp1 = `<?xpacket begin='`;
 			const xmp2 = `' id='W5M0MpCehiHzreSzNTczkc9d'?><x:xmpmeta xmlns:x='adobe:ns:meta/'><rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'><rdf:Description rdf:about='' xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:xmp='http://ns.adobe.com/xap/1.0/'>`;
@@ -18883,6 +18880,8 @@ handleone(orientation) {
     			rightbytes = new TextEncoder().encode(this.copyright);
     			xmpx.push(`</rdf:li></rdf:Alt></dc:rights>`);
 			}
+			xmpx[xmpx.length-1] += `<dc:source>`;
+			xmpx.push(`</dc:source>`);
 			let swbytes = new TextEncoder().encode(ImBCBase.progname + ' ' + globals.version);
 			let datbytes = [];
 			xmpx[xmpx.length-1] += `<xmp:CreatorTool>`;
@@ -18893,7 +18892,7 @@ handleone(orientation) {
 				datbytes = new TextEncoder().encode(datestr.substring(0,4)+'-'+ datestr.substring(5,7)+'-'+datestr.substring(8,10)+'T'+datestr.substring(11));
 			}
 			xmpx[xmpx.length-1] += xmp3;
-			const xmprdf = new Uint8Array(artbytes.length + rightbytes.length + swbytes.length + datbytes.length + 3 + xmpx.reduce((sum, a) => (sum + new TextEncoder().encode(a).length), 0));
+			const xmprdf = new Uint8Array(artbytes.length + rightbytes.length + swbytes.length + hxbytes.length + datbytes.length + 3 + xmpx.reduce((sum, a) => (sum + new TextEncoder().encode(a).length), 0));
 			let o=0;
 			for (let c = 0; c < xmpx.length; c++) {
 				const et = new TextEncoder().encode(xmpx[c]);
@@ -18913,6 +18912,11 @@ handleone(orientation) {
 					xmprdf.set(rightbytes, o);
 					o += rightbytes.length;
 					rightbytes = undefined;
+				}
+				else if (hxbytes?.length) {
+					xmprdf.set(hxbytes, o);
+					o += hxbytes.length;
+					hxbytes = undefined;
 				}
 				else if (swbytes?.length) {
 					xmprdf.set(swbytes, o);
@@ -22894,7 +22898,7 @@ function init2() {
 /* *************************************** globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.9.2_@_d_e_v", // actually const // VERSION EYECATCHER
+version: "V5.9.3_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 texts: { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
