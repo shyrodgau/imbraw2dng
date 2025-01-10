@@ -738,7 +738,7 @@ add(data, name, cb) {
 class ImBCBase {
 static progname = '';
 /* Indentation out */
-static version = "V5.9.4_c5b172f"; // actually const // VERSION EYECATCHER
+static version = "V5.9.4_@_d_e_v"; // actually const // VERSION EYECATCHER
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -949,64 +949,6 @@ static texts = { // actually const
 			en: '<a href="https://github.com/shyrodgau/imbraw2dng/issues" target="_new">Report bugs</a>',
 			de: '<a href="https://github.com/shyrodgau/imbraw2dng/issues" target="_new">Fehler melden</a>',
 			ja: '<a href="https://github.com/shyrodgau/imbraw2dng/issues" target="_new">バグ報告</a>'
-		}
-	},
-	browser: {
-		bytype: {
-			de: 'nach Typ',
-			en: 'by type',
-			fr: 'par type',
-			ja: '種類別'
-		},
-		olderfirst: {
-			de: 'Ältere nach oben',
-			en: 'Older first',
-			fr: 'Plus anciens ci-dessus',
-			ja: '古い順'
-		},
-		selall: {
-			tooltip: {
-				de: 'Wenn Haken nicht gesetzt, wähle alles aus. Bei Klick wenn angehakt setze Auswahl auf Nichts.',
-				en: 'If not selected then select all. If it is selected and clicked then unselect all.',
-				fr: 'S\'il n\'est pas sélectionner, sélectionner tout. Au clic si sélectionné, vider la sélection',
-				ja: '選択されていない場合は、すべてを選択します。 選択してクリックした場合は、すべての選択を解除します。'
-			},
-			de: 'Alle de-/ oder selektieren',
-			en: 'De-/select all',
-			fr: 'De-/sélectionner tout',
-			ja: 'すべての選択を解除'
-		},
-		procall: {
-			de: 'Alle ausgewählte kopieren/verarbeiten',
-			en: 'Copy/process all selected',
-			fr: 'Traiter les sélectionnés',
-			ja: '選択したものをすべてコピー/処理'
-		},
-		delall: {
-			de: 'Alle ausgewählte löschen',
-			en: 'Delete all selected',
-			fr: 'Supprimer les sélectionnés',
-			ja: '選択したものをすべて削除'
-		},
-		settingsset: {
-			en: 'Preferences are set for source $$0',
-			de: 'Voreinstellungen für $$0 gespeichert',
-			ja: 'デフォルト設定は $$0 で保存されます'
-		},
-		prefnotfile: {
-			en: 'Preferences not possible for file:// URLs',
-			de: 'Voreinstellungen für file:// URLs nicht möglich',
-			ja: 'file:// URL でデフォルト設定はできません'
-		},
-		setfrom: {
-			en: 'Set new prefereneces ',
-			de: 'Voreinstellungen setzen ',
-			ja: 'デフォルトを設定する'
-		},
-		forurl: {
-			en: ' for URL $$0',
-			de: ' für URL $$0',
-			ja: 'URL $$0 の場合'
 		}
 	},
 	onimback: {
@@ -1256,88 +1198,6 @@ static texts = { // actually const
 			en: 'Found whitebalance $$0 / $$1 / $$2',
 			de: 'Weißabgleich $$0 / $$1 / $$2 gefunden',
 			ja: 'ホワイトバランス $$0 / $$1 / $$2 が見つかりました'
-		}
-	},
-	preview: {
-		err: {
-			de: 'Fehler bei Vorschau :-(',
-			en: 'Error with Preview :-(',
-			fr: 'Erreur dans l\'aperçu :-(',
-			ja: 'プレビューでのエラー :-('
-		},
-		rotcw: {
-			de: 'im Uhrzeigersinn drehen',
-			en: 'Rotate clockwise',
-			fr: 'tourner dans le sens des aiguilles d\'une montre',
-			ja: '時計回りに回転'
-		},
-		rotccw: {
-			de: 'gegen den Uhrzeigersinn drehen',
-			en: 'rotate counterclockwise',
-			fr: 'tourner dans le sens inverse des aiguilles d\'une montre',
-			ja: '反時計回りに回転'
-		},
-		rot180: {
-			de: 'auf den Kopf',
-			en: 'Rotate 180°',
-			fr: 'retourné',
-			ja: '180°回転'
-		},
-		rotreset: {
-			de: 'Drehung zurücksetzen',
-			en: 'Reset',
-			fr: 'Réinitialiser la rotation',
-			ja: 'リセット',
-			tooltip: {
-				de: 'Ursprüngliche Bildausrichtung wiederherstellen',
-				en: 'Reset original image orientation',
-				fr: 'Restaurer l\'orientation originale de l\'image',
-				ja: '元の画像の向きにリセット'
-			}
-		},
-		process: {
-			de: 'Kopieren/Konvertieren',
-			en: 'Copy/Convert',
-			fr: 'Copie/Convertir',
-			ja: '元の画像の向きにリセット'
-		},
-		skip: {
-			de: 'Überspringen',
-			en: 'Skip',
-			fr: 'Sauter',
-			ja: 'コピー/変換'
-		},
-		forall: {
-			de: 'Für alle weiteren das selbe',
-			en: 'Do this for all following',
-			fr: 'Faites ceci pour tous les suivants',
-			ja: '以下のすべてに対してこれを実行します'
-		},
-		orients: {
-			none: {
-				de: 'keine',
-				en: 'none',
-				fr: 'aucune',
-				ja: 'なし'
-			},
-			upsidedown: {
-				de: '180°',
-				en: '180°',
-				ja: '180°',
-				fr: '180°'
-			},
-			clockwise: {
-				de: 'im Uhrzeigersinn',
-				en: 'clockwise',
-				fr: 'dans le sens des aiguilles d\'une montre',
-				ja: '時計回り'
-			},
-			counterclockwise: {
-				de: 'gegen den Uhrzeigersinn',
-				en: 'counterclockwise',
-				fr: 'dans le sens inverse des aiguilles d\'une montre',
-				ja: '反時計回り'
-			}
 		}
 	},
 	raw: {

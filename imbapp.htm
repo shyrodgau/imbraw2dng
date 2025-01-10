@@ -578,6 +578,8 @@ body:has(dialog[open]), html:has(dialog[open]) {
 	text-shadow: 3px 3px rgba(255,255,255,0.6);
 }
 .lbtn { font-family:Symbol3; height:1.4em; font-size:200%; }
+.delsel.green { color: green /*#aaff88*/; }
+.delsel.blue { color: #333399; }
 </style>
 <!-- javascript code CURRENTLY NOT identical to imbraw2dng.js  for the classes IFDOut, TIFFOut, ZIPHelp, ImBCBase, ImBCBackw. -->
 <script type="text/javascript" language="javascript">
@@ -22457,7 +22459,7 @@ appinfo() {
 	document.getElementById('genericok').style['border-color'] = 'grey';
 	document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('main.apptitle'));
 	document.getElementById('okmsg').innerHTML += '<br>';
-	document.getElementById('okmsg').innerHTML += globals.version;
+	document.getElementById('okmsg').innerHTML += `<a href="#" onclick="window.open('https://github.com/shyrodgau/imbraw2dng/releases', '_system'); return false;">` + globals.version + '</a>';
 	if (this.connvers) {
 		document.getElementById('okmsg').innerHTML += ('<br>ImB: ' + this.connvers);
 		const s = document.createElement('span');
@@ -22694,7 +22696,7 @@ window.addEventListener('pageshow', function (event) {
 /* *************************************** globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.9.4_c5b172f", // actually const // VERSION EYECATCHER
+version: "V5.9.4_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 texts: { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -23046,6 +23048,12 @@ texts: { // actually const
 		},
 	},
 	process: {
+		renamed: {
+			en: '(renamed)',
+			de: '(umbenannt)',
+			fr: '(renomee)',
+			ja: '(リネーム)'
+		},
 		singlestep: {
 			de: 'Einzelschritt mit Vorschau',
 			en: 'Single Step with preview',
@@ -23357,186 +23365,6 @@ texts: { // actually const
 			en: 'Please reload page.',
 			fr: 'Veuillez recharger la page.',
 			ja: 'ページをリロードしてください。'
-		}
-	},
-	node: {
-	    backw: {
-			   help: {
-					   en: [ 'Welcome to imbdng2raw $$0 (BACKWARD!) !', 'Usage: node $$0 [-l lang] [-d dir] [ [--] <files>* ]',
-					   'Options:',
-					   ' -h - show this help',
-					   ' -l XX - where XX is a valid language code (currently: DE, EN, FR, JA)',
-					   '         Language can also be set by changing filename to imbdng2raw_XX.js .',
-					   ' -d dir - put output files into dir',
-					   ' -----',
-					   ' -- - treat rest of parameters as local files or dirs',
-					   ' <files> - process local files' ],
-					   de: [ 'Willkommen bei imbdng2raw $$0 (RÜCKWÄRTS!) !', 'Aufruf: node $$0 [-l sprache] [-d ordner] [ [--] <dateien>* ]',
-					   'Optionen:',
-						' -h - diesen Hilfetext zeigen',
-						' -l XX - wo XX ein gültiger Sprachcode ist (derzeit: DE, EN, FR, JA)',
-						'         Die Sprache kann auch durch Umbenennen in imbdng2raw_XX.js geändert werden.',
-						' -d ordner - Ausgabedateien in diesen Ordner ablegen',
-						' -----',
-						' -- - weitere Parameter als lokale Dateien oder Ordner betrachten',
-					   ' <dateien> - lokale Dateien verarbeiten', ],
-						ja: [ 'imbdng2raw $$0 (戻る!) へようこそ!', '使い方：  node $$0 [-l lang] [-d dir] [ [--] <files>* ]', 'オプション:',
-							' -h - このヘルプを表示します',
-							' -l XX - XX は有効な言語コードです (現在: DE、EN、FR、JA)',
-							'         ファイル名を imbdng2raw_XX.js に変更することで言語を設定することもできます。',
-							' -d dir - 出力ファイルを dir に置きます',
-							' -----',
-							' -- - 残りのパラメータをローカル ファイルまたはディレクトリとして扱います',
-							' <files> - ローカル ファイルを処理します*'
-						],
-			   }
-	    },
-		help: {
-			en: [ `\u001b[1mWelcome to imbraw2dng\u001b[0m $$0 !`, `Usage: node $$0 \u001b[1m[\u001b[0m-l lang\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-d dir\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-owb\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-ndcp\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr copyright\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n yyyy_mm_dd-hh_mm_ss\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \
-\u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mfiles-or-dirs\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m`,
-				'Options:',
-				' \u001b[1m-h\u001b[0m - show this help',
-				' \u001b[1m-nc\u001b[0m - do not use coloured text',
-				' \u001b[1m-co\u001b[0m - force coloured text',
-				' \u001b[1m-l XX\u001b[0m - where XX is a valid language code (currently: DE, EN, FR, JA)',
-				'         Language can also be set by changing filename to imbraw2dng_XX.js .',
-				' \u001b[1m-d dir\u001b[0m - put output files into dir',
-				' \u001b[1m-f\u001b[0m - overwrite existing files',
-				' \u001b[1m-r\u001b[0m - rename output file, if already exists',
-				' \u001b[1m-np\u001b[0m - Do not add preview thumbnail to DNG',
-				' \u001b[1m-owb\u001b[0m - Use old style constant white balance',
-				' \u001b[1m-ndcp\u001b[0m - Do not include new DNG Camera profile',
-				' \u001b[1m-cr \'copyright...\'\u001b[0m - add copyright to DNG',
-				' \u001b[1m-fla\u001b[0m, \u001b[1m-flx\u001b[0m - add multiple images to fake long exposure, flx scales down',
-				' \u001b[1m-R\u001b[0m - get RAW from ImB connected via Wifi or from given directories',
-				' \u001b[1m-J\u001b[0m - get JPEG from ImB connected via Wifi or from given directories',
-				' \u001b[1m-O\u001b[0m - get non-RAW/non-JPEG from ImB connected via Wifi or from given directories',
-				' \u001b[1m-n yyyy_mm_dd-hh_mm_ss\u001b[0m (or prefix of any length) - select only newer than this timestamp from ImB or from given directories',
-				' -----',
-				' \u001b[1m--\u001b[0m - treat rest of parameters as local files or dirs',
-				' <files-or-dirs> - process local files or directories recursively, e.g. on MicroSD from ImB',],
-			fr: [ `\u001b[1mBienvenu a imbraw2dng\u001b[0m $$0 !`, `Operation: node $$0 \u001b[1m[\u001b[0m-l lang\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-d repertoire\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-owb\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-ndcp\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr copyright\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n yyyy_mm_dd-hh_mm_ss\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \
-\u001b[1m[\u001b[0m \u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mfiches-ou-repertoires\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m`,
-				'Choix:',
-				' \u001b[1m-h\u001b[0m - montrer cette aide',
-				' \u001b[1m-nc\u001b[0m - n\'utilisez pas de texte en couleur',
-				' \u001b[1m-co\u001b[0m - utilisez de texte en couleur',
-				' \u001b[1m-l XX\u001b[0m - quand XX est une code du langue valide (actuellement: DE, EN, FR, JA)',
-				'         La langue peut également être définie en changeant le nom du fiche en imbraw2dng_XX.js .',
-				' \u001b[1m-d repertoire\u001b[0m - mettre les fiches de sortie dans le répertoire',
-				' \u001b[1m-f\u001b[0m - écraser les fiches existants',
-				' \u001b[1m-r\u001b[0m - quand fiche existe, renommer le résultat',
-				' \u001b[1m-np\u001b[0m - Pas petite image d\'aperçu en DNG',
-				' \u001b[1m-np\u001b[0m - Do not add preview thumbnail to DNG',
-				' \u001b[1m-owb\u001b[0m - Use old style constant white balance',
-				' \u001b[1m-cr \'copyright...\'\u001b[0m - add copyright to DNG',
-				' \u001b[1m-fla\u001b[0m, \u001b[1m-flx\u001b[0m - add multiple images to fake long exposure, flx scales down',
-				' \u001b[1m-R\u001b[0m - obtenez RAW d\'ImB connecté via Wifi ou repertoires donnés',
-				' \u001b[1m-J\u001b[0m - obtenez JPEG d\'ImB connecté via Wifi ou repertoires donnés',
-				' \u001b[1m-O\u001b[0m - obtenez du non-RAW/non-JPEG d\'ImB connecté via Wifi ou repertoires donnés',
-				' \u001b[1m-n yyyy_mm_dd-hh_mm_ss\u001b[0m (ou préfixe de n\'importe quelle longueur) - sélectionnez uniquement plus récent que cet horodatage d\'ImB ou repertoires donnés',
-				' -----',
-				' \u001b[1m--\u001b[0m - traiter le reste des paramètres comme des fiches ou des répertoires locaux',
-				' <fiches-ou-repertoires> - traiter des fiches ou des répertoires locaux de manière récursive, par exemple sur MicroSD d\'ImB',],
-			de: [ `\u001b[1mWillkommen bei imbraw2dng\u001b[0m $$0 !`, `Aufruf: node $$0 \u001b[1m[\u001b[0m-l sprache\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-d ordner\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-owb\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-ndcp\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr copyright\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n yyyy_mm_dd-hh_mm_ss\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \
-\u001b[1m[\u001b[0m \u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mdateien-oder-ordner\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m`,
-				'Optionen:',
-				' \u001b[1m-h\u001b[0m - diesen Hilfetext zeigen',
-				' \u001b[1m-nc\u001b[0m - keinen farbigen Text zeigen',
-				' \u001b[1m-co\u001b[0m - farbigen Text zeigen',
-				' \u001b[1m-l XX\u001b[0m - wo XX ein gültiger Sprachcode ist (derzeit: DE, EN, FR, JA)',
-				'         Die Sprache kann auch durch Umbenennen in imbraw2dng_XX.js geändert werden.',
-				' \u001b[1m-d ordner\u001b[0m - Ausgabedateien in diesen Ordner ablegen',
-				' \u001b[1m-f\u001b[0m - existierende Dateien überschreiben',
-				' \u001b[1m-r\u001b[0m - Ausgabedatei umbenennen, falls schon existiert',
-				' \u001b[1m-np\u001b[0m - Kein kleines Vorschaubild im DNG',
-				' \u001b[1m-owb\u001b[0m - Alten konstanten Weißabgleich verwenden',
-				' \u001b[1m-ndcp\u001b[0m - neues DCP Profil nicht einbetten',
-				' \u001b[1m-cr \'copyright...\'\u001b[0m - copyright dem DNG hinzufügen',
-				' \u001b[1m-fla\u001b[0m, \u001b[1m-flx\u001b[0m - mehrere Bilder als Langzeitbelichtung aufaddieren, flx skaliert dabei herunter',
-				' \u001b[1m-R\u001b[0m - RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen konvertieren',
-				' \u001b[1m-J\u001b[0m - JPEG von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren',
-				' \u001b[1m-O\u001b[0m - Nicht-JPEG/Nicht-RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren',
-				' \u001b[1m-n yyyy_mm_dd-hh_mm_ss\u001b[0m (oder beliebig langer Anfang davon) - nur Dateien neuer als dieser Zeitstempel von ImB oder übergebenen Verzeichnissen holen',
-				' -----',
-				' \u001b[1m--\u001b[0m - weitere Parameter als lokale Dateien oder Ordner betrachten',
-				' <dateien-oder-ordner> - lokale Dateien oder Ordner rekursiv (z.B. von der MicroSD Karte aus ImB) verarbeiten',],
-			ja: [
-				`\u001b[1mimbraw2dng へようこそ\u001b[0m $$0 !`, `使い方： node $$0 \u001b[1m[\u001b[0m-l lang\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-d dir\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-owb\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-ndcp\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr copyright\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n yyyy_mm_dd-hh_mm_ss\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \
-\u001b[1m[\u001b[0m \u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mfiles-or-dirs\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m`,
-				'オプション:',
-				'\u001b[1m-h\u001b[0m - このヘルプを表示する',
-				' \u001b[1m-nc\u001b[0m - 色付きのテキストを使用しない',
-				' \u001b[1m-co\u001b[0m - 色付きのテキストを強制',
-				' \u001b[1m-l XX\u001b[0m - ここで、XX は有効な言語コードです (現在: DE、EN、FR、JA)',
-				'         ファイル名を imbraw2dng_XX.js に変更することで言語を設定することもできます。',
-				' \u001b[1m-d dir\u001b[0m - 出力ファイルを dir に置く',
-				' \u001b[1m-f\u001b[0m - 現在のファイルを上書きする',
-				' \u001b[1m-r\u001b[0m - rename output file, if already exists',
-				' \u001b[1m-np\u001b[0m - Do not add preview thumbnail to DNG',
-				' \u001b[1m-np\u001b[0m - Do not add preview thumbnail to DNG',
-				' \u001b[1m-owb\u001b[0m - Use old style constant white balance',
-				' \u001b[1m-cr \'copyright...\'\u001b[0m - add copyright to DNG',
-				' \u001b[1m-fla\u001b[0m, \u001b[1m-flx\u001b[0m - add multiple images to fake long exposure, flx scales down',
-				' \u001b[1m-R\u001b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリからRAWを取得する',
-				' \u001b[1m-J\u001b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリからJPEGを取得する',
-				' \u001b[1m-O\u001b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリから非RAW/非JPEGを取得する',
-				' \u001b[1m-n yyyy_mmdd_hhmmss\u001b[0m (または任意の長さのプレフィックス) - ImB からこのタイムスタンプより新しいもののみを選択する',
-				' -----',
-				' \u001b[1m--\u001b[0m - 残りのパラメータをローカル ファイルまたはディレクトリとして扱う',
-				'<files-or-dirs> と -R/-J/-O/-n は同時に使用できません。'
-				]
-		},
-		unkopt: {
-			en: '\u001b[31mUnknown Option:\u001b[0m $$0',
-			de: '\u001b[31mUnbekannte Option:\u001b[0m $$0',
-			fr: '\u001b[31mOption inconnue:\u001b[0m $$0',
-			ja: '\u001b[31m最後のパラメータの値が欠落しています。\u001b[0m'
-		},
-		missingval: {
-			en: '\u001b[31mMissing value for last parameter.\u001b[0m',
-			de: '\u001b[31mFehlender Wert für letzten Parameter.\u001b[0m',
-			fr: '\u001b[31mValeur manquante pour le dernier paramètre.\u001b[0m',
-			ja: '\u001b[31m最後のパラメータの値が欠落しています。\u001b[0m'
-		},
-		fnwarn: {
-			en: '\u001b[31mWarning:\u001b[0m $$0 looks like a timestamp, did you forget \u001b[1m-n\u001b[0m or \u001b[1m--\u001b[0m in front of it?',
-			de: '\u001b[31mWarnung:\u001b[0m $$0 sieht wie ein Zeitstempel aus, vielleicht \u001b[1m-n\u001b[0m oder \u001b[1m--\u001b[0m davor vergessen?',
-			fr: '\u001b[31mAvertissement:\u001b[0m $$0 ressemble à un horodatage, oubliée \u001b[1m-n\u001b[0m ou \u001b[1m--\u001b[0m?',
-			ja: '\u001b[31m警告:\u001b[0m $$0 lタイムスタンプのようですが、 \u001b[1m-n\u001b[0m または \u001b[1m--\u001b[0m 手前にあるのを忘れましたか?'
-		},
-		renamed: {
-			en: '(renamed)',
-			de: '(umbenannt)',
-			fr: '(renomee)',
-			ja: '(リネーム)'
-		},
-		readconfig: {
-			en: '\u001b[2mConfig file $$0 read.\u001b[0m',
-			de: '\u001b[2mKonfigurationsdatei $$0 eingelesen.\u001b[0m',
-			ja: '\u001b[[2m構成ファイル $$0 が読み込まれます。\u001b[[0m'
-		},
-		noconfig: {
-			de: '\u001b[2mKeine json Konfigurationsdatei gefunden, gesucht: $$0\u001b[0m',
-			en: '\u001b[2mNo json config file found, searched: $$0\u001b[0m',
-			ja: '\u001b[2mNo json 構成ファイルが見つかりません、検索: $$0\u001b[0m'
-		},
-		newmsg: {
-			en: 'Report Bugs: https://github.com/shyrodgau/imbraw2dng/issues',
-			de: 'Fehler melden: https://github.com/shyrodgau/imbraw2dng/issues',
-			ja: 'バグ報告: https://github.com/shyrodgau/imbraw2dng/issues'
 		}
 	},
 	app: {
@@ -26221,7 +26049,7 @@ function readjpg(file) {
 <div><input type="checkbox" id="autotime" onchange="imbc.dirtysettings()"> <label for="autotime" data-myxlkey="app.autotime"> </label></div>
 <div><span data-myxlkey="app.onexit"></span> <select id="exitsel" onchange="imbc.chgexit();"><option value="photo" data-myxlkey="app.exitphoto"> </option><option value="movie" data-myxlkey="app.exitmovie"> </option><option value="browse" data-myxlkey="app.exitbrowse"> </option></select></div>
 <div><span data-myxlkey="app.lang"></span> <select id="langsel" onchange="imbc.setlang()"><option value="99" onclick="imbc.setlang()">ImB</option><option value="de" onclick="imbc.setlang()">DE</option><option value="en" selected onclick="imbc.setlang()">EN</option>
-<option value="ja" onclick="imbc.setlang()">JA</option><option value="fr" onclick="imbc.setlang()">FR</option><!--option value="ru" onclick="imbc.setlang()">RU</option--></select></div>
+<option value="ja" onclick="imbc.setlang()">JA</option><!--option value="fr" onclick="imbc.setlang()">FR</option><option value="ru" onclick="imbc.setlang()">RU</option--></select></div>
 </div>
 </div>
 <div id="imbsett" class="gg ggopen">
@@ -26349,7 +26177,7 @@ function readjpg(file) {
 <input type="checkbox" id="solder" onclick="imbc.buildtree()"><span data-myxlkey="browser.olderfirst"></span></label> -
  <span id="brnsel" class="selnumber">?</span> / <span id="brntot">?</span> <label for="selall" data-mytitlexlkey="browser.selall.tooltip">
  <input onclick="imbc.topreccheck()" type="checkbox" id="selall"><!--span data-myxlkey="browser.selall"></span--></label><!-- - --> 
-&nbsp;<div style="display:inline-block;height:1.2em;background-color:#888888; font-family:Symbol3;text-shadow: 1px 1px white;border:0;border-radius:4px;cursor:pointer;font-weight:bold;" onclick="imbc.deselcop();"><span style="color:green;font-size:75%;"> &#x1f6c7;</span><span style="color:green;"> &#x2713; </span></div>
+&nbsp;<div style="display:inline-block;height:1.1em;line-height:1.5em;background-color:#888888; font-family:Symbol3;text-shadow: 1px 1px white;border:0;border-radius:4px;cursor:pointer;font-weight:bold;" class="delsel green" onclick="imbc.deselcop();" disabled><span style="font-size:85%;"> &#x1f6c7;</span><span> &#x2713; </span></div>
 </div>
  <div id="nobrowse">&nbsp;</div>
 </div>
