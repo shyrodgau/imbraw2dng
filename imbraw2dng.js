@@ -53,7 +53,7 @@ The following js code is identical to the js inside imbraw2dng.html for the clas
 
 ***************************************************** 
 
-Copyright (C) 2023,2024 by Stefan Hegny, stefan@hegny.de
+Copyright (C) 2023,2024,2025 by Stefan Hegny, stefan@hegny.de
 
 Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted.
 
@@ -738,7 +738,7 @@ add(data, name, cb) {
 class ImBCBase {
 static progname = '';
 /* Indentation out */
-static version = "V5.9.5_66b964b"; // actually const // VERSION EYECATCHER
+static version = "V5.9.5_@_d_e_v"; // actually const // VERSION EYECATCHER
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -18770,9 +18770,9 @@ static nametotime(name, corrdelta=0) {
 		let nn = Number.parseInt(res[13]);
 		let newname = name;
 		let datestr = "" + yr + "-" + ((mon < 10) ? "0":"") + mon + "-" + ((day < 10) ? "0":"") + day + "T"+
-			((hr < 10) ? "0":"") + hr + ":" + ((min < 10) ? "0":"") + min + ":" + ((sec < 10) ? "0":"") + sec;
+			((hr < 10) ? "0":"") + hr + ":" + ((min < 10) ? "0":"") + min + ":" + ((sec < 10) ? "0":"") + sec + 'Z';
 		if (corrdelta !== 0) {
-			let nd = new Date(new Date(datestr).valueOf() + corrdelta - (60000*new Date().getTimezoneOffset())).toISOString();
+			let nd = new Date(new Date(datestr).valueOf() + corrdelta).toISOString();
 			yr = Number.parseInt(nd.substring(0,4));
 			mon = Number.parseInt(nd.substring(5,7));
 			day = Number.parseInt(nd.substring(8,10));
@@ -18838,6 +18838,8 @@ handleone(orientation) {
 		};
 	}
 	let rawname = ImBCBase.basename(f.name);
+	let { date, datestr, nn, newname } = ImBCBase.nametotime(rawname, this.corrdelta);
+	if (this.corrdelta && newname?.length) rawname = newname;
 	if (rawname.substring(rawname.length - 4).toUpperCase() !== '.RAW') {
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
@@ -18906,8 +18908,6 @@ handleone(orientation) {
 		typ = ImBCBase.infos[zz].typ;
 	}
 	let dateok = false;
-	let { date, datestr, nn, newname } = ImBCBase.nametotime(rawname, this.corrdelta);
-	if (this.corrdelta && this.corrdelta > 0 && newname?.length) rawname = newname;
 	const rawnamearr = new TextEncoder().encode(rawname);
 	if (date && datestr) dateok = true;
 	else datestr = '';
@@ -19123,7 +19123,7 @@ handleone(orientation) {
 			// do we have exifdata ?
 			let odate = date, onn = nn, cand=[];
 			for (const e of this.#exififds) {
-				let { date, nn } = ImBCBase.nametotime(e.name, this.corrdelta);
+				let { date, nn } = ImBCBase.nametotime(e.name);
 				if (date) {
 					//console.log('DGT ' + date.getTime() + ' OGT ' + odate.getTime() + ' nn ' + nn + ' onn ' + onn);
 					if (Math.abs(date.getTime() - odate.getTime()) < 5000 && Math.abs(nn -onn) < 2) {
@@ -19960,6 +19960,7 @@ withcolours = true;
 ovwout = false;
 typeflags = 0;
 fromts = '0000';
+// time adjustment
 corrdelta = 0;
 exitcode = 0;
 ptypeflags = 0; // from preferences

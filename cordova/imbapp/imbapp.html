@@ -18,7 +18,7 @@ Usage: open in browser and select RAW
 
 ***************************************************** 
 
-Copyright (C) 2023,2024 by Stefan Hegny, stefan@hegny.de
+Copyright (C) 2023,2024,2025 by Stefan Hegny, stefan@hegny.de
 
 The following copyright applies to the code inside this file with the exception of the Symbol3 font which is an excerpt from
 NotoSansSymbols2-Regular (https://fonts.google.com/noto/specimen/Noto+Sans+Symbols+2) which is licensed under the
@@ -451,8 +451,9 @@ body { margin: 0; }
 .dlbtn.biggiebtn { left: .1em; margin-top: -0em; }
 .biggiebtn.disabled { display: none; }
 .biggiebtn.rotbtn, .biggiebtn.rotbtnr { margin-top: -0em; font-family:Symbol3;}
-.biggiebtn.magbtn, .biggiebtn.trashbin { margin-top: 0.1em; font-family:Symbol3;}
+.biggiebtn.magbtn, .biggiebtn.trashbin, .biggiebtn.timebtn { margin-top: 0.1em; font-family:Symbol3;}
 .biggiebtn.rotbtnr { margin-top: -0em; font-family:Symbol3; text-shadow: -0.1em 0.07em white !important;}
+.biggiebtn.timetxt:disabled { background-color:#446688; color:black !important; cursor:auto; }
 .dlbtn:not(.biggiebtn) { vertical-align: bottom; font-weight: bold; }
 .igtype { display: flex; flex-flow: wrap;border-top: 0; padding:0.1em; min-height:9em; }
 .onepic { margin: -1px; width: fit-content; display: flex; flex-direction: column; padding: 0.1em;position: relative; }
@@ -507,6 +508,18 @@ div[data-state='load'] .btnsrow, div[data-state='wait'] .btnsrow, div[data-state
 	padding-left: 0.1em;
 	padding-top: 0.1em;
 	pointer-events:none;
+}
+.syncpic:before {
+	content: '\23f1';
+	position: absolute;
+	font-size: 40px;
+	z-index: 99;
+	color: rgba(255,0,0,0.6);
+	text-shadow: 3px 1px white;
+	padding-left: 0.1em;
+	padding-top: 0.5em;
+	pointer-events:none;
+	font-weight:bold;
 }
 #photosett, #videosett {
 	background-color: #aaaaaa;
@@ -1007,171 +1020,6 @@ static readinta(arr, off) {
 /* Indentation in - end of class TIFFOut */
 }
 /* *************************************** TIFFOut E N D *************************************** */
-/* *************************************** ZIP Helper class *************************************** */
-class ZIPHelp {
-/* Indentation out */
-#lochdrs = [];
-#loclens = [];
-#writecb = null;
-#finishoff = 0;
-#sizecent = 0;
-static crcTable = [];
-/* ZIPHelp: constructor */
-constructor(writecb) {
-	this.#writecb = writecb;
-}
-/* ZIPHelp: make dos date */
-static makeDosDate(yr, mon, day, hr, min, sec)
-{
-    if (yr>1980)
-        yr-=1980;
-    else if (yr>80)
-        yr-=80;
-    return (((day + (32 * mon) + (512 * yr)) * 65536) |
-		((sec/2) + (32* min) + (2048 * hr)));
-}
-/* ZIPHelp: dos date from filename */
-static datefromfile(name) {
-	let { yr, mon, day, hr, min, sec } = ImBCBase.nametotime(name);
-	if (yr) {
-		return ZIPHelp.makeDosDate(yr, mon, day, hr, min, sec);
-	} else {
-		let r = ImBCBase.nametotime(new Date(Date.now()).toISOString());
-		return ZIPHelp.makeDosDate(r.yr, r.mon, r.day, r.hr, r.min, r.sec);
-	}
-}
-/* ZIPHelp: crc32 stuff */
-static makeCRCTable(){
-    var c;
-    for(var n =0; n < 256; n++){
-        c = n;
-        for(var k =0; k < 8; k++){
-            c = ((c&1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1));
-        }
-        ZIPHelp.crcTable[n] = c;
-    }
-}
-/* ZIPHelp: crc32 stuff */
-static crc32(arr) {
-	if (ZIPHelp.crcTable.length === 0) ZIPHelp.makeCRCTable();
-    var crc = 0 ^ (-1);
-
-    for (var i = 0; i < arr.length; i++ ) {
-        crc = (crc >>> 8) ^ ZIPHelp.crcTable[(crc ^ arr[i]) & 0xFF];
-    }
-
-    return (crc ^ (-1)) >>> 0;
-};
-/* ZIPHelp: crc32 stuff */
-static crc32str(str) {
-	if (ZIPHelp.crcTable.length === 0) ZIPHelp.makeCRCTable();
-    var crc = 0 ^ (-1);
-
-    for (var i = 0; i < str.length; i++ ) {
-        crc = (crc >>> 8) ^ ZIPHelp.crcTable[(crc ^ str.codePointAt(i)) & 0xFF];
-    }
-
-    return (crc ^ (-1)) >>> 0;
-};
-/* ZIPHelp: finish zip with centraldirs and endcentral */
-finish(cb, i) {
-	if (i === undefined) i=0;
-	if (i < this.#lochdrs.length) {
-		let j = this.#lochdrs[i];
-		let ch = new Uint8Array(46);
-		ch[0] = 0x50; // P
-		ch[1] = 0x4B; // K
-		ch[2] = 0x1; // magic
-		ch[3] = 0x2;
-		ch[4] = 0x0; // version made
-		ch[5] = 0x0;
-		ch[6] = 0x14; // version extract
-		ch[7] = 0x0;
-		ch[8] = 0x0; // gp bitflags
-		ch[9] = 0x8;
-		ch[10] = 0x0; // compr
-		ch[11] = 0x0;
-		let dosdate = j.dosdate;
-		TIFFOut.writeinttoout(ch, dosdate, 12);
-		let crc = j.crc;
-		TIFFOut.writeinttoout(ch, crc, 16);
-		let dl = j.dl; // compr. length
-		TIFFOut.writeinttoout(ch, dl, 20);
-		// uncompr. size is same
-		TIFFOut.writeinttoout(ch, dl, 24);
-		let fl = j.fl; // name length
-		TIFFOut.writeshorttoout(ch, fl, 28);
-		TIFFOut.writeinttoout(ch, 0, 30);
-		//ch[30] = 0; // extra length
-		//ch[32] = 0x0; // comment length
-		TIFFOut.writeinttoout(ch, 0, 34);
-		//ch[34] = 0x0; // disk no
-		//ch[36] = 0x0; // int attr
-		TIFFOut.writeinttoout(ch, 0, 38); // ext attr
-		TIFFOut.writeinttoout(ch, this.#finishoff, 42);
-		this.#sizecent += (46 + j.fl);
-		this.#finishoff += this.#loclens[i];
-		this.#writecb(ch, () => {
-			this.#writecb(j.name, () => { this.finish(cb, i+1); });
-		});
-		return;
-	}
-	// end of central
-	let ec = new Uint8Array(22);
-	ec[0] = 0x50; // P
-	ec[1] = 0x4B; // K
-	ec[2] = 0x5; // magic
-	ec[3] = 0x6;
-	ec[4] = 0x0; // disk no
-	ec[5] = 0x0;
-	ec[6] = 0x0; // startdisk
-	ec[7] = 0x0;
-	TIFFOut.writeshorttoout(ec, i, 8); // num entries
-	TIFFOut.writeshorttoout(ec, i, 10); // num entries
-	TIFFOut.writeinttoout(ec, this.#sizecent, 12); // size of cent.dir
-	TIFFOut.writeinttoout(ec, this.#finishoff, 16); // start of cent.dir
-	ec[20] = 0; // comment length
-	ec[21] = 0;
-	this.#writecb(ec, () => { cb(); });
-}
-/* ZIPHelp: add a file */
-add(data, name, cb) {
-	let narr = new TextEncoder().encode(name);
-	// output local header
-	let lh = new Uint8Array(30);
-	lh[0] = 0x50; // P
-	lh[1] = 0x4B; // K
-	lh[2] = 0x3; // magic
-	lh[3] = 0x4;
-	lh[4] = 0x14; // version 20
-	lh[5] = 0x0;
-	lh[6] = 0x0; // gp bitflags
-	lh[7] = 0x8;
-	lh[8] = 0x0; // compression
-	lh[9] = 0x0;
-	let dosdate = ZIPHelp.datefromfile(name);
-	TIFFOut.writeinttoout(lh, dosdate, 10);
-	let crc = ZIPHelp.crc32(data);
-	TIFFOut.writeinttoout(lh, crc, 14);
-	let dl = data.length;
-	TIFFOut.writeinttoout(lh, dl, 18);  // compr. length
-	// uncompr. size is same
-	TIFFOut.writeinttoout(lh, dl, 22);
-	let fl = narr.length;
-	TIFFOut.writeshorttoout(lh, fl, 26); // name length
-	lh[28] = 0; // extra length
-	lh[29] = 0;
-	this.#lochdrs.push( { name: narr, dosdate: dosdate, crc: crc, dl: dl, fl: fl } );
-	this.#loclens.push( 30+fl+dl );
-	this.#writecb(lh, () => {
-		this.#writecb(narr, () => {
-			this.#writecb(data, () => { cb(); });
-		})
-	});
-}
-/* Indentation in - end of class ZIPHelp */
-}
-/* *************************************** ZIP Helper class E N D *************************************** */
 /* *************************************** Main class *************************************** */
 class ImBCBase {
 static progname = '';
@@ -18468,20 +18316,35 @@ xexif(name, view) {
 	this.#exififds.push( { name: name, data: na } );
 }
 /* ImBCBase: time values from filename */
-static nametotime(name) {
+static nametotime(name, corrdelta=0) {
 	let res = globals.fnregexx.exec(name);
 	if (res !== null) {
-		const yr = Number.parseInt(res[1]);
-		const mon = Number.parseInt(res[3]);
-		const day = Number.parseInt(res[5]);
-		const hr = Number.parseInt(res[7]);
-		const min = Number.parseInt(res[9]);
-		const sec = Number.parseInt(res[11]);
-		const nn = Number.parseInt(res[13]);
-		const dd = new Date(yr, mon -1, day, hr, min, sec);
-		const datestr = "" + yr + ":" + ((mon < 10) ? "0":"") + mon + ":" + ((day < 10) ? "0":"") + day + " "+
+		let yr = Number.parseInt(res[1]);
+		let mon = Number.parseInt(res[3]);
+		let day = Number.parseInt(res[5]);
+		let hr = Number.parseInt(res[7]);
+		let min = Number.parseInt(res[9]);
+		let sec = Number.parseInt(res[11]);
+		let nn = Number.parseInt(res[13]);
+		let newname = name;
+		let datestr = "" + yr + "-" + ((mon < 10) ? "0":"") + mon + "-" + ((day < 10) ? "0":"") + day + "T"+
 			((hr < 10) ? "0":"") + hr + ":" + ((min < 10) ? "0":"") + min + ":" + ((sec < 10) ? "0":"") + sec;
-		return { date: dd, datestr: datestr, nn: nn, yr: yr, mon: mon, day: day, hr: hr, min: min, sec: sec }
+		if (corrdelta !== 0) {
+			let nd = new Date(new Date(datestr).valueOf() + corrdelta - (60000*new Date().getTimezoneOffset())).toISOString();
+			yr = Number.parseInt(nd.substring(0,4));
+			mon = Number.parseInt(nd.substring(5,7));
+			day = Number.parseInt(nd.substring(8,10));
+			hr = Number.parseInt(nd.substring(11,13));
+			min = Number.parseInt(nd.substring(14,16));
+			sec = Number.parseInt(nd.substring(17));
+			newname = yr + res[2] + ((mon < 10) ? "0":"") + mon + res[4] + ((day < 10) ? "0":"") + day + res[6]+
+				((hr < 10) ? "0":"") + hr + res[8] + ((min < 10) ? "0":"") + min + res[10] + ((sec < 10) ? "0":"") + sec + '_' + ((nn < 100) ? "0":"") + ((nn < 10) ? "0":"") + nn;
+			if (name.indexOf('.') !== -1) newname += name.substring(name.indexOf('.'));
+		}
+		const dd = new Date(yr, mon -1, day, hr, min, sec);
+		datestr = "" + yr + ":" + ((mon < 10) ? "0":"") + mon + ":" + ((day < 10) ? "0":"") + day + " "+
+			((hr < 10) ? "0":"") + hr + ":" + ((min < 10) ? "0":"") + min + ":" + ((sec < 10) ? "0":"") + sec;
+		return { date: dd, datestr: datestr, nn: nn, yr: yr, mon: mon, day: day, hr: hr, min: min, sec: sec, newname: newname }
 	}
 	else return {};
 }
@@ -18534,6 +18397,8 @@ handleone(orientation) {
 		};
 	}
 	let rawname = ImBCBase.basename(f.name);
+	let { date, datestr, nn, newname } = ImBCBase.nametotime(rawname, this.corrdelta);
+	if (this.corrdelta && newname?.length) rawname = newname;
 	if (rawname.substring(rawname.length - 4).toUpperCase() !== '.RAW') {
 		if (f.imbackextension && rawname.substring(rawname.length - 4).toUpperCase() !== '.JPG') {
 			this.mappx(0, 'process.notraw',rawname);
@@ -18610,14 +18475,8 @@ handleone(orientation) {
 		this.rotphase ++;
 		document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ' + this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
 	}
-	const rawnamearr = new TextEncoder().encode(rawname);
 	let dateok = false;
-	/*// date?
-	if (undefined !== f.datestr) {
-		datestr = f.datestr;
-		dateok = true;
-	}*/
-	let { date, datestr, nn } = ImBCBase.nametotime(rawname);
+	const rawnamearr = new TextEncoder().encode(rawname);
 	if (date && datestr) dateok = true;
 	else datestr = '';
 	let whitelvl = 255;
@@ -19018,26 +18877,7 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 }
 /* ImBCBase: wrapper for zip output */
 writewrap(name, type, okmsg, arr1, origname) {
-	/*if (this.zip) {
-		this.zip.add(arr1, name, () => {
-			this.mappx(true, okmsg, name);
-			if (this.zipdata && this.zipdata.length > ImBCHtml.zipmax) {
-				this.zip.finish(() => {
-					let o = new Uint8Array(this.zipdata.length);
-					for (let p=0; p<this.zipdata.length; p++) o[p] = this.zipdata[p];
-					this.writefile('imbapp_' + ('' + Date.now()).substring(3,10) + '_out.zip', 'application/zip', 'process.copyokcheckdl', o, origname);
-					this.zipdata = [];
-					this.zip = new ZIPHelp((data, cb) => {
-						for (let l=0; l<data.length; l++) this.zipdata.push(data[l]);
-						cb();
-						this.writepostok(origname);
-					});
-				});
-			}
-			else this.writepostok(origname);
-		});
-	} else*/
-		this.writefile(name, type, okmsg, arr1, origname);
+	this.writefile(name, type, okmsg, arr1, origname);
 }
 /* ImBCBase: handle one entry from imb PHOTO/MOVIE listing page */
 handle1imb(url, time) {
@@ -19337,6 +19177,8 @@ exitmode = 'photo';
 dispmode = 2; // 0:photo, 1:movie, 2:browser, (not yet 3:local files)
 // need to load imgs from back?
 imgsdirty = true;
+// time adjustment
+corrdelta = 0;
 // grouping in visual dings:
 mingrp = 'd'; // 'h',  day hour
 maxgrp = 'm'; // 'y', 'm' day year month
@@ -19628,69 +19470,12 @@ starthandleone() {
 	else if (this.fromintent === 3 || this.fromintent === 2) {
 		return this.handleoneback();
 	}
-	/*if (!this.imbcb && window.showSaveFilePicker && false) {
-		// zip with selected file
-		window.showSaveFilePicker({
-			types: [ { description: 'Output Zip Archive', accept: { "application/zip": [ ".zip", ".ZIP" ] } } ],
-			startIn: 'downloads',
-			suggestedName: 'imbapp_' + ('' + Date.now()).substring(3,10) + '_out.zip'
-		}).then((newHandle) => {
-			newHandle.getFile().then((f) => {
-				this.zipname = f.name;
-				newHandle.createWritable().then((ws) => {
-					this.writestream = ws;
-					this.zip = new ZIPHelp((data, cb) => {
-						let p = this.writestream.write(data);
-						p.then(() => { cb(); }).catch((e) => {
-							this.mappx(false, 'words.error');
-							this.mappx(0, 'process.errsave', this.zipname);
-							this.appmsg(JSON.stringify(e), true);
-							this.ziperr = true;
-							cb();
-						});
-					});
-					this.handleonex();
-				}).catch((e) => {
-					this.mappx(false, 'words.error');
-					this.mappx(0, 'process.errsave', this.zipname);
-					this.appmsg(JSON.stringify(e), true);
-					this.afterfinish();
-				});
-			}).catch((e) => {
-				this.mappx(false, 'words.error');
-				this.mappx(0, 'process.errsave', '??');
-				this.stats.error++;
-				this.appmsg(JSON.stringify(e), true);
-				this.afterfinish();
-			});
-		}).catch((e) => {
-				this.mappx(false, 'words.error');
-				this.mappx(0, 'process.errsave', '??');
-				this.stats.error++;
-				this.appmsg(JSON.stringify(e), true);
-				this.afterfinish();
-			});
-	}
-	else if (this.totnum > 1 && !this.imbcb && false) {
-		// zip via normal download
-		this.writestream = null;
-		this.zipdata = [];
-		this.zip = new ZIPHelp((data, cb) => {
-			for (let l=0; l<data.length; l++) this.zipdata.push(data[l]);
-			cb();
-		});
-		this.handleonex();
-	}
-	else*/ this.handleonex();
+	this.handleonex();
 }
 /* ImBCHtmlOut: main handler function for one file */
 handleonex() {
 	const f = (this.debugflag && this.useraw) ? this.useraw : this.allfiles[this.actnum];
 	this.currentrot = (f.rot || (f.rot === 0)) ? f.rot : 1;
-	document.getElementById('doforall').checked = false;
-	if (this.actnum < this.totnum-1) {
-		document.getElementById('forrest').style['display'] = '';
-	} else document.getElementById('forrest').style['display'] = 'none';
 	let rawname = ImBCBase.basename(f.url ? f.url : (f.name ? f.name : f));
 	if (this.stepmode === 2) {
 		// skip rest
@@ -19834,8 +19619,6 @@ imbdoit() {
 	this.allfiles = selecteds;
 	this.mappx(true, 'process.frombackn', this.totnum);
 	if (this.totnum > 0) {
-		document.getElementById('imbdoit').disabled = true;
-		document.getElementById('imbvisbrows').disabled = true;
 		document.getElementById('droptarget').style['display'] = 'none';
 		document.getElementById('infile').disabled = true;
 		this.starthandleone();
@@ -19922,32 +19705,6 @@ writepostok(name) {
 afterfinish() {
 	this.rotphase = -1;
 	if (!this.fromintent) this.savesettings();
-	if (this.zip) {
-		this.zip.finish(() => {
-			if (this.writestream) {
-				this.writestream.close().then(() => {
-					if (!this.ziperr) {
-						this.mappx(false, 'words.finished');
-						this.mappx(true, 'process.copyok', this.zipname);
-					} else {
-						this.mappx(false, 'words.error');
-						this.mappx(true, 'process.errsave', this.zipname);
-					}
-				}).catch((e) => {
-					this.mappx(false, 'words.error');
-					this.mappx(0, 'process.errsave', this.zipname);
-					this.appmsg(JSON.stringify(e), true);
-				});
-			} else if (this.zipdata) {
-				let o = new Uint8Array(this.zipdata.length);
-				for (let p=0; p<this.zipdata.length; p++) o[p] = this.zipdata[p];
-				this.writefile('imbapp_' + ('' + Date.now()).substring(3,10) + '_out.zip', 'application/zip', 'process.copyokcheckdl', o);
-			}
-		});
-		this.zip = null;
-		this.zipdata = null;
-		this.ziperr = false;
-	}
 	if (this.stats.total > 0) {
 		this.appmsg('');
 		this.mappx(true, 'process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
@@ -19957,7 +19714,6 @@ afterfinish() {
 	this.allfiles = [];
 	if (this.fromvisbrows) {
 		this.fromvisbrows = false;
-		//document.getElementById('pages').style['display'] = 'none';
 		this.modalback = 'closeprog';
 		document.getElementById('progmsg').style['display'] = '';
 		if (!this.fromintent) document.getElementById('progokbut').disabled = false;
@@ -19972,8 +19728,6 @@ afterfinish() {
 		else if (this.stats.ok > 0)
 			document.getElementById('dlprogress').style['border-color'] = 'green';
 	}
-	document.getElementById('imbdoit').disabled = false;
-	document.getElementById('imbvisbrows').disabled = false;
 	document.getElementById('droptarget').style['display'] = '';
 	document.getElementById('infile').disabled = false;
 	if (document.getElementById('infileb')) document.getElementById('infileb').disabled = false;
@@ -20089,8 +19843,6 @@ fselect() {
 		   this.allfiles = [ f ];
 		   if (this.totnum > 0) {
 			   this.appmsgxl(true, 'process.selectedn', this.totnum);
-			   document.getElementById('imbdoit').disabled = true;
-			   document.getElementById('imbvisbrows').disabled = true;
 			   document.getElementById('droptarget').style['display'] = 'none';
 			   document.getElementById('infile').disabled = true;
 			   this.rotphase = 1;
@@ -20139,7 +19891,6 @@ setpvwait() {
 myalert(txt) {
 	document.getElementById('phpv').src="";
 	document.getElementById('overlay').style['display'] = 'none';
-	//document.getElementById('pages').style['display'] = 'none';
 	document.getElementById('extraid').style['display'] = 'none';
 	document.getElementById('genericok').style['border-color'] = 'red';
 	document.getElementById('okmsg').innerHTML = txt;
@@ -20148,11 +19899,8 @@ myalert(txt) {
 }
 /* ImBCHtml: show generic msg */
 showmsg() {
-	//this.closeham();
 	document.getElementById('phpv').src="";
 	document.getElementById('overlay').style['display'] = 'none';
-	//document.getElementById('pages').style['display'] = 'none';
-	//document.getElementById('extraid').style['display'] = 'none';
 	document.getElementById('genericok').showModal();
 	this.modalback = 'closegeneric';
 }
@@ -20191,17 +19939,17 @@ showpages() {
 }
 /* ImBCHtml: browserdisplay: show magnified image */
 showmag(entry) {
-	if (entry.type === 'oth') return;
 	window.onscroll = undefined;
 	window.onresize = undefined;
 	window.scrollTo(0,0);
 	document.getElementById('splash').style['display'] = 'none';
 	document.getElementById('dlprogress').style['border-color'] = 'grey';
 	document.getElementById('pages').style['display'] = 'none';
-	this.onback = 'main';
+	this.onback = 'closemag';
 	document.getElementById('phpv').src="";
 	document.getElementById('msglog').style['display'] = 'none';
 	document.getElementById('magni').style['display'] = '';
+	if (entry.type === 'oth') return;
 	this.magentry = {
 		entry: document.querySelector('#xmag .magpic'),
 		error: false,
@@ -20215,8 +19963,9 @@ showmag(entry) {
 		url: entry.url,
 		waiting: false,
 		isbig: true,
-		orig: entry,
-		selected: entry.selected
+		selected: entry.selected,
+		timesync: entry.timesync,
+		orig: entry
 	};
 	this.magentry.entry.setAttribute('data-state', 'wait');
 	const check = this.magentry.entry.querySelector('input.selcb');
@@ -20235,6 +19984,60 @@ showmag(entry) {
 	}
 	document.querySelector('#magni #magtext').innerHTML = entry.raw;
 	this.onback = 'closemag';
+	this.handletimadj();
+}
+/* ImBCHtml: browserdisplay: handle time adjustment in magn. view */
+handletimadj() {
+	let res = globals.fnregexx.exec(this.magentry.raw);
+	if (res) {
+		document.querySelector('#xmag .timetxt').style['display'] = '';
+		document.querySelector('#xmag .timetxt').style['color'] = '';
+		document.querySelector('#xmag .timebtn').style['display'] = '';
+		if (this.corrdelta) {
+			let yr = Number.parseInt(res[1]);
+			let mon = Number.parseInt(res[3]);
+			let day = Number.parseInt(res[5]);
+			let hr = Number.parseInt(res[7]);
+			let min = Number.parseInt(res[9]);
+			let sec = Number.parseInt(res[11]);
+			let datestr = "" + yr + "-" + ((mon < 10) ? "0":"") + mon + "-" + ((day < 10) ? "0":"") + day + "T"+
+				((hr < 10) ? "0":"") + hr + ":" + ((min < 10) ? "0":"") + min + ":" + ((sec < 10) ? "0":"") + sec + 'Z';
+			let nd = new Date(new Date(datestr).valueOf() + this.corrdelta).toISOString().substring(0,19);
+			document.querySelector('#xmag .timetxt').value = nd;
+			document.querySelector('#xmag .timetxt').disabled = (this.corrdelta !== this.magentry.timesync);
+			if (!document.querySelector('#xmag .timetxt').disabled) this.magtimechg();
+			document.querySelector('#xmag .timetxt').style['display'] = '';
+		} else {
+			document.querySelector('#xmag .timetxt').style['display'] = 'none';
+		}
+	}
+	else {
+		document.querySelector('#xmag .timetxt').style['display'] = 'none';
+		document.querySelector('#xmag .timebtn').style['display'] = 'none';
+	}
+}
+/* ImBCHtml: browserdisplay: magnification: click on clock */
+magtimex() {
+	if (document.querySelector('#xmag .timetxt').style['display'] !== 'none' && !document.querySelector('#xmag .timetxt').disabled) {
+		this.corrdelta = 0;
+		this.magentry.timesync = 0;
+		document.querySelectorAll('.syncpic').forEach((e) => { e.classList.remove('syncpic');});
+		this.handletimadj();
+	}
+	else if (this.magentry.timesync) {
+		let cds = this.corrdelta;
+		this.corrdelta = this.magentry.timesync;
+		this.handletimadj();
+		this.corrdelta = cds;
+	}
+	else if (this.corrdelta) {
+		this.magentry.timesync = this.corrdelta;
+		this.handletimadj();
+	}
+	else {
+		document.querySelector('#xmag .timetxt').style['display'] = '';
+		document.querySelector('#xmag .timetxt').value = '';
+	}
 }
 /* ImBCHtml: browserdisplay: close magnification */
 closemag(notreally) {
@@ -20253,11 +20056,47 @@ closemag(notreally) {
 		check.checked = this.magentry.orig.selected;
 		this.#updateselections();
 	}
+	this.magentry.orig.timesync = this.magentry.timesync;
+	if (this.magentry.timesync && !document.querySelector('#xmag .timetxt').disabled && document.querySelector('#xmag .timetxt').style['display'] !== 'none') {
+		this.corrdelta = this.magentry.timesync;
+		document.querySelectorAll('.syncpic').forEach((e) => { e.classList.remove('syncpic');});
+		this.magentry.orig.entry.classList.add('syncpic');
+	}
 	this.magentry = null;
 	if (!notreally) {
 		document.getElementById('magni').style['display'] = 'none';
 		this.showbrowser();
 		this.#startloadimg();
+	}
+}
+/* ImBCHtml: browserdisplay: magni: keypress check in time adjust stamp */
+magtimechg() {
+	let a = globals.fulltsregex.exec(document.getElementById('refts').value);
+	if (!a) {
+		this.magentry.timesync = 0;
+		document.getElementById('refts').style['color'] = 'red';
+	}
+	else {
+		document.querySelectorAll('.syncpic').forEach((e) => { e.classList.remove('syncpic');});
+		document.getElementById('refts').style['color'] = 'green';
+		let res = globals.fnregexx.exec(this.magentry.raw);
+		if (res !== null) {
+			let yr = Number.parseInt(res[1]);
+			let mon = Number.parseInt(res[3]);
+			let day = Number.parseInt(res[5]);
+			let hr = Number.parseInt(res[7]);
+			let min = Number.parseInt(res[9]);
+			let sec = Number.parseInt(res[11]);
+			let datestr = "" + yr + "-" + ((mon < 10) ? "0":"") + mon + "-" + ((day < 10) ? "0":"") + day + "T"+
+				((hr < 10) ? "0":"") + hr + ":" + ((min < 10) ? "0":"") + min + ":" + ((sec < 10) ? "0":"") + sec + 'Z';
+			let d1 = new Date(datestr);
+			let d2 = new Date(a[1] + '-' + a[3] + '-' + a[5] + 'T' + a[7] + ':' + a[9] + ':' + a[11] + 'Z');
+			this.magentry.timesync = d2 - d1;
+		}
+		else {
+			this.magentry.timesync = 0;
+			document.getElementById('refts').style['display'] = 'none';
+		}
 	}
 }
 /* ImBCHtml: browserdisplay: select in magnification */
@@ -20272,7 +20111,7 @@ selmag() {
 		this.#updateselections();
 	}
 }
-/* ImBCHtml: browserdisplay: navigate in magnification */
+/* ImBCHtml: browserdisplay: sort for navigate in magnification */
 magrecsort(grps) {
 	let res = [];
 	for (const e of grps.sort((a,b) => this.#mysort(a,b))) {
@@ -20281,6 +20120,7 @@ magrecsort(grps) {
 	}
 	return res;
 }
+/* ImBCHtml: browserdisplay: navigate in magnification */
 magnav(fwd) {
 	let list;
 	if (document.getElementById('sbytype').checked) {
@@ -20290,10 +20130,11 @@ magnav(fwd) {
 		list = this.untypedclasses;
 	}
 	let r = this.magrecsort(list);
+	if (fwd) fwd = 1; else fwd = -1;
 	const el = r.findIndex((v) => v.raw === this.magentry.raw);
-	let ne = ((fwd ? (el+1) : (el -1)) +r.length) % r.length;
+	let ne = ((el+fwd) +r.length) % r.length;
 	while (r[ne].type === 'oth') {
-		ne = ((fwd ? (ne+1) : (ne -1)) +r.length)  % r.length;
+		ne = ((el+fwd) +r.length)  % r.length;
 	}
 	this.closemag(true);
 	this.showmag(r[ne]);
@@ -20457,10 +20298,8 @@ showdlprog() {
 	document.getElementById('dlprogresslogbtn').disabled = true;
 	document.getElementById('progcancelbut').disabled = false;
 	document.getElementById('progokbut').disabled = true;
-	//this.closeham();
 	document.getElementById('progmsg').innerHTML = '...';
 	document.getElementById('dlprogress').style['border-color'] = 'grey';
-	//document.getElementById('pages').style['display'] = 'none';
 	this.onback = 'nothing';
 }
 closedlprog() {
@@ -20491,38 +20330,6 @@ showlog() {
 }
 /* ImBCHtml: visual browser: prepare the browser display, group the stuff */
 aftercheck() {
-	document.getElementById('piccnt').innerHTML = '' + this.imbpics.length;
-	if (this.earliestjpg.length > 4) {
-		document.getElementById('picinterval').innerHTML += '(';
-		document.getElementById('picinterval').innerHTML += this.earliestjpg;
-		document.getElementById('picinterval').innerHTML += ' - ';
-		document.getElementById('picinterval').innerHTML += this.latestjpg;
-		document.getElementById('picinterval').innerHTML += ')';
-		document.getElementById('picinterval').style['display']='';
-	}
-	document.getElementById('piccnt').removeAttribute('data-myxlkey');
-	document.getElementById('rpiccnt').innerHTML = '' + this.rimbpics.length;
-	if (this.earliestraw.length > 4) {
-		document.getElementById('rpicinterval').innerHTML += '(';
-		document.getElementById('rpicinterval').innerHTML += this.earliestraw;
-		document.getElementById('rpicinterval').innerHTML += ' - ';
-		document.getElementById('rpicinterval').innerHTML += this.latestraw;
-		document.getElementById('rpicinterval').innerHTML += ')';
-		document.getElementById('rpicinterval').style['display']='';
-	}
-	document.getElementById('rpiccnt').removeAttribute('data-myxlkey');
-	document.getElementById('movcnt').innerHTML = '' + this.imbmovies.length;
-	if (this.earliestmov.length > 4) {
-		document.getElementById('movinterval').innerHTML += '(';
-		document.getElementById('movinterval').innerHTML += this.earliestmov;
-		document.getElementById('movinterval').innerHTML += ' - ';
-		document.getElementById('movinterval').innerHTML += this.latestmov;
-		document.getElementById('movinterval').innerHTML += ')';
-		document.getElementById('movinterval').style['display']='';
-	}
-	document.getElementById('movcnt').removeAttribute('data-myxlkey');
-	document.getElementById('imbdoit').disabled = false;
-	document.getElementById('imbvisbrows').disabled = false;
 	//if (this.untypedclasses[0].title) return;
 	for (const x of this.untypedclasses) {
 		if (x.title) continue;
@@ -20659,7 +20466,6 @@ buildtree() {
 	else {
 		list = this.untypedclasses;
 	}
-	//for (const e of list.filter((o) => o.level === toplevel).sort((a,b) => this.#mysort(a, b))) {
 	for (const e of list.sort((a,b) => this.#mysort(a, b))) {
 		document.getElementById('browser').append(e.entry);
 		this.#addsorted(e);
@@ -20876,7 +20682,7 @@ topreccheck(force) {
 /* ImBCHtml: visual browser: text and controls on top of a group */
 #buildtitle(gr) {
 	let t = '', s = gr.title;
-	const d = document.querySelector('#titlet').content.querySelector('.titletop').cloneNode(true); //document.createElement('div');
+	const d = document.querySelector('#titlet').content.querySelector('.titletop').cloneNode(true);
 	const pluss = d.querySelector('.ggttp');
 	pluss.onclick = () => {
 		this.#doopen(gr, false);
@@ -20908,10 +20714,7 @@ topreccheck(force) {
 	if (s.length > 0) t += (' ' + s);
 	for (const tit of d.querySelectorAll('.grtit'))
 		tit.append(t);
-	//const selno = d.querySelector('.selnumber');
-	//selno.id = 'SEL_' + gr.title;
 	const totno = d.querySelector('.totno');
-	//totno.id = 'TOT_' + gr.title;
 	totno.append('' + this.#countfiles(gr));
 	const texttit = d.querySelector('label');
 	const cb = d.querySelector('.selcb');
@@ -21017,11 +20820,8 @@ topreccheck(force) {
 	ne.id = 'div_' + e.raw.replace('.','_') + '_X';
 	ne.classList.add(e.type + '_CL');
 	let rawname = ImBCBase.basename(e.url);
-	//e.entry.classList.add('ET_' + e.type + rawname.substring(0,12));
-	//e.entry.classList.add('EY_' + rawname.substring(0,12));
 	const topline = ne.querySelector('.pictitle');
 	const check = ne.querySelector('.pictitle input');
-	//check.name = 'cb_sel_' + e.raw + '_X';
 	check.id = 'cb_sel_' + e.raw.replace('.','_') + '_X';
 	check.checked = e.selected;
 	check.onclick = () => {
@@ -21031,14 +20831,6 @@ topreccheck(force) {
 	topline.htmlFor = check.id;
 	topline.append(rawname);
 	const dlbtn = ne.querySelector('.dlbtn');
-	/*if (e.type === 'oth') {
-		//topline.append(dlbtn);
-		//dlbtn.classList.remove('disabled');
-		//dlbtn.classList.remove('biggiebtn');
-		ne.querySelector('.waitdiv').style['display'] = 'none';
-		ne.setAttribute('data-state', 'wait');
-		ne.querySelector('.eepvx').style['display'] = '';
-	}*/
 	let rotbtn = ne.querySelector('.rotbtn');
 	if (e.type === 'RAW') {
 		ne.querySelector('.eepvx').style['font-family'] = 'Symbol3';
@@ -21051,7 +20843,6 @@ topreccheck(force) {
 			else
 				e.rot = 0;
 		}
-		//rotbtn.id = 'rot_b_' + e.raw + '_Y';
 		rotbtn.classList.add('disabled');
 		rotbtn.onclick = () => {
 			if (!this.debugflag && rotbtn.classList.contains('disabled')) return;
@@ -21110,7 +20901,6 @@ topreccheck(force) {
 	if (e.type === 'RAW') {
 		ne.setAttribute('data-state', 'wait');
 		e.preview = ne.querySelector('.eeraw');
-		//e.preview.classList.add('eewait');
 		e.preview.style['display'] = 'none';
 		ne.querySelector('.eepvx').style['display'] = '';
 		ne.querySelector('.waitdiv').style['display'] = 'none';
@@ -21131,7 +20921,6 @@ topreccheck(force) {
 		ne.setAttribute('data-state', 'wait');
 		ne.querySelector('.eepvx').style['display'] = '';
 		ne.querySelector('.waitdiv').style['display'] = 'none';
-		//e.preview.classList.add('eewait');
 		e.preview.style['display'] = 'none';
 		if (e.type === 'JPG') {
 			const magb = ne.querySelector('.magbtn');
@@ -21280,7 +21069,6 @@ dlmag() {
 loadnextimg() {
 	if (this.debugflag) console.log('L  N  I');
 	if (this.#loaderrunning !== 'blah!' && this.allfiles.length > 0 && this.actnum <= this.allfiles.length - 1) {
-		//e = this.allfiles[this.actnum];
 		this.#loaderrunning = 'blah!';
 		window.setTimeout(() => {
 			this.checkchecks();
@@ -21324,7 +21112,6 @@ loadnextimg() {
 browserdelete() {
 	document.getElementById('del_text').setAttribute('data-myxlarg0', this.imbeles.filter((o) => o.selected).length);
 	this.xl1(document.getElementById('del_text'));
-	//document.getElementById('pages').style['display'] = 'none';
 	document.getElementById('delokbut').disabled = false;
 	document.getElementById('delcancelbut').disabled = false;
 	document.getElementById('delprogmsg').innerHTML = '';
@@ -21336,7 +21123,6 @@ browserdelete() {
 magdelete() {
 	document.getElementById('del_text').setAttribute('data-myxlarg0', 1);
 	this.xl1(document.getElementById('del_text'));
-	//document.getElementById('pages').style['display'] = 'none';
 	document.getElementById('delokbut').disabled = false;
 	document.getElementById('delcancelbut').disabled = false;
 	document.getElementById('delprogmsg').innerHTML = '';
@@ -21445,8 +21231,6 @@ browserprocess() {
 	if (this.totnum > 0) {
 		if (!this.fromintent) this.showlog();
 		this.mappx(true, 'process.frombrowsern', this.totnum);
-		document.getElementById('imbdoit').disabled = true;
-		document.getElementById('imbvisbrows').disabled = true;
 		document.getElementById('droptarget').style['display'] = 'none';
 		document.getElementById('infile').disabled = true
 		this.fromvisbrows = true;
@@ -21538,45 +21322,6 @@ savesettings() {
 /* ImBCHtml: try lang from node param */
 trylang(i) {
 	document.getElementById('langsel').value = this.findlang(i);
-}
-/* ImBCHtml: debug * /
-#prgr(gr, indent) {
-	const str = '                ';
-	if (undefined === gr.title) return;
-	console.log(str.substring(0,2*indent), gr.title, '   ', this.#countfiles(gr));
-	if (undefined === gr.smembers) return;
-	for (const s of gr.smembers) {
-		this.#prgr(s, indent + 1);
-	}
-}*/
-/* ImBCHtml: only debug */
-dodebug() {
-	const fr = new FileReader();
-	fr.onload = (res) => {
-		const dp = new DOMParser();
-		const doc = dp.parseFromString(res.target.result,'text/html');
-		const sel2 = doc.querySelectorAll('a');
-		if (sel2.length !== 0) {
-			for (const r of sel2) {
-				if (r && (-1 === r.href.indexOf('?del='))) {
-					this.handle1imb(r.href);
-				}
-			}
-		} else {
-			for (const e of doc.querySelectorAll('LIST ALLFile File FPATH'))
-				this.handle1imb(e.textContent, e.parentElement.querySelector('TIME').textContent);
-			if (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0) {
-				this.aftercheck();
-			}
-		}
-		document.getElementById('dbgfsel').style['display'] = 'none';
-		this.aftercheck();
-	};
-	fr.readAsText(document.getElementById('dbgfsel').files[0]);
-}
-/* ImBCHtml: only debug - use local img instead of from imb */
-replraw() {
-	this.useraw = document.getElementById('dbgreplraw').files[0];
 }
 /* ImBCHtml: async iterate rec */
 iterate(iterator, cb, already) {
@@ -21782,23 +21527,15 @@ shownormal() {
 }
 /* ImBCHtml: preview: skip handler in the step preview */
 skipthis() {
-	/*if (this.cancelled) {
-		this.showdisconnect(true);
-		this.shownormal();
-		//this.handlenext();
-		return;
-	}*/
 	this.onback = 'nothing';
 	this.cancelled = true;
 	document.getElementById('skipthis').disabled = true;
-	if (document.getElementById('doforall').checked) this.stepmode = 2;
+	this.stepmode = 2;
 }
 /* ImBCHtml: previewquestion: process handler in the step preview */
 procthis() {
-	if (document.getElementById('doforall').checked) {
-		this.stepmode = 0;
-		this.shownormal();
-	}
+	this.stepmode = 0;
+	this.shownormal();
 	this.setpvwait();
 	this.handleone(this.currentrot);
 }
@@ -21941,14 +21678,6 @@ checkimb() {
 	document.getElementById('dbgcache').value = this.maxcache;
 	let imblang = '';
 	this.imblang = false;
-	/*if (window.location.origin.startsWith('https') || window.location.origin.startsWith('file')) {
-		this.disknown = true;
-		this.disconnected = false;
-		this.showdisconnect();
-		this.showmain();
-		this.xlateall();
-		return;
-	}*/
 	const ll = '00' === this.mylang ? 'en' : this.mylang;
 	this.custcmd([3012, 3024, [3001, 'par=2'], 3017, 2016, [2015, 'par=0'], 3014, [2015, 'par=1'], [3031, 'str=all'],  3030, 2019  ], 'document', null, (rc0, doc0) => {
 		if (0 <= rc0) {
@@ -22075,9 +21804,6 @@ checkimb() {
 							const e = document.createElement('option');
 							e.value = v.id;
 							e.innerHTML = v.val;
-							//e.setAttribute('data-myxxlstx',l.id);
-							//e.setAttribute('data-myxlarg0',v.id);
-							//e.setAttribute('data-myxlarg1',i);
 							o.append(e);
 						}
 						o.value = l.val;
@@ -22101,7 +21827,6 @@ checkimb() {
 					// videoformat ??
 					const l = this.imbsettings.find((v) => (v.id === '2002'));
 					const s = document.createElement('div');
-					//s.classList.add('darksel');
 					const sp = document.createElement('span');
 					sp.append(l.name);
 					sp.setAttribute('data-myxxlsti',l.id);
@@ -22187,59 +21912,53 @@ checkimb() {
 }
 /* ImBCHtml: browserdisplay: initialize settings */
 initsettings() {
-	/*if (window.location.origin.startsWith('http') && window.localStorage) {*/
-		try {
-			let e = window.localStorage.getItem('imbapp_json');
-			if (e) {
-				this.parseconfig(e);
-				const copytext = document.getElementById('copytext');
-				const artist = document.getElementById('artist');
-				const copycheck = document.getElementById('copycheck');
-				const stepprev = document.getElementById('steppreview');
-				const incdcp = document.getElementById('incdcp');
-				const oldstylewb = document.getElementById('oldstylewb');
-				if (copycheck !== null) {
-					copycheck.checked = this.metadata;
-					if (copytext) {
-						if (this.copyright?.length) copytext.value = this.copyright;
-						copytext.disabled = !this.metadata;
-					}
-					if (artist) {
-						if (this.artist?.length) artist.value = this.artist;
-						artist.disabled = !this.metadata;
-					}
+	try {
+		let e = window.localStorage.getItem('imbapp_json');
+		if (e) {
+			this.parseconfig(e);
+			const copytext = document.getElementById('copytext');
+			const artist = document.getElementById('artist');
+			const copycheck = document.getElementById('copycheck');
+			const stepprev = document.getElementById('steppreview');
+			const incdcp = document.getElementById('incdcp');
+			const oldstylewb = document.getElementById('oldstylewb');
+			if (copycheck !== null) {
+				copycheck.checked = this.metadata;
+				if (copytext) {
+					if (this.copyright?.length) copytext.value = this.copyright;
+					copytext.disabled = !this.metadata;
 				}
-				if (stepprev !== null) stepprev.checked = (this.stepmode===1);
-				if (incdcp !== null) incdcp.checked = this.incdcp;
-				if (oldstylewb !== null) oldstylewb.checked = this.constwb;
-				const dngprev = document.getElementById('dngpreview');
-				if (dngprev) dngprev.checked = this.withpreview;
-				document.getElementById('onlyhttp').style['display'] = 'none';
-				document.getElementById('setsettings').style['display'] = 'none';
-				document.getElementById('settingsset').style['display'] = '';
-				document.getElementById('settingsset').setAttribute('data-myxlarg0',window.location.origin);
-				document.getElementById('setsettingsurl').setAttribute('data-myxlarg0',window.location.origin);
-				document.getElementById('exitsel').value = this.exitmode;
-				document.getElementById('dooverwrite').checked = this.dooverwrite;
-				document.getElementById('autotime').checked = this.autotime;
-			} else {
-				document.getElementById('onlyhttp').style['display'] = 'none';
-				document.getElementById('setsettings').style['display'] = '';
-				document.getElementById('settingsset').style['display'] = 'none';
-				document.getElementById('settingsset').setAttribute('data-myxlarg0',window.location.origin);
-				document.getElementById('setsettingsurl').setAttribute('data-myxlarg0',window.location.origin);
+				if (artist) {
+					if (this.artist?.length) artist.value = this.artist;
+					artist.disabled = !this.metadata;
+				}
 			}
-		} catch  {
-			document.getElementById('onlyhttp').style['display'] = '';
+			if (stepprev !== null) stepprev.checked = (this.stepmode===1);
+			if (incdcp !== null) incdcp.checked = this.incdcp;
+			if (oldstylewb !== null) oldstylewb.checked = this.constwb;
+			const dngprev = document.getElementById('dngpreview');
+			if (dngprev) dngprev.checked = this.withpreview;
+			document.getElementById('onlyhttp').style['display'] = 'none';
 			document.getElementById('setsettings').style['display'] = 'none';
+			document.getElementById('settingsset').style['display'] = '';
+			document.getElementById('settingsset').setAttribute('data-myxlarg0',window.location.origin);
+			document.getElementById('setsettingsurl').setAttribute('data-myxlarg0',window.location.origin);
+			document.getElementById('exitsel').value = this.exitmode;
+			document.getElementById('dooverwrite').checked = this.dooverwrite;
+			document.getElementById('autotime').checked = this.autotime;
+		} else {
+			document.getElementById('onlyhttp').style['display'] = 'none';
+			document.getElementById('setsettings').style['display'] = '';
 			document.getElementById('settingsset').style['display'] = 'none';
-			this.xlateall();
+			document.getElementById('settingsset').setAttribute('data-myxlarg0',window.location.origin);
+			document.getElementById('setsettingsurl').setAttribute('data-myxlarg0',window.location.origin);
 		}
-	/*} else {
+	} catch  {
 		document.getElementById('onlyhttp').style['display'] = '';
 		document.getElementById('setsettings').style['display'] = 'none';
 		document.getElementById('settingsset').style['display'] = 'none';
-	}*/
+		this.xlateall();
+	}
 	this.xlateall();
 }
 /* ImBCHtml: find in cache */
@@ -22502,7 +22221,6 @@ appinfo() {
 		//document.getElementById('okmsg').innerHTML += ('<br>Free: ' + this.imbfree + ' B');
 	}
 	document.getElementById('okmsg').innerHTML += `<br><a href="#" onclick="window.open(imbc.xl('app.helpurl'), '_system'); return false;" data-myxlkey="main.help"></a> - <span data-myxlkey="main.newmsg"/>`;
-	//document.getElementById('okmsg').append(a);
 	document.getElementById('okmsg').innerHTML += `<br><span style="font-weight:normal;font-size:75%;">Contains parts of <a href="#" onclick="window.open('https://fonts.google.com/noto/specimen/Noto+Sans+Symbols+2', '_system'); return false;">NotoSansSymbols2-Regular</a> font
 	licensed under <a href="#" onclick=" window.open('http://scripts.sil.org/OFL', '_system'); return false;">Open Font License</a>.</span>`;
 	// https://github.com/apache/cordova-plugin-inappbrowser/ https://github.com/apache/cordova-plugin-file/ https://github.com/frontyard/cordova-plugin-exoplayer/
@@ -22567,10 +22285,8 @@ takemovie() {
 		this.imgsdirty = true;
 		if (rc >= 0) {
 			this.movierec = true;
-			//document.getElementById('pages').style['display'] = 'none';
 			this.onback = 'nothing';
 			document.getElementById('movieprogress').showModal();
-			//document.getElementById('takemovies').style['display'] = 'none';
 		}
 	});
 }
@@ -22789,8 +22505,6 @@ intenthandler(intent) {
 	this.disconnected = false;
 	this.#loaderrunning = 'blah!';
 	this.showdisconnect();
-    document.getElementById('imbdoit').disabled = true;
-    document.getElementById('imbvisbrows').disabled = true;
     document.getElementById('droptarget').style['display'] = 'none';
     document.getElementById('infile').disabled = true
     this.showlog();
@@ -22896,7 +22610,7 @@ function init2() {
 /* *************************************** globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.9.5_66b964b", // actually const // VERSION EYECATCHER
+version: "V5.9.5_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 texts: { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -25375,6 +25089,9 @@ apptexts: [
       ]
     }
 ],
+// generic user input timestamp always complete
+//               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
+fulltsregex: /^([02-3][0-9][0-9][0-9])([^0-9])([01][0-9])([^0-9])([0123][0-9])([^0-9])([012][0-9])([^0-9])([0-5][0-9])([^0-9])([0-5][0-9])$/, // actually const
 // generic user input timestamp (any prefix)
 //                  y      y     y     y      .      m     m     .      d      d      .      h     h      .      m     m      .      s     s
 tsregex: /^[02-3]([0-9]([0-9]([0-9](([^0-9])[01]([0-9](([^0-9])[0123]([0-9](([^0-9])[012]([0-9](([^0-9])[0-5]([0-9](([^0-9])[0-5]([0-9])?)?)?)?)?)?)?)?)?)?)?)?)?$/ , // actually const
@@ -25457,56 +25174,7 @@ infos: [ // actually const
 		h:3912,
 		typ: 5,
 		mode: ''
-	},
-	/*{ /* MF 6x7 * /
-		size: 23887872,
-		w: 4608,
-		h: 3456,
-		typ: 34,
-		mode: "stacked"
-	},
-	{ /* MF 6x4.5 * /
-		size: 19406448,
-		w: 4152, h: 3116,
-		typ: 35,
-		mode: "stacked"
-	},
-	{
-		size: 14709888,
-		w: 3616, h: 2712,
-		typ: 35,
-		mode: "Medium-angle stacked"
-	},
-	{
-		size: 9706416,
-		w: 2936, h: 2204,
-		typ: 35,
-		mode: "Small-angle stacked"
-	},
-	{ /* MF 6x6 * /
-		size: 17915904,
-		w: 3456, h: 3456,
-		typ: 37,
-		mode: "stacked"
-	},
-	{ /* 35mm * /
-		size: 23003136,
-		w: 4608, h: 3328,
-		typ: 33,
-		mode: "stacked"
-	},
-	{
-		size: 17428128,
-		w: 4012, h: 2896,
-		typ: 33,
-		mode: "Medium-angle stacked"
-	},
-	{
-		size: 11501280,
-		w: 3260, h: 2352,
-		typ: 33,
-		mode: "Small-angle stacked"
-	},*/
+	}
 ],
 /* ImBCBase: get white balance */
 getwb: function(view, typidx, whitelvl) {
@@ -26215,31 +25883,6 @@ function readjpg(file) {
 </div>
 </div>
 <!-- splash end -->
-<!-- connected ! (unused in app) -->
-<div id="onimback" style="background-color:#ffffbb;border: 5px solid #ffff88;border-radius: 10px;width:fit-content;padding:1em;display:none;"><div style="font-size:133%;" data-myxlkey="onimback.connected">&nbsp;<br></div>
-<span data-myxlkey="onimback.dlconvert"></span><br>
-<input checked type="checkbox" id="rpicfromimb"><label for="rpicfromimb" id="rpiclbl" data-myxlkey="main.types.rawpics"></label>, <span data-myxlkey="onimback.totalnum"></span> <span id="rpiccnt" data-myxlkey="main.stillcounting"></span> <span id="rpicinterval" style="display:none;"></span>
-<br><input checked type="checkbox" id="picfromimb"><label for="picfromimb" id="piclbl" data-myxlkey="main.types.jpgpics"></label>, <span data-myxlkey="onimback.totalnum"></span> <span id="piccnt" data-myxlkey="main.stillcounting"></span> <span id="picinterval" style="display:none;"></span> 
-<br><input checked type="checkbox" id="movfromimb"><label for="movfromimb" id="movlbl" data-myxlkey="main.types.other"></label>, <span data-myxlkey="onimback.totalnum"></span> <span id="movcnt" data-myxlkey="main.stillcounting"></span> <span id="movinterval" style="display:none;"></span><br>
-<span data-myxlkey="onimback.fromtime"></span> <input type="text" maxlength="19" id="imbstartts" inlength="0" placeholder="YYYY_MM_DD-hh_mm_ss" pattern="[0-9][0-9][0-9][0-9](_[0-9][0-9](_[0-9][0-9]-([0-9][0-9](_[0-9]([0-9](_[0-9][0-9])*)*)*)*)*)*"> (<span data-myxlkey="onimback.nullforall"></span>) <br>
-<input onclick="imbc.imbdoit()" type="button" data-myvalxlkey="onimback.doit" id="imbdoit" disabled><br>
-<span data-myxlkey="main.or"></span> <input type="button" data-myvalxlkey="onimback.visual" id="imbvisbrows" onclick="imbc.showbrowser()" disabled>.
-</div>
-<!-- end of connected (unused in app) -->
-<!-- normal preview with question (unused in app) -->
-<div id="question" style="display:none;background-color:#ddffaa;border: 5px solid #33ff33; border-radius: 10px;width: fit-content;padding:2em;">
-<div style="font-weight:bold;" id="qhdr">&nbsp;</div>
-<canvas id="preview"></canvas><img style="display:none;max-width:550px; max-height:550px;" id="jpegpreview" onload="imbc.setjpegpv()" onerror="imbc.setpverr()"><div id="previewerr" data-myxlkey="preview.err"></div><div id="previewwait">
-<span class="blink">.</span><span class="blink2">.</span><span class="blink3">.</span></div><br>
-<div id="rotations"><input type="button" id="procthiscw" data-myvalxlkey="preview.rotcw" onclick="imbc.rotcw()" style="padding:0.5em; margin:0.5em;margin-left:2.5em;">
-<input type="button" id="procthisccw" data-myvalxlkey="preview.rotccw" onclick="imbc.rotccw()" style="padding:0.5em; margin:0.5em;">
-<input type="button" id="procthisud" data-myvalxlkey="preview.rot180" onclick="imbc.rot180()" style="padding:0.5em; margin:0.5em;" >
-<input type="button" id="procthisrs"data-myvalxlkey="preview.rotreset" data-mytitlexlkey="preview.rotreset.tooltip" value="Reset" onclick="imbc.rot0()" style="padding:0.5em; margin:0.5em;"></div>
-<div id="continues"><input type="button" id="procthis" data-myvalxlkey="preview.process" onclick="imbc.procthis()" style="padding:0.5em; margin:0.5em;">
-<input type="button" id="skipthis" data-myvalxlkey="preview.skip" value="Skip" onclick="imbc.skipthis()" style="padding:0.5em; margin:0.5em;">&nbsp;
-<span id="forrest"><input type="checkbox" id="doforall" style="padding-left:0.5em; margin-left:0.5em;"><label for="doforall" data-myxlkey="preview.forall"></label></span></div>
-</div>
-<!-- end of normal preview with question (unused in app) -->
 <!-- the normal display/settings -->
 <div id="normal"  style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
 <div style="position:fixed; top:0; left:0; width:100%;background-color:black;z-index:997;color:white;"><div>&nbsp;<span id="settx"><input id="settback" type="button" value="&#x2b60;" class="whbtn lbtn" style="padding:0 !important; border:0 !important;" onclick="imbc.showmain()"></span>
@@ -26329,12 +25972,15 @@ function readjpg(file) {
 		<div style="display:none;background-color:#aaaaaa;width:100%;height:100%;" class="waitdiv">
 			<span class="blink">.</span><span class="blink2">.</span><span class="blink3">.</span>
 		</div>
-		<div class="btnsrow" style="diplay:none;font-size:200%;">
-			<span class="biggiebtn" style="top:0.1em;left:3.8em;border:0.15em solid black;"><input type="checkbox" class="selcb" style="transform:scale(2);" onclick="imbc.selmag()"></span>
+		<div class="btnsrow" style="diplay:none;font-size:200%;line-height:1em;">
+			<span class="biggiebtn" style="left:3.8em;border:0.15em solid black;"><input type="checkbox" class="selcb" style="transform:scale(1.7);" onclick="imbc.selmag()"></span>
 			<span class="dlbtn biggiebtn" style="font-family:Symbol3;" onclick="imbc.dlmag();">&#x2b73;</span>
 			<span class="biggiebtn rotbtn" style="left: 0.6em;" onclick="imbc.rotmag();">&#x2b6e;</span>
 			<span class="biggiebtn rotbtnr" style="left: 1.6em;" onclick="imbc.rotmag(true);">&#x2b6f;</span>
 			<span class="biggiebtn trashbin" style="left: 2.6em;" onclick="imbc.magdelete();">&#x1f5d1;</span>
+			<span class="biggiebtn timebtn" style="left: 7.1em;color:#888888;font-size:80%" onclick="imbc.magtimex();">&#x23f1;</span>
+			<input class="biggiebtn timetxt" type="text" maxlength="19" id="refts" minlength="0" placeholder="yyyy-MM-ddThh:mm:ss" pattern="[0-9][0-9][0-9][0-9][^0-9][0-9][0-9][^0-9][0-9][0-9][^0-9][0-9][0-9][^0-9][0-9][0-9][^0-9][0-9][0-9]" 
+			   onkeyup="imbc.magtimechg()" style="left:9.1em; font-weight:normal;border-radius:5px;border: 1px solid rgba(0,0,0,0);font-size:80%;width:15em;">
 			<div class="backnextmag" id="backnl" style="left:3vw;" onclick="imbc.magnav();">&#x25c0;</div>
 			<div class="backnextmag" id="backnr" style="right:3vw;" onclick="imbc.magnav(true);">&#x25b6;</div>
 		</div>
@@ -26410,8 +26056,7 @@ function readjpg(file) {
 <input type="checkbox" id="fakelongexpscale"> <label for="fakelongexpscale" data-myxlkey="main.fakelong.scale"> </label>
 </div>
 </div>
-<div  style="font-size:133%;margin-top: 0.5em;"><span  data-myxlkey="main.selectrawx"></span> 
-<!--input  type="file" accept=".*" id="infile" name="infile" multiple onchange="imbc.fselected()"-->
+<div  style="font-size:133%;margin-top: 0.5em;"><span  data-myxlkey="main.selectrawx"></span>
 <input  type="button" id="infile" name="infile" multiple onclick="imbc.fselect()" data-myvalxlkey="main.choosefile" value="XX">
 </div><br>
 <div class="notwhenbackw" style="margin-top: 0.5em;" data-myxlkey="main.generaladvice"></div>
@@ -26498,12 +26143,6 @@ function readjpg(file) {
 <!-- block overlay -->
 <div class="overlay" id="overlay" style="display:none;">&nbsp;</div>
 <!-- end of block overlay -->
-<!-- debug -->
-<div id="debugonly" style="display:none;">
-Debugging: <input type="file" onchange="imbc.dodebug()" accept=".html,.htm,.xml" id="dbgfsel">
-Replaceraw: <input type="file" onchange="imbc.replraw()" accept=".raw,.RAW" id="dbgreplraw"><br>
-<span style="font-weight: bold;font-family:Symbol3;">&#x1f4f7; &#x1f3a5; &#x2261; &#x1f570; &#x2190; &#x2261; &#x1f5c9; &#x1f5ce; &#x1f5cf; &#x1f5c4; &#x33d2; &#x2699;</span> <span style="font-family:Symbol3;">&#x1f4f7; &#x1f3a5; &#x2261; &#x1f570; &#x2190; &#x2261; &#x1f5c9; &#x1f5ce; &#x1f5cf; &#x1f5c4; &#x33d2; &#x2699;</span> 
-</div>
 <!-- this is invisible -->
 <a style="display: none;" id="result">x</a>
 <!-- templates -->
