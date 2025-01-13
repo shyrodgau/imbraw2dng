@@ -9,7 +9,7 @@ const TESTDAT0='/home/hegny/prog/imbraw2dng/samples';
 
 const TESTURL='http://127.0.0.1:8889/';
 
-const FILELIST=[ '2024_0217_121752_001.dng', '2029_0710_010203_001.dng', '2024_0217_121754_002.JPG', '2024_0217_121754_002_001.JPG', '2024_0217_121752_001_001.dng', '2029_0707_120426_021.dng' ];
+const FILELIST=[ '2024_0217_121752_001.dng', '2029_0710_010203_001.dng', '2024_0217_121754_002.JPG', '2024_0217_131752_002.JPG', '2024_0217_131750_001.dng', '2029_0707_120426_021.dng' ];
 
 // test executable path:
 const TESTEXES='/home/hegny/prog/imbraw2dng/github';
@@ -26,7 +26,8 @@ const capabilities = {
   'appium:appPackage': 'eu.imback.os.app',
   'appium:appActivity': '.MainActivity',
   'appium:autoWebview': true,
-  'appium:newCommandTimeout': 320
+  'appium:newCommandTimeout': 320,
+  'appium:chromeOptions': { 'w3c': false }
 };
 
 const wdOpts = {
@@ -183,7 +184,23 @@ async function runTest() {
 	await driver.pause(200);
     const imgrp2b = await waitfor(driver, '#SELC_2024_02_17');
     await imgrp2b.click();
+	const zoom0x2 = await waitfor(driver,'#gg_2024_02_17_X .onepic');
+	await zoom0x2.click();
+	await driver.pause(200);
+	const zoom03 = await waitfor(driver, '#gg_2024_02_17_X .magbtn');
+	await zoom03.click();
+	await driver.pause(200);
+	const timebtn = await waitfor(driver, '#xmag .timebtn');
+	await timebtn.click();
+	await driver.pause(200);
+	const timetxt = await waitfor(driver, '#xmag .timetxt');
+	await timetxt.click();
+	const str = '2024-02-17T13:17:52';
+	await timetxt.sendKeys([str]);
 	await driver.pause(700);
+	const bbb2 = await waitfor(driver, '#magnix .whbtn');
+	await driver.pause(900);
+	await bbb2.click();
     const selbut2 = await driver.$('#doselbut');
     await selbut2.click();
 	await driver.pause(1000);

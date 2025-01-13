@@ -18207,6 +18207,9 @@ xexif(name, view, datestr) {
 	let maxdat = 0;
 	off = exifoff + baseoff;
 	nent = TIFFOut.readshort(view, off);
+	let na = [];
+	na.push(view.getUint8(off));
+	na.push(view.getUint8(off+1));
 	off += 2;
 	for (let j=0; j<nent; j++) {
 		// seek end of data for tags
@@ -18214,40 +18217,16 @@ xexif(name, view, datestr) {
 		let typ = TIFFOut.readshort(view, off+2);
 		let num = TIFFOut.readint(view, off+4);
 		let addr = TIFFOut.readint(view, off+8);
-		off += 12;
 		let ee = TIFFOut.types.find(e => e.t === typ);
 		if (undefined === ee) {
 			console.log('EXIF: TYP NOT FOUND ' + typ);
 			continue;
 		}
-		if (tag === 40965) {
-			/* add interop, assume two entries (2x12 + 2 for the number of entries) */
-			if (addr + 26 > maxdat) maxdat = addr + 26;
-		}
-		else if (ee.l * num <= 4)
-			continue;
-		if (addr < exifoff) {
-			console.log('EXIF OFFSET BEFORE IFD');
-			continue;
-		}
-		/*if (tag == 37510) {
-			// fix user comment encoding
-			view.setUint8(addr + baseoff, 0x41);
-			view.setUint8(addr + baseoff + 1, 0x53);
-			view.setUint8(addr + baseoff + 2, 0x43);
-			view.setUint8(addr + baseoff + 3, 0x49);
-			view.setUint8(addr + baseoff + 4, 0x49);
-			view.setUint8(addr + baseoff + 5, 0x00);
-			view.setUint8(addr + baseoff + 6, 0x00);
-			view.setUint8(addr + baseoff + 7, 0x00);
-		}
-		else*/ if (tag === 37500) {
-			// strip maker notes
-			view.setUint8(off-8, 1);
-			view.setUint8(off-7, 0);
-			view.setUint8(off-6, 0);
-			view.setUint8(off-5, 0);
-		}
+		na.push(view.getUint8(off));
+		na.push(view.getUint8(off+1));
+		na.push(view.getUint8(off+2));
+		na.push(view.getUint8(off+3));
+		off += 12;
 		if ((tag === 0x9003 || tag === 0x9004) && this.corrdelta && datestr) {
 			for (let j=0; j<Math.min(19,datestr.length); j++) {
 				if (j===4 || j===7 || j===13 || j==16)
@@ -18258,23 +18237,80 @@ xexif(name, view, datestr) {
 					view.setUint8(addr+baseoff+j, datestr.charCodeAt(j));
 			}
 		}
-		if (addr + ee.l * num > maxdat) maxdat = addr + ee.l * num;
-		// we correct the addresses so that 0 is start of exif ifd
-		addr = addr - exifoff;
-		view.setUint8(off-4, addr % 256);
-		addr = Math.floor(addr / 256);
-		view.setUint8(off-3, addr % 256);
-		addr = Math.floor(addr / 256);
-		view.setUint8(off-2, addr % 256);
-		addr = Math.floor(addr / 256);
-		view.setUint8(off-1, addr % 256);
-		addr = Math.floor(addr / 256);
+		if (tag === 40965) {
+			/* add interop, assume two entries (2x12 + 2 for the number of entries) */
+			na.push(view.getUint8(off-8));
+			na.push(view.getUint8(off-7));
+			na.push(view.getUint8(off-6));
+			na.push(view.getUint8(off-5));
+			if (addr + 26 > maxdat) maxdat = addr + 26;
+			// we correct the addresses so that 0 is start of exif ifd
+			addr = addr - exifoff;
+			na.push(addr % 256);
+			addr = Math.floor(addr / 256);
+			na.push(addr % 256);
+			addr = Math.floor(addr / 256);
+			na.push(addr % 256);
+			addr = Math.floor(addr / 256);
+			na.push(addr % 256);
+			addr = Math.floor(addr / 256);
+		}
+		else if (ee.l * num <= 4) {
+			na.push(view.getUint8(off-8));
+			na.push(view.getUint8(off-7));
+			na.push(view.getUint8(off-6));
+			na.push(view.getUint8(off-5));
+			na.push(view.getUint8(off-4));
+			na.push(view.getUint8(off-3));
+			na.push(view.getUint8(off-2));
+			na.push(view.getUint8(off-1));
+			continue;
+		}
+		else if (addr < exifoff) {
+			na.push(view.getUint8(off-8));
+			na.push(view.getUint8(off-7));
+			na.push(view.getUint8(off-6));
+			na.push(view.getUint8(off-5));
+			na.push(view.getUint8(off-4));
+			na.push(view.getUint8(off-3));
+			na.push(view.getUint8(off-2));
+			na.push(view.getUint8(off-1));
+			console.log('EXIF OFFSET BEFORE IFD');
+			continue;
+		}
+		else if (tag === 37500) {
+			// strip maker notes
+			na.push(1);
+			na.push(0);
+			na.push(0);
+			na.push(0);
+			na.push(view.getUint8(off-4));
+			na.push(view.getUint8(off-3));
+			na.push(view.getUint8(off-2));
+			na.push(view.getUint8(off-1));
+		}
+		else {
+			na.push(view.getUint8(off-8));
+			na.push(view.getUint8(off-7));
+			na.push(view.getUint8(off-6));
+			na.push(view.getUint8(off-5));
+			if (addr + ee.l * num > maxdat) maxdat = addr + ee.l * num;
+			// we correct the addresses so that 0 is start of exif ifd
+			addr = addr - exifoff;
+			na.push(addr % 256);
+			addr = Math.floor(addr / 256);
+			na.push(addr % 256);
+			addr = Math.floor(addr / 256);
+			na.push(addr % 256);
+			addr = Math.floor(addr / 256);
+			na.push(addr % 256);
+			addr = Math.floor(addr / 256);
+		}
 	}
 	if (maxdat === 0) maxdat = off+12;
 	else maxdat += 12;
 	if (maxdat - off > 100000) return;
-	let na = [];
-	for (let z = baseoff+exifoff; z<maxdat; z++)
+	for (let z = (baseoff+exifoff+2)+(12*nent); z<maxdat; z++)
 		na.push(view.getUint8(z));
 	this.#exififds.push( { name: name, data: na } );
 }

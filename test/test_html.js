@@ -626,6 +626,34 @@ describe('E Convert Raw from Imback APP', function() {
 				.click()
 				.pause(600)
 				.perform();
+			const zoom0x2 = await driver.findElement(By.css('#gg_2024_02_17_X .onepic'));
+			await driver.actions({ async: true })
+				.move({ origin: zoom0x2 })
+				.pause(30)
+				.perform();
+			const zoom03 = await waitfor(driver, 'css','#gg_2024_02_17_X .magbtn');
+			await driver.actions({ async: true })
+				.move({ origin: zoom03 })
+				.pause(10)
+				.click()
+				.pause(90)
+				.perform();
+			const timebtn = await waitfor(driver, 'css','#xmag .timebtn');
+			await driver.actions({ async: true })
+				.move({ origin: timebtn })
+				.pause(100)
+				.click()
+				.pause(600)
+				.perform();
+			const timetxt = await waitfor(driver, 'css','#xmag .timetxt');
+			await timetxt.sendKeys('2024-02-17T13:17:52');
+			//const bbb2 = await waitfor(driver, 'css', '#magnix .whbtn');
+			await driver.actions({ async: true })
+				.move({ origin: bbb })
+				.pause(100)
+				.click()
+				.pause(90)
+				.perform();
 			await driver.actions({ async: true })
 				.move({ origin: rcw })
 				.pause(100)
