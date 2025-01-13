@@ -75,7 +75,7 @@ find */* -type f|while read x; do z=$( echo "$x" | sed 's@/@_@g' ); ln -sv "$x" 
 
 find . -maxdepth 1 -name \*.[dD][nN][gG] -exec dcraw -e {} \; 2>/dev/null
 
-find * -name \*[jJdD][pPnN][gG] -type f -print -exec sh -c  'echo ==== ; exiftool -xmp -b  {} | xmllint -format - '  \; > ${TESTWORK}/imbraw2dng_test_${testid}_xmp.xml 2>&1
+find * -name \*[jJdD][pPnN][gG] -type f -print -exec sh -c  'echo ==== ; exiftool -xmp -b  "{}" | xmllint -format - '  \; > ${TESTWORK}/imbraw2dng_test_${testid}_xmp.xml 2>&1
 find * -type f -print0 | sort -z | xargs '-I{}' -0 exiftool -X '{}' > ${TESTWORK}/imbraw2dng_test_${testid}_exif.xml 2>&1
 find * -name \*[jJdD][pPnN][gG] -type f -print0 | sort -z | xargs '-I{}' -0 exiv2 -pR -uvb '{}' > ${TESTWORK}/imbraw2dng_test_${testid}_exiv2.txt 2>&1
 
