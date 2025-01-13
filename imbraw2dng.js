@@ -738,7 +738,7 @@ add(data, name, cb) {
 class ImBCBase {
 static progname = '';
 /* Indentation out */
-static version = "V5.9.6_f74ddc7"; // actually const // VERSION EYECATCHER
+static version = "V5.9.6_@_d_e_v"; // actually const // VERSION EYECATCHER
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -18668,7 +18668,9 @@ findlang(i) {
 	return this.mylang;
 }
 /* ImBCBase: extract exif from jpeg */
-xexif(name, view) {
+xexif(name, view, datestr) {
+	if (-1 !== this.#exififds.findIndex(v => v.name === name))
+		return;
 	if (view.getUint8(0) !== 0xff) return; /* JFIF */
 	if (view.getUint8(1) !== 0xd8) return;
 	if (view.getUint8(2) !== 0xff) return; /* APP1 */
@@ -18736,6 +18738,16 @@ xexif(name, view) {
 			view.setUint8(off-7, 0);
 			view.setUint8(off-6, 0);
 			view.setUint8(off-5, 0);
+		}
+		if ((tag === 0x9003 || tag === 0x9004) && this.corrdelta && datestr) {
+			for (let j=0; j<Math.min(19,datestr.length); j++) {
+				if (j===4 || j===7 || j===13 || j==16)
+					view.setUint8(addr+baseoff+j, 0x3a); /* : */
+				else if (j===10)
+					view.setUint8(addr+baseoff+j, 0x20); /* ' ' */
+				else
+					view.setUint8(addr+baseoff+j, datestr.charCodeAt(j));
+			}
 		}
 		if (addr + ee.l * num > maxdat) maxdat = addr + ee.l * num;
 		// we correct the addresses so that 0 is start of exif ifd
@@ -18854,7 +18866,7 @@ handleone(orientation) {
 			for (let j=0; j<contents.byteLength; j++) {
 				out[j] = view.getUint8(j);
 			}
-			if (rawname.substring(rawname.length - 4).toUpperCase() === '.JPG') this.xexif(rawname, view);
+			if (rawname.substring(rawname.length - 4).toUpperCase() === '.JPG') this.xexif(rawname, view, datestr);
 			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out);
 		}
 		reader.onerror = (evt) => {
