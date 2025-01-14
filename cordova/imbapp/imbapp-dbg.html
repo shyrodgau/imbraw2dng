@@ -18211,6 +18211,7 @@ xexif(name, view, datestr) {
 	na.push(view.getUint8(off));
 	na.push(view.getUint8(off+1));
 	off += 2;
+	let off9003 = 0, off9004 = 0, len9003 = 0, len9004 = 0;
 	for (let j=0; j<nent; j++) {
 		// seek end of data for tags
 		let tag = TIFFOut.readshort(view, off);
@@ -18227,15 +18228,13 @@ xexif(name, view, datestr) {
 		na.push(view.getUint8(off+2));
 		na.push(view.getUint8(off+3));
 		off += 12;
-		if ((tag === 0x9003 || tag === 0x9004) && this.corrdelta && datestr) {
-			for (let j=0; j<Math.min(19,datestr.length); j++) {
-				if (j===4 || j===7 || j===13 || j==16)
-					view.setUint8(addr+baseoff+j, 0x3a); /* : */
-				else if (j===10)
-					view.setUint8(addr+baseoff+j, 0x20); /* ' ' */
-				else
-					view.setUint8(addr+baseoff+j, datestr.charCodeAt(j));
-			}
+		if (tag === 0x9003 && this.corrdelta && datestr) {
+			off9003 = addr +baseoff;
+			len9003 = num;
+		}
+		else if (tag === 0x9004 && this.corrdelta && datestr) {
+			off9004 = addr +baseoff;
+			len9004 = num;
 		}
 		if (tag === 40965) {
 			/* add interop, assume two entries (2x12 + 2 for the number of entries) */
@@ -18310,8 +18309,21 @@ xexif(name, view, datestr) {
 	if (maxdat === 0) maxdat = off+12;
 	else maxdat += 12;
 	if (maxdat - off > 100000) return;
-	for (let z = (baseoff+exifoff+2)+(12*nent); z<maxdat; z++)
-		na.push(view.getUint8(z));
+	for (let z = (baseoff+exifoff+2)+(12*nent); z<maxdat; z++) {
+		if (z === off9003 || z === off9004) {
+			let l = (z === off9003) ? len9003 : len9004;
+			for (let j=0; j<Math.min(l,datestr.length); j++) {
+				if (j===4 || j===7 || j===13 || j==16 || j === 10)
+					na.push(view.getUint8(z));
+				else
+					na.push(datestr.charCodeAt(j));
+				z++;
+			}
+			z--;
+		}
+		else
+			na.push(view.getUint8(z));
+	}
 	this.#exififds.push( { name: name, data: na } );
 }
 /* ImBCBase: time values from filename */
@@ -22611,7 +22623,7 @@ function init2() {
 /* *************************************** globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.9.7_397cbf4", // actually const // VERSION EYECATCHER
+version: "V5.9.7_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 texts: { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
