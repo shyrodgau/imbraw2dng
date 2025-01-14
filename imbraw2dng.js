@@ -738,7 +738,7 @@ add(data, name, cb) {
 class ImBCBase {
 static progname = '';
 /* Indentation out */
-static version = "V5.9.7_@_d_e_v"; // actually const // VERSION EYECATCHER
+static version = "V5.9.7_3ac6b37"; // actually const // VERSION EYECATCHER
 static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
 static texts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -18898,6 +18898,7 @@ handleone(orientation) {
 		};
 	}
 	let rawname = ImBCBase.basename(f.name);
+	let inname = rawname;
 	let { date, datestr, nn, newname } = ImBCBase.nametotime(rawname, this.corrdelta);
 	if (this.corrdelta && newname?.length) rawname = newname;
 	if (rawname.substring(rawname.length - 4).toUpperCase() !== '.RAW') {
@@ -18906,7 +18907,7 @@ handleone(orientation) {
 			if (this.totnum > 1) {
 				this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
 			}
-			this.mappx(0, 'process.notraw',rawname);
+			this.mappx(0, 'process.notraw',inname);
 			let contents = evt.target.result;
 			if (contents.buffer) contents = contents.buffer;
 			const view = new DataView(contents);
@@ -18989,7 +18990,7 @@ handleone(orientation) {
 			if (this.#addimgs.length === 0)
 				this.#historystring='';
 			this.#addimgs.push(view);
-			this.mappx(0, 'main.fakelong.added', rawname);
+			this.mappx(0, 'main.fakelong.added', inname);
 			if (this.#historystring.length < 2)
 				this.#historystring += rawname;
 			else
@@ -19128,7 +19129,7 @@ handleone(orientation) {
 				return this.handlenext();
 			}
 		}
-		this.mappx(0, 'process.processing', rawname);
+		this.mappx(0, 'process.processing', inname);
 		this.mappx(0, 'process.assuming', ImBCBase.types[typ < 32 ? typ : ((typ< 64)? (typ - 32) : (typ - 64))], mode);
 		if (dateok) {
 			this.mappx(0, 'process.datetime', datestr);
