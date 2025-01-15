@@ -372,7 +372,7 @@ addEntry(tag, type, value) {
 getData(offset) {
 	let ioff = 0, data = new Uint8Array(this.#imglen + (12 * this.#entrys.length) + this.#currentoff + 16);
 	if (this.#imgdata?.getUint8) {
-		if (-1 !== ImBCBase.twelvebitsizes.indexOf(this.#imglen)) {
+		if (-1 !== globals.twelvebitsizes.indexOf(this.#imglen)) {
 			for (let z=0; z<this.#imgdata.byteLength; z+=3) {
 				let n = this.#imgdata.getUint8(z);
 				data[ioff++] = this.#imgdata.getUint8(z+2);
@@ -694,7 +694,7 @@ handleone(fx) {
 		this.imbc.stats.error++;
 		return this.imbc.handlenext();
 	}
-	const zz = ImBCBase.infos.findIndex(v => v.size === f.size);
+	const zz = globals.infos.findIndex(v => v.size === f.size);
 	if (zz !== -1) {
 		this.imbc.appmsg("[" + (1 + this.imbc.actnum) + " / " + this.imbc.totnum + "] ");
 		const reader = f.imbackextension ? f : new FileReader();
@@ -885,664 +885,6 @@ add(data, name, cb) {
 class ImBCBase {
 static progname = '';
 /* Indentation out */
-static version = "V5.9.7_3ac6b37"; // actually const // VERSION EYECATCHER
-static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
-static texts = { // actually const
-	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
-	words: {
-		error: {
-			de: '\u001b[31m\u001b[1mFEHLER:\u001b[0m ',
-			en: '\u001b[31m\u001b[1mERROR:\u001b[0m ',
-			fr: '\u001b[31m\u001b[1mERREUR:\u001b[0m ',
-			ja: '\u001b[31m\u001b[1mエラー:\u001b[0m ',
-			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
-		},
-		warning: {
-			de: '\u001b[31mWarnung:\u001b[0m ',
-			en: '\u001b[31mWarning:\u001b[0m ',
-			fr: '\u001b[31mAvertissement:\u001b[0m ',
-			ja: '\u001b[31m警告:\u001b[0m',
-			htmlstyle: [ [ 'background-color','#ffdddd' ] ]
-		},
-		finished: {
-			de: '\u001b[32m\u001b[1mFertig!\u001b[0m ',
-			en: '\u001b[32m\u001b[1mFinished!\u001b[0m ',
-			fr: '\u001b[32m\u001b[1mFini!\u001b[0m ',
-			ja: '\u001b[32m\u001b[1m終了!\u001b[0m ',
-			htmlstyle: [ [ 'background-color','#ddffdd' ], [ 'font-weight', 'bold' ] ]
-		},
-		sorryerr: {
-			de: '\u001b[31m\u001b[1mENTSCHULDIGUNG! FEHLER:\u001b[0m ',
-			en: '\u001b[31m\u001b[1mSORRY! ERROR:\u001b[0m  ',
-			fr: '\u001b[31m\u001b[1mDÉSOLÉE! ERREUR:\u001b[0m ',
-			ja: '\u001b[31m\u001b[1m申し訳ございません! エラー:\u001b[0m  ',
-			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
-		},
-		sorry: {
-			de: '\u001b[31mENTSCHULDIGUNG!\u001b[0m ',
-			en: '\u001b[31mSORRY!\u001b[0m  ',
-			fr: '\u001b[31mDÉSOLÉE!\u001b[0m ',
-			ja: '\u001b[31m申し訳ございません!\u001b[0m  ',
-			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
-		}
-	},
-	main: {
-		coloursyourrisk: {
-			de: 'Bei Farben bin ich raus! Eigenes Risiko, fraach mich net!',
-			en: 'About colurs, I am out! Own risk, do not ask me!',
-			fr: 'About colurs, I am out! Own risk, do not ask me!',
-			ja: '色については、アウトです！ 自己責任ですので、私に尋ねないでください。'
-		},
-		title: {
-			de: 'ImB RAW nach DNG Konverter',
-			en: 'ImB RAW to DNG converter',
-			fr: 'Convertisseur ImB RAW a DNG',
-			ru: 'Конвертер ImB RAW в DNG',
-			ja: 'ImB RAW を DNG に変換'
-		},
-	    backw: {
-			   title:  { en: 'ImB DNG to RAW back converter' },
-			   generaladvice: { en: 'Only works for the exact original converted DNG.' },
-			   selectdng: { en: 'Select orig. DNG' },
-			   drophere: { en: 'Drop DNGs here' }
-	    },
-		help: {
-			de: '? Hilfe Doku',
-			en: '? Help Doc',
-			fr: '? Aide Doc',
-			ru: '? Помощь Док',
-			ja: '? ヘルプ資料'
-		},
-		helplink: {
-			de: 'https://shyrodgau.github.io/imbraw2dng/README_de',
-			en: 'https://shyrodgau.github.io/imbraw2dng/',
-			fr: 'https://shyrodgau.github.io/imbraw2dng/',
-			ja: 'https://shyrodgau.github.io/imbraw2dng/README_ja'
-		},
-		generaladvice: {
-			de: 'Daten werden nur im Browser verarbeitet, nicht im \'Internet\'.<br>Kann sein, dass der Browser fragt, ob Sie zulassen wollen, dass mehrere Dateien heruntergeladen werden.<br>Dateien, die nicht oder unbekannte RAW-Dateien sind, werden 1:1 kopiert.',
-			en: 'Data processing is entirely in the browser, not in \'the internet\'<br>Browser may ask you if you want to allow downloading multiple files.<br>Not or unrecognized RAW Files simply will be copied.',
-			fr: 'L\'information est entièrement traitée dans le navigateur et non sur \'Internet\'<br>Le navigateur peux questionner que vous acceptez le téléchargement de beaucoup de fiches.<br>Fiches pas-RAW ou RAW inconnue sont copiée 1:1.',
-			ru: 'Данные обрабатываются только в браузере, а не в \'Интернете\'.<br>Браузер может спросить, хотите ли вы разрешить загрузку нескольких файлов.<br>Файлы, которые не являются или неизвестными файлами RAW, копируются 1:1.',
-			ja: 'データ処理は完全にブラウザ内で行われ、\'インターネット\'では行われません。<br>ブラウザにより複数のファイルのダウンロードを許可するかを尋ねることがあります。<br>RAW ファイルが存在しない、または認識されない場合は、単純にコピーされます。'
-		},
-		drophere: {
-			de: 'Dateien von ImB hier ablegen: ',
-			en: 'Drop Files from ImB here: ',
-			fr: 'Posez fiches de ImB ici: ',
-			ru: 'Храните файлы из ImB здесь: ',
-			ja: 'ここに ImB のファイルをドロップします。: '
-		},
-		selectraw: {
-			de: 'Oder diese Seite per WLAN <a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README_de#browsing-on-the-imback\',\'_system\');return false;">direkt von ImB</a> verwenden.<br>Oder <tt>.RAW</tt> Datei(en) auswählen:',
-			en: 'Or use this page via Wifi <a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README#browsing-on-the-imback\',\'_system\');return false;">directly from ImB</a>.<br>Or select <tt>.RAW</tt> File(s):',
-			ja: 'または、このページを WiFi 経由で<a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README_ja#browsing-on-the-imback\',\'_system\');return false;">ImB から直接</a>使用します。<br >または、<tt>.RAW</tt> ファイルを選択します。：'
-		},
-		stillcounting: {
-			de: '... zähle ... ',
-			en: '... counting ... ',
-			fr: '... compter ...',
-			ru: '... подсчет ...',
-			ja: '... カウント中 ... '
-		},
-		types: {
-			rawpics: {
-				de: 'RAW Bilder',
-				en: 'RAW Pictures',
-				fr: 'RAW images',
-				ja: 'RAW 画像'
-			},
-			jpgpics: {
-				de: 'JPEG-Bilder',
-				en: 'JPEG Pictures',
-				fr: 'JPEG images',
-				ja: 'JPEG 画像'
-			},
-			other: {
-				de: 'Andere',
-				en: 'Other',
-				fr: 'Autre',
-				ja: 'その他'
-			},
-			notpic: {
-				de: 'Keine Bilder',
-				en: 'Not pictures',
-				fr: 'Pas images',
-				ja: '画像ではない'
-			}
-		},
-		file: {
-			jpeg: {
-				de: 'Datei $$0 (JPEG)',
-				en: 'File $$0 (JPEG)',
-				fr: 'Fiche $$0 (JPEG)',
-				ja: 'ファイル $$0 (JPEG)'
-			},
-			nopreview: {
-				de: 'Datei $$0<br>Nicht jpeg oder raw, keine Vorschau...',
-				en: 'File $$0<br>Not jpeg or raw, no preview...',
-				fr: 'Fiche $$0<br>Ni jpeg ni raw, pas de aperçu...',
-				ja: 'ファイル $$0<br>jpeg または、raw 以外、プレビューなし...'
-			},
-			rawunknown: {
-				de: 'Datei $$0<br>Unerkannte RAW Dateigröße $$1, bitte Entwickler kontaktieren! Keine Vorschau...',
-				en: 'File $$0<br>Unknown raw size $$1, please contact developer! No preview...',
-				fr: 'Fiche $$0<br>taille de fiche $$1 non reconnue, contacter le développeur, pas de aperçu...',
-				ja: 'File $$0<br>不明な raw サイズ $$1, 開発者にお問い合わせください! プレビューなし...'
-			},
-			dngimpnote: {
-				de: 'Import eines DNG geht nur, wenn diese genau das hiermit erzeugte Original ist.',
-				en: 'Re-import of a DNG is only possible if this is exactly the original that was created here.',
-				fr: 'La réimportation d\'un DNG n\'est possible que s\'il s\'agit exactement de l\'original créé ici.',
-				ja: 'DNG の再インポートは、これがここで作成されたオリジナルである場合にのみ可能です。'
-			},
-			de: 'Datei $$0',
-			en: 'File $$0',
-			fr: 'Fiche $$0',
-			ja: 'ファイル $$0'
-		},
-		sort: {
-			de: 'Sortiere',
-			en: 'Sort:',
-			fr: 'Trier:',
-			ja: 'ソート:'
-		},
-		or: {
-			de: 'Oder ',
-			en: 'Or ',
-			fr: 'Ou ',
-			ja: 'または '
-		},
-		log: {
-			de: 'Protokoll-Ausgabe:',
-			en: 'Message Log:',
-			fr: 'Journal des messages',
-			ja: 'メッセージ ログ:'
-		},
-		selected: {
-			de: 'Ausgewählt',
-			en: 'Selected',
-			fr: 'Sélectionné(s)',
-			ja: '選択済み'
-		},
-		fakelong: {
-			en: 'Fake long exposure by adding up all (<a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README#a-lot-more-tricks-and-details\',\'_system\');return false;">read more</a>)',
-			de: 'Langzeitbelichtung durch Addieren simulieren (<a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README_de#a-lot-more-tricks-and-details\',\'_system\');return false;">mehr lesen</a>)',
-			ja: '「追加して長時間露光をシミュレートします (<a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README_ja#a-lot-more-tricks-and-details\',\'_system\');return false;">続きを読む</a>)」すべてを加算して長時間露光をシミュレートする',
-			scale: {
-				en: 'Scale values down',
-				de: 'Werte dabei herunterskalieren',
-				ja: 'スケールダウン値'
-			},
-			added: {
-				en: 'Added picture $$0',
-				de: 'Bild $$0 hinzugefügt',
-				ja: '画像を追加しました $$0'
-			}
-		},
-		usezip: {
-			de: 'Nicht mehrere Dateien einzeln, sondern in wenigen ZIP Archiven herunteladen.',
-			en: 'Do not use several single downloads, but in fewer ZIP archives.',
-			ja: '複数のファイルを個別にダウンロードするのではなく、いくつかの ZIP アーカイブとしてダウンロードしてください。',
-			choosedest: {
-				de: 'Ziel auswählen',
-				en: 'Choose destination',
-				ja: '目的地を選択'
-			}
-		},
-		newmsg: {
-			en: '<a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/issues\',\'_system\');return false;">Report bugs</a>',
-			de: '<a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/issues\',\'_system\');return false;">Fehler melden</a>',
-			ja: '<a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/issues\',\'_system\');return false;">バグ報告</a>'
-		}
-	},
-	browser: {
-		bytype: {
-			de: 'nach Typ',
-			en: 'by type',
-			fr: 'par type',
-			ja: '種類別'
-		},
-		olderfirst: {
-			de: 'Ältere nach oben',
-			en: 'Older first',
-			fr: 'Plus anciens ci-dessus',
-			ja: '古い順'
-		},
-		selall: {
-			tooltip: {
-				de: 'Wenn Haken nicht gesetzt, wähle alles aus. Bei Klick wenn angehakt setze Auswahl auf Nichts.',
-				en: 'If not selected then select all. If it is selected and clicked then unselect all.',
-				fr: 'S\'il n\'est pas sélectionner, sélectionner tout. Au clic si sélectionné, vider la sélection',
-				ja: '選択されていない場合は、すべてを選択します。 選択してクリックした場合は、すべての選択を解除します。'
-			},
-			de: 'Alle de-/ oder selektieren',
-			en: 'De-/select all',
-			fr: 'De-/sélectionner tout',
-			ja: 'すべての選択を解除'
-		},
-		procall: {
-			de: 'Alle ausgewählte kopieren/verarbeiten',
-			en: 'Copy/process all selected',
-			fr: 'Traiter les sélectionnés',
-			ja: '選択したものをすべてコピー/処理'
-		},
-		delall: {
-			de: 'Alle ausgewählte löschen',
-			en: 'Delete all selected',
-			fr: 'Supprimer les sélectionnés',
-			ja: '選択したものをすべて削除'
-		},
-		settingsset: {
-			en: 'Preferences are set for source $$0',
-			de: 'Voreinstellungen für $$0 gespeichert',
-			ja: 'デフォルト設定は $$0 で保存されます'
-		},
-		prefnotfile: {
-			en: 'Preferences not possible for file:// URLs',
-			de: 'Voreinstellungen für file:// URLs nicht möglich',
-			ja: 'file:// URL でデフォルト設定はできません'
-		},
-		setfrom: {
-			en: 'Set new prefereneces ',
-			de: 'Voreinstellungen setzen ',
-			ja: 'デフォルトを設定する'
-		},
-		forurl: {
-			en: ' for URL $$0',
-			de: ' für URL $$0',
-			ja: 'URL $$0 の場合'
-		}
-	},
-	onimback: {
-		connected: {
-			de: 'ImB Verbunden! ',
-			en: 'ImB Connected! ',
-			fr: 'ImB Connecté! ',
-			ja: 'ImB 接続済み! '
-		},
-		dlconvert: {
-			de: 'Konvertiere / Lade herunter: ',
-			en: 'Download / convert: ',
-			fr: 'Telecharger / convertir',
-			ja: 'ダウンロード / 変換: '
-		},
-		totalnum: {
-			de: 'gesamt:',
-			en: 'total:',
-			fr: 'total:',
-			ja: '合計:'
-		},
-		fromtime: {
-			de: 'ab Zeitstempel bzw. jünger als ',
-			en: 'from timestamp or younger than ',
-			fr: 'à partir de l\'horodatage ou plus jeune que ',
-			ja: 'タイムスタンプ以降またはそれより古い '
-		},
-		nullforall: {
-			de: '0000 oder leer für \'alle\'',
-			en: '0000 or empty for \'all\'',
-			fr: '0000 ou déposer pour \'tout\'',
-			ja: '0000 または、 \'すべて\' 空 '
-		},
-		doit: {
-			de: 'Mach es',
-			en: 'Do it',
-			fr: 'Fais-le',
-			ja: '実行'
-		},
-		visual: {
-			de: 'Bild-Browser benutzen',
-			en: 'Use visual Picture Browser',
-			fr: 'Ou outilizer navigateur visuel des images',
-			ja: 'ビジュアルな画像ブラウザを使用する'
-		},
-		errconnect: {
-			de: '\u001b[31mFEHLER\u001b[0m bei der Verbindung zu ImB auf $$0! Im ImB WLAN?',
-			en: '\u001b[31mERROR\u001b[0m connecting to ImB on $$0! In the ImB WiFi?',
-			fr: '\u001b[31mERREUR\u001b[0m lors de la connexion à imback. Dans le Wifi ImB?',
-			ja: '\u001b[31mエラー\u001b[0m $$0 でImB に接続しています! ImB WiFi ですか?'
-		},
-		nomatch: {
-			de: 'Keine passenden Dateien gefunden. Kann vorübergehend sein.',
-			en: 'No matching files found. Might be temporary.',
-			fr: 'Aucun fiche correspondant trouvé. Peut-etre temporaire.',
-			ja: '一致するファイルが見つかりませんでした。 一時的なものかもしれません。'
-		},
-		strangename: {
-			de: 'Komischer Dateiname: $$0',
-			en: 'Strange file name: $$0',
-			fr: 'Nom de fiche inhabituel: $$0',
-			ja: '無効なファイル名: $$0'
-		},
-		invaltime: {
-			de: 'Ungültiger Zeitstempel: $$0',
-			en: 'Invalid timestamp: $$0',
-			fr: 'Horodatage invalide: $$0',
-			ja: '無効なタイムスタンプ: $$0'
-		},
-		invaltimediff: {
-			de: 'Ungültige Zeitanpassung: $$0',
-			en: 'Invalid time adjustment: $$0',
-			ja: '無効なタイムスタンプ: $$0'
-		},
-	},
-	process: {
-		singlestep: {
-			de: 'Einzelschritt mit Vorschau',
-			en: 'Single Step with preview',
-			fr: 'Seule étape avec aperçu',
-			ja: 'プレビューありでシングルステップ'
-		},
-		addcopyright: {
-			en: 'Copyright',
-			de: 'Copyright',
-			ja: '著作権を追加'
-		},
-		addartist: {
-			en: 'Artist/Creator',
-			de: 'Künstler/Ersteller'
-		},
-		metadata: {
-			en: 'Metadata:',
-			de: 'Metadaten:'
-		},
-		nothing: {
-			de: 'Nichts ausgewählt.. ?',
-			en: 'Nothing selected...?',
-			fr: 'Rien de sélectionné',
-			ja: '何も選択されていません...?'
-		},
-		erraccess: {
-			de: 'beim Zugriff auf $$0.',
-			en: 'occured accessing $$0.',
-			fr: 'lors de l\'accès à $$0.',
-			ja: '>アクセス中にエラーが発生しました $$0.'
-		},
-		notraw: {
-			de: 'Durchleitung weil nicht raw: $$0',
-			en: 'Passing through as not raw: $$0',
-			fr: 'Passage comme non RAW: $$0',
-			ja: 'RAW ではないのでスルー: $$0'
-		},
-		selectedn: {
-			de: '$$0 Datei(en) wurden ausgewählt.',
-			en: 'Got $$0 file(s) selected.',
-			fr: '$$0 fiche(s) sélectionné(s)',
-			ja: '$$0 ファイルが選択されました。'
-		},
-		copyokcheckdl: {
-			de: 'Nach $$0 kopiert (Downloads-Ordner prüfen)</b>&nbsp;',
-			en: 'Copied to $$0 (Check Downloads Folder)</b>&nbsp;',
-			fr: 'Copié sur $$0 (Vérifier le dossier de téléchargements/Downloads)</b>&nbsp;',
-			ja: '$$0 にコピーされました (ダウンロードフォルダーを確認)</b>&nbsp;'
-		},
-		copyok: {
-			de: 'Nach $$0 kopiert',
-			en: 'Copied to $$0',
-			fr: 'Copié sur $$0',
-			ja: '$$0 にコピー'
-		},
-		errorreadingfile: {
-			de: 'beim Lesen der Datei $$0',
-			en: 'occured reading file $$0',
-			fr: 'de lecture du fiche $$0',
-			ja: 'ファイル $$0 の読み取り中にエラーが発生しました。 '
-		},
-		unknownsize: {
-			de: 'Die Dateigröße <b>$$0</b> passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!',
-			en: 'File Size <b>$$0</b> does not match known formats. Please contact developer!',
-			fr: 'La taille du fiche <b>$$0</b> ne correspond pas au format connu. Veuillez contacter le développeur',
-			ja: 'が、ファイルサイズ <b>$$0</b> は既知の形式と一致しません。開発者にお問い合わせください。'
-		},
-		unknownsizex: {
-			de: 'Die Dateigröße $$0 passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!',
-			en: 'File Size $$0 does not match known formats. Please contact developer!',
-			fr: 'La taille du fiche $$0 ne correspond pas au format connu. Veuillez contacter le développeur',
-			ja: 'が、ファイルサイズ $$0 は既知の形式と一致しません。開発者にお問い合わせください。'
-		},
-		processing: {
-			de: 'Verarbeite Datei: $$0 ',
-			en: 'Processing file: $$0',
-			fr: 'Je suis en train de traiter le fiche $$0',
-			ja: '処理中のファイル: $$0'
-		},
-		assuming: {
-			de: 'Annahme: $$0 $$1',
-			en: 'Assuming $$0 $$1',
-			fr: 'Hypothèse: $$0 $$1',
-			ja: '認識 $$0 $$1'
-		},
-		datetime: {
-			de: 'Datum/Zeit: $$0',
-			en: 'Date/Time: $$0 ',
-			fr: 'Date/heure: $$0',
-			ja: '日付/時刻: $$0 '
-		},
-		orientation: {
-			de: 'Drehung: $$0',
-			en: 'Orientation: $$0',
-			fr: 'Rotation: $$0',
-			ja: '向き: $$0'
-		},
-		convertedcheckdl: {
-			de: 'Nach $$0 konvertiert (Downloads-Ordner prüfen)',
-			en: 'Converted to $$0 (Check Downloads Folder)',
-			fr: 'Converti en $$0 (Vérifier le dossier de téléchargements/Downloads)',
-			ja: '$$0 に変換されました (ダウンロードフォルダーを確認してください)'
-		},
-		converted: {
-			de: 'Nach $$0 konvertiert',
-			en: 'Converted to $$0',
-			fr: 'Converti en $$0',
-			ja: '$$0 に変換'
-		},
-		errsave: {
-			de: 'Konnte Datei $$0 nicht speichern.',
-			en: 'Could not write file $$0',
-			fr: 'Impossible d\'écrire le fiche $$0.',
-			ja: 'ファイル $$0 に書き込めませんでした'
-		},
-		droppedn: {
-			de: '$$0 Datei(en) wurden abgelegt.',
-			en: 'Got $$0 file(s) dropped.',
-			fr: '$$0 fiche(s) ont été stockés',
-			ja: '$$0 個のファイルがドロップされました。'
-		},
-		frombackn: {
-			de: '$$0 Datei(en) vom ImB zu verarbeiten.',
-			en: 'Got $$0 file(s) from ImB.',
-			fr: 'J\'ai reçu $$0 fiche(s) d\'ImB',
-			ja: 'ImB から $$0 ファイルを取得しました。'
-		},
-		frombrowsern: {
-			de: '$$0 Datei(en) vom Bild-Browser zu verarbeiten.',
-			en: 'Got $$0 file(s) from Visual browser.',
-			fr: 'J\'ai obtenu $$ fiche(s) du navigateur visuel',
-			ja: 'ビジュアル ブラウザから $$0 ファイルを取得しました。'
-		},
-		skipped: {
-			remaining: {
-				de: 'Verbleibende $$0 Dateien auf Anforderung übersprungen',
-				en: 'Skipping remaining $$0 images at your request',
-				fr: '$$0 fiches restants ignorés sur demande',
-				ja: 'リクエストに応じてスキップ: $$0'
-			},
-			de: 'Auf Anforderung übersprungen: $$0',
-			en: 'Skipped at your request: $$0',
-			fr: 'Ignoré à votre demande: $$0',
-			ja: 'リクエストに応じて残りの $$0 画像をスキップします'
-		},
-		totals: {
-			en: 'Total: $$0, ok: $$1, skipped: $$2, Errors: $$3',
-			de: 'Total: $$0, ok $$1, übersprungen: $$2, Fehler: $$3',
-			fr: 'Total: $$0, ok: $$1, Ignoré: $$2, Erreur: $$3',
-			ja: '合計 $$0、OK $$1、スキップ $$2、エラー $$3'
-		},
-		addpreview: {
-			en: 'Add preview thumbnail to DNG',
-			de: 'Kleines Vorschaubild im DNG',
-			fr: 'Petite image d\'aperçu en DNG',
-			ja: 'プレビューのサムネイルを DNG に追加する'
-		},
-		addexif: {
-			en: 'Add EXIF data from $$0',
-			de: 'Gebe EXIF Daten von $$0 dazu',
-			ja: '$$0のEXIFデータを追加'
-		},
-		includedcp: {
-			en: 'Include the new DNG camera profile (DCP)',
-			de: 'Neues DNG Kamera-Profil (DCP) einbetten',
-			ja: '新しい DNG カメラ プロファイル (DCP) を埋め込みます。'
-		},
-		oldstylewb: {
-			en: 'Use old-style constant white balance',
-			de: 'Alten konstanten Weißabgleich verwenden',
-			ja: '古い一定のホワイト バランスを使用する'
-		},
-		adddcp: {
-			en: 'Adding new DCP',
-			de: 'Bette neues DCP Farbprofile ein',
-			ja: '新しい DCP カラー プロファイルを埋め込む'
-		},
-		foundwb: {
-			en: 'Found whitebalance $$0 / $$1 / $$2',
-			de: 'Weißabgleich $$0 / $$1 / $$2 gefunden',
-			ja: 'ホワイトバランス $$0 / $$1 / $$2 が見つかりました'
-		}
-	},
-	preview: {
-		err: {
-			de: 'Fehler bei Vorschau :-(',
-			en: 'Error with Preview :-(',
-			fr: 'Erreur dans l\'aperçu :-(',
-			ja: 'プレビューでのエラー :-('
-		},
-		rotcw: {
-			de: 'im Uhrzeigersinn drehen',
-			en: 'Rotate clockwise',
-			fr: 'tourner dans le sens des aiguilles d\'une montre',
-			ja: '時計回りに回転'
-		},
-		rotccw: {
-			de: 'gegen den Uhrzeigersinn drehen',
-			en: 'rotate counterclockwise',
-			fr: 'tourner dans le sens inverse des aiguilles d\'une montre',
-			ja: '反時計回りに回転'
-		},
-		rot180: {
-			de: 'auf den Kopf',
-			en: 'Rotate 180°',
-			fr: 'retourné',
-			ja: '180°回転'
-		},
-		rotreset: {
-			de: 'Drehung zurücksetzen',
-			en: 'Reset',
-			fr: 'Réinitialiser la rotation',
-			ja: 'リセット',
-			tooltip: {
-				de: 'Ursprüngliche Bildausrichtung wiederherstellen',
-				en: 'Reset original image orientation',
-				fr: 'Restaurer l\'orientation originale de l\'image',
-				ja: '元の画像の向きにリセット'
-			}
-		},
-		process: {
-			de: 'Kopieren/Konvertieren',
-			en: 'Copy/Convert',
-			fr: 'Copie/Convertir',
-			ja: '元の画像の向きにリセット'
-		},
-		skip: {
-			de: 'Überspringen',
-			en: 'Skip',
-			fr: 'Sauter',
-			ja: 'コピー/変換'
-		},
-		forall: {
-			de: 'Für alle weiteren das selbe',
-			en: 'Do this for all following',
-			fr: 'Faites ceci pour tous les suivants',
-			ja: '以下のすべてに対してこれを実行します'
-		},
-		orients: {
-			none: {
-				de: 'keine',
-				en: 'none',
-				fr: 'aucune',
-				ja: 'なし'
-			},
-			upsidedown: {
-				de: '180°',
-				en: '180°',
-				ja: '180°',
-				fr: '180°'
-			},
-			clockwise: {
-				de: 'im Uhrzeigersinn',
-				en: 'clockwise',
-				fr: 'dans le sens des aiguilles d\'une montre',
-				ja: '時計回り'
-			},
-			counterclockwise: {
-				de: 'gegen den Uhrzeigersinn',
-				en: 'counterclockwise',
-				fr: 'dans le sens inverse des aiguilles d\'une montre',
-				ja: '反時計回り'
-			}
-		}
-	},
-	raw: {
-		unknownsize: {
-			de: 'Unerkannte RAW-Dateigröße, Entwickler kontaktieren',
-			en: 'Unrecognized RAW file size, contact developer',
-			fr: 'La taille du fiche RAW ne correspond pas au format connu. Veuillez contacter le développeur',
-			ja: '反時計回り'
-		},
-	},
-	selection: {
-		got: {
-			de: '$$0 Dateien wurden ausgewählt.',
-			en: 'Got $$0 files selected.',
-			fr: '$$0 dossiers ont été sélectionnés.',
-			ja: '$$0 ファイルが選択されました。'
-		},
-	},
-	del: {
-		question: {
-			en: 'Deleting $$0 file(s) can not be undone! Are you sure you want to continue?',
-			de: 'Löschen von $$0 Datei(en) kann nicht rückgängig gemacht werden. Sicher damit weitermachen?',
-			fr: 'La suppression de $$0 fiche(s) est irréversible. Es-tu sur de vouloir continuer?',
-			ja: '$$0 ファイルを削除すると、元に戻すことはできません。 続行してもよろしいですか?',
-			ok: {
-				de: 'Ok',
-				en: 'Ok',
-				fr: 'Ok',
-				ja: 'はい'
-			},
-			cancel: {
-				de: 'Abbrechen',
-				en: 'Cancel',
-				fr: 'Annuler',
-				ja: 'キャンセル'
-			}
-		},
-		nostatus: {
-			de: 'Der Status des Löschens kann nicht sicher geprüft werden. Bitte laden Sie die Seite nach dem Löschen neu.',
-			en: 'The status of the delete can not be checked safely. Reload the page after deleting.',
-			fr: 'Le statut de la suppression ne peut pas être vérifié avec certitude. Veuillez recharger la page après la suppression.',
-			ja: '削除のステータスを安全に確認することはできません。 削除後はページを再読み込みしてください。'
-		},
-		reload: {
-			de: 'Bitte Seite neu laden.',
-			en: 'Please reload page.',
-			fr: 'Veuillez recharger la page.',
-			ja: 'ページをリロードしてください。'
-		}
-	},
-};
-
 // ImBCBase: generic data
 mylang = 'en';
 withpreview = true;
@@ -1578,139 +920,6 @@ latestjpg='0000';
 earliestraw='9999';
 latestraw='0000';
 
-// generic user input timestamp always complete
-//                       y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
-static fulltsregex = /^([02-3][0-9][0-9][0-9])([^0-9])([01][0-9])([^0-9])([0123][0-9])([^0-9])([012][0-9])([^0-9])([0-5][0-9])([^0-9])([0-5][0-9])$/ // actually const
-// generic user input timestamp (any prefix)
-//                  y      y     y     y      .      m     m     .      d      d      .      h     h      .      m     m      .      s     s
-static tsregex = /^[02-3]([0-9]([0-9]([0-9](([^0-9])[01]([0-9](([^0-9])[0123]([0-9](([^0-9])[012]([0-9](([^0-9])[0-5]([0-9](([^0-9])[0-5]([0-9])?)?)?)?)?)?)?)?)?)?)?)?)?$/ // actually const
-/* ImBCBase: Data for the Imback variants and exif stuff */
-// generic imb filename format
-//                   y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s     EXT
-static fnregex = /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])(.*[.])([^.]*)$/ // actually const
-// generic imb filename format, only timestamp
-//                    y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s      .        n
-static fnregexx = /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-9]*)/ // actually const
-static orients = [ '', 'none', '', 'upsidedown', '', '', 'clockwise', '', 'counterclockwise' ]; // actually const
-static oriecw = [ 1, 6, 3, 8 ]; // clockwise indices // actually const
-static types = [ "unknown", "ImB35mm", "MF 6x7 ", "MF6x4.5", "MF 6x6 ", "Film35 " ]; // all length 7, actually const
-static twelvebitsizes = [ 9706416, 11501280, 14709888, 17428128, 17915904, 19406448, 21098880, 23003136, 23887872, 30607488 ];
-static infos = [ // actually const
-	{
-		size: 14065920,
-		w: 4320,
-		h: 3256,
-		typ: 0,
-		mode: "historic"
-	},
-	{ /* MF 6x7 */
-		size: 15925248,
-		w: 4608,
-		h: 3456,
-		typ: 2,
-		mode: ""
-	},
-	{ /* MF 6x4.5 */
-		size: 12937632,
-		w: 4152, h: 3116,
-		typ: 3,
-		mode: ""
-	},
-	{
-		size: 9806592,
-		w: 3616, h: 2712,
-		typ: 3,
-		mode: "Medium-angle"
-	},
-	{
-		size: 6470944,
-		w: 2936, h: 2204,
-		typ: 3,
-		mode: "Small-angle"
-	},
-	{ /* MF 6x6 */
-		size: 11943936,
-		w: 3456, h: 3456,
-		typ: 4,
-		mode: ""
-	},
-	{ /* 35mm */
-		size: 15335424,
-		w: 4608, h: 3328,
-		typ: 1,
-		mode: ""
-	},
-	{
-		size: 11618752,
-		w: 4012, h: 2896,
-		typ: 1,
-		mode: "Medium-angle"
-	},
-	{
-		size: 7667520,
-		w: 3260, h: 2352,
-		typ: 1,
-		mode: "Small-angle"
-	},
-	/* 12 bit down here: */
-	/* Film ! */
-	{
-		size: 30607488,
-		w: 5216,
-		h:3912,
-		typ: 5,
-		mode: ''
-	},
-	/*{ /* MF 6x7 * /
-		size: 23887872,
-		w: 4608,
-		h: 3456,
-		typ: 34,
-		mode: "stacked"
-	},
-	{ /* MF 6x4.5 * /
-		size: 19406448,
-		w: 4152, h: 3116,
-		typ: 35,
-		mode: "stacked"
-	},
-	{
-		size: 14709888,
-		w: 3616, h: 2712,
-		typ: 35,
-		mode: "Medium-angle stacked"
-	},
-	{
-		size: 9706416,
-		w: 2936, h: 2204,
-		typ: 35,
-		mode: "Small-angle stacked"
-	},
-	{ /* MF 6x6 * /
-		size: 17915904,
-		w: 3456, h: 3456,
-		typ: 37,
-		mode: "stacked"
-	},
-	{ /* 35mm * /
-		size: 23003136,
-		w: 4608, h: 3328,
-		typ: 33,
-		mode: "stacked"
-	},
-	{
-		size: 17428128,
-		w: 4012, h: 2896,
-		typ: 33,
-		mode: "Medium-angle stacked"
-	},
-	{
-		size: 11501280,
-		w: 3260, h: 2352,
-		typ: 33,
-		mode: "Small-angle stacked"
-	},*/
-];
 //////// DYNAMIC SOURCE 1
 ////////////////////////////////////////////
 ////    DYNAMIC SOURCE: /home/hegny/prog/imbraw2dng/github/profiles/DCP/ImBack ImB35mm.dcp
@@ -18591,7 +17800,7 @@ static basename(n) {
 }
 /* ImBCBase: compare timestamp */
 comptime(fname, compts) {
-	const res = ImBCBase.fnregex.exec(fname);
+	const res = globals.fnregex.exec(fname);
 	if (res === null) {
 		this.appmsgxl(false, 'words.warning');
 		this.appmsgxl(0, 'onimback.strangename', fname);
@@ -18622,7 +17831,7 @@ rmesc(str) {
 }
 /* ImBCBase: get part of translation */
 xl0(str, base) {
-	if (undefined === base) base = ImBCBase.texts;
+	if (undefined === base) base = globals.texts;
 	const i = str.indexOf('.');
 	if (i === -1) {
 		let r = base[str][this.mylang];
@@ -18660,7 +17869,7 @@ subst(r, arg0, arg1, arg2, arg3) {
 /* ImBCBase: translate one string with parameters */
 xl(str, arg0, arg1, arg2, arg3, base) {
 	// console.log(' XL ' + str + ' - ' + base + ' - ' + arg0 + ' - ' + arg1);
-	if (undefined === base) base = ImBCBase.texts;
+	if (undefined === base) base = globals.texts;
 	if (this.mylang === '00') {
 		let res = '[' + str;
 		if (undefined !== arg0) {
@@ -18696,8 +17905,8 @@ querylang(name, offset) {
 	if ('00' === l) {
 		this.debugflag = true;
 		if (document) { // translation output into browser log
-			for (const el of Object.keys(ImBCBase.texts))
-				this.prxl(el, ImBCBase.texts[el]);
+			for (const el of Object.keys(globals.texts))
+				this.prxl(el, globals.texts[el]);
 			document.getElementById('langsel').innerHTML += '<option value="00" onclick="imbc.setlang()">00</option></select>';
 		}
 	}
@@ -18712,7 +17921,7 @@ prxl(key, el) {
 		try{
 		if (typeof el['de'] === 'string') {
 			let out = key + ';';
-			for (const l of ImBCBase.alllangs) {
+			for (const l of globals.alllangs) {
 				if (undefined !== el[l]) {
 					let a = el[l];
 					let b = '"';
@@ -18725,7 +17934,7 @@ prxl(key, el) {
 		else if (typeof el['de'][0] === 'string') {
 			for (let i=0; i< el['de'].length; i++) {
 				let out = key + '[' + i + '];';
-				for (const l of ImBCBase.alllangs) {
+				for (const l of globals.alllangs) {
 					if (undefined !== el[l] && undefined !== el[l][i]) {
 						let a = el[l][i];
 						let b = '"';
@@ -18750,7 +17959,7 @@ prxl(key, el) {
 /* ImBCBase: language helper */
 findlang(i) {
 	let found = 0;
-	for (const l of ImBCBase.alllangs) {
+	for (const l of globals.alllangs) {
 		if (i.toUpperCase() === l.toUpperCase()) {
 			this.mylang = l;
 			found = 1;
@@ -18904,7 +18113,7 @@ xexif(name, view) {
 }
 /* ImBCBase: time values from filename */
 static nametotime(name, corrdelta=0) {
-	let res = ImBCBase.fnregexx.exec(name);
+	let res = globals.fnregexx.exec(name);
 	if (res !== null) {
 		let yr = Number.parseInt(res[1]);
 		let mon = Number.parseInt(res[3]);
@@ -19013,7 +18222,7 @@ handleone(orientation) {
 	}
 	let w, h, mode = "??";
 	let typ = 0;
-	let zz = ImBCBase.infos.findIndex(v => v.size === f.size);
+	let zz = globals.infos.findIndex(v => v.size === f.size);
 	if (zz === -1) {
 		if (this.totnum > 1) {
 			this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
@@ -19043,12 +18252,12 @@ handleone(orientation) {
 		reader.readAsArrayBuffer(f);
 		return;
 	} else {
-		w = ImBCBase.infos[zz].w;
-		h = ImBCBase.infos[zz].h;
-		mode = ImBCBase.infos[zz].mode;
+		w = globals.infos[zz].w;
+		h = globals.infos[zz].h;
+		mode = globals.infos[zz].mode;
 		if (mode.length !== 0) mode += ' ';
 		mode += '(' + w + ' x ' + h + ')';
-		typ = ImBCBase.infos[zz].typ;
+		typ = globals.infos[zz].typ;
 	}
 	let dateok = false;
 	let { date, datestr, nn, newname } = ImBCBase.nametotime(rawname, this.corrdelta);
@@ -19214,17 +18423,17 @@ handleone(orientation) {
 			}
 		}
 		this.mappx(0, 'process.processing', rawname);
-		this.mappx(0, 'process.assuming', ImBCBase.types[typ < 32 ? typ : ((typ< 64)? (typ - 32) : (typ - 64))], mode);
+		this.mappx(0, 'process.assuming', globals.types[typ < 32 ? typ : ((typ< 64)? (typ - 32) : (typ - 64))], mode);
 		if (dateok) {
 			this.mappx(0, 'process.datetime', datestr);
 		}
 		let ori = orientation ? orientation : ((typ % 32) === 5 ? 3 : 1);
 		let transp = false;
 		if (ori !== 1) {
-			//this.mappx(0, 'process.orientation', this.xl0('preview.orients.' + ImBCBase.orients[ori]));
+			//this.mappx(0, 'process.orientation', this.xl0('preview.orients.' + globals.orients[ori]));
 			if (ori === 6 || ori === 8) transp = true;
 		}
-		const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : ImBCBase.getwb(view, zz, whitelvl);
+		const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : globals.getwb(view, zz, whitelvl);
 		//console.log('WB ' + JSON.stringify(wb));
 		//if (!this.constwb)
 		//	this.mappx(0, 'process.foundwb', Math.round(100*wb[0]/wb[1]), Math.round(100*wb[2]/wb[3]), Math.round(100*wb[4]/wb[5]));
@@ -19236,7 +18445,7 @@ handleone(orientation) {
 			/* **** PREVIEW image **** */
 			let scale = 32;
 			if (w < 4096 && h < 4096) scale=16;
-			ti.addImageStrip(1, ImBCBase.buildpvarray(view, 0, typ, w, h, ori, scale, wb, whitelvl), Math.floor(transp ? (h+scale-1)/scale:(w+scale-1)/scale), Math.floor(transp ? (w+scale-1)/scale: (h+scale-1)/scale));
+			ti.addImageStrip(1, globals.buildpvarray(view, 0, typ, w, h, ori, scale, wb, whitelvl), Math.floor(transp ? (h+scale-1)/scale:(w+scale-1)/scale), Math.floor(transp ? (w+scale-1)/scale: (h+scale-1)/scale));
 			ti.addEntry(258 , 'SHORT', [ 8, 8, 8 ]); /* BitsPerSample */
 			ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression - none */
 			ti.addEntry(262, 'SHORT', [ 2 ]); /* Photometric - RGB */
@@ -19246,15 +18455,15 @@ handleone(orientation) {
 			ti.addEntry(283, 'RATIONAL', [ 30, 1 ]); /* y resolution */
 		}
 		ti.addEntry(271, 'ASCII', 'ImBack'); /* Make */
-		ti.addEntry(50708, 'ASCII', 'ImBack' + ' ' + ImBCBase.types[typ < 32 ? typ : ((typ< 64)? (typ - 32) : (typ - 64))]); /* Unique model */
-		ti.addEntry(272, 'ASCII', ImBCBase.types[typ < 32 ? typ : ((typ< 64)? (typ - 32) : (typ - 64))]); /* Model */
+		ti.addEntry(50708, 'ASCII', 'ImBack' + ' ' + globals.types[typ < 32 ? typ : ((typ< 64)? (typ - 32) : (typ - 64))]); /* Unique model */
+		ti.addEntry(272, 'ASCII', globals.types[typ < 32 ? typ : ((typ< 64)? (typ - 32) : (typ - 64))]); /* Model */
 		ti.addEntry(274, 'SHORT', [ ori ]); /* Orientation */
-		ti.addEntry(305, 'ASCII', ImBCBase.progname + ' ' + ImBCBase.version); /* SW and version */
+		ti.addEntry(305, 'ASCII', ImBCBase.progname + ' ' + globals.version); /* SW and version */
 		if (!this.#historystring?.length)
 			this.#historystring = rawname;
 		let hxbytes = new TextEncoder().encode(this.#historystring);
 		// do UTF-8 bytes instead of ASCII if necessary
-		this.#historystring += (',' + ImBCBase.progname + ' ' + ImBCBase.version);
+		this.#historystring += (',' + ImBCBase.progname + ' ' + globals.version);
 		const hbytes = new TextEncoder().encode(this.#historystring);
 		if (hbytes.length === this.#historystring.length)
 			ti.addEntry(37395, 'ASCII', this.#historystring); /* image history */
@@ -19320,7 +18529,7 @@ handleone(orientation) {
     			rightbytes = new TextEncoder().encode(this.copyright);
     			xmpx.push(`</rdf:li></rdf:Alt></dc:rights>`);
 			}
-			let swbytes = new TextEncoder().encode(ImBCBase.progname + ' ' + ImBCBase.version);
+			let swbytes = new TextEncoder().encode(ImBCBase.progname + ' ' + globals.version);
 			let datbytes = [];
 			if (dateok) {
 				datbytes = new TextEncoder().encode(datestr.substring(0,4)+'-'+ datestr.substring(5,7)+'-'+datestr.substring(8,10)+'T'+datestr.substring(11));
@@ -19472,342 +18681,11 @@ writewrap(name, type, okmsg, arr1) {
 	} else
 		this.writefile(name, type, okmsg, arr1);
 }
-/* ImBCBase: get white balance */
-static getwb(view, typidx, whitelvl) {
-	//console.log('GWB ' + typidx + ' ' + JSON.stringify(ImBCBase.infos[typidx]));
-	const t = ImBCBase.infos[typidx < 32 ? typidx : ((typidx< 64)? (typidx - 32) : (typidx - 64))];
-	let r=1, g=1, b=1;
-	for (let i=Math.round(0.05*t.h)*2; i<Math.ceil(0.9*t.h); i+=8) {
-		for (let j=Math.round(0.05*t.w)*2; j<Math.ceil(0.9*t.w); j+=8) {
-			let x = ImBCBase.getPix(j, i, t.w, view, typidx < 32 ? t.typ : (typidx < 64 ? 32 + t.typ : 64 + t.typ), whitelvl);
-			let lr = x[0];
-			let lg = x[1] + 1;
-			let lb = x[2];
-			let p = Math.sqrt(lg*lg + lb*lb + lr*lr);
-			if (p < 3 || p > (433)) continue;
-			//if (((i*t.w + j) % 50000) < 10)
-			//	console.log('i ' + i + ' j ' + j + ' R ' + lr + ' G ' + lg + ' B ' + lb + ' P ' + p);
-			//if (r + g == 2) {
-			//	console.log('R G B ' + x[0] + ' ' + x[1] + ' ' + x[2] + ' P ' + p + ' LB ' + lb + ' LR ' + lr + ' LG ' + lg);
-			//}
-			b += ((lb)/(p)>1) ? 1 : (lb)/(p);
-			g += ((lg)/(p)>1) ? 1 : (lg)/(p);
-			r += ((lr)/(p)>1) ? 1 : (lr)/(p);
-		}
-	}
-	//console.log('ER EG EB ' + r + ' ' + g + ' ' + b);
-	if ((r > b) && (r > g)) {
-		return [ 10, 10, Math.ceil(300000*g/r), 300000, Math.ceil(300000*b/r), 300000 ];
-	}
-	else if ((b > r) && (b > g)) {
-		return [ Math.ceil(300000*r/b), 300000, Math.ceil(300000*g/b), 300000, 10, 10 ];
-	}
-	else {
-		return [ Math.ceil(300000*r/g), 300000, 10, 10, Math.ceil(300000*b/g), 300000 ];
-	}
-}
-/* ImBCBase: get one downsampled median image value [ r g b ] */
-static getPix(x, y, w, view, typ, whitelvl) {
-	let outrgb = [];
-	let reds = [];
-	const w3 = w + (typ >= 64 ? w : (w>>1));
-	const xx = x + (typ >= 64 ? x : (x>>1));
-	let shiftr = 0, wbx = 255;
-	while (whitelvl > wbx) {
-		wbx = (2*(wbx+1)) -1; 
-		shiftr ++;
-	}
-	const dd = (typ === 5 || typ === 69) ? 240 : 0;
-	if (typ === 5 || typ == 33) {
-		/* film or stacked 35mm */
-		reds.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+2)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-	}
-	else if (typ === 69 || typ == 65) {
-		/* 16 bit film or 35mm */
-		reds.push(((view.getUint8((y+0)*w3 + xx+2) +  ((view.getUint8((y+0)*w3 + xx+3)) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+0)*w3 + xx+6) +  ((view.getUint8((y+0)*w3 + xx+7)) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+2)*w3 + xx+2) +  ((view.getUint8((y+2)*w3 + xx+3)) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+2)*w3 + xx+6) +  ((view.getUint8((y+2)*w3 + xx+7)) << 8))-dd)>>shiftr);
-	}
-	else if (typ > 64) {
-		/* 16 bit mf */
-		reds.push(((view.getUint8((y+1)*w3 + xx+2) +  ((view.getUint8((y+1)*w3 + xx+3)) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+1)*w3 + xx+6) +  ((view.getUint8((y+1)*w3 + xx+7)) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+3)*w3 + xx+2) +  ((view.getUint8((y+3)*w3 + xx+3)) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+3)*w3 + xx+6) +  ((view.getUint8((y+3)*w3 + xx+7)) << 8))-dd)>>shiftr);
-	}
-	else if (typ > 33) {
-		/* stacked mf */
-		reds.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-	}
-	else if (typ > 1) {
-		/* mf */
-		reds.push(view.getUint8((y+1)*w + x + 1));
-		reds.push(view.getUint8((y+1)*w + x + 3));
-		reds.push(view.getUint8((y+3)*w + x + 1));
-		reds.push(view.getUint8((y+3)*w + x + 3));
-	} else {
-		/* 35mm */
-		reds.push(view.getUint8(y*w + x + 1));
-		reds.push(view.getUint8(y*w + x + 3));
-		reds.push(view.getUint8((y+2)*w + x + 1));
-		reds.push(view.getUint8((y+2)*w + x + 3));
-	}
-	reds.sort(function(a,b) { return a - b; });
-	// median of red pixels
-	outrgb.push((reds[1] + reds[2]) / 2.0);
-	let greens = [];
-	if (typ === 5 || typ == 33) {
-		/* film or stacked 35mm */
-		greens.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-	}
-	else if (typ === 69 || typ == 65) {
-		/* 16 bit film or stacked 35mm */
-		greens.push((((view.getUint8((y+0)*w3 + xx+0)) +  ((view.getUint8((y+0)*w3 + xx+1) <<8)))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+0)*w3 + xx+4)) +  ((view.getUint8((y+0)*w3 + xx+5) <<8)))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+1)*w3 + xx+2) +  ((view.getUint8((y+1)*w3 + xx+3)) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+1)*w3 + xx+6) +  ((view.getUint8((y+1)*w3 + xx+7)) << 8))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+2)*w3 + xx+0)) +  ((view.getUint8((y+2)*w3 + xx+1)) << 8))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+2)*w3 + xx+4)) +  ((view.getUint8((y+2)*w3 + xx+5)) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+3)*w3 + xx+2) +  ((view.getUint8((y+3)*w3 + xx+3)) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+3)*w3 + xx+6) +  ((view.getUint8((y+3)*w3 + xx+7)) << 8))-dd)>>shiftr);
-	}
-	else if (typ > 64) {
-		/* 16 bit mf */
-		greens.push((((view.getUint8((y+0)*w3 + xx+2)) +  ((view.getUint8((y+0)*w3 + xx+3) <<8)))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+0)*w3 + xx+6)) +  ((view.getUint8((y+0)*w3 + xx+7) <<8)))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1)) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+1)*w3 + xx+4) +  ((view.getUint8((y+1)*w3 + xx+5)) << 8))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+2)*w3 + xx+2)) +  ((view.getUint8((y+2)*w3 + xx+3)) << 8))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+2)*w3 + xx+6)) +  ((view.getUint8((y+2)*w3 + xx+7)) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+3)*w3 + xx+1)) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+3)*w3 + xx+4) +  ((view.getUint8((y+3)*w3 + xx+5)) << 8))-dd)>>shiftr);
-	}
-	else if (typ > 33) {
-		/* stacked mf */
-		greens.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+1)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+2)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+3)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+3)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-	}
-	else if (typ > 1) {
-		greens.push(view.getUint8(y*w + x + 1));
-		greens.push(view.getUint8(y*w + x + 3));
-		greens.push(view.getUint8((y+1)*w + x));
-		greens.push(view.getUint8((y+1)*w + x + 2));
-		greens.push(view.getUint8((y+2)*w + x + 1));
-		greens.push(view.getUint8((y+2)*w + x + 3));
-		greens.push(view.getUint8((y+3)*w + x));
-		greens.push(view.getUint8((y+3)*w + x + 2));
-	} else {
-		greens.push(view.getUint8(y*w + x));
-		greens.push(view.getUint8(y*w + x + 2));
-		greens.push(view.getUint8((y+1)*w + x + 1));
-		greens.push(view.getUint8((y+1)*w + x + 3));
-		greens.push(view.getUint8((y+2)*w + x));
-		greens.push(view.getUint8((y+2)*w + x + 2));
-		greens.push(view.getUint8((y+3)*w + x + 1));
-		greens.push(view.getUint8((y+3)*w + x + 3));
-	}
-	greens.sort(function(a,b) { return a - b; });
-	outrgb.push((greens[3] + greens[4]) / 2.0);
-	let blues = [];
-	if (typ === 5 || typ === 33) {
-		blues.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+1)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+3)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+3)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-	}
-	else if (typ === 69 || typ === 65) {
-		blues.push((((view.getUint8((y+1)*w3 + xx+0)) +  ((view.getUint8((y+1)*w3 + xx+1) ) <<8))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+1)*w3 + xx+4)) +  ((view.getUint8((y+1)*w3 + xx+5) ) <<8))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+3)*w3 + xx+0)) +  ((view.getUint8((y+3)*w3 + xx+1) ) <<8))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+3)*w3 + xx+4)) +  ((view.getUint8((y+3)*w3 + xx+5) ) <<8))-dd)>>shiftr);
-	}
-	else if (typ > 65) {
-		blues.push((((view.getUint8((y+0)*w3 + xx+0)) +  ((view.getUint8((y+0)*w3 + xx+1) ) <<8))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+0)*w3 + xx+4)) +  ((view.getUint8((y+0)*w3 + xx+5) ) <<8))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+2)*w3 + xx+0)) +  ((view.getUint8((y+2)*w3 + xx+1) ) <<8))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+2)*w3 + xx+4)) +  ((view.getUint8((y+2)*w3 + xx+5) ) <<8))-dd)>>shiftr);
-	}
-	else if (typ > 33) {
-		blues.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-	}
-	else if (typ > 1) {
-		blues.push(view.getUint8(y*w + x));
-		blues.push(view.getUint8(y*w + x + 2));
-		blues.push(view.getUint8((y+2)*w + x));
-		blues.push(view.getUint8((y+2)*w + x + 2));
-	} else {
-		blues.push(view.getUint8((y+1)*w + x));
-		blues.push(view.getUint8((y+1)*w + x + 2));
-		blues.push(view.getUint8((y+3)*w + x));
-		blues.push(view.getUint8((y+3)*w + x + 2));
-	}
-	blues.sort(function(a,b) { return a - b; });
-	outrgb.push((blues[1] + blues[2]) / 2.0);
-	return outrgb;
-}
-/* ImBCBase: build preview in array */
-static buildpvarray(view, size, typ, w, h, orientation, scale, wb, whitelvl) {
-	if (undefined === wb) wb = [ 6, 10, 1, 1, 6, 10 ];
-	let sfact = scale ? scale : 8;
-	if (size === 2) sfact = 4;
-	else if (size === 1) sfact = 16;
-	const w8 = Math.floor((w+(sfact -1))/sfact);
-	const h8 = Math.floor((h+(sfact -1))/sfact);
-	const rfact = (wb[1]/wb[0]);
-	const gfact = (wb[3]/wb[2]);
-	const bfact = (wb[5]/wb[4]);
-	let outpix = [];
-	let rowiterstart, rowiterend;
-	let coliterstart, coliterend;
-	let transpose = false;
-	if ((typ % 32) === 5 && orientation === 0)
-		orientation = 3;
-	if (orientation === 3) {
-		rowiterstart = -1*(h8 -1);
-		rowiterend = 1;
-		coliterstart = -1*(w8 - 1);
-		coliterend = 1;
-	} else if (orientation === 6) {
-		transpose = true;
-		rowiterstart = 0;
-		rowiterend = w8;
-		coliterstart = -1*(h8 - 1);
-		coliterend = 1;
-	} else if (orientation === 8) {
-		transpose = true;
-		rowiterstart = -1*(w8 -1);
-		rowiterend = 1;
-		coliterstart = 0;
-		coliterend = h8;
-	} else {
-		rowiterstart = 0;
-		rowiterend = h8;
-		coliterstart = 0;
-		coliterend = w8;
-	}
-	let rhist = new Array(256), ghist = new Array(256), bhist = new Array(256);
-	for (let i = 0; i < 256; i++) {
-		rhist[i] = 0; ghist[i] = 0; bhist[i] = 0;
-	}
-	let cnt = 0;
-	for (let i = rowiterstart; i < rowiterend; i +=1) {
-		for (let j = coliterstart; j < coliterend; j+=1) {
-			let a = ImBCBase.getPix(Math.abs(transpose ? i :j)*sfact, Math.abs(transpose ? j :i)*sfact, w, view, typ, whitelvl);
-			outpix.push(a[0]);
-			outpix.push(a[1]);
-			outpix.push(a[2]);
-			rhist[a[0]]++;
-			ghist[a[2]]++;
-			bhist[a[2]]++;
-			cnt++;
-		}
-	}
-	// cut off top and bottom 0.2 and 3%
-	let cntx = 0, rallmin = 0, rallmax = 255;
-	while (cntx < (cnt * 0.03))
-		cntx += rhist[rallmin++];
-	if (rallmin > 0) rallmin --;
-	cntx = 0;
-	while (cntx < (cnt * 0.002))
-		cntx += rhist[rallmax--];
-	if (rallmax < 255) rallmax++;
-	let gallmin = 0, gallmax = 255;
-	cntx = 0;
-	while (cntx < (cnt * 0.03))
-		cntx += ghist[gallmin++];
-	if (gallmin > 0) gallmin --;
-	cntx = 0;
-	while (cntx < (cnt * 0.002))
-		cntx += ghist[gallmax--];
-	if (gallmax < 255) gallmax++;
-	let ballmin = 0, ballmax = 255;
-	cntx = 0;
-	while (cntx < (cnt * 0.03))
-		cntx += bhist[ballmin++];
-	if (ballmin > 0) ballmin --;
-	cntx = 0;
-	while (cntx < (cnt * 0.002))
-		cntx += bhist[ballmax--];
-	if (ballmax < 255) ballmax++;
-	let allmin = Math.min(rallmin, gallmin, ballmin);
-	let allmax = Math.max(rallmax, gallmax, ballmax);
-	let fact;
-	if (allmax > 247 && allmin < 8) {
-		fact = 1;
-		allmin = 0;
-		//console.log('Fact 1 ' + fact + ' i ' + allmin + ' a ' + allmax);
-	}
-	else if (allmax - allmin < 1) {
-		fact = 1;
-		//console.log('Fact 2 ' + fact + ' i ' + allmin + ' a ' + allmax);
-	}
-	else {
-		fact = 254/(allmax - allmin);
-		//console.log('Fact 3 ' + fact + ' i ' + allmin + ' a ' + allmax);
-	}
-	//console.log('ai ' + allmin + ' aa ' + allmax + ' ff ' + fact);
-	const o = scale ? 3 : 4;
-	const uic = new Uint8ClampedArray(h8 * w8 * o);
-	for (let i = 0; i < h8; i++) {
-		for (let j=0; j< w8; j++) {
-			let nr = ((outpix[3*((i * w8) + j)] * rfact) - allmin) * fact + allmin;
-			let ng = ((outpix[3*((i * w8) + j) + 1] * gfact) - allmin) * fact + allmin;
-			let nb = ((outpix[3*((i * w8) + j) + 2] * bfact) - allmin) * fact + allmin;
-			if (nr >= 255) {
-				if (ng < 250) ng = Math.floor(ng * 255 / nr);
-				if (nb < 250) nb = Math.floor(nb * 255 / nr);
-				nr = 255;
-			}
-			else if (nr <= 0) nr = 0;
-			if (ng >= 255) {
-				if (nr < 250) nr = Math.floor(nr * 255 / ng);
-				if (nb < 250) nb = Math.floor(nb * 255 / ng);
-				ng = 255;
-			}
-			else if (ng <= 0) ng = 0;
-			if (nb >= 255) {
-				if (ng < 250) ng = Math.floor(ng * 255 / nb);
-				if (nr < 250) nr = Math.floor(nr * 255 / nb);
-				nb = 255;
-			}
-			else if (nb <= 0) nb = 0;
-			// maybe some brightening gamma?
-			uic[o * ((i*w8) + j)] = 255-Math.floor(255*((255-nr)/255)*((255-nr)/255));
-			uic[o * ((i*w8) + j) + 1] = 255-Math.floor(255*((255-ng)/255)*((255-ng)/255));
-			uic[o * ((i*w8) + j) + 2] = 255-Math.floor(255*((255-nb)/255)*((255-nb)/255));
-			if (!scale) uic[o * ((i*w8) + j) + 3] = 255;
-		}
-	}
-	return uic;
-}
 /* ImBCBase: handle one entry from imb PHOTO/MOVIE listing page */
 handle1imb(url) {
 	let rawname = ImBCBase.basename(url);
 	if (rawname.substring(0,10).toUpperCase() === 'IMBRAW2DNG' || rawname.substring(0,6).toUpperCase() === 'IMBAPP' || rawname.substring(0,5).toUpperCase() === 'INDEX') return;
-	let timestx = ImBCBase.fnregex.exec(rawname);
+	let timestx = globals.fnregex.exec(rawname);
 	let timest = null, cl = '9999_99_99-99';
 	if (null !== timestx) {
 		timest = timestx[1] + '_' + timestx[3] + '_' + timestx[5] + '-' + timestx[7] + '_' + timestx[9] + '_' + timestx[11];
@@ -19908,7 +18786,7 @@ parseDng(f, onok, onerr) {
 	}
 	const v = new DataView(f.data);
 	const ifd = TIFFOut.readint(v, 4);
-	const zz = ImBCBase.infos.findIndex(v => v.size === ifd - 8);
+	const zz = globals.infos.findIndex(v => v.size === ifd - 8);
 	const nent = TIFFOut.readshort(v, ifd);
 	let subifdstart = -1, rawstripstart = -1, datalen = -1;
 	let off = ifd+2;
@@ -19935,7 +18813,7 @@ parseDng(f, onok, onerr) {
 			}
 			if (-1 !== rawstripstart) {
 				datalen = subifdstart - rawstripstart;
-				const zzz = ImBCBase.infos.findIndex(v => v.size === datalen);
+				const zzz = globals.infos.findIndex(v => v.size === datalen);
 				if (-1 === zzz) {
 					this.appmsg('Works only for originally created DNGs.', true);
 					return onerr(f.name);
@@ -19961,7 +18839,7 @@ parseDng(f, onok, onerr) {
 		size: datalen,
 		data: f.data.slice(rawstripstart, datalen + rawstripstart)
 	};
-	if (-1 !== ImBCBase.twelvebitsizes.indexOf(datalen)) {
+	if (-1 !== globals.twelvebitsizes.indexOf(datalen)) {
 		const v = new DataView(fx.data);
 		for (let k=0; k < datalen; k+=3) {
 			let i = v.getUint8(k);
@@ -20040,7 +18918,7 @@ handleoneback(fx) {
 		this.stats.error++;
 		return this.handlenext();
 	}
-	const zz = ImBCBase.infos.findIndex(v => v.size === f.size);
+	const zz = globals.infos.findIndex(v => v.size === f.size);
 	if (zz !== -1) {
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
@@ -20116,7 +18994,7 @@ writefile(name, type, okmsg, arr1, ) {
 }
 /* ImBCHtmlOut: find html style for translation */
 applystyle(span, msg, base) {
-	if (undefined === base) base = ImBCBase.texts;
+	if (undefined === base) base = globals.texts;
 	const i = msg.indexOf('.');
 	if (i === -1) {
 		let r = base[msg]['htmlstyle'];
@@ -20294,7 +19172,7 @@ handleonex() {
 			this.setnopv();
 		}
 		else {
-			const zz = ImBCBase.infos.findIndex(v => v.size === f.size);
+			const zz = globals.infos.findIndex(v => v.size === f.size);
 			if (zz === -1 && undefined !== f.size) {
 				/* no preview */
 				this.#qappx('main.file.rawunknown', rawname, f.size);
@@ -20346,7 +19224,7 @@ imbdoit() {
 	let compval = '0000';
 	if (document.getElementById('imbstartts').value != undefined && document.getElementById('imbstartts').value.length > 0) {
 		compval = document.getElementById('imbstartts').value;
-		if (null === ImBCBase.tsregex.exec(compval)) {
+		if (null === globals.tsregex.exec(compval)) {
 			this.mappx(false, 'words.error');
 			this.mappx(0, 'onimback.invaltime', compval);
 			alert(this.rmesc(this.xl('onimback.invaltime'), compval));
@@ -20398,7 +19276,7 @@ imbdoit() {
 }
 /* ImBCHtmlOut: translate everything */
 xlateall() {
-	document.getElementById('mainversion').innerHTML = ImBCBase.version;
+	document.getElementById('mainversion').innerHTML = globals.version;
 	document.documentElement.lang = this.mylang;
 	const k = document.querySelectorAll('*[data-myxlkey]');
 	for (const e of k)
@@ -20413,9 +19291,9 @@ xlateall() {
 	for (const e of h)
 		this.xl1(e);
 	if (undefined === this.imbcb)
-		document.title = this.xl('main.title') + ' ' + ImBCBase.version;
+		document.title = this.xl('main.title') + ' ' + globals.version;
 	else
-		document.title = this.xl('main.backw.title') + ' ' + ImBCBase.version;
+		document.title = this.xl('main.backw.title') + ' ' + globals.version;
 }
 /* ImBCHtmlOut: nodejs: parse config */
 parseconfig(data) {
@@ -21074,9 +19952,9 @@ topreccheck(force) {
 		rotbtn.classList.add('disabled');
 		rotbtn.onclick = () => {
 			if (!this.debugflag && rotbtn.classList.contains('disabled')) return;
-			let j = ImBCBase.oriecw.indexOf(e.rot);
+			let j = globals.oriecw.indexOf(e.rot);
 			j = ((j + 1) % 4);
-			e.rot = ImBCBase.oriecw[j];
+			e.rot = globals.oriecw[j];
 			e.preview.style['display'] = 'none';
 			ne.querySelector('.waitdiv').style['display'] = '';
 			ne.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
@@ -21400,7 +20278,7 @@ savesettings() {
 					'np': document.getElementById('dngpreview') ? !document.getElementById('dngpreview').checked : false,
 					'l': this.mylang,
 					'step': stepmode,
-					'version': ImBCBase.version,
+					'version': globals.version,
 					'loca': window.location.origin,
 					'zip': document.getElementById('usezip')?.checked,
 					'owb': document.getElementById('oldstylewb')?.checked,
@@ -21610,15 +20488,15 @@ buildpreview(f, size, onok, onerr, orientation, targ, afterload) {
 		});
 		return;
 	}
-	let zz = ImBCBase.infos.findIndex(v => v.size === f.size);
+	let zz = globals.infos.findIndex(v => v.size === f.size);
 	if (zz === -1) {
 		console.log('preview: unsupported size ' + f.size + ' of ' + f.name);
 		onerr(f);
 		return;
 	}
-	w = ImBCBase.infos[zz].w;
-	typ = ImBCBase.infos[zz].typ;
-	h = ImBCBase.infos[zz].h;
+	w = globals.infos[zz].w;
+	typ = globals.infos[zz].typ;
+	h = globals.infos[zz].h;
 	const whitelvl = (typ === 5) ? 4095: 255;
 
 	let canv;
@@ -21648,10 +20526,10 @@ buildpreview(f, size, onok, onerr, orientation, targ, afterload) {
 		let contents = evt.target.result;
 		if (contents.buffer) contents = contents.buffer;
 		const view = new DataView(contents);
-		const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : ImBCBase.getwb(view, zz, whitelvl);
+		const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : globals.getwb(view, zz, whitelvl);
 		let transpose = false;
 		console.log(JSON.stringify(wb));
-		let outpix = ImBCBase.buildpvarray(view, size, typ, w, h, orientation, false, wb, whitelvl);
+		let outpix = globals.buildpvarray(view, size, typ, w, h, orientation, false, wb, whitelvl);
         if (orientation === 6 || orientation === 8) {
                 transpose = true;
         }
@@ -21733,9 +20611,9 @@ procthis() {
 /* ImBCHtml: previewquestion, rotation hepler */
 #rotxx(r) {
 	this.setpvwait();
-	let j = ImBCBase.oriecw.indexOf(this.currentrot);
+	let j = globals.oriecw.indexOf(this.currentrot);
 	j = ((j + r) % 4);
-	this.currentrot = ImBCBase.oriecw[j];
+	this.currentrot = globals.oriecw[j];
 	this.buildpreview(this.allfiles[this.actnum], 2, () => { this.setrawpv(); }, () => { this.setpverr(); }, this.currentrot);
 }
 /* ImBCHtml: previewquestion: handler for clockwise rotation */
@@ -22088,6 +20966,1087 @@ function init() {
 	imbc.xlateall();
 	if (!backw) imbc.checkimb();
 }
+/* *************************************** globals *************************************** */
+const globals = {
+/* Indentation out - globals */
+version: "V5.9.7_@_d_e_v", // actually const // VERSION EYECATCHER
+alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
+texts: { // actually const
+	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
+	words: {
+		error: {
+			de: '\u001b[31m\u001b[1mFEHLER:\u001b[0m ',
+			en: '\u001b[31m\u001b[1mERROR:\u001b[0m ',
+			fr: '\u001b[31m\u001b[1mERREUR:\u001b[0m ',
+			ja: '\u001b[31m\u001b[1mエラー:\u001b[0m ',
+			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
+		},
+		warning: {
+			de: '\u001b[31mWarnung:\u001b[0m ',
+			en: '\u001b[31mWarning:\u001b[0m ',
+			fr: '\u001b[31mAvertissement:\u001b[0m ',
+			ja: '\u001b[31m警告:\u001b[0m',
+			htmlstyle: [ [ 'background-color','#ffdddd' ] ]
+		},
+		finished: {
+			de: '\u001b[32m\u001b[1mFertig!\u001b[0m ',
+			en: '\u001b[32m\u001b[1mFinished!\u001b[0m ',
+			fr: '\u001b[32m\u001b[1mFini!\u001b[0m ',
+			ja: '\u001b[32m\u001b[1m終了!\u001b[0m ',
+			htmlstyle: [ [ 'background-color','#ddffdd' ], [ 'font-weight', 'bold' ] ]
+		},
+		sorryerr: {
+			de: '\u001b[31m\u001b[1mENTSCHULDIGUNG! FEHLER:\u001b[0m ',
+			en: '\u001b[31m\u001b[1mSORRY! ERROR:\u001b[0m  ',
+			fr: '\u001b[31m\u001b[1mDÉSOLÉE! ERREUR:\u001b[0m ',
+			ja: '\u001b[31m\u001b[1m申し訳ございません! エラー:\u001b[0m  ',
+			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
+		},
+		sorry: {
+			de: '\u001b[31mENTSCHULDIGUNG!\u001b[0m ',
+			en: '\u001b[31mSORRY!\u001b[0m  ',
+			fr: '\u001b[31mDÉSOLÉE!\u001b[0m ',
+			ja: '\u001b[31m申し訳ございません!\u001b[0m  ',
+			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
+		}
+	},
+	main: {
+		coloursyourrisk: {
+			de: 'Bei Farben bin ich raus! Eigenes Risiko, fraach mich net!',
+			en: 'About colurs, I am out! Own risk, do not ask me!',
+			fr: 'About colurs, I am out! Own risk, do not ask me!',
+			ja: '色については、アウトです！ 自己責任ですので、私に尋ねないでください。'
+		},
+		title: {
+			de: 'ImB RAW nach DNG Konverter',
+			en: 'ImB RAW to DNG converter',
+			fr: 'Convertisseur ImB RAW a DNG',
+			ru: 'Конвертер ImB RAW в DNG',
+			ja: 'ImB RAW を DNG に変換'
+		},
+	    backw: {
+			   title:  { en: 'ImB DNG to RAW back converter' },
+			   generaladvice: { en: 'Only works for the exact original converted DNG.' },
+			   selectdng: { en: 'Select orig. DNG' },
+			   drophere: { en: 'Drop DNGs here' }
+	    },
+		help: {
+			de: '? Hilfe Doku',
+			en: '? Help Doc',
+			fr: '? Aide Doc',
+			ru: '? Помощь Док',
+			ja: '? ヘルプ資料'
+		},
+		helplink: {
+			de: 'https://shyrodgau.github.io/imbraw2dng/README_de',
+			en: 'https://shyrodgau.github.io/imbraw2dng/',
+			fr: 'https://shyrodgau.github.io/imbraw2dng/',
+			ja: 'https://shyrodgau.github.io/imbraw2dng/README_ja'
+		},
+		generaladvice: {
+			de: 'Daten werden nur im Browser verarbeitet, nicht im \'Internet\'.<br>Kann sein, dass der Browser fragt, ob Sie zulassen wollen, dass mehrere Dateien heruntergeladen werden.<br>Dateien, die nicht oder unbekannte RAW-Dateien sind, werden 1:1 kopiert.',
+			en: 'Data processing is entirely in the browser, not in \'the internet\'<br>Browser may ask you if you want to allow downloading multiple files.<br>Not or unrecognized RAW Files simply will be copied.',
+			fr: 'L\'information est entièrement traitée dans le navigateur et non sur \'Internet\'<br>Le navigateur peux questionner que vous acceptez le téléchargement de beaucoup de fiches.<br>Fiches pas-RAW ou RAW inconnue sont copiée 1:1.',
+			ru: 'Данные обрабатываются только в браузере, а не в \'Интернете\'.<br>Браузер может спросить, хотите ли вы разрешить загрузку нескольких файлов.<br>Файлы, которые не являются или неизвестными файлами RAW, копируются 1:1.',
+			ja: 'データ処理は完全にブラウザ内で行われ、\'インターネット\'では行われません。<br>ブラウザにより複数のファイルのダウンロードを許可するかを尋ねることがあります。<br>RAW ファイルが存在しない、または認識されない場合は、単純にコピーされます。'
+		},
+		drophere: {
+			de: 'Dateien von ImB hier ablegen: ',
+			en: 'Drop Files from ImB here: ',
+			fr: 'Posez fiches de ImB ici: ',
+			ru: 'Храните файлы из ImB здесь: ',
+			ja: 'ここに ImB のファイルをドロップします。: '
+		},
+		selectraw: {
+			de: 'Oder diese Seite per WLAN <a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README_de#browsing-on-the-imback\',\'_system\');return false;">direkt von ImB</a> verwenden.<br>Oder <tt>.RAW</tt> Datei(en) auswählen:',
+			en: 'Or use this page via Wifi <a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README#browsing-on-the-imback\',\'_system\');return false;">directly from ImB</a>.<br>Or select <tt>.RAW</tt> File(s):',
+			ja: 'または、このページを WiFi 経由で<a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README_ja#browsing-on-the-imback\',\'_system\');return false;">ImB から直接</a>使用します。<br >または、<tt>.RAW</tt> ファイルを選択します。：'
+		},
+		stillcounting: {
+			de: '... zähle ... ',
+			en: '... counting ... ',
+			fr: '... compter ...',
+			ru: '... подсчет ...',
+			ja: '... カウント中 ... '
+		},
+		types: {
+			rawpics: {
+				de: 'RAW Bilder',
+				en: 'RAW Pictures',
+				fr: 'RAW images',
+				ja: 'RAW 画像'
+			},
+			jpgpics: {
+				de: 'JPEG-Bilder',
+				en: 'JPEG Pictures',
+				fr: 'JPEG images',
+				ja: 'JPEG 画像'
+			},
+			other: {
+				de: 'Andere',
+				en: 'Other',
+				fr: 'Autre',
+				ja: 'その他'
+			},
+			notpic: {
+				de: 'Keine Bilder',
+				en: 'Not pictures',
+				fr: 'Pas images',
+				ja: '画像ではない'
+			}
+		},
+		file: {
+			jpeg: {
+				de: 'Datei $$0 (JPEG)',
+				en: 'File $$0 (JPEG)',
+				fr: 'Fiche $$0 (JPEG)',
+				ja: 'ファイル $$0 (JPEG)'
+			},
+			nopreview: {
+				de: 'Datei $$0<br>Nicht jpeg oder raw, keine Vorschau...',
+				en: 'File $$0<br>Not jpeg or raw, no preview...',
+				fr: 'Fiche $$0<br>Ni jpeg ni raw, pas de aperçu...',
+				ja: 'ファイル $$0<br>jpeg または、raw 以外、プレビューなし...'
+			},
+			rawunknown: {
+				de: 'Datei $$0<br>Unerkannte RAW Dateigröße $$1, bitte Entwickler kontaktieren! Keine Vorschau...',
+				en: 'File $$0<br>Unknown raw size $$1, please contact developer! No preview...',
+				fr: 'Fiche $$0<br>taille de fiche $$1 non reconnue, contacter le développeur, pas de aperçu...',
+				ja: 'File $$0<br>不明な raw サイズ $$1, 開発者にお問い合わせください! プレビューなし...'
+			},
+			dngimpnote: {
+				de: 'Import eines DNG geht nur, wenn diese genau das hiermit erzeugte Original ist.',
+				en: 'Re-import of a DNG is only possible if this is exactly the original that was created here.',
+				fr: 'La réimportation d\'un DNG n\'est possible que s\'il s\'agit exactement de l\'original créé ici.',
+				ja: 'DNG の再インポートは、これがここで作成されたオリジナルである場合にのみ可能です。'
+			},
+			de: 'Datei $$0',
+			en: 'File $$0',
+			fr: 'Fiche $$0',
+			ja: 'ファイル $$0'
+		},
+		sort: {
+			de: 'Sortiere',
+			en: 'Sort:',
+			fr: 'Trier:',
+			ja: 'ソート:'
+		},
+		or: {
+			de: 'Oder ',
+			en: 'Or ',
+			fr: 'Ou ',
+			ja: 'または '
+		},
+		log: {
+			de: 'Protokoll-Ausgabe:',
+			en: 'Message Log:',
+			fr: 'Journal des messages',
+			ja: 'メッセージ ログ:'
+		},
+		selected: {
+			de: 'Ausgewählt',
+			en: 'Selected',
+			fr: 'Sélectionné(s)',
+			ja: '選択済み'
+		},
+		fakelong: {
+			en: 'Fake long exposure by adding up all (<a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README#a-lot-more-tricks-and-details\',\'_system\');return false;">read more</a>)',
+			de: 'Langzeitbelichtung durch Addieren simulieren (<a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README_de#a-lot-more-tricks-and-details\',\'_system\');return false;">mehr lesen</a>)',
+			ja: '「追加して長時間露光をシミュレートします (<a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README_ja#a-lot-more-tricks-and-details\',\'_system\');return false;">続きを読む</a>)」すべてを加算して長時間露光をシミュレートする',
+			scale: {
+				en: 'Scale values down',
+				de: 'Werte dabei herunterskalieren',
+				ja: 'スケールダウン値'
+			},
+			added: {
+				en: 'Added picture $$0',
+				de: 'Bild $$0 hinzugefügt',
+				ja: '画像を追加しました $$0'
+			}
+		},
+		usezip: {
+			de: 'Nicht mehrere Dateien einzeln, sondern in wenigen ZIP Archiven herunteladen.',
+			en: 'Do not use several single downloads, but in fewer ZIP archives.',
+			ja: '複数のファイルを個別にダウンロードするのではなく、いくつかの ZIP アーカイブとしてダウンロードしてください。',
+			choosedest: {
+				de: 'Ziel auswählen',
+				en: 'Choose destination',
+				ja: '目的地を選択'
+			}
+		},
+		newmsg: {
+			en: '<a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/issues\',\'_system\');return false;">Report bugs</a>',
+			de: '<a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/issues\',\'_system\');return false;">Fehler melden</a>',
+			ja: '<a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/issues\',\'_system\');return false;">バグ報告</a>'
+		}
+	},
+	browser: {
+		bytype: {
+			de: 'nach Typ',
+			en: 'by type',
+			fr: 'par type',
+			ja: '種類別'
+		},
+		olderfirst: {
+			de: 'Ältere nach oben',
+			en: 'Older first',
+			fr: 'Plus anciens ci-dessus',
+			ja: '古い順'
+		},
+		selall: {
+			tooltip: {
+				de: 'Wenn Haken nicht gesetzt, wähle alles aus. Bei Klick wenn angehakt setze Auswahl auf Nichts.',
+				en: 'If not selected then select all. If it is selected and clicked then unselect all.',
+				fr: 'S\'il n\'est pas sélectionner, sélectionner tout. Au clic si sélectionné, vider la sélection',
+				ja: '選択されていない場合は、すべてを選択します。 選択してクリックした場合は、すべての選択を解除します。'
+			},
+			de: 'Alle de-/ oder selektieren',
+			en: 'De-/select all',
+			fr: 'De-/sélectionner tout',
+			ja: 'すべての選択を解除'
+		},
+		procall: {
+			de: 'Alle ausgewählte kopieren/verarbeiten',
+			en: 'Copy/process all selected',
+			fr: 'Traiter les sélectionnés',
+			ja: '選択したものをすべてコピー/処理'
+		},
+		delall: {
+			de: 'Alle ausgewählte löschen',
+			en: 'Delete all selected',
+			fr: 'Supprimer les sélectionnés',
+			ja: '選択したものをすべて削除'
+		},
+		settingsset: {
+			en: 'Preferences are set for source $$0',
+			de: 'Voreinstellungen für $$0 gespeichert',
+			ja: 'デフォルト設定は $$0 で保存されます'
+		},
+		prefnotfile: {
+			en: 'Preferences not possible for file:// URLs',
+			de: 'Voreinstellungen für file:// URLs nicht möglich',
+			ja: 'file:// URL でデフォルト設定はできません'
+		},
+		setfrom: {
+			en: 'Set new prefereneces ',
+			de: 'Voreinstellungen setzen ',
+			ja: 'デフォルトを設定する'
+		},
+		forurl: {
+			en: ' for URL $$0',
+			de: ' für URL $$0',
+			ja: 'URL $$0 の場合'
+		}
+	},
+	onimback: {
+		connected: {
+			de: 'ImB Verbunden! ',
+			en: 'ImB Connected! ',
+			fr: 'ImB Connecté! ',
+			ja: 'ImB 接続済み! '
+		},
+		dlconvert: {
+			de: 'Konvertiere / Lade herunter: ',
+			en: 'Download / convert: ',
+			fr: 'Telecharger / convertir',
+			ja: 'ダウンロード / 変換: '
+		},
+		totalnum: {
+			de: 'gesamt:',
+			en: 'total:',
+			fr: 'total:',
+			ja: '合計:'
+		},
+		fromtime: {
+			de: 'ab Zeitstempel bzw. jünger als ',
+			en: 'from timestamp or younger than ',
+			fr: 'à partir de l\'horodatage ou plus jeune que ',
+			ja: 'タイムスタンプ以降またはそれより古い '
+		},
+		nullforall: {
+			de: '0000 oder leer für \'alle\'',
+			en: '0000 or empty for \'all\'',
+			fr: '0000 ou déposer pour \'tout\'',
+			ja: '0000 または、 \'すべて\' 空 '
+		},
+		doit: {
+			de: 'Mach es',
+			en: 'Do it',
+			fr: 'Fais-le',
+			ja: '実行'
+		},
+		visual: {
+			de: 'Bild-Browser benutzen',
+			en: 'Use visual Picture Browser',
+			fr: 'Ou outilizer navigateur visuel des images',
+			ja: 'ビジュアルな画像ブラウザを使用する'
+		},
+		errconnect: {
+			de: '\u001b[31mFEHLER\u001b[0m bei der Verbindung zu ImB auf $$0! Im ImB WLAN?',
+			en: '\u001b[31mERROR\u001b[0m connecting to ImB on $$0! In the ImB WiFi?',
+			fr: '\u001b[31mERREUR\u001b[0m lors de la connexion à imback. Dans le Wifi ImB?',
+			ja: '\u001b[31mエラー\u001b[0m $$0 でImB に接続しています! ImB WiFi ですか?'
+		},
+		nomatch: {
+			de: 'Keine passenden Dateien gefunden. Kann vorübergehend sein.',
+			en: 'No matching files found. Might be temporary.',
+			fr: 'Aucun fiche correspondant trouvé. Peut-etre temporaire.',
+			ja: '一致するファイルが見つかりませんでした。 一時的なものかもしれません。'
+		},
+		strangename: {
+			de: 'Komischer Dateiname: $$0',
+			en: 'Strange file name: $$0',
+			fr: 'Nom de fiche inhabituel: $$0',
+			ja: '無効なファイル名: $$0'
+		},
+		invaltime: {
+			de: 'Ungültiger Zeitstempel: $$0',
+			en: 'Invalid timestamp: $$0',
+			fr: 'Horodatage invalide: $$0',
+			ja: '無効なタイムスタンプ: $$0'
+		},
+		invaltimediff: {
+			de: 'Ungültige Zeitanpassung: $$0',
+			en: 'Invalid time adjustment: $$0',
+			ja: '無効なタイムスタンプ: $$0'
+		},
+	},
+	process: {
+		singlestep: {
+			de: 'Einzelschritt mit Vorschau',
+			en: 'Single Step with preview',
+			fr: 'Seule étape avec aperçu',
+			ja: 'プレビューありでシングルステップ'
+		},
+		addcopyright: {
+			en: 'Copyright',
+			de: 'Copyright',
+			ja: '著作権を追加'
+		},
+		addartist: {
+			en: 'Artist/Creator',
+			de: 'Künstler/Ersteller'
+		},
+		metadata: {
+			en: 'Metadata:',
+			de: 'Metadaten:'
+		},
+		nothing: {
+			de: 'Nichts ausgewählt.. ?',
+			en: 'Nothing selected...?',
+			fr: 'Rien de sélectionné',
+			ja: '何も選択されていません...?'
+		},
+		erraccess: {
+			de: 'beim Zugriff auf $$0.',
+			en: 'occured accessing $$0.',
+			fr: 'lors de l\'accès à $$0.',
+			ja: '>アクセス中にエラーが発生しました $$0.'
+		},
+		notraw: {
+			de: 'Durchleitung weil nicht raw: $$0',
+			en: 'Passing through as not raw: $$0',
+			fr: 'Passage comme non RAW: $$0',
+			ja: 'RAW ではないのでスルー: $$0'
+		},
+		selectedn: {
+			de: '$$0 Datei(en) wurden ausgewählt.',
+			en: 'Got $$0 file(s) selected.',
+			fr: '$$0 fiche(s) sélectionné(s)',
+			ja: '$$0 ファイルが選択されました。'
+		},
+		copyokcheckdl: {
+			de: 'Nach $$0 kopiert (Downloads-Ordner prüfen)</b>&nbsp;',
+			en: 'Copied to $$0 (Check Downloads Folder)</b>&nbsp;',
+			fr: 'Copié sur $$0 (Vérifier le dossier de téléchargements/Downloads)</b>&nbsp;',
+			ja: '$$0 にコピーされました (ダウンロードフォルダーを確認)</b>&nbsp;'
+		},
+		copyok: {
+			de: 'Nach $$0 kopiert',
+			en: 'Copied to $$0',
+			fr: 'Copié sur $$0',
+			ja: '$$0 にコピー'
+		},
+		errorreadingfile: {
+			de: 'beim Lesen der Datei $$0',
+			en: 'occured reading file $$0',
+			fr: 'de lecture du fiche $$0',
+			ja: 'ファイル $$0 の読み取り中にエラーが発生しました。 '
+		},
+		unknownsize: {
+			de: 'Die Dateigröße <b>$$0</b> passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!',
+			en: 'File Size <b>$$0</b> does not match known formats. Please contact developer!',
+			fr: 'La taille du fiche <b>$$0</b> ne correspond pas au format connu. Veuillez contacter le développeur',
+			ja: 'が、ファイルサイズ <b>$$0</b> は既知の形式と一致しません。開発者にお問い合わせください。'
+		},
+		unknownsizex: {
+			de: 'Die Dateigröße $$0 passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!',
+			en: 'File Size $$0 does not match known formats. Please contact developer!',
+			fr: 'La taille du fiche $$0 ne correspond pas au format connu. Veuillez contacter le développeur',
+			ja: 'が、ファイルサイズ $$0 は既知の形式と一致しません。開発者にお問い合わせください。'
+		},
+		processing: {
+			de: 'Verarbeite Datei: $$0 ',
+			en: 'Processing file: $$0',
+			fr: 'Je suis en train de traiter le fiche $$0',
+			ja: '処理中のファイル: $$0'
+		},
+		assuming: {
+			de: 'Annahme: $$0 $$1',
+			en: 'Assuming $$0 $$1',
+			fr: 'Hypothèse: $$0 $$1',
+			ja: '認識 $$0 $$1'
+		},
+		datetime: {
+			de: 'Datum/Zeit: $$0',
+			en: 'Date/Time: $$0 ',
+			fr: 'Date/heure: $$0',
+			ja: '日付/時刻: $$0 '
+		},
+		orientation: {
+			de: 'Drehung: $$0',
+			en: 'Orientation: $$0',
+			fr: 'Rotation: $$0',
+			ja: '向き: $$0'
+		},
+		convertedcheckdl: {
+			de: 'Nach $$0 konvertiert (Downloads-Ordner prüfen)',
+			en: 'Converted to $$0 (Check Downloads Folder)',
+			fr: 'Converti en $$0 (Vérifier le dossier de téléchargements/Downloads)',
+			ja: '$$0 に変換されました (ダウンロードフォルダーを確認してください)'
+		},
+		converted: {
+			de: 'Nach $$0 konvertiert',
+			en: 'Converted to $$0',
+			fr: 'Converti en $$0',
+			ja: '$$0 に変換'
+		},
+		errsave: {
+			de: 'Konnte Datei $$0 nicht speichern.',
+			en: 'Could not write file $$0',
+			fr: 'Impossible d\'écrire le fiche $$0.',
+			ja: 'ファイル $$0 に書き込めませんでした'
+		},
+		droppedn: {
+			de: '$$0 Datei(en) wurden abgelegt.',
+			en: 'Got $$0 file(s) dropped.',
+			fr: '$$0 fiche(s) ont été stockés',
+			ja: '$$0 個のファイルがドロップされました。'
+		},
+		frombackn: {
+			de: '$$0 Datei(en) vom ImB zu verarbeiten.',
+			en: 'Got $$0 file(s) from ImB.',
+			fr: 'J\'ai reçu $$0 fiche(s) d\'ImB',
+			ja: 'ImB から $$0 ファイルを取得しました。'
+		},
+		frombrowsern: {
+			de: '$$0 Datei(en) vom Bild-Browser zu verarbeiten.',
+			en: 'Got $$0 file(s) from Visual browser.',
+			fr: 'J\'ai obtenu $$ fiche(s) du navigateur visuel',
+			ja: 'ビジュアル ブラウザから $$0 ファイルを取得しました。'
+		},
+		skipped: {
+			remaining: {
+				de: 'Verbleibende $$0 Dateien auf Anforderung übersprungen',
+				en: 'Skipping remaining $$0 images at your request',
+				fr: '$$0 fiches restants ignorés sur demande',
+				ja: 'リクエストに応じてスキップ: $$0'
+			},
+			de: 'Auf Anforderung übersprungen: $$0',
+			en: 'Skipped at your request: $$0',
+			fr: 'Ignoré à votre demande: $$0',
+			ja: 'リクエストに応じて残りの $$0 画像をスキップします'
+		},
+		totals: {
+			en: 'Total: $$0, ok: $$1, skipped: $$2, Errors: $$3',
+			de: 'Total: $$0, ok $$1, übersprungen: $$2, Fehler: $$3',
+			fr: 'Total: $$0, ok: $$1, Ignoré: $$2, Erreur: $$3',
+			ja: '合計 $$0、OK $$1、スキップ $$2、エラー $$3'
+		},
+		addpreview: {
+			en: 'Add preview thumbnail to DNG',
+			de: 'Kleines Vorschaubild im DNG',
+			fr: 'Petite image d\'aperçu en DNG',
+			ja: 'プレビューのサムネイルを DNG に追加する'
+		},
+		addexif: {
+			en: 'Add EXIF data from $$0',
+			de: 'Gebe EXIF Daten von $$0 dazu',
+			ja: '$$0のEXIFデータを追加'
+		},
+		includedcp: {
+			en: 'Include the new DNG camera profile (DCP)',
+			de: 'Neues DNG Kamera-Profil (DCP) einbetten',
+			ja: '新しい DNG カメラ プロファイル (DCP) を埋め込みます。'
+		},
+		oldstylewb: {
+			en: 'Use old-style constant white balance',
+			de: 'Alten konstanten Weißabgleich verwenden',
+			ja: '古い一定のホワイト バランスを使用する'
+		},
+		adddcp: {
+			en: 'Adding new DCP',
+			de: 'Bette neues DCP Farbprofile ein',
+			ja: '新しい DCP カラー プロファイルを埋め込む'
+		},
+		foundwb: {
+			en: 'Found whitebalance $$0 / $$1 / $$2',
+			de: 'Weißabgleich $$0 / $$1 / $$2 gefunden',
+			ja: 'ホワイトバランス $$0 / $$1 / $$2 が見つかりました'
+		}
+	},
+	preview: {
+		err: {
+			de: 'Fehler bei Vorschau :-(',
+			en: 'Error with Preview :-(',
+			fr: 'Erreur dans l\'aperçu :-(',
+			ja: 'プレビューでのエラー :-('
+		},
+		rotcw: {
+			de: 'im Uhrzeigersinn drehen',
+			en: 'Rotate clockwise',
+			fr: 'tourner dans le sens des aiguilles d\'une montre',
+			ja: '時計回りに回転'
+		},
+		rotccw: {
+			de: 'gegen den Uhrzeigersinn drehen',
+			en: 'rotate counterclockwise',
+			fr: 'tourner dans le sens inverse des aiguilles d\'une montre',
+			ja: '反時計回りに回転'
+		},
+		rot180: {
+			de: 'auf den Kopf',
+			en: 'Rotate 180°',
+			fr: 'retourné',
+			ja: '180°回転'
+		},
+		rotreset: {
+			de: 'Drehung zurücksetzen',
+			en: 'Reset',
+			fr: 'Réinitialiser la rotation',
+			ja: 'リセット',
+			tooltip: {
+				de: 'Ursprüngliche Bildausrichtung wiederherstellen',
+				en: 'Reset original image orientation',
+				fr: 'Restaurer l\'orientation originale de l\'image',
+				ja: '元の画像の向きにリセット'
+			}
+		},
+		process: {
+			de: 'Kopieren/Konvertieren',
+			en: 'Copy/Convert',
+			fr: 'Copie/Convertir',
+			ja: '元の画像の向きにリセット'
+		},
+		skip: {
+			de: 'Überspringen',
+			en: 'Skip',
+			fr: 'Sauter',
+			ja: 'コピー/変換'
+		},
+		forall: {
+			de: 'Für alle weiteren das selbe',
+			en: 'Do this for all following',
+			fr: 'Faites ceci pour tous les suivants',
+			ja: '以下のすべてに対してこれを実行します'
+		},
+		orients: {
+			none: {
+				de: 'keine',
+				en: 'none',
+				fr: 'aucune',
+				ja: 'なし'
+			},
+			upsidedown: {
+				de: '180°',
+				en: '180°',
+				ja: '180°',
+				fr: '180°'
+			},
+			clockwise: {
+				de: 'im Uhrzeigersinn',
+				en: 'clockwise',
+				fr: 'dans le sens des aiguilles d\'une montre',
+				ja: '時計回り'
+			},
+			counterclockwise: {
+				de: 'gegen den Uhrzeigersinn',
+				en: 'counterclockwise',
+				fr: 'dans le sens inverse des aiguilles d\'une montre',
+				ja: '反時計回り'
+			}
+		}
+	},
+	raw: {
+		unknownsize: {
+			de: 'Unerkannte RAW-Dateigröße, Entwickler kontaktieren',
+			en: 'Unrecognized RAW file size, contact developer',
+			fr: 'La taille du fiche RAW ne correspond pas au format connu. Veuillez contacter le développeur',
+			ja: '反時計回り'
+		},
+	},
+	selection: {
+		got: {
+			de: '$$0 Dateien wurden ausgewählt.',
+			en: 'Got $$0 files selected.',
+			fr: '$$0 dossiers ont été sélectionnés.',
+			ja: '$$0 ファイルが選択されました。'
+		},
+	},
+	del: {
+		question: {
+			en: 'Deleting $$0 file(s) can not be undone! Are you sure you want to continue?',
+			de: 'Löschen von $$0 Datei(en) kann nicht rückgängig gemacht werden. Sicher damit weitermachen?',
+			fr: 'La suppression de $$0 fiche(s) est irréversible. Es-tu sur de vouloir continuer?',
+			ja: '$$0 ファイルを削除すると、元に戻すことはできません。 続行してもよろしいですか?',
+			ok: {
+				de: 'Ok',
+				en: 'Ok',
+				fr: 'Ok',
+				ja: 'はい'
+			},
+			cancel: {
+				de: 'Abbrechen',
+				en: 'Cancel',
+				fr: 'Annuler',
+				ja: 'キャンセル'
+			}
+		},
+		nostatus: {
+			de: 'Der Status des Löschens kann nicht sicher geprüft werden. Bitte laden Sie die Seite nach dem Löschen neu.',
+			en: 'The status of the delete can not be checked safely. Reload the page after deleting.',
+			fr: 'Le statut de la suppression ne peut pas être vérifié avec certitude. Veuillez recharger la page après la suppression.',
+			ja: '削除のステータスを安全に確認することはできません。 削除後はページを再読み込みしてください。'
+		},
+		reload: {
+			de: 'Bitte Seite neu laden.',
+			en: 'Please reload page.',
+			fr: 'Veuillez recharger la page.',
+			ja: 'ページをリロードしてください。'
+		}
+	},
+},
+// generic user input timestamp always complete
+//               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
+fulltsregex: /^([02-3][0-9][0-9][0-9])([^0-9])([01][0-9])([^0-9])([0123][0-9])([^0-9])([012][0-9])([^0-9])([0-5][0-9])([^0-9])([0-5][0-9])$/, // actually const
+// generic user input timestamp (any prefix)
+//                  y      y     y     y      .      m     m     .      d      d      .      h     h      .      m     m      .      s     s
+tsregex: /^[02-3]([0-9]([0-9]([0-9](([^0-9])[01]([0-9](([^0-9])[0123]([0-9](([^0-9])[012]([0-9](([^0-9])[0-5]([0-9](([^0-9])[0-5]([0-9])?)?)?)?)?)?)?)?)?)?)?)?)?$/ , // actually const
+/* ImBCBase: Data for the Imback variants and exif stuff */
+// generic imb filename format
+//                   y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s     EXT
+fnregex: /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])(.*[.])([^.]*)$/ , // actually const
+// generic imb xml timestamp format
+//                               y    y    y    y      /    m    m     /    d     d    . .  h    h      :    m    m      :    s    s
+itsregex: new RegExp('^([2-3][0-9][0-9][0-9])([/])([01][0-9])([/])([0123][0-9])( )([012][0-9])([:])([0-6][0-9])([:])([0-6][0-9])$') , // actually const
+// generic imb filename format, only timestamp
+//                    y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s      .        n
+fnregexx: /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-9]*)/ , // actually const
+orients: [ '', 'none', '', 'upsidedown', '', '', 'clockwise', '', 'counterclockwise' ], // actually const
+oriecw: [ 1, 6, 3, 8 ], // clockwise indices // actually const
+types: [ "unknown", "ImB35mm", "MF 6x7 ", "MF6x4.5", "MF 6x6 ", "Film35 " ], // all length 7, actually const
+twelvebitsizes: [ 9706416, 11501280, 14709888, 17428128, 17915904, 19406448, 21098880, 23003136, 23887872, 30607488 ],
+infos: [ // actually const
+	{
+		size: 14065920,
+		w: 4320,
+		h: 3256,
+		typ: 0,
+		mode: "historic"
+	},
+	{ /* MF 6x7 */
+		size: 15925248,
+		w: 4608,
+		h: 3456,
+		typ: 2,
+		mode: ""
+	},
+	{ /* MF 6x4.5 */
+		size: 12937632,
+		w: 4152, h: 3116,
+		typ: 3,
+		mode: ""
+	},
+	{
+		size: 9806592,
+		w: 3616, h: 2712,
+		typ: 3,
+		mode: "Medium-angle"
+	},
+	{
+		size: 6470944,
+		w: 2936, h: 2204,
+		typ: 3,
+		mode: "Small-angle"
+	},
+	{ /* MF 6x6 */
+		size: 11943936,
+		w: 3456, h: 3456,
+		typ: 4,
+		mode: ""
+	},
+	{ /* 35mm */
+		size: 15335424,
+		w: 4608, h: 3328,
+		typ: 1,
+		mode: ""
+	},
+	{
+		size: 11618752,
+		w: 4012, h: 2896,
+		typ: 1,
+		mode: "Medium-angle"
+	},
+	{
+		size: 7667520,
+		w: 3260, h: 2352,
+		typ: 1,
+		mode: "Small-angle"
+	},
+	/* 12 bit down here: */
+	/* Film ! */
+	{
+		size: 30607488,
+		w: 5216,
+		h:3912,
+		typ: 5,
+		mode: ''
+	}
+],
+/* ImBCBase: get white balance */
+getwb: function(view, typidx, whitelvl) {
+	//console.log('GWB ' + typidx + ' ' + JSON.stringify(globals.infos[typidx]));
+	const t = globals.infos[typidx < 32 ? typidx : ((typidx< 64)? (typidx - 32) : (typidx - 64))];
+	let r=1, g=1, b=1;
+	for (let i=Math.round(0.05*t.h)*2; i<Math.ceil(0.9*t.h); i+=8) {
+		for (let j=Math.round(0.05*t.w)*2; j<Math.ceil(0.9*t.w); j+=8) {
+			let x = globals.getPix(j, i, t.w, view, typidx < 32 ? t.typ : (typidx < 64 ? 32 + t.typ : 64 + t.typ), whitelvl);
+			let lr = x[0];
+			let lg = x[1] + 1;
+			let lb = x[2];
+			let p = Math.sqrt(lg*lg + lb*lb + lr*lr);
+			if (p < 3 || p > (433)) continue;
+			//if (((i*t.w + j) % 50000) < 10)
+			//	console.log('i ' + i + ' j ' + j + ' R ' + lr + ' G ' + lg + ' B ' + lb + ' P ' + p);
+			//if (r + g == 2) {
+			//	console.log('R G B ' + x[0] + ' ' + x[1] + ' ' + x[2] + ' P ' + p + ' LB ' + lb + ' LR ' + lr + ' LG ' + lg);
+			//}
+			b += ((lb)/(p)>1) ? 1 : (lb)/(p);
+			g += ((lg)/(p)>1) ? 1 : (lg)/(p);
+			r += ((lr)/(p)>1) ? 1 : (lr)/(p);
+		}
+	}
+	//console.log('ER EG EB ' + r + ' ' + g + ' ' + b);
+	if ((r > b) && (r > g)) {
+		return [ 10, 10, Math.ceil(300000*g/r), 300000, Math.ceil(300000*b/r), 300000 ];
+	}
+	else if ((b > r) && (b > g)) {
+		return [ Math.ceil(300000*r/b), 300000, Math.ceil(300000*g/b), 300000, 10, 10 ];
+	}
+	else {
+		return [ Math.ceil(300000*r/g), 300000, 10, 10, Math.ceil(300000*b/g), 300000 ];
+	}
+},
+/* ImBCBase: get one downsampled median image value [ r g b ] */
+getPix: function(x, y, w, view, typ, whitelvl) {
+	let outrgb = [];
+	let reds = [];
+	const w3 = w + (typ >= 64 ? w : (w>>1));
+	const xx = x + (typ >= 64 ? x : (x>>1));
+	let shiftr = 0, wbx = 255;
+	while (whitelvl > wbx) {
+		wbx = (2*(wbx+1)) -1; 
+		shiftr ++;
+	}
+	const dd = (typ === 5 || typ === 69) ? 240 : 0;
+	if (typ === 5 || typ == 33) {
+		/* film or stacked 35mm */
+		reds.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+2)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+	}
+	else if (typ === 69 || typ == 65) {
+		/* 16 bit film or 35mm */
+		reds.push(((view.getUint8((y+0)*w3 + xx+2) +  ((view.getUint8((y+0)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+0)*w3 + xx+6) +  ((view.getUint8((y+0)*w3 + xx+7)) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+2)*w3 + xx+2) +  ((view.getUint8((y+2)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+2)*w3 + xx+6) +  ((view.getUint8((y+2)*w3 + xx+7)) << 8))-dd)>>shiftr);
+	}
+	else if (typ > 64) {
+		/* 16 bit mf */
+		reds.push(((view.getUint8((y+1)*w3 + xx+2) +  ((view.getUint8((y+1)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+1)*w3 + xx+6) +  ((view.getUint8((y+1)*w3 + xx+7)) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+3)*w3 + xx+2) +  ((view.getUint8((y+3)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+3)*w3 + xx+6) +  ((view.getUint8((y+3)*w3 + xx+7)) << 8))-dd)>>shiftr);
+	}
+	else if (typ > 33) {
+		/* stacked mf */
+		reds.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+	}
+	else if (typ > 1) {
+		/* mf */
+		reds.push(view.getUint8((y+1)*w + x + 1));
+		reds.push(view.getUint8((y+1)*w + x + 3));
+		reds.push(view.getUint8((y+3)*w + x + 1));
+		reds.push(view.getUint8((y+3)*w + x + 3));
+	} else {
+		/* 35mm */
+		reds.push(view.getUint8(y*w + x + 1));
+		reds.push(view.getUint8(y*w + x + 3));
+		reds.push(view.getUint8((y+2)*w + x + 1));
+		reds.push(view.getUint8((y+2)*w + x + 3));
+	}
+	reds.sort(function(a,b) { return a - b; });
+	// median of red pixels
+	outrgb.push((reds[1] + reds[2]) / 2.0);
+	let greens = [];
+	if (typ === 5 || typ == 33) {
+		/* film or stacked 35mm */
+		greens.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+	}
+	else if (typ === 69 || typ == 65) {
+		/* 16 bit film or stacked 35mm */
+		greens.push((((view.getUint8((y+0)*w3 + xx+0)) +  ((view.getUint8((y+0)*w3 + xx+1) <<8)))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+0)*w3 + xx+4)) +  ((view.getUint8((y+0)*w3 + xx+5) <<8)))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+2) +  ((view.getUint8((y+1)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+6) +  ((view.getUint8((y+1)*w3 + xx+7)) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+2)*w3 + xx+0)) +  ((view.getUint8((y+2)*w3 + xx+1)) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+2)*w3 + xx+4)) +  ((view.getUint8((y+2)*w3 + xx+5)) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+3)*w3 + xx+2) +  ((view.getUint8((y+3)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+3)*w3 + xx+6) +  ((view.getUint8((y+3)*w3 + xx+7)) << 8))-dd)>>shiftr);
+	}
+	else if (typ > 64) {
+		/* 16 bit mf */
+		greens.push((((view.getUint8((y+0)*w3 + xx+2)) +  ((view.getUint8((y+0)*w3 + xx+3) <<8)))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+0)*w3 + xx+6)) +  ((view.getUint8((y+0)*w3 + xx+7) <<8)))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1)) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+4) +  ((view.getUint8((y+1)*w3 + xx+5)) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+2)*w3 + xx+2)) +  ((view.getUint8((y+2)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+2)*w3 + xx+6)) +  ((view.getUint8((y+2)*w3 + xx+7)) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+3)*w3 + xx+1)) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+3)*w3 + xx+4) +  ((view.getUint8((y+3)*w3 + xx+5)) << 8))-dd)>>shiftr);
+	}
+	else if (typ > 33) {
+		/* stacked mf */
+		greens.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+1)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+2)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+3)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+3)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+	}
+	else if (typ > 1) {
+		greens.push(view.getUint8(y*w + x + 1));
+		greens.push(view.getUint8(y*w + x + 3));
+		greens.push(view.getUint8((y+1)*w + x));
+		greens.push(view.getUint8((y+1)*w + x + 2));
+		greens.push(view.getUint8((y+2)*w + x + 1));
+		greens.push(view.getUint8((y+2)*w + x + 3));
+		greens.push(view.getUint8((y+3)*w + x));
+		greens.push(view.getUint8((y+3)*w + x + 2));
+	} else {
+		greens.push(view.getUint8(y*w + x));
+		greens.push(view.getUint8(y*w + x + 2));
+		greens.push(view.getUint8((y+1)*w + x + 1));
+		greens.push(view.getUint8((y+1)*w + x + 3));
+		greens.push(view.getUint8((y+2)*w + x));
+		greens.push(view.getUint8((y+2)*w + x + 2));
+		greens.push(view.getUint8((y+3)*w + x + 1));
+		greens.push(view.getUint8((y+3)*w + x + 3));
+	}
+	greens.sort(function(a,b) { return a - b; });
+	outrgb.push((greens[3] + greens[4]) / 2.0);
+	let blues = [];
+	if (typ === 5 || typ === 33) {
+		blues.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+1)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+3)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+3)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+	}
+	else if (typ === 69 || typ === 65) {
+		blues.push((((view.getUint8((y+1)*w3 + xx+0)) +  ((view.getUint8((y+1)*w3 + xx+1) ) <<8))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+1)*w3 + xx+4)) +  ((view.getUint8((y+1)*w3 + xx+5) ) <<8))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+3)*w3 + xx+0)) +  ((view.getUint8((y+3)*w3 + xx+1) ) <<8))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+3)*w3 + xx+4)) +  ((view.getUint8((y+3)*w3 + xx+5) ) <<8))-dd)>>shiftr);
+	}
+	else if (typ > 65) {
+		blues.push((((view.getUint8((y+0)*w3 + xx+0)) +  ((view.getUint8((y+0)*w3 + xx+1) ) <<8))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+0)*w3 + xx+4)) +  ((view.getUint8((y+0)*w3 + xx+5) ) <<8))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+2)*w3 + xx+0)) +  ((view.getUint8((y+2)*w3 + xx+1) ) <<8))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+2)*w3 + xx+4)) +  ((view.getUint8((y+2)*w3 + xx+5) ) <<8))-dd)>>shiftr);
+	}
+	else if (typ > 33) {
+		blues.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+	}
+	else if (typ > 1) {
+		blues.push(view.getUint8(y*w + x));
+		blues.push(view.getUint8(y*w + x + 2));
+		blues.push(view.getUint8((y+2)*w + x));
+		blues.push(view.getUint8((y+2)*w + x + 2));
+	} else {
+		blues.push(view.getUint8((y+1)*w + x));
+		blues.push(view.getUint8((y+1)*w + x + 2));
+		blues.push(view.getUint8((y+3)*w + x));
+		blues.push(view.getUint8((y+3)*w + x + 2));
+	}
+	blues.sort(function(a,b) { return a - b; });
+	outrgb.push((blues[1] + blues[2]) / 2.0);
+	return outrgb;
+},
+/* ImBCBase: build preview in array */
+buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) {
+	if (undefined === wb) wb = [ 6, 10, 1, 1, 6, 10 ];
+	let sfact = scale ? scale : 8;
+	if (size === 2) sfact = 4;
+	else if (size === 1) sfact = 16;
+	const w8 = Math.floor((w+(sfact -1))/sfact);
+	const h8 = Math.floor((h+(sfact -1))/sfact);
+	const rfact = (wb[1]/wb[0]);
+	const gfact = (wb[3]/wb[2]);
+	const bfact = (wb[5]/wb[4]);
+	let outpix = [];
+	let rowiterstart, rowiterend;
+	let coliterstart, coliterend;
+	let transpose = false;
+	if (typ === 5 && orientation === 0)
+		orientation = 3;
+	if (orientation === 3) {
+		rowiterstart = -1*(h8 -1);
+		rowiterend = 1;
+		coliterstart = -1*(w8 - 1);
+		coliterend = 1;
+	} else if (orientation === 6) {
+		transpose = true;
+		rowiterstart = 0;
+		rowiterend = w8;
+		coliterstart = -1*(h8 - 1);
+		coliterend = 1;
+	} else if (orientation === 8) {
+		transpose = true;
+		rowiterstart = -1*(w8 -1);
+		rowiterend = 1;
+		coliterstart = 0;
+		coliterend = h8;
+	} else {
+		rowiterstart = 0;
+		rowiterend = h8;
+		coliterstart = 0;
+		coliterend = w8;
+	}
+	let rhist = new Array(256), ghist = new Array(256), bhist = new Array(256);
+	for (let i = 0; i < 256; i++) {
+		rhist[i] = 0; ghist[i] = 0; bhist[i] = 0;
+	}
+	let cnt = 0;
+	for (let i = rowiterstart; i < rowiterend; i +=1) {
+		for (let j = coliterstart; j < coliterend; j+=1) {
+			let a = globals.getPix(Math.abs(transpose ? i :j)*sfact, Math.abs(transpose ? j :i)*sfact, w, view, typ, whitelvl);
+			outpix.push(a[0]);
+			outpix.push(a[1]);
+			outpix.push(a[2]);
+			rhist[a[0]]++;
+			ghist[a[2]]++;
+			bhist[a[2]]++;
+			cnt++;
+		}
+	}
+	// cut off top and bottom 0.2 and 3%
+	let cntx = 0, rallmin = 0, rallmax = 255;
+	while (cntx < (cnt * 0.03))
+		cntx += rhist[rallmin++];
+	if (rallmin > 0) rallmin --;
+	cntx = 0;
+	while (cntx < (cnt * 0.002))
+		cntx += rhist[rallmax--];
+	if (rallmax < 255) rallmax++;
+	let gallmin = 0, gallmax = 255;
+	cntx = 0;
+	while (cntx < (cnt * 0.03))
+		cntx += ghist[gallmin++];
+	if (gallmin > 0) gallmin --;
+	cntx = 0;
+	while (cntx < (cnt * 0.002))
+		cntx += ghist[gallmax--];
+	if (gallmax < 255) gallmax++;
+	let ballmin = 0, ballmax = 255;
+	cntx = 0;
+	while (cntx < (cnt * 0.03))
+		cntx += bhist[ballmin++];
+	if (ballmin > 0) ballmin --;
+	cntx = 0;
+	while (cntx < (cnt * 0.002))
+		cntx += bhist[ballmax--];
+	if (ballmax < 255) ballmax++;
+	let allmin = Math.min(rallmin, gallmin, ballmin);
+	let allmax = Math.max(rallmax, gallmax, ballmax);
+	let fact;
+	if (allmax > 247 && allmin < 8) {
+		fact = 1;
+		allmin = 0;
+		//console.log('Fact 1 ' + fact + ' i ' + allmin + ' a ' + allmax);
+	}
+	else if (allmax - allmin < 1) {
+		fact = 1;
+		//console.log('Fact 2 ' + fact + ' i ' + allmin + ' a ' + allmax);
+	}
+	else {
+		fact = 254/(allmax - allmin);
+		//console.log('Fact 3 ' + fact + ' i ' + allmin + ' a ' + allmax);
+	}
+	//console.log('ai ' + allmin + ' aa ' + allmax + ' ff ' + fact);
+	const o = scale ? 3 : 4;
+	const uic = new Uint8ClampedArray(h8 * w8 * o);
+	for (let i = 0; i < h8; i++) {
+		for (let j=0; j< w8; j++) {
+			let nr = ((outpix[3*((i * w8) + j)] * rfact) - allmin) * fact + allmin;
+			let ng = ((outpix[3*((i * w8) + j) + 1] * gfact) - allmin) * fact + allmin;
+			let nb = ((outpix[3*((i * w8) + j) + 2] * bfact) - allmin) * fact + allmin;
+			if (nr >= 255) {
+				if (ng < 250) ng = Math.floor(ng * 255 / nr);
+				if (nb < 250) nb = Math.floor(nb * 255 / nr);
+				nr = 255;
+			}
+			else if (nr <= 0) nr = 0;
+			if (ng >= 255) {
+				if (nr < 250) nr = Math.floor(nr * 255 / ng);
+				if (nb < 250) nb = Math.floor(nb * 255 / ng);
+				ng = 255;
+			}
+			else if (ng <= 0) ng = 0;
+			if (nb >= 255) {
+				if (ng < 250) ng = Math.floor(ng * 255 / nb);
+				if (nr < 250) nr = Math.floor(nr * 255 / nb);
+				nb = 255;
+			}
+			else if (nb <= 0) nb = 0;
+			// maybe some brightening gamma?
+			uic[o * ((i*w8) + j)] = 255-Math.floor(255*((255-nr)/255)*((255-nr)/255));
+			uic[o * ((i*w8) + j) + 1] = 255-Math.floor(255*((255-ng)/255)*((255-ng)/255));
+			uic[o * ((i*w8) + j) + 2] = 255-Math.floor(255*((255-nb)/255)*((255-nb)/255));
+			if (!scale) uic[o * ((i*w8) + j) + 3] = 255;
+		}
+	}
+	return uic;
+},
+/* Indentation in - end of globals */
+}
+/* *************************************** globals, E N D *************************************** */
 </script>
 </head>
 <!-- here comes the html itself -->

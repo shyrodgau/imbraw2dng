@@ -18339,9 +18339,9 @@ static nametotime(name, corrdelta=0) {
 		let nn = Number.parseInt(res[13]);
 		let newname = name;
 		let datestr = "" + yr + "-" + ((mon < 10) ? "0":"") + mon + "-" + ((day < 10) ? "0":"") + day + "T"+
-			((hr < 10) ? "0":"") + hr + ":" + ((min < 10) ? "0":"") + min + ":" + ((sec < 10) ? "0":"") + sec;
+			((hr < 10) ? "0":"") + hr + ":" + ((min < 10) ? "0":"") + min + ":" + ((sec < 10) ? "0":"") + sec + 'Z';
 		if (corrdelta !== 0) {
-			let nd = new Date(new Date(datestr).valueOf() + corrdelta - (60000*new Date().getTimezoneOffset())).toISOString();
+			let nd = new Date(new Date(datestr).valueOf() + corrdelta).toISOString();
 			yr = Number.parseInt(nd.substring(0,4));
 			mon = Number.parseInt(nd.substring(5,7));
 			day = Number.parseInt(nd.substring(8,10));
@@ -22622,7 +22622,7 @@ function init2() {
 /* *************************************** globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.9.7_3ac6b37", // actually const // VERSION EYECATCHER
+version: "V5.9.7_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 texts: { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },

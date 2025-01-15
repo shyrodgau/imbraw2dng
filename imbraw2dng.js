@@ -225,7 +225,7 @@ addEntry(tag, type, value) {
 getData(offset) {
 	let ioff = 0, data = new Uint8Array(this.#imglen + (12 * this.#entrys.length) + this.#currentoff + 16);
 	if (this.#imgdata?.getUint8) {
-		if (-1 !== ImBCBase.twelvebitsizes.indexOf(this.#imglen)) {
+		if (-1 !== globals.twelvebitsizes.indexOf(this.#imglen)) {
 			for (let z=0; z<this.#imgdata.byteLength; z+=3) {
 				let n = this.#imgdata.getUint8(z);
 				data[ioff++] = this.#imgdata.getUint8(z+2);
@@ -547,7 +547,7 @@ handleone(fx) {
 		this.imbc.stats.error++;
 		return this.imbc.handlenext();
 	}
-	const zz = ImBCBase.infos.findIndex(v => v.size === f.size);
+	const zz = globals.infos.findIndex(v => v.size === f.size);
 	if (zz !== -1) {
 		this.imbc.appmsg("[" + (1 + this.imbc.actnum) + " / " + this.imbc.totnum + "] ");
 		const reader = f.imbackextension ? f : new FileReader();
@@ -738,703 +738,6 @@ add(data, name, cb) {
 class ImBCBase {
 static progname = '';
 /* Indentation out */
-static version = "V5.9.7_3ac6b37"; // actually const // VERSION EYECATCHER
-static alllangs = [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ]; // actually const
-static texts = { // actually const
-	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
-	words: {
-		error: {
-			de: '\u001b[31m\u001b[1mFEHLER:\u001b[0m ',
-			en: '\u001b[31m\u001b[1mERROR:\u001b[0m ',
-			fr: '\u001b[31m\u001b[1mERREUR:\u001b[0m ',
-			ja: '\u001b[31m\u001b[1mエラー:\u001b[0m ',
-			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
-		},
-		warning: {
-			de: '\u001b[31mWarnung:\u001b[0m ',
-			en: '\u001b[31mWarning:\u001b[0m ',
-			fr: '\u001b[31mAvertissement:\u001b[0m ',
-			ja: '\u001b[31m警告:\u001b[0m',
-			htmlstyle: [ [ 'background-color','#ffdddd' ] ]
-		},
-		finished: {
-			de: '\u001b[32m\u001b[1mFertig!\u001b[0m ',
-			en: '\u001b[32m\u001b[1mFinished!\u001b[0m ',
-			fr: '\u001b[32m\u001b[1mFini!\u001b[0m ',
-			ja: '\u001b[32m\u001b[1m終了!\u001b[0m ',
-			htmlstyle: [ [ 'background-color','#ddffdd' ], [ 'font-weight', 'bold' ] ]
-		},
-		sorryerr: {
-			de: '\u001b[31m\u001b[1mENTSCHULDIGUNG! FEHLER:\u001b[0m ',
-			en: '\u001b[31m\u001b[1mSORRY! ERROR:\u001b[0m  ',
-			fr: '\u001b[31m\u001b[1mDÉSOLÉE! ERREUR:\u001b[0m ',
-			ja: '\u001b[31m\u001b[1m申し訳ございません! エラー:\u001b[0m  ',
-			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
-		},
-		sorry: {
-			de: '\u001b[31mENTSCHULDIGUNG!\u001b[0m ',
-			en: '\u001b[31mSORRY!\u001b[0m  ',
-			fr: '\u001b[31mDÉSOLÉE!\u001b[0m ',
-			ja: '\u001b[31m申し訳ございません!\u001b[0m  ',
-			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
-		}
-	},
-	main: {
-		coloursyourrisk: {
-			de: 'Bei Farben bin ich raus! Eigenes Risiko, fraach mich net!',
-			en: 'About colurs, I am out! Own risk, do not ask me!',
-			fr: 'About colurs, I am out! Own risk, do not ask me!',
-			ja: '色については、アウトです！ 自己責任ですので、私に尋ねないでください。'
-		},
-		title: {
-			de: 'ImB RAW nach DNG Konverter',
-			en: 'ImB RAW to DNG converter',
-			fr: 'Convertisseur ImB RAW a DNG',
-			ru: 'Конвертер ImB RAW в DNG',
-			ja: 'ImB RAW を DNG に変換'
-		},
-	    backw: {
-			   title:  { en: 'ImB DNG to RAW back converter' },
-			   generaladvice: { en: 'Only works for the exact original converted DNG.' },
-			   selectdng: { en: 'Select orig. DNG' },
-			   drophere: { en: 'Drop DNGs here' }
-	    },
-		help: {
-			de: '? Hilfe Doku',
-			en: '? Help Doc',
-			fr: '? Aide Doc',
-			ru: '? Помощь Док',
-			ja: '? ヘルプ資料'
-		},
-		helplink: {
-			de: 'https://shyrodgau.github.io/imbraw2dng/README_de',
-			en: 'https://shyrodgau.github.io/imbraw2dng/',
-			fr: 'https://shyrodgau.github.io/imbraw2dng/',
-			ja: 'https://shyrodgau.github.io/imbraw2dng/README_ja'
-		},
-		generaladvice: {
-			de: 'Daten werden nur im Browser verarbeitet, nicht im \'Internet\'.<br>Kann sein, dass der Browser fragt, ob Sie zulassen wollen, dass mehrere Dateien heruntergeladen werden.<br>Dateien, die nicht oder unbekannte RAW-Dateien sind, werden 1:1 kopiert.',
-			en: 'Data processing is entirely in the browser, not in \'the internet\'<br>Browser may ask you if you want to allow downloading multiple files.<br>Not or unrecognized RAW Files simply will be copied.',
-			fr: 'L\'information est entièrement traitée dans le navigateur et non sur \'Internet\'<br>Le navigateur peux questionner que vous acceptez le téléchargement de beaucoup de fiches.<br>Fiches pas-RAW ou RAW inconnue sont copiée 1:1.',
-			ru: 'Данные обрабатываются только в браузере, а не в \'Интернете\'.<br>Браузер может спросить, хотите ли вы разрешить загрузку нескольких файлов.<br>Файлы, которые не являются или неизвестными файлами RAW, копируются 1:1.',
-			ja: 'データ処理は完全にブラウザ内で行われ、\'インターネット\'では行われません。<br>ブラウザにより複数のファイルのダウンロードを許可するかを尋ねることがあります。<br>RAW ファイルが存在しない、または認識されない場合は、単純にコピーされます。'
-		},
-		drophere: {
-			de: 'Dateien von ImB hier ablegen: ',
-			en: 'Drop Files from ImB here: ',
-			fr: 'Posez fiches de ImB ici: ',
-			ru: 'Храните файлы из ImB здесь: ',
-			ja: 'ここに ImB のファイルをドロップします。: '
-		},
-		selectraw: {
-			de: 'Oder diese Seite per WLAN <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README_de.md#gucken-auf-imback-selbst\'>direkt von ImB</a> verwenden.<br>Oder <tt>.RAW</tt> Datei(en) auswählen:',
-			en: 'Or use this page via Wifi <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\'>directly from ImB</a>.<br>Or select <tt>.RAW</tt> File(s):',
-			fr: 'Ou utiliez cette page <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\'>via Wifi sur ImB</a>.<br>Ou selectez <tt>.RAW</tt> fiche(s):',
-			ru: 'Или используйте эту страницу через Wi-Fi <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\'>прямо из ImB</a>.<br>Или выберите файл(ы) <tt>RAW</tt>:',
-			ja: 'または、Wifi 経由で <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/moredoc_ja.md#imback-での閲覧\'>ImB から直接</a>このページを使用します。<br> または、 <tt>.RAW</tt> ファイルを選択します。:'
-		},
-		stillcounting: {
-			de: '... zähle ... ',
-			en: '... counting ... ',
-			fr: '... compter ...',
-			ru: '... подсчет ...',
-			ja: '... カウント中 ... '
-		},
-		types: {
-			rawpics: {
-				de: 'RAW Bilder',
-				en: 'RAW Pictures',
-				fr: 'RAW images',
-				ja: 'RAW 画像'
-			},
-			jpgpics: {
-				de: 'JPEG-Bilder',
-				en: 'JPEG Pictures',
-				fr: 'JPEG images',
-				ja: 'JPEG 画像'
-			},
-			other: {
-				de: 'Andere',
-				en: 'Other',
-				fr: 'Autre',
-				ja: 'その他'
-			},
-			notpic: {
-				de: 'Keine Bilder',
-				en: 'Not pictures',
-				fr: 'Pas images',
-				ja: '画像ではない'
-			}
-		},
-		file: {
-			jpeg: {
-				de: 'Datei $$0 (JPEG)',
-				en: 'File $$0 (JPEG)',
-				fr: 'Fiche $$0 (JPEG)',
-				ja: 'ファイル $$0 (JPEG)'
-			},
-			nopreview: {
-				de: 'Datei $$0<br>Nicht jpeg oder raw, keine Vorschau...',
-				en: 'File $$0<br>Not jpeg or raw, no preview...',
-				fr: 'Fiche $$0<br>Ni jpeg ni raw, pas de aperçu...',
-				ja: 'ファイル $$0<br>jpeg または、raw 以外、プレビューなし...'
-			},
-			rawunknown: {
-				de: 'Datei $$0<br>Unerkannte RAW Dateigröße $$1, bitte Entwickler kontaktieren! Keine Vorschau...',
-				en: 'File $$0<br>Unknown raw size $$1, please contact developer! No preview...',
-				fr: 'Fiche $$0<br>taille de fiche $$1 non reconnue, contacter le développeur, pas de aperçu...',
-				ja: 'File $$0<br>不明な raw サイズ $$1, 開発者にお問い合わせください! プレビューなし...'
-			},
-			dngimpnote: {
-				de: 'Import eines DNG geht nur, wenn diese genau das hiermit erzeugte Original ist.',
-				en: 'Re-import of a DNG is only possible if this is exactly the original that was created here.',
-				fr: 'La réimportation d\'un DNG n\'est possible que s\'il s\'agit exactement de l\'original créé ici.',
-				ja: 'DNG の再インポートは、これがここで作成されたオリジナルである場合にのみ可能です。'
-			},
-			de: 'Datei $$0',
-			en: 'File $$0',
-			fr: 'Fiche $$0',
-			ja: 'ファイル $$0'
-		},
-		sort: {
-			de: 'Sortiere',
-			en: 'Sort:',
-			fr: 'Trier:',
-			ja: 'ソート:'
-		},
-		or: {
-			de: 'Oder ',
-			en: 'Or ',
-			fr: 'Ou ',
-			ja: 'または '
-		},
-		log: {
-			de: 'Protokoll-Ausgabe:',
-			en: 'Message Log:',
-			fr: 'Journal des messages',
-			ja: 'メッセージ ログ:'
-		},
-		selected: {
-			de: 'Ausgewählt',
-			en: 'Selected',
-			fr: 'Sélectionné(s)',
-			ja: '選択済み'
-		},
-		fakelong: {
-			en: 'Fake long exposure by adding up all (<a href="https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#a-lot-more-tricks-and-details">read more</a>)',
-			de: 'Langzeitbelichtung durch Addieren simulieren (<a href="github.com/shyrodgau/imbraw2dng/blob/master/README_de.md#mehr-tricks-und-details">mehr lesen</a>)',
-			ja: 'すべてを加算して長時間露光をシミュレートする',
-			scale: {
-				en: 'Scale values down',
-				de: 'Werte dabei herunterskalieren',
-				ja: 'スケールダウン値'
-			},
-			added: {
-				en: 'Added picture $$0',
-				de: 'Bild $$0 hinzugefügt',
-				ja: '画像を追加しました $$0'
-			}
-		},
-		usezip: {
-			de: 'Nicht mehrere Dateien einzeln, sondern in wenigen ZIP Archiven herunteladen.',
-			en: 'Do not use several single downloads, but in fewer ZIP archives.',
-			ja: '複数のファイルを個別にダウンロードするのではなく、いくつかの ZIP アーカイブとしてダウンロードしてください。',
-			choosedest: {
-				de: 'Ziel auswählen',
-				en: 'Choose destination',
-				ja: '目的地を選択'
-			}
-		},
-		newmsg: {
-			en: '<a href="https://github.com/shyrodgau/imbraw2dng/issues" target="_new">Report bugs</a>',
-			de: '<a href="https://github.com/shyrodgau/imbraw2dng/issues" target="_new">Fehler melden</a>',
-			ja: '<a href="https://github.com/shyrodgau/imbraw2dng/issues" target="_new">バグ報告</a>'
-		}
-	},
-	onimback: {
-		connected: {
-			de: 'ImB Verbunden! ',
-			en: 'ImB Connected! ',
-			fr: 'ImB Connecté! ',
-			ja: 'ImB 接続済み! '
-		},
-		dlconvert: {
-			de: 'Konvertiere / Lade herunter: ',
-			en: 'Download / convert: ',
-			fr: 'Telecharger / convertir',
-			ja: 'ダウンロード / 変換: '
-		},
-		totalnum: {
-			de: 'gesamt:',
-			en: 'total:',
-			fr: 'total:',
-			ja: '合計:'
-		},
-		fromtime: {
-			de: 'ab Zeitstempel bzw. jünger als ',
-			en: 'from timestamp or younger than ',
-			fr: 'à partir de l\'horodatage ou plus jeune que ',
-			ja: 'タイムスタンプ以降またはそれより古い '
-		},
-		nullforall: {
-			de: '0000 oder leer für \'alle\'',
-			en: '0000 or empty for \'all\'',
-			fr: '0000 ou déposer pour \'tout\'',
-			ja: '0000 または、 \'すべて\' 空 '
-		},
-		doit: {
-			de: 'Mach es',
-			en: 'Do it',
-			fr: 'Fais-le',
-			ja: '実行'
-		},
-		visual: {
-			de: 'Bild-Browser benutzen',
-			en: 'Use visual Picture Browser',
-			fr: 'Ou outilizer navigateur visuel des images',
-			ja: 'ビジュアルな画像ブラウザを使用する'
-		},
-		errconnect: {
-			de: '\u001b[31mFEHLER\u001b[0m bei der Verbindung zu ImB auf $$0! Im ImB WLAN?',
-			en: '\u001b[31mERROR\u001b[0m connecting to ImB on $$0! In the ImB WiFi?',
-			fr: '\u001b[31mERREUR\u001b[0m lors de la connexion à imback. Dans le Wifi ImB?',
-			ja: '\u001b[31mエラー\u001b[0m $$0 でImB に接続しています! ImB WiFi ですか?'
-		},
-		nomatch: {
-			de: 'Keine passenden Dateien gefunden. Kann vorübergehend sein.',
-			en: 'No matching files found. Might be temporary.',
-			fr: 'Aucun fiche correspondant trouvé. Peut-etre temporaire.',
-			ja: '一致するファイルが見つかりませんでした。 一時的なものかもしれません。'
-		},
-		strangename: {
-			de: 'Komischer Dateiname: $$0',
-			en: 'Strange file name: $$0',
-			fr: 'Nom de fiche inhabituel: $$0',
-			ja: '無効なファイル名: $$0'
-		},
-		invaltime: {
-			de: 'Ungültiger Zeitstempel: $$0',
-			en: 'Invalid timestamp: $$0',
-			fr: 'Horodatage invalide: $$0',
-			ja: '無効なタイムスタンプ: $$0'
-		},
-		invaltimediff: {
-			de: 'Ungültige Zeitanpassung: $$0',
-			en: 'Invalid time adjustment: $$0',
-			ja: '無効なタイムスタンプ: $$0'
-		},
-	},
-	process: {
-		singlestep: {
-			de: 'Einzelschritt mit Vorschau',
-			en: 'Single Step with preview',
-			fr: 'Seule étape avec aperçu',
-			ja: 'プレビューありでシングルステップ'
-		},
-		addcopyright: {
-			en: 'Copyright',
-			de: 'Copyright',
-			ja: '著作権を追加'
-		},
-		nothing: {
-			de: 'Nichts ausgewählt.. ?',
-			en: 'Nothing selected...?',
-			fr: 'Rien de sélectionné',
-			ja: '何も選択されていません...?'
-		},
-		erraccess: {
-			de: 'beim Zugriff auf $$0.',
-			en: 'occured accessing $$0.',
-			fr: 'lors de l\'accès à $$0.',
-			ja: '>アクセス中にエラーが発生しました $$0.'
-		},
-		notraw: {
-			de: 'Durchleitung weil nicht raw: $$0',
-			en: 'Passing through as not raw: $$0',
-			fr: 'Passage comme non RAW: $$0',
-			ja: 'RAW ではないのでスルー: $$0'
-		},
-		selectedn: {
-			de: '$$0 Datei(en) wurden ausgewählt.',
-			en: 'Got $$0 file(s) selected.',
-			fr: '$$0 fiche(s) sélectionné(s)',
-			ja: '$$0 ファイルが選択されました。'
-		},
-		copyokcheckdl: {
-			de: 'Nach $$0 kopiert (Downloads-Ordner prüfen)</b>&nbsp;',
-			en: 'Copied to $$0 (Check Downloads Folder)</b>&nbsp;',
-			fr: 'Copié sur $$0 (Vérifier le dossier de téléchargements/Downloads)</b>&nbsp;',
-			ja: '$$0 にコピーされました (ダウンロードフォルダーを確認)</b>&nbsp;'
-		},
-		copyok: {
-			de: 'Nach $$0 kopiert',
-			en: 'Copied to $$0',
-			fr: 'Copié sur $$0',
-			ja: '$$0 にコピー'
-		},
-		errorreadingfile: {
-			de: 'beim Lesen der Datei $$0',
-			en: 'occured reading file $$0',
-			fr: 'de lecture du fiche $$0',
-			ja: 'ファイル $$0 の読み取り中にエラーが発生しました。 '
-		},
-		unknownsize: {
-			de: 'Die Dateigröße <b>$$0</b> passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!',
-			en: 'File Size <b>$$0</b> does not match known formats. Please contact developer!',
-			fr: 'La taille du fiche <b>$$0</b> ne correspond pas au format connu. Veuillez contacter le développeur',
-			ja: 'が、ファイルサイズ <b>$$0</b> は既知の形式と一致しません。開発者にお問い合わせください。'
-		},
-		unknownsizex: {
-			de: 'Die Dateigröße $$0 passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!',
-			en: 'File Size $$0 does not match known formats. Please contact developer!',
-			fr: 'La taille du fiche $$0 ne correspond pas au format connu. Veuillez contacter le développeur',
-			ja: 'が、ファイルサイズ $$0 は既知の形式と一致しません。開発者にお問い合わせください。'
-		},
-		processing: {
-			de: 'Verarbeite Datei: $$0 ',
-			en: 'Processing file: $$0',
-			fr: 'Je suis en train de traiter le fiche $$0',
-			ja: '処理中のファイル: $$0'
-		},
-		assuming: {
-			de: 'Annahme: $$0 $$1',
-			en: 'Assuming $$0 $$1',
-			fr: 'Hypothèse: $$0 $$1',
-			ja: '認識 $$0 $$1'
-		},
-		datetime: {
-			de: 'Datum/Zeit: $$0',
-			en: 'Date/Time: $$0 ',
-			fr: 'Date/heure: $$0',
-			ja: '日付/時刻: $$0 '
-		},
-		orientation: {
-			de: 'Drehung: $$0',
-			en: 'Orientation: $$0',
-			fr: 'Rotation: $$0',
-			ja: '向き: $$0'
-		},
-		convertedcheckdl: {
-			de: 'Nach $$0 konvertiert (Downloads-Ordner prüfen)',
-			en: 'Converted to $$0 (Check Downloads Folder)',
-			fr: 'Converti en $$0 (Vérifier le dossier de téléchargements/Downloads)',
-			ja: '$$0 に変換されました (ダウンロードフォルダーを確認してください)'
-		},
-		converted: {
-			de: 'Nach $$0 konvertiert',
-			en: 'Converted to $$0',
-			fr: 'Converti en $$0',
-			ja: '$$0 に変換'
-		},
-		errsave: {
-			de: 'Konnte Datei $$0 nicht speichern.',
-			en: 'Could not write file $$0',
-			fr: 'Impossible d\'écrire le fiche $$0.',
-			ja: 'ファイル $$0 に書き込めませんでした'
-		},
-		droppedn: {
-			de: '$$0 Datei(en) wurden abgelegt.',
-			en: 'Got $$0 file(s) dropped.',
-			fr: '$$0 fiche(s) ont été stockés',
-			ja: '$$0 個のファイルがドロップされました。'
-		},
-		frombackn: {
-			de: '$$0 Datei(en) vom ImB zu verarbeiten.',
-			en: 'Got $$0 file(s) from ImB.',
-			fr: 'J\'ai reçu $$0 fiche(s) d\'ImB',
-			ja: 'ImB から $$0 ファイルを取得しました。'
-		},
-		frombrowsern: {
-			de: '$$0 Datei(en) vom Bild-Browser zu verarbeiten.',
-			en: 'Got $$0 file(s) from Visual browser.',
-			fr: 'J\'ai obtenu $$ fiche(s) du navigateur visuel',
-			ja: 'ビジュアル ブラウザから $$0 ファイルを取得しました。'
-		},
-		skipped: {
-			remaining: {
-				de: 'Verbleibende $$0 Dateien auf Anforderung übersprungen',
-				en: 'Skipping remaining $$0 images at your request',
-				fr: '$$0 fiches restants ignorés sur demande',
-				ja: 'リクエストに応じてスキップ: $$0'
-			},
-			de: 'Auf Anforderung übersprungen: $$0',
-			en: 'Skipped at your request: $$0',
-			fr: 'Ignoré à votre demande: $$0',
-			ja: 'リクエストに応じて残りの $$0 画像をスキップします'
-		},
-		totals: {
-			en: 'Total: $$0, ok: $$1, skipped: $$2, Errors: $$3',
-			de: 'Total: $$0, ok $$1, übersprungen: $$2, Fehler: $$3',
-			fr: 'Total: $$0, ok: $$1, Ignoré: $$2, Erreur: $$3',
-			ja: '合計 $$0、OK $$1、スキップ $$2、エラー $$3'
-		},
-		addpreview: {
-			en: 'Add preview thumbnail to DNG',
-			de: 'Kleines Vorschaubild im DNG',
-			fr: 'Petite image d\'aperçu en DNG',
-			ja: 'プレビューのサムネイルを DNG に追加する'
-		},
-		addexif: {
-			en: 'Add EXIF data from $$0',
-			de: 'Gebe EXIF Daten von $$0 dazu',
-			ja: '$$0のEXIFデータを追加'
-		},
-		includedcp: {
-			en: 'Include the new DNG camera profile (DCP)',
-			de: 'Neues DNG Kamera-Profil (DCP) einbetten',
-			ja: '新しい DNG カメラ プロファイル (DCP) を埋め込みます。'
-		},
-		oldstylewb: {
-			en: 'Use old-style constant white balance',
-			de: 'Alten konstanten Weißabgleich verwenden',
-			ja: '古い一定のホワイト バランスを使用する'
-		},
-		adddcp: {
-			en: 'Adding new DCP',
-			de: 'Bette neues DCP Farbprofile ein',
-			ja: '新しい DCP カラー プロファイルを埋め込む'
-		},
-		foundwb: {
-			en: 'Found whitebalance $$0 / $$1 / $$2',
-			de: 'Weißabgleich $$0 / $$1 / $$2 gefunden',
-			ja: 'ホワイトバランス $$0 / $$1 / $$2 が見つかりました'
-		}
-	},
-	raw: {
-		unknownsize: {
-			de: 'Unerkannte RAW-Dateigröße, Entwickler kontaktieren',
-			en: 'Unrecognized RAW file size, contact developer',
-			fr: 'La taille du fiche RAW ne correspond pas au format connu. Veuillez contacter le développeur',
-			ja: '反時計回り'
-		},
-	},
-	selection: {
-		got: {
-			de: '$$0 Dateien wurden ausgewählt.',
-			en: 'Got $$0 files selected.',
-			fr: '$$0 dossiers ont été sélectionnés.',
-			ja: '$$0 ファイルが選択されました。'
-		},
-	},
-	del: {
-		question: {
-			en: 'Deleting $$0 file(s) can not be undone! Are you sure you want to continue?',
-			de: 'Löschen von $$0 Datei(en) kann nicht rückgängig gemacht werden. Sicher damit weitermachen?',
-			fr: 'La suppression de $$0 fiche(s) est irréversible. Es-tu sur de vouloir continuer?',
-			ja: '$$0 ファイルを削除すると、元に戻すことはできません。 続行してもよろしいですか?',
-			ok: {
-				de: 'Ok',
-				en: 'Ok',
-				fr: 'Ok',
-				ja: 'はい'
-			},
-			cancel: {
-				de: 'Abbrechen',
-				en: 'Cancel',
-				fr: 'Annuler',
-				ja: 'キャンセル'
-			}
-		},
-		nostatus: {
-			de: 'Der Status des Löschens kann nicht sicher geprüft werden. Bitte laden Sie die Seite nach dem Löschen neu.',
-			en: 'The status of the delete can not be checked safely. Reload the page after deleting.',
-			fr: 'Le statut de la suppression ne peut pas être vérifié avec certitude. Veuillez recharger la page après la suppression.',
-			ja: '削除のステータスを安全に確認することはできません。 削除後はページを再読み込みしてください。'
-		},
-		reload: {
-			de: 'Bitte Seite neu laden.',
-			en: 'Please reload page.',
-			fr: 'Veuillez recharger la page.',
-			ja: 'ページをリロードしてください。'
-		}
-	},
-	node: {
-	    backw: {
-			   help: {
-					   en: [ 'Welcome to imbdng2raw $$0 (BACKWARD!) !', 'Usage: node $$0 [-l lang] [-d dir] [ [--] <files>* ]',
-					   'Options:',
-					   ' -h - show this help',
-					   ' -l XX - where XX is a valid language code (currently: DE, EN, FR, JA)',
-					   '         Language can also be set by changing filename to imbdng2raw_XX.js .',
-					   ' -d dir - put output files into dir',
-					   ' -----',
-					   ' -- - treat rest of parameters as local files or dirs',
-					   ' <files> - process local files' ],
-					   de: [ 'Willkommen bei imbdng2raw $$0 (RÜCKWÄRTS!) !', 'Aufruf: node $$0 [-l sprache] [-d ordner] [ [--] <dateien>* ]',
-					   'Optionen:',
-						' -h - diesen Hilfetext zeigen',
-						' -l XX - wo XX ein gültiger Sprachcode ist (derzeit: DE, EN, FR, JA)',
-						'         Die Sprache kann auch durch Umbenennen in imbdng2raw_XX.js geändert werden.',
-						' -d ordner - Ausgabedateien in diesen Ordner ablegen',
-						' -----',
-						' -- - weitere Parameter als lokale Dateien oder Ordner betrachten',
-					   ' <dateien> - lokale Dateien verarbeiten', ],
-						ja: [ 'imbdng2raw $$0 (戻る!) へようこそ!', '使い方: node $$0 [-l lang] [-d dir] [ [--] <files>* ]', 'オプション:', 
-							' -h - このヘルプを表示します',
-							' -l XX - XX は有効な言語コードです (現在: DE、EN、FR、JA)',
-							'         ファイル名を imbdng2raw_XX.js に変更することで言語を設定することもできます。',
-							' -d dir - 出力ファイルを dir に置きます',
-							' -----',
-							' -- - 残りのパラメータをローカル ファイルまたはディレクトリとして扱います',
-							' <files> - ローカル ファイルを処理します*'
-						],
-			   }
-	    },
-		help: {
-			en: [ `\u001b[1mWelcome to imbraw2dng\u001b[0m $$0 !`, `Usage: node $$0 \u001b[1m[\u001b[0m-l ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-d ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-owb\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-ndcp\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr ..\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-at ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n ..\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \
-\u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mfiles-or-dirs\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m`,
-				'Options:',
-				' \u001b[1m-h\u001b[0m - show this help',
-				' \u001b[1m-nc\u001b[0m - do not use coloured text',
-				' \u001b[1m-co\u001b[0m - force coloured text',
-				' \u001b[1m-l XX\u001b[0m - where XX is a valid language code (currently: DE, EN, FR, JA)',
-				'         Language can also be set by changing filename to imbraw2dng_XX.js .',
-				' \u001b[1m-d dir\u001b[0m - put output files into dir',
-				' \u001b[1m-f\u001b[0m - overwrite existing files',
-				' \u001b[1m-r\u001b[0m - rename output file, if already exists',
-				' \u001b[1m-np\u001b[0m - Do not add preview thumbnail to DNG',
-				' \u001b[1m-owb\u001b[0m - Use old style constant white balance',
-				' \u001b[1m-ndcp\u001b[0m - Do not include new DNG Camera profile',
-				' \u001b[1m-cr \'copyright...\'\u001b[0m - add copyright to DNG',
-				' \u001b[1m-at \'author...\'\u001b[0m - add artist/creator to DNG',
-				' \u001b[1m-fla\u001b[0m, \u001b[1m-flx\u001b[0m - add multiple images to fake long exposure, flx scales down',
-				' \u001b[1m-R\u001b[0m - get RAW from ImB connected via Wifi or from given directories',
-				' \u001b[1m-J\u001b[0m - get JPEG from ImB connected via Wifi or from given directories',
-				' \u001b[1m-O\u001b[0m - get non-RAW/non-JPEG from ImB connected via Wifi or from given directories',
-				' \u001b[1m-da correcttimestamp=cameratimestamp\u001b[0m - correct times in yyyy_mm_dd-hh_mm_ss format',
-				' \u001b[1m-n yyyy_mm_dd-hh_mm_ss\u001b[0m (or prefix of any length) - select only newer than this timestamp from ImB or from given directories',
-				' -----',
-				' \u001b[1m--\u001b[0m - treat rest of parameters as local files or dirs',
-				' <files-or-dirs> - process local files or directories recursively, e.g. on MicroSD from ImB',],
-			fr: [ `\u001b[1mBienvenu a imbraw2dng\u001b[0m $$0 !`, `Operation: node $$0 \u001b[1m[\u001b[0m-l ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-d ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-owb\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-ndcp\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr ..\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-at ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n ..\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \
-\u001b[1m[\u001b[0m \u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mfiches-ou-repertoires\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m`,
-				'Choix:',
-				' \u001b[1m-h\u001b[0m - montrer cette aide',
-				' \u001b[1m-nc\u001b[0m - n\'utilisez pas de texte en couleur',
-				' \u001b[1m-co\u001b[0m - utilisez de texte en couleur',
-				' \u001b[1m-l XX\u001b[0m - quand XX est une code du langue valide (actuellement: DE, EN, FR, JA)',
-				'         La langue peut également être définie en changeant le nom du fiche en imbraw2dng_XX.js .',
-				' \u001b[1m-d repertoire\u001b[0m - mettre les fiches de sortie dans le répertoire',
-				' \u001b[1m-f\u001b[0m - écraser les fiches existants',
-				' \u001b[1m-r\u001b[0m - quand fiche existe, renommer le résultat',
-				' \u001b[1m-np\u001b[0m - Pas petite image d\'aperçu en DNG',
-				' \u001b[1m-np\u001b[0m - Do not add preview thumbnail to DNG',
-				' \u001b[1m-owb\u001b[0m - Use old style constant white balance',
-				' \u001b[1m-cr \'copyright...\'\u001b[0m - add copyright to DNG',
-				' \u001b[1m-at \'author...\'\u001b[0m - add author/creator to DNG',
-				' \u001b[1m-fla\u001b[0m, \u001b[1m-flx\u001b[0m - add multiple images to fake long exposure, flx scales down',
-				' \u001b[1m-R\u001b[0m - obtenez RAW d\'ImB connecté via Wifi ou repertoires donnés',
-				' \u001b[1m-J\u001b[0m - obtenez JPEG d\'ImB connecté via Wifi ou repertoires donnés',
-				' \u001b[1m-O\u001b[0m - obtenez du non-RAW/non-JPEG d\'ImB connecté via Wifi ou repertoires donnés',
-				' \u001b[1m-n yyyy_mm_dd-hh_mm_ss\u001b[0m (ou préfixe de n\'importe quelle longueur) - sélectionnez uniquement plus récent que cet horodatage d\'ImB ou repertoires donnés',
-				' -----',
-				' \u001b[1m--\u001b[0m - traiter le reste des paramètres comme des fiches ou des répertoires locaux',
-				' <fiches-ou-repertoires> - traiter des fiches ou des répertoires locaux de manière récursive, par exemple sur MicroSD d\'ImB',],
-			de: [ `\u001b[1mWillkommen bei imbraw2dng\u001b[0m $$0 !`, `Aufruf: node $$0 \u001b[1m[\u001b[0m-l ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-d ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-owb\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-ndcp\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr ..\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-at ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-at ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n ..\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \
-\u001b[1m[\u001b[0m \u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mdateien-oder-ordner\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m`,
-				'Optionen:',
-				' \u001b[1m-h\u001b[0m - diesen Hilfetext zeigen',
-				' \u001b[1m-nc\u001b[0m - keinen farbigen Text zeigen',
-				' \u001b[1m-co\u001b[0m - farbigen Text zeigen',
-				' \u001b[1m-l XX\u001b[0m - wo XX ein gültiger Sprachcode ist (derzeit: DE, EN, FR, JA)',
-				'         Die Sprache kann auch durch Umbenennen in imbraw2dng_XX.js geändert werden.',
-				' \u001b[1m-d ordner\u001b[0m - Ausgabedateien in diesen Ordner ablegen',
-				' \u001b[1m-f\u001b[0m - existierende Dateien überschreiben',
-				' \u001b[1m-r\u001b[0m - Ausgabedatei umbenennen, falls schon existiert',
-				' \u001b[1m-np\u001b[0m - Kein kleines Vorschaubild im DNG',
-				' \u001b[1m-owb\u001b[0m - Alten konstanten Weißabgleich verwenden',
-				' \u001b[1m-ndcp\u001b[0m - neues DCP Profil nicht einbetten',
-				' \u001b[1m-cr \'copyright...\'\u001b[0m - Copyright dem DNG hinzufügen',
-				' \u001b[1m-at \'autor...\'\u001b[0m - Künstler/Ersteller zum DNG hinzufügen',
-				' \u001b[1m-fla\u001b[0m, \u001b[1m-flx\u001b[0m - mehrere Bilder als Langzeitbelichtung aufaddieren, flx skaliert dabei herunter',
-				' \u001b[1m-R\u001b[0m - RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen konvertieren',
-				' \u001b[1m-J\u001b[0m - JPEG von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren',
-				' \u001b[1m-O\u001b[0m - Nicht-JPEG/Nicht-RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren',
-				' \u001b[1m-da richtigezeit=kamerazeit\u001b[0m - Zeiten im yyyy_mm_dd-hh_mm_ss Format anpassen',
-				' \u001b[1m-n yyyy_mm_dd-hh_mm_ss\u001b[0m (oder beliebig langer Anfang davon) - nur Dateien neuer als dieser Zeitstempel von ImB oder übergebenen Verzeichnissen holen',
-				' -----',
-				' \u001b[1m--\u001b[0m - weitere Parameter als lokale Dateien oder Ordner betrachten',
-				' <dateien-oder-ordner> - lokale Dateien oder Ordner rekursiv (z.B. von der MicroSD Karte aus ImB) verarbeiten',],
-			ja: [
-				`\u001b[1mimbraw2dng へようこそ\u001b[0m $$0 !`, `Usage: node $$0 \u001b[1m[\u001b[0m-l ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-d ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-owb\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-ndcp\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr ..\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-at ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n ..\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \
-\u001b[1m[\u001b[0m \u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mfiles-or-dirs\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m`,
-				'オプション:',
-				'\u001b[1m-h\u001b[0m - このヘルプを表示する',
-				' \u001b[1m-nc\u001b[0m - 色付きのテキストを使用しない',
-				' \u001b[1m-co\u001b[0m - 色付きのテキストを強制',
-				' \u001b[1m-l XX\u001b[0m - ここで、XX は有効な言語コードです (現在: DE、EN、FR、JA)',
-				'         ファイル名を imbraw2dng_XX.js に変更することで言語を設定することもできます。',
-				' \u001b[1m-d dir\u001b[0m - 出力ファイルを dir に置く',
-				' \u001b[1m-f\u001b[0m - 現在のファイルを上書きする',
-				' \u001b[1m-r\u001b[0m - rename output file, if already exists',
-				' \u001b[1m-np\u001b[0m - Do not add preview thumbnail to DNG',
-				' \u001b[1m-np\u001b[0m - Do not add preview thumbnail to DNG',
-				' \u001b[1m-owb\u001b[0m - Use old style constant white balance',
-				' \u001b[1m-cr \'copyright...\'\u001b[0m - add copyright to DNG',
-				' \u001b[1m-at \'author...\'\u001b[0m - add author/creator to DNG',
-				' \u001b[1m-fla\u001b[0m, \u001b[1m-flx\u001b[0m - add multiple images to fake long exposure, flx scales down',
-				' \u001b[1m-R\u001b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリからRAWを取得する',
-				' \u001b[1m-J\u001b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリからJPEGを取得する',
-				' \u001b[1m-O\u001b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリから非RAW/非JPEGを取得する',
-				' \u001b[1m-n yyyy_mmdd_hhmmss\u001b[0m (または任意の長さのプレフィックス) - ImB からこのタイムスタンプより新しいもののみを選択する',
-				' -----',
-				' \u001b[1m--\u001b[0m - 残りのパラメータをローカル ファイルまたはディレクトリとして扱う',
-				'<files-or-dirs> と -R/-J/-O/-n は同時に使用できません。'
-				]
-		},
-		unkopt: {
-			en: '\u001b[31mUnknown Option:\u001b[0m $$0',
-			de: '\u001b[31mUnbekannte Option:\u001b[0m $$0',
-			fr: '\u001b[31mOption inconnue:\u001b[0m $$0',
-			ja: '\u001b[31m最後のパラメータの値が欠落しています。\u001b[0m'
-		},
-		missingval: {
-			en: '\u001b[31mMissing value for last parameter.\u001b[0m',
-			de: '\u001b[31mFehlender Wert für letzten Parameter.\u001b[0m',
-			fr: '\u001b[31mValeur manquante pour le dernier paramètre.\u001b[0m',
-			ja: '\u001b[31m最後のパラメータの値が欠落しています。\u001b[0m'
-		},
-		fnwarn: {
-			en: '\u001b[31mWarning:\u001b[0m $$0 looks like a timestamp, did you forget \u001b[1m-n\u001b[0m or \u001b[1m--\u001b[0m in front of it?',
-			de: '\u001b[31mWarnung:\u001b[0m $$0 sieht wie ein Zeitstempel aus, vielleicht \u001b[1m-n\u001b[0m oder \u001b[1m--\u001b[0m davor vergessen?',
-			fr: '\u001b[31mAvertissement:\u001b[0m $$0 ressemble à un horodatage, oubliée \u001b[1m-n\u001b[0m ou \u001b[1m--\u001b[0m?',
-			ja: '\u001b[31m警告:\u001b[0m $$0 lタイムスタンプのようですが、 \u001b[1m-n\u001b[0m または \u001b[1m--\u001b[0m 手前にあるのを忘れましたか?'
-		},
-		renamed: {
-			en: '(renamed)',
-			de: '(umbenannt)',
-			fr: '(renomee)',
-			ja: '(リネーム)'
-		},
-		readconfig: {
-			en: '\u001b[2mConfig file $$0 read.\u001b[0m',
-			de: '\u001b[2mKonfigurationsdatei $$0 eingelesen.\u001b[0m',
-			ja: '\u001b[2m構成ファイル $$0 が読み込まれます。\u001b[0m'
-		},
-		noconfig: {
-			de: '\u001b[2mKeine json Konfigurationsdatei gefunden, gesucht: $$0\u001b[0m',
-			en: '\u001b[2mNo json config file found, searched: $$0\u001b[0m',
-			ja: '\u001b[2mNo json 構成ファイルが見つかりません、検索: $$0\u001b[0m'
-		},
-		newmsg: {
-			en: 'Report Bugs: https://github.com/shyrodgau/imbraw2dng/issues',
-			de: 'Fehler melden: https://github.com/shyrodgau/imbraw2dng/issues',
-			ja: 'バグ報告: https://github.com/shyrodgau/imbraw2dng/issues'
-		}
-	}
-};
 
 // ImBCBase: generic data
 mylang = 'en';
@@ -1471,139 +774,6 @@ latestjpg='0000';
 earliestraw='9999';
 latestraw='0000';
 
-// generic user input timestamp always complete
-//                       y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
-static fulltsregex = /^([02-3][0-9][0-9][0-9])([^0-9])([01][0-9])([^0-9])([0123][0-9])([^0-9])([012][0-9])([^0-9])([0-5][0-9])([^0-9])([0-5][0-9])$/ // actually const
-// generic user input timestamp (any prefix)
-//                  y      y     y     y      .      m     m     .      d      d      .      h     h      .      m     m      .      s     s
-static tsregex = /^[02-3]([0-9]([0-9]([0-9](([^0-9])[01]([0-9](([^0-9])[0123]([0-9](([^0-9])[012]([0-9](([^0-9])[0-5]([0-9](([^0-9])[0-5]([0-9])?)?)?)?)?)?)?)?)?)?)?)?)?$/ // actually const
-/* ImBCBase: Data for the Imback variants and exif stuff */
-// generic imb filename format
-//                   y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s     EXT
-static fnregex = /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])(.*[.])([^.]*)$/ // actually const
-// generic imb filename format, only timestamp
-//                    y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s      .        n
-static fnregexx = /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-9]*)/ // actually const
-static orients = [ '', 'none', '', 'upsidedown', '', '', 'clockwise', '', 'counterclockwise' ]; // actually const
-static oriecw = [ 1, 6, 3, 8 ]; // clockwise indices // actually const
-static types = [ "unknown", "ImB35mm", "MF 6x7 ", "MF6x4.5", "MF 6x6 ", "Film35 " ]; // all length 7, actually const
-static twelvebitsizes = [ 9706416, 11501280, 14709888, 17428128, 17915904, 19406448, 21098880, 23003136, 23887872, 30607488 ];
-static infos = [ // actually const
-	{
-		size: 14065920,
-		w: 4320,
-		h: 3256,
-		typ: 0,
-		mode: "historic"
-	},
-	{ /* MF 6x7 */
-		size: 15925248,
-		w: 4608,
-		h: 3456,
-		typ: 2,
-		mode: ""
-	},
-	{ /* MF 6x4.5 */
-		size: 12937632,
-		w: 4152, h: 3116,
-		typ: 3,
-		mode: ""
-	},
-	{
-		size: 9806592,
-		w: 3616, h: 2712,
-		typ: 3,
-		mode: "Medium-angle"
-	},
-	{
-		size: 6470944,
-		w: 2936, h: 2204,
-		typ: 3,
-		mode: "Small-angle"
-	},
-	{ /* MF 6x6 */
-		size: 11943936,
-		w: 3456, h: 3456,
-		typ: 4,
-		mode: ""
-	},
-	{ /* 35mm */
-		size: 15335424,
-		w: 4608, h: 3328,
-		typ: 1,
-		mode: ""
-	},
-	{
-		size: 11618752,
-		w: 4012, h: 2896,
-		typ: 1,
-		mode: "Medium-angle"
-	},
-	{
-		size: 7667520,
-		w: 3260, h: 2352,
-		typ: 1,
-		mode: "Small-angle"
-	},
-	/* 12 bit down here: */
-	/* Film ! */
-	{
-		size: 30607488,
-		w: 5216,
-		h:3912,
-		typ: 5,
-		mode: ''
-	},
-	/*{ /* MF 6x7 * /
-		size: 23887872,
-		w: 4608,
-		h: 3456,
-		typ: 34,
-		mode: "stacked"
-	},
-	{ /* MF 6x4.5 * /
-		size: 19406448,
-		w: 4152, h: 3116,
-		typ: 35,
-		mode: "stacked"
-	},
-	{
-		size: 14709888,
-		w: 3616, h: 2712,
-		typ: 35,
-		mode: "Medium-angle stacked"
-	},
-	{
-		size: 9706416,
-		w: 2936, h: 2204,
-		typ: 35,
-		mode: "Small-angle stacked"
-	},
-	{ /* MF 6x6 * /
-		size: 17915904,
-		w: 3456, h: 3456,
-		typ: 37,
-		mode: "stacked"
-	},
-	{ /* 35mm * /
-		size: 23003136,
-		w: 4608, h: 3328,
-		typ: 33,
-		mode: "stacked"
-	},
-	{
-		size: 17428128,
-		w: 4012, h: 2896,
-		typ: 33,
-		mode: "Medium-angle stacked"
-	},
-	{
-		size: 11501280,
-		w: 3260, h: 2352,
-		typ: 33,
-		mode: "Small-angle stacked"
-	},*/
-];
 //////// DYNAMIC SOURCE 1
 ////////////////////////////////////////////
 ////    DYNAMIC SOURCE: /home/hegny/prog/imbraw2dng/github/profiles/DCP/ImBack ImB35mm.dcp
@@ -18484,7 +17654,7 @@ static basename(n) {
 }
 /* ImBCBase: compare timestamp */
 comptime(fname, compts) {
-	const res = ImBCBase.fnregex.exec(fname);
+	const res = globals.fnregex.exec(fname);
 	if (res === null) {
 		this.appmsgxl(false, 'words.warning');
 		this.appmsgxl(0, 'onimback.strangename', fname);
@@ -18515,7 +17685,7 @@ rmesc(str) {
 }
 /* ImBCBase: get part of translation */
 xl0(str, base) {
-	if (undefined === base) base = ImBCBase.texts;
+	if (undefined === base) base = globals.texts;
 	const i = str.indexOf('.');
 	if (i === -1) {
 		let r = base[str][this.mylang];
@@ -18553,7 +17723,7 @@ subst(r, arg0, arg1, arg2, arg3) {
 /* ImBCBase: translate one string with parameters */
 xl(str, arg0, arg1, arg2, arg3, base) {
 	// console.log(' XL ' + str + ' - ' + base + ' - ' + arg0 + ' - ' + arg1);
-	if (undefined === base) base = ImBCBase.texts;
+	if (undefined === base) base = globals.texts;
 	if (this.mylang === '00') {
 		let res = '[' + str;
 		if (undefined !== arg0) {
@@ -18589,8 +17759,8 @@ querylang(name, offset) {
 	if ('00' === l) {
 		this.debugflag = true;
 		if (document) { // translation output into browser log
-			for (const el of Object.keys(ImBCBase.texts))
-				this.prxl(el, ImBCBase.texts[el]);
+			for (const el of Object.keys(globals.texts))
+				this.prxl(el, globals.texts[el]);
 			document.getElementById('langsel').innerHTML += '<option value="00" onclick="imbc.setlang()">00</option></select>';
 		}
 	}
@@ -18605,7 +17775,7 @@ prxl(key, el) {
 		try{
 		if (typeof el['de'] === 'string') {
 			let out = key + ';';
-			for (const l of ImBCBase.alllangs) {
+			for (const l of globals.alllangs) {
 				if (undefined !== el[l]) {
 					let a = el[l];
 					let b = '"';
@@ -18618,7 +17788,7 @@ prxl(key, el) {
 		else if (typeof el['de'][0] === 'string') {
 			for (let i=0; i< el['de'].length; i++) {
 				let out = key + '[' + i + '];';
-				for (const l of ImBCBase.alllangs) {
+				for (const l of globals.alllangs) {
 					if (undefined !== el[l] && undefined !== el[l][i]) {
 						let a = el[l][i];
 						let b = '"';
@@ -18643,7 +17813,7 @@ prxl(key, el) {
 /* ImBCBase: language helper */
 findlang(i) {
 	let found = 0;
-	for (const l of ImBCBase.alllangs) {
+	for (const l of globals.alllangs) {
 		if (i.toUpperCase() === l.toUpperCase()) {
 			this.mylang = l;
 			found = 1;
@@ -18819,7 +17989,7 @@ xexif(name, view, datestr) {
 }
 /* ImBCBase: time values from filename */
 static nametotime(name, corrdelta=0) {
-	let res = ImBCBase.fnregexx.exec(name);
+	let res = globals.fnregexx.exec(name);
 	if (res !== null) {
 		let yr = Number.parseInt(res[1]);
 		let mon = Number.parseInt(res[3]);
@@ -18931,7 +18101,7 @@ handleone(orientation) {
 	}
 	let w, h, mode = "??";
 	let typ = 0;
-	let zz = ImBCBase.infos.findIndex(v => v.size === f.size);
+	let zz = globals.infos.findIndex(v => v.size === f.size);
 	if (zz === -1) {
 		if (this.totnum > 1) {
 			this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
@@ -18961,12 +18131,12 @@ handleone(orientation) {
 		reader.readAsArrayBuffer(f);
 		return;
 	} else {
-		w = ImBCBase.infos[zz].w;
-		h = ImBCBase.infos[zz].h;
-		mode = ImBCBase.infos[zz].mode;
+		w = globals.infos[zz].w;
+		h = globals.infos[zz].h;
+		mode = globals.infos[zz].mode;
 		if (mode.length !== 0) mode += ' ';
 		mode += '(' + w + ' x ' + h + ')';
-		typ = ImBCBase.infos[zz].typ;
+		typ = globals.infos[zz].typ;
 	}
 	let dateok = false;
 	const rawnamearr = new TextEncoder().encode(rawname);
@@ -19130,17 +18300,17 @@ handleone(orientation) {
 			}
 		}
 		this.mappx(0, 'process.processing', inname);
-		this.mappx(0, 'process.assuming', ImBCBase.types[typ < 32 ? typ : ((typ< 64)? (typ - 32) : (typ - 64))], mode);
+		this.mappx(0, 'process.assuming', globals.types[typ < 32 ? typ : ((typ< 64)? (typ - 32) : (typ - 64))], mode);
 		if (dateok) {
 			this.mappx(0, 'process.datetime', datestr);
 		}
 		let ori = orientation ? orientation : ((typ % 32) === 5 ? 3 : 1);
 		let transp = false;
 		if (ori !== 1) {
-			//this.mappx(0, 'process.orientation', this.xl0('preview.orients.' + ImBCBase.orients[ori]));
+			//this.mappx(0, 'process.orientation', this.xl0('preview.orients.' + globals.orients[ori]));
 			if (ori === 6 || ori === 8) transp = true;
 		}
-		const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : ImBCBase.getwb(view, zz, whitelvl);
+		const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : globals.getwb(view, zz, whitelvl);
 		//console.log('WB ' + JSON.stringify(wb));
 		//if (!this.constwb)
 		//	this.mappx(0, 'process.foundwb', Math.round(100*wb[0]/wb[1]), Math.round(100*wb[2]/wb[3]), Math.round(100*wb[4]/wb[5]));
@@ -19152,7 +18322,7 @@ handleone(orientation) {
 			/* **** PREVIEW image **** */
 			let scale = 32;
 			if (w < 4096 && h < 4096) scale=16;
-			ti.addImageStrip(1, ImBCBase.buildpvarray(view, 0, typ, w, h, ori, scale, wb, whitelvl), Math.floor(transp ? (h+scale-1)/scale:(w+scale-1)/scale), Math.floor(transp ? (w+scale-1)/scale: (h+scale-1)/scale));
+			ti.addImageStrip(1, globals.buildpvarray(view, 0, typ, w, h, ori, scale, wb, whitelvl), Math.floor(transp ? (h+scale-1)/scale:(w+scale-1)/scale), Math.floor(transp ? (w+scale-1)/scale: (h+scale-1)/scale));
 			ti.addEntry(258 , 'SHORT', [ 8, 8, 8 ]); /* BitsPerSample */
 			ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression - none */
 			ti.addEntry(262, 'SHORT', [ 2 ]); /* Photometric - RGB */
@@ -19163,15 +18333,15 @@ handleone(orientation) {
 			ti.addEntry(50707, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Backward Version */
 		}
 		ti.addEntry(271, 'ASCII', 'ImBack'); /* Make */
-		ti.addEntry(50708, 'ASCII', 'ImBack' + ' ' + ImBCBase.types[typ < 32 ? typ : ((typ< 64)? (typ - 32) : (typ - 64))]); /* Unique model */
-		ti.addEntry(272, 'ASCII', ImBCBase.types[typ < 32 ? typ : ((typ< 64)? (typ - 32) : (typ - 64))]); /* Model */
+		ti.addEntry(50708, 'ASCII', 'ImBack' + ' ' + globals.types[typ < 32 ? typ : ((typ< 64)? (typ - 32) : (typ - 64))]); /* Unique model */
+		ti.addEntry(272, 'ASCII', globals.types[typ < 32 ? typ : ((typ< 64)? (typ - 32) : (typ - 64))]); /* Model */
 		ti.addEntry(274, 'SHORT', [ ori ]); /* Orientation */
-		ti.addEntry(305, 'ASCII', ImBCBase.progname + ' ' + ImBCBase.version); /* SW and version */
+		ti.addEntry(305, 'ASCII', ImBCBase.progname + ' ' + globals.version); /* SW and version */
 		if (!this.#historystring?.length)
 			this.#historystring = rawname;
 		let hxbytes = new TextEncoder().encode(this.#historystring);
 		// do UTF-8 bytes instead of ASCII if necessary
-		this.#historystring += (',' + ImBCBase.progname + ' ' + ImBCBase.version);
+		this.#historystring += (',' + ImBCBase.progname + ' ' + globals.version);
 		const hbytes = new TextEncoder().encode(this.#historystring);
 		if (hbytes.length === this.#historystring.length)
 			ti.addEntry(37395, 'ASCII', this.#historystring); /* image history */
@@ -19237,7 +18407,7 @@ handleone(orientation) {
     			rightbytes = new TextEncoder().encode(this.copyright);
     			xmpx.push(`</rdf:li></rdf:Alt></dc:rights>`);
 			}
-			let swbytes = new TextEncoder().encode(ImBCBase.progname + ' ' + ImBCBase.version);
+			let swbytes = new TextEncoder().encode(ImBCBase.progname + ' ' + globals.version);
 			let datbytes = [];
 			if (dateok) {
 				datbytes = new TextEncoder().encode(datestr.substring(0,4)+'-'+ datestr.substring(5,7)+'-'+datestr.substring(8,10)+'T'+datestr.substring(11));
@@ -19389,353 +18559,11 @@ writewrap(name, type, okmsg, arr1) {
 	} else
 		this.writefile(name, type, okmsg, arr1);
 }
-/* ImBCBase: get white balance */
-static getwb(view, typidx, whitelvl) {
-	//console.log('GWB ' + typidx + ' ' + JSON.stringify(ImBCBase.infos[typidx]) + JSON.stringify(ImBCBase.infos[typidx < 32 ? typidx : ((typidx< 64)? (typidx - 32) : (typidx - 64))]));
-	const t = ImBCBase.infos[typidx < 32 ? typidx : ((typidx< 64)? (typidx - 32) : (typidx - 64))];
-	let r=1, g=1, b=1;
-	/*let shiftr = 0, wbx = 255, skiski = 0;
-	while (whitelvl > wbx) {
-		wbx = (2*(wbx+1)) -1; 
-		shiftr ++;
-	}*/
-	for (let i=Math.round(0.05*t.h)*2; i<Math.ceil(0.9*t.h); i+=8) {
-		for (let j=Math.round(0.05*t.w)*2; j<Math.ceil(0.9*t.w); j+=8) {
-			let x = ImBCBase.getPix(j, i, t.w, view, typidx < 32 ? t.typ : (typidx < 64 ? 32 + t.typ : 64 + t.typ), whitelvl);
-			/*let lr = (x[0] * wbx / whitelvl);
-			let lg = (x[1] + 1) * (wbx / whitelvl);
-			let lb = (x[2] * wbx / whitelvl);*/
-			let lr = x[0];
-			let lg = x[1] + 1;
-			let lb = x[2];
-			let p = Math.sqrt(lg*lg + lb*lb + lr*lr);
-			if (p < 3 || p > (433)) {
-				//skiski++;
-				continue;
-			}
-			//if (((i*t.w + j) % 50000) < 10)
-			//	console.log('i ' + i + ' j ' + j + ' R ' + lr + ' G ' + lg + ' B ' + lb + ' P ' + p);
-			//if (r + g == 2) {
-			//	console.log('R G B ' + x[0] + ' ' + x[1] + ' ' + x[2] + ' P ' + p + ' LB ' + lb + ' LR ' + lr + ' LG ' + lg);
-			//}
-			b += ((lb)/(p)>1) ? 1 : (lb)/(p);
-			g += ((lg)/(p)>1) ? 1 : (lg)/(p);
-			r += ((lr)/(p)>1) ? 1 : (lr)/(p);
-		}
-	}
-	//console.log('ER EG EB ' + r + ' ' + g + ' ' + b + ' skiski ' + skiski + ' wbx ' + wbx + ' whl ' + whitelvl);
-	if ((r > b) && (r > g)) {
-		return [ 10, 10, Math.ceil(300000*g/r), 300000, Math.ceil(300000*b/r), 300000 ];
-	}
-	else if ((b > r) && (b > g)) {
-		return [ Math.ceil(300000*r/b), 300000, Math.ceil(300000*g/b), 300000, 10, 10 ];
-	}
-	else {
-		return [ Math.ceil(300000*r/g), 300000, 10, 10, Math.ceil(300000*b/g), 300000 ];
-	}
-}
-/* ImBCBase: get one downsampled median image value [ r g b ] */
-static getPix(x, y, w, view, typ, whitelvl) {
-	let outrgb = [];
-	let reds = [];
-	const w3 = w + (typ >= 64 ? w : (w>>1));
-	const xx = x + (typ >= 64 ? x : (x>>1));
-	let shiftr = 0, wbx = 255;
-	while (whitelvl > wbx) {
-		wbx = (2*(wbx+1)) -1; 
-		shiftr ++;
-	}
-	const dd = (typ === 5 || typ === 69) ? 240 : 0;
-	if (typ === 5 || typ == 33) {
-		/* film or stacked 35mm */
-		reds.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+2)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-	}
-	else if (typ === 69 || typ == 65) {
-		/* 16 bit film or 35mm */
-		reds.push(((view.getUint8((y+0)*w3 + xx+2) +  ((view.getUint8((y+0)*w3 + xx+3)) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+0)*w3 + xx+6) +  ((view.getUint8((y+0)*w3 + xx+7)) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+2)*w3 + xx+2) +  ((view.getUint8((y+2)*w3 + xx+3)) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+2)*w3 + xx+6) +  ((view.getUint8((y+2)*w3 + xx+7)) << 8))-dd)>>shiftr);
-	}
-	else if (typ > 64) {
-		/* 16 bit mf */
-		reds.push(((view.getUint8((y+1)*w3 + xx+2) +  ((view.getUint8((y+1)*w3 + xx+3)) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+1)*w3 + xx+6) +  ((view.getUint8((y+1)*w3 + xx+7)) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+3)*w3 + xx+2) +  ((view.getUint8((y+3)*w3 + xx+3)) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+3)*w3 + xx+6) +  ((view.getUint8((y+3)*w3 + xx+7)) << 8))-dd)>>shiftr);
-	}
-	else if (typ > 33) {
-		/* stacked mf */
-		reds.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-	}
-	else if (typ > 1) {
-		/* mf */
-		reds.push(view.getUint8((y+1)*w + x + 1));
-		reds.push(view.getUint8((y+1)*w + x + 3));
-		reds.push(view.getUint8((y+3)*w + x + 1));
-		reds.push(view.getUint8((y+3)*w + x + 3));
-	} else {
-		/* 35mm */
-		reds.push(view.getUint8(y*w + x + 1));
-		reds.push(view.getUint8(y*w + x + 3));
-		reds.push(view.getUint8((y+2)*w + x + 1));
-		reds.push(view.getUint8((y+2)*w + x + 3));
-	}
-	reds.sort(function(a,b) { return a - b; });
-	// median of red pixels
-	outrgb.push((reds[1] + reds[2]) / 2.0);
-	let greens = [];
-	if (typ === 5 || typ == 33) {
-		/* film or stacked 35mm */
-		greens.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-	}
-	else if (typ === 69 || typ == 65) {
-		/* 16 bit film or stacked 35mm */
-		greens.push((((view.getUint8((y+0)*w3 + xx+0)) +  ((view.getUint8((y+0)*w3 + xx+1) <<8)))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+0)*w3 + xx+4)) +  ((view.getUint8((y+0)*w3 + xx+5) <<8)))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+1)*w3 + xx+2) +  ((view.getUint8((y+1)*w3 + xx+3)) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+1)*w3 + xx+6) +  ((view.getUint8((y+1)*w3 + xx+7)) << 8))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+2)*w3 + xx+0)) +  ((view.getUint8((y+2)*w3 + xx+1)) << 8))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+2)*w3 + xx+4)) +  ((view.getUint8((y+2)*w3 + xx+5)) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+3)*w3 + xx+2) +  ((view.getUint8((y+3)*w3 + xx+3)) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+3)*w3 + xx+6) +  ((view.getUint8((y+3)*w3 + xx+7)) << 8))-dd)>>shiftr);
-	}
-	else if (typ > 64) {
-		/* 16 bit mf */
-		greens.push((((view.getUint8((y+0)*w3 + xx+2)) +  ((view.getUint8((y+0)*w3 + xx+3) <<8)))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+0)*w3 + xx+6)) +  ((view.getUint8((y+0)*w3 + xx+7) <<8)))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1)) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+1)*w3 + xx+4) +  ((view.getUint8((y+1)*w3 + xx+5)) << 8))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+2)*w3 + xx+2)) +  ((view.getUint8((y+2)*w3 + xx+3)) << 8))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+2)*w3 + xx+6)) +  ((view.getUint8((y+2)*w3 + xx+7)) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+3)*w3 + xx+1)) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+3)*w3 + xx+4) +  ((view.getUint8((y+3)*w3 + xx+5)) << 8))-dd)>>shiftr);
-	}
-	else if (typ > 33) {
-		/* stacked mf */
-		greens.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+1)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+2)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+3)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+3)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-	}
-	else if (typ > 1) {
-		greens.push(view.getUint8(y*w + x + 1));
-		greens.push(view.getUint8(y*w + x + 3));
-		greens.push(view.getUint8((y+1)*w + x));
-		greens.push(view.getUint8((y+1)*w + x + 2));
-		greens.push(view.getUint8((y+2)*w + x + 1));
-		greens.push(view.getUint8((y+2)*w + x + 3));
-		greens.push(view.getUint8((y+3)*w + x));
-		greens.push(view.getUint8((y+3)*w + x + 2));
-	} else {
-		greens.push(view.getUint8(y*w + x));
-		greens.push(view.getUint8(y*w + x + 2));
-		greens.push(view.getUint8((y+1)*w + x + 1));
-		greens.push(view.getUint8((y+1)*w + x + 3));
-		greens.push(view.getUint8((y+2)*w + x));
-		greens.push(view.getUint8((y+2)*w + x + 2));
-		greens.push(view.getUint8((y+3)*w + x + 1));
-		greens.push(view.getUint8((y+3)*w + x + 3));
-	}
-	greens.sort(function(a,b) { return a - b; });
-	outrgb.push((greens[3] + greens[4]) / 2.0);
-	let blues = [];
-	if (typ === 5 || typ === 33) {
-		blues.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+1)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+3)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+3)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-	}
-	else if (typ === 69 || typ === 65) {
-		blues.push((((view.getUint8((y+1)*w3 + xx+0)) +  ((view.getUint8((y+1)*w3 + xx+1) ) <<8))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+1)*w3 + xx+4)) +  ((view.getUint8((y+1)*w3 + xx+5) ) <<8))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+3)*w3 + xx+0)) +  ((view.getUint8((y+3)*w3 + xx+1) ) <<8))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+3)*w3 + xx+4)) +  ((view.getUint8((y+3)*w3 + xx+5) ) <<8))-dd)>>shiftr);
-	}
-	else if (typ > 65) {
-		blues.push((((view.getUint8((y+0)*w3 + xx+0)) +  ((view.getUint8((y+0)*w3 + xx+1) ) <<8))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+0)*w3 + xx+4)) +  ((view.getUint8((y+0)*w3 + xx+5) ) <<8))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+2)*w3 + xx+0)) +  ((view.getUint8((y+2)*w3 + xx+1) ) <<8))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+2)*w3 + xx+4)) +  ((view.getUint8((y+2)*w3 + xx+5) ) <<8))-dd)>>shiftr);
-	}
-	else if (typ > 33) {
-		blues.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-	}
-	else if (typ > 1) {
-		blues.push(view.getUint8(y*w + x));
-		blues.push(view.getUint8(y*w + x + 2));
-		blues.push(view.getUint8((y+2)*w + x));
-		blues.push(view.getUint8((y+2)*w + x + 2));
-	} else {
-		blues.push(view.getUint8((y+1)*w + x));
-		blues.push(view.getUint8((y+1)*w + x + 2));
-		blues.push(view.getUint8((y+3)*w + x));
-		blues.push(view.getUint8((y+3)*w + x + 2));
-	}
-	blues.sort(function(a,b) { return a - b; });
-	outrgb.push((blues[1] + blues[2]) / 2.0);
-	return outrgb;
-}
-/* ImBCBase: build preview in array */
-static buildpvarray(view, size, typ, w, h, orientation, scale, wb, whitelvl) {
-	if (undefined === wb) wb = [ 6, 10, 1, 1, 6, 10 ];
-	let sfact = scale ? scale : 8;
-	if (size === 2) sfact = 4;
-	else if (size === 1) sfact = 16;
-	const w8 = Math.floor((w+(sfact -1))/sfact);
-	const h8 = Math.floor((h+(sfact -1))/sfact);
-	const rfact = (wb[1]/wb[0]);
-	const gfact = (wb[3]/wb[2]);
-	const bfact = (wb[5]/wb[4]);
-	let outpix = [];
-	let rowiterstart, rowiterend;
-	let coliterstart, coliterend;
-	let transpose = false;
-	if ((typ % 32) === 5 && orientation === 0)
-		orientation = 3;
-	if (orientation === 3) {
-		rowiterstart = -1*(h8 -1);
-		rowiterend = 1;
-		coliterstart = -1*(w8 - 1);
-		coliterend = 1;
-	} else if (orientation === 6) {
-		transpose = true;
-		rowiterstart = 0;
-		rowiterend = w8;
-		coliterstart = -1*(h8 - 1);
-		coliterend = 1;
-	} else if (orientation === 8) {
-		transpose = true;
-		rowiterstart = -1*(w8 -1);
-		rowiterend = 1;
-		coliterstart = 0;
-		coliterend = h8;
-	} else {
-		rowiterstart = 0;
-		rowiterend = h8;
-		coliterstart = 0;
-		coliterend = w8;
-	}
-	let rhist = new Array(256), ghist = new Array(256), bhist = new Array(256);
-	for (let i = 0; i < 256; i++) {
-		rhist[i] = 0; ghist[i] = 0; bhist[i] = 0;
-	}
-	let cnt = 0;
-	for (let i = rowiterstart; i < rowiterend; i +=1) {
-		for (let j = coliterstart; j < coliterend; j+=1) {
-			let a = ImBCBase.getPix(Math.abs(transpose ? i :j)*sfact, Math.abs(transpose ? j :i)*sfact, w, view, typ, whitelvl);
-			outpix.push(a[0]);
-			outpix.push(a[1]);
-			outpix.push(a[2]);
-			rhist[a[0]]++;
-			ghist[a[2]]++;
-			bhist[a[2]]++;
-			cnt++;
-		}
-	}
-	// cut off top and bottom 0.2 and 3%
-	let cntx = 0, rallmin = 0, rallmax = 255;
-	while (cntx < (cnt * 0.03))
-		cntx += rhist[rallmin++];
-	if (rallmin > 0) rallmin --;
-	cntx = 0;
-	while (cntx < (cnt * 0.002))
-		cntx += rhist[rallmax--];
-	if (rallmax < 255) rallmax++;
-	let gallmin = 0, gallmax = 255;
-	cntx = 0;
-	while (cntx < (cnt * 0.03))
-		cntx += ghist[gallmin++];
-	if (gallmin > 0) gallmin --;
-	cntx = 0;
-	while (cntx < (cnt * 0.002))
-		cntx += ghist[gallmax--];
-	if (gallmax < 255) gallmax++;
-	let ballmin = 0, ballmax = 255;
-	cntx = 0;
-	while (cntx < (cnt * 0.03))
-		cntx += bhist[ballmin++];
-	if (ballmin > 0) ballmin --;
-	cntx = 0;
-	while (cntx < (cnt * 0.002))
-		cntx += bhist[ballmax--];
-	if (ballmax < 255) ballmax++;
-	let allmin = Math.min(rallmin, gallmin, ballmin);
-	let allmax = Math.max(rallmax, gallmax, ballmax);
-	let fact;
-	if (allmax > 247 && allmin < 8) {
-		fact = 1;
-		allmin = 0;
-		//console.log('Fact 1 ' + fact + ' i ' + allmin + ' a ' + allmax);
-	}
-	else if (allmax - allmin < 1) {
-		fact = 1;
-		//console.log('Fact 2 ' + fact + ' i ' + allmin + ' a ' + allmax);
-	}
-	else {
-		fact = 254/(allmax - allmin);
-		//console.log('Fact 3 ' + fact + ' i ' + allmin + ' a ' + allmax);
-	}
-	//console.log('ai ' + allmin + ' aa ' + allmax + ' ff ' + fact);
-	const o = scale ? 3 : 4;
-	const uic = new Uint8ClampedArray(h8 * w8 * o);
-	for (let i = 0; i < h8; i++) {
-		for (let j=0; j< w8; j++) {
-			let nr = ((outpix[3*((i * w8) + j)] * rfact) - allmin) * fact + allmin;
-			let ng = ((outpix[3*((i * w8) + j) + 1] * gfact) - allmin) * fact + allmin;
-			let nb = ((outpix[3*((i * w8) + j) + 2] * bfact) - allmin) * fact + allmin;
-			if (nr >= 255) {
-				if (ng < 250) ng = Math.floor(ng * 255 / nr);
-				if (nb < 250) nb = Math.floor(nb * 255 / nr);
-				nr = 255;
-			}
-			else if (nr <= 0) nr = 0;
-			if (ng >= 255) {
-				if (nr < 250) nr = Math.floor(nr * 255 / ng);
-				if (nb < 250) nb = Math.floor(nb * 255 / ng);
-				ng = 255;
-			}
-			else if (ng <= 0) ng = 0;
-			if (nb >= 255) {
-				if (ng < 250) ng = Math.floor(ng * 255 / nb);
-				if (nr < 250) nr = Math.floor(nr * 255 / nb);
-				nb = 255;
-			}
-			else if (nb <= 0) nb = 0;
-			// maybe some brightening gamma?
-			uic[o * ((i*w8) + j)] = 255-Math.floor(255*((255-nr)/255)*((255-nr)/255));
-			uic[o * ((i*w8) + j) + 1] = 255-Math.floor(255*((255-ng)/255)*((255-ng)/255));
-			uic[o * ((i*w8) + j) + 2] = 255-Math.floor(255*((255-nb)/255)*((255-nb)/255));
-			if (!scale) uic[o * ((i*w8) + j) + 3] = 255;
-		}
-	}
-	return uic;
-}
 /* ImBCBase: handle one entry from imb PHOTO/MOVIE listing page */
 handle1imb(url) {
 	let rawname = ImBCBase.basename(url);
 	if (rawname.substring(0,10).toUpperCase() === 'IMBRAW2DNG' || rawname.substring(0,6).toUpperCase() === 'IMBAPP' || rawname.substring(0,5).toUpperCase() === 'INDEX') return;
-	let timestx = ImBCBase.fnregex.exec(rawname);
+	let timestx = globals.fnregex.exec(rawname);
 	let timest = null, cl = '9999_99_99-99';
 	if (null !== timestx) {
 		timest = timestx[1] + '_' + timestx[3] + '_' + timestx[5] + '-' + timestx[7] + '_' + timestx[9] + '_' + timestx[11];
@@ -19836,7 +18664,7 @@ parseDng(f, onok, onerr) {
 	}
 	const v = new DataView(f.data);
 	const ifd = TIFFOut.readint(v, 4);
-	const zz = ImBCBase.infos.findIndex(v => v.size === ifd - 8);
+	const zz = globals.infos.findIndex(v => v.size === ifd - 8);
 	const nent = TIFFOut.readshort(v, ifd);
 	let subifdstart = -1, rawstripstart = -1, datalen = -1;
 	let off = ifd+2;
@@ -19863,7 +18691,7 @@ parseDng(f, onok, onerr) {
 			}
 			if (-1 !== rawstripstart) {
 				datalen = subifdstart - rawstripstart;
-				const zzz = ImBCBase.infos.findIndex(v => v.size === datalen);
+				const zzz = globals.infos.findIndex(v => v.size === datalen);
 				if (-1 === zzz) {
 					this.appmsg('Works only for originally created DNGs.', true);
 					return onerr(f.name);
@@ -19889,7 +18717,7 @@ parseDng(f, onok, onerr) {
 		size: datalen,
 		data: f.data.slice(rawstripstart, datalen + rawstripstart)
 	};
-	if (-1 !== ImBCBase.twelvebitsizes.indexOf(datalen)) {
+	if (-1 !== globals.twelvebitsizes.indexOf(datalen)) {
 		const v = new DataView(fx.data);
 		for (let k=0; k < datalen; k+=3) {
 			let i = v.getUint8(k);
@@ -19968,7 +18796,7 @@ handleoneback(fx) {
 		this.stats.error++;
 		return this.handlenext();
 	}
-	const zz = ImBCBase.infos.findIndex(v => v.size === f.size);
+	const zz = globals.infos.findIndex(v => v.size === f.size);
 	if (zz !== -1) {
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
@@ -20528,7 +19356,7 @@ writepostok() {
 #help(caller) {
 	caller = ImBCBase.basename(caller);
 	let texts = this.xl0('node.help');
-	console.log(this.subst(texts[0], ImBCBase.version));
+	console.log(this.subst(texts[0], globals.version));
 	console.log(this.rmesc(this.xl0('node.newmsg')));
 	console.log('');
 	console.log(this.subst(texts[1], caller));
@@ -20570,7 +19398,7 @@ startnode(notfirst) {
 				}
 				else if (flagging === 3) {
 					flagging = 0;
-					if (null !== ImBCBase.tsregex.exec(v)) {
+					if (null !== globals.tsregex.exec(v)) {
 						this.fromts = v;
 						datefound = true;
 					} else {
@@ -20600,14 +19428,14 @@ startnode(notfirst) {
 					else {
 						let t1 = v.substring(0,tssep);
 						let t2 = v.substring(tssep+1);
-						let ts1 = ImBCBase.fulltsregex.exec(t1);
+						let ts1 = globals.fulltsregex.exec(t1);
 						if (ts1 === null) {
 							wanthelp = true;
 							this.mappx(false, 'words.error');
 							this.mappx(true, 'onimback.invaltime', t1);
 							if (undefined !== this.exitcode) this.exitcode++;
 						}
-						let ts2 = ImBCBase.fulltsregex.exec(t2);
+						let ts2 = globals.fulltsregex.exec(t2);
 						if (ts2 === null) {
 							wanthelp = true;
 							this.mappx(false, 'words.error');
@@ -20622,8 +19450,8 @@ startnode(notfirst) {
 					}
 				}
 				else if (v.substring(0,4)==='-CSV' && this.debugflag) {
-					for (const el of Object.keys(ImBCBase.texts))
-						this.prxl(el, ImBCBase.texts[el]);
+					for (const el of Object.keys(globals.texts))
+						this.prxl(el, globals.texts[el]);
 					wantxl = true;
 				}
 				else if (v ==='-fla') {
@@ -20677,14 +19505,14 @@ startnode(notfirst) {
 					let tssep = v.substring(3).indexOf('=');
 					let t1 = v.substring(3).substring(0,tssep);
 					let t2 = v.substring(3).substring(tssep+1);
-					let ts1 = ImBCBase.fulltsregex.exec(t1);
+					let ts1 = globals.fulltsregex.exec(t1);
 					if (ts1 === null) {
 						wanthelp = true;
 						this.mappx(false, 'words.error');
 						this.mappx(true, 'onimback.invaltime', t1);
 						if (undefined !== this.exitcode) this.exitcode++;
 					}
-					let ts2 = ImBCBase.fulltsregex.exec(t2);
+					let ts2 = globals.fulltsregex.exec(t2);
 					if (ts2 === null) {
 						wanthelp = true;
 						this.mappx(false, 'words.error');
@@ -20712,7 +19540,7 @@ startnode(notfirst) {
 				}
 				else if (v.substring(0,2)==='-n') {
 					if (v.substring(2).length > 0) {
-						if (null !== ImBCBase.tsregex.exec(v.substring(2))) {
+						if (null !== globals.tsregex.exec(v.substring(2))) {
 							this.fromts = v.substring(2);
 							datefound = true;
 						} else {
@@ -20751,7 +19579,7 @@ startnode(notfirst) {
 					wanthelp = true;
 				}
 				else {
-					if (null !== ImBCBase.tsregex.exec(v)) {
+					if (null !== globals.tsregex.exec(v)) {
 						this.mappx(true, 'node.fnwarn', v);
 						wanthelp = true;
 					}
@@ -20779,7 +19607,7 @@ startnode(notfirst) {
 		return;
 	}
 	else if (this.totnum > 0) {
-		console.log(this.subst(this.xl0('node.help')[0], ImBCBase.version));
+		console.log(this.subst(this.xl0('node.help')[0], globals.version));
 		console.log(this.rmesc(this.xl0('node.newmsg')));
 		console.log('');
 		//console.log(this.xl0('main.coloursyourrisk'));
@@ -20789,7 +19617,7 @@ startnode(notfirst) {
 		this.handlerecurse();
 	}
 	else if (this.typeflags > 0) {
-		console.log(this.subst(this.xl0('node.help')[0], ImBCBase.version));
+		console.log(this.subst(this.xl0('node.help')[0], globals.version));
 		console.log(this.rmesc(this.xl0('node.newmsg')));
 		console.log('');
 		//console.log(this.xl0('main.coloursyourrisk'));
@@ -20867,14 +19695,14 @@ startnode() {
 	else if (wanthelp) {
 		let caller = ImBCBase.basename(process.argv[1]);
 		let texts = this.xl0('node.backw.help');
-		console.log(this.subst(texts[0], ImBCBase.version));
+		console.log(this.subst(texts[0], globals.version));
 		console.log(this.subst(texts[1], caller));
 		for (let j=2; j<texts.length; j++) {
 			console.log(this.rmesc(texts[j]));
 		}
 	}
 	else if (this.totnum > 0) {
-		console.log(this.subst(this.xl0('node.backw.help')[0], ImBCBase.version));
+		console.log(this.subst(this.xl0('node.backw.help')[0], globals.version));
 		this.handlerecurse();
 	}
 }
@@ -20922,4 +19750,1128 @@ else {
 	imbc = new ImBCNode();
 	ImBCBase.progname = 'imbraw2dng.js';
 }
+// below imbc.startnode();
+
+/* *************************************** globals *************************************** */
+const globals = {
+/* Indentation out - globals */
+version: "V5.9.7_@_d_e_v", // actually const // VERSION EYECATCHER
+alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
+texts: { // actually const
+	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
+	words: {
+		error: {
+			de: '\u001b[31m\u001b[1mFEHLER:\u001b[0m ',
+			en: '\u001b[31m\u001b[1mERROR:\u001b[0m ',
+			fr: '\u001b[31m\u001b[1mERREUR:\u001b[0m ',
+			ja: '\u001b[31m\u001b[1mエラー:\u001b[0m ',
+			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
+		},
+		warning: {
+			de: '\u001b[31mWarnung:\u001b[0m ',
+			en: '\u001b[31mWarning:\u001b[0m ',
+			fr: '\u001b[31mAvertissement:\u001b[0m ',
+			ja: '\u001b[31m警告:\u001b[0m',
+			htmlstyle: [ [ 'background-color','#ffdddd' ] ]
+		},
+		finished: {
+			de: '\u001b[32m\u001b[1mFertig!\u001b[0m ',
+			en: '\u001b[32m\u001b[1mFinished!\u001b[0m ',
+			fr: '\u001b[32m\u001b[1mFini!\u001b[0m ',
+			ja: '\u001b[32m\u001b[1m終了!\u001b[0m ',
+			htmlstyle: [ [ 'background-color','#ddffdd' ], [ 'font-weight', 'bold' ] ]
+		},
+		sorryerr: {
+			de: '\u001b[31m\u001b[1mENTSCHULDIGUNG! FEHLER:\u001b[0m ',
+			en: '\u001b[31m\u001b[1mSORRY! ERROR:\u001b[0m  ',
+			fr: '\u001b[31m\u001b[1mDÉSOLÉE! ERREUR:\u001b[0m ',
+			ja: '\u001b[31m\u001b[1m申し訳ございません! エラー:\u001b[0m  ',
+			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
+		},
+		sorry: {
+			de: '\u001b[31mENTSCHULDIGUNG!\u001b[0m ',
+			en: '\u001b[31mSORRY!\u001b[0m  ',
+			fr: '\u001b[31mDÉSOLÉE!\u001b[0m ',
+			ja: '\u001b[31m申し訳ございません!\u001b[0m  ',
+			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
+		}
+	},
+	main: {
+		coloursyourrisk: {
+			de: 'Bei Farben bin ich raus! Eigenes Risiko, fraach mich net!',
+			en: 'About colurs, I am out! Own risk, do not ask me!',
+			fr: 'About colurs, I am out! Own risk, do not ask me!',
+			ja: '色については、アウトです！ 自己責任ですので、私に尋ねないでください。'
+		},
+		title: {
+			de: 'ImB RAW nach DNG Konverter',
+			en: 'ImB RAW to DNG converter',
+			fr: 'Convertisseur ImB RAW a DNG',
+			ru: 'Конвертер ImB RAW в DNG',
+			ja: 'ImB RAW を DNG に変換'
+		},
+	    backw: {
+			   title:  { en: 'ImB DNG to RAW back converter' },
+			   generaladvice: { en: 'Only works for the exact original converted DNG.' },
+			   selectdng: { en: 'Select orig. DNG' },
+			   drophere: { en: 'Drop DNGs here' }
+	    },
+		help: {
+			de: '? Hilfe Doku',
+			en: '? Help Doc',
+			fr: '? Aide Doc',
+			ru: '? Помощь Док',
+			ja: '? ヘルプ資料'
+		},
+		helplink: {
+			de: 'https://shyrodgau.github.io/imbraw2dng/README_de',
+			en: 'https://shyrodgau.github.io/imbraw2dng/',
+			fr: 'https://shyrodgau.github.io/imbraw2dng/',
+			ja: 'https://shyrodgau.github.io/imbraw2dng/README_ja'
+		},
+		generaladvice: {
+			de: 'Daten werden nur im Browser verarbeitet, nicht im \'Internet\'.<br>Kann sein, dass der Browser fragt, ob Sie zulassen wollen, dass mehrere Dateien heruntergeladen werden.<br>Dateien, die nicht oder unbekannte RAW-Dateien sind, werden 1:1 kopiert.',
+			en: 'Data processing is entirely in the browser, not in \'the internet\'<br>Browser may ask you if you want to allow downloading multiple files.<br>Not or unrecognized RAW Files simply will be copied.',
+			fr: 'L\'information est entièrement traitée dans le navigateur et non sur \'Internet\'<br>Le navigateur peux questionner que vous acceptez le téléchargement de beaucoup de fiches.<br>Fiches pas-RAW ou RAW inconnue sont copiée 1:1.',
+			ru: 'Данные обрабатываются только в браузере, а не в \'Интернете\'.<br>Браузер может спросить, хотите ли вы разрешить загрузку нескольких файлов.<br>Файлы, которые не являются или неизвестными файлами RAW, копируются 1:1.',
+			ja: 'データ処理は完全にブラウザ内で行われ、\'インターネット\'では行われません。<br>ブラウザにより複数のファイルのダウンロードを許可するかを尋ねることがあります。<br>RAW ファイルが存在しない、または認識されない場合は、単純にコピーされます。'
+		},
+		drophere: {
+			de: 'Dateien von ImB hier ablegen: ',
+			en: 'Drop Files from ImB here: ',
+			fr: 'Posez fiches de ImB ici: ',
+			ru: 'Храните файлы из ImB здесь: ',
+			ja: 'ここに ImB のファイルをドロップします。: '
+		},
+		selectraw: {
+			de: 'Oder diese Seite per WLAN <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README_de.md#gucken-auf-imback-selbst\'>direkt von ImB</a> verwenden.<br>Oder <tt>.RAW</tt> Datei(en) auswählen:',
+			en: 'Or use this page via Wifi <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\'>directly from ImB</a>.<br>Or select <tt>.RAW</tt> File(s):',
+			fr: 'Ou utiliez cette page <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\'>via Wifi sur ImB</a>.<br>Ou selectez <tt>.RAW</tt> fiche(s):',
+			ru: 'Или используйте эту страницу через Wi-Fi <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\'>прямо из ImB</a>.<br>Или выберите файл(ы) <tt>RAW</tt>:',
+			ja: 'または、Wifi 経由で <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/moredoc_ja.md#imback-での閲覧\'>ImB から直接</a>このページを使用します。<br> または、 <tt>.RAW</tt> ファイルを選択します。:'
+		},
+		stillcounting: {
+			de: '... zähle ... ',
+			en: '... counting ... ',
+			fr: '... compter ...',
+			ru: '... подсчет ...',
+			ja: '... カウント中 ... '
+		},
+		types: {
+			rawpics: {
+				de: 'RAW Bilder',
+				en: 'RAW Pictures',
+				fr: 'RAW images',
+				ja: 'RAW 画像'
+			},
+			jpgpics: {
+				de: 'JPEG-Bilder',
+				en: 'JPEG Pictures',
+				fr: 'JPEG images',
+				ja: 'JPEG 画像'
+			},
+			other: {
+				de: 'Andere',
+				en: 'Other',
+				fr: 'Autre',
+				ja: 'その他'
+			},
+			notpic: {
+				de: 'Keine Bilder',
+				en: 'Not pictures',
+				fr: 'Pas images',
+				ja: '画像ではない'
+			}
+		},
+		file: {
+			jpeg: {
+				de: 'Datei $$0 (JPEG)',
+				en: 'File $$0 (JPEG)',
+				fr: 'Fiche $$0 (JPEG)',
+				ja: 'ファイル $$0 (JPEG)'
+			},
+			nopreview: {
+				de: 'Datei $$0<br>Nicht jpeg oder raw, keine Vorschau...',
+				en: 'File $$0<br>Not jpeg or raw, no preview...',
+				fr: 'Fiche $$0<br>Ni jpeg ni raw, pas de aperçu...',
+				ja: 'ファイル $$0<br>jpeg または、raw 以外、プレビューなし...'
+			},
+			rawunknown: {
+				de: 'Datei $$0<br>Unerkannte RAW Dateigröße $$1, bitte Entwickler kontaktieren! Keine Vorschau...',
+				en: 'File $$0<br>Unknown raw size $$1, please contact developer! No preview...',
+				fr: 'Fiche $$0<br>taille de fiche $$1 non reconnue, contacter le développeur, pas de aperçu...',
+				ja: 'File $$0<br>不明な raw サイズ $$1, 開発者にお問い合わせください! プレビューなし...'
+			},
+			dngimpnote: {
+				de: 'Import eines DNG geht nur, wenn diese genau das hiermit erzeugte Original ist.',
+				en: 'Re-import of a DNG is only possible if this is exactly the original that was created here.',
+				fr: 'La réimportation d\'un DNG n\'est possible que s\'il s\'agit exactement de l\'original créé ici.',
+				ja: 'DNG の再インポートは、これがここで作成されたオリジナルである場合にのみ可能です。'
+			},
+			de: 'Datei $$0',
+			en: 'File $$0',
+			fr: 'Fiche $$0',
+			ja: 'ファイル $$0'
+		},
+		sort: {
+			de: 'Sortiere',
+			en: 'Sort:',
+			fr: 'Trier:',
+			ja: 'ソート:'
+		},
+		or: {
+			de: 'Oder ',
+			en: 'Or ',
+			fr: 'Ou ',
+			ja: 'または '
+		},
+		log: {
+			de: 'Protokoll-Ausgabe:',
+			en: 'Message Log:',
+			fr: 'Journal des messages',
+			ja: 'メッセージ ログ:'
+		},
+		selected: {
+			de: 'Ausgewählt',
+			en: 'Selected',
+			fr: 'Sélectionné(s)',
+			ja: '選択済み'
+		},
+		fakelong: {
+			en: 'Fake long exposure by adding up all (<a href="https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#a-lot-more-tricks-and-details">read more</a>)',
+			de: 'Langzeitbelichtung durch Addieren simulieren (<a href="github.com/shyrodgau/imbraw2dng/blob/master/README_de.md#mehr-tricks-und-details">mehr lesen</a>)',
+			ja: 'すべてを加算して長時間露光をシミュレートする',
+			scale: {
+				en: 'Scale values down',
+				de: 'Werte dabei herunterskalieren',
+				ja: 'スケールダウン値'
+			},
+			added: {
+				en: 'Added picture $$0',
+				de: 'Bild $$0 hinzugefügt',
+				ja: '画像を追加しました $$0'
+			}
+		},
+		usezip: {
+			de: 'Nicht mehrere Dateien einzeln, sondern in wenigen ZIP Archiven herunteladen.',
+			en: 'Do not use several single downloads, but in fewer ZIP archives.',
+			ja: '複数のファイルを個別にダウンロードするのではなく、いくつかの ZIP アーカイブとしてダウンロードしてください。',
+			choosedest: {
+				de: 'Ziel auswählen',
+				en: 'Choose destination',
+				ja: '目的地を選択'
+			}
+		},
+		newmsg: {
+			en: '<a href="https://github.com/shyrodgau/imbraw2dng/issues" target="_new">Report bugs</a>',
+			de: '<a href="https://github.com/shyrodgau/imbraw2dng/issues" target="_new">Fehler melden</a>',
+			ja: '<a href="https://github.com/shyrodgau/imbraw2dng/issues" target="_new">バグ報告</a>'
+		}
+	},
+	onimback: {
+		connected: {
+			de: 'ImB Verbunden! ',
+			en: 'ImB Connected! ',
+			fr: 'ImB Connecté! ',
+			ja: 'ImB 接続済み! '
+		},
+		dlconvert: {
+			de: 'Konvertiere / Lade herunter: ',
+			en: 'Download / convert: ',
+			fr: 'Telecharger / convertir',
+			ja: 'ダウンロード / 変換: '
+		},
+		totalnum: {
+			de: 'gesamt:',
+			en: 'total:',
+			fr: 'total:',
+			ja: '合計:'
+		},
+		fromtime: {
+			de: 'ab Zeitstempel bzw. jünger als ',
+			en: 'from timestamp or younger than ',
+			fr: 'à partir de l\'horodatage ou plus jeune que ',
+			ja: 'タイムスタンプ以降またはそれより古い '
+		},
+		nullforall: {
+			de: '0000 oder leer für \'alle\'',
+			en: '0000 or empty for \'all\'',
+			fr: '0000 ou déposer pour \'tout\'',
+			ja: '0000 または、 \'すべて\' 空 '
+		},
+		doit: {
+			de: 'Mach es',
+			en: 'Do it',
+			fr: 'Fais-le',
+			ja: '実行'
+		},
+		visual: {
+			de: 'Bild-Browser benutzen',
+			en: 'Use visual Picture Browser',
+			fr: 'Ou outilizer navigateur visuel des images',
+			ja: 'ビジュアルな画像ブラウザを使用する'
+		},
+		errconnect: {
+			de: '\u001b[31mFEHLER\u001b[0m bei der Verbindung zu ImB auf $$0! Im ImB WLAN?',
+			en: '\u001b[31mERROR\u001b[0m connecting to ImB on $$0! In the ImB WiFi?',
+			fr: '\u001b[31mERREUR\u001b[0m lors de la connexion à imback. Dans le Wifi ImB?',
+			ja: '\u001b[31mエラー\u001b[0m $$0 でImB に接続しています! ImB WiFi ですか?'
+		},
+		nomatch: {
+			de: 'Keine passenden Dateien gefunden. Kann vorübergehend sein.',
+			en: 'No matching files found. Might be temporary.',
+			fr: 'Aucun fiche correspondant trouvé. Peut-etre temporaire.',
+			ja: '一致するファイルが見つかりませんでした。 一時的なものかもしれません。'
+		},
+		strangename: {
+			de: 'Komischer Dateiname: $$0',
+			en: 'Strange file name: $$0',
+			fr: 'Nom de fiche inhabituel: $$0',
+			ja: '無効なファイル名: $$0'
+		},
+		invaltime: {
+			de: 'Ungültiger Zeitstempel: $$0',
+			en: 'Invalid timestamp: $$0',
+			fr: 'Horodatage invalide: $$0',
+			ja: '無効なタイムスタンプ: $$0'
+		},
+		invaltimediff: {
+			de: 'Ungültige Zeitanpassung: $$0',
+			en: 'Invalid time adjustment: $$0',
+			ja: '無効なタイムスタンプ: $$0'
+		},
+	},
+	process: {
+		singlestep: {
+			de: 'Einzelschritt mit Vorschau',
+			en: 'Single Step with preview',
+			fr: 'Seule étape avec aperçu',
+			ja: 'プレビューありでシングルステップ'
+		},
+		addcopyright: {
+			en: 'Copyright',
+			de: 'Copyright',
+			ja: '著作権を追加'
+		},
+		nothing: {
+			de: 'Nichts ausgewählt.. ?',
+			en: 'Nothing selected...?',
+			fr: 'Rien de sélectionné',
+			ja: '何も選択されていません...?'
+		},
+		erraccess: {
+			de: 'beim Zugriff auf $$0.',
+			en: 'occured accessing $$0.',
+			fr: 'lors de l\'accès à $$0.',
+			ja: '>アクセス中にエラーが発生しました $$0.'
+		},
+		notraw: {
+			de: 'Durchleitung weil nicht raw: $$0',
+			en: 'Passing through as not raw: $$0',
+			fr: 'Passage comme non RAW: $$0',
+			ja: 'RAW ではないのでスルー: $$0'
+		},
+		selectedn: {
+			de: '$$0 Datei(en) wurden ausgewählt.',
+			en: 'Got $$0 file(s) selected.',
+			fr: '$$0 fiche(s) sélectionné(s)',
+			ja: '$$0 ファイルが選択されました。'
+		},
+		copyokcheckdl: {
+			de: 'Nach $$0 kopiert (Downloads-Ordner prüfen)</b>&nbsp;',
+			en: 'Copied to $$0 (Check Downloads Folder)</b>&nbsp;',
+			fr: 'Copié sur $$0 (Vérifier le dossier de téléchargements/Downloads)</b>&nbsp;',
+			ja: '$$0 にコピーされました (ダウンロードフォルダーを確認)</b>&nbsp;'
+		},
+		copyok: {
+			de: 'Nach $$0 kopiert',
+			en: 'Copied to $$0',
+			fr: 'Copié sur $$0',
+			ja: '$$0 にコピー'
+		},
+		errorreadingfile: {
+			de: 'beim Lesen der Datei $$0',
+			en: 'occured reading file $$0',
+			fr: 'de lecture du fiche $$0',
+			ja: 'ファイル $$0 の読み取り中にエラーが発生しました。 '
+		},
+		unknownsize: {
+			de: 'Die Dateigröße <b>$$0</b> passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!',
+			en: 'File Size <b>$$0</b> does not match known formats. Please contact developer!',
+			fr: 'La taille du fiche <b>$$0</b> ne correspond pas au format connu. Veuillez contacter le développeur',
+			ja: 'が、ファイルサイズ <b>$$0</b> は既知の形式と一致しません。開発者にお問い合わせください。'
+		},
+		unknownsizex: {
+			de: 'Die Dateigröße $$0 passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!',
+			en: 'File Size $$0 does not match known formats. Please contact developer!',
+			fr: 'La taille du fiche $$0 ne correspond pas au format connu. Veuillez contacter le développeur',
+			ja: 'が、ファイルサイズ $$0 は既知の形式と一致しません。開発者にお問い合わせください。'
+		},
+		processing: {
+			de: 'Verarbeite Datei: $$0 ',
+			en: 'Processing file: $$0',
+			fr: 'Je suis en train de traiter le fiche $$0',
+			ja: '処理中のファイル: $$0'
+		},
+		assuming: {
+			de: 'Annahme: $$0 $$1',
+			en: 'Assuming $$0 $$1',
+			fr: 'Hypothèse: $$0 $$1',
+			ja: '認識 $$0 $$1'
+		},
+		datetime: {
+			de: 'Datum/Zeit: $$0',
+			en: 'Date/Time: $$0 ',
+			fr: 'Date/heure: $$0',
+			ja: '日付/時刻: $$0 '
+		},
+		orientation: {
+			de: 'Drehung: $$0',
+			en: 'Orientation: $$0',
+			fr: 'Rotation: $$0',
+			ja: '向き: $$0'
+		},
+		convertedcheckdl: {
+			de: 'Nach $$0 konvertiert (Downloads-Ordner prüfen)',
+			en: 'Converted to $$0 (Check Downloads Folder)',
+			fr: 'Converti en $$0 (Vérifier le dossier de téléchargements/Downloads)',
+			ja: '$$0 に変換されました (ダウンロードフォルダーを確認してください)'
+		},
+		converted: {
+			de: 'Nach $$0 konvertiert',
+			en: 'Converted to $$0',
+			fr: 'Converti en $$0',
+			ja: '$$0 に変換'
+		},
+		errsave: {
+			de: 'Konnte Datei $$0 nicht speichern.',
+			en: 'Could not write file $$0',
+			fr: 'Impossible d\'écrire le fiche $$0.',
+			ja: 'ファイル $$0 に書き込めませんでした'
+		},
+		droppedn: {
+			de: '$$0 Datei(en) wurden abgelegt.',
+			en: 'Got $$0 file(s) dropped.',
+			fr: '$$0 fiche(s) ont été stockés',
+			ja: '$$0 個のファイルがドロップされました。'
+		},
+		frombackn: {
+			de: '$$0 Datei(en) vom ImB zu verarbeiten.',
+			en: 'Got $$0 file(s) from ImB.',
+			fr: 'J\'ai reçu $$0 fiche(s) d\'ImB',
+			ja: 'ImB から $$0 ファイルを取得しました。'
+		},
+		frombrowsern: {
+			de: '$$0 Datei(en) vom Bild-Browser zu verarbeiten.',
+			en: 'Got $$0 file(s) from Visual browser.',
+			fr: 'J\'ai obtenu $$ fiche(s) du navigateur visuel',
+			ja: 'ビジュアル ブラウザから $$0 ファイルを取得しました。'
+		},
+		skipped: {
+			remaining: {
+				de: 'Verbleibende $$0 Dateien auf Anforderung übersprungen',
+				en: 'Skipping remaining $$0 images at your request',
+				fr: '$$0 fiches restants ignorés sur demande',
+				ja: 'リクエストに応じてスキップ: $$0'
+			},
+			de: 'Auf Anforderung übersprungen: $$0',
+			en: 'Skipped at your request: $$0',
+			fr: 'Ignoré à votre demande: $$0',
+			ja: 'リクエストに応じて残りの $$0 画像をスキップします'
+		},
+		totals: {
+			en: 'Total: $$0, ok: $$1, skipped: $$2, Errors: $$3',
+			de: 'Total: $$0, ok $$1, übersprungen: $$2, Fehler: $$3',
+			fr: 'Total: $$0, ok: $$1, Ignoré: $$2, Erreur: $$3',
+			ja: '合計 $$0、OK $$1、スキップ $$2、エラー $$3'
+		},
+		addpreview: {
+			en: 'Add preview thumbnail to DNG',
+			de: 'Kleines Vorschaubild im DNG',
+			fr: 'Petite image d\'aperçu en DNG',
+			ja: 'プレビューのサムネイルを DNG に追加する'
+		},
+		addexif: {
+			en: 'Add EXIF data from $$0',
+			de: 'Gebe EXIF Daten von $$0 dazu',
+			ja: '$$0のEXIFデータを追加'
+		},
+		includedcp: {
+			en: 'Include the new DNG camera profile (DCP)',
+			de: 'Neues DNG Kamera-Profil (DCP) einbetten',
+			ja: '新しい DNG カメラ プロファイル (DCP) を埋め込みます。'
+		},
+		oldstylewb: {
+			en: 'Use old-style constant white balance',
+			de: 'Alten konstanten Weißabgleich verwenden',
+			ja: '古い一定のホワイト バランスを使用する'
+		},
+		adddcp: {
+			en: 'Adding new DCP',
+			de: 'Bette neues DCP Farbprofile ein',
+			ja: '新しい DCP カラー プロファイルを埋め込む'
+		},
+		foundwb: {
+			en: 'Found whitebalance $$0 / $$1 / $$2',
+			de: 'Weißabgleich $$0 / $$1 / $$2 gefunden',
+			ja: 'ホワイトバランス $$0 / $$1 / $$2 が見つかりました'
+		}
+	},
+	raw: {
+		unknownsize: {
+			de: 'Unerkannte RAW-Dateigröße, Entwickler kontaktieren',
+			en: 'Unrecognized RAW file size, contact developer',
+			fr: 'La taille du fiche RAW ne correspond pas au format connu. Veuillez contacter le développeur',
+			ja: '反時計回り'
+		},
+	},
+	selection: {
+		got: {
+			de: '$$0 Dateien wurden ausgewählt.',
+			en: 'Got $$0 files selected.',
+			fr: '$$0 dossiers ont été sélectionnés.',
+			ja: '$$0 ファイルが選択されました。'
+		},
+	},
+	del: {
+		question: {
+			en: 'Deleting $$0 file(s) can not be undone! Are you sure you want to continue?',
+			de: 'Löschen von $$0 Datei(en) kann nicht rückgängig gemacht werden. Sicher damit weitermachen?',
+			fr: 'La suppression de $$0 fiche(s) est irréversible. Es-tu sur de vouloir continuer?',
+			ja: '$$0 ファイルを削除すると、元に戻すことはできません。 続行してもよろしいですか?',
+			ok: {
+				de: 'Ok',
+				en: 'Ok',
+				fr: 'Ok',
+				ja: 'はい'
+			},
+			cancel: {
+				de: 'Abbrechen',
+				en: 'Cancel',
+				fr: 'Annuler',
+				ja: 'キャンセル'
+			}
+		},
+		nostatus: {
+			de: 'Der Status des Löschens kann nicht sicher geprüft werden. Bitte laden Sie die Seite nach dem Löschen neu.',
+			en: 'The status of the delete can not be checked safely. Reload the page after deleting.',
+			fr: 'Le statut de la suppression ne peut pas être vérifié avec certitude. Veuillez recharger la page après la suppression.',
+			ja: '削除のステータスを安全に確認することはできません。 削除後はページを再読み込みしてください。'
+		},
+		reload: {
+			de: 'Bitte Seite neu laden.',
+			en: 'Please reload page.',
+			fr: 'Veuillez recharger la page.',
+			ja: 'ページをリロードしてください。'
+		}
+	},
+	node: {
+	    backw: {
+			   help: {
+					   en: [ 'Welcome to imbdng2raw $$0 (BACKWARD!) !', 'Usage: node $$0 [-l lang] [-d dir] [ [--] <files>* ]',
+					   'Options:',
+					   ' -h - show this help',
+					   ' -l XX - where XX is a valid language code (currently: DE, EN, FR, JA)',
+					   '         Language can also be set by changing filename to imbdng2raw_XX.js .',
+					   ' -d dir - put output files into dir',
+					   ' -----',
+					   ' -- - treat rest of parameters as local files or dirs',
+					   ' <files> - process local files' ],
+					   de: [ 'Willkommen bei imbdng2raw $$0 (RÜCKWÄRTS!) !', 'Aufruf: node $$0 [-l sprache] [-d ordner] [ [--] <dateien>* ]',
+					   'Optionen:',
+						' -h - diesen Hilfetext zeigen',
+						' -l XX - wo XX ein gültiger Sprachcode ist (derzeit: DE, EN, FR, JA)',
+						'         Die Sprache kann auch durch Umbenennen in imbdng2raw_XX.js geändert werden.',
+						' -d ordner - Ausgabedateien in diesen Ordner ablegen',
+						' -----',
+						' -- - weitere Parameter als lokale Dateien oder Ordner betrachten',
+					   ' <dateien> - lokale Dateien verarbeiten', ],
+						ja: [ 'imbdng2raw $$0 (戻る!) へようこそ!', '使い方: node $$0 [-l lang] [-d dir] [ [--] <files>* ]', 'オプション:', 
+							' -h - このヘルプを表示します',
+							' -l XX - XX は有効な言語コードです (現在: DE、EN、FR、JA)',
+							'         ファイル名を imbdng2raw_XX.js に変更することで言語を設定することもできます。',
+							' -d dir - 出力ファイルを dir に置きます',
+							' -----',
+							' -- - 残りのパラメータをローカル ファイルまたはディレクトリとして扱います',
+							' <files> - ローカル ファイルを処理します*'
+						],
+			   }
+	    },
+		help: {
+			en: [ `\u001b[1mWelcome to imbraw2dng\u001b[0m $$0 !`, `Usage: node $$0 \u001b[1m[\u001b[0m-l ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-d ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-owb\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-ndcp\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr ..\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-at ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n ..\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \
+\u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mfiles-or-dirs\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m`,
+				'Options:',
+				' \u001b[1m-h\u001b[0m - show this help',
+				' \u001b[1m-nc\u001b[0m - do not use coloured text',
+				' \u001b[1m-co\u001b[0m - force coloured text',
+				' \u001b[1m-l XX\u001b[0m - where XX is a valid language code (currently: DE, EN, FR, JA)',
+				'         Language can also be set by changing filename to imbraw2dng_XX.js .',
+				' \u001b[1m-d dir\u001b[0m - put output files into dir',
+				' \u001b[1m-f\u001b[0m - overwrite existing files',
+				' \u001b[1m-r\u001b[0m - rename output file, if already exists',
+				' \u001b[1m-np\u001b[0m - Do not add preview thumbnail to DNG',
+				' \u001b[1m-owb\u001b[0m - Use old style constant white balance',
+				' \u001b[1m-ndcp\u001b[0m - Do not include new DNG Camera profile',
+				' \u001b[1m-cr \'copyright...\'\u001b[0m - add copyright to DNG',
+				' \u001b[1m-at \'author...\'\u001b[0m - add artist/creator to DNG',
+				' \u001b[1m-fla\u001b[0m, \u001b[1m-flx\u001b[0m - add multiple images to fake long exposure, flx scales down',
+				' \u001b[1m-R\u001b[0m - get RAW from ImB connected via Wifi or from given directories',
+				' \u001b[1m-J\u001b[0m - get JPEG from ImB connected via Wifi or from given directories',
+				' \u001b[1m-O\u001b[0m - get non-RAW/non-JPEG from ImB connected via Wifi or from given directories',
+				' \u001b[1m-da correcttimestamp=cameratimestamp\u001b[0m - correct times in yyyy_mm_dd-hh_mm_ss format',
+				' \u001b[1m-n yyyy_mm_dd-hh_mm_ss\u001b[0m (or prefix of any length) - select only newer than this timestamp from ImB or from given directories',
+				' -----',
+				' \u001b[1m--\u001b[0m - treat rest of parameters as local files or dirs',
+				' <files-or-dirs> - process local files or directories recursively, e.g. on MicroSD from ImB',],
+			fr: [ `\u001b[1mBienvenu a imbraw2dng\u001b[0m $$0 !`, `Operation: node $$0 \u001b[1m[\u001b[0m-l ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-d ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-owb\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-ndcp\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr ..\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-at ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n ..\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \
+\u001b[1m[\u001b[0m \u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mfiches-ou-repertoires\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m`,
+				'Choix:',
+				' \u001b[1m-h\u001b[0m - montrer cette aide',
+				' \u001b[1m-nc\u001b[0m - n\'utilisez pas de texte en couleur',
+				' \u001b[1m-co\u001b[0m - utilisez de texte en couleur',
+				' \u001b[1m-l XX\u001b[0m - quand XX est une code du langue valide (actuellement: DE, EN, FR, JA)',
+				'         La langue peut également être définie en changeant le nom du fiche en imbraw2dng_XX.js .',
+				' \u001b[1m-d repertoire\u001b[0m - mettre les fiches de sortie dans le répertoire',
+				' \u001b[1m-f\u001b[0m - écraser les fiches existants',
+				' \u001b[1m-r\u001b[0m - quand fiche existe, renommer le résultat',
+				' \u001b[1m-np\u001b[0m - Pas petite image d\'aperçu en DNG',
+				' \u001b[1m-np\u001b[0m - Do not add preview thumbnail to DNG',
+				' \u001b[1m-owb\u001b[0m - Use old style constant white balance',
+				' \u001b[1m-cr \'copyright...\'\u001b[0m - add copyright to DNG',
+				' \u001b[1m-at \'author...\'\u001b[0m - add author/creator to DNG',
+				' \u001b[1m-fla\u001b[0m, \u001b[1m-flx\u001b[0m - add multiple images to fake long exposure, flx scales down',
+				' \u001b[1m-R\u001b[0m - obtenez RAW d\'ImB connecté via Wifi ou repertoires donnés',
+				' \u001b[1m-J\u001b[0m - obtenez JPEG d\'ImB connecté via Wifi ou repertoires donnés',
+				' \u001b[1m-O\u001b[0m - obtenez du non-RAW/non-JPEG d\'ImB connecté via Wifi ou repertoires donnés',
+				' \u001b[1m-n yyyy_mm_dd-hh_mm_ss\u001b[0m (ou préfixe de n\'importe quelle longueur) - sélectionnez uniquement plus récent que cet horodatage d\'ImB ou repertoires donnés',
+				' -----',
+				' \u001b[1m--\u001b[0m - traiter le reste des paramètres comme des fiches ou des répertoires locaux',
+				' <fiches-ou-repertoires> - traiter des fiches ou des répertoires locaux de manière récursive, par exemple sur MicroSD d\'ImB',],
+			de: [ `\u001b[1mWillkommen bei imbraw2dng\u001b[0m $$0 !`, `Aufruf: node $$0 \u001b[1m[\u001b[0m-l ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-d ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-owb\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-ndcp\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr ..\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-at ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-at ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n ..\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \
+\u001b[1m[\u001b[0m \u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mdateien-oder-ordner\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m`,
+				'Optionen:',
+				' \u001b[1m-h\u001b[0m - diesen Hilfetext zeigen',
+				' \u001b[1m-nc\u001b[0m - keinen farbigen Text zeigen',
+				' \u001b[1m-co\u001b[0m - farbigen Text zeigen',
+				' \u001b[1m-l XX\u001b[0m - wo XX ein gültiger Sprachcode ist (derzeit: DE, EN, FR, JA)',
+				'         Die Sprache kann auch durch Umbenennen in imbraw2dng_XX.js geändert werden.',
+				' \u001b[1m-d ordner\u001b[0m - Ausgabedateien in diesen Ordner ablegen',
+				' \u001b[1m-f\u001b[0m - existierende Dateien überschreiben',
+				' \u001b[1m-r\u001b[0m - Ausgabedatei umbenennen, falls schon existiert',
+				' \u001b[1m-np\u001b[0m - Kein kleines Vorschaubild im DNG',
+				' \u001b[1m-owb\u001b[0m - Alten konstanten Weißabgleich verwenden',
+				' \u001b[1m-ndcp\u001b[0m - neues DCP Profil nicht einbetten',
+				' \u001b[1m-cr \'copyright...\'\u001b[0m - Copyright dem DNG hinzufügen',
+				' \u001b[1m-at \'autor...\'\u001b[0m - Künstler/Ersteller zum DNG hinzufügen',
+				' \u001b[1m-fla\u001b[0m, \u001b[1m-flx\u001b[0m - mehrere Bilder als Langzeitbelichtung aufaddieren, flx skaliert dabei herunter',
+				' \u001b[1m-R\u001b[0m - RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen konvertieren',
+				' \u001b[1m-J\u001b[0m - JPEG von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren',
+				' \u001b[1m-O\u001b[0m - Nicht-JPEG/Nicht-RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren',
+				' \u001b[1m-da richtigezeit=kamerazeit\u001b[0m - Zeiten im yyyy_mm_dd-hh_mm_ss Format anpassen',
+				' \u001b[1m-n yyyy_mm_dd-hh_mm_ss\u001b[0m (oder beliebig langer Anfang davon) - nur Dateien neuer als dieser Zeitstempel von ImB oder übergebenen Verzeichnissen holen',
+				' -----',
+				' \u001b[1m--\u001b[0m - weitere Parameter als lokale Dateien oder Ordner betrachten',
+				' <dateien-oder-ordner> - lokale Dateien oder Ordner rekursiv (z.B. von der MicroSD Karte aus ImB) verarbeiten',],
+			ja: [
+				`\u001b[1mimbraw2dng へようこそ\u001b[0m $$0 !`, `Usage: node $$0 \u001b[1m[\u001b[0m-l ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-d ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-owb\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-ndcp\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr ..\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-at ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n ..\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \
+\u001b[1m[\u001b[0m \u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mfiles-or-dirs\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m`,
+				'オプション:',
+				'\u001b[1m-h\u001b[0m - このヘルプを表示する',
+				' \u001b[1m-nc\u001b[0m - 色付きのテキストを使用しない',
+				' \u001b[1m-co\u001b[0m - 色付きのテキストを強制',
+				' \u001b[1m-l XX\u001b[0m - ここで、XX は有効な言語コードです (現在: DE、EN、FR、JA)',
+				'         ファイル名を imbraw2dng_XX.js に変更することで言語を設定することもできます。',
+				' \u001b[1m-d dir\u001b[0m - 出力ファイルを dir に置く',
+				' \u001b[1m-f\u001b[0m - 現在のファイルを上書きする',
+				' \u001b[1m-r\u001b[0m - rename output file, if already exists',
+				' \u001b[1m-np\u001b[0m - Do not add preview thumbnail to DNG',
+				' \u001b[1m-np\u001b[0m - Do not add preview thumbnail to DNG',
+				' \u001b[1m-owb\u001b[0m - Use old style constant white balance',
+				' \u001b[1m-cr \'copyright...\'\u001b[0m - add copyright to DNG',
+				' \u001b[1m-at \'author...\'\u001b[0m - add author/creator to DNG',
+				' \u001b[1m-fla\u001b[0m, \u001b[1m-flx\u001b[0m - add multiple images to fake long exposure, flx scales down',
+				' \u001b[1m-R\u001b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリからRAWを取得する',
+				' \u001b[1m-J\u001b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリからJPEGを取得する',
+				' \u001b[1m-O\u001b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリから非RAW/非JPEGを取得する',
+				' \u001b[1m-n yyyy_mmdd_hhmmss\u001b[0m (または任意の長さのプレフィックス) - ImB からこのタイムスタンプより新しいもののみを選択する',
+				' -----',
+				' \u001b[1m--\u001b[0m - 残りのパラメータをローカル ファイルまたはディレクトリとして扱う',
+				'<files-or-dirs> と -R/-J/-O/-n は同時に使用できません。'
+				]
+		},
+		unkopt: {
+			en: '\u001b[31mUnknown Option:\u001b[0m $$0',
+			de: '\u001b[31mUnbekannte Option:\u001b[0m $$0',
+			fr: '\u001b[31mOption inconnue:\u001b[0m $$0',
+			ja: '\u001b[31m最後のパラメータの値が欠落しています。\u001b[0m'
+		},
+		missingval: {
+			en: '\u001b[31mMissing value for last parameter.\u001b[0m',
+			de: '\u001b[31mFehlender Wert für letzten Parameter.\u001b[0m',
+			fr: '\u001b[31mValeur manquante pour le dernier paramètre.\u001b[0m',
+			ja: '\u001b[31m最後のパラメータの値が欠落しています。\u001b[0m'
+		},
+		fnwarn: {
+			en: '\u001b[31mWarning:\u001b[0m $$0 looks like a timestamp, did you forget \u001b[1m-n\u001b[0m or \u001b[1m--\u001b[0m in front of it?',
+			de: '\u001b[31mWarnung:\u001b[0m $$0 sieht wie ein Zeitstempel aus, vielleicht \u001b[1m-n\u001b[0m oder \u001b[1m--\u001b[0m davor vergessen?',
+			fr: '\u001b[31mAvertissement:\u001b[0m $$0 ressemble à un horodatage, oubliée \u001b[1m-n\u001b[0m ou \u001b[1m--\u001b[0m?',
+			ja: '\u001b[31m警告:\u001b[0m $$0 lタイムスタンプのようですが、 \u001b[1m-n\u001b[0m または \u001b[1m--\u001b[0m 手前にあるのを忘れましたか?'
+		},
+		renamed: {
+			en: '(renamed)',
+			de: '(umbenannt)',
+			fr: '(renomee)',
+			ja: '(リネーム)'
+		},
+		readconfig: {
+			en: '\u001b[2mConfig file $$0 read.\u001b[0m',
+			de: '\u001b[2mKonfigurationsdatei $$0 eingelesen.\u001b[0m',
+			ja: '\u001b[2m構成ファイル $$0 が読み込まれます。\u001b[0m'
+		},
+		noconfig: {
+			de: '\u001b[2mKeine json Konfigurationsdatei gefunden, gesucht: $$0\u001b[0m',
+			en: '\u001b[2mNo json config file found, searched: $$0\u001b[0m',
+			ja: '\u001b[2mNo json 構成ファイルが見つかりません、検索: $$0\u001b[0m'
+		},
+		newmsg: {
+			en: 'Report Bugs: https://github.com/shyrodgau/imbraw2dng/issues',
+			de: 'Fehler melden: https://github.com/shyrodgau/imbraw2dng/issues',
+			ja: 'バグ報告: https://github.com/shyrodgau/imbraw2dng/issues'
+		}
+	}
+},
+// generic user input timestamp always complete
+//               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
+fulltsregex: /^([02-3][0-9][0-9][0-9])([^0-9])([01][0-9])([^0-9])([0123][0-9])([^0-9])([012][0-9])([^0-9])([0-5][0-9])([^0-9])([0-5][0-9])$/, // actually const
+// generic user input timestamp (any prefix)
+//                  y      y     y     y      .      m     m     .      d      d      .      h     h      .      m     m      .      s     s
+tsregex: /^[02-3]([0-9]([0-9]([0-9](([^0-9])[01]([0-9](([^0-9])[0123]([0-9](([^0-9])[012]([0-9](([^0-9])[0-5]([0-9](([^0-9])[0-5]([0-9])?)?)?)?)?)?)?)?)?)?)?)?)?$/ , // actually const
+/* ImBCBase: Data for the Imback variants and exif stuff */
+// generic imb filename format
+//                   y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s     EXT
+fnregex: /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])(.*[.])([^.]*)$/ , // actually const
+// generic imb xml timestamp format
+//                               y    y    y    y      /    m    m     /    d     d    . .  h    h      :    m    m      :    s    s
+itsregex: new RegExp('^([2-3][0-9][0-9][0-9])([/])([01][0-9])([/])([0123][0-9])( )([012][0-9])([:])([0-6][0-9])([:])([0-6][0-9])$') , // actually const
+// generic imb filename format, only timestamp
+//                    y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s      .        n
+fnregexx: /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-9]*)/ , // actually const
+orients: [ '', 'none', '', 'upsidedown', '', '', 'clockwise', '', 'counterclockwise' ], // actually const
+oriecw: [ 1, 6, 3, 8 ], // clockwise indices // actually const
+types: [ "unknown", "ImB35mm", "MF 6x7 ", "MF6x4.5", "MF 6x6 ", "Film35 " ], // all length 7, actually const
+twelvebitsizes: [ 9706416, 11501280, 14709888, 17428128, 17915904, 19406448, 21098880, 23003136, 23887872, 30607488 ],
+infos: [ // actually const
+	{
+		size: 14065920,
+		w: 4320,
+		h: 3256,
+		typ: 0,
+		mode: "historic"
+	},
+	{ /* MF 6x7 */
+		size: 15925248,
+		w: 4608,
+		h: 3456,
+		typ: 2,
+		mode: ""
+	},
+	{ /* MF 6x4.5 */
+		size: 12937632,
+		w: 4152, h: 3116,
+		typ: 3,
+		mode: ""
+	},
+	{
+		size: 9806592,
+		w: 3616, h: 2712,
+		typ: 3,
+		mode: "Medium-angle"
+	},
+	{
+		size: 6470944,
+		w: 2936, h: 2204,
+		typ: 3,
+		mode: "Small-angle"
+	},
+	{ /* MF 6x6 */
+		size: 11943936,
+		w: 3456, h: 3456,
+		typ: 4,
+		mode: ""
+	},
+	{ /* 35mm */
+		size: 15335424,
+		w: 4608, h: 3328,
+		typ: 1,
+		mode: ""
+	},
+	{
+		size: 11618752,
+		w: 4012, h: 2896,
+		typ: 1,
+		mode: "Medium-angle"
+	},
+	{
+		size: 7667520,
+		w: 3260, h: 2352,
+		typ: 1,
+		mode: "Small-angle"
+	},
+	/* 12 bit down here: */
+	/* Film ! */
+	{
+		size: 30607488,
+		w: 5216,
+		h:3912,
+		typ: 5,
+		mode: ''
+	}
+],
+/* ImBCBase: get white balance */
+getwb: function(view, typidx, whitelvl) {
+	//console.log('GWB ' + typidx + ' ' + JSON.stringify(globals.infos[typidx]));
+	const t = globals.infos[typidx < 32 ? typidx : ((typidx< 64)? (typidx - 32) : (typidx - 64))];
+	let r=1, g=1, b=1;
+	for (let i=Math.round(0.05*t.h)*2; i<Math.ceil(0.9*t.h); i+=8) {
+		for (let j=Math.round(0.05*t.w)*2; j<Math.ceil(0.9*t.w); j+=8) {
+			let x = globals.getPix(j, i, t.w, view, typidx < 32 ? t.typ : (typidx < 64 ? 32 + t.typ : 64 + t.typ), whitelvl);
+			let lr = x[0];
+			let lg = x[1] + 1;
+			let lb = x[2];
+			let p = Math.sqrt(lg*lg + lb*lb + lr*lr);
+			if (p < 3 || p > (433)) continue;
+			//if (((i*t.w + j) % 50000) < 10)
+			//	console.log('i ' + i + ' j ' + j + ' R ' + lr + ' G ' + lg + ' B ' + lb + ' P ' + p);
+			//if (r + g == 2) {
+			//	console.log('R G B ' + x[0] + ' ' + x[1] + ' ' + x[2] + ' P ' + p + ' LB ' + lb + ' LR ' + lr + ' LG ' + lg);
+			//}
+			b += ((lb)/(p)>1) ? 1 : (lb)/(p);
+			g += ((lg)/(p)>1) ? 1 : (lg)/(p);
+			r += ((lr)/(p)>1) ? 1 : (lr)/(p);
+		}
+	}
+	//console.log('ER EG EB ' + r + ' ' + g + ' ' + b);
+	if ((r > b) && (r > g)) {
+		return [ 10, 10, Math.ceil(300000*g/r), 300000, Math.ceil(300000*b/r), 300000 ];
+	}
+	else if ((b > r) && (b > g)) {
+		return [ Math.ceil(300000*r/b), 300000, Math.ceil(300000*g/b), 300000, 10, 10 ];
+	}
+	else {
+		return [ Math.ceil(300000*r/g), 300000, 10, 10, Math.ceil(300000*b/g), 300000 ];
+	}
+},
+/* ImBCBase: get one downsampled median image value [ r g b ] */
+getPix: function(x, y, w, view, typ, whitelvl) {
+	let outrgb = [];
+	let reds = [];
+	const w3 = w + (typ >= 64 ? w : (w>>1));
+	const xx = x + (typ >= 64 ? x : (x>>1));
+	let shiftr = 0, wbx = 255;
+	while (whitelvl > wbx) {
+		wbx = (2*(wbx+1)) -1; 
+		shiftr ++;
+	}
+	const dd = (typ === 5 || typ === 69) ? 240 : 0;
+	if (typ === 5 || typ == 33) {
+		/* film or stacked 35mm */
+		reds.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+2)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+	}
+	else if (typ === 69 || typ == 65) {
+		/* 16 bit film or 35mm */
+		reds.push(((view.getUint8((y+0)*w3 + xx+2) +  ((view.getUint8((y+0)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+0)*w3 + xx+6) +  ((view.getUint8((y+0)*w3 + xx+7)) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+2)*w3 + xx+2) +  ((view.getUint8((y+2)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+2)*w3 + xx+6) +  ((view.getUint8((y+2)*w3 + xx+7)) << 8))-dd)>>shiftr);
+	}
+	else if (typ > 64) {
+		/* 16 bit mf */
+		reds.push(((view.getUint8((y+1)*w3 + xx+2) +  ((view.getUint8((y+1)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+1)*w3 + xx+6) +  ((view.getUint8((y+1)*w3 + xx+7)) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+3)*w3 + xx+2) +  ((view.getUint8((y+3)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+3)*w3 + xx+6) +  ((view.getUint8((y+3)*w3 + xx+7)) << 8))-dd)>>shiftr);
+	}
+	else if (typ > 33) {
+		/* stacked mf */
+		reds.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+	}
+	else if (typ > 1) {
+		/* mf */
+		reds.push(view.getUint8((y+1)*w + x + 1));
+		reds.push(view.getUint8((y+1)*w + x + 3));
+		reds.push(view.getUint8((y+3)*w + x + 1));
+		reds.push(view.getUint8((y+3)*w + x + 3));
+	} else {
+		/* 35mm */
+		reds.push(view.getUint8(y*w + x + 1));
+		reds.push(view.getUint8(y*w + x + 3));
+		reds.push(view.getUint8((y+2)*w + x + 1));
+		reds.push(view.getUint8((y+2)*w + x + 3));
+	}
+	reds.sort(function(a,b) { return a - b; });
+	// median of red pixels
+	outrgb.push((reds[1] + reds[2]) / 2.0);
+	let greens = [];
+	if (typ === 5 || typ == 33) {
+		/* film or stacked 35mm */
+		greens.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+	}
+	else if (typ === 69 || typ == 65) {
+		/* 16 bit film or stacked 35mm */
+		greens.push((((view.getUint8((y+0)*w3 + xx+0)) +  ((view.getUint8((y+0)*w3 + xx+1) <<8)))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+0)*w3 + xx+4)) +  ((view.getUint8((y+0)*w3 + xx+5) <<8)))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+2) +  ((view.getUint8((y+1)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+6) +  ((view.getUint8((y+1)*w3 + xx+7)) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+2)*w3 + xx+0)) +  ((view.getUint8((y+2)*w3 + xx+1)) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+2)*w3 + xx+4)) +  ((view.getUint8((y+2)*w3 + xx+5)) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+3)*w3 + xx+2) +  ((view.getUint8((y+3)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+3)*w3 + xx+6) +  ((view.getUint8((y+3)*w3 + xx+7)) << 8))-dd)>>shiftr);
+	}
+	else if (typ > 64) {
+		/* 16 bit mf */
+		greens.push((((view.getUint8((y+0)*w3 + xx+2)) +  ((view.getUint8((y+0)*w3 + xx+3) <<8)))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+0)*w3 + xx+6)) +  ((view.getUint8((y+0)*w3 + xx+7) <<8)))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1)) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+4) +  ((view.getUint8((y+1)*w3 + xx+5)) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+2)*w3 + xx+2)) +  ((view.getUint8((y+2)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+2)*w3 + xx+6)) +  ((view.getUint8((y+2)*w3 + xx+7)) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+3)*w3 + xx+1)) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+3)*w3 + xx+4) +  ((view.getUint8((y+3)*w3 + xx+5)) << 8))-dd)>>shiftr);
+	}
+	else if (typ > 33) {
+		/* stacked mf */
+		greens.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+1)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+2)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+3)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+3)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+	}
+	else if (typ > 1) {
+		greens.push(view.getUint8(y*w + x + 1));
+		greens.push(view.getUint8(y*w + x + 3));
+		greens.push(view.getUint8((y+1)*w + x));
+		greens.push(view.getUint8((y+1)*w + x + 2));
+		greens.push(view.getUint8((y+2)*w + x + 1));
+		greens.push(view.getUint8((y+2)*w + x + 3));
+		greens.push(view.getUint8((y+3)*w + x));
+		greens.push(view.getUint8((y+3)*w + x + 2));
+	} else {
+		greens.push(view.getUint8(y*w + x));
+		greens.push(view.getUint8(y*w + x + 2));
+		greens.push(view.getUint8((y+1)*w + x + 1));
+		greens.push(view.getUint8((y+1)*w + x + 3));
+		greens.push(view.getUint8((y+2)*w + x));
+		greens.push(view.getUint8((y+2)*w + x + 2));
+		greens.push(view.getUint8((y+3)*w + x + 1));
+		greens.push(view.getUint8((y+3)*w + x + 3));
+	}
+	greens.sort(function(a,b) { return a - b; });
+	outrgb.push((greens[3] + greens[4]) / 2.0);
+	let blues = [];
+	if (typ === 5 || typ === 33) {
+		blues.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+1)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+3)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+3)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+	}
+	else if (typ === 69 || typ === 65) {
+		blues.push((((view.getUint8((y+1)*w3 + xx+0)) +  ((view.getUint8((y+1)*w3 + xx+1) ) <<8))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+1)*w3 + xx+4)) +  ((view.getUint8((y+1)*w3 + xx+5) ) <<8))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+3)*w3 + xx+0)) +  ((view.getUint8((y+3)*w3 + xx+1) ) <<8))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+3)*w3 + xx+4)) +  ((view.getUint8((y+3)*w3 + xx+5) ) <<8))-dd)>>shiftr);
+	}
+	else if (typ > 65) {
+		blues.push((((view.getUint8((y+0)*w3 + xx+0)) +  ((view.getUint8((y+0)*w3 + xx+1) ) <<8))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+0)*w3 + xx+4)) +  ((view.getUint8((y+0)*w3 + xx+5) ) <<8))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+2)*w3 + xx+0)) +  ((view.getUint8((y+2)*w3 + xx+1) ) <<8))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+2)*w3 + xx+4)) +  ((view.getUint8((y+2)*w3 + xx+5) ) <<8))-dd)>>shiftr);
+	}
+	else if (typ > 33) {
+		blues.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+	}
+	else if (typ > 1) {
+		blues.push(view.getUint8(y*w + x));
+		blues.push(view.getUint8(y*w + x + 2));
+		blues.push(view.getUint8((y+2)*w + x));
+		blues.push(view.getUint8((y+2)*w + x + 2));
+	} else {
+		blues.push(view.getUint8((y+1)*w + x));
+		blues.push(view.getUint8((y+1)*w + x + 2));
+		blues.push(view.getUint8((y+3)*w + x));
+		blues.push(view.getUint8((y+3)*w + x + 2));
+	}
+	blues.sort(function(a,b) { return a - b; });
+	outrgb.push((blues[1] + blues[2]) / 2.0);
+	return outrgb;
+},
+/* ImBCBase: build preview in array */
+buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) {
+	if (undefined === wb) wb = [ 6, 10, 1, 1, 6, 10 ];
+	let sfact = scale ? scale : 8;
+	if (size === 2) sfact = 4;
+	else if (size === 1) sfact = 16;
+	const w8 = Math.floor((w+(sfact -1))/sfact);
+	const h8 = Math.floor((h+(sfact -1))/sfact);
+	const rfact = (wb[1]/wb[0]);
+	const gfact = (wb[3]/wb[2]);
+	const bfact = (wb[5]/wb[4]);
+	let outpix = [];
+	let rowiterstart, rowiterend;
+	let coliterstart, coliterend;
+	let transpose = false;
+	if (typ === 5 && orientation === 0)
+		orientation = 3;
+	if (orientation === 3) {
+		rowiterstart = -1*(h8 -1);
+		rowiterend = 1;
+		coliterstart = -1*(w8 - 1);
+		coliterend = 1;
+	} else if (orientation === 6) {
+		transpose = true;
+		rowiterstart = 0;
+		rowiterend = w8;
+		coliterstart = -1*(h8 - 1);
+		coliterend = 1;
+	} else if (orientation === 8) {
+		transpose = true;
+		rowiterstart = -1*(w8 -1);
+		rowiterend = 1;
+		coliterstart = 0;
+		coliterend = h8;
+	} else {
+		rowiterstart = 0;
+		rowiterend = h8;
+		coliterstart = 0;
+		coliterend = w8;
+	}
+	let rhist = new Array(256), ghist = new Array(256), bhist = new Array(256);
+	for (let i = 0; i < 256; i++) {
+		rhist[i] = 0; ghist[i] = 0; bhist[i] = 0;
+	}
+	let cnt = 0;
+	for (let i = rowiterstart; i < rowiterend; i +=1) {
+		for (let j = coliterstart; j < coliterend; j+=1) {
+			let a = globals.getPix(Math.abs(transpose ? i :j)*sfact, Math.abs(transpose ? j :i)*sfact, w, view, typ, whitelvl);
+			outpix.push(a[0]);
+			outpix.push(a[1]);
+			outpix.push(a[2]);
+			rhist[a[0]]++;
+			ghist[a[2]]++;
+			bhist[a[2]]++;
+			cnt++;
+		}
+	}
+	// cut off top and bottom 0.2 and 3%
+	let cntx = 0, rallmin = 0, rallmax = 255;
+	while (cntx < (cnt * 0.03))
+		cntx += rhist[rallmin++];
+	if (rallmin > 0) rallmin --;
+	cntx = 0;
+	while (cntx < (cnt * 0.002))
+		cntx += rhist[rallmax--];
+	if (rallmax < 255) rallmax++;
+	let gallmin = 0, gallmax = 255;
+	cntx = 0;
+	while (cntx < (cnt * 0.03))
+		cntx += ghist[gallmin++];
+	if (gallmin > 0) gallmin --;
+	cntx = 0;
+	while (cntx < (cnt * 0.002))
+		cntx += ghist[gallmax--];
+	if (gallmax < 255) gallmax++;
+	let ballmin = 0, ballmax = 255;
+	cntx = 0;
+	while (cntx < (cnt * 0.03))
+		cntx += bhist[ballmin++];
+	if (ballmin > 0) ballmin --;
+	cntx = 0;
+	while (cntx < (cnt * 0.002))
+		cntx += bhist[ballmax--];
+	if (ballmax < 255) ballmax++;
+	let allmin = Math.min(rallmin, gallmin, ballmin);
+	let allmax = Math.max(rallmax, gallmax, ballmax);
+	let fact;
+	if (allmax > 247 && allmin < 8) {
+		fact = 1;
+		allmin = 0;
+		//console.log('Fact 1 ' + fact + ' i ' + allmin + ' a ' + allmax);
+	}
+	else if (allmax - allmin < 1) {
+		fact = 1;
+		//console.log('Fact 2 ' + fact + ' i ' + allmin + ' a ' + allmax);
+	}
+	else {
+		fact = 254/(allmax - allmin);
+		//console.log('Fact 3 ' + fact + ' i ' + allmin + ' a ' + allmax);
+	}
+	//console.log('ai ' + allmin + ' aa ' + allmax + ' ff ' + fact);
+	const o = scale ? 3 : 4;
+	const uic = new Uint8ClampedArray(h8 * w8 * o);
+	for (let i = 0; i < h8; i++) {
+		for (let j=0; j< w8; j++) {
+			let nr = ((outpix[3*((i * w8) + j)] * rfact) - allmin) * fact + allmin;
+			let ng = ((outpix[3*((i * w8) + j) + 1] * gfact) - allmin) * fact + allmin;
+			let nb = ((outpix[3*((i * w8) + j) + 2] * bfact) - allmin) * fact + allmin;
+			if (nr >= 255) {
+				if (ng < 250) ng = Math.floor(ng * 255 / nr);
+				if (nb < 250) nb = Math.floor(nb * 255 / nr);
+				nr = 255;
+			}
+			else if (nr <= 0) nr = 0;
+			if (ng >= 255) {
+				if (nr < 250) nr = Math.floor(nr * 255 / ng);
+				if (nb < 250) nb = Math.floor(nb * 255 / ng);
+				ng = 255;
+			}
+			else if (ng <= 0) ng = 0;
+			if (nb >= 255) {
+				if (ng < 250) ng = Math.floor(ng * 255 / nb);
+				if (nr < 250) nr = Math.floor(nr * 255 / nb);
+				nb = 255;
+			}
+			else if (nb <= 0) nb = 0;
+			// maybe some brightening gamma?
+			uic[o * ((i*w8) + j)] = 255-Math.floor(255*((255-nr)/255)*((255-nr)/255));
+			uic[o * ((i*w8) + j) + 1] = 255-Math.floor(255*((255-ng)/255)*((255-ng)/255));
+			uic[o * ((i*w8) + j) + 2] = 255-Math.floor(255*((255-nb)/255)*((255-nb)/255));
+			if (!scale) uic[o * ((i*w8) + j) + 3] = 255;
+		}
+	}
+	return uic;
+},
+/* Indentation in - end of globals */
+}
+/* *************************************** globals, E N D *************************************** */
+/* outside of classes: */
 imbc.startnode();
