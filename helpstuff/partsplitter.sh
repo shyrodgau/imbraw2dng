@@ -5,8 +5,9 @@ function onepart { # basename startline endline
 	st="$2"
 	en="$3"
 	bn=$( basename "$pth" )
-	tag=$( head -$st "$pth" | tail -1 | sed 's/^.*[*][*][*] \([^*]*\) [*][*][*].*/\1/g' | sed 's/[^a-zA-Z0-9]/_/g' )
-	head -$en "$pth" | tail -$(( 1 + $en - $st )) > "${bn}_${tag}.js"
+	tag=$( head -$st "$pth" | tail -1 | sed 's/^.*[*][*][*] \([^*]*\) [*][*][*].*/\1/g' | sed 's/[^a-zA-Z0-9][^a-zA-Z0-9]*/_/g' )
+	#head -$en "$pth" | tail -$(( 1 + $en - $st ))  | sed 's/^\(.*[*][*][*] \)\([^*]*\)\( [*][*][*].*\)$/\1 '$st' - '$en' \2 \3/g' > "${bn}_${st}_${tag}.js"
+	head -$en "$pth" | tail -$(( 1 + $en - $st ))  > "${bn}_${st}_${tag}.js"
 }
 
 

@@ -745,8 +745,8 @@ withpreview = true;
 // experimental
 neutral = false;
 metadata = false;
-copyright = undefined;
-artist = undefined;
+copyright = '';
+artist = '';
 // { name: 'xxx.jpg', data: array-ifd... }
 #exififds = [];
 
@@ -907,8 +907,7 @@ X8RX46vhF+H9aTX8Ij5fXI38xTxiYjX8Yj45oxp+MdPiavjFfGRNteJzcsyhavgl
 9JDBL+NvejLkL+PLJjL46OmBMvjl3DREBr+c17vJ4FfwlVEy+BXYF2XwK/halAx+
 Bdcly+BXYp7J4KOHSmXwK/lGjQw+emOmDH4l2yySwa/iiFUKv4qnbFL4Vbxvl0zx
 eT47H1b41ZzUqPCref5FhV/NOjcUvow9Hyh8GZ9/rvBl3P6vwpdxxVeFP+H/vv8H
-dbUD5wggAAA=
-`;
+dbUD5wggAAA=`;
 //  ProfileToneCurve  unpack
 dcpProfileToneCurve_u='';
 //  ProfileHueSatMapData1  b64 gz
@@ -17627,8 +17626,7 @@ U0r2UddZ/4hfTNaTdoyJ5R8h8YTb7h7lS+8GPfnrKf5lQ9A/vLP4R8kZ0xf2Y/6+
 GnL2aPdT/nlytmNnoCgzgJw5KL1PkVEe8vesq9nMsZCD5JuyZoaQ8xa1NuxnAoqB
 z2CRSOZ9FpRzj3ISs/8I2NXQI/nMlxVkzujoDcafhTpWPH7CRJE9dvJHdzGWCqAL
 j0uw5WTtMHd/CHsnHDioef5kIslcm37GJ6ZuBejdb0XYCyRehecrzqovAz+QHSfC
-/kTwbP72GsaRnIf+AYswS+zJWd6b7syd8w04/z+gyxV+4NQOAA==
-`;
+/kTwbP72GsaRnIf+AYswS+zJWd6b7syd8w04/z+gyxV+4NQOAA==`;
 //  ProfileLookTableData  unpack
 dcpProfileLookTableData_u='';
 ////    DYNAMIC SOURCE END: /home/hegny/prog/imbraw2dng/github/profiles/DCP/ImBack ImB35mm.dcp
@@ -17638,7 +17636,6 @@ constwb = false;
 incdcp = true;
 /* ImBCBase: debug */
 debugflag = false;
-useraw = null;
 imbweb = 'http://192.168.1.254';
 // mis-nomer from app
 fromintent = false; // 1: normal 2: stack/fakelong (> 1 DNG, to raw phase)  3: backward (== 1 DNG)  4: to dng phase when stacking 
@@ -17647,8 +17644,12 @@ constructor() {
 }
 /* ImBCBase: primitive basename helper */
 static basename(n) {
+	if (n.url) n = n.url;
 	while (n.lastIndexOf("/") > -1) {
 		n = n.substring(n.lastIndexOf("/") + 1);
+	}
+	while (n.lastIndexOf("\\") > -1) {
+		n = n.substring(n.lastIndexOf("\\") + 1);
 	}
 	return n;
 }
@@ -17705,20 +17706,40 @@ xl0(str, base) {
 	}
 }
 /* ImBCBase: substitute in translation */
-subst(r, arg0, arg1, arg2, arg3) {
-	if (r.indexOf('$$0') !== -1 && arg0 !== undefined) {
-		r = r.substring(0, r.indexOf('$$0')) + arg0 + r.substring(r.indexOf('$$0') + 3);
-		if (r.indexOf('$$1') !== -1 && arg1 !== undefined) {
-			r = r.substring(0, r.indexOf('$$1')) + arg1 + r.substring(r.indexOf('$$1') + 3);
-			if (r.indexOf('$$2') !== -1 && arg2 !== undefined) {
-				r = r.substring(0, r.indexOf('$$2')) + arg2 + r.substring(r.indexOf('$$2') + 3);
-				if (r.indexOf('$$3') !== -1 && arg3 !== undefined) {
-					r = r.substring(0, r.indexOf('$$3')) + arg3 + r.substring(r.indexOf('$$3') + 3);
-				}
-			}
-		}
+isubst(r, sub, arg, ind=0) {
+	const is = '$$' + sub;
+	const j = r.substring(ind).indexOf(is);
+	if (j !== -1 && arg !== undefined) {
+		return this.isubst(r.substring(0, j + ind) + arg + r.substring(j + 3 + ind), sub, arg, j + arg.length);
+	} else {
+		return r;
 	}
+}
+/* ImBCBase: substitute in translation */
+subst(r, arg0, arg1, arg2, arg3) {
+	r = this.isubst(r, 0, arg0);
+	r = this.isubst(r, 1, arg1);
+	r = this.isubst(r, 2, arg2);
+	r = this.isubst(r, 3, arg3);
 	return this.rmesc(r);
+}
+/* ImBCBase: translate one string with parameters - title for app */
+xlx(str) {
+	const l = '00' === this.mylang ? 'en' : this.mylang;
+	const txt = apptexts.find((v) => v.Language === l);
+	return txt.s[str].title;
+}
+/* ImBCBase: translate one string with parameters - select title for app */
+xlxi(str, arg0) {
+	const l = '00' === this.mylang ? 'en' : this.mylang;
+	const txt = apptexts.find((v) => v.Language === l);
+	return txt.s[arg0].r.find((v) => v.cmd == str).title;
+}
+/* ImBCBase: translate one string with parameters - option title for app */
+xlxx(str, arg0, arg1) {
+	const l = '00' === this.mylang ? 'en' : this.mylang;
+	const txt = apptexts.find((v) => v.Language === l);
+	return txt.s[arg1].r.find((v) => v.cmd == str).list[arg0];
 }
 /* ImBCBase: translate one string with parameters */
 xl(str, arg0, arg1, arg2, arg3, base) {
@@ -17757,14 +17778,17 @@ querylang(name, offset) {
 	if (name[name.length - offset] !== '_') return;
 	let l = this.findlang(name.substring(name.length - offset + 1, name.length - offset + 3));
 	if ('00' === l) {
+		if (this.previewworker) this.previewworker.postMessage({ cmd: 'setdbg' });
 		this.debugflag = true;
 		if (document) { // translation output into browser log
 			for (const el of Object.keys(mytexts))
 				this.prxl(el, mytexts[el]);
 			document.getElementById('langsel').innerHTML += '<option value="00" onclick="imbc.setlang()">00</option></select>';
+			if (this.useimblang && '00' === l)
+				document.getElementById('langsel').value = '99';
 		}
 	}
-	if (document) {
+	else if (document) {
 		document.getElementById('langsel').value = l;
 	}
 	// followed by xlall anyway
@@ -17815,26 +17839,49 @@ findlang(i) {
 	let found = 0;
 	for (const l of globals.alllangs) {
 		if (i.toUpperCase() === l.toUpperCase()) {
-			this.mylang = l;
+			this.mylang = l.toLowerCase();
 			found = 1;
 			break;
 		}
 	}
 	if ('zZ' === i) {
+		found = 1;
 		this.mylang = 'en';
 		this.imbweb = 'http://127.0.0.1:8889';
 	}
-	else if ('00' === this.mylang && document && (window?.location.href.startsWith('http://127.0.0.1:') || window?.location.href.startsWith('http://192'))) {
-		this.mylang = 'en';
-		if (document) this.imbweb = 'http://' + window.location.host;
-		else if (window) this.imbweb = window?.location.href;
+	if ('zZ' === i || ('00' === this.mylang)) {
+		this.debugflag = true;
+		if (this.previewworker) this.previewworker.postMessage({ cmd: 'setdbg' });
+	}
+	if ('zZ' === i || window?.location.href.startsWith('http://1')) {
+		if (document) this.imbweb = window.location.origin;
+		if (this.previewworker) this.previewworker.postMessage({ cmd: 'seturl', url: this.imbweb });
+	}
+	if (this.useimblang && this.imblang) {
+		this.mylang = this.imblang;
+		if (!found) this.mylang = 'en';
+		found = 1;
+	}
+	else if (this.useimblang && this.lastlang) {
+		this.mylang = this.lastlang;
+		if (!found) this.mylang = 'en';
+		found = 1;
+	}
+	if ((this.useimblang !== undefined ) && i === '99') {
+		/* use lang from imb */
+		//console.log('fl 99 ' + this.imblang);
+		this.useimblang = true;
+		if (this.imblang) this.findlang(this.imblang);
+		else if (this.lastlang) this.findlang(this.lastlang);
+		if (document) document.getElementById('langsel').value = '99';
+		found = 1;
 	}
 	else if (!found) {
 		this.mylang = 'en';
 		console.log('Unknown language(2): ' + i);
 	}
-	else if ('00' === this.mylang)
-		this.debugflag = true;
+	if (found && i.toLowerCase() === this.mylang.toLowerCase() && document && !this.useimblang)
+		document.getElementById('langsel').value = this.mylang;
 	return this.mylang;
 }
 /* ImBCBase: extract exif from jpeg */
@@ -18035,11 +18082,13 @@ static async mydecode(data, act) {
 
 /* ImBCBase: actual processing function for one file */
 handleone(orientation) {
-	const f = (this.debugflag && this.useraw) ? this.useraw : this.allfiles[this.actnum];
+	let f = (this.debugflag && this.useraw) ? this.useraw : this.allfiles[this.actnum];
 	if (undefined === f) {
 		this.mappx(true, 'process.nothing');
 		return this.handlenext();
 	}
+	if (f.imbackintension?.imbackextension)
+		f = f.imbackintension;
 	if (undefined === f.size && !f.data) {
 		setTimeout(() => {
 		  this.resolver(f, (url, fx) => {
@@ -18086,7 +18135,7 @@ handleone(orientation) {
 				out[j] = view.getUint8(j);
 			}
 			if (rawname.substring(rawname.length - 4).toUpperCase() === '.JPG') this.xexif(rawname, view, datestr);
-			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out);
+			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out, f.name);
 		}
 		reader.onerror = (evt) => {
 			console.log('Non-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
@@ -18096,7 +18145,7 @@ handleone(orientation) {
 			if (undefined !== this.exitcode) this.exitcode++;
 			this.handlenext();
 		}
-		reader.readAsArrayBuffer(f);
+		reader.readAsArrayBuffer(f.imbackintension ? f.imbackintension : f);
 		return;
 	}
 	let w, h, mode = "??";
@@ -18118,7 +18167,7 @@ handleone(orientation) {
 			for (let j=0; j<view.byteLength; j++) {
 				out[j] = view.getUint8(j);
 			}
-			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out);
+			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out, f.name);
 		}
 		reader.onerror = (evt) => {
 			console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
@@ -18128,7 +18177,7 @@ handleone(orientation) {
 			if (undefined !== this.exitcode) this.exitcode++;
 			this.handlenext();
 		}
-		reader.readAsArrayBuffer(f);
+		reader.readAsArrayBuffer(f.imbackintension ? f.imbackintension : f);
 		return;
 	} else {
 		w = globals.infos[zz].w;
@@ -18137,6 +18186,10 @@ handleone(orientation) {
 		if (mode.length !== 0) mode += ' ';
 		mode += '(' + w + ' x ' + h + ')';
 		typ = globals.infos[zz].typ;
+	}
+	if (undefined !== this.rotphase) {
+		this.rotphase ++;
+		document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ' + this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
 	}
 	let dateok = false;
 	const rawnamearr = new TextEncoder().encode(rawname);
@@ -18369,21 +18422,23 @@ handleone(orientation) {
 			}
 		}
 		ti.addEntry(50706, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Version */
+		let rightbytes = [];
 		if (this.metadata && this.copyright?.length) {
 			// do UTF-8 bytes instead of ASCII if necessary
-			let bytes = new TextEncoder().encode(this.copyright);
-			if (bytes.length === this.copyright.length)
+			rightbytes = new TextEncoder().encode(this.copyright);
+			if (rightbytes.length === this.copyright.length)
 				ti.addEntry(33432, 'ASCII', this.copyright); /* copyright */
 			else
-				ti.addEntry(33432, 'BYTE', bytes); /* copyright */
+				ti.addEntry(33432, 'BYTE', rightbytes); /* copyright */
 		}
+		let artbytes = [];
 		if (this.metadata && this.artist?.length) {
 			// do UTF-8 bytes instead of ASCII if necessary
-			let bytes = new TextEncoder().encode(this.artist);
-			if (bytes.length === this.artist.length)
+			artbytes = new TextEncoder().encode(this.artist);
+			if (artbytes.length === this.artist.length)
 				ti.addEntry(315, 'ASCII', this.artist); /* artist */
 			else
-				ti.addEntry(315, 'ASCII', bytes); /* artist */
+				ti.addEntry(315, 'BYTE', artbytes); /* artist */
 		}
 		if (!this.neutral) {
 			const xmp1 = `<?xpacket begin='`;
@@ -18392,19 +18447,16 @@ handleone(orientation) {
 			const xmp4 = `' xmp:CreatorTool='`;
 			const xmp5 = `'>`;
   			const xmp6 = `</rdf:Description></rdf:RDF></x:xmpmeta><?xpacket end='r'?>`;
-			let artbytes =  [], rightbytes = [];
 			let xmpx = [ xmp1, xmp2 ];
 			if (dateok) xmpx.push(xmp3);
 			xmpx.push(xmp4);
 			xmpx.push(xmp5);
-			if (this.metadata && this.artist?.length) {
+			if (artbytes?.length) {
 				xmpx[xmpx.length-1] += `<dc:creator><rdf:Seq><rdf:li>`;
-    			artbytes = new TextEncoder().encode(this.artist);
     			xmpx.push(`</rdf:li></rdf:Seq></dc:creator>`);
 			}
-			if (this.metadata && this.copyright?.length) {
+			if (rightbytes?.length) {
 				xmpx[xmpx.length-1] += `<dc:rights><rdf:Alt><rdf:li xml:lang='x-default'>`;
-    			rightbytes = new TextEncoder().encode(this.copyright);
     			xmpx.push(`</rdf:li></rdf:Alt></dc:rights>`);
 			}
 			let swbytes = new TextEncoder().encode(ImBCBase.progname + ' ' + globals.version);
@@ -18525,7 +18577,7 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config - chunky */
 		ti.addEntry(33421, 'SHORT', [ 2, 2 ]); /* CFA Repeat Pattern Dim */
 		ti.addEntry(33422, 'BYTE', ((typ > 1 && typ < 5) || (typ > 33 && typ < 64) || (typ > 65 && typ < 69)) ? [ 2, 1, 1, 0 ] : [ 1, 0, 2, 1 ]); /* CFA Pattern dep. on MF/35mm*/
-		this.writewrap(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted' + ((this.checkdlfolder && !this.zip) ? 'checkdl' : ''), ti.getData());
+		this.writewrap(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted' + ((this.checkdlfolder && !this.zip) ? 'checkdl' : ''), ti.getData(), f.name);
 	};
 	reader.onerror = (evt) => {
 		console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
@@ -18535,40 +18587,54 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		if (undefined !== this.exitcode) this.exitcode++;
 		this.handlenext();
 	};
-	reader.readAsArrayBuffer(f);
+	reader.readAsArrayBuffer(f.imbackintension ? f.imbackintension : f);
 }
 /* ImBCBase: handle one entry from imb PHOTO/MOVIE listing page */
-handle1imb(url) {
-	let rawname = ImBCBase.basename(url);
+handle1imb(url, time) {
+	let rawname = ImBCBase.basename(url.name ? url.name : url);
 	if (rawname.substring(0,10).toUpperCase() === 'IMBRAW2DNG' || rawname.substring(0,6).toUpperCase() === 'IMBAPP' || rawname.substring(0,5).toUpperCase() === 'INDEX') return;
 	let timestx = globals.fnregex.exec(rawname);
+	let timesty = time ? globals.itsregex.exec(time) : null;
 	let timest = null, cl = '9999_99_99-99';
+	let newimbele;
+	if (this.mingrp === 'd') cl = '9999_99_99';
 	if (null !== timestx) {
 		timest = timestx[1] + '_' + timestx[3] + '_' + timestx[5] + '-' + timestx[7] + '_' + timestx[9] + '_' + timestx[11];
-		cl = timestx[1] + '_' + timestx[3] + '_' + timestx[5] + '-' + timestx[7];
+		cl = timestx[1] + '_' + timestx[3] + '_' + timestx[5] + (this.mingrp === 'h'? ('-' + timestx[7]) : '');
 	} else {
 		this.mappx(false, 'words.warning');
 		this.mappx(true, 'onimback.strangename', rawname);
+	}
+	if (null !== timesty) {
+		timest = timesty[1] + '_' + timesty[3] + '_' + timesty[5] + '-' + timesty[7] + '_' + timesty[9] + '_' + timesty[11];
+	}
+	if (this.imbeles && this.typedclasses) {
+		newimbele = {
+			url: url.name ? url.name : url,
+			raw: rawname,
+			name: rawname,
+			ts: cl,
+			selected: false,
+			preview: null,
+			entry: null,
+			waiting: false,
+			error: false,
+			processed: false,
+			time: timest,
+			size: url?.size,
+			imbackintension: url.size ? url : undefined,
+			wasselected: (-1 !== (this.dloads.findIndex(e => (e.toUpperCase() === rawname.toUpperCase()))))
+		};
+		this.imbeles.push(newimbele);
 	}
 	if (rawname.substring(rawname.length -4).toUpperCase() === '.RAW') {
 		if (null !== timest) {
 			if (timest < this.earliestraw) this.earliestraw = timest;
 			if (timest > this.latestraw) this.latestraw = timest;
 		}
-		this.rimbpics.push(url);
+		this.rimbpics.push({ url: url, time: timest });
 		if (this.imbeles && this.typedclasses) {
-			this.imbeles.push({
-					type: 'RAW',
-					url: url,
-					raw: rawname,
-					ts: cl,
-					selected: false,
-					preview: null,
-					entry: null,
-					waiting: false,
-					error: false,
-					processed: false
-			});
+			newimbele.type = 'RAW';
 			if (this.untypedclasses.findIndex(v => v === cl) === -1)
 				this.untypedclasses.push(cl);
 			if (this.typedclasses.findIndex(v => v === ('RAW' + cl)) === -1)
@@ -18580,50 +18646,32 @@ handle1imb(url) {
 			if (timest < this.earliestjpg) this.earliestjpg = timest;
 			if (timest > this.latestjpg) this.latestjpg = timest;
 		}
-		this.imbpics.push(url);
+		this.imbpics.push({ url: url, time: timest });
 		if (this.imbeles && this.typedclasses) {
-			this.imbeles.push({
-					type: 'JPG',
-					url: url,
-					raw: rawname,
-					ts: cl,
-					selected: false,
-					preview: null,
-					entry: null,
-					waiting: false,
-					error: false,
-					processed: false
-			});
+			newimbele.type = 'JPG';
 			if (this.untypedclasses.findIndex(v => v === cl) === -1)
 				this.untypedclasses.push(cl);
 			if (this.typedclasses.findIndex(v => v === ('JPG' + cl)) === -1)
 				this.typedclasses.push('JPG' + cl);
 		}
 	}
-	else {
+	else if (rawname.substring(rawname.length -4).toUpperCase() === '.MP4') {
 		if (null !== timest) {
 			if (timest < this.earliestmov) this.earliestmov = timest;
 			if (timest > this.latestmov) this.latestmov = timest;
 		}
-		this.imbmovies.push(url);
+		this.imbmovies.push({ url: url, time: timest });
 		if (this.imbeles && this.typedclasses) {
-			this.imbeles.push({
-					type: 'oth',
-					url: url,
-					raw: rawname,
-					ts: cl,
-					selected: false,
-					preview: null,
-					entry: null,
-					waiting: false,
-					error: false,
-					processed: false
-			});
+			newimbele.type = 'oth';
 			if (this.untypedclasses.findIndex(v => v === cl) === -1)
 				this.untypedclasses.push(cl);
 			if (this.typedclasses.findIndex(v => v === ('oth' + cl)) === -1)
 				this.typedclasses.push('oth' + cl);
 		}
+	}
+	else {
+		this.appmsgxl(false, 'words.warning');
+		this.appmsgxl(0, 'onimback.strangename', rawname);
 	}
 }
 /* *************************************** Backward helper STUFF *************************************** */
@@ -18637,10 +18685,14 @@ parseDng(f, onok, onerr) {
 			this.parseDng(f, onok, onerr);
 		}
 		reader.onerror = () => { onerr(f.name); };
-		reader.readAsArrayBuffer(f);
+		reader.readAsArrayBuffer(f.imbackintension ? f.imbackintension : f);
 		return;
 	}
 	const v = new DataView(f.data);
+	if (v.byteLength < 12) {
+		this.appmsg('Works only for originally created DNGs.');
+		return onerr(f.name);
+	}
 	const ifd = TIFFOut.readint(v, 4);
 	const zz = globals.infos.findIndex(v => v.size === ifd - 8);
 	const nent = TIFFOut.readshort(v, ifd);
@@ -18792,7 +18844,6 @@ handleoneback(fx) {
 					data: out,
 					name: rawname
 				};
-				//this.mappx(true, 'process.converted', rawname);
 				this.handlenext();
 			}
 		}
@@ -18804,7 +18855,7 @@ handleoneback(fx) {
 			if (undefined !== this.exitcode) this.exitcode++;
 			this.handlenext();
 		}
-		reader.readAsArrayBuffer(f);
+		reader.readAsArrayBuffer(f.imbackintension ? f.imbackintension : f);
 	} else {
 		this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
 		this.appmsg('Size of raw data of ' + f.name + ' seems not to match known formats, ignoring...', true);
@@ -19112,7 +19163,7 @@ handleonex() {
 			} else cb();
 		});
 	}
-	const f = (this.debugflag && this.useraw) ? this.useraw : this.allfiles[this.actnum];
+	const f = this.allfiles[this.actnum];
 	this.currentrot = 1;
 	if (this.imbcb)
 		this.imbcb.handleone();
@@ -19232,7 +19283,7 @@ parseconfig(data) {
 /* Indentation in - end of class ImBCNodeOut */
 }
 /* *************************************** Node js helper class E N D *************************************** */
-/* *************************************** Main class for nodejs, forward *************************************** */
+/* *************************************** Top class for nodejs, forward *************************************** */
 class ImBCNode extends ImBCNodeOut {
 /* Indentation out */
 constructor() {
@@ -19628,8 +19679,8 @@ startnode(notfirst) {
 }
 /* Indentation in - end of class ImBCNode */
 }
-/* *************************************** Main class for nodejs, forward E N D *************************************** */
-/* *************************************** Main class for nodejs, backward *************************************** */
+/* *************************************** Top class for nodejs, forward E N D *************************************** */
+/* *************************************** Top class for nodejs, backward *************************************** */
 class ImBCNodeBackw extends ImBCNodeOut {
 /* Indentation out */
 constructor() {
@@ -19737,20 +19788,7 @@ handlenext() {
 }
 /* Indentation in - end of class ImBCNodeBackw */
 }
-/* *************************************** Main class for nodejs, backward E N D *************************************** */
-/* outside of classes: */
-let imbc;
-/* node js handling main function */
-var document = undefined;
-if (ImBCBase.basename(process.argv[1].toUpperCase()).indexOf('IMBDNG2RAW') !== -1) {
-	imbc = new ImBCNodeBackw();
-	ImBCBase.progname = 'imbdng2raw.js';
-}
-else {
-	imbc = new ImBCNode();
-	ImBCBase.progname = 'imbraw2dng.js';
-}
-// below imbc.startnode();
+/* *************************************** Top class for nodejs, backward E N D *************************************** */
 
 /* *************************************** globals *************************************** */
 const globals = {
@@ -20174,6 +20212,17 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 		}
 	}
 	return uic;
+},
+/* ImBCBase: adjust A:\imback\... format to /imback/... */
+adjurl: function(url) {
+	if (url.url) url = url.url;
+	if (url.toUpperCase().substring(0,3) !== 'A:\\')
+		return url;
+	let n = url.substring(2);
+	while (n.indexOf("\\") > -1) {
+		n = n.substring(0, n.indexOf("\\")) + '/' + n.substring(n.indexOf('\\') +1);
+	}
+	return n;
 },
 /* Indentation in - end of globals */
 }
@@ -20876,4 +20925,15 @@ const mytexts = { // actually const
 }
 /* *************************************** texts, E N D *************************************** */
 /* outside of classes: */
+let imbc;
+/* node js handling main function */
+var document = undefined;
+if (ImBCBase.basename(process.argv[1].toUpperCase()).indexOf('IMBDNG2RAW') !== -1) {
+	imbc = new ImBCNodeBackw();
+	ImBCBase.progname = 'imbdng2raw.js';
+}
+else {
+	imbc = new ImBCNode();
+	ImBCBase.progname = 'imbraw2dng.js';
+}
 imbc.startnode();

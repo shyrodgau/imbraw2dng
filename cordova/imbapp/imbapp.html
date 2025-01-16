@@ -19157,7 +19157,7 @@ handleoneback(fx) {
 /* *************************************** Backward helper stuff E N D *************************************** */
 /* Indentation in - end of class ImBCBase */
 }
-/* *************************************** BASE class E N D *************************************** */
+/* *************************************** Main class E N D *************************************** */
 /* *************************************** HTML helper class *************************************** */
 class ImBCHtmlOut extends ImBCBase {
 /* Indentation out */
@@ -19763,7 +19763,7 @@ checkchecks() {
 /* Indentation in - end of class ImBCHtmlOut */
 }
 /* *************************************** HTML helper class E N D *************************************** */
-/* *************************************** Main class for HTML, forward *************************************** */
+/* *************************************** Top class for HTML, forward *************************************** */
 class ImBCHtml extends ImBCHtmlOut {
 /* Indentation out */
 rotphases = [ '-' , '/', '|', '\\', '=', '\\', '|', '/' ]; // actually const
@@ -22581,44 +22581,7 @@ modalkeyev(ev) {
 }
 /* Indentation in - end of class ImBCHtml */
 }
-/* *************************************** Main class for HTML, forward E N D *************************************** */
-/* outside of classes: */
-let imbc;
-/* onload of html body */
-function init() {
-	ImBCBase.progname = 'imbapp_app';
-	document.addEventListener('deviceready', () => { init2(); });
-}
-/* onload of html body */
-function init2() {
-	window.open = cordova.InAppBrowser.open;
-	//console.log('Off to ' + window.location.protocol + '//' + window.location.host + '/IMBACK/test.html');
-	//window.open(window.location.protocol + '//' + window.location.host + '/IMBACK/test.html', '_system'); return;
-	imbc = new ImBCHtml();
-	document.getElementById('normal').style['display'] = 'none';
-	imbc.initsettings();
-	imbc.chgcopycheck();
-	if (!window.showSaveFilePicker) {
-		document.getElementById('usezip').disabled = true;
-		document.getElementById('usezip').checked = false;
-	}
-	imbc.querylang(window.location.pathname);
-	imbc.xlateall();
-	document.addEventListener('backbutton', () => {
-		imbc.handleback();
-	});
-	cordova.plugins.permissions.requestPermission(cordova.plugins.permissions.MANAGE_MEDIA, () => { console.log('M Med Ok '); }, () => { console.log('M Med NOk '); });
-	window.plugins.intent.getCordovaIntent(function (intent) {
-		if (intent.clipItems)
-			imbc.intenthandler(intent);
-		else
-			imbc.checkimb();
-	}, function(intent) {
-		// like error?
-		imbc.checkimb();
-	});
-	//imbc.checkimb();
-}
+/* *************************************** Top class for HTML, forward E N D *************************************** */
 /* *************************************** globals *************************************** */
 const globals = {
 /* Indentation out - globals */
@@ -23041,6 +23004,17 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 		}
 	}
 	return uic;
+},
+/* ImBCBase: adjust A:\imback\... format to /imback/... */
+adjurl: function(url) {
+	if (url.url) url = url.url;
+	if (url.toUpperCase().substring(0,3) !== 'A:\\')
+		return url;
+	let n = url.substring(2);
+	while (n.indexOf("\\") > -1) {
+		n = n.substring(0, n.indexOf("\\")) + '/' + n.substring(n.indexOf('\\') +1);
+	}
+	return n;
 },
 /* Indentation in - end of globals */
 }
@@ -25524,10 +25498,47 @@ const apptexts = [
     }
 ],
 /* *************************************** texts E N D *************************************** */
+/* outside of classes: */
+let imbc;
+/* onload of html body */
+function init() {
+	ImBCBase.progname = 'imbapp_app';
+	document.addEventListener('deviceready', () => { init2(); });
+}
+/* onload of html body */
+function init2() {
+	window.open = cordova.InAppBrowser.open;
+	//console.log('Off to ' + window.location.protocol + '//' + window.location.host + '/IMBACK/test.html');
+	//window.open(window.location.protocol + '//' + window.location.host + '/IMBACK/test.html', '_system'); return;
+	imbc = new ImBCHtml();
+	document.getElementById('normal').style['display'] = 'none';
+	imbc.initsettings();
+	imbc.chgcopycheck();
+	if (!window.showSaveFilePicker) {
+		document.getElementById('usezip').disabled = true;
+		document.getElementById('usezip').checked = false;
+	}
+	imbc.querylang(window.location.pathname);
+	imbc.xlateall();
+	document.addEventListener('backbutton', () => {
+		imbc.handleback();
+	});
+	cordova.plugins.permissions.requestPermission(cordova.plugins.permissions.MANAGE_MEDIA, () => { console.log('M Med Ok '); }, () => { console.log('M Med NOk '); });
+	window.plugins.intent.getCordovaIntent(function (intent) {
+		if (intent.clipItems)
+			imbc.intenthandler(intent);
+		else
+			imbc.checkimb();
+	}, function(intent) {
+		// like error?
+		imbc.checkimb();
+	});
+	//imbc.checkimb();
+}
 </script>
 <!-- WORKER -->
 <script type="text/js-previewworker" language="javascript">
-/* *************************************** Main class for WORKER *************************************** */
+/* *************************************** WORKER *************************************** */
 let cmd, n, cache, ori, fl, base, msg = false, siz;
 let progress = false, queue = [], wdtimer, currcust, dbgflag,	errcount = 0, constwb = false;
 /* WORKER onmessage */
@@ -25748,13 +25759,13 @@ function buildpreviewcache(f, size, orientation) {
 	//console.log(JSON.stringify(wb));
 	let outpix = globals.buildpvarray(view, size, typ, w, h, orientation, false, wb, whitelvl);
 	// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
-	/*if (dbgflag) {
+	if (dbgflag) {
 		setTimeout(() => {
-			postMessage({ cmd: cmd, pix: outpix, n: n, o: ori, c: cache });
+			postMessage({ cmd: cmd, pix: outpix, n: n, o: ori, c: cache, xori: (typ === 5 && ori === 0) ? 3 : ((ori === 0) ? 1 : ori), size: size });
 			handlewait();
 		}, 300);
 	}
-	else*/ {
+	else {
 		postMessage({ cmd: cmd, pix: outpix, n: n, o: ori, c: cache, xori: (typ === 5 && ori === 0) ? 3 : ((ori === 0) ? 1 : ori), size: size });
 		handlewait();
 	}
@@ -25868,7 +25879,7 @@ function readjpg(file) {
 	}
 	fr.readAsDataURL(file);
 }
-/* *************************************** Main class for WORKER, E N D *************************************** */
+/* *************************************** WORKER, E N D *************************************** */
 </script>
 <!-- WORKER END -->
 </head>

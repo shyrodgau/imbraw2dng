@@ -17784,7 +17784,6 @@ constwb = false;
 incdcp = true;
 /* ImBCBase: debug */
 debugflag = false;
-useraw = null;
 imbweb = 'http://192.168.1.254';
 // mis-nomer from app
 fromintent = false; // 1: normal 2: stack/fakelong (> 1 DNG, to raw phase)  3: backward (== 1 DNG)  4: to dng phase when stacking 
@@ -18159,7 +18158,7 @@ static async mydecode(data, act) {
 
 /* ImBCBase: actual processing function for one file */
 handleone(orientation) {
-	const f = (this.debugflag && this.useraw) ? this.useraw : this.allfiles[this.actnum];
+	const f = this.allfiles[this.actnum];
 	if (undefined === f) {
 		this.mappx(true, 'process.nothing');
 		return this.handlenext();
@@ -19120,7 +19119,7 @@ starthandleone() {
 }
 /* ImBCHtmlOut: main handler function for one file */
 handleonex() {
-	const f = (this.debugflag && this.useraw) ? this.useraw : this.allfiles[this.actnum];
+	const f = this.allfiles[this.actnum];
 	this.currentrot = 1;
 	document.getElementById('doforall').checked = false;
 	if (this.actnum < this.totnum-1) {
@@ -19388,7 +19387,7 @@ checkchecks() {
 /* Indentation in - end of class ImBCHtmlOut */
 }
 /* *************************************** HTML helper class E N D *************************************** */
-/* *************************************** Main class for HTML, forward *************************************** */
+/* *************************************** Top class for HTML, forward *************************************** */
 class ImBCHtml extends ImBCHtmlOut {
 /* Indentation out */
 writestream = null;
@@ -20059,7 +20058,7 @@ topreccheck(force) {
 	else if (type === 'RAW') {
 		let afterloadcalled = false;
 		if (this.debugflag) console.log('li raw start bpv ' + url);
-		this.buildpreview((this.debugflag && this.useraw) ? this.useraw : url, 1, (xrot) => { /* on ok: */
+		this.buildpreview(url, 1, (xrot) => { /* on ok: */
 			if (to.rot === 0) to.rot = xrot;
 			e.setAttribute('data-state', 'ok');
 			e.querySelector('.waitdiv').style['display'] = 'none';
@@ -20323,10 +20322,6 @@ dodebug() {
 		this.aftercheck();
 	};
 	fr.readAsText(document.getElementById('dbgfsel').files[0]);
-}
-/* ImBCHtml: only debug - use local img instead of from imb */
-replraw() {
-	this.useraw = document.getElementById('dbgreplraw').files[0];
 }
 /* ImBCHtml: async iterate rec */
 iterate(iterator, cb, already) {
@@ -20860,8 +20855,8 @@ resolver(url, onok, onerr, notfirst) {
 }
 /* Indentation in - end of class ImBCHtml */
 }
-/* *************************************** Main class for HTML, forward E N D *************************************** */
-/* *************************************** Main class for HTML, backward *************************************** */
+/* *************************************** Top class for HTML, forward E N D *************************************** */
+/* *************************************** Top class for HTML, backward *************************************** */
 class ImBCHtmlBackw extends ImBCHtmlOut {
 /* Indentation out */
 constructor() {
@@ -20939,33 +20934,7 @@ handlenext(/*fromloop*/) {
 }
 /* Indentation in - end of class ImBCHtmlBackw */
 }
-/* *************************************** Main class for HTML, backward E N D *************************************** */
-/* outside of classes: */
-let imbc;
-/* onload of html body */
-function init() {
-	let backw = false;
-	if (ImBCBase.basename(window.location.pathname.toUpperCase()).indexOf('IMBDNG2RAW') !== -1) {
-		backw = true;
-		imbc = new ImBCHtmlBackw();
-		for (const o of document.getElementsByClassName('onlywhenbackw')) o.style['display']='';
-		for (const o of document.getElementsByClassName('notwhenbackw')) o.style['display']='none';
-		ImBCBase.progname = 'imbdng2raw.html';
-	}
-	else {
-		imbc = new ImBCHtml();
-		ImBCBase.progname = 'imbraw2dng.html';
-		imbc.chgcopycheck();
-		imbc.initsettings();
-		if (!window.showSaveFilePicker) {
-			document.getElementById('choosezipdest').disabled = true;
-			//document.getElementById('useziplbl').style['display'] = 'none';
-		}
-	}
-	imbc.querylang(window.location.pathname);
-	imbc.xlateall();
-	if (!backw) imbc.checkimb();
-}
+/* *************************************** Top class for HTML, backward E N D *************************************** */
 /* *************************************** globals *************************************** */
 const globals = {
 /* Indentation out - globals */
@@ -21388,6 +21357,17 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 		}
 	}
 	return uic;
+},
+/* ImBCBase: adjust A:\imback\... format to /imback/... */
+adjurl: function(url) {
+	if (url.url) url = url.url;
+	if (url.toUpperCase().substring(0,3) !== 'A:\\')
+		return url;
+	let n = url.substring(2);
+	while (n.indexOf("\\") > -1) {
+		n = n.substring(0, n.indexOf("\\")) + '/' + n.substring(n.indexOf('\\') +1);
+	}
+	return n;
 },
 /* Indentation in - end of globals */
 }
@@ -22049,6 +22029,32 @@ const mytexts =  { // actually const
 	},
 }
 /* *************************************** texts, E N D *************************************** */
+/* outside of classes: */
+let imbc;
+/* onload of html body */
+function init() {
+	let backw = false;
+	if (ImBCBase.basename(window.location.pathname.toUpperCase()).indexOf('IMBDNG2RAW') !== -1) {
+		backw = true;
+		imbc = new ImBCHtmlBackw();
+		for (const o of document.getElementsByClassName('onlywhenbackw')) o.style['display']='';
+		for (const o of document.getElementsByClassName('notwhenbackw')) o.style['display']='none';
+		ImBCBase.progname = 'imbdng2raw.html';
+	}
+	else {
+		imbc = new ImBCHtml();
+		ImBCBase.progname = 'imbraw2dng.html';
+		imbc.chgcopycheck();
+		imbc.initsettings();
+		if (!window.showSaveFilePicker) {
+			document.getElementById('choosezipdest').disabled = true;
+			//document.getElementById('useziplbl').style['display'] = 'none';
+		}
+	}
+	imbc.querylang(window.location.pathname);
+	imbc.xlateall();
+	if (!backw) imbc.checkimb();
+}
 </script>
 </head>
 <!-- here comes the html itself -->
