@@ -17778,8 +17778,8 @@ querylang(name, offset) {
 	if (name[name.length - offset] !== '_') return;
 	let l = this.findlang(name.substring(name.length - offset + 1, name.length - offset + 3));
 	if ('00' === l) {
-		if (this.previewworker) this.previewworker.postMessage({ cmd: 'setdbg' });
 		this.debugflag = true;
+		if (this.previewworker) this.previewworker.postMessage({ cmd: 'setdbg' });
 		if (document) { // translation output into browser log
 			for (const el of Object.keys(mytexts))
 				this.prxl(el, mytexts[el]);
@@ -18101,7 +18101,7 @@ handleone(orientation) {
 				if (undefined !== this.exitcode) this.exitcode++;
 				this.handlenext();
 		  });
-		});
+		}, 10);
 		return;
 	}
 	else if (undefined === f.size && f.data) {

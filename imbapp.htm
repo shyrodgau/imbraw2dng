@@ -18374,20 +18374,19 @@ handleone(orientation) {
 	if (f.imbackintension?.imbackextension)
 		f = f.imbackintension;
 	if (undefined === f.size && !f.data) {
-	  let cachehit;
-	  if ((cachehit = this.findcache(f.name ? f.name : f))) {
-		  this.allfiles[this.actnum] = cachehit.reader;
-		  this.handleone(orientation);
-	  }
-	  else {
 		setTimeout(() => {
-		  this.previewworker.postMessage({ cmd: 'resolveandhandle', n: (f.url ? f.url : f), o: orientation });
-		  // onmessage: { ok?, n: f.name, o: orientation, fl: fromloop, c: cacheentry }
-		  // set allfiles[this.actnum] to cacheentry.reader and call handleone(o, fl)
-		  // add cache
+		  this.resolver(f, (url, fx) => {
+				this.allfiles[this.actnum] = fx;
+				this.handleone(orientation);
+			}, (url) => {
+				this.mappx(false, 'words.sorryerr');
+				this.mappx(true, 'process.erraccess', url);
+				this.stats.error ++;
+				if (undefined !== this.exitcode) this.exitcode++;
+				this.handlenext();
+		  });
 		}, 10);
-	  }
-	  return;
+		return;
 	}
 	else if (undefined === f.size && f.data) {
 		// from file chooser
@@ -19058,10 +19057,18 @@ handleoneback(fx) {
 		return this.handlenext();
 	}
 	if (undefined === f.size && !f.data) {
-		this.appmsg('Error reading DNG: ' + f.name);
-		if (undefined !== this.exitcode) this.exitcode++;
-		this.stats.error++;
-		this.handlenext();
+		setTimeout(() => {
+		  this.resolver(f, (url, fx) => {
+				this.allfiles[this.actnum] = fx;
+				this.handleoneback(fx);
+			}, (url) => {
+				this.mappx(false, 'words.sorryerr');
+				this.appmsgxl(true, 'process.erraccess', url);
+				this.stats.error ++;
+				if (undefined !== this.exitcode) this.exitcode++;
+				this.handlenext();
+		  });
+		});
 		return;
 	}
 	else if (undefined === f.size && f.data) {
@@ -19227,6 +19234,28 @@ applystyle(span, msg, base) {
 		return this.applystyle(span, msg.substring(i+1), e);
 	}
 }
+/* ImBCHtmlOut: resolver */
+resolver(f, onok, onerr) {
+	  let cachehit;
+	  if ((cachehit = this.findcache(f.name ? f.name : f))) {
+	  	  onok(f.name ? f.name : f, cachehit.reader);
+	  }
+	  else {
+		setTimeout(() => {
+			  this.workerstate.push({ cmd: 'resolveandhandle', okcb: (d, fx) => {
+					this.allfiles[this.actnum] = fx;
+					d.c.reader = fx;
+					this.addcache(d.n, d.c);
+					onok(d.n, fx);
+			  }, errcb: onerr});
+			  this.previewworker.postMessage({ cmd: 'resolveandhandle', n: (f.url ? f.url : f) });
+			  // onmessage: { ok?, n: f.name, o: orientation, c: cacheentry }
+			  // set allfiles[this.actnum] to cacheentry.reader and call handleone(o, fl)
+			  // add cache
+		}, 10);
+	  }
+}
+
 /* ImBCHtmlOut: output function to main log */
 appmsg(msg, opt) {
 	const s = document.createElement('span');
@@ -22003,7 +22032,9 @@ workermsg(msg) {
 	//console.log('from worker ' + JSON.stringify(d));
 	switch (d.cmd) {
 	case 'resolveandhandle':
-		// onmessage: { ok?, n: f.name, o: orientation, fl: fromloop, c: cacheentry }
+		// onmessage: { ok?, n: f.name, o: orientation, c: cacheentry }
+		w0 = this.workerstate[0];
+		this.workerstate.splice(0,1);
 		if (d.ok) {
 			let fx = {
 				imbackextension: true,
@@ -22017,16 +22048,9 @@ workermsg(msg) {
 						result: fy.data				}
 				});
 			};
-			this.allfiles[this.actnum] = fx;
-			d.c.reader = fx;
-			this.addcache(d.n, d.c);
-			this.handleone(d.o, d.fl);
+			w0.okcb(d, fx);
 		} else {
-			this.mappx(false, 'words.sorryerr');
-			this.mappx(true, 'process.erraccess', d.n);
-			this.stats.error ++;
-			if (undefined !== this.exitcode) this.exitcode++;
-			this.handlenext(d.fl);
+			w0.errcb(d.n);
 		}
 		break;
 	/*eslint no-fallthrough: ["error", { "commentPattern": "no break" }]*/
@@ -25345,7 +25369,7 @@ window.addEventListener('pageshow', function (event) {
 <!-- WORKER -->
 <script type="text/js-previewworker" language="javascript">
 /* *************************************** WORKER *************************************** */
-let cmd, n, cache, ori, fl, base, msg = false, siz;
+let cmd, n, cache, ori, base, msg = false, siz;
 let progress = false, queue = [], wdtimer, currcust, dbgflag,	errcount = 0, constwb = false;
 /* WORKER onmessage */
 onmessage = (e) => {
@@ -25370,7 +25394,6 @@ onmessage = (e) => {
 	n = e.data.n;
 	cmd = e.data.cmd;
 	ori = e.data.o;
-	fl = e.data.fl;
 	siz = e.data.size;
 	cache = {};
 	if (!msg) {
@@ -25401,8 +25424,8 @@ onmessage = (e) => {
 	case 'resolveandhandle':
 		progress = cmd;
 		resolver(n, false);
-		//this.previewworker.postMessage({ cmd: 'resolveandhandle', n: (f.n ? f.n : f), o: orientation, fl: fromloop });
-		// onmessage: { ok?, n: f.n, o: orientation, fl: fromloop, c: cacheentry }
+		//this.previewworker.postMessage({ cmd: 'resolveandhandle', n: (f.n ? f.n : f), o: orientation });
+		// onmessage: { ok?, n: f.n, o: orientation, c: cacheentry }
 		break;
 	case 'custcmd':
 		progress = cmd;
@@ -25447,7 +25470,7 @@ function resolver(url, preview, notfirst)  {
 		xhr.onabort = undefined;
 		if (!preview) {
 			//console.log('POSTING ' + url);
-			postMessage({ cmd: cmd, ok: true, n: url, o: ori, fl: fl, c: cache, size: siz });
+			postMessage({ cmd: cmd, ok: true, n: url, o: ori, c: cache, size: siz });
 			handlewait();
 		}
 		else {
