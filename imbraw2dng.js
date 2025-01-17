@@ -66,6 +66,253 @@ DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS 
 ***************************************************** 
 */
 "use strict;"
+/* *************************************** Backward helper class *************************************** */
+class ImBCBackw {
+/* Indentation out */
+constructor (imbcout) {
+	this.imbc = imbcout;
+}
+/* ImBCBackw: backward: actual processing function for one file */
+handleone(fx) {
+	const f = (fx !== undefined) ? fx : this.imbc.allfiles[this.imbc.actnum];
+	if (undefined === f) {
+		this.imbc.appmsgxl(true, 'process.nothing');
+		return this.imbc.handlenext();
+	}
+	if (undefined === f.size && !f.data) {
+		setTimeout(() => {
+		  this.imbc.resolver(f, (url, fx) => {
+				this.imbc.allfiles[this.imbc.actnum] = fx;
+				this.handleone(fx);
+			}, (url) => {
+				this.imbc.mappx(false, 'words.sorryerr');
+				this.imbc.appmsgxl(true, 'process.erraccess', url);
+				this.imbc.stats.error ++;
+				if (undefined !== this.exitcode) this.exitcode++;
+				this.imbc.handlenext();
+		  });
+		});
+		return;
+	}
+	else if (undefined === f.size && f.data) {
+		// from file chooser
+		f.size = f.data.byteLength;
+		f.imbackextension = true;
+		f.readAsArrayBuffer = () => {
+				f.onload({
+						target: {
+							result: f.data
+						}
+				});
+		};
+	}
+	let rawname = ImBCBase.basename(f.name);
+	if (rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
+		this.imbc.parseDng(f,
+			(name, fx) => {
+				this.handleone(fx);
+			},
+			() => {
+				this.imbc.appmsg('Error reading DNG: ' + f.name);
+				if (undefined !== this.exitcode) this.exitcode++;
+				this.imbc.handlenext();
+				this.imbc.stats.error++;
+			});
+		return;
+	}
+	else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
+		this.imbc.appmsg("[" + (1 + this.imbc.actnum) + " / " + this.imbc.totnum + "] ", false);
+		this.imbc.appmsg('Seems not to be DNG: ' + f.name, true);
+		this.imbc.stats.error++;
+		return this.imbc.handlenext();
+	}
+	const zz = globals.infos.findIndex(v => v.size === f.size);
+	if (zz !== -1) {
+		this.imbc.appmsg("[" + (1 + this.imbc.actnum) + " / " + this.imbc.totnum + "] ");
+		const reader = f.imbackextension ? f : new FileReader();
+		reader.onload = (evt) => {
+			let contents = evt.target.result;
+			if (contents.buffer) contents = contents.buffer;
+			const view = new DataView(contents);
+			const out = new Uint8Array(f.size);
+			for (let j=0; j<view.byteLength; j++) {
+				out[j] = view.getUint8(j);
+			}
+			this.imbc.writefile(rawname, 'application/octet-stream', 'process.converted', out);
+		}
+		reader.onerror = (evt) => {
+			console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
+			this.imbc.appmsg('Error processing or reading file ' +  f.name, true);
+			this.imbc.stats.error++;
+			if (undefined !== this.exitcode) this.exitcode++;
+			this.imbc.handlenext();
+		}
+		reader.readAsArrayBuffer(f);
+	} else {
+		this.imbc.appmsg("[" + (1 + this.imbc.actnum) + " / " + this.imbc.totnum + "] ", false);
+		this.imbc.appmsg('Size of raw data of ' + f.name + ' seems not to match known formats, ignoring...', true);
+		this.imbc.stats.error++;
+		if (undefined !== this.exitcode) this.exitcode++;
+		this.imbc.handlenext();
+	}
+}
+/* Indentation in - end of class ImBCBackw */
+}
+/* * * ************************************* Backward helper class E N D *************************************** */
+/* * * ************************************* ZIP Helper class *************************************** */
+class ZIPHelp {
+/* Indentation out */
+#lochdrs = [];
+#loclens = [];
+#writecb = null;
+#finishoff = 0;
+#sizecent = 0;
+static crcTable = [];
+/* ZIPHelp: constructor */
+constructor(writecb) {
+	this.#writecb = writecb;
+}
+/* ZIPHelp: make dos date */
+static makeDosDate(yr, mon, day, hr, min, sec)
+{
+    if (yr>1980)
+        yr-=1980;
+    else if (yr>80)
+        yr-=80;
+    return (((day + (32 * mon) + (512 * yr)) * 65536) |
+		((sec/2) + (32* min) + (2048 * hr)));
+}
+/* ZIPHelp: dos date from filename */
+static datefromfile(name) {
+	let { yr, mon, day, hr, min, sec } = ImBCBase.nametotime(name);
+	if (yr) {
+		return ZIPHelp.makeDosDate(yr, mon, day, hr, min, sec);
+	} else {
+		let r = ImBCBase.nametotime(new Date(Date.now()).toISOString());
+		return ZIPHelp.makeDosDate(r.yr, r.mon, r.day, r.hr, r.min, r.sec);
+	}
+}
+/* ZIPHelp: crc32 stuff */
+static makeCRCTable(){
+    var c;
+    for(var n =0; n < 256; n++){
+        c = n;
+        for(var k =0; k < 8; k++){
+            c = ((c&1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1));
+        }
+        ZIPHelp.crcTable[n] = c;
+    }
+}
+/* ZIPHelp: crc32 stuff */
+static crc32(arr) {
+	if (ZIPHelp.crcTable.length === 0) ZIPHelp.makeCRCTable();
+    var crc = 0 ^ (-1);
+
+    for (var i = 0; i < arr.length; i++ ) {
+        crc = (crc >>> 8) ^ ZIPHelp.crcTable[(crc ^ arr[i]) & 0xFF];
+    }
+
+    return (crc ^ (-1)) >>> 0;
+};
+/* ZIPHelp: finish zip with centraldirs and endcentral */
+finish(cb, i) {
+	if (i === undefined) i=0;
+	if (i < this.#lochdrs.length) {
+		let j = this.#lochdrs[i];
+		let ch = new Uint8Array(46);
+		ch[0] = 0x50; // P
+		ch[1] = 0x4B; // K
+		ch[2] = 0x1; // magic
+		ch[3] = 0x2;
+		ch[4] = 0x0; // version made
+		ch[5] = 0x0;
+		ch[6] = 0x14; // version extract
+		ch[7] = 0x0;
+		ch[8] = 0x0; // gp bitflags
+		ch[9] = 0x8;
+		ch[10] = 0x0; // compr
+		ch[11] = 0x0;
+		let dosdate = j.dosdate;
+		TIFFOut.writeinttoout(ch, dosdate, 12);
+		let crc = j.crc;
+		TIFFOut.writeinttoout(ch, crc, 16);
+		let dl = j.dl; // compr. length
+		TIFFOut.writeinttoout(ch, dl, 20);
+		// uncompr. size is same
+		TIFFOut.writeinttoout(ch, dl, 24);
+		let fl = j.fl; // name length
+		TIFFOut.writeshorttoout(ch, fl, 28);
+		TIFFOut.writeinttoout(ch, 0, 30);
+		//ch[30] = 0; // extra length
+		//ch[32] = 0x0; // comment length
+		TIFFOut.writeinttoout(ch, 0, 34);
+		//ch[34] = 0x0; // disk no
+		//ch[36] = 0x0; // int attr
+		TIFFOut.writeinttoout(ch, 0, 38); // ext attr
+		TIFFOut.writeinttoout(ch, this.#finishoff, 42);
+		this.#sizecent += (46 + j.fl);
+		this.#finishoff += this.#loclens[i];
+		this.#writecb(ch, () => {
+			this.#writecb(j.name, () => { this.finish(cb, i+1); });
+		});
+		return;
+	}
+	// end of central
+	let ec = new Uint8Array(22);
+	ec[0] = 0x50; // P
+	ec[1] = 0x4B; // K
+	ec[2] = 0x5; // magic
+	ec[3] = 0x6;
+	ec[4] = 0x0; // disk no
+	ec[5] = 0x0;
+	ec[6] = 0x0; // startdisk
+	ec[7] = 0x0;
+	TIFFOut.writeshorttoout(ec, i, 8); // num entries
+	TIFFOut.writeshorttoout(ec, i, 10); // num entries
+	TIFFOut.writeinttoout(ec, this.#sizecent, 12); // size of cent.dir
+	TIFFOut.writeinttoout(ec, this.#finishoff, 16); // start of cent.dir
+	ec[20] = 0; // comment length
+	ec[21] = 0;
+	this.#writecb(ec, () => { cb(); });
+}
+/* ZIPHelp: add a file */
+add(data, name, cb) {
+	let narr = new TextEncoder().encode(name);
+	// output local header
+	let lh = new Uint8Array(30);
+	lh[0] = 0x50; // P
+	lh[1] = 0x4B; // K
+	lh[2] = 0x3; // magic
+	lh[3] = 0x4;
+	lh[4] = 0x14; // version 20
+	lh[5] = 0x0;
+	lh[6] = 0x0; // gp bitflags
+	lh[7] = 0x8;
+	lh[8] = 0x0; // compression
+	lh[9] = 0x0;
+	let dosdate = ZIPHelp.datefromfile(name);
+	TIFFOut.writeinttoout(lh, dosdate, 10);
+	let crc = ZIPHelp.crc32(data);
+	TIFFOut.writeinttoout(lh, crc, 14);
+	let dl = data.length;
+	TIFFOut.writeinttoout(lh, dl, 18);  // compr. length
+	// uncompr. size is same
+	TIFFOut.writeinttoout(lh, dl, 22);
+	let fl = narr.length;
+	TIFFOut.writeshorttoout(lh, fl, 26); // name length
+	lh[28] = 0; // extra length
+	lh[29] = 0;
+	this.#lochdrs.push( { name: narr, dosdate: dosdate, crc: crc, dl: dl, fl: fl } );
+	this.#loclens.push( 30+fl+dl );
+	this.#writecb(lh, () => {
+		this.#writecb(narr, () => {
+			this.#writecb(data, () => { cb(); });
+		})
+	});
+}
+/* Indentation in - end of class ZIPHelp */
+}
+/* *************************************** ZIP Helper class E N D *************************************** */
 /* *************************************** IFDOut *************************************** */
 /* Tiff IFD helper class */
 class IFDOut {
@@ -290,8 +537,8 @@ getNextIfdPosOffset() {
 }
 /* Indentation in - end of class IFD */
 };
-/* *************************************** IFDOut E N D *************************************** */
-/* *************************************** TIFFOut *************************************** */
+/* * * ************************************* IFDOut E N D *************************************** */
+/* * * ************************************* TIFFOut *************************************** */
 /* main TIFF class */
 class TIFFOut {
 /* Indentation out */
@@ -486,255 +733,445 @@ static readinta(arr, off) {
 }
 /* Indentation in - end of class TIFFOut */
 }
-/* *************************************** TIFFOut E N D *************************************** */
-/* *************************************** Backward helper class *************************************** */
-class ImBCBackw {
-/* Indentation out */
-constructor (imbcout) {
-	this.imbc = imbcout;
-}
-/* ImBCBackw: backward: actual processing function for one file */
-handleone(fx) {
-	const f = (fx !== undefined) ? fx : this.imbc.allfiles[this.imbc.actnum];
-	if (undefined === f) {
-		this.imbc.appmsgxl(true, 'process.nothing');
-		return this.imbc.handlenext();
+/* * * ************************************* TIFFOut E N D *************************************** */
+/* * * ************************************* globals *************************************** */
+const globals = {
+/* Indentation out - globals */
+version: "V5.9.7_@_d_e_v", // actually const // VERSION EYECATCHER
+alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
+// generic user input timestamp always complete
+//               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
+fulltsregex: /^([02-3][0-9][0-9][0-9])([^0-9])([01][0-9])([^0-9])([0123][0-9])([^0-9])([012][0-9])([^0-9])([0-5][0-9])([^0-9])([0-5][0-9])$/, // actually const
+// generic user input timestamp (any prefix)
+//                  y      y     y     y      .      m     m     .      d      d      .      h     h      .      m     m      .      s     s
+tsregex: /^[02-3]([0-9]([0-9]([0-9](([^0-9])[01]([0-9](([^0-9])[0123]([0-9](([^0-9])[012]([0-9](([^0-9])[0-5]([0-9](([^0-9])[0-5]([0-9])?)?)?)?)?)?)?)?)?)?)?)?)?$/ , // actually const
+/* ImBCBase: Data for the Imback variants and exif stuff */
+// generic imb filename format
+//                   y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s     EXT
+fnregex: /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])(.*[.])([^.]*)$/ , // actually const
+// generic imb xml timestamp format
+//                               y    y    y    y      /    m    m     /    d     d    . .  h    h      :    m    m      :    s    s
+itsregex: new RegExp('^([2-3][0-9][0-9][0-9])([/])([01][0-9])([/])([0123][0-9])( )([012][0-9])([:])([0-6][0-9])([:])([0-6][0-9])$') , // actually const
+// generic imb filename format, only timestamp
+//                    y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s      .        n
+fnregexx: /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-9]*)/ , // actually const
+orients: [ '', 'none', '', 'upsidedown', '', '', 'clockwise', '', 'counterclockwise' ], // actually const
+oriecw: [ 1, 6, 3, 8 ], // clockwise indices // actually const
+types: [ "unknown", "ImB35mm", "MF 6x7 ", "MF6x4.5", "MF 6x6 ", "Film35 " ], // all length 7, actually const
+twelvebitsizes: [ 9706416, 11501280, 14709888, 17428128, 17915904, 19406448, 21098880, 23003136, 23887872, 30607488 ],
+infos: [ // actually const
+	{
+		size: 14065920,
+		w: 4320,
+		h: 3256,
+		typ: 0,
+		mode: "historic"
+	},
+	{ /* MF 6x7 */
+		size: 15925248,
+		w: 4608,
+		h: 3456,
+		typ: 2,
+		mode: ""
+	},
+	{ /* MF 6x4.5 */
+		size: 12937632,
+		w: 4152, h: 3116,
+		typ: 3,
+		mode: ""
+	},
+	{
+		size: 9806592,
+		w: 3616, h: 2712,
+		typ: 3,
+		mode: "Medium-angle"
+	},
+	{
+		size: 6470944,
+		w: 2936, h: 2204,
+		typ: 3,
+		mode: "Small-angle"
+	},
+	{ /* MF 6x6 */
+		size: 11943936,
+		w: 3456, h: 3456,
+		typ: 4,
+		mode: ""
+	},
+	{ /* 35mm */
+		size: 15335424,
+		w: 4608, h: 3328,
+		typ: 1,
+		mode: ""
+	},
+	{
+		size: 11618752,
+		w: 4012, h: 2896,
+		typ: 1,
+		mode: "Medium-angle"
+	},
+	{
+		size: 7667520,
+		w: 3260, h: 2352,
+		typ: 1,
+		mode: "Small-angle"
+	},
+	/* 12 bit down here: */
+	/* Film ! */
+	{
+		size: 30607488,
+		w: 5216,
+		h:3912,
+		typ: 5,
+		mode: ''
 	}
-	if (undefined === f.size && !f.data) {
-		setTimeout(() => {
-		  this.imbc.resolver(f, (url, fx) => {
-				this.imbc.allfiles[this.imbc.actnum] = fx;
-				this.handleone(fx);
-			}, (url) => {
-				this.imbc.mappx(false, 'words.sorryerr');
-				this.imbc.appmsgxl(true, 'process.erraccess', url);
-				this.imbc.stats.error ++;
-				if (undefined !== this.exitcode) this.exitcode++;
-				this.imbc.handlenext();
-		  });
-		});
-		return;
+],
+/* ImBCBase: get white balance */
+getwb: function(view, typidx, whitelvl) {
+	//console.log('GWB ' + typidx + ' ' + JSON.stringify(globals.infos[typidx]));
+	const t = globals.infos[typidx < 32 ? typidx : ((typidx< 64)? (typidx - 32) : (typidx - 64))];
+	let r=1, g=1, b=1;
+	for (let i=Math.round(0.05*t.h)*2; i<Math.ceil(0.9*t.h); i+=8) {
+		for (let j=Math.round(0.05*t.w)*2; j<Math.ceil(0.9*t.w); j+=8) {
+			let x = globals.getPix(j, i, t.w, view, typidx < 32 ? t.typ : (typidx < 64 ? 32 + t.typ : 64 + t.typ), whitelvl);
+			let lr = x[0];
+			let lg = x[1] + 1;
+			let lb = x[2];
+			let p = Math.sqrt(lg*lg + lb*lb + lr*lr);
+			if (p < 3 || p > (433)) continue;
+			//if (((i*t.w + j) % 50000) < 10)
+			//	console.log('i ' + i + ' j ' + j + ' R ' + lr + ' G ' + lg + ' B ' + lb + ' P ' + p);
+			//if (r + g == 2) {
+			//	console.log('R G B ' + x[0] + ' ' + x[1] + ' ' + x[2] + ' P ' + p + ' LB ' + lb + ' LR ' + lr + ' LG ' + lg);
+			//}
+			b += ((lb)/(p)>1) ? 1 : (lb)/(p);
+			g += ((lg)/(p)>1) ? 1 : (lg)/(p);
+			r += ((lr)/(p)>1) ? 1 : (lr)/(p);
+		}
 	}
-	else if (undefined === f.size && f.data) {
-		// from file chooser
-		f.size = f.data.byteLength;
-		f.imbackextension = true;
-		f.readAsArrayBuffer = () => {
-				f.onload({
-						target: {
-							result: f.data
-						}
-				});
-		};
+	//console.log('ER EG EB ' + r + ' ' + g + ' ' + b);
+	if ((r > b) && (r > g)) {
+		return [ 10, 10, Math.ceil(300000*g/r), 300000, Math.ceil(300000*b/r), 300000 ];
 	}
-	let rawname = ImBCBase.basename(f.name);
-	if (rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
-		this.imbc.parseDng(f,
-			(name, fx) => {
-				this.handleone(fx);
-			},
-			() => {
-				this.imbc.appmsg('Error reading DNG: ' + f.name);
-				if (undefined !== this.exitcode) this.exitcode++;
-				this.imbc.handlenext();
-				this.imbc.stats.error++;
-			});
-		return;
+	else if ((b > r) && (b > g)) {
+		return [ Math.ceil(300000*r/b), 300000, Math.ceil(300000*g/b), 300000, 10, 10 ];
 	}
-	else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
-		this.imbc.appmsg("[" + (1 + this.imbc.actnum) + " / " + this.imbc.totnum + "] ", false);
-		this.imbc.appmsg('Seems not to be DNG: ' + f.name, true);
-		this.imbc.stats.error++;
-		return this.imbc.handlenext();
+	else {
+		return [ Math.ceil(300000*r/g), 300000, 10, 10, Math.ceil(300000*b/g), 300000 ];
 	}
-	const zz = globals.infos.findIndex(v => v.size === f.size);
-	if (zz !== -1) {
-		this.imbc.appmsg("[" + (1 + this.imbc.actnum) + " / " + this.imbc.totnum + "] ");
-		const reader = f.imbackextension ? f : new FileReader();
-		reader.onload = (evt) => {
-			let contents = evt.target.result;
-			if (contents.buffer) contents = contents.buffer;
-			const view = new DataView(contents);
-			const out = new Uint8Array(f.size);
-			for (let j=0; j<view.byteLength; j++) {
-				out[j] = view.getUint8(j);
+},
+/* ImBCBase: get one downsampled median image value [ r g b ] */
+getPix: function(x, y, w, view, typ, whitelvl) {
+	let outrgb = [];
+	let reds = [];
+	const w3 = w + (typ >= 64 ? w : (w>>1));
+	const xx = x + (typ >= 64 ? x : (x>>1));
+	let shiftr = 0, wbx = 255;
+	while (whitelvl > wbx) {
+		wbx = (2*(wbx+1)) -1; 
+		shiftr ++;
+	}
+	const dd = (typ === 5 || typ === 69) ? 240 : 0;
+	if (typ === 5 || typ == 33) {
+		/* film or stacked 35mm */
+		reds.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+2)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+	}
+	else if (typ === 69 || typ == 65) {
+		/* 16 bit film or 35mm */
+		reds.push(((view.getUint8((y+0)*w3 + xx+2) +  ((view.getUint8((y+0)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+0)*w3 + xx+6) +  ((view.getUint8((y+0)*w3 + xx+7)) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+2)*w3 + xx+2) +  ((view.getUint8((y+2)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+2)*w3 + xx+6) +  ((view.getUint8((y+2)*w3 + xx+7)) << 8))-dd)>>shiftr);
+	}
+	else if (typ > 64) {
+		/* 16 bit mf */
+		reds.push(((view.getUint8((y+1)*w3 + xx+2) +  ((view.getUint8((y+1)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+1)*w3 + xx+6) +  ((view.getUint8((y+1)*w3 + xx+7)) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+3)*w3 + xx+2) +  ((view.getUint8((y+3)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+3)*w3 + xx+6) +  ((view.getUint8((y+3)*w3 + xx+7)) << 8))-dd)>>shiftr);
+	}
+	else if (typ > 33) {
+		/* stacked mf */
+		reds.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+	}
+	else if (typ > 1) {
+		/* mf */
+		reds.push(view.getUint8((y+1)*w + x + 1));
+		reds.push(view.getUint8((y+1)*w + x + 3));
+		reds.push(view.getUint8((y+3)*w + x + 1));
+		reds.push(view.getUint8((y+3)*w + x + 3));
+	} else {
+		/* 35mm */
+		reds.push(view.getUint8(y*w + x + 1));
+		reds.push(view.getUint8(y*w + x + 3));
+		reds.push(view.getUint8((y+2)*w + x + 1));
+		reds.push(view.getUint8((y+2)*w + x + 3));
+	}
+	reds.sort(function(a,b) { return a - b; });
+	// median of red pixels
+	outrgb.push((reds[1] + reds[2]) / 2.0);
+	let greens = [];
+	if (typ === 5 || typ == 33) {
+		/* film or stacked 35mm */
+		greens.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+	}
+	else if (typ === 69 || typ == 65) {
+		/* 16 bit film or stacked 35mm */
+		greens.push((((view.getUint8((y+0)*w3 + xx+0)) +  ((view.getUint8((y+0)*w3 + xx+1) <<8)))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+0)*w3 + xx+4)) +  ((view.getUint8((y+0)*w3 + xx+5) <<8)))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+2) +  ((view.getUint8((y+1)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+6) +  ((view.getUint8((y+1)*w3 + xx+7)) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+2)*w3 + xx+0)) +  ((view.getUint8((y+2)*w3 + xx+1)) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+2)*w3 + xx+4)) +  ((view.getUint8((y+2)*w3 + xx+5)) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+3)*w3 + xx+2) +  ((view.getUint8((y+3)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+3)*w3 + xx+6) +  ((view.getUint8((y+3)*w3 + xx+7)) << 8))-dd)>>shiftr);
+	}
+	else if (typ > 64) {
+		/* 16 bit mf */
+		greens.push((((view.getUint8((y+0)*w3 + xx+2)) +  ((view.getUint8((y+0)*w3 + xx+3) <<8)))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+0)*w3 + xx+6)) +  ((view.getUint8((y+0)*w3 + xx+7) <<8)))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1)) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+4) +  ((view.getUint8((y+1)*w3 + xx+5)) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+2)*w3 + xx+2)) +  ((view.getUint8((y+2)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+2)*w3 + xx+6)) +  ((view.getUint8((y+2)*w3 + xx+7)) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+3)*w3 + xx+1)) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+3)*w3 + xx+4) +  ((view.getUint8((y+3)*w3 + xx+5)) << 8))-dd)>>shiftr);
+	}
+	else if (typ > 33) {
+		/* stacked mf */
+		greens.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+1)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+2)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+3)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+3)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+	}
+	else if (typ > 1) {
+		greens.push(view.getUint8(y*w + x + 1));
+		greens.push(view.getUint8(y*w + x + 3));
+		greens.push(view.getUint8((y+1)*w + x));
+		greens.push(view.getUint8((y+1)*w + x + 2));
+		greens.push(view.getUint8((y+2)*w + x + 1));
+		greens.push(view.getUint8((y+2)*w + x + 3));
+		greens.push(view.getUint8((y+3)*w + x));
+		greens.push(view.getUint8((y+3)*w + x + 2));
+	} else {
+		greens.push(view.getUint8(y*w + x));
+		greens.push(view.getUint8(y*w + x + 2));
+		greens.push(view.getUint8((y+1)*w + x + 1));
+		greens.push(view.getUint8((y+1)*w + x + 3));
+		greens.push(view.getUint8((y+2)*w + x));
+		greens.push(view.getUint8((y+2)*w + x + 2));
+		greens.push(view.getUint8((y+3)*w + x + 1));
+		greens.push(view.getUint8((y+3)*w + x + 3));
+	}
+	greens.sort(function(a,b) { return a - b; });
+	outrgb.push((greens[3] + greens[4]) / 2.0);
+	let blues = [];
+	if (typ === 5 || typ === 33) {
+		blues.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+1)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+3)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+3)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+	}
+	else if (typ === 69 || typ === 65) {
+		blues.push((((view.getUint8((y+1)*w3 + xx+0)) +  ((view.getUint8((y+1)*w3 + xx+1) ) <<8))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+1)*w3 + xx+4)) +  ((view.getUint8((y+1)*w3 + xx+5) ) <<8))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+3)*w3 + xx+0)) +  ((view.getUint8((y+3)*w3 + xx+1) ) <<8))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+3)*w3 + xx+4)) +  ((view.getUint8((y+3)*w3 + xx+5) ) <<8))-dd)>>shiftr);
+	}
+	else if (typ > 65) {
+		blues.push((((view.getUint8((y+0)*w3 + xx+0)) +  ((view.getUint8((y+0)*w3 + xx+1) ) <<8))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+0)*w3 + xx+4)) +  ((view.getUint8((y+0)*w3 + xx+5) ) <<8))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+2)*w3 + xx+0)) +  ((view.getUint8((y+2)*w3 + xx+1) ) <<8))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+2)*w3 + xx+4)) +  ((view.getUint8((y+2)*w3 + xx+5) ) <<8))-dd)>>shiftr);
+	}
+	else if (typ > 33) {
+		blues.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+	}
+	else if (typ > 1) {
+		blues.push(view.getUint8(y*w + x));
+		blues.push(view.getUint8(y*w + x + 2));
+		blues.push(view.getUint8((y+2)*w + x));
+		blues.push(view.getUint8((y+2)*w + x + 2));
+	} else {
+		blues.push(view.getUint8((y+1)*w + x));
+		blues.push(view.getUint8((y+1)*w + x + 2));
+		blues.push(view.getUint8((y+3)*w + x));
+		blues.push(view.getUint8((y+3)*w + x + 2));
+	}
+	blues.sort(function(a,b) { return a - b; });
+	outrgb.push((blues[1] + blues[2]) / 2.0);
+	return outrgb;
+},
+/* ImBCBase: build preview in array */
+buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) {
+	if (undefined === wb) wb = [ 6, 10, 1, 1, 6, 10 ];
+	let sfact = scale ? scale : 8;
+	if (size === 2) sfact = 4;
+	else if (size === 1) sfact = 16;
+	const w8 = Math.floor((w+(sfact -1))/sfact);
+	const h8 = Math.floor((h+(sfact -1))/sfact);
+	const rfact = (wb[1]/wb[0]);
+	const gfact = (wb[3]/wb[2]);
+	const bfact = (wb[5]/wb[4]);
+	let outpix = [];
+	let rowiterstart, rowiterend;
+	let coliterstart, coliterend;
+	let transpose = false;
+	if (typ === 5 && orientation === 0)
+		orientation = 3;
+	if (orientation === 3) {
+		rowiterstart = -1*(h8 -1);
+		rowiterend = 1;
+		coliterstart = -1*(w8 - 1);
+		coliterend = 1;
+	} else if (orientation === 6) {
+		transpose = true;
+		rowiterstart = 0;
+		rowiterend = w8;
+		coliterstart = -1*(h8 - 1);
+		coliterend = 1;
+	} else if (orientation === 8) {
+		transpose = true;
+		rowiterstart = -1*(w8 -1);
+		rowiterend = 1;
+		coliterstart = 0;
+		coliterend = h8;
+	} else {
+		rowiterstart = 0;
+		rowiterend = h8;
+		coliterstart = 0;
+		coliterend = w8;
+	}
+	let rhist = new Array(256), ghist = new Array(256), bhist = new Array(256);
+	for (let i = 0; i < 256; i++) {
+		rhist[i] = 0; ghist[i] = 0; bhist[i] = 0;
+	}
+	let cnt = 0;
+	for (let i = rowiterstart; i < rowiterend; i +=1) {
+		for (let j = coliterstart; j < coliterend; j+=1) {
+			let a = globals.getPix(Math.abs(transpose ? i :j)*sfact, Math.abs(transpose ? j :i)*sfact, w, view, typ, whitelvl);
+			outpix.push(a[0]);
+			outpix.push(a[1]);
+			outpix.push(a[2]);
+			rhist[a[0]]++;
+			ghist[a[2]]++;
+			bhist[a[2]]++;
+			cnt++;
+		}
+	}
+	// cut off top and bottom 0.2 and 3%
+	let cntx = 0, rallmin = 0, rallmax = 255;
+	while (cntx < (cnt * 0.03))
+		cntx += rhist[rallmin++];
+	if (rallmin > 0) rallmin --;
+	cntx = 0;
+	while (cntx < (cnt * 0.002))
+		cntx += rhist[rallmax--];
+	if (rallmax < 255) rallmax++;
+	let gallmin = 0, gallmax = 255;
+	cntx = 0;
+	while (cntx < (cnt * 0.03))
+		cntx += ghist[gallmin++];
+	if (gallmin > 0) gallmin --;
+	cntx = 0;
+	while (cntx < (cnt * 0.002))
+		cntx += ghist[gallmax--];
+	if (gallmax < 255) gallmax++;
+	let ballmin = 0, ballmax = 255;
+	cntx = 0;
+	while (cntx < (cnt * 0.03))
+		cntx += bhist[ballmin++];
+	if (ballmin > 0) ballmin --;
+	cntx = 0;
+	while (cntx < (cnt * 0.002))
+		cntx += bhist[ballmax--];
+	if (ballmax < 255) ballmax++;
+	let allmin = Math.min(rallmin, gallmin, ballmin);
+	let allmax = Math.max(rallmax, gallmax, ballmax);
+	let fact;
+	if (allmax > 247 && allmin < 8) {
+		fact = 1;
+		allmin = 0;
+		//console.log('Fact 1 ' + fact + ' i ' + allmin + ' a ' + allmax);
+	}
+	else if (allmax - allmin < 1) {
+		fact = 1;
+		//console.log('Fact 2 ' + fact + ' i ' + allmin + ' a ' + allmax);
+	}
+	else {
+		fact = 254/(allmax - allmin);
+		//console.log('Fact 3 ' + fact + ' i ' + allmin + ' a ' + allmax);
+	}
+	//console.log('ai ' + allmin + ' aa ' + allmax + ' ff ' + fact);
+	const o = scale ? 3 : 4;
+	const uic = new Uint8ClampedArray(h8 * w8 * o);
+	for (let i = 0; i < h8; i++) {
+		for (let j=0; j< w8; j++) {
+			let nr = ((outpix[3*((i * w8) + j)] * rfact) - allmin) * fact + allmin;
+			let ng = ((outpix[3*((i * w8) + j) + 1] * gfact) - allmin) * fact + allmin;
+			let nb = ((outpix[3*((i * w8) + j) + 2] * bfact) - allmin) * fact + allmin;
+			if (nr >= 255) {
+				if (ng < 250) ng = Math.floor(ng * 255 / nr);
+				if (nb < 250) nb = Math.floor(nb * 255 / nr);
+				nr = 255;
 			}
-			this.imbc.writefile(rawname, 'application/octet-stream', 'process.converted', out);
+			else if (nr <= 0) nr = 0;
+			if (ng >= 255) {
+				if (nr < 250) nr = Math.floor(nr * 255 / ng);
+				if (nb < 250) nb = Math.floor(nb * 255 / ng);
+				ng = 255;
+			}
+			else if (ng <= 0) ng = 0;
+			if (nb >= 255) {
+				if (ng < 250) ng = Math.floor(ng * 255 / nb);
+				if (nr < 250) nr = Math.floor(nr * 255 / nb);
+				nb = 255;
+			}
+			else if (nb <= 0) nb = 0;
+			// maybe some brightening gamma?
+			uic[o * ((i*w8) + j)] = 255-Math.floor(255*((255-nr)/255)*((255-nr)/255));
+			uic[o * ((i*w8) + j) + 1] = 255-Math.floor(255*((255-ng)/255)*((255-ng)/255));
+			uic[o * ((i*w8) + j) + 2] = 255-Math.floor(255*((255-nb)/255)*((255-nb)/255));
+			if (!scale) uic[o * ((i*w8) + j) + 3] = 255;
 		}
-		reader.onerror = (evt) => {
-			console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
-			this.imbc.appmsg('Error processing or reading file ' +  f.name, true);
-			this.imbc.stats.error++;
-			if (undefined !== this.exitcode) this.exitcode++;
-			this.imbc.handlenext();
-		}
-		reader.readAsArrayBuffer(f);
-	} else {
-		this.imbc.appmsg("[" + (1 + this.imbc.actnum) + " / " + this.imbc.totnum + "] ", false);
-		this.imbc.appmsg('Size of raw data of ' + f.name + ' seems not to match known formats, ignoring...', true);
-		this.imbc.stats.error++;
-		if (undefined !== this.exitcode) this.exitcode++;
-		this.imbc.handlenext();
 	}
-}
-/* Indentation in - end of class ImBCBackw */
-}
-/* *************************************** Backward helper class E N D *************************************** */
-/* *************************************** ZIP Helper class *************************************** */
-class ZIPHelp {
-/* Indentation out */
-#lochdrs = [];
-#loclens = [];
-#writecb = null;
-#finishoff = 0;
-#sizecent = 0;
-static crcTable = [];
-/* ZIPHelp: constructor */
-constructor(writecb) {
-	this.#writecb = writecb;
-}
-/* ZIPHelp: make dos date */
-static makeDosDate(yr, mon, day, hr, min, sec)
-{
-    if (yr>1980)
-        yr-=1980;
-    else if (yr>80)
-        yr-=80;
-    return (((day + (32 * mon) + (512 * yr)) * 65536) |
-		((sec/2) + (32* min) + (2048 * hr)));
-}
-/* ZIPHelp: dos date from filename */
-static datefromfile(name) {
-	let { yr, mon, day, hr, min, sec } = ImBCBase.nametotime(name);
-	if (yr) {
-		return ZIPHelp.makeDosDate(yr, mon, day, hr, min, sec);
-	} else {
-		let r = ImBCBase.nametotime(new Date(Date.now()).toISOString());
-		return ZIPHelp.makeDosDate(r.yr, r.mon, r.day, r.hr, r.min, r.sec);
+	return uic;
+},
+/* ImBCBase: adjust A:\imback\... format to /imback/... */
+adjurl: function(url) {
+	if (url.url) url = url.url;
+	if (url.toUpperCase().substring(0,3) !== 'A:\\')
+		return url;
+	let n = url.substring(2);
+	while (n.indexOf("\\") > -1) {
+		n = n.substring(0, n.indexOf("\\")) + '/' + n.substring(n.indexOf('\\') +1);
 	}
+	return n;
+},
+/* Indentation in - end of globals */
 }
-/* ZIPHelp: crc32 stuff */
-static makeCRCTable(){
-    var c;
-    for(var n =0; n < 256; n++){
-        c = n;
-        for(var k =0; k < 8; k++){
-            c = ((c&1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1));
-        }
-        ZIPHelp.crcTable[n] = c;
-    }
-}
-/* ZIPHelp: crc32 stuff */
-static crc32(arr) {
-	if (ZIPHelp.crcTable.length === 0) ZIPHelp.makeCRCTable();
-    var crc = 0 ^ (-1);
-
-    for (var i = 0; i < arr.length; i++ ) {
-        crc = (crc >>> 8) ^ ZIPHelp.crcTable[(crc ^ arr[i]) & 0xFF];
-    }
-
-    return (crc ^ (-1)) >>> 0;
-};
-/* ZIPHelp: finish zip with centraldirs and endcentral */
-finish(cb, i) {
-	if (i === undefined) i=0;
-	if (i < this.#lochdrs.length) {
-		let j = this.#lochdrs[i];
-		let ch = new Uint8Array(46);
-		ch[0] = 0x50; // P
-		ch[1] = 0x4B; // K
-		ch[2] = 0x1; // magic
-		ch[3] = 0x2;
-		ch[4] = 0x0; // version made
-		ch[5] = 0x0;
-		ch[6] = 0x14; // version extract
-		ch[7] = 0x0;
-		ch[8] = 0x0; // gp bitflags
-		ch[9] = 0x8;
-		ch[10] = 0x0; // compr
-		ch[11] = 0x0;
-		let dosdate = j.dosdate;
-		TIFFOut.writeinttoout(ch, dosdate, 12);
-		let crc = j.crc;
-		TIFFOut.writeinttoout(ch, crc, 16);
-		let dl = j.dl; // compr. length
-		TIFFOut.writeinttoout(ch, dl, 20);
-		// uncompr. size is same
-		TIFFOut.writeinttoout(ch, dl, 24);
-		let fl = j.fl; // name length
-		TIFFOut.writeshorttoout(ch, fl, 28);
-		TIFFOut.writeinttoout(ch, 0, 30);
-		//ch[30] = 0; // extra length
-		//ch[32] = 0x0; // comment length
-		TIFFOut.writeinttoout(ch, 0, 34);
-		//ch[34] = 0x0; // disk no
-		//ch[36] = 0x0; // int attr
-		TIFFOut.writeinttoout(ch, 0, 38); // ext attr
-		TIFFOut.writeinttoout(ch, this.#finishoff, 42);
-		this.#sizecent += (46 + j.fl);
-		this.#finishoff += this.#loclens[i];
-		this.#writecb(ch, () => {
-			this.#writecb(j.name, () => { this.finish(cb, i+1); });
-		});
-		return;
-	}
-	// end of central
-	let ec = new Uint8Array(22);
-	ec[0] = 0x50; // P
-	ec[1] = 0x4B; // K
-	ec[2] = 0x5; // magic
-	ec[3] = 0x6;
-	ec[4] = 0x0; // disk no
-	ec[5] = 0x0;
-	ec[6] = 0x0; // startdisk
-	ec[7] = 0x0;
-	TIFFOut.writeshorttoout(ec, i, 8); // num entries
-	TIFFOut.writeshorttoout(ec, i, 10); // num entries
-	TIFFOut.writeinttoout(ec, this.#sizecent, 12); // size of cent.dir
-	TIFFOut.writeinttoout(ec, this.#finishoff, 16); // start of cent.dir
-	ec[20] = 0; // comment length
-	ec[21] = 0;
-	this.#writecb(ec, () => { cb(); });
-}
-/* ZIPHelp: add a file */
-add(data, name, cb) {
-	let narr = new TextEncoder().encode(name);
-	// output local header
-	let lh = new Uint8Array(30);
-	lh[0] = 0x50; // P
-	lh[1] = 0x4B; // K
-	lh[2] = 0x3; // magic
-	lh[3] = 0x4;
-	lh[4] = 0x14; // version 20
-	lh[5] = 0x0;
-	lh[6] = 0x0; // gp bitflags
-	lh[7] = 0x8;
-	lh[8] = 0x0; // compression
-	lh[9] = 0x0;
-	let dosdate = ZIPHelp.datefromfile(name);
-	TIFFOut.writeinttoout(lh, dosdate, 10);
-	let crc = ZIPHelp.crc32(data);
-	TIFFOut.writeinttoout(lh, crc, 14);
-	let dl = data.length;
-	TIFFOut.writeinttoout(lh, dl, 18);  // compr. length
-	// uncompr. size is same
-	TIFFOut.writeinttoout(lh, dl, 22);
-	let fl = narr.length;
-	TIFFOut.writeshorttoout(lh, fl, 26); // name length
-	lh[28] = 0; // extra length
-	lh[29] = 0;
-	this.#lochdrs.push( { name: narr, dosdate: dosdate, crc: crc, dl: dl, fl: fl } );
-	this.#loclens.push( 30+fl+dl );
-	this.#writecb(lh, () => {
-		this.#writecb(narr, () => {
-			this.#writecb(data, () => { cb(); });
-		})
-	});
-}
-/* Indentation in - end of class ZIPHelp */
-}
-/* *************************************** ZIP Helper class E N D *************************************** */
-/* *************************************** Main class *************************************** */
+/* * * ************************************* globals, E N D *************************************** */
+/* * * ************************************* Main class *************************************** */
 class ImBCBase {
 static progname = '';
 /* Indentation out */
@@ -17636,7 +18073,6 @@ constwb = false;
 incdcp = true;
 /* ImBCBase: debug */
 debugflag = false;
-imbweb = 'http://192.168.1.254';
 // mis-nomer from app
 fromintent = false; // 1: normal 2: stack/fakelong (> 1 DNG, to raw phase)  3: backward (== 1 DNG)  4: to dng phase when stacking 
 
@@ -17851,6 +18287,7 @@ findlang(i) {
 	}
 	if ('zZ' === i || ('00' === this.mylang)) {
 		this.debugflag = true;
+		this.mylang = 'en';
 		if (this.previewworker) this.previewworker.postMessage({ cmd: 'setdbg' });
 	}
 	if ('zZ' === i || window?.location.href.startsWith('http://1')) {
@@ -18121,6 +18558,11 @@ handleone(orientation) {
 	let { date, datestr, nn, newname } = ImBCBase.nametotime(rawname, this.corrdelta);
 	if (this.corrdelta && newname?.length) rawname = newname;
 	if (rawname.substring(rawname.length - 4).toUpperCase() !== '.RAW') {
+		if (ImBCBase.progname.startsWith('imbapp') && f.imbackextension && rawname.substring(rawname.length - 4).toUpperCase() !== '.JPG') {
+			this.mappx(0, 'process.notraw',inname);
+			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), f, f.name);
+			return;
+		}
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
 			if (this.totnum > 1) {
@@ -18622,9 +19064,10 @@ handle1imb(url, time) {
 			processed: false,
 			time: timest,
 			size: url?.size,
-			imbackintension: url.size ? url : undefined,
-			wasselected: (-1 !== (this.dloads.findIndex(e => (e.toUpperCase() === rawname.toUpperCase()))))
+			imbackintension: url.size ? url : undefined
 		};
+		if (this.dloads?.length)
+			newimbele.wasselected = (-1 !== (this.dloads.findIndex(e => (e.toUpperCase() === rawname.toUpperCase()))));
 		this.imbeles.push(newimbele);
 	}
 	if (rawname.substring(rawname.length -4).toUpperCase() === '.RAW') {
@@ -18674,7 +19117,7 @@ handle1imb(url, time) {
 		this.appmsgxl(0, 'onimback.strangename', rawname);
 	}
 }
-/* *************************************** Backward helper STUFF *************************************** */
+/* * * ************************************* Backward helper STUFF *************************************** */
 /* ImBCBackw: backward: handle dng like raw */
 parseDng(f, onok, onerr) {
 	// blindly assumes that it is one of our own DNG
@@ -18864,10 +19307,10 @@ handleoneback(fx) {
 		this.handlenext();
 	}
 }
-/* *************************************** Backward helper STUFF E N D *************************************** */
+/* * * ************************************* Backward helper STUFF E N D *************************************** */
 /* Indentation in - end of class ImBCBase */
 }
-/* *************************************** BASE class E N D *************************************** */
+/* *************************************** main class E N D *************************************** */
 /* *************************************** Node js helper class *************************************** */
 class ImBCNodeOut extends ImBCBase {
 /* Indentation out */
@@ -19222,27 +19665,27 @@ readconfig(callback, tryno) {
 	if (undefined === tryno) {
 		xch = '.';
 		dotflag = true;
-		this.#configfiles[0] = './.imbraw2dng.json';
+		this.#configfiles[0] = './.' + ImBCBase.progname + 'on';
 	}
 	else if (1 === tryno && process.env.HOME) {
 		xch = process.env.HOME + this.pa.sep + '.config';
 		dotflag = false;
-		this.#configfiles.push(process.env.HOME + this.pa.sep + '.config' + this.pa.sep + 'imbraw2dng.json');
+		this.#configfiles.push(process.env.HOME + this.pa.sep + '.config' + this.pa.sep + ImBCBase.progname + 'on');
 	}
 	else if (2 === tryno && process.env.XDG_CONFIG_HOME) {
 		xch = process.env.XDG_CONFIG_HOME;
 		dotflag = false;
-		this.#configfiles.push(process.env.XDG_CONFIG_HOME + this.pa.sep + 'imbraw2dng.json');
+		this.#configfiles.push(process.env.XDG_CONFIG_HOME + this.pa.sep + ImBCBase.progname + 'on');
 	}
 	else {
 		return callback();
 	}
-	this.fs.readFile(xch + this.pa.sep + (dotflag ? '.' : '' ) + 'imbraw2dng.json', 'utf8',
+	this.fs.readFile(xch + this.pa.sep + (dotflag ? '.' : '' ) + ImBCBase.progname + 'on', 'utf8',
 		(err, data) => {
 			//console.log(' READ: ' + xch + this.pa.sep + 'imbraw2dng.json' + ' ' + JSON.stringify(err) + ' ' + JSON.stringify(data));
 			if (!err) {
 				this.parseconfig(data);
-				this.#configloaded = (xch + this.pa.sep + (dotflag ? '.' : '' ) + 'imbraw2dng.json');
+				this.#configloaded = (xch + this.pa.sep + (dotflag ? '.' : '' ) + ImBCBase.progname + 'on');
 				callback();
 			}
 			else if (!tryno) {
@@ -19286,6 +19729,7 @@ parseconfig(data) {
 /* *************************************** Top class for nodejs, forward *************************************** */
 class ImBCNode extends ImBCNodeOut {
 /* Indentation out */
+imbweb = 'http://192.168.1.254';
 constructor() {
 	super();
 }
@@ -19790,443 +20234,6 @@ handlenext() {
 }
 /* *************************************** Top class for nodejs, backward E N D *************************************** */
 
-/* *************************************** globals *************************************** */
-const globals = {
-/* Indentation out - globals */
-version: "V5.9.7_@_d_e_v", // actually const // VERSION EYECATCHER
-alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
-// generic user input timestamp always complete
-//               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
-fulltsregex: /^([02-3][0-9][0-9][0-9])([^0-9])([01][0-9])([^0-9])([0123][0-9])([^0-9])([012][0-9])([^0-9])([0-5][0-9])([^0-9])([0-5][0-9])$/, // actually const
-// generic user input timestamp (any prefix)
-//                  y      y     y     y      .      m     m     .      d      d      .      h     h      .      m     m      .      s     s
-tsregex: /^[02-3]([0-9]([0-9]([0-9](([^0-9])[01]([0-9](([^0-9])[0123]([0-9](([^0-9])[012]([0-9](([^0-9])[0-5]([0-9](([^0-9])[0-5]([0-9])?)?)?)?)?)?)?)?)?)?)?)?)?$/ , // actually const
-/* ImBCBase: Data for the Imback variants and exif stuff */
-// generic imb filename format
-//                   y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s     EXT
-fnregex: /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])(.*[.])([^.]*)$/ , // actually const
-// generic imb xml timestamp format
-//                               y    y    y    y      /    m    m     /    d     d    . .  h    h      :    m    m      :    s    s
-itsregex: new RegExp('^([2-3][0-9][0-9][0-9])([/])([01][0-9])([/])([0123][0-9])( )([012][0-9])([:])([0-6][0-9])([:])([0-6][0-9])$') , // actually const
-// generic imb filename format, only timestamp
-//                    y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s      .        n
-fnregexx: /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-9]*)/ , // actually const
-orients: [ '', 'none', '', 'upsidedown', '', '', 'clockwise', '', 'counterclockwise' ], // actually const
-oriecw: [ 1, 6, 3, 8 ], // clockwise indices // actually const
-types: [ "unknown", "ImB35mm", "MF 6x7 ", "MF6x4.5", "MF 6x6 ", "Film35 " ], // all length 7, actually const
-twelvebitsizes: [ 9706416, 11501280, 14709888, 17428128, 17915904, 19406448, 21098880, 23003136, 23887872, 30607488 ],
-infos: [ // actually const
-	{
-		size: 14065920,
-		w: 4320,
-		h: 3256,
-		typ: 0,
-		mode: "historic"
-	},
-	{ /* MF 6x7 */
-		size: 15925248,
-		w: 4608,
-		h: 3456,
-		typ: 2,
-		mode: ""
-	},
-	{ /* MF 6x4.5 */
-		size: 12937632,
-		w: 4152, h: 3116,
-		typ: 3,
-		mode: ""
-	},
-	{
-		size: 9806592,
-		w: 3616, h: 2712,
-		typ: 3,
-		mode: "Medium-angle"
-	},
-	{
-		size: 6470944,
-		w: 2936, h: 2204,
-		typ: 3,
-		mode: "Small-angle"
-	},
-	{ /* MF 6x6 */
-		size: 11943936,
-		w: 3456, h: 3456,
-		typ: 4,
-		mode: ""
-	},
-	{ /* 35mm */
-		size: 15335424,
-		w: 4608, h: 3328,
-		typ: 1,
-		mode: ""
-	},
-	{
-		size: 11618752,
-		w: 4012, h: 2896,
-		typ: 1,
-		mode: "Medium-angle"
-	},
-	{
-		size: 7667520,
-		w: 3260, h: 2352,
-		typ: 1,
-		mode: "Small-angle"
-	},
-	/* 12 bit down here: */
-	/* Film ! */
-	{
-		size: 30607488,
-		w: 5216,
-		h:3912,
-		typ: 5,
-		mode: ''
-	}
-],
-/* ImBCBase: get white balance */
-getwb: function(view, typidx, whitelvl) {
-	//console.log('GWB ' + typidx + ' ' + JSON.stringify(globals.infos[typidx]));
-	const t = globals.infos[typidx < 32 ? typidx : ((typidx< 64)? (typidx - 32) : (typidx - 64))];
-	let r=1, g=1, b=1;
-	for (let i=Math.round(0.05*t.h)*2; i<Math.ceil(0.9*t.h); i+=8) {
-		for (let j=Math.round(0.05*t.w)*2; j<Math.ceil(0.9*t.w); j+=8) {
-			let x = globals.getPix(j, i, t.w, view, typidx < 32 ? t.typ : (typidx < 64 ? 32 + t.typ : 64 + t.typ), whitelvl);
-			let lr = x[0];
-			let lg = x[1] + 1;
-			let lb = x[2];
-			let p = Math.sqrt(lg*lg + lb*lb + lr*lr);
-			if (p < 3 || p > (433)) continue;
-			//if (((i*t.w + j) % 50000) < 10)
-			//	console.log('i ' + i + ' j ' + j + ' R ' + lr + ' G ' + lg + ' B ' + lb + ' P ' + p);
-			//if (r + g == 2) {
-			//	console.log('R G B ' + x[0] + ' ' + x[1] + ' ' + x[2] + ' P ' + p + ' LB ' + lb + ' LR ' + lr + ' LG ' + lg);
-			//}
-			b += ((lb)/(p)>1) ? 1 : (lb)/(p);
-			g += ((lg)/(p)>1) ? 1 : (lg)/(p);
-			r += ((lr)/(p)>1) ? 1 : (lr)/(p);
-		}
-	}
-	//console.log('ER EG EB ' + r + ' ' + g + ' ' + b);
-	if ((r > b) && (r > g)) {
-		return [ 10, 10, Math.ceil(300000*g/r), 300000, Math.ceil(300000*b/r), 300000 ];
-	}
-	else if ((b > r) && (b > g)) {
-		return [ Math.ceil(300000*r/b), 300000, Math.ceil(300000*g/b), 300000, 10, 10 ];
-	}
-	else {
-		return [ Math.ceil(300000*r/g), 300000, 10, 10, Math.ceil(300000*b/g), 300000 ];
-	}
-},
-/* ImBCBase: get one downsampled median image value [ r g b ] */
-getPix: function(x, y, w, view, typ, whitelvl) {
-	let outrgb = [];
-	let reds = [];
-	const w3 = w + (typ >= 64 ? w : (w>>1));
-	const xx = x + (typ >= 64 ? x : (x>>1));
-	let shiftr = 0, wbx = 255;
-	while (whitelvl > wbx) {
-		wbx = (2*(wbx+1)) -1; 
-		shiftr ++;
-	}
-	const dd = (typ === 5 || typ === 69) ? 240 : 0;
-	if (typ === 5 || typ == 33) {
-		/* film or stacked 35mm */
-		reds.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+2)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-	}
-	else if (typ === 69 || typ == 65) {
-		/* 16 bit film or 35mm */
-		reds.push(((view.getUint8((y+0)*w3 + xx+2) +  ((view.getUint8((y+0)*w3 + xx+3)) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+0)*w3 + xx+6) +  ((view.getUint8((y+0)*w3 + xx+7)) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+2)*w3 + xx+2) +  ((view.getUint8((y+2)*w3 + xx+3)) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+2)*w3 + xx+6) +  ((view.getUint8((y+2)*w3 + xx+7)) << 8))-dd)>>shiftr);
-	}
-	else if (typ > 64) {
-		/* 16 bit mf */
-		reds.push(((view.getUint8((y+1)*w3 + xx+2) +  ((view.getUint8((y+1)*w3 + xx+3)) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+1)*w3 + xx+6) +  ((view.getUint8((y+1)*w3 + xx+7)) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+3)*w3 + xx+2) +  ((view.getUint8((y+3)*w3 + xx+3)) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+3)*w3 + xx+6) +  ((view.getUint8((y+3)*w3 + xx+7)) << 8))-dd)>>shiftr);
-	}
-	else if (typ > 33) {
-		/* stacked mf */
-		reds.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-	}
-	else if (typ > 1) {
-		/* mf */
-		reds.push(view.getUint8((y+1)*w + x + 1));
-		reds.push(view.getUint8((y+1)*w + x + 3));
-		reds.push(view.getUint8((y+3)*w + x + 1));
-		reds.push(view.getUint8((y+3)*w + x + 3));
-	} else {
-		/* 35mm */
-		reds.push(view.getUint8(y*w + x + 1));
-		reds.push(view.getUint8(y*w + x + 3));
-		reds.push(view.getUint8((y+2)*w + x + 1));
-		reds.push(view.getUint8((y+2)*w + x + 3));
-	}
-	reds.sort(function(a,b) { return a - b; });
-	// median of red pixels
-	outrgb.push((reds[1] + reds[2]) / 2.0);
-	let greens = [];
-	if (typ === 5 || typ == 33) {
-		/* film or stacked 35mm */
-		greens.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-	}
-	else if (typ === 69 || typ == 65) {
-		/* 16 bit film or stacked 35mm */
-		greens.push((((view.getUint8((y+0)*w3 + xx+0)) +  ((view.getUint8((y+0)*w3 + xx+1) <<8)))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+0)*w3 + xx+4)) +  ((view.getUint8((y+0)*w3 + xx+5) <<8)))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+1)*w3 + xx+2) +  ((view.getUint8((y+1)*w3 + xx+3)) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+1)*w3 + xx+6) +  ((view.getUint8((y+1)*w3 + xx+7)) << 8))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+2)*w3 + xx+0)) +  ((view.getUint8((y+2)*w3 + xx+1)) << 8))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+2)*w3 + xx+4)) +  ((view.getUint8((y+2)*w3 + xx+5)) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+3)*w3 + xx+2) +  ((view.getUint8((y+3)*w3 + xx+3)) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+3)*w3 + xx+6) +  ((view.getUint8((y+3)*w3 + xx+7)) << 8))-dd)>>shiftr);
-	}
-	else if (typ > 64) {
-		/* 16 bit mf */
-		greens.push((((view.getUint8((y+0)*w3 + xx+2)) +  ((view.getUint8((y+0)*w3 + xx+3) <<8)))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+0)*w3 + xx+6)) +  ((view.getUint8((y+0)*w3 + xx+7) <<8)))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1)) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+1)*w3 + xx+4) +  ((view.getUint8((y+1)*w3 + xx+5)) << 8))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+2)*w3 + xx+2)) +  ((view.getUint8((y+2)*w3 + xx+3)) << 8))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+2)*w3 + xx+6)) +  ((view.getUint8((y+2)*w3 + xx+7)) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+3)*w3 + xx+1)) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+3)*w3 + xx+4) +  ((view.getUint8((y+3)*w3 + xx+5)) << 8))-dd)>>shiftr);
-	}
-	else if (typ > 33) {
-		/* stacked mf */
-		greens.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+1)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+2)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+3)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+3)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-	}
-	else if (typ > 1) {
-		greens.push(view.getUint8(y*w + x + 1));
-		greens.push(view.getUint8(y*w + x + 3));
-		greens.push(view.getUint8((y+1)*w + x));
-		greens.push(view.getUint8((y+1)*w + x + 2));
-		greens.push(view.getUint8((y+2)*w + x + 1));
-		greens.push(view.getUint8((y+2)*w + x + 3));
-		greens.push(view.getUint8((y+3)*w + x));
-		greens.push(view.getUint8((y+3)*w + x + 2));
-	} else {
-		greens.push(view.getUint8(y*w + x));
-		greens.push(view.getUint8(y*w + x + 2));
-		greens.push(view.getUint8((y+1)*w + x + 1));
-		greens.push(view.getUint8((y+1)*w + x + 3));
-		greens.push(view.getUint8((y+2)*w + x));
-		greens.push(view.getUint8((y+2)*w + x + 2));
-		greens.push(view.getUint8((y+3)*w + x + 1));
-		greens.push(view.getUint8((y+3)*w + x + 3));
-	}
-	greens.sort(function(a,b) { return a - b; });
-	outrgb.push((greens[3] + greens[4]) / 2.0);
-	let blues = [];
-	if (typ === 5 || typ === 33) {
-		blues.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+1)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+3)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+3)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-	}
-	else if (typ === 69 || typ === 65) {
-		blues.push((((view.getUint8((y+1)*w3 + xx+0)) +  ((view.getUint8((y+1)*w3 + xx+1) ) <<8))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+1)*w3 + xx+4)) +  ((view.getUint8((y+1)*w3 + xx+5) ) <<8))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+3)*w3 + xx+0)) +  ((view.getUint8((y+3)*w3 + xx+1) ) <<8))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+3)*w3 + xx+4)) +  ((view.getUint8((y+3)*w3 + xx+5) ) <<8))-dd)>>shiftr);
-	}
-	else if (typ > 65) {
-		blues.push((((view.getUint8((y+0)*w3 + xx+0)) +  ((view.getUint8((y+0)*w3 + xx+1) ) <<8))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+0)*w3 + xx+4)) +  ((view.getUint8((y+0)*w3 + xx+5) ) <<8))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+2)*w3 + xx+0)) +  ((view.getUint8((y+2)*w3 + xx+1) ) <<8))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+2)*w3 + xx+4)) +  ((view.getUint8((y+2)*w3 + xx+5) ) <<8))-dd)>>shiftr);
-	}
-	else if (typ > 33) {
-		blues.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-	}
-	else if (typ > 1) {
-		blues.push(view.getUint8(y*w + x));
-		blues.push(view.getUint8(y*w + x + 2));
-		blues.push(view.getUint8((y+2)*w + x));
-		blues.push(view.getUint8((y+2)*w + x + 2));
-	} else {
-		blues.push(view.getUint8((y+1)*w + x));
-		blues.push(view.getUint8((y+1)*w + x + 2));
-		blues.push(view.getUint8((y+3)*w + x));
-		blues.push(view.getUint8((y+3)*w + x + 2));
-	}
-	blues.sort(function(a,b) { return a - b; });
-	outrgb.push((blues[1] + blues[2]) / 2.0);
-	return outrgb;
-},
-/* ImBCBase: build preview in array */
-buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) {
-	if (undefined === wb) wb = [ 6, 10, 1, 1, 6, 10 ];
-	let sfact = scale ? scale : 8;
-	if (size === 2) sfact = 4;
-	else if (size === 1) sfact = 16;
-	const w8 = Math.floor((w+(sfact -1))/sfact);
-	const h8 = Math.floor((h+(sfact -1))/sfact);
-	const rfact = (wb[1]/wb[0]);
-	const gfact = (wb[3]/wb[2]);
-	const bfact = (wb[5]/wb[4]);
-	let outpix = [];
-	let rowiterstart, rowiterend;
-	let coliterstart, coliterend;
-	let transpose = false;
-	if (typ === 5 && orientation === 0)
-		orientation = 3;
-	if (orientation === 3) {
-		rowiterstart = -1*(h8 -1);
-		rowiterend = 1;
-		coliterstart = -1*(w8 - 1);
-		coliterend = 1;
-	} else if (orientation === 6) {
-		transpose = true;
-		rowiterstart = 0;
-		rowiterend = w8;
-		coliterstart = -1*(h8 - 1);
-		coliterend = 1;
-	} else if (orientation === 8) {
-		transpose = true;
-		rowiterstart = -1*(w8 -1);
-		rowiterend = 1;
-		coliterstart = 0;
-		coliterend = h8;
-	} else {
-		rowiterstart = 0;
-		rowiterend = h8;
-		coliterstart = 0;
-		coliterend = w8;
-	}
-	let rhist = new Array(256), ghist = new Array(256), bhist = new Array(256);
-	for (let i = 0; i < 256; i++) {
-		rhist[i] = 0; ghist[i] = 0; bhist[i] = 0;
-	}
-	let cnt = 0;
-	for (let i = rowiterstart; i < rowiterend; i +=1) {
-		for (let j = coliterstart; j < coliterend; j+=1) {
-			let a = globals.getPix(Math.abs(transpose ? i :j)*sfact, Math.abs(transpose ? j :i)*sfact, w, view, typ, whitelvl);
-			outpix.push(a[0]);
-			outpix.push(a[1]);
-			outpix.push(a[2]);
-			rhist[a[0]]++;
-			ghist[a[2]]++;
-			bhist[a[2]]++;
-			cnt++;
-		}
-	}
-	// cut off top and bottom 0.2 and 3%
-	let cntx = 0, rallmin = 0, rallmax = 255;
-	while (cntx < (cnt * 0.03))
-		cntx += rhist[rallmin++];
-	if (rallmin > 0) rallmin --;
-	cntx = 0;
-	while (cntx < (cnt * 0.002))
-		cntx += rhist[rallmax--];
-	if (rallmax < 255) rallmax++;
-	let gallmin = 0, gallmax = 255;
-	cntx = 0;
-	while (cntx < (cnt * 0.03))
-		cntx += ghist[gallmin++];
-	if (gallmin > 0) gallmin --;
-	cntx = 0;
-	while (cntx < (cnt * 0.002))
-		cntx += ghist[gallmax--];
-	if (gallmax < 255) gallmax++;
-	let ballmin = 0, ballmax = 255;
-	cntx = 0;
-	while (cntx < (cnt * 0.03))
-		cntx += bhist[ballmin++];
-	if (ballmin > 0) ballmin --;
-	cntx = 0;
-	while (cntx < (cnt * 0.002))
-		cntx += bhist[ballmax--];
-	if (ballmax < 255) ballmax++;
-	let allmin = Math.min(rallmin, gallmin, ballmin);
-	let allmax = Math.max(rallmax, gallmax, ballmax);
-	let fact;
-	if (allmax > 247 && allmin < 8) {
-		fact = 1;
-		allmin = 0;
-		//console.log('Fact 1 ' + fact + ' i ' + allmin + ' a ' + allmax);
-	}
-	else if (allmax - allmin < 1) {
-		fact = 1;
-		//console.log('Fact 2 ' + fact + ' i ' + allmin + ' a ' + allmax);
-	}
-	else {
-		fact = 254/(allmax - allmin);
-		//console.log('Fact 3 ' + fact + ' i ' + allmin + ' a ' + allmax);
-	}
-	//console.log('ai ' + allmin + ' aa ' + allmax + ' ff ' + fact);
-	const o = scale ? 3 : 4;
-	const uic = new Uint8ClampedArray(h8 * w8 * o);
-	for (let i = 0; i < h8; i++) {
-		for (let j=0; j< w8; j++) {
-			let nr = ((outpix[3*((i * w8) + j)] * rfact) - allmin) * fact + allmin;
-			let ng = ((outpix[3*((i * w8) + j) + 1] * gfact) - allmin) * fact + allmin;
-			let nb = ((outpix[3*((i * w8) + j) + 2] * bfact) - allmin) * fact + allmin;
-			if (nr >= 255) {
-				if (ng < 250) ng = Math.floor(ng * 255 / nr);
-				if (nb < 250) nb = Math.floor(nb * 255 / nr);
-				nr = 255;
-			}
-			else if (nr <= 0) nr = 0;
-			if (ng >= 255) {
-				if (nr < 250) nr = Math.floor(nr * 255 / ng);
-				if (nb < 250) nb = Math.floor(nb * 255 / ng);
-				ng = 255;
-			}
-			else if (ng <= 0) ng = 0;
-			if (nb >= 255) {
-				if (ng < 250) ng = Math.floor(ng * 255 / nb);
-				if (nr < 250) nr = Math.floor(nr * 255 / nb);
-				nb = 255;
-			}
-			else if (nb <= 0) nb = 0;
-			// maybe some brightening gamma?
-			uic[o * ((i*w8) + j)] = 255-Math.floor(255*((255-nr)/255)*((255-nr)/255));
-			uic[o * ((i*w8) + j) + 1] = 255-Math.floor(255*((255-ng)/255)*((255-ng)/255));
-			uic[o * ((i*w8) + j) + 2] = 255-Math.floor(255*((255-nb)/255)*((255-nb)/255));
-			if (!scale) uic[o * ((i*w8) + j) + 3] = 255;
-		}
-	}
-	return uic;
-},
-/* ImBCBase: adjust A:\imback\... format to /imback/... */
-adjurl: function(url) {
-	if (url.url) url = url.url;
-	if (url.toUpperCase().substring(0,3) !== 'A:\\')
-		return url;
-	let n = url.substring(2);
-	while (n.indexOf("\\") > -1) {
-		n = n.substring(0, n.indexOf("\\")) + '/' + n.substring(n.indexOf('\\') +1);
-	}
-	return n;
-},
-/* Indentation in - end of globals */
-}
-/* *************************************** globals, E N D *************************************** */
 /* *************************************** texts *************************************** */
 const mytexts = { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
@@ -20923,6 +20930,7 @@ const mytexts = { // actually const
 		}
 	}
 }
+const apptexts = [];
 /* *************************************** texts, E N D *************************************** */
 /* outside of classes: */
 let imbc;

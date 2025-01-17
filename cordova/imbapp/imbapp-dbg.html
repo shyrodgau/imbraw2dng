@@ -823,8 +823,8 @@ getNextIfdPosOffset() {
 }
 /* Indentation in - end of class IFD */
 };
-/* *************************************** IFDOut E N D *************************************** */
-/* *************************************** TIFFOut *************************************** */
+/* * * ************************************* IFDOut E N D *************************************** */
+/* * * ************************************* TIFFOut *************************************** */
 /* main TIFF class */
 class TIFFOut {
 /* Indentation out */
@@ -1019,16 +1019,452 @@ static readinta(arr, off) {
 }
 /* Indentation in - end of class TIFFOut */
 }
-/* *************************************** TIFFOut E N D *************************************** */
-/* *************************************** Main class *************************************** */
+/* * * ************************************* TIFFOut E N D *************************************** */
+/* * * ************************************* globals *************************************** */
+const globals = {
+/* Indentation out - globals */
+version: "V5.9.7_@_d_e_v", // actually const // VERSION EYECATCHER
+alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
+// generic user input timestamp always complete
+//               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
+fulltsregex: /^([02-3][0-9][0-9][0-9])([^0-9])([01][0-9])([^0-9])([0123][0-9])([^0-9])([012][0-9])([^0-9])([0-5][0-9])([^0-9])([0-5][0-9])$/, // actually const
+// generic user input timestamp (any prefix)
+//                  y      y     y     y      .      m     m     .      d      d      .      h     h      .      m     m      .      s     s
+tsregex: /^[02-3]([0-9]([0-9]([0-9](([^0-9])[01]([0-9](([^0-9])[0123]([0-9](([^0-9])[012]([0-9](([^0-9])[0-5]([0-9](([^0-9])[0-5]([0-9])?)?)?)?)?)?)?)?)?)?)?)?)?$/ , // actually const
+/* ImBCBase: Data for the Imback variants and exif stuff */
+// generic imb filename format
+//                   y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s     EXT
+fnregex: /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])(.*[.])([^.]*)$/ , // actually const
+// generic imb xml timestamp format
+//                               y    y    y    y      /    m    m     /    d     d    . .  h    h      :    m    m      :    s    s
+itsregex: new RegExp('^([2-3][0-9][0-9][0-9])([/])([01][0-9])([/])([0123][0-9])( )([012][0-9])([:])([0-6][0-9])([:])([0-6][0-9])$') , // actually const
+// generic imb filename format, only timestamp
+//                    y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s      .        n
+fnregexx: /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-9]*)/ , // actually const
+orients: [ '', 'none', '', 'upsidedown', '', '', 'clockwise', '', 'counterclockwise' ], // actually const
+oriecw: [ 1, 6, 3, 8 ], // clockwise indices // actually const
+types: [ "unknown", "ImB35mm", "MF 6x7 ", "MF6x4.5", "MF 6x6 ", "Film35 " ], // all length 7, actually const
+twelvebitsizes: [ 9706416, 11501280, 14709888, 17428128, 17915904, 19406448, 21098880, 23003136, 23887872, 30607488 ],
+infos: [ // actually const
+	{
+		size: 14065920,
+		w: 4320,
+		h: 3256,
+		typ: 0,
+		mode: "historic"
+	},
+	{ /* MF 6x7 */
+		size: 15925248,
+		w: 4608,
+		h: 3456,
+		typ: 2,
+		mode: ""
+	},
+	{ /* MF 6x4.5 */
+		size: 12937632,
+		w: 4152, h: 3116,
+		typ: 3,
+		mode: ""
+	},
+	{
+		size: 9806592,
+		w: 3616, h: 2712,
+		typ: 3,
+		mode: "Medium-angle"
+	},
+	{
+		size: 6470944,
+		w: 2936, h: 2204,
+		typ: 3,
+		mode: "Small-angle"
+	},
+	{ /* MF 6x6 */
+		size: 11943936,
+		w: 3456, h: 3456,
+		typ: 4,
+		mode: ""
+	},
+	{ /* 35mm */
+		size: 15335424,
+		w: 4608, h: 3328,
+		typ: 1,
+		mode: ""
+	},
+	{
+		size: 11618752,
+		w: 4012, h: 2896,
+		typ: 1,
+		mode: "Medium-angle"
+	},
+	{
+		size: 7667520,
+		w: 3260, h: 2352,
+		typ: 1,
+		mode: "Small-angle"
+	},
+	/* 12 bit down here: */
+	/* Film ! */
+	{
+		size: 30607488,
+		w: 5216,
+		h:3912,
+		typ: 5,
+		mode: ''
+	}
+],
+/* ImBCBase: get white balance */
+getwb: function(view, typidx, whitelvl) {
+	//console.log('GWB ' + typidx + ' ' + JSON.stringify(globals.infos[typidx]));
+	const t = globals.infos[typidx < 32 ? typidx : ((typidx< 64)? (typidx - 32) : (typidx - 64))];
+	let r=1, g=1, b=1;
+	for (let i=Math.round(0.05*t.h)*2; i<Math.ceil(0.9*t.h); i+=8) {
+		for (let j=Math.round(0.05*t.w)*2; j<Math.ceil(0.9*t.w); j+=8) {
+			let x = globals.getPix(j, i, t.w, view, typidx < 32 ? t.typ : (typidx < 64 ? 32 + t.typ : 64 + t.typ), whitelvl);
+			let lr = x[0];
+			let lg = x[1] + 1;
+			let lb = x[2];
+			let p = Math.sqrt(lg*lg + lb*lb + lr*lr);
+			if (p < 3 || p > (433)) continue;
+			//if (((i*t.w + j) % 50000) < 10)
+			//	console.log('i ' + i + ' j ' + j + ' R ' + lr + ' G ' + lg + ' B ' + lb + ' P ' + p);
+			//if (r + g == 2) {
+			//	console.log('R G B ' + x[0] + ' ' + x[1] + ' ' + x[2] + ' P ' + p + ' LB ' + lb + ' LR ' + lr + ' LG ' + lg);
+			//}
+			b += ((lb)/(p)>1) ? 1 : (lb)/(p);
+			g += ((lg)/(p)>1) ? 1 : (lg)/(p);
+			r += ((lr)/(p)>1) ? 1 : (lr)/(p);
+		}
+	}
+	//console.log('ER EG EB ' + r + ' ' + g + ' ' + b);
+	if ((r > b) && (r > g)) {
+		return [ 10, 10, Math.ceil(300000*g/r), 300000, Math.ceil(300000*b/r), 300000 ];
+	}
+	else if ((b > r) && (b > g)) {
+		return [ Math.ceil(300000*r/b), 300000, Math.ceil(300000*g/b), 300000, 10, 10 ];
+	}
+	else {
+		return [ Math.ceil(300000*r/g), 300000, 10, 10, Math.ceil(300000*b/g), 300000 ];
+	}
+},
+/* ImBCBase: get one downsampled median image value [ r g b ] */
+getPix: function(x, y, w, view, typ, whitelvl) {
+	let outrgb = [];
+	let reds = [];
+	const w3 = w + (typ >= 64 ? w : (w>>1));
+	const xx = x + (typ >= 64 ? x : (x>>1));
+	let shiftr = 0, wbx = 255;
+	while (whitelvl > wbx) {
+		wbx = (2*(wbx+1)) -1; 
+		shiftr ++;
+	}
+	const dd = (typ === 5 || typ === 69) ? 240 : 0;
+	if (typ === 5 || typ == 33) {
+		/* film or stacked 35mm */
+		reds.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+2)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+	}
+	else if (typ === 69 || typ == 65) {
+		/* 16 bit film or 35mm */
+		reds.push(((view.getUint8((y+0)*w3 + xx+2) +  ((view.getUint8((y+0)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+0)*w3 + xx+6) +  ((view.getUint8((y+0)*w3 + xx+7)) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+2)*w3 + xx+2) +  ((view.getUint8((y+2)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+2)*w3 + xx+6) +  ((view.getUint8((y+2)*w3 + xx+7)) << 8))-dd)>>shiftr);
+	}
+	else if (typ > 64) {
+		/* 16 bit mf */
+		reds.push(((view.getUint8((y+1)*w3 + xx+2) +  ((view.getUint8((y+1)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+1)*w3 + xx+6) +  ((view.getUint8((y+1)*w3 + xx+7)) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+3)*w3 + xx+2) +  ((view.getUint8((y+3)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+3)*w3 + xx+6) +  ((view.getUint8((y+3)*w3 + xx+7)) << 8))-dd)>>shiftr);
+	}
+	else if (typ > 33) {
+		/* stacked mf */
+		reds.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+	}
+	else if (typ > 1) {
+		/* mf */
+		reds.push(view.getUint8((y+1)*w + x + 1));
+		reds.push(view.getUint8((y+1)*w + x + 3));
+		reds.push(view.getUint8((y+3)*w + x + 1));
+		reds.push(view.getUint8((y+3)*w + x + 3));
+	} else {
+		/* 35mm */
+		reds.push(view.getUint8(y*w + x + 1));
+		reds.push(view.getUint8(y*w + x + 3));
+		reds.push(view.getUint8((y+2)*w + x + 1));
+		reds.push(view.getUint8((y+2)*w + x + 3));
+	}
+	reds.sort(function(a,b) { return a - b; });
+	// median of red pixels
+	outrgb.push((reds[1] + reds[2]) / 2.0);
+	let greens = [];
+	if (typ === 5 || typ == 33) {
+		/* film or stacked 35mm */
+		greens.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+	}
+	else if (typ === 69 || typ == 65) {
+		/* 16 bit film or stacked 35mm */
+		greens.push((((view.getUint8((y+0)*w3 + xx+0)) +  ((view.getUint8((y+0)*w3 + xx+1) <<8)))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+0)*w3 + xx+4)) +  ((view.getUint8((y+0)*w3 + xx+5) <<8)))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+2) +  ((view.getUint8((y+1)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+6) +  ((view.getUint8((y+1)*w3 + xx+7)) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+2)*w3 + xx+0)) +  ((view.getUint8((y+2)*w3 + xx+1)) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+2)*w3 + xx+4)) +  ((view.getUint8((y+2)*w3 + xx+5)) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+3)*w3 + xx+2) +  ((view.getUint8((y+3)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+3)*w3 + xx+6) +  ((view.getUint8((y+3)*w3 + xx+7)) << 8))-dd)>>shiftr);
+	}
+	else if (typ > 64) {
+		/* 16 bit mf */
+		greens.push((((view.getUint8((y+0)*w3 + xx+2)) +  ((view.getUint8((y+0)*w3 + xx+3) <<8)))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+0)*w3 + xx+6)) +  ((view.getUint8((y+0)*w3 + xx+7) <<8)))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1)) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+4) +  ((view.getUint8((y+1)*w3 + xx+5)) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+2)*w3 + xx+2)) +  ((view.getUint8((y+2)*w3 + xx+3)) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+2)*w3 + xx+6)) +  ((view.getUint8((y+2)*w3 + xx+7)) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+3)*w3 + xx+1)) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+3)*w3 + xx+4) +  ((view.getUint8((y+3)*w3 + xx+5)) << 8))-dd)>>shiftr);
+	}
+	else if (typ > 33) {
+		/* stacked mf */
+		greens.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+1)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+2)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+3)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+3)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+	}
+	else if (typ > 1) {
+		greens.push(view.getUint8(y*w + x + 1));
+		greens.push(view.getUint8(y*w + x + 3));
+		greens.push(view.getUint8((y+1)*w + x));
+		greens.push(view.getUint8((y+1)*w + x + 2));
+		greens.push(view.getUint8((y+2)*w + x + 1));
+		greens.push(view.getUint8((y+2)*w + x + 3));
+		greens.push(view.getUint8((y+3)*w + x));
+		greens.push(view.getUint8((y+3)*w + x + 2));
+	} else {
+		greens.push(view.getUint8(y*w + x));
+		greens.push(view.getUint8(y*w + x + 2));
+		greens.push(view.getUint8((y+1)*w + x + 1));
+		greens.push(view.getUint8((y+1)*w + x + 3));
+		greens.push(view.getUint8((y+2)*w + x));
+		greens.push(view.getUint8((y+2)*w + x + 2));
+		greens.push(view.getUint8((y+3)*w + x + 1));
+		greens.push(view.getUint8((y+3)*w + x + 3));
+	}
+	greens.sort(function(a,b) { return a - b; });
+	outrgb.push((greens[3] + greens[4]) / 2.0);
+	let blues = [];
+	if (typ === 5 || typ === 33) {
+		blues.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+1)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+3)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+3)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+	}
+	else if (typ === 69 || typ === 65) {
+		blues.push((((view.getUint8((y+1)*w3 + xx+0)) +  ((view.getUint8((y+1)*w3 + xx+1) ) <<8))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+1)*w3 + xx+4)) +  ((view.getUint8((y+1)*w3 + xx+5) ) <<8))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+3)*w3 + xx+0)) +  ((view.getUint8((y+3)*w3 + xx+1) ) <<8))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+3)*w3 + xx+4)) +  ((view.getUint8((y+3)*w3 + xx+5) ) <<8))-dd)>>shiftr);
+	}
+	else if (typ > 65) {
+		blues.push((((view.getUint8((y+0)*w3 + xx+0)) +  ((view.getUint8((y+0)*w3 + xx+1) ) <<8))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+0)*w3 + xx+4)) +  ((view.getUint8((y+0)*w3 + xx+5) ) <<8))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+2)*w3 + xx+0)) +  ((view.getUint8((y+2)*w3 + xx+1) ) <<8))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+2)*w3 + xx+4)) +  ((view.getUint8((y+2)*w3 + xx+5) ) <<8))-dd)>>shiftr);
+	}
+	else if (typ > 33) {
+		blues.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+	}
+	else if (typ > 1) {
+		blues.push(view.getUint8(y*w + x));
+		blues.push(view.getUint8(y*w + x + 2));
+		blues.push(view.getUint8((y+2)*w + x));
+		blues.push(view.getUint8((y+2)*w + x + 2));
+	} else {
+		blues.push(view.getUint8((y+1)*w + x));
+		blues.push(view.getUint8((y+1)*w + x + 2));
+		blues.push(view.getUint8((y+3)*w + x));
+		blues.push(view.getUint8((y+3)*w + x + 2));
+	}
+	blues.sort(function(a,b) { return a - b; });
+	outrgb.push((blues[1] + blues[2]) / 2.0);
+	return outrgb;
+},
+/* ImBCBase: build preview in array */
+buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) {
+	if (undefined === wb) wb = [ 6, 10, 1, 1, 6, 10 ];
+	let sfact = scale ? scale : 8;
+	if (size === 2) sfact = 4;
+	else if (size === 1) sfact = 16;
+	const w8 = Math.floor((w+(sfact -1))/sfact);
+	const h8 = Math.floor((h+(sfact -1))/sfact);
+	const rfact = (wb[1]/wb[0]);
+	const gfact = (wb[3]/wb[2]);
+	const bfact = (wb[5]/wb[4]);
+	let outpix = [];
+	let rowiterstart, rowiterend;
+	let coliterstart, coliterend;
+	let transpose = false;
+	if (typ === 5 && orientation === 0)
+		orientation = 3;
+	if (orientation === 3) {
+		rowiterstart = -1*(h8 -1);
+		rowiterend = 1;
+		coliterstart = -1*(w8 - 1);
+		coliterend = 1;
+	} else if (orientation === 6) {
+		transpose = true;
+		rowiterstart = 0;
+		rowiterend = w8;
+		coliterstart = -1*(h8 - 1);
+		coliterend = 1;
+	} else if (orientation === 8) {
+		transpose = true;
+		rowiterstart = -1*(w8 -1);
+		rowiterend = 1;
+		coliterstart = 0;
+		coliterend = h8;
+	} else {
+		rowiterstart = 0;
+		rowiterend = h8;
+		coliterstart = 0;
+		coliterend = w8;
+	}
+	let rhist = new Array(256), ghist = new Array(256), bhist = new Array(256);
+	for (let i = 0; i < 256; i++) {
+		rhist[i] = 0; ghist[i] = 0; bhist[i] = 0;
+	}
+	let cnt = 0;
+	for (let i = rowiterstart; i < rowiterend; i +=1) {
+		for (let j = coliterstart; j < coliterend; j+=1) {
+			let a = globals.getPix(Math.abs(transpose ? i :j)*sfact, Math.abs(transpose ? j :i)*sfact, w, view, typ, whitelvl);
+			outpix.push(a[0]);
+			outpix.push(a[1]);
+			outpix.push(a[2]);
+			rhist[a[0]]++;
+			ghist[a[2]]++;
+			bhist[a[2]]++;
+			cnt++;
+		}
+	}
+	// cut off top and bottom 0.2 and 3%
+	let cntx = 0, rallmin = 0, rallmax = 255;
+	while (cntx < (cnt * 0.03))
+		cntx += rhist[rallmin++];
+	if (rallmin > 0) rallmin --;
+	cntx = 0;
+	while (cntx < (cnt * 0.002))
+		cntx += rhist[rallmax--];
+	if (rallmax < 255) rallmax++;
+	let gallmin = 0, gallmax = 255;
+	cntx = 0;
+	while (cntx < (cnt * 0.03))
+		cntx += ghist[gallmin++];
+	if (gallmin > 0) gallmin --;
+	cntx = 0;
+	while (cntx < (cnt * 0.002))
+		cntx += ghist[gallmax--];
+	if (gallmax < 255) gallmax++;
+	let ballmin = 0, ballmax = 255;
+	cntx = 0;
+	while (cntx < (cnt * 0.03))
+		cntx += bhist[ballmin++];
+	if (ballmin > 0) ballmin --;
+	cntx = 0;
+	while (cntx < (cnt * 0.002))
+		cntx += bhist[ballmax--];
+	if (ballmax < 255) ballmax++;
+	let allmin = Math.min(rallmin, gallmin, ballmin);
+	let allmax = Math.max(rallmax, gallmax, ballmax);
+	let fact;
+	if (allmax > 247 && allmin < 8) {
+		fact = 1;
+		allmin = 0;
+		//console.log('Fact 1 ' + fact + ' i ' + allmin + ' a ' + allmax);
+	}
+	else if (allmax - allmin < 1) {
+		fact = 1;
+		//console.log('Fact 2 ' + fact + ' i ' + allmin + ' a ' + allmax);
+	}
+	else {
+		fact = 254/(allmax - allmin);
+		//console.log('Fact 3 ' + fact + ' i ' + allmin + ' a ' + allmax);
+	}
+	//console.log('ai ' + allmin + ' aa ' + allmax + ' ff ' + fact);
+	const o = scale ? 3 : 4;
+	const uic = new Uint8ClampedArray(h8 * w8 * o);
+	for (let i = 0; i < h8; i++) {
+		for (let j=0; j< w8; j++) {
+			let nr = ((outpix[3*((i * w8) + j)] * rfact) - allmin) * fact + allmin;
+			let ng = ((outpix[3*((i * w8) + j) + 1] * gfact) - allmin) * fact + allmin;
+			let nb = ((outpix[3*((i * w8) + j) + 2] * bfact) - allmin) * fact + allmin;
+			if (nr >= 255) {
+				if (ng < 250) ng = Math.floor(ng * 255 / nr);
+				if (nb < 250) nb = Math.floor(nb * 255 / nr);
+				nr = 255;
+			}
+			else if (nr <= 0) nr = 0;
+			if (ng >= 255) {
+				if (nr < 250) nr = Math.floor(nr * 255 / ng);
+				if (nb < 250) nb = Math.floor(nb * 255 / ng);
+				ng = 255;
+			}
+			else if (ng <= 0) ng = 0;
+			if (nb >= 255) {
+				if (ng < 250) ng = Math.floor(ng * 255 / nb);
+				if (nr < 250) nr = Math.floor(nr * 255 / nb);
+				nb = 255;
+			}
+			else if (nb <= 0) nb = 0;
+			// maybe some brightening gamma?
+			uic[o * ((i*w8) + j)] = 255-Math.floor(255*((255-nr)/255)*((255-nr)/255));
+			uic[o * ((i*w8) + j) + 1] = 255-Math.floor(255*((255-ng)/255)*((255-ng)/255));
+			uic[o * ((i*w8) + j) + 2] = 255-Math.floor(255*((255-nb)/255)*((255-nb)/255));
+			if (!scale) uic[o * ((i*w8) + j) + 3] = 255;
+		}
+	}
+	return uic;
+},
+/* ImBCBase: adjust A:\imback\... format to /imback/... */
+adjurl: function(url) {
+	if (url.url) url = url.url;
+	if (url.toUpperCase().substring(0,3) !== 'A:\\')
+		return url;
+	let n = url.substring(2);
+	while (n.indexOf("\\") > -1) {
+		n = n.substring(0, n.indexOf("\\")) + '/' + n.substring(n.indexOf('\\') +1);
+	}
+	return n;
+},
+/* Indentation in - end of globals */
+}
+/* * * ************************************* globals, E N D *************************************** */
+/* * * ************************************* Main class *************************************** */
 class ImBCBase {
 static progname = '';
 /* Indentation out */
+
 // ImBCBase: generic data
 mylang = 'en';
 withpreview = true;
-dooverwrite = false;
-autotime = false;
 // experimental
 neutral = false;
 metadata = false;
@@ -1036,10 +1472,6 @@ copyright = '';
 artist = '';
 // { name: 'xxx.jpg', data: array-ifd... }
 #exififds = [];
-connvers = ''; // hw version from cmd 3012
-imbfree = -1;
-disconnected = true;
-discknown = false; // we do not know if connected
 
 // ImBCBase: fake long exposure:
 #addimgs = [];
@@ -17927,9 +18359,7 @@ constwb = false;
 incdcp = true;
 /* ImBCBase: debug */
 debugflag = false;
-useraw = null;
-imbweb = 'http://192.168.8.101:8080';
-//imbweb = 'http://192.168.0.72:8080';
+// mis-nomer from app
 fromintent = false; // 1: normal 2: stack/fakelong (> 1 DNG, to raw phase)  3: backward (== 1 DNG)  4: to dng phase when stacking 
 
 constructor() {
@@ -17978,7 +18408,7 @@ rmesc(str) {
 }
 /* ImBCBase: get part of translation */
 xl0(str, base) {
-	if (undefined === base) base = globals.texts;
+	if (undefined === base) base = mytexts;
 	const i = str.indexOf('.');
 	if (i === -1) {
 		let r = base[str][this.mylang];
@@ -18018,26 +18448,25 @@ subst(r, arg0, arg1, arg2, arg3) {
 /* ImBCBase: translate one string with parameters - title for app */
 xlx(str) {
 	const l = '00' === this.mylang ? 'en' : this.mylang;
-	const txt = globals.apptexts.find((v) => v.Language === l);
+	const txt = apptexts.find((v) => v.Language === l);
 	return txt.s[str].title;
 }
 /* ImBCBase: translate one string with parameters - select title for app */
 xlxi(str, arg0) {
 	const l = '00' === this.mylang ? 'en' : this.mylang;
-	const txt = globals.apptexts.find((v) => v.Language === l);
+	const txt = apptexts.find((v) => v.Language === l);
 	return txt.s[arg0].r.find((v) => v.cmd == str).title;
 }
 /* ImBCBase: translate one string with parameters - option title for app */
 xlxx(str, arg0, arg1) {
 	const l = '00' === this.mylang ? 'en' : this.mylang;
-	const txt = globals.apptexts.find((v) => v.Language === l);
+	const txt = apptexts.find((v) => v.Language === l);
 	return txt.s[arg1].r.find((v) => v.cmd == str).list[arg0];
 }
 /* ImBCBase: translate one string with parameters */
 xl(str, arg0, arg1, arg2, arg3, base) {
 	// console.log(' XL ' + str + ' - ' + base + ' - ' + arg0 + ' - ' + arg1);
-	if (undefined === base) base = globals.texts;
-	//if (this.mylang === '00') this.mylang = 'en';
+	if (undefined === base) base = mytexts;
 	if (this.mylang === '00') {
 		let res = '[' + str;
 		if (undefined !== arg0) {
@@ -18074,8 +18503,8 @@ querylang(name, offset) {
 		this.debugflag = true;
 		if (this.previewworker) this.previewworker.postMessage({ cmd: 'setdbg' });
 		if (document) { // translation output into browser log
-			for (const el of Object.keys(globals.texts))
-				this.prxl(el, globals.texts[el]);
+			for (const el of Object.keys(mytexts))
+				this.prxl(el, mytexts[el]);
 			document.getElementById('langsel').innerHTML += '<option value="00" onclick="imbc.setlang()">00</option></select>';
 			if (this.useimblang && '00' === l)
 				document.getElementById('langsel').value = '99';
@@ -18140,15 +18569,17 @@ findlang(i) {
 	if ('zZ' === i) {
 		found = 1;
 		this.mylang = 'en';
+		this.imbweb = 'http://127.0.0.1:8889';
 	}
 	if ('zZ' === i || ('00' === this.mylang)) {
 		this.debugflag = true;
+		this.mylang = 'en';
 		if (this.previewworker) this.previewworker.postMessage({ cmd: 'setdbg' });
 	}
-	/*if ('zZ' === i || window?.location.href.startsWith('http://1')) {
-		this.imbweb = window.location.origin;
-	}*/
-	if (this.previewworker) this.previewworker.postMessage({ cmd: 'seturl', url: this.imbweb });
+	if ('zZ' === i || window?.location.href.startsWith('http://1')) {
+		if (document) this.imbweb = window.location.origin;
+		if (this.previewworker) this.previewworker.postMessage({ cmd: 'seturl', url: this.imbweb });
+	}
 	if (this.useimblang && this.imblang) {
 		this.mylang = this.imblang;
 		if (!found) this.mylang = 'en';
@@ -18339,9 +18770,9 @@ static nametotime(name, corrdelta=0) {
 		let nn = Number.parseInt(res[13]);
 		let newname = name;
 		let datestr = "" + yr + "-" + ((mon < 10) ? "0":"") + mon + "-" + ((day < 10) ? "0":"") + day + "T"+
-			((hr < 10) ? "0":"") + hr + ":" + ((min < 10) ? "0":"") + min + ":" + ((sec < 10) ? "0":"") + sec;
+			((hr < 10) ? "0":"") + hr + ":" + ((min < 10) ? "0":"") + min + ":" + ((sec < 10) ? "0":"") + sec + 'Z';
 		if (corrdelta !== 0) {
-			let nd = new Date(new Date(datestr).valueOf() + corrdelta - (60000*new Date().getTimezoneOffset())).toISOString();
+			let nd = new Date(new Date(datestr).valueOf() + corrdelta).toISOString();
 			yr = Number.parseInt(nd.substring(0,4));
 			mon = Number.parseInt(nd.substring(5,7));
 			day = Number.parseInt(nd.substring(8,10));
@@ -18374,26 +18805,27 @@ static async mydecode(data, act) {
 
 /* ImBCBase: actual processing function for one file */
 handleone(orientation) {
-	const f = (this.debugflag && this.useraw) ? this.useraw : this.allfiles[this.actnum];
+	let f = (this.debugflag && this.useraw) ? this.useraw : this.allfiles[this.actnum];
 	if (undefined === f) {
 		this.mappx(true, 'process.nothing');
 		return this.handlenext();
 	}
+	if (f.imbackintension?.imbackextension)
+		f = f.imbackintension;
 	if (undefined === f.size && !f.data) {
-	  let cachehit;
-	  if ((cachehit = this.findcache(f.name ? f.name : f))) {
-		  this.allfiles[this.actnum] = cachehit.reader;
-		  this.handleone(orientation);
-	  }
-	  else {
 		setTimeout(() => {
-		  this.previewworker.postMessage({ cmd: 'resolveandhandle', n: (f.url ? f.url : f), o: orientation });
-		  // onmessage: { ok?, n: f.name, o: orientation, fl: fromloop, c: cacheentry }
-		  // set allfiles[this.actnum] to cacheentry.reader and call handleone(o, fl)
-		  // add cache
+		  this.resolver(f, (url, fx) => {
+				this.allfiles[this.actnum] = fx;
+				this.handleone(orientation);
+			}, (url) => {
+				this.mappx(false, 'words.sorryerr');
+				this.mappx(true, 'process.erraccess', url);
+				this.stats.error ++;
+				if (undefined !== this.exitcode) this.exitcode++;
+				this.handlenext();
+		  });
 		}, 10);
-	  }
-	  return;
+		return;
 	}
 	else if (undefined === f.size && f.data) {
 		// from file chooser
@@ -18412,7 +18844,7 @@ handleone(orientation) {
 	let { date, datestr, nn, newname } = ImBCBase.nametotime(rawname, this.corrdelta);
 	if (this.corrdelta && newname?.length) rawname = newname;
 	if (rawname.substring(rawname.length - 4).toUpperCase() !== '.RAW') {
-		if (f.imbackextension && rawname.substring(rawname.length - 4).toUpperCase() !== '.JPG') {
+		if (ImBCBase.progname.startsWith('imbapp') && f.imbackextension && rawname.substring(rawname.length - 4).toUpperCase() !== '.JPG') {
 			this.mappx(0, 'process.notraw',inname);
 			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), f, f.name);
 			return;
@@ -18643,7 +19075,6 @@ handleone(orientation) {
 					this.#historystring = '(' + this.#historystring + ')/' + Math.round(fc*100)/100;
 				}
 				this.#addimgs = [];
-				this.addall = false;
 			}
 			else {
 				return this.handlenext();
@@ -18654,7 +19085,7 @@ handleone(orientation) {
 		if (dateok) {
 			this.mappx(0, 'process.datetime', datestr);
 		}
-		let ori = orientation ? orientation : (typ === 5 ? 3 : 1);
+		let ori = orientation ? orientation : ((typ % 32) === 5 ? 3 : 1);
 		let transp = false;
 		if (ori !== 1) {
 			//this.mappx(0, 'process.orientation', this.xl0('preview.orients.' + globals.orients[ori]));
@@ -18680,6 +19111,7 @@ handleone(orientation) {
 			ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config - chunky */
 			ti.addEntry(282, 'RATIONAL', [ 30, 1 ]); /* X resolution */
 			ti.addEntry(283, 'RATIONAL', [ 30, 1 ]); /* y resolution */
+			ti.addEntry(50707, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Backward Version */
 		}
 		ti.addEntry(271, 'ASCII', 'ImBack'); /* Make */
 		ti.addEntry(50708, 'ASCII', 'ImBack' + ' ' + globals.types[typ < 32 ? typ : ((typ< 64)? (typ - 32) : (typ - 64))]); /* Unique model */
@@ -18718,22 +19150,23 @@ handleone(orientation) {
 			}
 		}
 		ti.addEntry(50706, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Version */
-		if (this.copyright?.length && this.metadata) {
+		let rightbytes = [];
+		if (this.metadata && this.copyright?.length) {
 			// do UTF-8 bytes instead of ASCII if necessary
-			let bytes = new TextEncoder().encode(this.copyright);
-			//console.log('cr str ' + this.copyright.length + ' bytes ' + bytes.length);
-			if (bytes.length === this.copyright.length)
+			rightbytes = new TextEncoder().encode(this.copyright);
+			if (rightbytes.length === this.copyright.length)
 				ti.addEntry(33432, 'ASCII', this.copyright); /* copyright */
 			else
-				ti.addEntry(33432, 'BYTE', bytes); /* copyright */
+				ti.addEntry(33432, 'BYTE', rightbytes); /* copyright */
 		}
+		let artbytes = [];
 		if (this.metadata && this.artist?.length) {
 			// do UTF-8 bytes instead of ASCII if necessary
-			let bytes = new TextEncoder().encode(this.artist);
-			if (bytes.length === this.artist.length)
+			artbytes = new TextEncoder().encode(this.artist);
+			if (artbytes.length === this.artist.length)
 				ti.addEntry(315, 'ASCII', this.artist); /* artist */
 			else
-				ti.addEntry(315, 'BYTE', bytes); /* artist */
+				ti.addEntry(315, 'BYTE', artbytes); /* artist */
 		}
 		if (!this.neutral) {
 			const xmp1 = `<?xpacket begin='`;
@@ -18742,19 +19175,16 @@ handleone(orientation) {
 			const xmp4 = `' xmp:CreatorTool='`;
 			const xmp5 = `'>`;
   			const xmp6 = `</rdf:Description></rdf:RDF></x:xmpmeta><?xpacket end='r'?>`;
-			let artbytes =  [], rightbytes = [];
 			let xmpx = [ xmp1, xmp2 ];
 			if (dateok) xmpx.push(xmp3);
 			xmpx.push(xmp4);
 			xmpx.push(xmp5);
-			if (this.metadata && this.artist?.length) {
+			if (artbytes?.length) {
 				xmpx[xmpx.length-1] += `<dc:creator><rdf:Seq><rdf:li>`;
-    			artbytes = new TextEncoder().encode(this.artist);
     			xmpx.push(`</rdf:li></rdf:Seq></dc:creator>`);
 			}
-			if (this.metadata && this.copyright?.length) {
+			if (rightbytes?.length) {
 				xmpx[xmpx.length-1] += `<dc:rights><rdf:Alt><rdf:li xml:lang='x-default'>`;
-    			rightbytes = new TextEncoder().encode(this.copyright);
     			xmpx.push(`</rdf:li></rdf:Alt></dc:rights>`);
 			}
 			let swbytes = new TextEncoder().encode(ImBCBase.progname + ' ' + globals.version);
@@ -18868,8 +19298,8 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression - none */
 		ti.addEntry(50707, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Backward Version */
 		ti.addEntry(50717, 'LONG', [ (typ >= 5) ? (whitelvl > 0 ?  whitelvl : 4095) : 255 ]); /* White level */
-		if (typ === 5) ti.addEntry(50714, 'SHORT', [ 240, 240, 240, 240 ] ); /* Blacklevel */
-		if (typ === 5) ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
+		if ((typ % 32)  === 5) ti.addEntry(50714, 'SHORT', [ 240, 240, 240, 240 ] ); /* Blacklevel */
+		if ((typ % 32)  === 5) ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
 		ti.addEntry(262, 'SHORT', [ 0x8023 ]); /* Photometric - CFA */
 		ti.addEntry(277, 'SHORT', [ 1 ]); /* Samples per Pixel */
 		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config - chunky */
@@ -18886,10 +19316,6 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		this.handlenext();
 	};
 	reader.readAsArrayBuffer(f.imbackintension ? f.imbackintension : f);
-}
-/* ImBCBase: wrapper for zip output */
-writewrap(name, type, okmsg, arr1, origname) {
-	this.writefile(name, type, okmsg, arr1, origname);
 }
 /* ImBCBase: handle one entry from imb PHOTO/MOVIE listing page */
 handle1imb(url, time) {
@@ -18924,9 +19350,10 @@ handle1imb(url, time) {
 			processed: false,
 			time: timest,
 			size: url?.size,
-			imbackintension: url.size ? url : undefined,
-			wasselected: (-1 !== (this.dloads.findIndex(e => (e.toUpperCase() === rawname.toUpperCase()))))
+			imbackintension: url.size ? url : undefined
 		};
+		if (this.dloads?.length)
+			newimbele.wasselected = (-1 !== (this.dloads.findIndex(e => (e.toUpperCase() === rawname.toUpperCase()))));
 		this.imbeles.push(newimbele);
 	}
 	if (rawname.substring(rawname.length -4).toUpperCase() === '.RAW') {
@@ -18976,7 +19403,7 @@ handle1imb(url, time) {
 		this.appmsgxl(0, 'onimback.strangename', rawname);
 	}
 }
-/* *************************************** Backward helper stuff *************************************** */
+/* * * ************************************* Backward helper STUFF *************************************** */
 /* ImBCBackw: backward: handle dng like raw */
 parseDng(f, onok, onerr) {
 	// blindly assumes that it is one of our own DNG
@@ -19025,17 +19452,17 @@ parseDng(f, onok, onerr) {
 				datalen = subifdstart - rawstripstart;
 				const zzz = globals.infos.findIndex(v => v.size === datalen);
 				if (-1 === zzz) {
-					this.appmsg('Works only for originally created DNGs.');
+					this.appmsg('Works only for originally created DNGs.', true);
 					return onerr(f.name);
 				}
 			}
 			else {
-				this.appmsg('Works only for originally created DNGs.');
+				this.appmsg('Works only for originally created DNGs.', true);
 				return onerr(f.name);
 			}
 		}
 		else {
-			this.appmsg('Works only for originally created DNGs.');
+			this.appmsg('Works only for originally created DNGs.', true);
 			return onerr(f.name);
 		}
 	}
@@ -19066,7 +19493,7 @@ parseDng(f, onok, onerr) {
 			onok(f.name, fx, fx.rot);
 	});
 }
-/* ImBCBackw: backward: actual processing function for one file */
+/* ImBCBase: help for multi actual processing function for one file */
 handleoneback(fx) {
 	const f = (fx !== undefined) ? fx : this.allfiles[this.actnum];
 	if (undefined === f) {
@@ -19074,10 +19501,18 @@ handleoneback(fx) {
 		return this.handlenext();
 	}
 	if (undefined === f.size && !f.data) {
-		this.appmsg('Error reading DNG: ' + f.name);
-		if (undefined !== this.exitcode) this.exitcode++;
-		this.stats.error++;
-		this.handlenext();
+		setTimeout(() => {
+		  this.resolver(f, (url, fx) => {
+				this.allfiles[this.actnum] = fx;
+				this.handleoneback(fx);
+			}, (url) => {
+				this.mappx(false, 'words.sorryerr');
+				this.appmsgxl(true, 'process.erraccess', url);
+				this.stats.error ++;
+				if (undefined !== this.exitcode) this.exitcode++;
+				this.handlenext();
+		  });
+		});
 		return;
 	}
 	else if (undefined === f.size && f.data) {
@@ -19116,7 +19551,7 @@ handleoneback(fx) {
 	}
 	else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
 		this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
-		this.appmsg('Seems not to be DNG: ' + f.name, true, true);
+		this.appmsg('Seems not to be DNG: ' + f.name, true);
 		this.stats.error++;
 		return this.handlenext();
 	}
@@ -19131,7 +19566,7 @@ handleoneback(fx) {
 			for (let j=0; j<view.byteLength; j++) {
 				out[j] = view.getUint8(j);
 			}
-			if (this.fromintent === 3)
+			if (this.fromintent !== 2)
 				this.writefile(rawname, 'application/octet-stream', 'process.converted', out, f.name);
 			else {
 				this.allfiles[this.actnum] = {
@@ -19149,7 +19584,7 @@ handleoneback(fx) {
 			if (undefined !== this.exitcode) this.exitcode++;
 			this.handlenext();
 		}
-		reader.readAsArrayBuffer(f);
+		reader.readAsArrayBuffer(f.imbackintension ? f.imbackintension : f);
 	} else {
 		this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
 		this.appmsg('Size of raw data of ' + f.name + ' seems not to match known formats, ignoring...', true);
@@ -19158,24 +19593,27 @@ handleoneback(fx) {
 		this.handlenext();
 	}
 }
-/* *************************************** Backward helper stuff E N D *************************************** */
+/* * * ************************************* Backward helper STUFF E N D *************************************** */
 /* Indentation in - end of class ImBCBase */
 }
-/* *************************************** BASE class E N D *************************************** */
-/* *************************************** HTML helper class *************************************** */
+/* *************************************** main class E N D *************************************** */
+/* *************************************** Android spec class *************************************** */
 class ImBCHtmlOut extends ImBCBase {
 /* Indentation out */
+//imbweb = 'http://192.168.8.101:8080';
+imbweb = 'http://192.168.0.72:8080';// mis-nomer from app
 // ImBCHtmlOut: from the back itself
 untypedclasses = []; // elements for groups with type for visual browser
 typedclasses = []; // elements for groups with type for visual browser
 imbeles = [];
 magentry = null;
+dloads = []; // already known downloaded
 // current preview image
 currentrot = 1; // see oriecw above
 // single-step/process all/skip all
 stepmode = 1;
 // bottom most text index
-#dispcnt = 1;
+dispcnt = 1;
 // const if html:
 checkdlfolder = true;
 // app language
@@ -19209,6 +19647,10 @@ constructor() {
 		console.log
 	}
 }
+/* ImBCBase: wrapper for zip output */
+writewrap(name, type, okmsg, arr1, origname) {
+	this.writefile(name, type, okmsg, arr1, origname);
+}
 /* ImBCHtmlOut: output one thing via browser */
 writefile(name, type, okmsg, arr1, origname, renameidx) {
 	let ext1 = name.substring(name.length -4).toUpperCase();
@@ -19225,11 +19667,11 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 			   this.subdir = a.substring(0,4) + a.substring(5,7) + a.substring(8,10) + '_' + a.substring(11,13) + a.substring(14,16);*/
 			   let dispstr = decodeURIComponent(str) ; /*+ '/' + this.subdir;*/
 			   console.log('FS: ' + d);
-			   for (const o in globals.texts.process.copyokcheckdl) {
-					   globals.texts.process.copyokcheckdl[o] = this.isubst(globals.texts.process.copyokcheckdl[o], 'X', dispstr);
+			   for (const o in mytexts.process.copyokcheckdl) {
+					   mytexts.process.copyokcheckdl[o] = this.isubst(mytexts.process.copyokcheckdl[o], 'X', dispstr);
 			   }
-			   for (const o in globals.texts.process.convertedcheckdl) {
-					   globals.texts.process.convertedcheckdl[o] = this.isubst(globals.texts.process.convertedcheckdl[o], 'X', dispstr);
+			   for (const o in mytexts.process.convertedcheckdl) {
+					   mytexts.process.convertedcheckdl[o] = this.isubst(mytexts.process.convertedcheckdl[o], 'X', dispstr);
 			   }
 				window.resolveLocalFileSystemURL(cordova.file.applicationStorageDirectory, (fs) => {
 					this.rootfsx = fs;
@@ -19392,378 +19834,248 @@ writeslice(fw, name, arr, onok, onerr, off) {
 	else
 		fw.write(arr);
 }
-/* ImBCHtmlOut: find html style for translation */
-applystyle(span, msg, base) {
-	if (undefined === base) base = globals.texts;
-	const i = msg.indexOf('.');
-	if (i === -1) {
-		let r = base[msg]['htmlstyle'];
-		if (r !== undefined) {
-			for (const s of r) {
-				span.style[s[0]] = s[1];
-			}
-		}
-		return span;
+/* ImBCHtml: info screen */
+appinfo() {
+	//document.getElementById('pages').style['display'] = 'none';
+	document.getElementById('phpv').src="";
+	document.getElementById('genericok').style['border-color'] = 'grey';
+	document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('main.apptitle'));
+	document.getElementById('okmsg').innerHTML += '<br>';
+	document.getElementById('okmsg').innerHTML += `<a href="#" onclick="window.open('https://shyrodgau.github.io/imbraw2dng/HISTORY.txt', '_system'); return false;">` + globals.version + '</a>';
+	if (this.connvers) {
+		document.getElementById('okmsg').innerHTML += ('<br>ImB: ' + this.connvers);
+		const s = document.createElement('span');
+		s.setAttribute('data-myxlkey','app.free');
+		document.getElementById('okmsg').innerHTML += '<br>';
+		document.getElementById('okmsg').append(s);
+		if (this.imbfree > 10000000000)
+			document.getElementById('okmsg').innerHTML += (' ' + Math.round(this.imbfree/100000000)/10 + ' GB');
+		else /*if (this.imbfree > 10000000)*/
+			document.getElementById('okmsg').innerHTML += (' ' + Math.round(this.imbfree/100000)/10 + ' MB');
+		//else
+		//	document.getElementById('okmsg').innerHTML += ('<br>Free: ' + Math.round(this.imbfree/100)/10 + ' KB');
+		//document.getElementById('okmsg').innerHTML += ('<br>Free: ' + this.imbfree + ' B');
 	}
-	else {
-		const e = base[msg.substring(0,i)];
-		return this.applystyle(span, msg.substring(i+1), e);
-	}
+	document.getElementById('okmsg').innerHTML += `<br><a href="#" onclick="window.open(imbc.xl('app.helpurl'), '_system'); return false;" data-myxlkey="main.help"></a> - <span data-myxlkey="main.newmsg"/>`;
+	document.getElementById('okmsg').innerHTML += `<br><span style="font-weight:normal;font-size:75%;">Contains parts of <a href="#" onclick="window.open('https://fonts.google.com/noto/specimen/Noto+Sans+Symbols+2', '_system'); return false;">NotoSansSymbols2-Regular</a> font
+	licensed under <a href="#" onclick=" window.open('http://scripts.sil.org/OFL', '_system'); return false;">Open Font License</a>.</span>`;
+	// https://github.com/apache/cordova-plugin-inappbrowser/ https://github.com/apache/cordova-plugin-file/ https://github.com/frontyard/cordova-plugin-exoplayer/
+	document.getElementById('okmsg').innerHTML += `<br><span style="font-weight:normal;font-size:75%;">Powered by <a href="#" onclick="window.open('https://cordova.apache.org','_system'); return false;">Apache Cordova</a> Plugins: 
+	<a href="#" onclick="window.open('https://github.com/apache/cordova-plugin-inappbrowser/','_system'); return false;">InAppBrowser</a>, 
+	<a href="#" onclick="window.open('https://github.com/apache/cordova-plugin-file/','_system'); return false;">File</a>, 
+	<a href="#" onclick="window.open('https://github.com/NeoLSN/cordova-plugin-android-permissions','_system'); return false;">AndroidPermissions</a>,  
+	<a href="#" onclick="window.open('https://github.com/cyph/cordova-plugin-chooser/','_system'); return false;">Chooser</a>,
+	<a href="#" onclick="window.open('https://github.com/torsten-simon/cordova-plugin-intent/','_system'); return false;">Intent</a>,
+	<a href="#" onclick="window.open('https://github.com/shyrodgau/cordova-plugin-saf-mediastore/','_system'); return false;">SafMediastore</a><br>Based on work by Michele Asciutti from the ImBack User Group.</span>
+	<br><a href="http://localhost/res/LICENSE.txt">License Info:</a>
+	<br><iframe src="http://localhost/res/LICENSE.txt" id="liciframe" style="width: 100%;zoom:50%;">`;
+	/*setTimeout(() => {
+		frames['liciframe'].contentDocument.head.innerHTML += ('<style type="text/css">*{font-size:5px;}</style>');
+	}, 100);*/
+	this.xlateall();
+	this.showmsg();
 }
-/* ImBCHtmlOut: output function to main log */
-appmsg(msg, opt) {
-	const s = document.createElement('span');
-	s.innerHTML = msg;
-	this.#dispcnt++;
-	s.id = 'mappx_' + this.#dispcnt;
-	const msgel = document.getElementById('outmsg');
-	msgel.append(s);
-	const ll = document.getElementById('mappx_' + this.#dispcnt);
-	if (ll) {
-		ll.scrollIntoView(false, { block: 'nearest' });
-	}
-	if (opt !== false)
-		msgel.innerHTML += '<br>';
-	if (opt === true)
-		msgel.innerHTML += '<br>&nbsp;<br>';
-}
-/* ImBCHtmlOut: output function to main log */
-appmsgxl(opt, msg, arg0, arg1, arg2, arg3) {
-	const s = this.genspan(msg, arg0, arg1, arg2, arg3);
-	this.#dispcnt++;
-	s.id = 'mappx_' + this.#dispcnt;
-	const msgel = document.getElementById('outmsg');
-	msgel.append(s);
-	const ll = document.getElementById('mappx_' + this.#dispcnt);
-	if (ll) {
-		ll.scrollIntoView(false, { block: 'nearest' });
-	}
-	if (opt !== false)
-		msgel.innerHTML += '<br>';
-	if (opt === true)
-		msgel.innerHTML += '<br>&nbsp;<br>';
-	let logbt = document.getElementById('logbut');
-	if (logbt) {
-		logbt.disabled = false;
-	}
-}
-/* ImBCHtmlOut: translate one element */
-xl1(el) {
-	if (el.attributes.getNamedItem('data-myxlkey')) {
-		el.innerHTML = this.xl(el.attributes.getNamedItem('data-myxlkey').value, el.attributes.getNamedItem('data-myxlarg0')?.value, el.attributes.getNamedItem('data-myxlarg1')?.value, el.attributes.getNamedItem('data-myxlarg2')?.value, el.attributes.getNamedItem('data-myxlarg3')?.value );
-	}
-	if (el.attributes.getNamedItem('data-myvalxlkey')) {
-		el.value = this.xl(el.attributes.getNamedItem('data-myvalxlkey').value);
-	}
-	if (el.attributes.getNamedItem('data-mytitlexlkey')) {
-		el.title = this.xl(el.attributes.getNamedItem('data-mytitlexlkey').value);
-	}
-	if (el.attributes.getNamedItem('data-myhrefxlkey')) {
-		el.href = this.xl(el.attributes.getNamedItem('data-myhrefxlkey').value);
-	}
-	if (el.attributes.getNamedItem('data-myxxlst')) {
-		el.innerHTML = this.xlx(el.attributes.getNamedItem('data-myxxlst').value) + ': ';
-	}
-	if (el.attributes.getNamedItem('data-myxxlsti')) {
-		el.innerHTML = this.xlxi(el.attributes.getNamedItem('data-myxxlsti').value, el.attributes.getNamedItem('data-myxlarg0')?.value) + ': ';
-	}
-	if (el.attributes.getNamedItem('data-myxxlstx')) {
-		el.innerHTML = this.xlxx(el.attributes.getNamedItem('data-myxxlstx').value, el.attributes.getNamedItem('data-myxlarg0')?.value, el.attributes.getNamedItem('data-myxlarg1')?.value);
-	}
-	return el;
-}
-/* ImBCHtmlOut: wrapper for zip output */
-starthandleone() {
-	if (this.allfiles.length === 0) {
-		this.totnum = 0;
-		this.afterfinish();
-		return;
-	}
-	else if (this.fromintent === 3 || this.fromintent === 2) {
-		return this.handleoneback();
-	}
-	this.handleonex();
-}
-/* ImBCHtmlOut: main handler function for one file */
-handleonex() {
-	const f = (this.debugflag && this.useraw) ? this.useraw : this.allfiles[this.actnum];
-	this.currentrot = (f.rot || (f.rot === 0)) ? f.rot : 1;
-	let rawname = ImBCBase.basename(f.url ? f.url : (f.name ? f.name : f));
-	if (this.stepmode === 2) {
-		// skip rest
-		if (!this.imbcb && !this.fromvisbrows) this.shownormal();
-		return this.handlenext();
-	}
-	else if (this.stepmode === 1) {
-		// show preview and ask for rotation, skip, save
-		// then (in handler) set mode, call handleone (if save) or handlenext (if skip)
-		if (!this.imbcb) this.showquestion();
-		if (undefined === f) {
-			return;
-		}
-		if (this.totnum > 1) {
-			document.getElementById('qhdr').innerHTML = '[' + (1 + this.actnum) + ' / ' + this.totnum + '] ';
-		} else document.getElementById('qhdr').innerHTML = '';
-		if (rawname.substring(rawname.length -4).toUpperCase() === '.JPG' ||
-			rawname.substring(rawname.length -5).toUpperCase() === '.JPEG') {
-			/* jpeg preview */
-			this.#qappx('main.file.jpeg', rawname);
-			if (f.name) {
-				// read jpeg file for preview
-				const fr = f.imbackextension ? f : new FileReader();
-				fr.onload = (evt) => {
-					let contents = evt.target.result;
-					contents = 'data:image/jpeg;' + contents.substring(8);
-					document.getElementById('jpegpreview').src = contents;
-					/* shown in onload of img */
-				}
-				fr.onerror = (evt) => {
-					console.log('JPEG preview reader error for ' + f.name + ' ' + JSON.stringify(evt));
-					this.setpverr();
-				}
-				fr.readAsDataURL(f);
-			}
-			else {
-				// simply set image src
-				document.getElementById('jpegpreview').src = this.imbweb + globals.adjurl(f)+'?custom=1&cmd=4001';
-			}
-		}
-		else if (rawname.substring(rawname.length -4).toUpperCase() === '.MP4') {
-			// simply set image src
-			document.getElementById('jpegpreview').src = this.imbweb + globals.adjurl(f)+'?custom=1&cmd=4001';
-			this.#qappx('main.file', rawname);
-		}
-		else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
-			/* no preview */
-			this.#qappx('main.file.nopreview', rawname);
-			this.setnopv();
-		}
-		else {
-			const zz = globals.infos.findIndex(v => v.size === f.size);
-			if (zz === -1 && undefined !== f.size) {
-				/* no preview */
-				this.#qappx('main.file.rawunknown', rawname, f.size);
-				this.setnopv();
-			} else {
-				this.#qappx('main.file',rawname);
-				this.buildpreview(f, 1, () => { this.setrawpv(); }, () => { this.setpverr(); });
-			}
-		}
-	}
-	else { // normal processing without question
-		if (this.fromintent === 2)
-			this.handleoneback();
-		else {
-			if (!this.fromvisbrows) this.shownormal();
-			this.handleone(f.rot);
-		}
-	}
-}
-/* ImBCHtmlOut: translation helper */
-genspan(key, arg0, arg1, arg2, arg3) {
-	const s = this.applystyle(document.createElement('span'), key);
-	s.setAttribute('data-myxlkey', key);
-	if (undefined !== arg0) {
-		s.setAttribute('data-myxlarg0', arg0);
-		if (undefined !== arg1) {
-			s.setAttribute('data-myxlarg1', arg1);
-			if (undefined !== arg2) {
-				s.setAttribute('data-myxlarg2', arg2);
-				if (undefined !== arg3) {
-					s.setAttribute('data-myxlarg3', arg3);
-				}
-			}
-		}
-	}
-	return this.xl1(s);
-}
-/* ImBCHtmlOut: translated append to preview header */
-#qappx(key, arg0, arg1, arg2, arg3) {
-	const s = this.genspan(key, arg0, arg1, arg2, arg3);
-	document.getElementById('qhdr').append(s);
-}
-/* ImBCHtmlOut: handle the normal selection from imback (do it button), also for nodejs */
-imbdoit() {
+/* ImBCHtml: browserdisplay: choose a file */
+fselect() {
 	if (this.actnum !== this.allfiles.length) return;
-	let selecteds = [];
-	let compval = '0000';
-	if (document.getElementById('imbstartts').value != undefined && document.getElementById('imbstartts').value.length > 0) {
-		compval = document.getElementById('imbstartts').value;
-		if (null === globals.tsregex.exec(compval)) {
-			this.mappx(false, 'words.error');
-			this.mappx(0, 'onimback.invaltime', compval);
-			alert(this.rmesc(this.xl('onimback.invaltime'), compval));
+	this.showsplash();
+	chooser.getFileMetadata().then((f) => {
+		if (!f) {
+			this.showmain();
 			return;
 		}
-	}
-	if (document.getElementById('rpicfromimb').checked) {
-		for (const e of this.rimbpics) {
-			let rawname = ImBCBase.basename(e.url);
-			if (this.comptime(rawname, compval))
-				selecteds.push(e);
-		}
-	}
-	if (document.getElementById('picfromimb').checked) {
-		for (const e of this.imbpics) {
-			let rawname = ImBCBase.basename(e.url);
-			if (this.comptime(rawname, compval))
-				selecteds.push(e);
-		}
-	}
-	if (document.getElementById('movfromimb').checked) {
-		for (const e of this.imbmovies) {
-			let rawname = ImBCBase.basename(e.url);
-			if (this.comptime(rawname, compval))
-				selecteds.push(e);
-		}
-	}
-	selecteds.sort((a, b) => {
-		let ra = ImBCBase.basename(a.url ? a.url :a);
-		let rb = ImBCBase.basename(b.url ? b.url :b);
-		if (ra < rb) return -1;
-		else if (ra === rb) return 0;
-		else return 1;
+		cordova.plugins.safMediastore.readFile(f.uri).then((d) => {
+		   this.showlog();
+		   if (!f || !d) return;
+		   f.data = d;
+		   this.checkchecks();
+		   this.totnum = 1;
+		   this.actnum = 0;
+		   this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
+		   this.allfiles = [ f ];
+		   if (this.totnum > 0) {
+			   this.appmsgxl(true, 'process.selectedn', this.totnum);
+			   document.getElementById('infile').disabled = true;
+			   this.rotphase = 1;
+			   this.fromvisbrows = true;
+			   this.showdlprog();
+			   this.topreccheck(false);
+			   this.startloadimg();
+		   }
+		}).catch((e) => {
+			console.log(e);
+		   this.showmain();
+		});
+	}).catch((e) => {
+		console.log(e);
+	   this.showmain();
 	});
+}
+/* ImBCHtml: upload html */
+copytoimb() {
+   let xhr = new XMLHttpRequest();
+   xhr.responseType = 'blob';
+   xhr.onload = (/*evt*/) => {
+           if (xhr.status !== 200) {
+                   console.log('XHR send exception (post5) for ');
+                   document.getElementById('genericok').style['border-color'] = 'red';
+                   document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.install'));
+                   this.showmsg();
+                   return;
+           }
+           let xhr2 = new XMLHttpRequest();
+           let fd = new FormData();
+           fd.append('fileupload1', xhr.response, 'IMBAPP.HTM');
+           fd.append('upbtn', 'Upload Files');
+           xhr2.onerror = (e) => { xhr.onerror(e); };
+           xhr2.onaboer = (e) => { xhr.onerror(e); };
+           xhr2.ontimeout = (e) => { xhr.onerror(e); };
+           xhr2.responseType = 'document';
+           xhr2.onload = () => {
+                   if (xhr2.status !== 200) {
+                           console.log('XHR send exception (post2) for ');
+                           document.getElementById('genericok').style['border-color'] = 'red';
+                           document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.install'));
+                           this.showmsg();
+                           return;
+                   }
+                   document.getElementById('genericok').style['border-color'] = 'green';
+                   document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('app.okay'));
+                   this.showmsg();
+           };
+           try {
+                   xhr2.open('POST', this.imbweb + '/IMBACK');
+                   xhr2.send(fd);
+           } catch (e) {
+                   console.log('XHR send exception (post4) for ');
+                   document.getElementById('genericok').style['border-color'] = 'red';
+                   document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.install'));
+                   this.showmsg();
+           }
+   };
+   xhr.onerror = (evt, typ) => {
+           console.log('XZY');
+           document.getElementById('genericok').style['border-color'] = 'red';
+           document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.install'));
+           this.showmsg();
+   };
+   xhr.onabort = (evt) => { xhr.onerror(evt, 'abort'); };
+   xhr.ontimeout = (evt) => { xhr.onerror(evt, 'timeout'); };
+   xhr.open('GET', 'http://localhost/res/imbapp.htm');
+   xhr.setRequestHeader('Cache-control','max-stale');
+   xhr.timeout = 30000;
+   try {
+           xhr.send();
+   } catch (e) {
+           console.log('XHR send exception (post) for ');
+           document.getElementById('genericok').style['border-color'] = 'red';
+           document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.install'));
+           this.showmsg();
+   }
+}
+intentinthandler(optarg) {
+	this.loaderrunning = 'blah!';
+	this.fromintent = false;
+	this.rotphase = 1;
+	this.showlog();
+	this.fromintent = 1;
+	if (this.allfiles.length > 1) {
+		// only DNG for mode 2, stack?
+		let onlydng = true;
+		this.allfiles.map((mi) => { if (mi.name.substring(mi.name.length -4).toUpperCase() !== '.DNG') onlydng = false; });
+		if (onlydng) {
+			// ask if average or sum...
+			if (!optarg) {
+				document.getElementById('scaledownquest').showModal();
+				return;
+			}
+			this.fromintent = 2;
+			if (document.getElementById('scalednbox').checked) this.addscaleall = true;
+			document.getElementById('scaledownquest').close();
+		}
+	}
+	if (this.allfiles.length === 1) {
+		// only DNG for mode 3, backward?
+		if (this.allfiles[0].name.substring(this.allfiles[0].name.length -4).toUpperCase() === '.DNG') {
+			// backward goes loose
+			this.fromintent = 3;
+		}
+	}
 	this.checkchecks();
-	this.totnum = selecteds.length;
-	this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
+	this.rotphase = 1;
+	this.totnum = this.allfiles.length;
+	this.stats.total = this.totnum;
 	this.actnum = 0;
-	this.allfiles = selecteds;
-	this.mappx(true, 'process.frombackn', this.totnum);
-	if (this.totnum > 0) {
-		document.getElementById('droptarget').style['display'] = 'none';
-		document.getElementById('infile').disabled = true;
+	this.appmsgxl(true, 'process.selectedn', this.totnum);
+	document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ';
+	this.topreccheck(false);
+	try {
+		this.showdlprog();
 		this.starthandleone();
-	}
-	else this.mappx(true, 'onimback.nomatch');
-}
-/* ImBCHtmlOut: translate everything */
-xlateall() {
-	document.getElementById('mainversion').innerHTML = globals.version;
-	document.documentElement.lang = this.mylang;
-	const k = document.querySelectorAll('*[data-myxlkey]');
-	for (const e of k)
-		this.xl1(e);
-	let l = document.querySelectorAll('*[data-myvalxlkey]');
-	for (const e of l)
-		this.xl1(e);
-	l = document.querySelectorAll('*[data-mytitlexlkey]');
-	for (const e of l)
-		this.xl1(e);
-	const h = document.querySelectorAll('*[data-myhrefxlkey]');
-	for (const e of h)
-		this.xl1(e);
-	const i = document.querySelectorAll('*[data-myxxlst]');
-	for (const e of i)
-		this.xl1(e);
-	const j = document.querySelectorAll('*[data-myxxlsti]');
-	for (const e of j)
-		this.xl1(e);
-	const o = document.querySelectorAll('*[data-myxxlstx]');
-	for (const e of o)
-		this.xl1(e);
-	if (undefined === this.imbcb)
-		document.title = this.xl('main.apptitle') + ' ' + globals.version;
-	else
-		document.title = this.xl('main.backw.title') + ' ' + globals.version;
-}
-/* ImBCHtmlOut: nodejs: parse config */
-parseconfig(data) {
-	const d = JSON.parse(data);
-	if (d.np) this.withpreview = false;
-	else this.withpreview = true;
-	if (undefined !== d.cr && d.cr !== 'undefined') this.copyright = d.cr;
-	if (undefined !== d.at && d.at !== 'undefined') this.artist = d.at;
-	if (d.l !== undefined) this.findlang(d.l);
-	else this.useimblang = true;
-	if (d.ll) this.lastlang = d.ll;
-	if (d.ndcp) this.incdcp = false; else this.incdcp = true;
-	if (d.owb) this.constwb = true; else this.constwb = false;
-	if (this.previewworker) this.previewworker.postMessage({ cmd: 'constwb', constwb: this.constwb });
-	//if (d.zip && window.showSaveFilePicker && !this.imbcb) document.getElementById('usezip').checked = true;
-	if (d.step) this.stepmode = 1;
-	else this.stepmode = 0;
-	if (d.exitmode) this.exitmode = d.exitmode;
-	if (d.maxcache) this.maxcache = d.maxcache;
-	if (d.dl) this.dloads = d.dl;
-	if (d.dooverwrite)
-		this.dooverwrite = true;
-	if (d.autotime)
-		this.autotime = true;
-	if (d.meta === undefined) this.metadata = true;
-	else this.metadata = d.meta;
-}
-/* ImBCHtmlOut: browserdisplay: put last message viewable */
-showlastmsg() {
-	const ll = document.getElementById('mappx_' + this.#dispcnt);
-	if (ll) {
-		ll.scrollIntoView(false, { block: 'nearest' });
+	} catch (e) {
+		console.log(e);
+		this.afterfinish();
 	}
 }
-/* ImBCHtmlOut: post write ok handler */
-writepostok(name) {
-	const ie = this.imbeles.find((v) => v.raw.toUpperCase() === ImBCBase.basename(name).toUpperCase());
-	if (ie) {
-		ie.wasselected = true;
-		if (ie.entry)
-			ie.entry.classList.add('picprocd');
+intenthandler(intent) {
+	this.discknown = true;
+	this.disconnected = false;
+	this.loaderrunning = 'blah!';
+	this.showdisconnect();
+    document.getElementById('infile').disabled = true
+    this.showlog();
+    this.totnum = 0;
+    this.rotphase = 1;
+    this.fromvisbrows = true;
+	let n = 0;
+	this.stats = { total: 0, skipped: 0, error: 0, ok: 0 };
+	for (const i of intent.clipItems) {
+		try {
+			cordova.plugins.safMediastore.readFile(i.uri).then((d) => {
+			   if (!d) {
+				   this.mappx(false, 'words.sorryerr');
+				   this.mappx(true, 'process.errorreadingfile', i.uri);
+				   this.stats.error ++;
+				   n++;
+				   if (n === intent.clipItems.length) {
+					   this.intentinthandler();
+				   }
+				   return;
+			   }
+			   i.data = d;
+			   i.name = ImBCBase.basename(decodeURIComponent(i.uri));
+			   this.allfiles.push(i);
+			   n++;
+			   if (n === intent.clipItems.length) {
+				   this.intentinthandler();
+			   }
+			}).catch((e) => {
+			   console.log(e);
+			   this.mappx(false, 'words.sorryerr');
+			   this.mappx(true, 'process.errorreadingfile', i.uri);
+			   this.stats.error ++;
+			   n++;
+			   if (n === intent.clipItems.length) {
+				   this.intentinthandler();
+			   }
+			});
+		} catch (e) {
+		   console.log(e);
+		   this.mappx(false, 'words.sorryerr');
+		   this.mappx(true, 'process.errorreadingfile', '?');
+		   this.stats.error ++;
+		   n++;
+		   if (n === intent.clipItems.length) {
+			   this.intentinthandler();
+		   }
+		}
 	}
-	this.stats.ok++;
-	if (-1 === (this.dloads.findIndex(e => (e.toUpperCase() === ImBCBase.basename(name).toUpperCase()))))
-		this.dloads.push(ImBCBase.basename(name));
-	this.handlenext();
-}
-/* ImBCHtmlOut: after finishing.... */
-afterfinish() {
-	this.rotphase = -1;
-	if (!this.fromintent) this.savesettings();
-	if (this.stats.total > 0) {
-		this.appmsg('');
-		this.mappx(true, 'process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
-	}
-	this.actnum = 0;
-	this.totum = 0;
-	this.allfiles = [];
-	if (this.fromvisbrows) {
-		this.fromvisbrows = false;
-		this.modalback = 'closeprog';
-		document.getElementById('progmsg').style['display'] = '';
-		if (!this.fromintent) document.getElementById('progokbut').disabled = false;
-		document.getElementById('dlprogresslogbtn').disabled = false;
-		document.getElementById('progcancelbut').disabled = true;
-		document.getElementById('progmsg').innerHTML = this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
-		this.loadnextimg();
-		if (this.stats.error > 0)
-			document.getElementById('dlprogress').style['border-color'] = 'red';
-		else if (this.stats.skipped > 0)
-			document.getElementById('dlprogress').style['border-color'] = 'yellow';
-		else if (this.stats.ok > 0)
-			document.getElementById('dlprogress').style['border-color'] = 'green';
-	}
-	document.getElementById('droptarget').style['display'] = '';
-	document.getElementById('infile').disabled = false;
-	if (document.getElementById('infileb')) document.getElementById('infileb').disabled = false;
-}
-/* ImBCHtmlOut: look at the checkboxes and set settings */
-checkchecks() {
-    this.stepmode = 0;
-	const stepprev = document.getElementById('steppreview');
-	if (stepprev !== null && stepprev.checked) this.stepmode = 1;
-	const copytext = document.getElementById('copytext');
-	const copycheck = document.getElementById('copycheck');
-	this.copyright = copytext?.value?.length ? copytext.value : '';
-	this.artist = document.getElementById('artist')?.value?.length ? document.getElementById('artist')?.value : '';
-	this.metadata = copycheck?.checked; 
-	const oldwb = document.getElementById('oldstylewb');
-	this.constwb = (oldwb !== null && oldwb.checked);
-	if (this.previewworker) this.previewworker.postMessage({ cmd: 'constwb', constwb: this.constwb });
-	const incdcp = document.getElementById('incdcp');
-	this.incdcp = (incdcp !== null && incdcp.checked);
+	//this.showdlprog();
 }
 /* Indentation in - end of class ImBCHtmlOut */
 }
-/* *************************************** HTML helper class E N D *************************************** */
-/* *************************************** Main class for HTML, forward *************************************** */
+/* *************************************** Android spec E N D *************************************** */
+/* *************************************** Top class for App *************************************** */
 class ImBCHtml extends ImBCHtmlOut {
 /* Indentation out */
 rotphases = [ '-' , '/', '|', '\\', '=', '\\', '|', '/' ]; // actually const
@@ -19777,14 +20089,19 @@ workerstate = [];
 onback = 'quit'; // 'main', 'quit', 'nothing', 'close...', 'canceldl'
 modalback = '';
 showham = false;
+autotime = false;
+connvers = ''; // hw version from cmd 3012
+imbfree = -1;
+disconnected = true;
+discknown = false; // we do not know if connected
+dooverwrite = false;
 constructor() {
 	super();
 }
 // from the back itself
 maxcache = 30; // max. length of cache for already downloaded raw data - you may increase or decrease this
-dloads = []; // already known downloaded
 #cache = []; // actual cache buffer
-#loaderrunning=false; // currently handled browser raw preview download
+loaderrunning=false; // currently handled browser raw preview download
 fromvisbrows = false;
 /* deleting/downloading */
 rotphase = 0;
@@ -19817,7 +20134,6 @@ initworker() {
 		}
 		this.previewworker.postMessage({ cmd: 'seturl', url: this.imbweb });
 		this.previewworker.postMessage({ cmd: 'constwb', constwb: this.constwb });
-		//if (window?.location.href.startsWith('http')) this.previewworker.postMessage({ cmd: 'seturl', url: this.imbweb });
 		if (this.debugflag) this.previewworker.postMessage({ cmd: 'setdbg' });
 	}
 }
@@ -19834,43 +20150,6 @@ chgcopycheck() {
     if (null !== artist)
     	artist.disabled = !this.metadata;
     this.dirtysettings();
-}
-/* ImBCHtml: browserdisplay: choose a file */
-fselect() {
-	if (this.actnum !== this.allfiles.length) return;
-	this.showsplash();
-	chooser.getFileMetadata().then((f) => {
-		if (!f) {
-			this.showmain();
-			return;
-		}
-		cordova.plugins.safMediastore.readFile(f.uri).then((d) => {
-		   this.showlog();
-		   if (!f || !d) return;
-		   f.data = d;
-		   this.checkchecks();
-		   this.totnum = 1;
-		   this.actnum = 0;
-		   this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
-		   this.allfiles = [ f ];
-		   if (this.totnum > 0) {
-			   this.appmsgxl(true, 'process.selectedn', this.totnum);
-			   document.getElementById('droptarget').style['display'] = 'none';
-			   document.getElementById('infile').disabled = true;
-			   this.rotphase = 1;
-			   this.fromvisbrows = true;
-			   this.showdlprog();
-			   this.topreccheck(false);
-			   this.#startloadimg();
-		   }
-		}).catch((e) => {
-			console.log(e);
-		   this.showmain();
-		});
-	}).catch((e) => {
-		console.log(e);
-	   this.showmain();
-	});
 }
 /* ImBCHtml: preview: switch preview config to jpeg img */
 setjpegpv() {
@@ -19947,7 +20226,7 @@ showpages() {
 	document.getElementById('tomov').classList.remove('active');
 	document.getElementById('toloc').classList.remove('active');
 	document.getElementById('genericok').close();
-	document.getElementById('scaledownquest').close();
+	if (document.getElementById('scaledownquest')) document.getElementById('scaledownquest').close();
 }
 /* ImBCHtml: browserdisplay: show magnified image */
 showmag(entry) {
@@ -19984,7 +20263,7 @@ showmag(entry) {
 	if (check) {
 		check.checked = entry.selected;
 	}
-	this.#startloadimg();
+	this.startloadimg();
 	if (entry.type === 'JPG') {
 		document.querySelector('#xmag .rotbtnr').style['display'] = 'none';
 		document.querySelector('#xmag .eeraw').style['display'] = 'none';
@@ -20078,7 +20357,7 @@ closemag(notreally) {
 	if (!notreally) {
 		document.getElementById('magni').style['display'] = 'none';
 		this.showbrowser();
-		this.#startloadimg();
+		this.startloadimg();
 	}
 }
 /* ImBCHtml: browserdisplay: magni: keypress check in time adjust stamp */
@@ -20153,7 +20432,7 @@ magnav(fwd) {
 }
 /* ImBCHtml: browserdisplay: show main screen */
 showmain() {
-	if (this.fromintent) {
+	if (ImBCBase.progname === 'imbapp_app' && this.fromintent) {
 		this.doquit();
 		return;
 	}
@@ -20204,7 +20483,6 @@ showphotoi() {
 	window.scrollTo({ top: 0 });
 	setTimeout(() => {
 		document.getElementById('phpv').src=this.photourl;
-		//document.getElementById('phpv').src=window.location.protocol + '//' + window.location.hostname + ':8192'; //"http://192.168.1.254:8192";
 	},300);
 }
 /* ImBCHtml: browserdisplay: take photos */
@@ -20323,7 +20601,7 @@ closedlprog() {
 	document.querySelector('body').style['max-width'] = '';
 	document.querySelector('body').style['max-height'] = '';
 	document.getElementById('dlprogress').close();
-	this.#startloadimg();
+	this.startloadimg();
 }
 /* ImBCHtml: show message log */
 showlog() {
@@ -20332,7 +20610,7 @@ showlog() {
 	document.getElementById('splash').style['display'] = 'none';
 	document.getElementById('dlprogress').style['border-color'] = 'grey';
 	document.getElementById('pages').style['display'] = 'none';
-	if (this.fromintent)
+	if (this.fromintent && ImBCBase.progname === 'imbapp_app')
 		this.onback = 'quit';
 	else
 		this.onback = 'main';
@@ -20483,7 +20761,7 @@ buildtree() {
 		this.#addsorted(e);
 		this.#doopen(e, true);
 	}
-	this.#startloadimg();
+	this.startloadimg();
 	this.xlateall();
 }
 /* ImBCHtml: visual browser: find next to load */
@@ -20573,7 +20851,6 @@ buildtree() {
 /* ImBCHtml: visual browser: add images sorted  */
 #addimgsorted(el) {
 	let rect = el.entry.getBoundingClientRect();
-	let rc = false;
 	if (rect.top > window.innerHeight || rect.bottom <= 0)
 		return;
 	if (el.fmembers !== null && el.fmembers !== undefined) {
@@ -20581,7 +20858,6 @@ buildtree() {
 			if (null === e.entry || undefined === e.entry) this.#displaydiv(e);
 			el.entry.querySelector('.igtype').append(e.entry);
 			e.nonewerr = false; // retry again if was error
-			rc = true;
 		}
 	}
 	return true;
@@ -20647,7 +20923,7 @@ addallimgs(gr, e) {
 				continue;
 			if (xgr.fmembers && xgr.fmembers.length > 0) {
 				retry |= this.#addimgsorted(xgr);
-				this.#startloadimg();
+				this.startloadimg();
 			} else {
 				xgr.smembers.map((m) => { this.addallimgs(m, m.entry); });
 			}
@@ -20656,7 +20932,7 @@ addallimgs(gr, e) {
 	}
 	if (gr.fmembers && gr.fmembers.length > 0 && !e.querySelector('.onepic')) {
 		retry |= this.#addimgsorted(gr);
-		this.#startloadimg();
+		this.startloadimg();
 	} else
 		gr.smembers.map((m) => { this.addallimgs(m, m.entry) });
 	if (retry) {
@@ -20867,7 +21143,7 @@ topreccheck(force) {
 			ne.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
 			ne.querySelector('.dlbtn').classList.add('disabled');
 			ne.setAttribute('data-state', 'wait');
-			this.#startloadimg();
+			this.startloadimg();
 			rotbtn.parentElement.style['display'] = 'none';
 		};
 	} else {
@@ -20887,7 +21163,7 @@ topreccheck(force) {
 			ne.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
 			ne.querySelector('.dlbtn').classList.add('disabled');
 			ne.setAttribute('data-state', 'wait');
-			this.#startloadimg();
+			this.startloadimg();
 			rotbtnr.parentElement.style['display'] = 'none';
 		};
 	} else {
@@ -20906,7 +21182,7 @@ topreccheck(force) {
 		this.allfiles = selecteds;
 		this.showlog();
 		this.showdlprog();
-		this.#startloadimg();
+		this.startloadimg();
 		dlbtn.parentElement.style['display'] = 'none';
 	};
 	
@@ -20969,7 +21245,7 @@ rotmag(ccw) {
 		xne.querySelector('.dlbtn').classList.add('disabled');
 		xne.setAttribute('data-state', 'wait');
 	}
-	this.#startloadimg();
+	this.startloadimg();
 }
 /* ImBCHtml: visual browser: download magnified */
 dlmag() {
@@ -20987,7 +21263,7 @@ dlmag() {
 	this.showlog();
 	this.showdlprog();
 	document.getElementById('magni').style['display'] = 'none';
-	this.#startloadimg();
+	this.startloadimg();
 }
 /* ImBCHtml: visual browser: image loader call */
 #loadimg(url, type, to) {
@@ -21070,7 +21346,7 @@ dlmag() {
 		}, to.rot, to.preview, () => { /* afterload: */
 			if (this.debugflag) console.log('ldr r l lnx ' + to.raw);
 			// invalidate url for err callback
-			this.#loaderrunning = '1';
+			this.loaderrunning = '1';
 			this.loadnextimg();
 			afterloadcalled = true;
 		});
@@ -21080,8 +21356,8 @@ dlmag() {
 /* ImBCHtml: visual browser or from imback: load next from todo list */
 loadnextimg() {
 	if (this.debugflag) console.log('L  N  I');
-	if (this.#loaderrunning !== 'blah!' && this.allfiles.length > 0 && this.actnum <= this.allfiles.length - 1) {
-		this.#loaderrunning = 'blah!';
+	if (this.loaderrunning !== 'blah!' && this.allfiles.length > 0 && this.actnum <= this.allfiles.length - 1) {
+		this.loaderrunning = 'blah!';
 		window.setTimeout(() => {
 			this.checkchecks();
 			if (this.debugflag) console.log('NN li dl ' + this.actnum);
@@ -21091,17 +21367,17 @@ loadnextimg() {
 		}, 33);
 		return;
 	} else if (this.rotphase >= 1) {
-		if (this.#loaderrunning !== 'blah!') this.#loaderrunning = false;
+		if (this.loaderrunning !== 'blah!') this.loaderrunning = false;
 		return;
 	}
 	let e = this.#findnexttoload();
 	if (!e) {
-		this.#loaderrunning = false;
+		this.loaderrunning = false;
 		if (this.debugflag) console.log('TERM loader');
 		return;
 	}
 	else {
-		this.#loaderrunning = e.url;
+		this.loaderrunning = e.url;
 		window.setTimeout(() => {
 			if (this.debugflag) console.log('L ' + e.raw);
 			this.#loadimg(e.url, e.type, e)
@@ -21109,14 +21385,14 @@ loadnextimg() {
 	}
 }
 /* ImBCHtml: visual browser: start loading */
-#startloadimg() {
+startloadimg() {
 	setTimeout(() => {
-		if (!this.#loaderrunning) {
+		if (!this.loaderrunning) {
 			if (this.debugflag) console.log('start loader');
 			this.loadnextimg();
 		}
 		else if (this.debugflag) {
-			if (this.debugflag) console.log('load already on ' + this.#loaderrunning);
+			if (this.debugflag) console.log('load already on ' + this.loaderrunning);
 		}
 	}, 100);
 }
@@ -21207,7 +21483,7 @@ delcancel() {
 	document.getElementById('browser').style['display'] = '';
 	this.rotphase = 0;
 	document.getElementById('delprogmsg').innerHTML = '';
-	this.#startloadimg();
+	this.startloadimg();
 }
 /* ImBCHtml: visual browser: process browser selected */
 browserprocess() {
@@ -21241,14 +21517,14 @@ browserprocess() {
 	this.actnum = 0;
 	this.allfiles = selecteds;
 	if (this.totnum > 0) {
-		if (!this.fromintent) this.showlog();
+		if (!this.fromintent || ImBCBase.progname !== 'imbapp_app') this.showlog();
 		this.mappx(true, 'process.frombrowsern', this.totnum);
-		document.getElementById('droptarget').style['display'] = 'none';
+		if (document.getElementById('droptarget')) document.getElementById('droptarget').style['display'] = 'none';
 		document.getElementById('infile').disabled = true
 		this.fromvisbrows = true;
 		this.showdlprog();
 		this.modalback = 'canceldl';
-		this.#startloadimg();
+		this.startloadimg();
 		this.topreccheck(false);
 	} else {
 		this.showbrowseri();
@@ -21285,19 +21561,12 @@ setlang() {
 }
 /* ImBCHtml: browserdisplay: settings are dirty */
 dirtysettings() {
-	if (window.location.origin.startsWith('http') && window.localStorage) {
-		document.getElementById('onlyhttp').style['display'] = 'none';
-		document.getElementById('setsettings').style['display'] = '';
-		document.getElementById('settingsset').style['display'] = 'none';
-		document.getElementById('settingsset').setAttribute('data-myxlarg0',window.location.origin);
-		document.getElementById('setsettingsurl').setAttribute('data-myxlarg0',window.location.origin);
-	}
 	this.autotime = document.getElementById('autotime').checked;
 	this.savesettings();
 }
 /* ImBCHtml: browserdisplay: save settings */
 savesettings() {
-	/*if (window.location.origin.startsWith('http') && window.localStorage) {*/
+	if (ImBCBase.progname === 'imbapp_app' || (window.location.origin.startsWith('http') && window.localStorage)) {
 		try {
 			const copytext = document.getElementById('copytext');
 			const copycheck = document.getElementById('copycheck');
@@ -21311,7 +21580,7 @@ savesettings() {
 					'at': document.getElementById('artist')?.value,
 					'np': document.getElementById('dngpreview') ? !document.getElementById('dngpreview').checked : false,
 					'l': this.useimblang ? '99' : this.mylang,
-					'll': this.mylang,
+					'll': (ImBCBase.progname === 'imbapp_app') ? this.mylang : this.lastlang,
 					'step': stepmode,
 					'version': globals.version,
 					'loca': window.location.origin,
@@ -21329,88 +21598,11 @@ savesettings() {
 			console.log(JSON.stringify(e));
 		}
 		this.initsettings();
-	/*}*/
+	}
 }
 /* ImBCHtml: try lang from node param */
 trylang(i) {
 	document.getElementById('langsel').value = this.findlang(i);
-}
-/* ImBCHtml: async iterate rec */
-iterate(iterator, cb, already) {
-	iterator.next().then((o) => {
-		//console.log('OOO ' + JSON.stringify(o));
-		if (o.done)
-			cb(already);
-		else {
-			let rr = o.value[1];
-			if (rr.kind === 'directory') {
-				let ai = o.value[1].entries();
-				this.iterate(ai, () => {
-					//console.log('xyz ' + already);
-					this.iterate(iterator, cb, already);
-				}, already);
-			} else {
-				o.value[1].getFile().then((f) => {
-					already.push(f);
-					this.iterate(iterator, cb, already);
-				});
-			}
-		}
-	}).catch((e) => {
-		console.log('exception in iterator ' + JSON.stringify(e));
-		cb(already);
-	});
-}
-/* ImBCHtml: traverse dropped directory/s */
-dirtraverse(items, cb, index = 0, already = []) {
-	if (!cb) {
-		return  new Promise((resolve/*, reject*/) => {
-			this.dirtraverse(items, resolve, index, already);
-		});
-	}
-    if (index >= items.length)
-    	return cb(already);
-    let en = items[index];
-    if (en.isFile) { // not-getAsFileSystemHandle case
-    	en.file((f) => {
-    		already.push(f);
-    		this.dirtraverse(items, cb, index + 1, already);
-    	});
-    }
-	else if (en.kind === 'directory') {
-		let ai = en.entries();
-		this.iterate(ai, () => {
-			//console.log('abc ' + already);
-			this.dirtraverse(items, cb, index + 1, already);
-		}, already);
-	} else if (en.isDirectory) { // not-getAsFileSystemHandle case
-		let dr = en.createReader();
-		let getEntries = () => {
-			dr.readEntries((results) => {
-				if (results.length) {
-					let r = results;
-					for (let j = 0; j < r.length; j++) {
-						// also files (non-dir) are pushed and the resolved a few lines above here async
-						items.push(r[j]);
-					}
-					getEntries();
-				}
-				else {
-					this.dirtraverse(items, cb, index + 1, already);
-				}
-			},
-			(error) => {
-				console.log(JSON.stringify(error));
-			});
-		};
-		getEntries();
-	} else {
-		console.log('kind == file in dirtraverse');
-		en.getFile().then((f) => {
-			already.push(f);
-			this.dirtraverse(items, cb, index + 1, already);
-		});
-	}
 }
 /* ImBCHtml: browserdisplay: some handler on the drop rectangle */
 prevdef(ev) {
@@ -21590,7 +21782,7 @@ handlenext() {
 		this.stats.skipped += (this.totnum - this.actnum);
 		this.afterfinish();
 		this.cancelled = false;
-		this.#startloadimg();
+		this.startloadimg();
 		return;
 	}
 	if (this.fromintent === 2 || this.fromintent === 3) {
@@ -21608,12 +21800,12 @@ handlenext() {
 		}
 		return;
 	}
-	if (this.#loaderrunning === 'blah!') {
+	if (this.loaderrunning === 'blah!') {
 		if (this.debugflag) console.log('HN fl an ' + this.actnum + ' aflen ' + this.allfiles.length);
 		if (this.actnum >= this.allfiles.length - 1) {
-			this.#loaderrunning = false;
+			this.loaderrunning = false;
 			this.afterfinish();
-			this.#startloadimg();
+			this.startloadimg();
 		}
 		else {
 			if (this.fromvisbrows) {
@@ -21634,7 +21826,7 @@ handlenext() {
 		setTimeout(() => { this.handleonex(); }, 100);
 	} else {
 		this.afterfinish();
-		this.#startloadimg();
+		this.startloadimg();
 		//this.shownormal();
 	}
 }
@@ -21690,6 +21882,14 @@ checkimb() {
 	document.getElementById('dbgcache').value = this.maxcache;
 	let imblang = '';
 	this.imblang = false;
+	if (ImBCBase.progname === 'imbapp.htm' && (window.location.origin.startsWith('https') || window.location.origin.startsWith('file'))) {
+		this.disknown = true;
+		this.disconnected = false;
+		this.showdisconnect();
+		this.showmain();
+		this.xlateall();
+		return;
+	}
 	const ll = '00' === this.mylang ? 'en' : this.mylang;
 	this.custcmd([3012, 3024, [3001, 'par=2'], 3017, 2016, [2015, 'par=0'], 3014, [2015, 'par=1'], [3031, 'str=all'],  3030, 2019  ], 'document', null, (rc0, doc0) => {
 		if (0 <= rc0) {
@@ -21777,7 +21977,7 @@ checkimb() {
 			// build the settings menu
 			const r = document.getElementById('menufromimb');
 			r.innerHTML = '';
-			const txt = globals.apptexts.find((v) => v.Language === ll);
+			const txt = apptexts.find((v) => v.Language === ll);
 			let first = true;
 			for (let i = 0; i < 3; i++) {
 				const s = document.createElement('div');
@@ -21924,6 +22124,8 @@ checkimb() {
 }
 /* ImBCHtml: browserdisplay: initialize settings */
 initsettings() {
+	if (ImBCBase.progname === 'imbapp.htm' && (!window.location.origin.startsWith('http') || !window.localStorage))
+		return;
 	try {
 		let e = window.localStorage.getItem('imbapp_json');
 		if (e) {
@@ -21950,28 +22152,15 @@ initsettings() {
 			if (oldstylewb !== null) oldstylewb.checked = this.constwb;
 			const dngprev = document.getElementById('dngpreview');
 			if (dngprev) dngprev.checked = this.withpreview;
-			document.getElementById('onlyhttp').style['display'] = 'none';
-			document.getElementById('setsettings').style['display'] = 'none';
-			document.getElementById('settingsset').style['display'] = '';
-			document.getElementById('settingsset').setAttribute('data-myxlarg0',window.location.origin);
-			document.getElementById('setsettingsurl').setAttribute('data-myxlarg0',window.location.origin);
 			document.getElementById('exitsel').value = this.exitmode;
-			document.getElementById('dooverwrite').checked = this.dooverwrite;
+			if (document.getElementById('dooverwrite')) document.getElementById('dooverwrite').checked = this.dooverwrite;
 			document.getElementById('autotime').checked = this.autotime;
-		} else {
-			document.getElementById('onlyhttp').style['display'] = 'none';
-			document.getElementById('setsettings').style['display'] = '';
-			document.getElementById('settingsset').style['display'] = 'none';
-			document.getElementById('settingsset').setAttribute('data-myxlarg0',window.location.origin);
-			document.getElementById('setsettingsurl').setAttribute('data-myxlarg0',window.location.origin);
+			this.xlateall();
 		}
-	} catch  {
-		document.getElementById('onlyhttp').style['display'] = '';
-		document.getElementById('setsettings').style['display'] = 'none';
-		document.getElementById('settingsset').style['display'] = 'none';
+	} catch (e) {
+		console.log('Error init settings : ' + e.toString());
 		this.xlateall();
 	}
-	this.xlateall();
 }
 /* ImBCHtml: find in cache */
 findcache(url) {
@@ -22015,7 +22204,9 @@ workermsg(msg) {
 	//console.log('from worker ' + JSON.stringify(d));
 	switch (d.cmd) {
 	case 'resolveandhandle':
-		// onmessage: { ok?, n: f.name, o: orientation, fl: fromloop, c: cacheentry }
+		// onmessage: { ok?, n: f.name, o: orientation, c: cacheentry }
+		w0 = this.workerstate[0];
+		this.workerstate.splice(0,1);
 		if (d.ok) {
 			let fx = {
 				imbackextension: true,
@@ -22029,16 +22220,9 @@ workermsg(msg) {
 						result: fy.data				}
 				});
 			};
-			this.allfiles[this.actnum] = fx;
-			d.c.reader = fx;
-			this.addcache(d.n, d.c);
-			this.handleone(d.o, d.fl);
+			w0.okcb(d, fx);
 		} else {
-			this.mappx(false, 'words.sorryerr');
-			this.mappx(true, 'process.erraccess', d.n);
-			this.stats.error ++;
-			if (undefined !== this.exitcode) this.exitcode++;
-			this.handlenext(d.fl);
+			w0.errcb(d.n);
 		}
 		break;
 	/*eslint no-fallthrough: ["error", { "commentPattern": "no break" }]*/
@@ -22210,47 +22394,6 @@ settime() {
 		}
 	});
 }
-/* ImBCHtml: info screen */
-appinfo() {
-	//document.getElementById('pages').style['display'] = 'none';
-	document.getElementById('phpv').src="";
-	document.getElementById('genericok').style['border-color'] = 'grey';
-	document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('main.apptitle'));
-	document.getElementById('okmsg').innerHTML += '<br>';
-	document.getElementById('okmsg').innerHTML += `<a href="#" onclick="window.open('https://shyrodgau.github.io/imbraw2dng/HISTORY.txt', '_system'); return false;">` + globals.version + '</a>';
-	if (this.connvers) {
-		document.getElementById('okmsg').innerHTML += ('<br>ImB: ' + this.connvers);
-		const s = document.createElement('span');
-		s.setAttribute('data-myxlkey','app.free');
-		document.getElementById('okmsg').innerHTML += '<br>';
-		document.getElementById('okmsg').append(s);
-		if (this.imbfree > 10000000000)
-			document.getElementById('okmsg').innerHTML += (' ' + Math.round(this.imbfree/100000000)/10 + ' GB');
-		else /*if (this.imbfree > 10000000)*/
-			document.getElementById('okmsg').innerHTML += (' ' + Math.round(this.imbfree/100000)/10 + ' MB');
-		//else
-		//	document.getElementById('okmsg').innerHTML += ('<br>Free: ' + Math.round(this.imbfree/100)/10 + ' KB');
-		//document.getElementById('okmsg').innerHTML += ('<br>Free: ' + this.imbfree + ' B');
-	}
-	document.getElementById('okmsg').innerHTML += `<br><a href="#" onclick="window.open(imbc.xl('app.helpurl'), '_system'); return false;" data-myxlkey="main.help"></a> - <span data-myxlkey="main.newmsg"/>`;
-	document.getElementById('okmsg').innerHTML += `<br><span style="font-weight:normal;font-size:75%;">Contains parts of <a href="#" onclick="window.open('https://fonts.google.com/noto/specimen/Noto+Sans+Symbols+2', '_system'); return false;">NotoSansSymbols2-Regular</a> font
-	licensed under <a href="#" onclick=" window.open('http://scripts.sil.org/OFL', '_system'); return false;">Open Font License</a>.</span>`;
-	// https://github.com/apache/cordova-plugin-inappbrowser/ https://github.com/apache/cordova-plugin-file/ https://github.com/frontyard/cordova-plugin-exoplayer/
-	document.getElementById('okmsg').innerHTML += `<br><span style="font-weight:normal;font-size:75%;">Powered by <a href="#" onclick="window.open('https://cordova.apache.org','_system'); return false;">Apache Cordova</a> Plugins: 
-	<a href="#" onclick="window.open('https://github.com/apache/cordova-plugin-inappbrowser/','_system'); return false;">InAppBrowser</a>, 
-	<a href="#" onclick="window.open('https://github.com/apache/cordova-plugin-file/','_system'); return false;">File</a>, 
-	<a href="#" onclick="window.open('https://github.com/NeoLSN/cordova-plugin-android-permissions','_system'); return false;">AndroidPermissions</a>,  
-	<a href="#" onclick="window.open('https://github.com/cyph/cordova-plugin-chooser/','_system'); return false;">Chooser</a>,
-	<a href="#" onclick="window.open('https://github.com/torsten-simon/cordova-plugin-intent/','_system'); return false;">Intent</a>,
-	<a href="#" onclick="window.open('https://github.com/shyrodgau/cordova-plugin-saf-mediastore/','_system'); return false;">SafMediastore</a><br>Based on work by Michele Asciutti from the ImBack User Group.</span>
-	<br><a href="http://localhost/res/LICENSE.txt">License Info:</a>
-	<br><iframe src="http://localhost/res/LICENSE.txt" id="liciframe" style="width: 100%;zoom:50%;">`;
-	/*setTimeout(() => {
-		frames['liciframe'].contentDocument.head.innerHTML += ('<style type="text/css">*{font-size:5px;}</style>');
-	}, 100);*/
-	this.xlateall();
-	this.showmsg();
-}
 /* ImBCHtml: take a photo */
 takephoto() {
 	document.getElementById('phpv').src="";
@@ -22394,68 +22537,6 @@ static togglep(el) {
 	else
 		ImBCHtml.openp(el);
 }
-/* ImBCHtml: upload html */
-copytoimb() {
-   let xhr = new XMLHttpRequest();
-   xhr.responseType = 'blob';
-   xhr.onload = (/*evt*/) => {
-           if (xhr.status !== 200) {
-                   console.log('XHR send exception (post5) for ');
-                   document.getElementById('genericok').style['border-color'] = 'red';
-                   document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.install'));
-                   this.showmsg();
-                   return;
-           }
-           let xhr2 = new XMLHttpRequest();
-           let fd = new FormData();
-           fd.append('fileupload1', xhr.response, 'IMBAPP.HTM');
-           fd.append('upbtn', 'Upload Files');
-           xhr2.onerror = (e) => { xhr.onerror(e); };
-           xhr2.onaboer = (e) => { xhr.onerror(e); };
-           xhr2.ontimeout = (e) => { xhr.onerror(e); };
-           xhr2.responseType = 'document';
-           xhr2.onload = () => {
-                   if (xhr2.status !== 200) {
-                           console.log('XHR send exception (post2) for ');
-                           document.getElementById('genericok').style['border-color'] = 'red';
-                           document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.install'));
-                           this.showmsg();
-                           return;
-                   }
-                   document.getElementById('genericok').style['border-color'] = 'green';
-                   document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('app.okay'));
-                   this.showmsg();
-           };
-           try {
-                   xhr2.open('POST', this.imbweb + '/IMBACK');
-                   xhr2.send(fd);
-           } catch (e) {
-                   console.log('XHR send exception (post4) for ');
-                   document.getElementById('genericok').style['border-color'] = 'red';
-                   document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.install'));
-                   this.showmsg();
-           }
-   };
-   xhr.onerror = (evt, typ) => {
-           console.log('XZY');
-           document.getElementById('genericok').style['border-color'] = 'red';
-           document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.install'));
-           this.showmsg();
-   };
-   xhr.onabort = (evt) => { xhr.onerror(evt, 'abort'); };
-   xhr.ontimeout = (evt) => { xhr.onerror(evt, 'timeout'); };
-   xhr.open('GET', 'http://localhost/res/imbapp.htm');
-   xhr.setRequestHeader('Cache-control','max-stale');
-   xhr.timeout = 30000;
-   try {
-           xhr.send();
-   } catch (e) {
-           console.log('XHR send exception (post) for ');
-           document.getElementById('genericok').style['border-color'] = 'red';
-           document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.install'));
-           this.showmsg();
-   }
-}
 /* ImBCHtml: de-select already downloaded */
 deselcop(el) {
 	this.imbeles.filter((el) => (el?.wasselected && el?.selected)).forEach((i) => {
@@ -22468,106 +22549,6 @@ clearcache() {
 	this.dloads = []; 
 	this.savesettings();
 }
-intentinthandler(optarg) {
-	this.#loaderrunning = 'blah!';
-	this.fromintent = false;
-	this.rotphase = 1;
-	this.showlog();
-	this.fromintent = 1;
-	if (this.allfiles.length > 1) {
-		// only DNG for mode 2, stack?
-		let onlydng = true;
-		this.allfiles.map((mi) => { if (mi.name.substring(mi.name.length -4).toUpperCase() !== '.DNG') onlydng = false; });
-		if (onlydng) {
-			// ask if average or sum...
-			if (!optarg) {
-				document.getElementById('scaledownquest').showModal();
-				return;
-			}
-			this.fromintent = 2;
-			if (document.getElementById('scalednbox').checked) this.addscaleall = true;
-			document.getElementById('scaledownquest').close();
-		}
-	}
-	if (this.allfiles.length === 1) {
-		// only DNG for mode 3, backward?
-		if (this.allfiles[0].name.substring(this.allfiles[0].name.length -4).toUpperCase() === '.DNG') {
-			// backward goes loose
-			this.fromintent = 3;
-		}
-	}
-	this.checkchecks();
-	this.rotphase = 1;
-	this.totnum = this.allfiles.length;
-	this.stats.total = this.totnum;
-	this.actnum = 0;
-	this.appmsgxl(true, 'process.selectedn', this.totnum);
-	document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ';
-	this.topreccheck(false);
-	try {
-		this.showdlprog();
-		this.starthandleone();
-	} catch (e) {
-		console.log(e);
-		this.afterfinish();
-	}
-}
-intenthandler(intent) {
-	this.discknown = true;
-	this.disconnected = false;
-	this.#loaderrunning = 'blah!';
-	this.showdisconnect();
-    document.getElementById('droptarget').style['display'] = 'none';
-    document.getElementById('infile').disabled = true
-    this.showlog();
-    this.totnum = 0;
-    this.rotphase = 1;
-    this.fromvisbrows = true;
-	let n = 0;
-	this.stats = { total: 0, skipped: 0, error: 0, ok: 0 };
-	for (const i of intent.clipItems) {
-		try {
-			cordova.plugins.safMediastore.readFile(i.uri).then((d) => {
-			   if (!d) {
-				   this.mappx(false, 'words.sorryerr');
-				   this.mappx(true, 'process.errorreadingfile', i.uri);
-				   this.stats.error ++;
-				   n++;
-				   if (n === intent.clipItems.length) {
-					   this.intentinthandler();
-				   }
-				   return;
-			   }
-			   i.data = d;
-			   i.name = ImBCBase.basename(decodeURIComponent(i.uri));
-			   this.allfiles.push(i);
-			   n++;
-			   if (n === intent.clipItems.length) {
-				   this.intentinthandler();
-			   }
-			}).catch((e) => {
-			   console.log(e);
-			   this.mappx(false, 'words.sorryerr');
-			   this.mappx(true, 'process.errorreadingfile', i.uri);
-			   this.stats.error ++;
-			   n++;
-			   if (n === intent.clipItems.length) {
-				   this.intentinthandler();
-			   }
-			});
-		} catch (e) {
-		   console.log(e);
-		   this.mappx(false, 'words.sorryerr');
-		   this.mappx(true, 'process.errorreadingfile', '?');
-		   this.stats.error ++;
-		   n++;
-		   if (n === intent.clipItems.length) {
-			   this.intentinthandler();
-		   }
-		}
-	}
-	//this.showdlprog();
-}
 modalkeyev(ev) {
 	//console.log(ev);
 	if (window.getComputedStyle(document.getElementById('delq'))['display'] !== 'none') {
@@ -22579,54 +22560,400 @@ modalkeyev(ev) {
 	else
 		return true;
 }
+/* ImBCHtmlOut: find html style for translation */
+applystyle(span, msg, base) {
+	if (undefined === base) base = mytexts;
+	const i = msg.indexOf('.');
+	if (i === -1) {
+		let r = base[msg]['htmlstyle'];
+		if (r !== undefined) {
+			for (const s of r) {
+				span.style[s[0]] = s[1];
+			}
+		}
+		return span;
+	}
+	else {
+		const e = base[msg.substring(0,i)];
+		return this.applystyle(span, msg.substring(i+1), e);
+	}
+}
+/* ImBCHtmlOut: resolver */
+resolver(f, onok, onerr) {
+	  let cachehit;
+	  if ((cachehit = this.findcache(f.name ? f.name : f))) {
+	  	  onok(f.name ? f.name : f, cachehit.reader);
+	  }
+	  else {
+		setTimeout(() => {
+			  this.workerstate.push({ cmd: 'resolveandhandle', okcb: (d, fx) => {
+					this.allfiles[this.actnum] = fx;
+					d.c.reader = fx;
+					this.addcache(d.n, d.c);
+					onok(d.n, fx);
+			  }, errcb: onerr});
+			  this.previewworker.postMessage({ cmd: 'resolveandhandle', n: (f.url ? f.url : f) });
+			  // onmessage: { ok?, n: f.name, o: orientation, c: cacheentry }
+			  // set allfiles[this.actnum] to cacheentry.reader and call handleone(o, fl)
+			  // add cache
+		}, 10);
+	  }
+}
+/* ImBCHtmlOut: output function to main log */
+appmsg(msg, opt) {
+	const s = document.createElement('span');
+	s.innerHTML = msg;
+	this.dispcnt++;
+	s.id = 'mappx_' + this.dispcnt;
+	const msgel = document.getElementById('outmsg');
+	msgel.append(s);
+	const ll = document.getElementById('mappx_' + this.dispcnt);
+	if (ll) {
+		ll.scrollIntoView(false, { block: 'nearest' });
+	}
+	if (opt !== false)
+		msgel.innerHTML += '<br>';
+	if (opt === true)
+		msgel.innerHTML += '<br>&nbsp;<br>';
+}
+/* ImBCHtmlOut: output function to main log */
+appmsgxl(opt, msg, arg0, arg1, arg2, arg3) {
+	const s = this.genspan(msg, arg0, arg1, arg2, arg3);
+	this.dispcnt++;
+	s.id = 'mappx_' + this.dispcnt;
+	const msgel = document.getElementById('outmsg');
+	msgel.append(s);
+	const ll = document.getElementById('mappx_' + this.dispcnt);
+	if (ll) {
+		ll.scrollIntoView(false, { block: 'nearest' });
+	}
+	if (opt !== false)
+		msgel.innerHTML += '<br>';
+	if (opt === true)
+		msgel.innerHTML += '<br>&nbsp;<br>';
+	let logbt = document.getElementById('logbut');
+	if (logbt) {
+		logbt.disabled = false;
+	}
+}
+/* ImBCHtmlOut: translate one element */
+xl1(el) {
+	if (el.attributes.getNamedItem('data-myxlkey')) {
+		el.innerHTML = this.xl(el.attributes.getNamedItem('data-myxlkey').value, el.attributes.getNamedItem('data-myxlarg0')?.value, el.attributes.getNamedItem('data-myxlarg1')?.value, el.attributes.getNamedItem('data-myxlarg2')?.value, el.attributes.getNamedItem('data-myxlarg3')?.value );
+	}
+	if (el.attributes.getNamedItem('data-myvalxlkey')) {
+		el.value = this.xl(el.attributes.getNamedItem('data-myvalxlkey').value);
+	}
+	if (el.attributes.getNamedItem('data-mytitlexlkey')) {
+		el.title = this.xl(el.attributes.getNamedItem('data-mytitlexlkey').value);
+	}
+	if (el.attributes.getNamedItem('data-myhrefxlkey')) {
+		el.href = this.xl(el.attributes.getNamedItem('data-myhrefxlkey').value);
+	}
+	if (el.attributes.getNamedItem('data-myxxlst')) {
+		el.innerHTML = this.xlx(el.attributes.getNamedItem('data-myxxlst').value) + ': ';
+	}
+	if (el.attributes.getNamedItem('data-myxxlsti')) {
+		el.innerHTML = this.xlxi(el.attributes.getNamedItem('data-myxxlsti').value, el.attributes.getNamedItem('data-myxlarg0')?.value) + ': ';
+	}
+	if (el.attributes.getNamedItem('data-myxxlstx')) {
+		el.innerHTML = this.xlxx(el.attributes.getNamedItem('data-myxxlstx').value, el.attributes.getNamedItem('data-myxlarg0')?.value, el.attributes.getNamedItem('data-myxlarg1')?.value);
+	}
+	return el;
+}
+/* ImBCHtmlOut: wrapper for zip output */
+starthandleone() {
+	if (this.allfiles.length === 0) {
+		this.totnum = 0;
+		this.afterfinish();
+		return;
+	}
+	else if (this.fromintent === 3 || this.fromintent === 2) {
+		return this.handleoneback();
+	}
+	this.handleonex();
+}
+/* ImBCHtmlOut: main handler function for one file */
+handleonex() {
+	const f = (this.debugflag && this.useraw) ? this.useraw : this.allfiles[this.actnum];
+	this.currentrot = (f.rot || (f.rot === 0)) ? f.rot : 1;
+	let rawname = ImBCBase.basename(f.url ? f.url : (f.name ? f.name : f));
+	if (this.stepmode === 2) {
+		// skip rest
+		if (!this.imbcb && !this.fromvisbrows) this.shownormal();
+		return this.handlenext();
+	}
+	else if (this.stepmode === 1) {
+		// show preview and ask for rotation, skip, save
+		// then (in handler) set mode, call handleone (if save) or handlenext (if skip)
+		if (!this.imbcb) this.showquestion();
+		if (undefined === f) {
+			return;
+		}
+		if (this.totnum > 1) {
+			document.getElementById('qhdr').innerHTML = '[' + (1 + this.actnum) + ' / ' + this.totnum + '] ';
+		} else document.getElementById('qhdr').innerHTML = '';
+		if (rawname.substring(rawname.length -4).toUpperCase() === '.JPG' ||
+			rawname.substring(rawname.length -5).toUpperCase() === '.JPEG') {
+			/* jpeg preview */
+			this.#qappx('main.file.jpeg', rawname);
+			if (f.name) {
+				// read jpeg file for preview
+				const fr = f.imbackextension ? f : new FileReader();
+				fr.onload = (evt) => {
+					let contents = evt.target.result;
+					contents = 'data:image/jpeg;' + contents.substring(8);
+					document.getElementById('jpegpreview').src = contents;
+					/* shown in onload of img */
+				}
+				fr.onerror = (evt) => {
+					console.log('JPEG preview reader error for ' + f.name + ' ' + JSON.stringify(evt));
+					this.setpverr();
+				}
+				fr.readAsDataURL(f);
+			}
+			else {
+				// simply set image src
+				document.getElementById('jpegpreview').src = this.imbweb + globals.adjurl(f)+'?custom=1&cmd=4001';
+			}
+		}
+		else if (rawname.substring(rawname.length -4).toUpperCase() === '.MP4') {
+			// simply set image src
+			document.getElementById('jpegpreview').src = this.imbweb + globals.adjurl(f)+'?custom=1&cmd=4001';
+			this.#qappx('main.file', rawname);
+		}
+		else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
+			/* no preview */
+			this.#qappx('main.file.nopreview', rawname);
+			this.setnopv();
+		}
+		else {
+			const zz = globals.infos.findIndex(v => v.size === f.size);
+			if (zz === -1 && undefined !== f.size) {
+				/* no preview */
+				this.#qappx('main.file.rawunknown', rawname, f.size);
+				this.setnopv();
+			} else {
+				this.#qappx('main.file',rawname);
+				this.buildpreview(f, 1, () => { this.setrawpv(); }, () => { this.setpverr(); });
+			}
+		}
+	}
+	else { // normal processing without question
+		if (this.fromintent === 2)
+			this.handleoneback();
+		else {
+			if (!this.fromvisbrows) this.shownormal();
+			this.handleone(f.rot);
+		}
+	}
+}
+/* ImBCHtmlOut: translation helper */
+genspan(key, arg0, arg1, arg2, arg3) {
+	const s = this.applystyle(document.createElement('span'), key);
+	s.setAttribute('data-myxlkey', key);
+	if (undefined !== arg0) {
+		s.setAttribute('data-myxlarg0', arg0);
+		if (undefined !== arg1) {
+			s.setAttribute('data-myxlarg1', arg1);
+			if (undefined !== arg2) {
+				s.setAttribute('data-myxlarg2', arg2);
+				if (undefined !== arg3) {
+					s.setAttribute('data-myxlarg3', arg3);
+				}
+			}
+		}
+	}
+	return this.xl1(s);
+}
+/* ImBCHtmlOut: translated append to preview header */
+#qappx(key, arg0, arg1, arg2, arg3) {
+	const s = this.genspan(key, arg0, arg1, arg2, arg3);
+	document.getElementById('qhdr').append(s);
+}
+/* ImBCHtmlOut: handle the normal selection from imback (do it button), also for nodejs */
+imbdoit() {
+	if (this.actnum !== this.allfiles.length) return;
+	let selecteds = [];
+	let compval = '0000';
+	if (document.getElementById('imbstartts').value != undefined && document.getElementById('imbstartts').value.length > 0) {
+		compval = document.getElementById('imbstartts').value;
+		if (null === globals.tsregex.exec(compval)) {
+			this.mappx(false, 'words.error');
+			this.mappx(0, 'onimback.invaltime', compval);
+			alert(this.rmesc(this.xl('onimback.invaltime'), compval));
+			return;
+		}
+	}
+	if (document.getElementById('rpicfromimb').checked) {
+		for (const e of this.rimbpics) {
+			let rawname = ImBCBase.basename(e.url);
+			if (this.comptime(rawname, compval))
+				selecteds.push(e);
+		}
+	}
+	if (document.getElementById('picfromimb').checked) {
+		for (const e of this.imbpics) {
+			let rawname = ImBCBase.basename(e.url);
+			if (this.comptime(rawname, compval))
+				selecteds.push(e);
+		}
+	}
+	if (document.getElementById('movfromimb').checked) {
+		for (const e of this.imbmovies) {
+			let rawname = ImBCBase.basename(e.url);
+			if (this.comptime(rawname, compval))
+				selecteds.push(e);
+		}
+	}
+	selecteds.sort((a, b) => {
+		let ra = ImBCBase.basename(a.url ? a.url :a);
+		let rb = ImBCBase.basename(b.url ? b.url :b);
+		if (ra < rb) return -1;
+		else if (ra === rb) return 0;
+		else return 1;
+	});
+	this.checkchecks();
+	this.totnum = selecteds.length;
+	this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
+	this.actnum = 0;
+	this.allfiles = selecteds;
+	this.mappx(true, 'process.frombackn', this.totnum);
+	if (this.totnum > 0) {
+		if (document.getElementById('droptarget')) document.getElementById('droptarget').style['display'] = 'none';
+		document.getElementById('infile').disabled = true;
+		this.starthandleone();
+	}
+	else this.mappx(true, 'onimback.nomatch');
+}
+/* ImBCHtmlOut: translate everything */
+xlateall() {
+	document.getElementById('mainversion').innerHTML = globals.version;
+	document.documentElement.lang = this.mylang;
+	const k = document.querySelectorAll('*[data-myxlkey]');
+	for (const e of k)
+		this.xl1(e);
+	let l = document.querySelectorAll('*[data-myvalxlkey]');
+	for (const e of l)
+		this.xl1(e);
+	l = document.querySelectorAll('*[data-mytitlexlkey]');
+	for (const e of l)
+		this.xl1(e);
+	const h = document.querySelectorAll('*[data-myhrefxlkey]');
+	for (const e of h)
+		this.xl1(e);
+	const i = document.querySelectorAll('*[data-myxxlst]');
+	for (const e of i)
+		this.xl1(e);
+	const j = document.querySelectorAll('*[data-myxxlsti]');
+	for (const e of j)
+		this.xl1(e);
+	const o = document.querySelectorAll('*[data-myxxlstx]');
+	for (const e of o)
+		this.xl1(e);
+	if (undefined === this.imbcb)
+		document.title = this.xl('main.apptitle') + ' ' + globals.version;
+	else
+		document.title = this.xl('main.backw.title') + ' ' + globals.version;
+}
+/* ImBCHtmlOut: nodejs: parse config */
+parseconfig(data) {
+	const d = JSON.parse(data);
+	if (d.np) this.withpreview = false;
+	else this.withpreview = true;
+	if (undefined !== d.cr && d.cr !== 'undefined') this.copyright = d.cr;
+	if (undefined !== d.at && d.at !== 'undefined') this.artist = d.at;
+	if (d.l !== undefined) this.findlang(d.l);
+	else this.useimblang = true;
+	if (d.ll) this.lastlang = d.ll;
+	if (d.ndcp) this.incdcp = false; else this.incdcp = true;
+	if (d.owb) this.constwb = true; else this.constwb = false;
+	if (this.previewworker) this.previewworker.postMessage({ cmd: 'constwb', constwb: this.constwb });
+	//if (d.zip && window.showSaveFilePicker && !this.imbcb) document.getElementById('usezip').checked = true;
+	if (d.step) this.stepmode = 1;
+	else this.stepmode = 0;
+	if (d.exitmode) this.exitmode = d.exitmode;
+	if (d.maxcache) this.maxcache = d.maxcache;
+	if (d.dl) this.dloads = d.dl;
+	if (d.dooverwrite)
+		this.dooverwrite = true;
+	if (d.autotime)
+		this.autotime = true;
+	if (d.meta === undefined) this.metadata = true;
+	else this.metadata = d.meta;
+}
+/* ImBCHtmlOut: browserdisplay: put last message viewable */
+showlastmsg() {
+	const ll = document.getElementById('mappx_' + this.dispcnt);
+	if (ll) {
+		ll.scrollIntoView(false, { block: 'nearest' });
+	}
+}
+/* ImBCHtmlOut: post write ok handler */
+writepostok(name) {
+	const ie = this.imbeles.find((v) => v.raw.toUpperCase() === ImBCBase.basename(name).toUpperCase());
+	if (ie) {
+		ie.wasselected = true;
+		if (ie.entry)
+			ie.entry.classList.add('picprocd');
+	}
+	this.stats.ok++;
+	if (-1 === (this.dloads.findIndex(e => (e.toUpperCase() === ImBCBase.basename(name).toUpperCase()))))
+		this.dloads.push(ImBCBase.basename(name));
+	this.handlenext();
+}
+/* ImBCHtmlOut: after finishing.... */
+afterfinish() {
+	this.rotphase = -1;
+	if (!this.fromintent) this.savesettings();
+	if (this.stats.total > 0) {
+		this.appmsg('');
+		this.mappx(true, 'process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
+	}
+	this.actnum = 0;
+	this.totum = 0;
+	this.allfiles = [];
+	if (this.fromvisbrows) {
+		this.fromvisbrows = false;
+		this.modalback = 'closeprog';
+		document.getElementById('progmsg').style['display'] = '';
+		if (!this.fromintent || ImBCBase.progname === 'imbapp.htm') document.getElementById('progokbut').disabled = false;
+		document.getElementById('dlprogresslogbtn').disabled = false;
+		document.getElementById('progcancelbut').disabled = true;
+		document.getElementById('progmsg').innerHTML = this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
+		this.loadnextimg();
+		if (this.stats.error > 0)
+			document.getElementById('dlprogress').style['border-color'] = 'red';
+		else if (this.stats.skipped > 0)
+			document.getElementById('dlprogress').style['border-color'] = 'yellow';
+		else if (this.stats.ok > 0)
+			document.getElementById('dlprogress').style['border-color'] = 'green';
+	}
+	if (document.getElementById('droptarget')) document.getElementById('droptarget').style['display'] = '';
+	document.getElementById('infile').disabled = false;
+	if (document.getElementById('infileb')) document.getElementById('infileb').disabled = false;
+}
+/* ImBCHtmlOut: look at the checkboxes and set settings */
+checkchecks() {
+    this.stepmode = 0;
+	const stepprev = document.getElementById('steppreview');
+	if (stepprev !== null && stepprev.checked) this.stepmode = 1;
+	const copytext = document.getElementById('copytext');
+	const copycheck = document.getElementById('copycheck');
+	this.copyright = copytext?.value?.length ? copytext.value : '';
+	this.artist = document.getElementById('artist')?.value?.length ? document.getElementById('artist')?.value : '';
+	this.metadata = copycheck?.checked; 
+	const oldwb = document.getElementById('oldstylewb');
+	this.constwb = (oldwb !== null && oldwb.checked);
+	if (this.previewworker) this.previewworker.postMessage({ cmd: 'constwb', constwb: this.constwb });
+	const incdcp = document.getElementById('incdcp');
+	this.incdcp = (incdcp !== null && incdcp.checked);
+}
 /* Indentation in - end of class ImBCHtml */
 }
-/* *************************************** Main class for HTML, forward E N D *************************************** */
-/* outside of classes: */
-let imbc;
-/* onload of html body */
-function init() {
-	ImBCBase.progname = 'imbapp_app';
-	document.addEventListener('deviceready', () => { init2(); });
-}
-/* onload of html body */
-function init2() {
-	window.open = cordova.InAppBrowser.open;
-	//console.log('Off to ' + window.location.protocol + '//' + window.location.host + '/IMBACK/test.html');
-	//window.open(window.location.protocol + '//' + window.location.host + '/IMBACK/test.html', '_system'); return;
-	imbc = new ImBCHtml();
-	document.getElementById('normal').style['display'] = 'none';
-	cordova.plugins.permissions.requestPermission(cordova.plugins.permissions.MANAGE_MEDIA, () => { console.log('M Med Ok '); }, () => { console.log('M Med NOk '); });
-	setTimeout(() => {
-		imbc.initsettings();
-		imbc.chgcopycheck();
-		if (!window.showSaveFilePicker) {
-			document.getElementById('usezip').disabled = true;
-			document.getElementById('usezip').checked = false;
-		}
-		imbc.querylang(window.location.pathname);
-		imbc.xlateall();
-		document.addEventListener('backbutton', () => {
-			imbc.handleback();
-		});
-		window.plugins.intent.getCordovaIntent(function (intent) {
-			if (intent.clipItems)
-				imbc.intenthandler(intent);
-			else
-				imbc.checkimb();
-		}, function(intent) {
-			// like error?
-			imbc.checkimb();
-		});
-		//imbc.checkimb();
-	}, 2000);
-}
-/* *************************************** globals *************************************** */
-const globals = {
-/* Indentation out - globals */
-version: "V5.9.7_@_d_e_v", // actually const // VERSION EYECATCHER
-alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
-texts: { // actually const
+/* *************************************** Top class for App E N D *************************************** */
+/* *************************************** texts  *************************************** */
+const mytexts =  { // actually const
 	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
 	words: {
 		error: {
@@ -23419,9 +23746,9 @@ texts: { // actually const
 			de: 'ImB Zeit beim Verbinden automatisch setzen'
 		}
 	}
-},
+}
 /* Texts from Imback App ressources */
-apptexts: [
+const apptexts = [
     {
       "Language": "cn",
       "s": [
@@ -25102,444 +25429,52 @@ apptexts: [
         }
       ]
     }
-],
-// generic user input timestamp always complete
-//               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
-fulltsregex: /^([02-3][0-9][0-9][0-9])([^0-9])([01][0-9])([^0-9])([0123][0-9])([^0-9])([012][0-9])([^0-9])([0-5][0-9])([^0-9])([0-5][0-9])$/, // actually const
-// generic user input timestamp (any prefix)
-//                  y      y     y     y      .      m     m     .      d      d      .      h     h      .      m     m      .      s     s
-tsregex: /^[02-3]([0-9]([0-9]([0-9](([^0-9])[01]([0-9](([^0-9])[0123]([0-9](([^0-9])[012]([0-9](([^0-9])[0-5]([0-9](([^0-9])[0-5]([0-9])?)?)?)?)?)?)?)?)?)?)?)?)?$/ , // actually const
-/* ImBCBase: Data for the Imback variants and exif stuff */
-// generic imb filename format
-//                   y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s     EXT
-fnregex: /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])(.*[.])([^.]*)$/ , // actually const
-// generic imb xml timestamp format
-//                               y    y    y    y      /    m    m     /    d     d    . .  h    h      :    m    m      :    s    s
-itsregex: new RegExp('^([2-3][0-9][0-9][0-9])([/])([01][0-9])([/])([0123][0-9])( )([012][0-9])([:])([0-6][0-9])([:])([0-6][0-9])$') , // actually const
-// generic imb filename format, only timestamp
-//                    y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s      .        n
-fnregexx: /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-9]*)/ , // actually const
-orients: [ '', 'none', '', 'upsidedown', '', '', 'clockwise', '', 'counterclockwise' ], // actually const
-oriecw: [ 1, 6, 3, 8 ], // clockwise indices // actually const
-types: [ "unknown", "ImB35mm", "MF 6x7 ", "MF6x4.5", "MF 6x6 ", "Film35 " ], // all length 7, actually const
-twelvebitsizes: [ 9706416, 11501280, 14709888, 17428128, 17915904, 19406448, 21098880, 23003136, 23887872, 30607488 ],
-infos: [ // actually const
-	{
-		size: 14065920,
-		w: 4320,
-		h: 3256,
-		typ: 0,
-		mode: "historic"
-	},
-	{ /* MF 6x7 */
-		size: 15925248,
-		w: 4608,
-		h: 3456,
-		typ: 2,
-		mode: ""
-	},
-	{ /* MF 6x4.5 */
-		size: 12937632,
-		w: 4152, h: 3116,
-		typ: 3,
-		mode: ""
-	},
-	{
-		size: 9806592,
-		w: 3616, h: 2712,
-		typ: 3,
-		mode: "Medium-angle"
-	},
-	{
-		size: 6470944,
-		w: 2936, h: 2204,
-		typ: 3,
-		mode: "Small-angle"
-	},
-	{ /* MF 6x6 */
-		size: 11943936,
-		w: 3456, h: 3456,
-		typ: 4,
-		mode: ""
-	},
-	{ /* 35mm */
-		size: 15335424,
-		w: 4608, h: 3328,
-		typ: 1,
-		mode: ""
-	},
-	{
-		size: 11618752,
-		w: 4012, h: 2896,
-		typ: 1,
-		mode: "Medium-angle"
-	},
-	{
-		size: 7667520,
-		w: 3260, h: 2352,
-		typ: 1,
-		mode: "Small-angle"
-	},
-	/* 12 bit down here: */
-	/* Film ! */
-	{
-		size: 30607488,
-		w: 5216,
-		h:3912,
-		typ: 5,
-		mode: ''
-	}
-],
-/* ImBCBase: get white balance */
-getwb: function(view, typidx, whitelvl) {
-	//console.log('GWB ' + typidx + ' ' + JSON.stringify(globals.infos[typidx]));
-	const t = globals.infos[typidx < 32 ? typidx : ((typidx< 64)? (typidx - 32) : (typidx - 64))];
-	let r=1, g=1, b=1;
-	for (let i=Math.round(0.05*t.h)*2; i<Math.ceil(0.9*t.h); i+=8) {
-		for (let j=Math.round(0.05*t.w)*2; j<Math.ceil(0.9*t.w); j+=8) {
-			let x = globals.getPix(j, i, t.w, view, typidx < 32 ? t.typ : (typidx < 64 ? 32 + t.typ : 64 + t.typ), whitelvl);
-			let lr = x[0];
-			let lg = x[1] + 1;
-			let lb = x[2];
-			let p = Math.sqrt(lg*lg + lb*lb + lr*lr);
-			if (p < 3 || p > (433)) continue;
-			//if (((i*t.w + j) % 50000) < 10)
-			//	console.log('i ' + i + ' j ' + j + ' R ' + lr + ' G ' + lg + ' B ' + lb + ' P ' + p);
-			//if (r + g == 2) {
-			//	console.log('R G B ' + x[0] + ' ' + x[1] + ' ' + x[2] + ' P ' + p + ' LB ' + lb + ' LR ' + lr + ' LG ' + lg);
-			//}
-			b += ((lb)/(p)>1) ? 1 : (lb)/(p);
-			g += ((lg)/(p)>1) ? 1 : (lg)/(p);
-			r += ((lr)/(p)>1) ? 1 : (lr)/(p);
-		}
-	}
-	//console.log('ER EG EB ' + r + ' ' + g + ' ' + b);
-	if ((r > b) && (r > g)) {
-		return [ 10, 10, Math.ceil(300000*g/r), 300000, Math.ceil(300000*b/r), 300000 ];
-	}
-	else if ((b > r) && (b > g)) {
-		return [ Math.ceil(300000*r/b), 300000, Math.ceil(300000*g/b), 300000, 10, 10 ];
-	}
-	else {
-		return [ Math.ceil(300000*r/g), 300000, 10, 10, Math.ceil(300000*b/g), 300000 ];
-	}
-},
-/* ImBCBase: get one downsampled median image value [ r g b ] */
-getPix: function(x, y, w, view, typ, whitelvl) {
-	let outrgb = [];
-	let reds = [];
-	const w3 = w + (typ >= 64 ? w : (w>>1));
-	const xx = x + (typ >= 64 ? x : (x>>1));
-	let shiftr = 0, wbx = 255;
-	while (whitelvl > wbx) {
-		wbx = (2*(wbx+1)) -1; 
-		shiftr ++;
-	}
-	const dd = (typ === 5 || typ === 69) ? 240 : 0;
-	if (typ === 5 || typ == 33) {
-		/* film or stacked 35mm */
-		reds.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+2)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-	}
-	else if (typ === 69 || typ == 65) {
-		/* 16 bit film or 35mm */
-		reds.push(((view.getUint8((y+0)*w3 + xx+2) +  ((view.getUint8((y+0)*w3 + xx+3)) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+0)*w3 + xx+6) +  ((view.getUint8((y+0)*w3 + xx+7)) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+2)*w3 + xx+2) +  ((view.getUint8((y+2)*w3 + xx+3)) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+2)*w3 + xx+6) +  ((view.getUint8((y+2)*w3 + xx+7)) << 8))-dd)>>shiftr);
-	}
-	else if (typ > 64) {
-		/* 16 bit mf */
-		reds.push(((view.getUint8((y+1)*w3 + xx+2) +  ((view.getUint8((y+1)*w3 + xx+3)) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+1)*w3 + xx+6) +  ((view.getUint8((y+1)*w3 + xx+7)) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+3)*w3 + xx+2) +  ((view.getUint8((y+3)*w3 + xx+3)) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+3)*w3 + xx+6) +  ((view.getUint8((y+3)*w3 + xx+7)) << 8))-dd)>>shiftr);
-	}
-	else if (typ > 33) {
-		/* stacked mf */
-		reds.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-	}
-	else if (typ > 1) {
-		/* mf */
-		reds.push(view.getUint8((y+1)*w + x + 1));
-		reds.push(view.getUint8((y+1)*w + x + 3));
-		reds.push(view.getUint8((y+3)*w + x + 1));
-		reds.push(view.getUint8((y+3)*w + x + 3));
-	} else {
-		/* 35mm */
-		reds.push(view.getUint8(y*w + x + 1));
-		reds.push(view.getUint8(y*w + x + 3));
-		reds.push(view.getUint8((y+2)*w + x + 1));
-		reds.push(view.getUint8((y+2)*w + x + 3));
-	}
-	reds.sort(function(a,b) { return a - b; });
-	// median of red pixels
-	outrgb.push((reds[1] + reds[2]) / 2.0);
-	let greens = [];
-	if (typ === 5 || typ == 33) {
-		/* film or stacked 35mm */
-		greens.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-	}
-	else if (typ === 69 || typ == 65) {
-		/* 16 bit film or stacked 35mm */
-		greens.push((((view.getUint8((y+0)*w3 + xx+0)) +  ((view.getUint8((y+0)*w3 + xx+1) <<8)))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+0)*w3 + xx+4)) +  ((view.getUint8((y+0)*w3 + xx+5) <<8)))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+1)*w3 + xx+2) +  ((view.getUint8((y+1)*w3 + xx+3)) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+1)*w3 + xx+6) +  ((view.getUint8((y+1)*w3 + xx+7)) << 8))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+2)*w3 + xx+0)) +  ((view.getUint8((y+2)*w3 + xx+1)) << 8))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+2)*w3 + xx+4)) +  ((view.getUint8((y+2)*w3 + xx+5)) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+3)*w3 + xx+2) +  ((view.getUint8((y+3)*w3 + xx+3)) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+3)*w3 + xx+6) +  ((view.getUint8((y+3)*w3 + xx+7)) << 8))-dd)>>shiftr);
-	}
-	else if (typ > 64) {
-		/* 16 bit mf */
-		greens.push((((view.getUint8((y+0)*w3 + xx+2)) +  ((view.getUint8((y+0)*w3 + xx+3) <<8)))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+0)*w3 + xx+6)) +  ((view.getUint8((y+0)*w3 + xx+7) <<8)))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1)) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+1)*w3 + xx+4) +  ((view.getUint8((y+1)*w3 + xx+5)) << 8))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+2)*w3 + xx+2)) +  ((view.getUint8((y+2)*w3 + xx+3)) << 8))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+2)*w3 + xx+6)) +  ((view.getUint8((y+2)*w3 + xx+7)) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+3)*w3 + xx+1)) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+3)*w3 + xx+4) +  ((view.getUint8((y+3)*w3 + xx+5)) << 8))-dd)>>shiftr);
-	}
-	else if (typ > 33) {
-		/* stacked mf */
-		greens.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+1)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		greens.push(((view.getUint8((y+2)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+3)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		greens.push((((view.getUint8((y+3)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-	}
-	else if (typ > 1) {
-		greens.push(view.getUint8(y*w + x + 1));
-		greens.push(view.getUint8(y*w + x + 3));
-		greens.push(view.getUint8((y+1)*w + x));
-		greens.push(view.getUint8((y+1)*w + x + 2));
-		greens.push(view.getUint8((y+2)*w + x + 1));
-		greens.push(view.getUint8((y+2)*w + x + 3));
-		greens.push(view.getUint8((y+3)*w + x));
-		greens.push(view.getUint8((y+3)*w + x + 2));
-	} else {
-		greens.push(view.getUint8(y*w + x));
-		greens.push(view.getUint8(y*w + x + 2));
-		greens.push(view.getUint8((y+1)*w + x + 1));
-		greens.push(view.getUint8((y+1)*w + x + 3));
-		greens.push(view.getUint8((y+2)*w + x));
-		greens.push(view.getUint8((y+2)*w + x + 2));
-		greens.push(view.getUint8((y+3)*w + x + 1));
-		greens.push(view.getUint8((y+3)*w + x + 3));
-	}
-	greens.sort(function(a,b) { return a - b; });
-	outrgb.push((greens[3] + greens[4]) / 2.0);
-	let blues = [];
-	if (typ === 5 || typ === 33) {
-		blues.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+1)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+3)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+3)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-	}
-	else if (typ === 69 || typ === 65) {
-		blues.push((((view.getUint8((y+1)*w3 + xx+0)) +  ((view.getUint8((y+1)*w3 + xx+1) ) <<8))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+1)*w3 + xx+4)) +  ((view.getUint8((y+1)*w3 + xx+5) ) <<8))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+3)*w3 + xx+0)) +  ((view.getUint8((y+3)*w3 + xx+1) ) <<8))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+3)*w3 + xx+4)) +  ((view.getUint8((y+3)*w3 + xx+5) ) <<8))-dd)>>shiftr);
-	}
-	else if (typ > 65) {
-		blues.push((((view.getUint8((y+0)*w3 + xx+0)) +  ((view.getUint8((y+0)*w3 + xx+1) ) <<8))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+0)*w3 + xx+4)) +  ((view.getUint8((y+0)*w3 + xx+5) ) <<8))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+2)*w3 + xx+0)) +  ((view.getUint8((y+2)*w3 + xx+1) ) <<8))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+2)*w3 + xx+4)) +  ((view.getUint8((y+2)*w3 + xx+5) ) <<8))-dd)>>shiftr);
-	}
-	else if (typ > 33) {
-		blues.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-	}
-	else if (typ > 1) {
-		blues.push(view.getUint8(y*w + x));
-		blues.push(view.getUint8(y*w + x + 2));
-		blues.push(view.getUint8((y+2)*w + x));
-		blues.push(view.getUint8((y+2)*w + x + 2));
-	} else {
-		blues.push(view.getUint8((y+1)*w + x));
-		blues.push(view.getUint8((y+1)*w + x + 2));
-		blues.push(view.getUint8((y+3)*w + x));
-		blues.push(view.getUint8((y+3)*w + x + 2));
-	}
-	blues.sort(function(a,b) { return a - b; });
-	outrgb.push((blues[1] + blues[2]) / 2.0);
-	return outrgb;
-},
-/* ImBCBase: build preview in array */
-buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) {
-	if (undefined === wb) wb = [ 6, 10, 1, 1, 6, 10 ];
-	let sfact = scale ? scale : 8;
-	if (size === 2) sfact = 4;
-	else if (size === 1) sfact = 16;
-	const w8 = Math.floor((w+(sfact -1))/sfact);
-	const h8 = Math.floor((h+(sfact -1))/sfact);
-	const rfact = (wb[1]/wb[0]);
-	const gfact = (wb[3]/wb[2]);
-	const bfact = (wb[5]/wb[4]);
-	let outpix = [];
-	let rowiterstart, rowiterend;
-	let coliterstart, coliterend;
-	let transpose = false;
-	if (typ === 5 && orientation === 0)
-		orientation = 3;
-	if (orientation === 3) {
-		rowiterstart = -1*(h8 -1);
-		rowiterend = 1;
-		coliterstart = -1*(w8 - 1);
-		coliterend = 1;
-	} else if (orientation === 6) {
-		transpose = true;
-		rowiterstart = 0;
-		rowiterend = w8;
-		coliterstart = -1*(h8 - 1);
-		coliterend = 1;
-	} else if (orientation === 8) {
-		transpose = true;
-		rowiterstart = -1*(w8 -1);
-		rowiterend = 1;
-		coliterstart = 0;
-		coliterend = h8;
-	} else {
-		rowiterstart = 0;
-		rowiterend = h8;
-		coliterstart = 0;
-		coliterend = w8;
-	}
-	let rhist = new Array(256), ghist = new Array(256), bhist = new Array(256);
-	for (let i = 0; i < 256; i++) {
-		rhist[i] = 0; ghist[i] = 0; bhist[i] = 0;
-	}
-	let cnt = 0;
-	for (let i = rowiterstart; i < rowiterend; i +=1) {
-		for (let j = coliterstart; j < coliterend; j+=1) {
-			let a = globals.getPix(Math.abs(transpose ? i :j)*sfact, Math.abs(transpose ? j :i)*sfact, w, view, typ, whitelvl);
-			outpix.push(a[0]);
-			outpix.push(a[1]);
-			outpix.push(a[2]);
-			rhist[a[0]]++;
-			ghist[a[2]]++;
-			bhist[a[2]]++;
-			cnt++;
-		}
-	}
-	// cut off top and bottom 0.2 and 3%
-	let cntx = 0, rallmin = 0, rallmax = 255;
-	while (cntx < (cnt * 0.03))
-		cntx += rhist[rallmin++];
-	if (rallmin > 0) rallmin --;
-	cntx = 0;
-	while (cntx < (cnt * 0.002))
-		cntx += rhist[rallmax--];
-	if (rallmax < 255) rallmax++;
-	let gallmin = 0, gallmax = 255;
-	cntx = 0;
-	while (cntx < (cnt * 0.03))
-		cntx += ghist[gallmin++];
-	if (gallmin > 0) gallmin --;
-	cntx = 0;
-	while (cntx < (cnt * 0.002))
-		cntx += ghist[gallmax--];
-	if (gallmax < 255) gallmax++;
-	let ballmin = 0, ballmax = 255;
-	cntx = 0;
-	while (cntx < (cnt * 0.03))
-		cntx += bhist[ballmin++];
-	if (ballmin > 0) ballmin --;
-	cntx = 0;
-	while (cntx < (cnt * 0.002))
-		cntx += bhist[ballmax--];
-	if (ballmax < 255) ballmax++;
-	let allmin = Math.min(rallmin, gallmin, ballmin);
-	let allmax = Math.max(rallmax, gallmax, ballmax);
-	let fact;
-	if (allmax > 247 && allmin < 8) {
-		fact = 1;
-		allmin = 0;
-		//console.log('Fact 1 ' + fact + ' i ' + allmin + ' a ' + allmax);
-	}
-	else if (allmax - allmin < 1) {
-		fact = 1;
-		//console.log('Fact 2 ' + fact + ' i ' + allmin + ' a ' + allmax);
-	}
-	else {
-		fact = 254/(allmax - allmin);
-		//console.log('Fact 3 ' + fact + ' i ' + allmin + ' a ' + allmax);
-	}
-	//console.log('ai ' + allmin + ' aa ' + allmax + ' ff ' + fact);
-	const o = scale ? 3 : 4;
-	const uic = new Uint8ClampedArray(h8 * w8 * o);
-	for (let i = 0; i < h8; i++) {
-		for (let j=0; j< w8; j++) {
-			let nr = ((outpix[3*((i * w8) + j)] * rfact) - allmin) * fact + allmin;
-			let ng = ((outpix[3*((i * w8) + j) + 1] * gfact) - allmin) * fact + allmin;
-			let nb = ((outpix[3*((i * w8) + j) + 2] * bfact) - allmin) * fact + allmin;
-			if (nr >= 255) {
-				if (ng < 250) ng = Math.floor(ng * 255 / nr);
-				if (nb < 250) nb = Math.floor(nb * 255 / nr);
-				nr = 255;
-			}
-			else if (nr <= 0) nr = 0;
-			if (ng >= 255) {
-				if (nr < 250) nr = Math.floor(nr * 255 / ng);
-				if (nb < 250) nb = Math.floor(nb * 255 / ng);
-				ng = 255;
-			}
-			else if (ng <= 0) ng = 0;
-			if (nb >= 255) {
-				if (ng < 250) ng = Math.floor(ng * 255 / nb);
-				if (nr < 250) nr = Math.floor(nr * 255 / nb);
-				nb = 255;
-			}
-			else if (nb <= 0) nb = 0;
-			// maybe some brightening gamma?
-			uic[o * ((i*w8) + j)] = 255-Math.floor(255*((255-nr)/255)*((255-nr)/255));
-			uic[o * ((i*w8) + j) + 1] = 255-Math.floor(255*((255-ng)/255)*((255-ng)/255));
-			uic[o * ((i*w8) + j) + 2] = 255-Math.floor(255*((255-nb)/255)*((255-nb)/255));
-			if (!scale) uic[o * ((i*w8) + j) + 3] = 255;
-		}
-	}
-	return uic;
-},
-/* ImBCBase: adjust A:\imback\... format to /imback/... */
-adjurl: function(url) {
-	if (url.url) url = url.url;
-	if (url.toUpperCase().substring(0,3) !== 'A:\\')
-		return url;
-	let n = url.substring(2);
-	while (n.indexOf("\\") > -1) {
-		n = n.substring(0, n.indexOf("\\")) + '/' + n.substring(n.indexOf('\\') +1);
-	}
-	return n;
-},
-/* Indentation in - end of globals */
+]
+/* *************************************** texts E N D *************************************** */
+/* outside of classes: */
+let imbc;
+/* onload of html body */
+function init() {
+	ImBCBase.progname = 'imbapp_app';
+	document.addEventListener('deviceready', () => { init2(); });
 }
-/* *************************************** globals, E N D *************************************** */
+/* onload of html body */
+function init2() {
+	window.open = cordova.InAppBrowser.open;
+	//console.log('Off to ' + window.location.protocol + '//' + window.location.host + '/IMBACK/test.html');
+	//window.open(window.location.protocol + '//' + window.location.host + '/IMBACK/test.html', '_system'); return;
+	imbc = new ImBCHtml();
+	document.getElementById('normal').style['display'] = 'none';
+	cordova.plugins.permissions.requestPermission(cordova.plugins.permissions.MANAGE_MEDIA, () => { console.log('M Med Ok '); }, () => { console.log('M Med NOk '); });
+	setTimeout(() => {
+		imbc.initsettings();
+		imbc.chgcopycheck();
+		if (!window.showSaveFilePicker) {
+			document.getElementById('usezip').disabled = true;
+			document.getElementById('usezip').checked = false;
+		}
+		imbc.querylang(window.location.pathname);
+		imbc.xlateall();
+		document.addEventListener('backbutton', () => {
+			imbc.handleback();
+		});
+		window.plugins.intent.getCordovaIntent(function (intent) {
+			if (intent.clipItems)
+				imbc.intenthandler(intent);
+			else
+				imbc.checkimb();
+		}, function(intent) {
+			// like error?
+			imbc.checkimb();
+		});
+		//imbc.checkimb();
+	}, 2000);
+}
 </script>
 <!-- WORKER -->
 <script type="text/js-previewworker" language="javascript">
-/* *************************************** Main class for WORKER *************************************** */
-let cmd, n, cache, ori, fl, base, msg = false, siz;
+/* *************************************** WORKER *************************************** */
+let cmd, n, cache, ori, base, msg = false, siz;
 let progress = false, queue = [], wdtimer, currcust, dbgflag,	errcount = 0, constwb = false;
 /* WORKER onmessage */
 onmessage = (e) => {
@@ -25564,7 +25499,6 @@ onmessage = (e) => {
 	n = e.data.n;
 	cmd = e.data.cmd;
 	ori = e.data.o;
-	fl = e.data.fl;
 	siz = e.data.size;
 	cache = {};
 	if (!msg) {
@@ -25595,8 +25529,8 @@ onmessage = (e) => {
 	case 'resolveandhandle':
 		progress = cmd;
 		resolver(n, false);
-		//this.previewworker.postMessage({ cmd: 'resolveandhandle', n: (f.n ? f.n : f), o: orientation, fl: fromloop });
-		// onmessage: { ok?, n: f.n, o: orientation, fl: fromloop, c: cacheentry }
+		//this.previewworker.postMessage({ cmd: 'resolveandhandle', n: (f.n ? f.n : f), o: orientation });
+		// onmessage: { ok?, n: f.n, o: orientation, c: cacheentry }
 		break;
 	case 'custcmd':
 		progress = cmd;
@@ -25641,7 +25575,7 @@ function resolver(url, preview, notfirst)  {
 		xhr.onabort = undefined;
 		if (!preview) {
 			//console.log('POSTING ' + url);
-			postMessage({ cmd: cmd, ok: true, n: url, o: ori, fl: fl, c: cache, size: siz });
+			postMessage({ cmd: cmd, ok: true, n: url, o: ori, c: cache, size: siz });
 			handlewait();
 		}
 		else {
@@ -25759,13 +25693,13 @@ function buildpreviewcache(f, size, orientation) {
 	//console.log(JSON.stringify(wb));
 	let outpix = globals.buildpvarray(view, size, typ, w, h, orientation, false, wb, whitelvl);
 	// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
-	/*if (dbgflag) {
+	if (dbgflag) {
 		setTimeout(() => {
-			postMessage({ cmd: cmd, pix: outpix, n: n, o: ori, c: cache });
+			postMessage({ cmd: cmd, pix: outpix, n: n, o: ori, c: cache, xori: (typ === 5 && ori === 0) ? 3 : ((ori === 0) ? 1 : ori), size: size });
 			handlewait();
 		}, 300);
 	}
-	else*/ {
+	else {
 		postMessage({ cmd: cmd, pix: outpix, n: n, o: ori, c: cache, xori: (typ === 5 && ori === 0) ? 3 : ((ori === 0) ? 1 : ori), size: size });
 		handlewait();
 	}
@@ -25879,7 +25813,7 @@ function readjpg(file) {
 	}
 	fr.readAsDataURL(file);
 }
-/* *************************************** Main class for WORKER, E N D *************************************** */
+/* *************************************** WORKER, E N D *************************************** */
 </script>
 <!-- WORKER END -->
 </head>
@@ -26062,14 +25996,6 @@ function readjpg(file) {
 <!-- end of the picture browser, generated content appended -->
 <!-- enter local files -->
 <div id="notimback" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
-<div id="droptargetwrap" style="display:none;">
-<div  style="font-size:133%;margin-top: 0.5em;" data-myxlkey="main.drophere"></div>
-<div id="droptarget" ondrop="imbc.drophandler(event);" ondragenter="imbc.prevdef(event);" ondragover="imbc.prevdef(event);" style="border: 5px solid blue;border-radius: 10px;width:300px; height:70px;background-color: rgba(0,0,255,0.2);"></div><br>
-<div  style="font-size:75%; background-color:rgba(0,0,255,0.1);width:fit-content;margin-top:-0.7em;color:#808080;">
-<input type="checkbox" id="fakelongexpadd"> <label for="fakelongexpadd" data-myxlkey="main.fakelong"> </label> - 
-<input type="checkbox" id="fakelongexpscale"> <label for="fakelongexpscale" data-myxlkey="main.fakelong.scale"> </label>
-</div>
-</div>
 <div  style="font-size:133%;margin-top: 0.5em;"><span  data-myxlkey="main.selectrawx"></span>
 <input  type="button" id="infile" name="infile" multiple onclick="imbc.fselect()" data-myvalxlkey="main.choosefile" value="XX">
 </div><br>

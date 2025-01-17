@@ -1027,8 +1027,6 @@ static progname = '';
 // ImBCBase: generic data
 mylang = 'en';
 withpreview = true;
-dooverwrite = false;
-autotime = false;
 // experimental
 neutral = false;
 metadata = false;
@@ -1036,10 +1034,6 @@ copyright = '';
 artist = '';
 // { name: 'xxx.jpg', data: array-ifd... }
 #exififds = [];
-connvers = ''; // hw version from cmd 3012
-imbfree = -1;
-disconnected = true;
-discknown = false; // we do not know if connected
 
 // ImBCBase: fake long exposure:
 #addimgs = [];
@@ -17928,8 +17922,7 @@ incdcp = true;
 /* ImBCBase: debug */
 debugflag = false;
 useraw = null;
-imbweb = 'http://192.168.1.254';
-//imbweb = 'http://192.168.0.72:8080';
+// mis-nomer from app
 fromintent = false; // 1: normal 2: stack/fakelong (> 1 DNG, to raw phase)  3: backward (== 1 DNG)  4: to dng phase when stacking 
 
 constructor() {
@@ -18143,6 +18136,7 @@ findlang(i) {
 	}
 	if ('zZ' === i || ('00' === this.mylang)) {
 		this.debugflag = true;
+		this.mylang = 'en';
 		if (this.previewworker) this.previewworker.postMessage({ cmd: 'setdbg' });
 	}
 	/*if ('zZ' === i || window?.location.href.startsWith('http://1')) {
@@ -18412,7 +18406,7 @@ handleone(orientation) {
 	let { date, datestr, nn, newname } = ImBCBase.nametotime(rawname, this.corrdelta);
 	if (this.corrdelta && newname?.length) rawname = newname;
 	if (rawname.substring(rawname.length - 4).toUpperCase() !== '.RAW') {
-		if (f.imbackextension && rawname.substring(rawname.length - 4).toUpperCase() !== '.JPG') {
+		if (ImBCBase.progname.startsWith('imbapp') && f.imbackextension && rawname.substring(rawname.length - 4).toUpperCase() !== '.JPG') {
 			this.mappx(0, 'process.notraw',inname);
 			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), f, f.name);
 			return;
@@ -19410,6 +19404,27 @@ applystyle(span, msg, base) {
 		return this.applystyle(span, msg.substring(i+1), e);
 	}
 }
+/* ImBCHtmlOut: resolver */
+resolver(f, onok, onerr) {
+	  let cachehit;
+	  if ((cachehit = this.findcache(f.name ? f.name : f))) {
+	  	  onok(f.name ? f.name : f, cachehit.reader);
+	  }
+	  else {
+		setTimeout(() => {
+			  this.workerstate.push({ cmd: 'resolveandhandle', okcb: (d, fx) => {
+					this.allfiles[this.actnum] = fx;
+					d.c.reader = fx;
+					this.addcache(d.n, d.c);
+					onok(d.n, fx);
+			  }, errcb: onerr});
+			  this.previewworker.postMessage({ cmd: 'resolveandhandle', n: (f.url ? f.url : f) });
+			  // onmessage: { ok?, n: f.name, o: orientation, c: cacheentry }
+			  // set allfiles[this.actnum] to cacheentry.reader and call handleone(o, fl)
+			  // add cache
+		}, 10);
+	  }
+}
 /* ImBCHtmlOut: output function to main log */
 appmsg(msg, opt) {
 	const s = document.createElement('span');
@@ -19766,6 +19781,7 @@ checkchecks() {
 /* *************************************** Top class for HTML, forward *************************************** */
 class ImBCHtml extends ImBCHtmlOut {
 /* Indentation out */
+imbweb = 'http://192.168.1.254';
 rotphases = [ '-' , '/', '|', '\\', '=', '\\', '|', '/' ]; // actually const
 writestream = null;
 zipdata = null;
@@ -19777,6 +19793,12 @@ workerstate = [];
 onback = 'quit'; // 'main', 'quit', 'nothing', 'close...', 'canceldl'
 modalback = '';
 showham = false;
+autotime = false;
+connvers = ''; // hw version from cmd 3012
+imbfree = -1;
+disconnected = true;
+discknown = false; // we do not know if connected
+dooverwrite = false;
 constructor() {
 	super();
 }
@@ -21285,13 +21307,6 @@ setlang() {
 }
 /* ImBCHtml: browserdisplay: settings are dirty */
 dirtysettings() {
-	if (window.location.origin.startsWith('http') && window.localStorage) {
-		document.getElementById('onlyhttp').style['display'] = 'none';
-		document.getElementById('setsettings').style['display'] = '';
-		document.getElementById('settingsset').style['display'] = 'none';
-		document.getElementById('settingsset').setAttribute('data-myxlarg0',window.location.origin);
-		document.getElementById('setsettingsurl').setAttribute('data-myxlarg0',window.location.origin);
-	}
 	this.autotime = document.getElementById('autotime').checked;
 	this.savesettings();
 }
@@ -21950,25 +21965,12 @@ initsettings() {
 			if (oldstylewb !== null) oldstylewb.checked = this.constwb;
 			const dngprev = document.getElementById('dngpreview');
 			if (dngprev) dngprev.checked = this.withpreview;
-			document.getElementById('onlyhttp').style['display'] = 'none';
-			document.getElementById('setsettings').style['display'] = 'none';
-			document.getElementById('settingsset').style['display'] = '';
-			document.getElementById('settingsset').setAttribute('data-myxlarg0',window.location.origin);
-			document.getElementById('setsettingsurl').setAttribute('data-myxlarg0',window.location.origin);
 			document.getElementById('exitsel').value = this.exitmode;
 			document.getElementById('dooverwrite').checked = this.dooverwrite;
 			document.getElementById('autotime').checked = this.autotime;
 		} else {
-			document.getElementById('onlyhttp').style['display'] = 'none';
-			document.getElementById('setsettings').style['display'] = '';
-			document.getElementById('settingsset').style['display'] = 'none';
-			document.getElementById('settingsset').setAttribute('data-myxlarg0',window.location.origin);
-			document.getElementById('setsettingsurl').setAttribute('data-myxlarg0',window.location.origin);
 		}
 	} catch  {
-		document.getElementById('onlyhttp').style['display'] = '';
-		document.getElementById('setsettings').style['display'] = 'none';
-		document.getElementById('settingsset').style['display'] = 'none';
 		this.xlateall();
 	}
 	this.xlateall();
@@ -25496,7 +25498,7 @@ const apptexts = [
         }
       ]
     }
-],
+]
 /* *************************************** texts E N D *************************************** */
 /* outside of classes: */
 let imbc;
@@ -25539,7 +25541,7 @@ function init2() {
 <!-- WORKER -->
 <script type="text/js-previewworker" language="javascript">
 /* *************************************** WORKER *************************************** */
-let cmd, n, cache, ori, fl, base, msg = false, siz;
+let cmd, n, cache, ori, base, msg = false, siz;
 let progress = false, queue = [], wdtimer, currcust, dbgflag,	errcount = 0, constwb = false;
 /* WORKER onmessage */
 onmessage = (e) => {
@@ -25564,7 +25566,6 @@ onmessage = (e) => {
 	n = e.data.n;
 	cmd = e.data.cmd;
 	ori = e.data.o;
-	fl = e.data.fl;
 	siz = e.data.size;
 	cache = {};
 	if (!msg) {
@@ -25595,8 +25596,8 @@ onmessage = (e) => {
 	case 'resolveandhandle':
 		progress = cmd;
 		resolver(n, false);
-		//this.previewworker.postMessage({ cmd: 'resolveandhandle', n: (f.n ? f.n : f), o: orientation, fl: fromloop });
-		// onmessage: { ok?, n: f.n, o: orientation, fl: fromloop, c: cacheentry }
+		//this.previewworker.postMessage({ cmd: 'resolveandhandle', n: (f.n ? f.n : f), o: orientation });
+		// onmessage: { ok?, n: f.n, o: orientation, c: cacheentry }
 		break;
 	case 'custcmd':
 		progress = cmd;
@@ -25641,7 +25642,7 @@ function resolver(url, preview, notfirst)  {
 		xhr.onabort = undefined;
 		if (!preview) {
 			//console.log('POSTING ' + url);
-			postMessage({ cmd: cmd, ok: true, n: url, o: ori, fl: fl, c: cache, size: siz });
+			postMessage({ cmd: cmd, ok: true, n: url, o: ori, c: cache, size: siz });
 			handlewait();
 		}
 		else {
@@ -25947,12 +25948,6 @@ function readjpg(file) {
 </div>
 </div>
 <div  style="margin-top: 0.5em;" id="genadvice" data-myxlkey="main.generaladvice"></div>
-</div>
-<div style="display:none;" style="margin-top: 0.5em;">
-<span id="onlyhttp" data-myxlkey="browser.prefnotfile"></span>
-<span id="settingsset" data-myxlkey="browser.settingsset"></span>
-<span id="setsettings"><input type="button" data-myvalxlkey="browser.setfrom" onclick="imbc.savesettings()"></input>&#xa0;<span id="setsettingsurl" data-myxlkey="browser.forurl"></span></span>
-<!-- here goes the save preferences .. -->
 </div>
 <!-- end of the normal display/settings -->
 <!-- this is the messagelog, generated content appended -->
