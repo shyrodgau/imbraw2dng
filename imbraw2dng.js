@@ -18905,9 +18905,6 @@ handleone(orientation) {
 			if (this.imbweb?.length) {
 				swbytes = new TextEncoder().encode(ImBCBase.progname + ' ' + globals.version + ' (' + this.imbweb + ')');
 			}
-			else if (document && window?.location.host?.length) {
-				swbytes = new TextEncoder().encode(ImBCBase.progname + ' ' + globals.version + ' (' + window.location.host + ')');
-			}
 			else
 				swbytes = new TextEncoder().encode(ImBCBase.progname + ' ' + globals.version);
 			let datbytes = [];
