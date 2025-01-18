@@ -18901,7 +18901,15 @@ handleone(orientation) {
 				xmpx[xmpx.length-1] += `<dc:rights><rdf:Alt><rdf:li xml:lang='x-default'>`;
     			xmpx.push(`</rdf:li></rdf:Alt></dc:rights>`);
 			}
-			let swbytes = new TextEncoder().encode(ImBCBase.progname + ' ' + globals.version);
+			let swbytes;
+			if (this.imbweb?.length) {
+				swbytes = new TextEncoder().encode(ImBCBase.progname + ' ' + globals.version + ' (' + this.imbweb + ')');
+			}
+			else if (document && window?.location.host?.length) {
+				swbytes = new TextEncoder().encode(ImBCBase.progname + ' ' + globals.version + ' (' + window.location.host + ')');
+			}
+			else
+				swbytes = new TextEncoder().encode(ImBCBase.progname + ' ' + globals.version);
 			let datbytes = [];
 			if (dateok) {
 				datbytes = new TextEncoder().encode(datestr.substring(0,4)+'-'+ datestr.substring(5,7)+'-'+datestr.substring(8,10)+'T'+datestr.substring(11));

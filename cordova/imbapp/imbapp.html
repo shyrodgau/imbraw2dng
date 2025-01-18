@@ -18569,7 +18569,7 @@ findlang(i) {
 	if ('zZ' === i) {
 		found = 1;
 		this.mylang = 'en';
-		this.imbweb = 'http://127.0.0.1:8889';
+		if (this.imbweb?.length) this.imbweb = 'http://127.0.0.1:8889';
 	}
 	if ('zZ' === i || ('00' === this.mylang)) {
 		this.debugflag = true;
@@ -19187,7 +19187,15 @@ handleone(orientation) {
 				xmpx[xmpx.length-1] += `<dc:rights><rdf:Alt><rdf:li xml:lang='x-default'>`;
     			xmpx.push(`</rdf:li></rdf:Alt></dc:rights>`);
 			}
-			let swbytes = new TextEncoder().encode(ImBCBase.progname + ' ' + globals.version);
+			let swbytes;
+			if (this.imbweb?.length) {
+				swbytes = new TextEncoder().encode(ImBCBase.progname + ' ' + globals.version + ' (' + this.imbweb + ')');
+			}
+			else if (document && window?.location.host?.length) {
+				swbytes = new TextEncoder().encode(ImBCBase.progname + ' ' + globals.version + ' (' + window.location.host + ')');
+			}
+			else
+				swbytes = new TextEncoder().encode(ImBCBase.progname + ' ' + globals.version);
 			let datbytes = [];
 			if (dateok) {
 				datbytes = new TextEncoder().encode(datestr.substring(0,4)+'-'+ datestr.substring(5,7)+'-'+datestr.substring(8,10)+'T'+datestr.substring(11));
@@ -24365,6 +24373,7 @@ checkimb() {
 		this.showdisconnect();
 		this.showmain();
 		this.xlateall();
+		this.imbweb = '';
 		return;
 	}
 	const ll = '00' === this.mylang ? 'en' : this.mylang;
@@ -24595,6 +24604,7 @@ checkimb() {
 			this.discknown = true;
 			this.showlocal();
 			ImBCHtml.openp(document.getElementById('appsettopener'));
+			this.imbweb = '';
 		}
 		this.xlateall();
 	});
