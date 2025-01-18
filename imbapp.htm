@@ -19109,8 +19109,9 @@ handleone(orientation) {
 			ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config - chunky */
 			ti.addEntry(282, 'RATIONAL', [ 30, 1 ]); /* X resolution */
 			ti.addEntry(283, 'RATIONAL', [ 30, 1 ]); /* y resolution */
-			ti.addEntry(50707, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Backward Version */
 		}
+		ti.addEntry(50706, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Version */
+		ti.addEntry(50707, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Backward Version */
 		ti.addEntry(271, 'ASCII', 'ImBack'); /* Make */
 		ti.addEntry(50708, 'ASCII', 'ImBack' + ' ' + globals.types[typ < 32 ? typ : ((typ< 64)? (typ - 32) : (typ - 64))]); /* Unique model */
 		ti.addEntry(272, 'ASCII', globals.types[typ < 32 ? typ : ((typ< 64)? (typ - 32) : (typ - 64))]); /* Model */
@@ -19147,7 +19148,6 @@ handleone(orientation) {
 				ti.addExifIfd(e.data);
 			}
 		}
-		ti.addEntry(50706, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Version */
 		let rightbytes = [];
 		if (this.metadata && this.copyright?.length) {
 			// do UTF-8 bytes instead of ASCII if necessary
@@ -19294,7 +19294,6 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		ti.addImageStrip(0, view, w, h);
 		ti.addEntry(258 , 'SHORT', [ targbits ]); /* BitsPerSample */
 		ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression - none */
-		ti.addEntry(50707, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Backward Version */
 		ti.addEntry(50717, 'LONG', [ (typ >= 5) ? (whitelvl > 0 ?  whitelvl : 4095) : 255 ]); /* White level */
 		if ((typ % 32)  === 5) ti.addEntry(50714, 'SHORT', [ 240, 240, 240, 240 ] ); /* Blacklevel */
 		if ((typ % 32)  === 5) ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
@@ -25330,7 +25329,7 @@ const apptexts = [
       ]
     }
 ]
-/* *************************************** texts end *************************************** */
+/* *************************************** texts E N D *************************************** */
 /* outside of classes: */
 let imbc;
 /* onload of html body */
@@ -25364,6 +25363,7 @@ window.addEventListener('pageshow', function (event) {
         window.location.reload();
     }
 });
+mytexts['main']['apptitle']['en'] = 'ImB HTML App';
 </script>
 <!-- WORKER -->
 <script type="text/js-previewworker" language="javascript">

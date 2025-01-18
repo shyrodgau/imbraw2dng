@@ -19111,8 +19111,9 @@ handleone(orientation) {
 			ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config - chunky */
 			ti.addEntry(282, 'RATIONAL', [ 30, 1 ]); /* X resolution */
 			ti.addEntry(283, 'RATIONAL', [ 30, 1 ]); /* y resolution */
-			ti.addEntry(50707, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Backward Version */
 		}
+		ti.addEntry(50706, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Version */
+		ti.addEntry(50707, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Backward Version */
 		ti.addEntry(271, 'ASCII', 'ImBack'); /* Make */
 		ti.addEntry(50708, 'ASCII', 'ImBack' + ' ' + globals.types[typ < 32 ? typ : ((typ< 64)? (typ - 32) : (typ - 64))]); /* Unique model */
 		ti.addEntry(272, 'ASCII', globals.types[typ < 32 ? typ : ((typ< 64)? (typ - 32) : (typ - 64))]); /* Model */
@@ -19149,7 +19150,6 @@ handleone(orientation) {
 				ti.addExifIfd(e.data);
 			}
 		}
-		ti.addEntry(50706, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Version */
 		let rightbytes = [];
 		if (this.metadata && this.copyright?.length) {
 			// do UTF-8 bytes instead of ASCII if necessary
@@ -19296,7 +19296,6 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		ti.addImageStrip(0, view, w, h);
 		ti.addEntry(258 , 'SHORT', [ targbits ]); /* BitsPerSample */
 		ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression - none */
-		ti.addEntry(50707, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Backward Version */
 		ti.addEntry(50717, 'LONG', [ (typ >= 5) ? (whitelvl > 0 ?  whitelvl : 4095) : 255 ]); /* White level */
 		if ((typ % 32)  === 5) ti.addEntry(50714, 'SHORT', [ 240, 240, 240, 240 ] ); /* Blacklevel */
 		if ((typ % 32)  === 5) ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
@@ -19598,10 +19597,2488 @@ handleoneback(fx) {
 }
 /* *************************************** main class E N D *************************************** */
 /* *************************************** Android spec class *************************************** */
+/* * * ************************************* texts *************************************** */
+const mytexts = { // actually const
+	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
+	words: {
+		error: {
+			de: '\u001b[31m\u001b[1mFEHLER:\u001b[0m ',
+			en: '\u001b[31m\u001b[1mERROR:\u001b[0m ',
+			fr: '\u001b[31m\u001b[1mERREUR:\u001b[0m ',
+			ja: '\u001b[31m\u001b[1mエラー： \u001b[0m ',
+			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
+		},
+		warning: {
+			de: '\u001b[31mWarnung:\u001b[0m ',
+			en: '\u001b[31mWarning:\u001b[0m ',
+			fr: '\u001b[31mAvertissement:\u001b[0m ',
+			ja: '\u001b[31m警告： \u001b[0m',
+			htmlstyle: [ [ 'background-color','#ffdddd' ] ]
+		},
+		finished: {
+			de: '\u001b[32m\u001b[1mFertig!\u001b[0m ',
+			en: '\u001b[32m\u001b[1mFinished!\u001b[0m ',
+			fr: '\u001b[32m\u001b[1mFini!\u001b[0m ',
+			ja: '\u001b[32m\u001b[1m終了!\u001b[0m ',
+			htmlstyle: [ [ 'background-color','#ddffdd' ], [ 'font-weight', 'bold' ] ]
+		},
+		sorryerr: {
+			de: '\u001b[31m\u001b[1mENTSCHULDIGUNG! FEHLER:\u001b[0m ',
+			en: '\u001b[31m\u001b[1mSORRY! ERROR:\u001b[0m  ',
+			fr: '\u001b[31m\u001b[1mDÉSOLÉE! ERREUR:\u001b[0m ',
+			ja: '\u001b[31m\u001b[1m申し訳ございません! エラー： \u001b[0m  ',
+			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
+		},
+		sorry: {
+			de: '\u001b[31mENTSCHULDIGUNG!\u001b[0m ',
+			en: '\u001b[31mSORRY!\u001b[0m  ',
+			fr: '\u001b[31mDÉSOLÉE!\u001b[0m ',
+			ja: '\u001b[31m申し訳ございません!\u001b[0m  ',
+			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
+		}
+	},
+	main: {
+		choosefile: {
+			en: 'choose file',
+			de: 'datei auswählen',
+			ja: 'ファイルを選択'
+		},
+		coloursyourrisk: {
+			de: 'Bei Farben bin ich raus! Eigenes Risiko, fraach mich net!',
+			en: 'About colurs, I am out! Own risk, do not ask me!',
+			fr: 'About colurs, I am out! Own risk, do not ask me!',
+			ja: '色については、アウトです！ 自己責任ですので、私に尋ねないでください。'
+		},
+		title: {
+			de: 'ImB RAW nach DNG Konverter',
+			en: 'ImB RAW to DNG converter',
+			fr: 'Convertisseur ImB RAW a DNG',
+			ru: 'Конвертер ImB RAW в DNG',
+			ja: 'ImB RAW を DNG に変換'
+		},
+		apptitle: {
+			en: 'ImB OS App'
+		},
+	    backw: {
+			   title:  { en: 'ImB DNG to RAW back converter' },
+			   generaladvice: { en: 'Only works for the exact original converted DNG.' },
+			   selectdng: { en: 'Select orig. DNG' },
+			   drophere: { en: 'Drop DNGs here' }
+	    },
+		help: {
+			de: '? Hilfe Doku',
+			en: '? Help Doc',
+			fr: '? Aide Doc',
+			ru: '? Помощь Док',
+			ja: '? ヘルプ資料'
+		},
+		helplink: {
+			de: 'https://shyrodgau.github.io/imbraw2dng/README_de',
+			en: 'https://shyrodgau.github.io/imbraw2dng/',
+			fr: 'https://shyrodgau.github.io/imbraw2dng/',
+			ja: 'https://shyrodgau.github.io/imbraw2dng/README_ja'
+		},
+		generaladvice: {
+			de: 'Daten werden nur im Browser verarbeitet, nicht im \'Internet\'.<br>Kann sein, dass der Browser fragt, ob Sie zulassen wollen, dass mehrere Dateien heruntergeladen werden.<br>Dateien, die nicht oder unbekannte RAW-Dateien sind, werden 1:1 kopiert.',
+			en: 'Data processing is entirely in the browser, not in \'the internet\'<br>Browser may ask you if you want to allow downloading multiple files.<br>Not or unrecognized RAW Files simply will be copied.',
+			fr: 'L\'information est entièrement traitée dans le navigateur et non sur \'Internet\'<br>Le navigateur peux questionner que vous acceptez le téléchargement de beaucoup de fiches.<br>Fiches pas-RAW ou RAW inconnue sont copiée 1:1.',
+			ru: 'Данные обрабатываются только в браузере, а не в \'Интернете\'.<br>Браузер может спросить, хотите ли вы разрешить загрузку нескольких файлов.<br>Файлы, которые не являются или неизвестными файлами RAW, копируются 1:1.',
+			ja: 'データはブラウザ内でのみ処理され、「インターネット」上では処理されません。<br>ブラウザは、複数のファイルのダウンロードを許可するかどうかを尋ねる場合があります。<br>RAW ファイルではないファイル、または不明なファイルは 1:1 でコピーされます。'
+		},
+		drophere: {
+			de: 'Dateien oder Verzeichnisse von ImB hier ablegen: ',
+			en: 'Drop Files or directories from ImB here: ',
+			fr: 'Posez fiches ou repertoires de ImB ici: ',
+			ja: 'ここに ImB のファイルをドロップします。：  (or directories)'
+		},
+		selectraw: {
+			de: 'Oder diese Seite per WLAN <a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README_de#browsing-on-the-imback\',\'_system\');return false;">direkt von ImB</a> verwenden.<br>Oder <tt>.RAW</tt> Datei(en) auswählen:',
+			en: 'Or use this page via Wifi <a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README#browsing-on-the-imback\',\'_system\');return false;">directly from ImB</a>.<br>Or select <tt>.RAW</tt> File(s):',
+			ja: 'または、このページを WiFi 経由で<a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README_ja#browsing-on-the-imback\',\'_system\');return false;">ImB から直接</a>使用します。<br >または、<tt>.RAW</tt> ファイルを選択します。：'
+		},
+		selectrawx: {
+			de: 'Oder <tt>.RAW</tt> Datei(en) auswählen:',
+			en: 'Or select <tt>.RAW</tt> File(s):',
+			fr: 'Ou selectez <tt>.RAW</tt> fiche(s):',
+			ru: 'Или выберите файл(ы) <tt>RAW</tt>:',
+			ja: 'または、<tt>.RAW</tt> ファイルを選択します。：'
+		},
+		stillcounting: {
+			de: '... zähle ... ',
+			en: '... counting ... ',
+			fr: '... compter ...',
+			ru: '... подсчет ...',
+			ja: '... カウント中 ... '
+		},
+		types: {
+			rawpics: {
+				de: 'RAW Bilder',
+				en: 'RAW Pictures',
+				fr: 'RAW images',
+				ja: 'RAW 画像'
+			},
+			jpgpics: {
+				de: 'JPEG-Bilder',
+				en: 'JPEG Pictures',
+				fr: 'JPEG images',
+				ja: 'JPEG 画像'
+			},
+			other: {
+				de: 'Andere',
+				en: 'Other',
+				fr: 'Autre',
+				ja: 'その他'
+			},
+			notpic: {
+				de: 'MP4: ',
+				en: 'MP4: ',
+				fr: 'MP4: ',
+				ja: 'MP4: '
+			}
+		},
+		file: {
+			jpeg: {
+				de: 'Datei $$0 (JPEG)',
+				en: 'File $$0 (JPEG)',
+				fr: 'Fiche $$0 (JPEG)',
+				ja: 'ファイル $$0 (JPEG)'
+			},
+			nopreview: {
+				de: 'Datei $$0<br>Nicht jpeg oder raw, keine Vorschau...',
+				en: 'File $$0<br>Not jpeg or raw, no preview...',
+				fr: 'Fiche $$0<br>Ni jpeg ni raw, pas de aperçu...',
+				ja: 'ファイル $$0<br>jpeg または、raw 以外、プレビューなし...'
+			},
+			rawunknown: {
+				de: 'Datei $$0<br>Unerkannte RAW Dateigröße $$1, bitte Entwickler kontaktieren! Keine Vorschau...',
+				en: 'File $$0<br>Unknown raw size $$1, please contact developer! No preview...',
+				fr: 'Fiche $$0<br>taille de fiche $$1 non reconnue, contacter le développeur, pas de aperçu...',
+				ja: 'File $$0<br>不明な raw サイズ $$1, 開発者にお問い合わせください! プレビューなし...'
+			},
+			dngimpnote: {
+				de: 'Import eines DNG geht nur, wenn diese genau das hiermit erzeugte Original ist.',
+				en: 'Re-import of a DNG is only possible if this is exactly the original that was created here.',
+				fr: 'La réimportation d\'un DNG n\'est possible que s\'il s\'agit exactement de l\'original créé ici.',
+				ja: 'DNG の再インポートは、これがここで作成されたオリジナルである場合にのみ可能です。'
+			},
+			de: 'Datei $$0',
+			en: 'File $$0',
+			fr: 'Fiche $$0',
+			ja: 'ファイル $$0'
+		},
+		sort: {
+			de: 'Sortiere',
+			en: 'Sort:',
+			fr: 'Trier:',
+			ja: 'ソート： '
+		},
+		or: {
+			de: 'Oder ',
+			en: 'Or ',
+			fr: 'Ou ',
+			ja: 'または '
+		},
+		log: {
+			de: 'Protokoll-Ausgabe:',
+			en: 'Message Log:',
+			fr: 'Journal des messages',
+			ja: 'メッセージ ログ： '
+		},
+		selected: {
+			de: 'Ausgewählt',
+			en: 'Selected',
+			fr: 'Sélectionné(s)',
+			ja: '選択済み'
+		},
+		fakelong: {
+			en: 'Fake long exposure by adding up all (<a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README#a-lot-more-tricks-and-details\',\'_system\');return false;">read more</a>)',
+			de: 'Langzeitbelichtung durch Addieren simulieren (<a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README_de#a-lot-more-tricks-and-details\',\'_system\');return false;">mehr lesen</a>)',
+			ja: '「追加して長時間露光をシミュレートします (<a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README_ja#a-lot-more-tricks-and-details\',\'_system\');return false;">続きを読む</a>)」すべてを加算して長時間露光をシミュレートする',
+			scale: {
+				en: 'Scale values down',
+				de: 'Werte dabei herunterskalieren',
+				ja: 'スケールダウン値'
+			},
+			added: {
+				en: 'Added picture $$0',
+				de: 'Bild $$0 hinzugefügt',
+				ja: '画像を追加しました $$0'
+			}
+		},
+		usezip: {
+			de: 'Nicht mehrere Dateien einzeln, sondern in wenigen ZIP Archiven herunteladen.',
+			en: 'Do not use several single downloads, but in fewer ZIP archives.',
+			ja: '複数のファイルを個別にダウンロードするのではなく、いくつかの ZIP アーカイブとしてダウンロードしてください。',
+			choosedest: {
+				de: 'Ziel auswählen',
+				en: 'Choose destination',
+				ja: '目的地を選択'
+			}
+		},
+		newmsg: {
+			en: '<a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/issues\',\'_system\');return false;">Report bugs</a>',
+			de: '<a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/issues\',\'_system\');return false;">Fehler melden</a>',
+			ja: '<a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/issues\',\'_system\');return false;">バグ報告</a>'
+		}
+	},
+	browser: {
+		bytype: {
+			de: 'Nach Typ',
+			en: 'By type',
+			fr: 'Par type',
+			ja: '種類別'
+		},
+		olderfirst: {
+			de: 'Ältere nach oben',
+			en: 'Older first',
+			fr: 'Plus anciens ci-dessus',
+			ja: '古い順'
+		},
+		selall: {
+			tooltip: {
+				de: 'Wenn Haken nicht gesetzt, wähle alles aus. Bei Klick wenn angehakt setze Auswahl auf Nichts.',
+				en: 'If not selected then select all. If it is selected and clicked then unselect all.',
+				fr: 'S\'il n\'est pas sélectionner, sélectionner tout. Au clic si sélectionné, vider la sélection',
+				ja: '選択されていない場合は、すべてを選択します。 選択してクリックした場合は、すべての選択を解除します。'
+			},
+			de: 'Alle de-/ oder selektieren',
+			en: 'De-/select all',
+			fr: 'De-/sélectionner tout',
+			ja: 'すべての選択を解除'
+		},
+		procall: {
+			de: 'Alle ausgewählte kopieren/verarbeiten',
+			en: 'Copy/process all selected',
+			fr: 'Traiter les sélectionnés',
+			ja: '選択したものをすべてコピー/処理'
+		},
+		delall: {
+			de: 'Alle ausgewählte löschen',
+			en: 'Delete all selected',
+			fr: 'Supprimer les sélectionnés',
+			ja: '選択したものをすべて削除'
+		},
+		settingsset: {
+			en: 'Preferences are set for source $$0',
+			de: 'Voreinstellungen für $$0 gespeichert',
+			ja: 'デフォルト設定は $$0 で保存されます'
+		},
+		prefnotfile: {
+			en: 'Preferences not possible for file:// URLs',
+			de: 'Voreinstellungen für file:// URLs nicht möglich',
+			ja: 'file:// URL でデフォルト設定はできません'
+		},
+		setfrom: {
+			en: 'Set new prefereneces ',
+			de: 'Voreinstellungen setzen ',
+			ja: 'デフォルトを設定する'
+		},
+		forurl: {
+			en: ' for URL $$0',
+			de: ' für URL $$0',
+			ja: 'URL $$0 の場合'
+		}
+	},
+	onimback: {
+		connected: {
+			de: 'ImB Verbunden! ',
+			en: 'ImB Connected! ',
+			fr: 'ImB Connecté! ',
+			ja: 'ImB 接続済み! '
+		},
+		dlconvert: {
+			de: 'Konvertiere / Lade herunter: ',
+			en: 'Download / convert: ',
+			fr: 'Telecharger / convertir',
+			ja: 'ダウンロード / 変換: '
+		},
+		totalnum: {
+			de: 'gesamt:',
+			en: 'total:',
+			fr: 'total:',
+			ja: '合計： '
+		},
+		fromtime: {
+			de: 'ab Zeitstempel bzw. jünger als ',
+			en: 'from timestamp or younger than ',
+			fr: 'à partir de l\'horodatage ou plus jeune que ',
+			ja: 'タイムスタンプ以降またはそれより古い '
+		},
+		nullforall: {
+			de: '0000 oder leer für \'alle\'',
+			en: '0000 or empty for \'all\'',
+			fr: '0000 ou déposer pour \'tout\'',
+			ja: '0000 または、 \'すべて\' 空 '
+		},
+		doit: {
+			de: 'Mach es',
+			en: 'Do it',
+			fr: 'Fais-le',
+			ja: '実行'
+		},
+		visual: {
+			de: 'Bild-Browser benutzen',
+			en: 'Use visual Picture Browser',
+			fr: 'Ou outilizer navigateur visuel des images',
+			ja: 'ビジュアルな画像ブラウザを使用する'
+		},
+		errconnect: {
+			de: '\u001b[31mFEHLER\u001b[0m bei der Verbindung zu ImB auf $$0! Im ImB WLAN?',
+			en: '\u001b[31mERROR\u001b[0m connecting to ImB on $$0! In the ImB WiFi?',
+			fr: '\u001b[31mERREUR\u001b[0m lors de la connexion à imback. Dans le Wifi ImB?',
+			ja: '\u001b[31mエラー\u001b[0m $$0 でImB に接続しています! ImB WiFi ですか?'
+		},
+		nomatch: {
+			de: 'Keine passenden Dateien gefunden. Kann vorübergehend sein.',
+			en: 'No matching files found. Might be temporary.',
+			fr: 'Aucun fiche correspondant trouvé. Peut-etre temporaire.',
+			ja: '一致するファイルが見つかりませんでした。 一時的なものかもしれません。'
+		},
+		strangename: {
+			de: 'Komischer Dateiname: $$0',
+			en: 'Strange file name: $$0',
+			fr: 'Nom de fiche inhabituel: $$0',
+			ja: '無効なファイル名：  $$0'
+		},
+		invaltime: {
+			de: 'Ungültiger Zeitstempel: $$0',
+			en: 'Invalid timestamp: $$0',
+			fr: 'Horodatage invalide: $$0',
+			ja: '無効なタイムスタンプ：  $$0'
+		},
+	},
+	process: {
+		renamed: {
+			en: '(renamed)',
+			de: '(umbenannt)',
+			fr: '(renomee)',
+			ja: '(リネーム)'
+		},
+		singlestep: {
+			de: 'Einzelschritt mit Vorschau',
+			en: 'Single Step with preview',
+			fr: 'Seule étape avec aperçu',
+			ja: 'プレビューありでシングルステップ'
+		},
+		addcopyright: {
+			en: 'Copyright',
+			de: 'Copyright',
+			ja: '著作権を追加'
+		},
+		addartist: {
+			en: 'Artist/Creator',
+			de: 'Künstler/Ersteller'
+		},
+		metadata: {
+			en: 'Metadata:',
+			de: 'Metadaten:'
+		},
+		nothing: {
+			de: 'Nichts ausgewählt.. ?',
+			en: 'Nothing selected...?',
+			fr: 'Rien de sélectionné',
+			ja: '何も選択されていません...?'
+		},
+		erraccess: {
+			de: 'beim Zugriff auf $$0.',
+			en: 'occured accessing $$0.',
+			fr: 'lors de l\'accès à $$0.',
+			ja: '>アクセス中にエラーが発生しました $$0.'
+		},
+		notraw: {
+			de: 'Durchleitung weil nicht raw: $$0',
+			en: 'Passing through as not raw: $$0',
+			fr: 'Passage comme non RAW: $$0',
+			ja: 'RAW ではないのでスルー：  $$0'
+		},
+		selectedn: {
+			de: '$$0 Datei(en) wurden ausgewählt.',
+			en: 'Got $$0 file(s) selected.',
+			fr: '$$0 fiche(s) sélectionné(s)',
+			ja: '$$0 ファイルが選択されました。'
+		},
+		copyokcheckdl: {
+			de: 'Nach $$0 kopiert (Ordner $$X prüfen)</b>&nbsp;',
+			en: 'Copied to $$0 (Check Folder $$X)</b>&nbsp;',
+			fr: 'Copié sur $$0 (Vérifier le dossier de $$X)</b>&nbsp;',
+			ja: '$$0 にコピーされました (フォルダー $$X を確認してください)</b>&nbsp;'
+		},
+		copyok: {
+			de: 'Nach $$0 kopiert',
+			en: 'Copied to $$0',
+			fr: 'Copié sur $$0',
+			ja: '$$0 にコピー'
+		},
+		errorreadingfile: {
+			de: 'beim Lesen der Datei $$0',
+			en: 'occured reading file $$0',
+			fr: 'de lecture du fiche $$0',
+			ja: 'ファイル $$0 の読み取り中にエラーが発生しました。 '
+		},
+		unknownsize: {
+			de: 'Die Dateigröße <b>$$0</b> passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!',
+			en: 'File Size <b>$$0</b> does not match known formats. Please contact developer!',
+			fr: 'La taille du fiche <b>$$0</b> ne correspond pas au format connu. Veuillez contacter le développeur',
+			ja: 'が、ファイルサイズ <b>$$0</b> は既知の形式と一致しません。開発者にお問い合わせください。'
+		},
+		unknownsizex: {
+			de: 'Die Dateigröße $$0 passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!',
+			en: 'File Size $$0 does not match known formats. Please contact developer!',
+			fr: 'La taille du fiche $$0 ne correspond pas au format connu. Veuillez contacter le développeur',
+			ja: 'が、ファイルサイズ $$0 は既知の形式と一致しません。開発者にお問い合わせください。'
+		},
+		processing: {
+			de: 'Verarbeite Datei: $$0 ',
+			en: 'Processing file: $$0',
+			fr: 'Je suis en train de traiter le fiche $$0',
+			ja: '処理中のファイル：  $$0'
+		},
+		assuming: {
+			de: 'Annahme: $$0 $$1',
+			en: 'Assuming $$0 $$1',
+			fr: 'Hypothèse: $$0 $$1',
+			ja: '認識  $$0 $$1'
+		},
+		datetime: {
+			de: 'Datum/Zeit: $$0',
+			en: 'Date/Time: $$0 ',
+			fr: 'Date/heure: $$0',
+			ja: '日付/時刻：  $$0 '
+		},
+		orientation: {
+			de: 'Drehung: $$0',
+			en: 'Orientation: $$0',
+			fr: 'Rotation: $$0',
+			ja: '向き：  $$0'
+		},
+		convertedcheckdl: {
+			de: 'Nach $$0 konvertiert (Ordner $$X prüfen)',
+			en: 'Converted to $$0 (Check Folder $$X)',
+			fr: 'Converti en $$0 (Vérifier le dossier de $$X)',
+			ja: '$$0 に変換されました ($$X フォルダーを確認してください)'
+		},
+		converted: {
+			de: 'Nach $$0 konvertiert',
+			en: 'Converted to $$0',
+			fr: 'Converti en $$0',
+			ja: '$$0 に変換'
+		},
+		errsave: {
+			de: 'Konnte Datei $$0 nicht speichern.',
+			en: 'Could not write file $$0',
+			fr: 'Impossible d\'écrire le fiche $$0.',
+			ja: 'ファイル $$0 に書き込めませんでした'
+		},
+		errsavetrybrowser: {
+			de: 'Konnte Datei $$0 nicht speichern. <br><a href="#" onclick="window.open(\'$$1\', \'_system\'); return false;">Herunterladen über Browser versuchen</a>',
+			en: 'Could not write file $$0. <br><a href="#" onclick="window.open(\'$$1\', \'_system\'); return false;">Try download via Browser</a>',
+			fr: 'Impossible d\'écrire le fiche $$0. <br><a href="#" onclick="window.open(\'$$1\', \'_system\'); return false;">Try download via Browser</a>',
+			ja: 'ファイル $$0 に書き込めませんでした <br><a href="#" onclick="window.open(\'$$1\', \'_system\'); return false;">Try download via Browser</a>'
+		},
+		droppedn: {
+			de: '$$0 Datei(en) wurden abgelegt.',
+			en: 'Got $$0 file(s) dropped.',
+			fr: '$$0 fiche(s) ont été stockés',
+			ja: '$$0 個のファイルがドロップされました。'
+		},
+		frombackn: {
+			de: '$$0 Datei(en) vom ImB zu verarbeiten.',
+			en: 'Got $$0 file(s) from ImB.',
+			fr: 'J\'ai reçu $$0 fiche(s) d\'ImB',
+			ja: 'ImB から $$0 ファイルを取得しました。'
+		},
+		frombrowsern: {
+			de: '$$0 Datei(en) vom Bild-Browser zu verarbeiten.',
+			en: 'Got $$0 file(s) from Visual browser.',
+			fr: 'J\'ai obtenu $$ fiche(s) du navigateur visuel',
+			ja: 'ビジュアル ブラウザから $$0 ファイルを取得しました。'
+		},
+		skipped: {
+			remaining: {
+				de: 'Verbleibende $$0 Dateien auf Anforderung übersprungen',
+				en: 'Skipping remaining $$0 images at your request',
+				fr: '$$0 fiches restants ignorés sur demande',
+				ja: 'リクエストに応じてスキップ：  $$0'
+			},
+			de: 'Auf Anforderung übersprungen: $$0',
+			en: 'Skipped at your request: $$0',
+			fr: 'Ignoré à votre demande: $$0',
+			ja: 'リクエストに応じて残りの $$0 画像をスキップします'
+		},
+		totals: {
+			en: 'Total: $$0, ok: $$1, skipped: $$2, Errors: $$3',
+			de: 'Total: $$0, ok $$1, übersprungen: $$2, Fehler: $$3',
+			fr: 'Total: $$0, ok: $$1, Ignoré: $$2, Erreur: $$3',
+			ja: '合計 $$0、OK $$1、スキップ $$2、エラー $$3'
+		},
+		addpreview: {
+			en: 'Add preview thumbnail to DNG',
+			de: 'Kleines Vorschaubild im DNG',
+			fr: 'Petite image d\'aperçu en DNG',
+			ja: 'プレビューのサムネイルを DNG に追加する'
+		},
+		addexif: {
+			en: 'Add EXIF data from $$0',
+			de: 'Gebe EXIF Daten von $$0 dazu',
+			ja: '$$0のEXIFデータを追加'
+		},
+		includedcp: {
+			en: 'Include the new DNG camera profile (DCP)',
+			de: 'Neues DNG Kamera-Profil (DCP) einbetten',
+			ja: '新しい DNG カメラ プロファイル (DCP) を埋め込みます。'
+		},
+		oldstylewb: {
+			en: 'Use old-style constant white balance',
+			de: 'Alten konstanten Weißabgleich verwenden',
+			ja: '古い一定のホワイト バランスを使用する'
+		},
+		adddcp: {
+			en: 'Adding new DCP',
+			de: 'Bette neues DCP Farbprofile ein',
+			ja: '新しい DCP カラー プロファイルを埋め込む'
+		},
+		foundwb: {
+			en: 'Found whitebalance $$0 / $$1 / $$2',
+			de: 'Weißabgleich $$0 / $$1 / $$2 gefunden',
+			ja: 'ホワイトバランス $$0 / $$1 / $$2 が見つかりました'
+		},
+		dooverwrite: {
+			en: 'Overwrite existing files',
+			de: 'Vorhandene Dateien überschreiben',
+			ja: '既存のファイルを上書きする'
+		}
+	},
+	preview: {
+		err: {
+			de: 'Fehler bei Vorschau :-(',
+			en: 'Error with Preview :-(',
+			fr: 'Erreur dans l\'aperçu :-(',
+			ja: 'プレビューでのエラー :-('
+		},
+		rotcw: {
+			de: 'im Uhrzeigersinn drehen',
+			en: 'Rotate clockwise',
+			fr: 'tourner dans le sens des aiguilles d\'une montre',
+			ja: '時計回りに回転'
+		},
+		rotccw: {
+			de: 'gegen den Uhrzeigersinn drehen',
+			en: 'rotate counterclockwise',
+			fr: 'tourner dans le sens inverse des aiguilles d\'une montre',
+			ja: '反時計回りに回転'
+		},
+		rot180: {
+			de: 'auf den Kopf',
+			en: 'Rotate 180°',
+			fr: 'retourné',
+			ja: '180°回転'
+		},
+		rotreset: {
+			de: 'Drehung zurücksetzen',
+			en: 'Reset',
+			fr: 'Réinitialiser la rotation',
+			ja: 'リセット',
+			tooltip: {
+				de: 'Ursprüngliche Bildausrichtung wiederherstellen',
+				en: 'Reset original image orientation',
+				fr: 'Restaurer l\'orientation originale de l\'image',
+				ja: '元の画像の向きにリセット'
+			}
+		},
+		process: {
+			de: 'Kopieren/Konvertieren',
+			en: 'Copy/Convert',
+			fr: 'Copie/Convertir',
+			ja: '元の画像の向きにリセット'
+		},
+		skip: {
+			de: 'Überspringen',
+			en: 'Skip',
+			fr: 'Sauter',
+			ja: 'コピー/変換'
+		},
+		forall: {
+			de: 'Für alle weiteren das selbe',
+			en: 'Do this for all following',
+			fr: 'Faites ceci pour tous les suivants',
+			ja: '以下のすべてに対してこれを実行します'
+		},
+		orients: {
+			none: {
+				de: 'keine',
+				en: 'none',
+				fr: 'aucune',
+				ja: 'なし'
+			},
+			upsidedown: {
+				de: '180°',
+				en: '180°',
+				ja: '180°',
+				fr: '180°'
+			},
+			clockwise: {
+				de: 'im Uhrzeigersinn',
+				en: 'clockwise',
+				fr: 'dans le sens des aiguilles d\'une montre',
+				ja: '時計回り'
+			},
+			counterclockwise: {
+				de: 'gegen den Uhrzeigersinn',
+				en: 'counterclockwise',
+				fr: 'dans le sens inverse des aiguilles d\'une montre',
+				ja: '反時計回り'
+			}
+		}
+	},
+	raw: {
+		unknownsize: {
+			de: 'Unerkannte RAW-Dateigröße, Entwickler kontaktieren',
+			en: 'Unrecognized RAW file size, contact developer',
+			fr: 'La taille du fiche RAW ne correspond pas au format connu. Veuillez contacter le développeur',
+			ja: '反時計回り'
+		},
+	},
+	selection: {
+		got: {
+			de: '$$0 Dateien wurden ausgewählt.',
+			en: 'Got $$0 files selected.',
+			fr: '$$0 dossiers ont été sélectionnés.',
+			ja: '$$0 ファイルが選択されました。'
+		},
+	},
+	del: {
+		question: {
+			en: 'Deleting $$0 file(s) can not be undone! Are you sure you want to continue?',
+			de: 'Löschen von $$0 Datei(en) kann nicht rückgängig gemacht werden. Sicher damit weitermachen?',
+			fr: 'La suppression de $$0 fiche(s) est irréversible. Es-tu sur de vouloir continuer?',
+			ja: '$$0 ファイルを削除すると、元に戻すことはできません。 続行してもよろしいですか?',
+			ok: {
+				de: 'Ok',
+				en: 'Ok',
+				fr: 'Ok',
+				ja: 'はい'
+			},
+			cancel: {
+				de: 'Abbrechen',
+				en: 'Cancel',
+				fr: 'Annuler',
+				ja: 'キャンセル'
+			}
+		},
+		nostatus: {
+			de: 'Der Status des Löschens kann nicht sicher geprüft werden. Bitte laden Sie die Seite nach dem Löschen neu.',
+			en: 'The status of the delete can not be checked safely. Reload the page after deleting.',
+			fr: 'Le statut de la suppression ne peut pas être vérifié avec certitude. Veuillez recharger la page après la suppression.',
+			ja: '削除のステータスを安全に確認することはできません。 削除後はページを再読み込みしてください。'
+		},
+		reload: {
+			de: 'Bitte Seite neu laden.',
+			en: 'Please reload page.',
+			fr: 'Veuillez recharger la page.',
+			ja: 'ページをリロードしてください。'
+		}
+	},
+	app: {
+		lang: {
+			en: 'Language:',
+			de: 'Sprache:',
+			ja: '言語：'
+		},
+		onexit: {
+			de: 'Beim Beenden ImB setzen auf: ',
+			en: 'On exit, switch ImB to: ',
+			ja: '終了時に、ImB を次のように切り替えます。 '
+		},
+		exitphoto: {
+			de: 'Fotos aufnehmen',
+			en: 'Take photos',
+			ja: '写真を撮る'
+		},
+		exitmovie: {
+			de: 'Filme aufnehmen',
+			en: 'Take movies',
+			ja: '映画を撮る'
+		},
+		exitbrowse: {
+			de: 'Aufgen. Bilder durchstöbern',
+			en: 'Browse taken images',
+			ja: '撮影した画像を閲覧する'
+		},
+		menu: {
+			settime: {
+				en: 'Set ImB Time',
+				de: 'ImB Zeit setzen',
+				ja: 'ImB 時間を設定する'
+			},
+			msglog: {
+				en: 'Message Log',
+				de: 'Logdatei',
+				ja: 'メッセージログ'
+			},
+			settings: {
+				en: 'Settings',
+				de: 'Einstellungen',
+				ja: '設定'
+			},
+			info: {
+				en: 'Info',
+				de: 'Info',
+				ja: '情報'
+			},
+			quit: {
+				en: 'Quit',
+				de: 'Ende',
+				ja: 'やめる'
+			},
+			poweroff: {
+				en: 'Power Off',
+				de: 'Ausschalten',
+				ja: 'Power Off'
+			},
+			extras: {
+				en: 'Extras',
+				de: 'Extras',
+				ja: 'Extras',
+				copytoimb: {
+					de: 'Wenn Sie die imbapp.htm Seite auf ImB installieren, können Sie mit einem beliebigen Webbrowser unter der Adresse http://192.168.1.254/IMBACK/IMBAPP.HTM auch fast alles machen.',
+					en: 'When you install imbapp.htm page on ImB, you can do nearly everything with any web browser at the addresse http://192.168.1.254/IMBACK/IMBAPP.HTM.',
+					ja: 'When you install imbapp.htm page on ImB, you can do nearly everything with any web browser at the addresse http://192.168.1.254/IMBACK/IMBAPP.HTM.'
+				},
+				clearcache: {
+					de: 'Internen Zwichenspeicher löschen',
+					en: 'Clear internal cache',
+					ja: 'Clear internal cache'
+				},
+				cachesize: {
+					en: 'RAW from ImB Cache Size:',
+					de: 'RAW von ImB Zwischenspeichergröße:',
+					ja: 'RAW from ImB Cache Size:'
+				}
+			},
+		},
+		okay: {
+			de: 'Erfolgreich!',
+			en: 'Success!',
+			ja: '成功！'
+		},
+		install: {
+			de: 'INSTALLIEREN',
+			en: 'INSTALL',
+			ja: 'インストール'
+		},
+		app: {
+			en: ' APP ',
+			de: ' APP ',
+			ja: ' アプリ '
+		},
+		free: {
+			en: 'Unused memory:',
+			de: 'Freier Speicher:',
+			ja: '未使用のメモリ:'
+		},
+		helpurl: {
+			de: 'https://shyrodgau.github.io/imbraw2dng/README_de',
+			en: 'https://shyrodgau.github.io/imbraw2dng/',
+			ja: 'https://shyrodgau.github.io/imbraw2dng/imbapp_ja'
+		},
+		livehint: {
+			en: 'For live view, point media player to <a href="#" window.open(imbc.xl(\'$$0\'), \'_system\'); return false;">$$0</a>',
+			de: 'Für Live Bild, mit Mediaplayer auf <a href="#" window.open(imbc.xl(\'$$0\'), \'_system\'); return false;">$$0</a> gehen',
+			ja: 'ライブ画像については、メディア プレーヤーで <a href="#" window.open(imbc.xl(\'$$0\'), \'_system\'); return false;">$$0</a> にアクセスしてください'
+		},
+		autotime: {
+			en: 'Automatically set ImB Time on connect',
+			de: 'ImB Zeit beim Verbinden automatisch setzen'
+		}
+	}
+}
+/* Texts from Imback App ressources */
+const apptexts = [
+    {
+      "Language": "cn",
+      "s": [
+        {
+          "r": [
+            {
+              "title": "分辨率",
+              "cmd": "2002",
+              "list": [
+                "2K 30fps",
+                "1080P 60fps",
+                "1080P 30fps",
+                "720P 120fps",
+                "720P 60fps",
+                "720P 30fps",
+                "VGA 240fps",
+                "1080P30_4_3",
+                "1080P30_SUPER"
+              ],
+            },
+            {
+              "title": "循环录影",
+              "cmd": "2003",
+              "list": [
+                "关",
+                "1分钟",
+                "3分钟",
+                "4分钟",
+                "5分钟",
+                "6分钟",
+                "10分钟"
+              ],
+            },
+            {
+              "title": "间隔录影",
+              "cmd": "2019",
+              "list": [
+                "1秒",
+                "2秒",
+                "5秒",
+                "10秒",
+                "30秒",
+                "60秒"
+              ],
+            },
+            {
+              "title": "WDR",
+              "cmd": "2004",
+              "list": [
+                "关",
+                "开"
+              ],
+            },
+            {
+              "title": "录音",
+              "cmd": "2007",
+              "list": [
+                "关",
+                "开"
+              ],
+            },
+            {
+              "title": "日期标签",
+              "cmd": "2008",
+              "list": [
+                "关",
+                "开"
+              ],
+            }
+          ],
+          "title": "视频设置"
+        },
+        {
+          "r": [
+            {
+              "title": "照片尺寸",
+              "cmd": "1002",
+              "list": [
+                "12M",
+                "10M",
+                "8M",
+                "5M",
+                "3M",
+                "2MHD ",
+                "VGA",
+                "1.3M",
+                "14M",
+                "16M"
+              ],
+            },
+            {
+              "title": "白平衡",
+              "cmd": "1007",
+              "list": [
+                "自动",
+                "日光",
+                "阴天",
+                "钨丝灯",
+                "荧光灯"
+              ],
+            },
+            {
+              "title": "曝光补偿",
+              "cmd": "2005",
+              "list": [
+                "+2.0",
+                "+5/3",
+                "+4/3",
+                "+1.0",
+                "+2/3",
+                "+1/3",
+                "+0.0",
+                "-1/3",
+                "-2/3",
+                "-1.0",
+                "-4/3",
+                "-5/3",
+                "-2.0"
+              ],
+            },
+            {
+              "title": "间隔拍照时间",
+              "cmd": "1012",
+              "list": [
+                "3秒定时",
+                "5秒定时",
+                "10秒定时",
+                "20秒定时"
+              ],
+            }
+          ],
+          "title": "照片设置"
+        },
+        {
+          "r": [
+            {
+              "title": "光源频率",
+              "cmd": "3025",
+              "list": [
+                "50 Hz",
+                "60 Hz"
+              ],
+            },
+            {
+              "title": "运动侦测",
+              "cmd": "2006",
+              "list": [
+                "关",
+                "开"
+              ],
+            },
+            {
+              "title": "重力感应",
+              "cmd": "2011",
+              "list": [
+                "关",
+                "低",
+                "中",
+                "高"
+              ],
+            },
+            {
+              "title": "开机录像",
+              "cmd": "2012",
+              "list": [
+                "开",
+                "关"
+              ],
+            },
+            {
+              "title": "自动关机",
+              "cmd": "3007",
+              "list": [
+                "关闭",
+                "1分钟",
+                "2分钟",
+                "3分钟",
+                "5分钟",
+                "10分钟"
+              ],
+            },
+            {
+              "title": "TV模式",
+              "cmd": "3009",
+              "list": [
+                "NTSC",
+                "PAL"
+              ],
+            },
+            {
+              "title": "相机语言设置",
+              "cmd": "3008",
+              "list": [
+                "中文",
+                "English"
+              ],
+            },
+            {
+              "title": "格式化",
+              "cmd": "3010",
+              "list": [
+                "确认格式化相机内存卡？"
+              ],
+            },
+            {
+              "title": "默认设置",
+              "cmd": "3011",
+              "list": [
+                "确定恢复默认设置？"
+              ],
+            }
+          ],
+          "title": "其他设置"
+        }
+      ]
+    },
+    {
+	"Language":"ja",
+	"s":[
+		{
+			"r":[
+				{
+					"title":"解像度",
+					"cmd":"2002",
+					"list":[
+						"2K 30fps",
+						"1080P 60fps",
+						"1080P 30fps",
+						"720P 120fps",
+						"720P 60fps",
+						"720P 30fps",
+						"VGA 240fps",
+						"1080P30_4_3",
+						"1080P30_SUPER"
+					],
+					"type":0
+				},
+				{
+					"title":"ループビデオ",
+					"cmd":"2003",
+					"list":[
+						"オフ",
+						"1分",
+						"3分",
+						"4分",
+						"5分",
+						"6分",
+						"10分"
+					],
+					"type":0
+				},
+				{
+					"title":"タイムラプス撮影",
+					"cmd":"2019",
+					"list":[
+						"1秒",
+						"2秒",
+						"5秒",
+						"10秒",
+						"30秒",
+						"60秒"
+					],
+					"type":0
+				},
+				{
+					"title":"WDR",
+					"cmd":"2004",
+					"list":[
+						"オフ",
+						"オン"
+					],
+					"type":1
+				},
+				{
+					"title":"録音",
+					"cmd":"2007",
+					"list":[
+						"オフ",
+						"オン"
+					],
+					"type":1
+				},
+				{
+					"title":"日付表示",
+					"cmd":"2008",
+					"list":[
+						"オフ",
+						"オン"
+					],
+					"type":1
+				}
+			],
+			"title":"ビデオ設定"
+		},
+		{
+			"r":[
+				{
+					"title":"写真サイズ",
+					"cmd":"1002",
+					"list":[
+						"12M",
+						"10M",
+						"8M",
+						"5M",
+						"3M",
+						"2MHD ",
+						"VGA",
+						"1.3M",
+						"14M",
+						"16M"
+					],
+					"type":0
+				},
+				{
+					"title":"ホワイトバランス",
+					"cmd":"1007",
+					"list":[
+						"自動",
+						"日光",
+						"曇りの日",
+						"タングステンランプ",
+						"蛍光灯"
+					],
+					"type":0
+				},
+				{
+					"title":"露出補正",
+					"cmd":"2005",
+					"list":[
+						"+2.0",
+						"+5/3",
+						"+4/3",
+						"+1.0",
+						"+2/3",
+						"+1/3",
+						"+0.0",
+						"-1/3",
+						"-2/3",
+						"-1.0",
+						"-4/3",
+						"-5/3",
+						"-2.0"
+					],
+					"type":0
+				},
+				{
+					"title":"インターバル撮影",
+					"cmd":"1012",
+					"list":[
+						"3秒",
+						"5秒",
+						"10秒",
+						"20秒"
+					],
+					"type":0
+				}
+			],
+			"title":"写真設定"
+		},
+		{
+			"r":[
+				{
+					"title":"光源周波数",
+					"cmd":"3025",
+					"list":[
+						"50 Hz",
+						"60 Hz"
+					],
+					"type":0
+				},
+				{
+					"title":"動き検出",
+					"cmd":"2006",
+					"list":[
+						"オフ",
+						"オン"
+					],
+					"type":1
+				},
+				{
+					"title":"Gセンサー",
+					"cmd":"2011",
+					"list":[
+						"オフ",
+						"低い",
+						"普通",
+						"高い"
+					],
+					"type":0
+				},
+				{
+					"title":"起動記録",
+					"cmd":"2012",
+					"list":[
+						"オン",
+						"オフ"
+					],
+					"type":1
+				},
+				{
+					"title":"自動シャットダウン",
+					"cmd":"3007",
+					"list":[
+						"オフ",
+						"1分",
+						"2分",
+						"3分",
+						"5分",
+						"10分"
+					],
+					"type":0
+				},
+				{
+					"title":"TVモード",
+					"cmd":"3009",
+					"list":[
+						"NTSC",
+						"PAL"
+					],
+					"type":0
+				},
+				{
+					"title":"カメラの言語設定",
+					"cmd":"3008",
+					"list":[
+						"日本語",
+						"English"
+					],
+					"type":0
+				},
+				{
+					"title":"フォーマット",
+					"cmd":"3010",
+					"list":[
+						"フォーマットしますか？"
+					],
+					"type":5
+				},
+				{
+					"title":"デフォルト設定",
+					"cmd":"3011",
+					"list":[
+						"デフォルト設定に戻しますか？"
+					],
+					"type":6
+				}
+			],
+			"title":"他の設定"
+		}
+	]
+	},
+    {
+      "Language": "en",
+      "s": [
+        {
+          "r": [
+            {
+              "title": "Video Resolution",
+              "cmd": "2002",
+              "list": [
+                "2K 30fps",
+                "1080P 60fps",
+                "1080P 30fps",
+                "720P 120fps",
+                "720P 60fps",
+                "720P 30fps",
+                "VGA 240fps",
+                "1080P30_4_3",
+                "1080P30_SUPER"
+              ],
+            },
+            {
+              "title": "Cyclic Record",
+              "cmd": "2003",
+              "list": [
+                "Off",
+                "1 Mins",
+                "3 Mins",
+                "4 Mins",
+                "5 Mins",
+                "6 Mins",
+                "10 Mins"
+              ],
+            },
+            {
+              "title": "Videolapse",
+              "cmd": "2019",
+              "list": [
+                "1Seconds",
+                "2Seconds",
+                "5Seconds",
+                "10Seconds",
+                "30Seconds",
+                "60Seconds"
+              ],
+            },
+            {
+              "title": "WDR",
+              "cmd": "2004",
+              "list": [
+                "Off",
+                "On"
+              ],
+            },
+            {
+              "title": "Audio",
+              "cmd": "2007",
+              "list": [
+                "Off",
+                "ON"
+              ],
+            },
+            {
+              "title": " Date Stamping",
+              "cmd": "2008",
+              "list": [
+                "Off",
+                "On"
+              ],
+            }
+          ],
+          "title": "Video Setting"
+        },
+        {
+          "r": [
+            {
+              "title": "Photo Size",
+              "cmd": "1002",
+              "list": [
+                "12M",
+                "10M",
+                "8M",
+                "5M",
+                "3M",
+                "2MHD ",
+                "VGA",
+                "1.3M",
+                "14M",
+                "16M"
+              ],
+            },
+            {
+              "title": "White Balance",
+              "cmd": "1007",
+              "list": [
+                "Auto",
+                "Daylight",
+                "Cloudy",
+                "Tungsten",
+                "Fluorescent"
+              ],
+            },
+            {
+              "title": "Exposure",
+              "cmd": "2005",
+              "list": [
+                "+2.0",
+                "+5/3",
+                "+4/3",
+                "+1.0",
+                "+2/3",
+                "+1/3",
+                "+0.0",
+                "-1/3",
+                "-2/3",
+                "-1.0",
+                "-4/3",
+                "-5/3",
+                "-2.0"
+              ],
+            },
+            {
+              "title": "Photo lapse",
+              "cmd": "1012",
+              "list": [
+                "3S Timer",
+                "5S Timer",
+                "10S Timer",
+                "20S Timer"
+              ],
+            }
+          ],
+          "title": "Photo Setting"
+        },
+        {
+          "r": [
+            {
+              "title": "Frequency",
+              "cmd": "3025",
+              "list": [
+                "50 HZ",
+                "60 HZ"
+              ],
+            },
+            {
+              "title": "Motion detection",
+              "cmd": "2006",
+              "list": [
+                "Off",
+                "On"
+              ],
+            },
+            {
+              "title": "G-Sensor",
+              "cmd": "2011",
+              "list": [
+                "Off",
+                "LOW",
+                "MED",
+                "HIGH"
+              ],
+            },
+            {
+              "title": "Auto-recording",
+              "cmd": "2012",
+              "list": [
+                "On",
+                "Off"
+              ],
+            },
+            {
+              "title": "Auto Power Off",
+              "cmd": "3007",
+              "list": [
+                "Off",
+                "1 Mins",
+                "2 Mins",
+                "3 Mins",
+                "5 Mins",
+                "10 Mins"
+              ],
+            },
+            {
+              "title": "TV Mode",
+              "cmd": "3009",
+              "list": [
+                "NTSC",
+                "PAL"
+              ],
+            },
+            {
+              "title": "Format",
+              "cmd": "3010",
+              "list": [
+                "Format？"
+              ],
+            },
+            {
+              "title": "Default Setting",
+              "cmd": "3011",
+              "list": [
+                "Default Setting？"
+              ],
+            }
+          ],
+          "title": "Other Setting"
+        }
+      ]
+    },
+    {
+      "Language": "de",
+      "s": [
+        {
+          "r": [
+            {
+              "title": "Auflösung",
+              "cmd": "2002",
+              "list": [
+                "2K 30fps",
+                "1080P 60fps",
+                "1080P 30fps",
+                "720P 120fps",
+                "720P 60fps",
+                "720P 30fps",
+                "VGA 240fps",
+                "1080P30_4_3",
+                "1080P30_SUPER"
+              ],
+            },
+            {
+              "title": "Zyklische Aufnahme",
+              "cmd": "2003",
+              "list": [
+                "Aus",
+                "3 Min",
+                "5 Min",
+                "10 Min"
+              ],
+            },
+            {
+              "title": "Intervall video",
+              "cmd": "2019",
+              "list": [
+                "1 Sek",
+                "2 Sek",
+                "5 Sek",
+                "10 Sek",
+                "30 Sek",
+                "60 Sek"
+              ],
+            },
+            {
+              "title": "WDR",
+              "cmd": "2004",
+              "list": [
+                "Aus",
+                "An"
+              ],
+            },
+            {
+              "title": "Audio",
+              "cmd": "2007",
+              "list": [
+                "Aus",
+                "An"
+              ],
+            },
+            {
+              "title": "Datumsstempel",
+              "cmd": "2008",
+              "list": [
+                "Aus",
+                "An"
+              ],
+            }
+          ],
+          "title": "Video Einstellungen"
+        },
+        {
+          "r": [
+            {
+              "title": "Auflösung",
+              "cmd": "1002",
+              "list": [
+                "12M",
+                "10M",
+                "8M",
+                "5M",
+                "3M",
+                "2MHD ",
+                "VGA",
+                "1.3M",
+                "14M",
+                "16M"
+              ],
+            },
+            {
+              "title": "Weissbalance",
+              "cmd": "1007",
+              "list": [
+                "Auto",
+                "Tageslicht",
+                "Wolkig",
+                "Kunstlicht",
+                "Neonlicht"
+              ],
+            },
+            {
+              "title": "Belichtung",
+              "cmd": "2005",
+              "list": [
+                "+2.0",
+                "+5/3",
+                "+4/3",
+                "+1.0",
+                "+2/3",
+                "+1/3",
+                "+0.0",
+                "-1/3",
+                "-2/3",
+                "-1.0",
+                "-4/3",
+                "-5/3",
+                "-2.0"
+              ],
+            },
+            {
+              "title": "Intervall bild ",
+              "cmd": "1012",
+              "list": [
+                "Timer 3s",
+                "Timer 5s",
+                "Timer 10s",
+                "Timer 20s"
+              ],
+            }
+          ],
+          "title": "Standbild Einstellungen"
+        },
+        {
+          "r": [
+            {
+              "title": "Frequenz",
+              "cmd": "3025",
+              "list": [
+                "50 Hz",
+                "60 Hz"
+              ],
+            },
+            {
+              "title": "Motion detection",
+              "cmd": "2006",
+              "list": [
+                "Off",
+                "On"
+              ],
+            },
+            {
+              "title": "G-Sensor",
+              "cmd": "2011",
+              "list": [
+                "Off",
+                "LOW",
+                "MED",
+                "HIGH",
+                "MAX"
+              ],
+            },
+            {
+              "title": "Auto-recording",
+              "cmd": "2012",
+              "list": [
+                "On",
+                "Off"
+              ],
+            },
+            {
+              "title": "Auto Aus",
+              "cmd": "3007",
+              "list": [
+                "Aus",
+                "3 Min",
+                "5 Min",
+                "10 Min"
+              ],
+            },
+            {
+              "title": "TV Mode",
+              "cmd": "3009",
+              "list": [
+                "NTSC",
+                "PAL"
+              ],
+            },
+            {
+              "title": "Formatierung",
+              "cmd": "3010",
+              "list": [
+                "Formatierung?"
+              ],
+            },
+            {
+              "title": "Werkseinstellung ",
+              "cmd": "3011",
+              "list": [
+                "Werkseinstellung？"
+              ],
+            }
+          ],
+          "title": "Andere Einstellungen"
+        }
+      ]
+    },
+    {
+      "Language": "fr",
+      "s": [
+        {
+          "r": [
+            {
+              "title": "Record cyclique",
+              "cmd": "2003",
+              "list": [
+                "Desactive",
+                "3 Mins",
+                "5 Mins",
+                "10 Mins"
+              ],
+            },
+            {
+              "title": "Resolution",
+              "cmd": "2002",
+              "list": [
+                "2K 30fps",
+                "1080P 60fps",
+                "1080P 30fps",
+                "720P 120fps",
+                "720P 60fps",
+                "720P 30fps",
+                "VGA 240fps",
+                "1080P30_4_3",
+                "1080P30_SUPER"
+              ],
+            },
+            {
+              "title": "Video Lapse",
+              "cmd": "2019",
+              "list": [
+                "1 Sec",
+                "2 Sec",
+                "5 Sec",
+                "10 Sec",
+                "30 Sec",
+                "60 Sec"
+              ],
+            },
+            {
+              "title": "WDR",
+              "cmd": "2004",
+              "list": [
+                "Desactive",
+                "Active"
+              ],
+            },
+            {
+              "title": "Audio",
+              "cmd": "2007",
+              "list": [
+                "Desactive",
+                "Active"
+              ],
+            },
+            {
+              "title": "Marque Date",
+              "cmd": "2008",
+              "list": [
+                "Desactive",
+                "Active"
+              ],
+            }
+          ],
+          "title": "Vidéo Reglages"
+        },
+        {
+          "r": [
+            {
+              "title": "Taille Im.",
+              "cmd": "1002",
+              "list": [
+                "12M",
+                "10M",
+                "8M",
+                "5M",
+                "3M",
+                "2MHD ",
+                "VGA",
+                "1.3M",
+                "14M",
+                "16M"
+              ],
+            },
+            {
+              "title": "Balance Blancs",
+              "cmd": "1007",
+              "list": [
+                "Auto",
+                "Ensoleille",
+                "Nuageux",
+                "Tungstene",
+                "Fluor"
+              ],
+            },
+            {
+              "title": "Exposition",
+              "cmd": "2005",
+              "list": [
+                "+2.0",
+                "+5/3",
+                "+4/3",
+                "+1.0",
+                "+2/3",
+                "+1/3",
+                "+0.0",
+                "-1/3",
+                "-2/3",
+                "-1.0",
+                "-4/3",
+                "-5/3",
+                "-2.0"
+              ],
+            },
+            {
+              "title": "Photo Lapse",
+              "cmd": "1012",
+              "list": [
+                "3s temporisateur",
+                "5s temporisateur",
+                "10s temporisateur",
+                "20s temporisateur"
+              ],
+            }
+          ],
+          "title": "fixe Reglages"
+        },
+        {
+          "r": [
+            {
+              "title": "Fréquence",
+              "cmd": "3025",
+              "list": [
+                "50 Hz",
+                "60 Hz"
+              ],
+            },
+            {
+              "title": "Motion detection",
+              "cmd": "2006",
+              "list": [
+                "Off",
+                "On"
+              ],
+            },
+            {
+              "title": "G-Sensor",
+              "cmd": "2011",
+              "list": [
+                "Off",
+                "LOW",
+                "MED",
+                "HIGH",
+                "MAX"
+              ],
+            },
+            {
+              "title": "Auto-recording",
+              "cmd": "2012",
+              "list": [
+                "On",
+                "Off"
+              ],
+            },
+            {
+              "title": "Arret Auto",
+              "cmd": "3007",
+              "list": [
+                "Desactive",
+                "3 Mins",
+                "5 Mins",
+                "10 Mins"
+              ],
+            },
+            {
+              "title": "TV Mode",
+              "cmd": "3009",
+              "list": [
+                "NTSC",
+                "PAL"
+              ],
+            },
+            {
+              "title": "Formatierung",
+              "cmd": "3010",
+              "list": [
+                "Formatierung?"
+              ],
+            },
+            {
+              "title": "Regl. Defaut",
+              "cmd": "3011",
+              "list": [
+                "Regl. Défaut?"
+              ],
+            }
+          ],
+          "title": "Autre Reglages"
+        }
+      ]
+    },
+    {
+      "Language": "cs",
+      "s": [
+        {
+          "r": [
+            {
+              "title": "Rozlišení video",
+              "cmd": "2002",
+              "list": [
+                "2K 30fps",
+                "1080P 60fps",
+                "1080P 30fps",
+                "720P 120fps",
+                "720P 60fps",
+                "720P 30fps",
+                "VGA 240fps",
+                "1080P30_4_3",
+                "1080P30_SUPER"
+              ],
+            },
+            {
+              "title": "Nahr. ve smyčce ",
+              "cmd": "2003",
+              "list": [
+                "Vyp",
+                "3 Minut",
+                "5 Minut",
+                "10 Minut"
+              ],
+            },
+            {
+              "title": "interval nahrávání",
+              "cmd": "2019",
+              "list": [
+                "1 sekund",
+                "2 sekund",
+                "5 sekund",
+                "10 sekund",
+                "30 sekund",
+                "60 sekund"
+              ],
+            },
+            {
+              "title": "WDR",
+              "cmd": "2004",
+              "list": [
+                "Vyp",
+                "Zap"
+              ],
+            },
+            {
+              "title": "Zvuk",
+              "cmd": "2007",
+              "list": [
+                "Vyp",
+                "Zap"
+              ],
+            },
+            {
+              "title": "Čas. razítko ",
+              "cmd": "2008",
+              "list": [
+                "Vyp",
+                "Zap"
+              ],
+            }
+          ],
+          "title": "Video Nastavení"
+        },
+        {
+          "r": [
+            {
+              "title": "Rozlišení foto",
+              "cmd": "1002",
+              "list": [
+                "12M",
+                "10M",
+                "8M",
+                "5M",
+                "3M",
+                "2MHD ",
+                "VGA",
+                "1.3M",
+                "14M",
+                "16M"
+              ],
+            },
+            {
+              "title": "Vyvážení bílé",
+              "cmd": "1007",
+              "list": [
+                "Automaticky",
+                "Denní světlo",
+                "Oblačno",
+                "Žárovka",
+                "Zářivka"
+              ],
+            },
+            {
+              "title": "Expozice",
+              "cmd": "2005",
+              "list": [
+                "+2.0",
+                "+5/3",
+                "+4/3",
+                "+1.0",
+                "+2/3",
+                "+1/3",
+                "+0.0",
+                "-1/3",
+                "-2/3",
+                "-1.0",
+                "-4/3",
+                "-5/3",
+                "-2.0"
+              ],
+            },
+            {
+              "title": "rozteč obrázky",
+              "cmd": "1012",
+              "list": [
+                "Každých 3 sekund",
+                "Každých 5 sekund",
+                "Každých 10 sekund",
+                "Každých 20 sekund"
+              ],
+            }
+          ],
+          "title": "Pořídit snimek Nastavení"
+        },
+        {
+          "r": [
+            {
+              "title": "Frekvence",
+              "cmd": "3025",
+              "list": [
+                "50 Hz",
+                "60 Hz"
+              ],
+            },
+            {
+              "title": "Motion detection",
+              "cmd": "2006",
+              "list": [
+                "Off",
+                "On"
+              ],
+            },
+            {
+              "title": "G-Sensor",
+              "cmd": "2011",
+              "list": [
+                "Off",
+                "LOW",
+                "MED",
+                "HIGH",
+                "MAX"
+              ],
+            },
+            {
+              "title": "Auto-recording",
+              "cmd": "2012",
+              "list": [
+                "On",
+                "Off"
+              ],
+            },
+            {
+              "title": "Automatické vypnutí",
+              "cmd": "3007",
+              "list": [
+                "Vyp",
+                "3 Minut",
+                "5 Minut",
+                "10 Minut"
+              ],
+            },
+            {
+              "title": "TV Mode",
+              "cmd": "3009",
+              "list": [
+                "NTSC",
+                "PAL"
+              ],
+            },
+            {
+              "title": "Formátovat",
+              "cmd": "3010",
+              "list": [
+                "Formátovat?"
+              ],
+            },
+            {
+              "title": "Tovární nastavení ",
+              "cmd": "3011",
+              "list": [
+                "Tovární nastavení?"
+              ],
+            }
+          ],
+          "title": "Ostatní  Nastavení"
+        }
+      ]
+    },
+    {
+      "Language": "th",
+      "s": [
+        {
+          "r": [
+            {
+              "title": "ความละเอียด",
+              "cmd": "2002",
+              "list": [
+                "2K 30fps",
+                "1080P 60fps",
+                "1080P 30fps",
+                "720P 120fps",
+                "720P 60fps",
+                "720P 30fps",
+                "VGA 240fps",
+                "1080P30_4_3",
+                "1080P30_SUPER"
+              ],
+            },
+            {
+              "title": "บันทึกวน",
+              "cmd": "2003",
+              "list": [
+                "ใกล้",
+                "3 นาที",
+                "5 นาที",
+                "10 นาที"
+              ],
+            },
+            {
+              "title": "ไทม์แลปส์ ",
+              "cmd": "2019",
+              "list": [
+                "ใกล้",
+                "1 วินาที",
+                "2 วินาที",
+                "5 วินาที",
+                "10 วินาที",
+                "30 วินาที",
+                "60 วินาที"
+              ],
+            },
+            {
+              "title": "WDR",
+              "cmd": "2004",
+              "list": [
+                "ใกล้",
+                "เปิด"
+              ],
+            },
+            {
+              "title": "การบันทึก",
+              "cmd": "2007",
+              "list": [
+                "ใกล้",
+                "เปิด"
+              ],
+            },
+            {
+              "title": "ฉลากวันที่",
+              "cmd": "2008",
+              "list": [
+                "ใกล้",
+                "เปิด"
+              ],
+            }
+          ],
+          "title": "วิดีโอตั้งค่า"
+        },
+        {
+          "r": [
+            {
+              "title": "ความละเอียดภาพนิ่ง",
+              "cmd": "1002",
+              "list": [
+                "12M",
+                "10M",
+                "8M",
+                "5M",
+                "3M",
+                "2MHD ",
+                "VGA",
+                "1.3M",
+                "14M",
+                "16M"
+              ],
+            },
+            {
+              "title": "สมดุลแสงสีขาว",
+              "cmd": "1007",
+              "list": [
+                "อัตโนมัติ",
+                "แสงแดด",
+                "พยับแดด",
+                "ทังสเตน",
+                "เรือง"
+              ],
+            },
+            {
+              "title": "ชดเชยแสง",
+              "cmd": "2005",
+              "list": [
+                "+2.0",
+                "+5/3",
+                "+4/3",
+                "+1.0",
+                "+2/3",
+                "+1/3",
+                "+0.0",
+                "-1/3",
+                "-2/3",
+                "-1.0",
+                "-4/3",
+                "-5/3",
+                "-2.0"
+              ],
+            },
+            {
+              "title": "จับเวลาถ่-ายภาพ ",
+              "cmd": "1012",
+              "list": [
+                "ทุก 3 วินาที",
+                "ทุก 5 วินาที",
+                "ทุก 10 วินาที",
+                "ทุก 20 วินาที"
+              ],
+            }
+          ],
+          "title": "ภาพนิ่งตั้งค่า"
+        },
+        {
+          "r": [
+            {
+              "title": "ความถี่ของแหล่งกำเนิดแสง",
+              "cmd": "3025",
+              "list": [
+                "50 Hz",
+                "60 Hz"
+              ],
+            },
+            {
+              "title": "Motion detection",
+              "cmd": "2006",
+              "list": [
+                "Off",
+                "On"
+              ],
+            },
+            {
+              "title": "G-Sensor",
+              "cmd": "2011",
+              "list": [
+                "Off",
+                "LOW",
+                "MED",
+                "HIGH",
+                "MAX"
+              ],
+            },
+            {
+              "title": "Auto-recording",
+              "cmd": "2012",
+              "list": [
+                "On",
+                "Off"
+              ],
+            },
+            {
+              "title": "ปิดเครื่องอัตโนมัติ",
+              "cmd": "3007",
+              "list": [
+                "ใกล้",
+                "3 นาที",
+                "5 นาที",
+                "10 นาที"
+              ],
+            },
+            {
+              "title": "TV Mode",
+              "cmd": "3009",
+              "list": [
+                "NTSC",
+                "PAL"
+              ],
+            },
+            {
+              "title": "Format Memory ",
+              "cmd": "3010",
+              "list": [
+                "Format Memory?"
+              ],
+            },
+            {
+              "title": "คืนค่าเริ่มต้น",
+              "cmd": "3011",
+              "list": [
+                "คืนค่าเริ่มต้น?"
+              ],
+            }
+          ],
+          "title": "อื่นๆตั้งค่า"
+        }
+      ]
+    },
+    {
+      "Language": "pl",
+      "s": [
+        {
+          "r": [
+            {
+              "title": "Rozdzielczość video",
+              "cmd": "2002",
+              "list": [
+                "2K 30fps",
+                "1080P 60fps",
+                "1080P 30fps",
+                "720P 120fps",
+                "720P 60fps",
+                "720P 30fps",
+                "VGA 240fps",
+                "1080P30_4_3",
+                "1080P30_SUPER"
+              ],
+            },
+            {
+              "title": "Nagrywanie ciągłe",
+              "cmd": "2003",
+              "list": [
+                "wyłączony",
+                "3 minut",
+                "5 minut",
+                "10 minut"
+              ],
+            },
+            {
+              "title": "Interwał nagrywania",
+              "cmd": "2019",
+              "list": [
+                "1 sekund",
+                "2 sekund",
+                "5 sekund",
+                "10 sekund",
+                "30 sekund",
+                "60 sekund"
+              ],
+            },
+            {
+              "title": "WDR",
+              "cmd": "2004",
+              "list": [
+                "wyłączony",
+                "włączony"
+              ],
+            },
+            {
+              "title": "Mikrofon",
+              "cmd": "2007",
+              "list": [
+                "wyłączony",
+                "włączony"
+              ],
+            },
+            {
+              "title": "Datownik - video",
+              "cmd": "2008",
+              "list": [
+                "wyłączony",
+                "włączony"
+              ],
+            }
+          ],
+          "title": "Video Ustawienia"
+        },
+        {
+          "r": [
+            {
+              "title": "Rozdzielczość aparatu",
+              "cmd": "1002",
+              "list": [
+                "12M",
+                "10M",
+                "8M",
+                "5M",
+                "3M",
+                "2MHD ",
+                "VGA",
+                "1.3M",
+                "14M",
+                "16M "
+              ],
+            },
+            {
+              "title": "Balans bieli",
+              "cmd": "1007",
+              "list": [
+                "automatyczny",
+                "światło dzienne",
+                "zachmurzenie",
+                "wolfram",
+                "fluorescencyjne"
+              ],
+            },
+            {
+              "title": "Ekspozycja",
+              "cmd": "2005",
+              "list": [
+                "+2.0",
+                "+5/3",
+                "+4/3",
+                "+1.0",
+                "+2/3",
+                "+1/3",
+                "+0.0",
+                "-1/3",
+                "-2/3",
+                "-1.0",
+                "-4/3",
+                "-5/3",
+                "-2.0"
+              ],
+            },
+            {
+              "title": "Oddzielone zdjęcia",
+              "cmd": "1012",
+              "list": [
+                "Autowyzwalacz 3 sek",
+                "Autowyzwalacz 5 sek",
+                "Autowyzwalacz 10 sek",
+                "Autowyzwalacz 20 sek"
+              ],
+            }
+          ],
+          "title": "Klatka Ustawienia"
+        },
+        {
+          "r": [
+            {
+              "title": "Częstotliwość",
+              "cmd": "3025",
+              "list": [
+                "50 Hz",
+                "60 Hz"
+              ],
+            },
+            {
+              "title": "Motion detection",
+              "cmd": "2006",
+              "list": [
+                "Off",
+                "On"
+              ],
+            },
+            {
+              "title": "G-Sensor",
+              "cmd": "2011",
+              "list": [
+                "Off",
+                "LOW",
+                "MED",
+                "HIGH",
+                "MAX"
+              ],
+            },
+            {
+              "title": "Auto-recording",
+              "cmd": "2012",
+              "list": [
+                "On",
+                "Off"
+              ],
+            },
+            {
+              "title": "Automatyczne wyłączanie",
+              "cmd": "3007",
+              "list": [
+                "wyłączony",
+                "przez 3 minut",
+                "przez 5 minut",
+                "przez 10 minut"
+              ],
+            },
+            {
+              "title": "TV Mode",
+              "cmd": "3009",
+              "list": [
+                "NTSC",
+                "PAL"
+              ],
+            },
+            {
+              "title": "Format karty",
+              "cmd": "3010",
+              "list": [
+                "Format party?"
+              ],
+            },
+            {
+              "title": "Ustawienia fabryczne",
+              "cmd": "3011",
+              "list": [
+                "Ustawienia fabryczne?"
+              ],
+            }
+          ],
+          "title": "Inne Ustawienia"
+        }
+      ]
+    }
+]
+/* * * ************************************* texts E N D *************************************** */
 class ImBCHtmlOut extends ImBCBase {
 /* Indentation out */
-//imbweb = 'http://192.168.8.101:8080';
-imbweb = 'http://192.168.0.72:8080';// mis-nomer from app
+imbweb = 'http://192.168.1.254';
 // ImBCHtmlOut: from the back itself
 untypedclasses = []; // elements for groups with type for visual browser
 typedclasses = []; // elements for groups with type for visual browser
@@ -22952,2485 +25429,7 @@ checkchecks() {
 /* Indentation in - end of class ImBCHtml */
 }
 /* *************************************** Top class for App E N D *************************************** */
-/* *************************************** texts  *************************************** */
-const mytexts =  { // actually const
-	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
-	words: {
-		error: {
-			de: '\u001b[31m\u001b[1mFEHLER:\u001b[0m ',
-			en: '\u001b[31m\u001b[1mERROR:\u001b[0m ',
-			fr: '\u001b[31m\u001b[1mERREUR:\u001b[0m ',
-			ja: '\u001b[31m\u001b[1mエラー： \u001b[0m ',
-			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
-		},
-		warning: {
-			de: '\u001b[31mWarnung:\u001b[0m ',
-			en: '\u001b[31mWarning:\u001b[0m ',
-			fr: '\u001b[31mAvertissement:\u001b[0m ',
-			ja: '\u001b[31m警告： \u001b[0m',
-			htmlstyle: [ [ 'background-color','#ffdddd' ] ]
-		},
-		finished: {
-			de: '\u001b[32m\u001b[1mFertig!\u001b[0m ',
-			en: '\u001b[32m\u001b[1mFinished!\u001b[0m ',
-			fr: '\u001b[32m\u001b[1mFini!\u001b[0m ',
-			ja: '\u001b[32m\u001b[1m終了!\u001b[0m ',
-			htmlstyle: [ [ 'background-color','#ddffdd' ], [ 'font-weight', 'bold' ] ]
-		},
-		sorryerr: {
-			de: '\u001b[31m\u001b[1mENTSCHULDIGUNG! FEHLER:\u001b[0m ',
-			en: '\u001b[31m\u001b[1mSORRY! ERROR:\u001b[0m  ',
-			fr: '\u001b[31m\u001b[1mDÉSOLÉE! ERREUR:\u001b[0m ',
-			ja: '\u001b[31m\u001b[1m申し訳ございません! エラー： \u001b[0m  ',
-			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
-		},
-		sorry: {
-			de: '\u001b[31mENTSCHULDIGUNG!\u001b[0m ',
-			en: '\u001b[31mSORRY!\u001b[0m  ',
-			fr: '\u001b[31mDÉSOLÉE!\u001b[0m ',
-			ja: '\u001b[31m申し訳ございません!\u001b[0m  ',
-			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
-		}
-	},
-	main: {
-		choosefile: {
-			en: 'choose file',
-			de: 'datei auswählen',
-			ja: 'ファイルを選択'
-		},
-		coloursyourrisk: {
-			de: 'Bei Farben bin ich raus! Eigenes Risiko, fraach mich net!',
-			en: 'About colurs, I am out! Own risk, do not ask me!',
-			fr: 'About colurs, I am out! Own risk, do not ask me!',
-			ja: '色については、アウトです！ 自己責任ですので、私に尋ねないでください。'
-		},
-		title: {
-			de: 'ImB RAW nach DNG Konverter',
-			en: 'ImB RAW to DNG converter',
-			fr: 'Convertisseur ImB RAW a DNG',
-			ru: 'Конвертер ImB RAW в DNG',
-			ja: 'ImB RAW を DNG に変換'
-		},
-		apptitle: {
-			en: 'ImB OS App'
-		},
-	    backw: {
-			   title:  { en: 'ImB DNG to RAW back converter' },
-			   generaladvice: { en: 'Only works for the exact original converted DNG.' },
-			   selectdng: { en: 'Select orig. DNG' },
-			   drophere: { en: 'Drop DNGs here' }
-	    },
-		help: {
-			de: '? Hilfe Doku',
-			en: '? Help Doc',
-			fr: '? Aide Doc',
-			ru: '? Помощь Док',
-			ja: '? ヘルプ資料'
-		},
-		helplink: {
-			de: 'https://shyrodgau.github.io/imbraw2dng/README_de',
-			en: 'https://shyrodgau.github.io/imbraw2dng/',
-			fr: 'https://shyrodgau.github.io/imbraw2dng/',
-			ja: 'https://shyrodgau.github.io/imbraw2dng/README_ja'
-		},
-		generaladvice: {
-			de: 'Daten werden nur im Browser verarbeitet, nicht im \'Internet\'.<br>Kann sein, dass der Browser fragt, ob Sie zulassen wollen, dass mehrere Dateien heruntergeladen werden.<br>Dateien, die nicht oder unbekannte RAW-Dateien sind, werden 1:1 kopiert.',
-			en: 'Data processing is entirely in the browser, not in \'the internet\'<br>Browser may ask you if you want to allow downloading multiple files.<br>Not or unrecognized RAW Files simply will be copied.',
-			fr: 'L\'information est entièrement traitée dans le navigateur et non sur \'Internet\'<br>Le navigateur peux questionner que vous acceptez le téléchargement de beaucoup de fiches.<br>Fiches pas-RAW ou RAW inconnue sont copiée 1:1.',
-			ru: 'Данные обрабатываются только в браузере, а не в \'Интернете\'.<br>Браузер может спросить, хотите ли вы разрешить загрузку нескольких файлов.<br>Файлы, которые не являются или неизвестными файлами RAW, копируются 1:1.',
-			ja: 'データはブラウザ内でのみ処理され、「インターネット」上では処理されません。<br>ブラウザは、複数のファイルのダウンロードを許可するかどうかを尋ねる場合があります。<br>RAW ファイルではないファイル、または不明なファイルは 1:1 でコピーされます。'
-		},
-		drophere: {
-			de: 'Dateien oder Verzeichnisse von ImB hier ablegen: ',
-			en: 'Drop Files or directories from ImB here: ',
-			fr: 'Posez fiches ou repertoires de ImB ici: ',
-			ja: 'ここに ImB のファイルをドロップします。：  (or directories)'
-		},
-		selectraw: {
-			de: 'Oder diese Seite per WLAN <a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README_de#browsing-on-the-imback\',\'_system\');return false;">direkt von ImB</a> verwenden.<br>Oder <tt>.RAW</tt> Datei(en) auswählen:',
-			en: 'Or use this page via Wifi <a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README#browsing-on-the-imback\',\'_system\');return false;">directly from ImB</a>.<br>Or select <tt>.RAW</tt> File(s):',
-			ja: 'または、このページを WiFi 経由で<a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README_ja#browsing-on-the-imback\',\'_system\');return false;">ImB から直接</a>使用します。<br >または、<tt>.RAW</tt> ファイルを選択します。：'
-		},
-		selectrawx: {
-			de: 'Oder <tt>.RAW</tt> Datei(en) auswählen:',
-			en: 'Or select <tt>.RAW</tt> File(s):',
-			fr: 'Ou selectez <tt>.RAW</tt> fiche(s):',
-			ru: 'Или выберите файл(ы) <tt>RAW</tt>:',
-			ja: 'または、<tt>.RAW</tt> ファイルを選択します。：'
-		},
-		stillcounting: {
-			de: '... zähle ... ',
-			en: '... counting ... ',
-			fr: '... compter ...',
-			ru: '... подсчет ...',
-			ja: '... カウント中 ... '
-		},
-		types: {
-			rawpics: {
-				de: 'RAW Bilder',
-				en: 'RAW Pictures',
-				fr: 'RAW images',
-				ja: 'RAW 画像'
-			},
-			jpgpics: {
-				de: 'JPEG-Bilder',
-				en: 'JPEG Pictures',
-				fr: 'JPEG images',
-				ja: 'JPEG 画像'
-			},
-			other: {
-				de: 'Andere',
-				en: 'Other',
-				fr: 'Autre',
-				ja: 'その他'
-			},
-			notpic: {
-				de: 'MP4: ',
-				en: 'MP4: ',
-				fr: 'MP4: ',
-				ja: 'MP4: '
-			}
-		},
-		file: {
-			jpeg: {
-				de: 'Datei $$0 (JPEG)',
-				en: 'File $$0 (JPEG)',
-				fr: 'Fiche $$0 (JPEG)',
-				ja: 'ファイル $$0 (JPEG)'
-			},
-			nopreview: {
-				de: 'Datei $$0<br>Nicht jpeg oder raw, keine Vorschau...',
-				en: 'File $$0<br>Not jpeg or raw, no preview...',
-				fr: 'Fiche $$0<br>Ni jpeg ni raw, pas de aperçu...',
-				ja: 'ファイル $$0<br>jpeg または、raw 以外、プレビューなし...'
-			},
-			rawunknown: {
-				de: 'Datei $$0<br>Unerkannte RAW Dateigröße $$1, bitte Entwickler kontaktieren! Keine Vorschau...',
-				en: 'File $$0<br>Unknown raw size $$1, please contact developer! No preview...',
-				fr: 'Fiche $$0<br>taille de fiche $$1 non reconnue, contacter le développeur, pas de aperçu...',
-				ja: 'File $$0<br>不明な raw サイズ $$1, 開発者にお問い合わせください! プレビューなし...'
-			},
-			dngimpnote: {
-				de: 'Import eines DNG geht nur, wenn diese genau das hiermit erzeugte Original ist.',
-				en: 'Re-import of a DNG is only possible if this is exactly the original that was created here.',
-				fr: 'La réimportation d\'un DNG n\'est possible que s\'il s\'agit exactement de l\'original créé ici.',
-				ja: 'DNG の再インポートは、これがここで作成されたオリジナルである場合にのみ可能です。'
-			},
-			de: 'Datei $$0',
-			en: 'File $$0',
-			fr: 'Fiche $$0',
-			ja: 'ファイル $$0'
-		},
-		sort: {
-			de: 'Sortiere',
-			en: 'Sort:',
-			fr: 'Trier:',
-			ja: 'ソート： '
-		},
-		or: {
-			de: 'Oder ',
-			en: 'Or ',
-			fr: 'Ou ',
-			ja: 'または '
-		},
-		log: {
-			de: 'Protokoll-Ausgabe:',
-			en: 'Message Log:',
-			fr: 'Journal des messages',
-			ja: 'メッセージ ログ： '
-		},
-		selected: {
-			de: 'Ausgewählt',
-			en: 'Selected',
-			fr: 'Sélectionné(s)',
-			ja: '選択済み'
-		},
-		fakelong: {
-			en: 'Fake long exposure by adding up all (<a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README#a-lot-more-tricks-and-details\',\'_system\');return false;">read more</a>)',
-			de: 'Langzeitbelichtung durch Addieren simulieren (<a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README_de#a-lot-more-tricks-and-details\',\'_system\');return false;">mehr lesen</a>)',
-			ja: '「追加して長時間露光をシミュレートします (<a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README_ja#a-lot-more-tricks-and-details\',\'_system\');return false;">続きを読む</a>)」すべてを加算して長時間露光をシミュレートする',
-			scale: {
-				en: 'Scale values down',
-				de: 'Werte dabei herunterskalieren',
-				ja: 'スケールダウン値'
-			},
-			added: {
-				en: 'Added picture $$0',
-				de: 'Bild $$0 hinzugefügt',
-				ja: '画像を追加しました $$0'
-			}
-		},
-		usezip: {
-			de: 'Nicht mehrere Dateien einzeln, sondern in wenigen ZIP Archiven herunteladen.',
-			en: 'Do not use several single downloads, but in fewer ZIP archives.',
-			ja: '複数のファイルを個別にダウンロードするのではなく、いくつかの ZIP アーカイブとしてダウンロードしてください。',
-			choosedest: {
-				de: 'Ziel auswählen',
-				en: 'Choose destination',
-				ja: '目的地を選択'
-			}
-		},
-		newmsg: {
-			en: '<a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/issues\',\'_system\');return false;">Report bugs</a>',
-			de: '<a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/issues\',\'_system\');return false;">Fehler melden</a>',
-			ja: '<a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/issues\',\'_system\');return false;">バグ報告</a>'
-		}
-	},
-	browser: {
-		bytype: {
-			de: 'Nach Typ',
-			en: 'By type',
-			fr: 'Par type',
-			ja: '種類別'
-		},
-		olderfirst: {
-			de: 'Ältere nach oben',
-			en: 'Older first',
-			fr: 'Plus anciens ci-dessus',
-			ja: '古い順'
-		},
-		selall: {
-			tooltip: {
-				de: 'Wenn Haken nicht gesetzt, wähle alles aus. Bei Klick wenn angehakt setze Auswahl auf Nichts.',
-				en: 'If not selected then select all. If it is selected and clicked then unselect all.',
-				fr: 'S\'il n\'est pas sélectionner, sélectionner tout. Au clic si sélectionné, vider la sélection',
-				ja: '選択されていない場合は、すべてを選択します。 選択してクリックした場合は、すべての選択を解除します。'
-			},
-			de: 'Alle de-/ oder selektieren',
-			en: 'De-/select all',
-			fr: 'De-/sélectionner tout',
-			ja: 'すべての選択を解除'
-		},
-		procall: {
-			de: 'Alle ausgewählte kopieren/verarbeiten',
-			en: 'Copy/process all selected',
-			fr: 'Traiter les sélectionnés',
-			ja: '選択したものをすべてコピー/処理'
-		},
-		delall: {
-			de: 'Alle ausgewählte löschen',
-			en: 'Delete all selected',
-			fr: 'Supprimer les sélectionnés',
-			ja: '選択したものをすべて削除'
-		},
-		settingsset: {
-			en: 'Preferences are set for source $$0',
-			de: 'Voreinstellungen für $$0 gespeichert',
-			ja: 'デフォルト設定は $$0 で保存されます'
-		},
-		prefnotfile: {
-			en: 'Preferences not possible for file:// URLs',
-			de: 'Voreinstellungen für file:// URLs nicht möglich',
-			ja: 'file:// URL でデフォルト設定はできません'
-		},
-		setfrom: {
-			en: 'Set new prefereneces ',
-			de: 'Voreinstellungen setzen ',
-			ja: 'デフォルトを設定する'
-		},
-		forurl: {
-			en: ' for URL $$0',
-			de: ' für URL $$0',
-			ja: 'URL $$0 の場合'
-		}
-	},
-	onimback: {
-		connected: {
-			de: 'ImB Verbunden! ',
-			en: 'ImB Connected! ',
-			fr: 'ImB Connecté! ',
-			ja: 'ImB 接続済み! '
-		},
-		dlconvert: {
-			de: 'Konvertiere / Lade herunter: ',
-			en: 'Download / convert: ',
-			fr: 'Telecharger / convertir',
-			ja: 'ダウンロード / 変換: '
-		},
-		totalnum: {
-			de: 'gesamt:',
-			en: 'total:',
-			fr: 'total:',
-			ja: '合計： '
-		},
-		fromtime: {
-			de: 'ab Zeitstempel bzw. jünger als ',
-			en: 'from timestamp or younger than ',
-			fr: 'à partir de l\'horodatage ou plus jeune que ',
-			ja: 'タイムスタンプ以降またはそれより古い '
-		},
-		nullforall: {
-			de: '0000 oder leer für \'alle\'',
-			en: '0000 or empty for \'all\'',
-			fr: '0000 ou déposer pour \'tout\'',
-			ja: '0000 または、 \'すべて\' 空 '
-		},
-		doit: {
-			de: 'Mach es',
-			en: 'Do it',
-			fr: 'Fais-le',
-			ja: '実行'
-		},
-		visual: {
-			de: 'Bild-Browser benutzen',
-			en: 'Use visual Picture Browser',
-			fr: 'Ou outilizer navigateur visuel des images',
-			ja: 'ビジュアルな画像ブラウザを使用する'
-		},
-		errconnect: {
-			de: '\u001b[31mFEHLER\u001b[0m bei der Verbindung zu ImB auf $$0! Im ImB WLAN?',
-			en: '\u001b[31mERROR\u001b[0m connecting to ImB on $$0! In the ImB WiFi?',
-			fr: '\u001b[31mERREUR\u001b[0m lors de la connexion à imback. Dans le Wifi ImB?',
-			ja: '\u001b[31mエラー\u001b[0m $$0 でImB に接続しています! ImB WiFi ですか?'
-		},
-		nomatch: {
-			de: 'Keine passenden Dateien gefunden. Kann vorübergehend sein.',
-			en: 'No matching files found. Might be temporary.',
-			fr: 'Aucun fiche correspondant trouvé. Peut-etre temporaire.',
-			ja: '一致するファイルが見つかりませんでした。 一時的なものかもしれません。'
-		},
-		strangename: {
-			de: 'Komischer Dateiname: $$0',
-			en: 'Strange file name: $$0',
-			fr: 'Nom de fiche inhabituel: $$0',
-			ja: '無効なファイル名：  $$0'
-		},
-		invaltime: {
-			de: 'Ungültiger Zeitstempel: $$0',
-			en: 'Invalid timestamp: $$0',
-			fr: 'Horodatage invalide: $$0',
-			ja: '無効なタイムスタンプ：  $$0'
-		},
-	},
-	process: {
-		renamed: {
-			en: '(renamed)',
-			de: '(umbenannt)',
-			fr: '(renomee)',
-			ja: '(リネーム)'
-		},
-		singlestep: {
-			de: 'Einzelschritt mit Vorschau',
-			en: 'Single Step with preview',
-			fr: 'Seule étape avec aperçu',
-			ja: 'プレビューありでシングルステップ'
-		},
-		addcopyright: {
-			en: 'Copyright',
-			de: 'Copyright',
-			ja: '著作権を追加'
-		},
-		addartist: {
-			en: 'Artist/Creator',
-			de: 'Künstler/Ersteller'
-		},
-		metadata: {
-			en: 'Metadata:',
-			de: 'Metadaten:'
-		},
-		nothing: {
-			de: 'Nichts ausgewählt.. ?',
-			en: 'Nothing selected...?',
-			fr: 'Rien de sélectionné',
-			ja: '何も選択されていません...?'
-		},
-		erraccess: {
-			de: 'beim Zugriff auf $$0.',
-			en: 'occured accessing $$0.',
-			fr: 'lors de l\'accès à $$0.',
-			ja: '>アクセス中にエラーが発生しました $$0.'
-		},
-		notraw: {
-			de: 'Durchleitung weil nicht raw: $$0',
-			en: 'Passing through as not raw: $$0',
-			fr: 'Passage comme non RAW: $$0',
-			ja: 'RAW ではないのでスルー：  $$0'
-		},
-		selectedn: {
-			de: '$$0 Datei(en) wurden ausgewählt.',
-			en: 'Got $$0 file(s) selected.',
-			fr: '$$0 fiche(s) sélectionné(s)',
-			ja: '$$0 ファイルが選択されました。'
-		},
-		copyokcheckdl: {
-			de: 'Nach $$0 kopiert (Ordner $$X prüfen)</b>&nbsp;',
-			en: 'Copied to $$0 (Check Folder $$X)</b>&nbsp;',
-			fr: 'Copié sur $$0 (Vérifier le dossier de $$X)</b>&nbsp;',
-			ja: '$$0 にコピーされました (フォルダー $$X を確認してください)</b>&nbsp;'
-		},
-		copyok: {
-			de: 'Nach $$0 kopiert',
-			en: 'Copied to $$0',
-			fr: 'Copié sur $$0',
-			ja: '$$0 にコピー'
-		},
-		errorreadingfile: {
-			de: 'beim Lesen der Datei $$0',
-			en: 'occured reading file $$0',
-			fr: 'de lecture du fiche $$0',
-			ja: 'ファイル $$0 の読み取り中にエラーが発生しました。 '
-		},
-		unknownsize: {
-			de: 'Die Dateigröße <b>$$0</b> passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!',
-			en: 'File Size <b>$$0</b> does not match known formats. Please contact developer!',
-			fr: 'La taille du fiche <b>$$0</b> ne correspond pas au format connu. Veuillez contacter le développeur',
-			ja: 'が、ファイルサイズ <b>$$0</b> は既知の形式と一致しません。開発者にお問い合わせください。'
-		},
-		unknownsizex: {
-			de: 'Die Dateigröße $$0 passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!',
-			en: 'File Size $$0 does not match known formats. Please contact developer!',
-			fr: 'La taille du fiche $$0 ne correspond pas au format connu. Veuillez contacter le développeur',
-			ja: 'が、ファイルサイズ $$0 は既知の形式と一致しません。開発者にお問い合わせください。'
-		},
-		processing: {
-			de: 'Verarbeite Datei: $$0 ',
-			en: 'Processing file: $$0',
-			fr: 'Je suis en train de traiter le fiche $$0',
-			ja: '処理中のファイル：  $$0'
-		},
-		assuming: {
-			de: 'Annahme: $$0 $$1',
-			en: 'Assuming $$0 $$1',
-			fr: 'Hypothèse: $$0 $$1',
-			ja: '認識  $$0 $$1'
-		},
-		datetime: {
-			de: 'Datum/Zeit: $$0',
-			en: 'Date/Time: $$0 ',
-			fr: 'Date/heure: $$0',
-			ja: '日付/時刻：  $$0 '
-		},
-		orientation: {
-			de: 'Drehung: $$0',
-			en: 'Orientation: $$0',
-			fr: 'Rotation: $$0',
-			ja: '向き：  $$0'
-		},
-		convertedcheckdl: {
-			de: 'Nach $$0 konvertiert (Ordner $$X prüfen)',
-			en: 'Converted to $$0 (Check Folder $$X)',
-			fr: 'Converti en $$0 (Vérifier le dossier de $$X)',
-			ja: '$$0 に変換されました ($$X フォルダーを確認してください)'
-		},
-		converted: {
-			de: 'Nach $$0 konvertiert',
-			en: 'Converted to $$0',
-			fr: 'Converti en $$0',
-			ja: '$$0 に変換'
-		},
-		errsave: {
-			de: 'Konnte Datei $$0 nicht speichern.',
-			en: 'Could not write file $$0',
-			fr: 'Impossible d\'écrire le fiche $$0.',
-			ja: 'ファイル $$0 に書き込めませんでした'
-		},
-		errsavetrybrowser: {
-			de: 'Konnte Datei $$0 nicht speichern. <br><a href="#" onclick="window.open(\'$$1\', \'_system\'); return false;">Herunterladen über Browser versuchen</a>',
-			en: 'Could not write file $$0. <br><a href="#" onclick="window.open(\'$$1\', \'_system\'); return false;">Try download via Browser</a>',
-			fr: 'Impossible d\'écrire le fiche $$0. <br><a href="#" onclick="window.open(\'$$1\', \'_system\'); return false;">Try download via Browser</a>',
-			ja: 'ファイル $$0 に書き込めませんでした <br><a href="#" onclick="window.open(\'$$1\', \'_system\'); return false;">Try download via Browser</a>'
-		},
-		droppedn: {
-			de: '$$0 Datei(en) wurden abgelegt.',
-			en: 'Got $$0 file(s) dropped.',
-			fr: '$$0 fiche(s) ont été stockés',
-			ja: '$$0 個のファイルがドロップされました。'
-		},
-		frombackn: {
-			de: '$$0 Datei(en) vom ImB zu verarbeiten.',
-			en: 'Got $$0 file(s) from ImB.',
-			fr: 'J\'ai reçu $$0 fiche(s) d\'ImB',
-			ja: 'ImB から $$0 ファイルを取得しました。'
-		},
-		frombrowsern: {
-			de: '$$0 Datei(en) vom Bild-Browser zu verarbeiten.',
-			en: 'Got $$0 file(s) from Visual browser.',
-			fr: 'J\'ai obtenu $$ fiche(s) du navigateur visuel',
-			ja: 'ビジュアル ブラウザから $$0 ファイルを取得しました。'
-		},
-		skipped: {
-			remaining: {
-				de: 'Verbleibende $$0 Dateien auf Anforderung übersprungen',
-				en: 'Skipping remaining $$0 images at your request',
-				fr: '$$0 fiches restants ignorés sur demande',
-				ja: 'リクエストに応じてスキップ：  $$0'
-			},
-			de: 'Auf Anforderung übersprungen: $$0',
-			en: 'Skipped at your request: $$0',
-			fr: 'Ignoré à votre demande: $$0',
-			ja: 'リクエストに応じて残りの $$0 画像をスキップします'
-		},
-		totals: {
-			en: 'Total: $$0, ok: $$1, skipped: $$2, Errors: $$3',
-			de: 'Total: $$0, ok $$1, übersprungen: $$2, Fehler: $$3',
-			fr: 'Total: $$0, ok: $$1, Ignoré: $$2, Erreur: $$3',
-			ja: '合計 $$0、OK $$1、スキップ $$2、エラー $$3'
-		},
-		addpreview: {
-			en: 'Add preview thumbnail to DNG',
-			de: 'Kleines Vorschaubild im DNG',
-			fr: 'Petite image d\'aperçu en DNG',
-			ja: 'プレビューのサムネイルを DNG に追加する'
-		},
-		addexif: {
-			en: 'Add EXIF data from $$0',
-			de: 'Gebe EXIF Daten von $$0 dazu',
-			ja: '$$0のEXIFデータを追加'
-		},
-		includedcp: {
-			en: 'Include the new DNG camera profile (DCP)',
-			de: 'Neues DNG Kamera-Profil (DCP) einbetten',
-			ja: '新しい DNG カメラ プロファイル (DCP) を埋め込みます。'
-		},
-		oldstylewb: {
-			en: 'Use old-style constant white balance',
-			de: 'Alten konstanten Weißabgleich verwenden',
-			ja: '古い一定のホワイト バランスを使用する'
-		},
-		adddcp: {
-			en: 'Adding new DCP',
-			de: 'Bette neues DCP Farbprofile ein',
-			ja: '新しい DCP カラー プロファイルを埋め込む'
-		},
-		foundwb: {
-			en: 'Found whitebalance $$0 / $$1 / $$2',
-			de: 'Weißabgleich $$0 / $$1 / $$2 gefunden',
-			ja: 'ホワイトバランス $$0 / $$1 / $$2 が見つかりました'
-		},
-		dooverwrite: {
-			en: 'Overwrite existing files',
-			de: 'Vorhandene Dateien überschreiben',
-			ja: '既存のファイルを上書きする'
-		}
-	},
-	preview: {
-		err: {
-			de: 'Fehler bei Vorschau :-(',
-			en: 'Error with Preview :-(',
-			fr: 'Erreur dans l\'aperçu :-(',
-			ja: 'プレビューでのエラー :-('
-		},
-		rotcw: {
-			de: 'im Uhrzeigersinn drehen',
-			en: 'Rotate clockwise',
-			fr: 'tourner dans le sens des aiguilles d\'une montre',
-			ja: '時計回りに回転'
-		},
-		rotccw: {
-			de: 'gegen den Uhrzeigersinn drehen',
-			en: 'rotate counterclockwise',
-			fr: 'tourner dans le sens inverse des aiguilles d\'une montre',
-			ja: '反時計回りに回転'
-		},
-		rot180: {
-			de: 'auf den Kopf',
-			en: 'Rotate 180°',
-			fr: 'retourné',
-			ja: '180°回転'
-		},
-		rotreset: {
-			de: 'Drehung zurücksetzen',
-			en: 'Reset',
-			fr: 'Réinitialiser la rotation',
-			ja: 'リセット',
-			tooltip: {
-				de: 'Ursprüngliche Bildausrichtung wiederherstellen',
-				en: 'Reset original image orientation',
-				fr: 'Restaurer l\'orientation originale de l\'image',
-				ja: '元の画像の向きにリセット'
-			}
-		},
-		process: {
-			de: 'Kopieren/Konvertieren',
-			en: 'Copy/Convert',
-			fr: 'Copie/Convertir',
-			ja: '元の画像の向きにリセット'
-		},
-		skip: {
-			de: 'Überspringen',
-			en: 'Skip',
-			fr: 'Sauter',
-			ja: 'コピー/変換'
-		},
-		forall: {
-			de: 'Für alle weiteren das selbe',
-			en: 'Do this for all following',
-			fr: 'Faites ceci pour tous les suivants',
-			ja: '以下のすべてに対してこれを実行します'
-		},
-		orients: {
-			none: {
-				de: 'keine',
-				en: 'none',
-				fr: 'aucune',
-				ja: 'なし'
-			},
-			upsidedown: {
-				de: '180°',
-				en: '180°',
-				ja: '180°',
-				fr: '180°'
-			},
-			clockwise: {
-				de: 'im Uhrzeigersinn',
-				en: 'clockwise',
-				fr: 'dans le sens des aiguilles d\'une montre',
-				ja: '時計回り'
-			},
-			counterclockwise: {
-				de: 'gegen den Uhrzeigersinn',
-				en: 'counterclockwise',
-				fr: 'dans le sens inverse des aiguilles d\'une montre',
-				ja: '反時計回り'
-			}
-		}
-	},
-	raw: {
-		unknownsize: {
-			de: 'Unerkannte RAW-Dateigröße, Entwickler kontaktieren',
-			en: 'Unrecognized RAW file size, contact developer',
-			fr: 'La taille du fiche RAW ne correspond pas au format connu. Veuillez contacter le développeur',
-			ja: '反時計回り'
-		},
-	},
-	selection: {
-		got: {
-			de: '$$0 Dateien wurden ausgewählt.',
-			en: 'Got $$0 files selected.',
-			fr: '$$0 dossiers ont été sélectionnés.',
-			ja: '$$0 ファイルが選択されました。'
-		},
-	},
-	del: {
-		question: {
-			en: 'Deleting $$0 file(s) can not be undone! Are you sure you want to continue?',
-			de: 'Löschen von $$0 Datei(en) kann nicht rückgängig gemacht werden. Sicher damit weitermachen?',
-			fr: 'La suppression de $$0 fiche(s) est irréversible. Es-tu sur de vouloir continuer?',
-			ja: '$$0 ファイルを削除すると、元に戻すことはできません。 続行してもよろしいですか?',
-			ok: {
-				de: 'Ok',
-				en: 'Ok',
-				fr: 'Ok',
-				ja: 'はい'
-			},
-			cancel: {
-				de: 'Abbrechen',
-				en: 'Cancel',
-				fr: 'Annuler',
-				ja: 'キャンセル'
-			}
-		},
-		nostatus: {
-			de: 'Der Status des Löschens kann nicht sicher geprüft werden. Bitte laden Sie die Seite nach dem Löschen neu.',
-			en: 'The status of the delete can not be checked safely. Reload the page after deleting.',
-			fr: 'Le statut de la suppression ne peut pas être vérifié avec certitude. Veuillez recharger la page après la suppression.',
-			ja: '削除のステータスを安全に確認することはできません。 削除後はページを再読み込みしてください。'
-		},
-		reload: {
-			de: 'Bitte Seite neu laden.',
-			en: 'Please reload page.',
-			fr: 'Veuillez recharger la page.',
-			ja: 'ページをリロードしてください。'
-		}
-	},
-	app: {
-		lang: {
-			en: 'Language:',
-			de: 'Sprache:',
-			ja: '言語：'
-		},
-		onexit: {
-			de: 'Beim Beenden ImB setzen auf: ',
-			en: 'On exit, switch ImB to: ',
-			ja: '終了時に、ImB を次のように切り替えます。 '
-		},
-		exitphoto: {
-			de: 'Fotos aufnehmen',
-			en: 'Take photos',
-			ja: '写真を撮る'
-		},
-		exitmovie: {
-			de: 'Filme aufnehmen',
-			en: 'Take movies',
-			ja: '映画を撮る'
-		},
-		exitbrowse: {
-			de: 'Aufgen. Bilder durchstöbern',
-			en: 'Browse taken images',
-			ja: '撮影した画像を閲覧する'
-		},
-		menu: {
-			settime: {
-				en: 'Set ImB Time',
-				de: 'ImB Zeit setzen',
-				ja: 'ImB 時間を設定する'
-			},
-			msglog: {
-				en: 'Message Log',
-				de: 'Logdatei',
-				ja: 'メッセージログ'
-			},
-			settings: {
-				en: 'Settings',
-				de: 'Einstellungen',
-				ja: '設定'
-			},
-			info: {
-				en: 'Info',
-				de: 'Info',
-				ja: '情報'
-			},
-			quit: {
-				en: 'Quit',
-				de: 'Ende',
-				ja: 'やめる'
-			},
-			poweroff: {
-				en: 'Power Off',
-				de: 'Ausschalten',
-				ja: 'Power Off'
-			},
-			extras: {
-				en: 'Extras',
-				de: 'Extras',
-				ja: 'Extras',
-				copytoimb: {
-					de: 'Wenn Sie die imbapp.htm Seite auf ImB installieren, können Sie mit einem beliebigen Webbrowser unter der Adresse http://192.168.1.254/IMBACK/IMBAPP.HTM auch fast alles machen.',
-					en: 'When you install imbapp.htm page on ImB, you can do nearly everything with any web browser at the addresse http://192.168.1.254/IMBACK/IMBAPP.HTM.',
-					ja: 'When you install imbapp.htm page on ImB, you can do nearly everything with any web browser at the addresse http://192.168.1.254/IMBACK/IMBAPP.HTM.'
-				},
-				clearcache: {
-					de: 'Internen Zwichenspeicher löschen',
-					en: 'Clear internal cache',
-					ja: 'Clear internal cache'
-				},
-				cachesize: {
-					en: 'RAW from ImB Cache Size:',
-					de: 'RAW von ImB Zwischenspeichergröße:',
-					ja: 'RAW from ImB Cache Size:'
-				}
-			},
-		},
-		okay: {
-			de: 'Erfolgreich!',
-			en: 'Success!',
-			ja: '成功！'
-		},
-		install: {
-			de: 'INSTALLIEREN',
-			en: 'INSTALL',
-			ja: 'インストール'
-		},
-		app: {
-			en: ' APP ',
-			de: ' APP ',
-			ja: ' アプリ '
-		},
-		free: {
-			en: 'Unused memory:',
-			de: 'Freier Speicher:',
-			ja: '未使用のメモリ:'
-		},
-		helpurl: {
-			de: 'https://shyrodgau.github.io/imbraw2dng/README_de',
-			en: 'https://shyrodgau.github.io/imbraw2dng/',
-			ja: 'https://shyrodgau.github.io/imbraw2dng/imbapp_ja'
-		},
-		livehint: {
-			en: 'For live view, point media player to <a href="#" window.open(imbc.xl(\'$$0\'), \'_system\'); return false;">$$0</a>',
-			de: 'Für Live Bild, mit Mediaplayer auf <a href="#" window.open(imbc.xl(\'$$0\'), \'_system\'); return false;">$$0</a> gehen',
-			ja: 'ライブ画像については、メディア プレーヤーで <a href="#" window.open(imbc.xl(\'$$0\'), \'_system\'); return false;">$$0</a> にアクセスしてください'
-		},
-		autotime: {
-			en: 'Automatically set ImB Time on connect',
-			de: 'ImB Zeit beim Verbinden automatisch setzen'
-		}
-	}
-}
-/* Texts from Imback App ressources */
-const apptexts = [
-    {
-      "Language": "cn",
-      "s": [
-        {
-          "r": [
-            {
-              "title": "分辨率",
-              "cmd": "2002",
-              "list": [
-                "2K 30fps",
-                "1080P 60fps",
-                "1080P 30fps",
-                "720P 120fps",
-                "720P 60fps",
-                "720P 30fps",
-                "VGA 240fps",
-                "1080P30_4_3",
-                "1080P30_SUPER"
-              ],
-            },
-            {
-              "title": "循环录影",
-              "cmd": "2003",
-              "list": [
-                "关",
-                "1分钟",
-                "3分钟",
-                "4分钟",
-                "5分钟",
-                "6分钟",
-                "10分钟"
-              ],
-            },
-            {
-              "title": "间隔录影",
-              "cmd": "2019",
-              "list": [
-                "1秒",
-                "2秒",
-                "5秒",
-                "10秒",
-                "30秒",
-                "60秒"
-              ],
-            },
-            {
-              "title": "WDR",
-              "cmd": "2004",
-              "list": [
-                "关",
-                "开"
-              ],
-            },
-            {
-              "title": "录音",
-              "cmd": "2007",
-              "list": [
-                "关",
-                "开"
-              ],
-            },
-            {
-              "title": "日期标签",
-              "cmd": "2008",
-              "list": [
-                "关",
-                "开"
-              ],
-            }
-          ],
-          "title": "视频设置"
-        },
-        {
-          "r": [
-            {
-              "title": "照片尺寸",
-              "cmd": "1002",
-              "list": [
-                "12M",
-                "10M",
-                "8M",
-                "5M",
-                "3M",
-                "2MHD ",
-                "VGA",
-                "1.3M",
-                "14M",
-                "16M"
-              ],
-            },
-            {
-              "title": "白平衡",
-              "cmd": "1007",
-              "list": [
-                "自动",
-                "日光",
-                "阴天",
-                "钨丝灯",
-                "荧光灯"
-              ],
-            },
-            {
-              "title": "曝光补偿",
-              "cmd": "2005",
-              "list": [
-                "+2.0",
-                "+5/3",
-                "+4/3",
-                "+1.0",
-                "+2/3",
-                "+1/3",
-                "+0.0",
-                "-1/3",
-                "-2/3",
-                "-1.0",
-                "-4/3",
-                "-5/3",
-                "-2.0"
-              ],
-            },
-            {
-              "title": "间隔拍照时间",
-              "cmd": "1012",
-              "list": [
-                "3秒定时",
-                "5秒定时",
-                "10秒定时",
-                "20秒定时"
-              ],
-            }
-          ],
-          "title": "照片设置"
-        },
-        {
-          "r": [
-            {
-              "title": "光源频率",
-              "cmd": "3025",
-              "list": [
-                "50 Hz",
-                "60 Hz"
-              ],
-            },
-            {
-              "title": "运动侦测",
-              "cmd": "2006",
-              "list": [
-                "关",
-                "开"
-              ],
-            },
-            {
-              "title": "重力感应",
-              "cmd": "2011",
-              "list": [
-                "关",
-                "低",
-                "中",
-                "高"
-              ],
-            },
-            {
-              "title": "开机录像",
-              "cmd": "2012",
-              "list": [
-                "开",
-                "关"
-              ],
-            },
-            {
-              "title": "自动关机",
-              "cmd": "3007",
-              "list": [
-                "关闭",
-                "1分钟",
-                "2分钟",
-                "3分钟",
-                "5分钟",
-                "10分钟"
-              ],
-            },
-            {
-              "title": "TV模式",
-              "cmd": "3009",
-              "list": [
-                "NTSC",
-                "PAL"
-              ],
-            },
-            {
-              "title": "相机语言设置",
-              "cmd": "3008",
-              "list": [
-                "中文",
-                "English"
-              ],
-            },
-            {
-              "title": "格式化",
-              "cmd": "3010",
-              "list": [
-                "确认格式化相机内存卡？"
-              ],
-            },
-            {
-              "title": "默认设置",
-              "cmd": "3011",
-              "list": [
-                "确定恢复默认设置？"
-              ],
-            }
-          ],
-          "title": "其他设置"
-        }
-      ]
-    },
-    {
-	"Language":"ja",
-	"s":[
-		{
-			"r":[
-				{
-					"title":"解像度",
-					"cmd":"2002",
-					"list":[
-						"2K 30fps",
-						"1080P 60fps",
-						"1080P 30fps",
-						"720P 120fps",
-						"720P 60fps",
-						"720P 30fps",
-						"VGA 240fps",
-						"1080P30_4_3",
-						"1080P30_SUPER"
-					],
-					"type":0
-				},
-				{
-					"title":"ループビデオ",
-					"cmd":"2003",
-					"list":[
-						"オフ",
-						"1分",
-						"3分",
-						"4分",
-						"5分",
-						"6分",
-						"10分"
-					],
-					"type":0
-				},
-				{
-					"title":"タイムラプス撮影",
-					"cmd":"2019",
-					"list":[
-						"1秒",
-						"2秒",
-						"5秒",
-						"10秒",
-						"30秒",
-						"60秒"
-					],
-					"type":0
-				},
-				{
-					"title":"WDR",
-					"cmd":"2004",
-					"list":[
-						"オフ",
-						"オン"
-					],
-					"type":1
-				},
-				{
-					"title":"録音",
-					"cmd":"2007",
-					"list":[
-						"オフ",
-						"オン"
-					],
-					"type":1
-				},
-				{
-					"title":"日付表示",
-					"cmd":"2008",
-					"list":[
-						"オフ",
-						"オン"
-					],
-					"type":1
-				}
-			],
-			"title":"ビデオ設定"
-		},
-		{
-			"r":[
-				{
-					"title":"写真サイズ",
-					"cmd":"1002",
-					"list":[
-						"12M",
-						"10M",
-						"8M",
-						"5M",
-						"3M",
-						"2MHD ",
-						"VGA",
-						"1.3M",
-						"14M",
-						"16M"
-					],
-					"type":0
-				},
-				{
-					"title":"ホワイトバランス",
-					"cmd":"1007",
-					"list":[
-						"自動",
-						"日光",
-						"曇りの日",
-						"タングステンランプ",
-						"蛍光灯"
-					],
-					"type":0
-				},
-				{
-					"title":"露出補正",
-					"cmd":"2005",
-					"list":[
-						"+2.0",
-						"+5/3",
-						"+4/3",
-						"+1.0",
-						"+2/3",
-						"+1/3",
-						"+0.0",
-						"-1/3",
-						"-2/3",
-						"-1.0",
-						"-4/3",
-						"-5/3",
-						"-2.0"
-					],
-					"type":0
-				},
-				{
-					"title":"インターバル撮影",
-					"cmd":"1012",
-					"list":[
-						"3秒",
-						"5秒",
-						"10秒",
-						"20秒"
-					],
-					"type":0
-				}
-			],
-			"title":"写真設定"
-		},
-		{
-			"r":[
-				{
-					"title":"光源周波数",
-					"cmd":"3025",
-					"list":[
-						"50 Hz",
-						"60 Hz"
-					],
-					"type":0
-				},
-				{
-					"title":"動き検出",
-					"cmd":"2006",
-					"list":[
-						"オフ",
-						"オン"
-					],
-					"type":1
-				},
-				{
-					"title":"Gセンサー",
-					"cmd":"2011",
-					"list":[
-						"オフ",
-						"低い",
-						"普通",
-						"高い"
-					],
-					"type":0
-				},
-				{
-					"title":"起動記録",
-					"cmd":"2012",
-					"list":[
-						"オン",
-						"オフ"
-					],
-					"type":1
-				},
-				{
-					"title":"自動シャットダウン",
-					"cmd":"3007",
-					"list":[
-						"オフ",
-						"1分",
-						"2分",
-						"3分",
-						"5分",
-						"10分"
-					],
-					"type":0
-				},
-				{
-					"title":"TVモード",
-					"cmd":"3009",
-					"list":[
-						"NTSC",
-						"PAL"
-					],
-					"type":0
-				},
-				{
-					"title":"カメラの言語設定",
-					"cmd":"3008",
-					"list":[
-						"日本語",
-						"English"
-					],
-					"type":0
-				},
-				{
-					"title":"フォーマット",
-					"cmd":"3010",
-					"list":[
-						"フォーマットしますか？"
-					],
-					"type":5
-				},
-				{
-					"title":"デフォルト設定",
-					"cmd":"3011",
-					"list":[
-						"デフォルト設定に戻しますか？"
-					],
-					"type":6
-				}
-			],
-			"title":"他の設定"
-		}
-	]
-	},
-    {
-      "Language": "en",
-      "s": [
-        {
-          "r": [
-            {
-              "title": "Video Resolution",
-              "cmd": "2002",
-              "list": [
-                "2K 30fps",
-                "1080P 60fps",
-                "1080P 30fps",
-                "720P 120fps",
-                "720P 60fps",
-                "720P 30fps",
-                "VGA 240fps",
-                "1080P30_4_3",
-                "1080P30_SUPER"
-              ],
-            },
-            {
-              "title": "Cyclic Record",
-              "cmd": "2003",
-              "list": [
-                "Off",
-                "1 Mins",
-                "3 Mins",
-                "4 Mins",
-                "5 Mins",
-                "6 Mins",
-                "10 Mins"
-              ],
-            },
-            {
-              "title": "Videolapse",
-              "cmd": "2019",
-              "list": [
-                "1Seconds",
-                "2Seconds",
-                "5Seconds",
-                "10Seconds",
-                "30Seconds",
-                "60Seconds"
-              ],
-            },
-            {
-              "title": "WDR",
-              "cmd": "2004",
-              "list": [
-                "Off",
-                "On"
-              ],
-            },
-            {
-              "title": "Audio",
-              "cmd": "2007",
-              "list": [
-                "Off",
-                "ON"
-              ],
-            },
-            {
-              "title": " Date Stamping",
-              "cmd": "2008",
-              "list": [
-                "Off",
-                "On"
-              ],
-            }
-          ],
-          "title": "Video Setting"
-        },
-        {
-          "r": [
-            {
-              "title": "Photo Size",
-              "cmd": "1002",
-              "list": [
-                "12M",
-                "10M",
-                "8M",
-                "5M",
-                "3M",
-                "2MHD ",
-                "VGA",
-                "1.3M",
-                "14M",
-                "16M"
-              ],
-            },
-            {
-              "title": "White Balance",
-              "cmd": "1007",
-              "list": [
-                "Auto",
-                "Daylight",
-                "Cloudy",
-                "Tungsten",
-                "Fluorescent"
-              ],
-            },
-            {
-              "title": "Exposure",
-              "cmd": "2005",
-              "list": [
-                "+2.0",
-                "+5/3",
-                "+4/3",
-                "+1.0",
-                "+2/3",
-                "+1/3",
-                "+0.0",
-                "-1/3",
-                "-2/3",
-                "-1.0",
-                "-4/3",
-                "-5/3",
-                "-2.0"
-              ],
-            },
-            {
-              "title": "Photo lapse",
-              "cmd": "1012",
-              "list": [
-                "3S Timer",
-                "5S Timer",
-                "10S Timer",
-                "20S Timer"
-              ],
-            }
-          ],
-          "title": "Photo Setting"
-        },
-        {
-          "r": [
-            {
-              "title": "Frequency",
-              "cmd": "3025",
-              "list": [
-                "50 HZ",
-                "60 HZ"
-              ],
-            },
-            {
-              "title": "Motion detection",
-              "cmd": "2006",
-              "list": [
-                "Off",
-                "On"
-              ],
-            },
-            {
-              "title": "G-Sensor",
-              "cmd": "2011",
-              "list": [
-                "Off",
-                "LOW",
-                "MED",
-                "HIGH"
-              ],
-            },
-            {
-              "title": "Auto-recording",
-              "cmd": "2012",
-              "list": [
-                "On",
-                "Off"
-              ],
-            },
-            {
-              "title": "Auto Power Off",
-              "cmd": "3007",
-              "list": [
-                "Off",
-                "1 Mins",
-                "2 Mins",
-                "3 Mins",
-                "5 Mins",
-                "10 Mins"
-              ],
-            },
-            {
-              "title": "TV Mode",
-              "cmd": "3009",
-              "list": [
-                "NTSC",
-                "PAL"
-              ],
-            },
-            {
-              "title": "Format",
-              "cmd": "3010",
-              "list": [
-                "Format？"
-              ],
-            },
-            {
-              "title": "Default Setting",
-              "cmd": "3011",
-              "list": [
-                "Default Setting？"
-              ],
-            }
-          ],
-          "title": "Other Setting"
-        }
-      ]
-    },
-    {
-      "Language": "de",
-      "s": [
-        {
-          "r": [
-            {
-              "title": "Auflösung",
-              "cmd": "2002",
-              "list": [
-                "2K 30fps",
-                "1080P 60fps",
-                "1080P 30fps",
-                "720P 120fps",
-                "720P 60fps",
-                "720P 30fps",
-                "VGA 240fps",
-                "1080P30_4_3",
-                "1080P30_SUPER"
-              ],
-            },
-            {
-              "title": "Zyklische Aufnahme",
-              "cmd": "2003",
-              "list": [
-                "Aus",
-                "3 Min",
-                "5 Min",
-                "10 Min"
-              ],
-            },
-            {
-              "title": "Intervall video",
-              "cmd": "2019",
-              "list": [
-                "1 Sek",
-                "2 Sek",
-                "5 Sek",
-                "10 Sek",
-                "30 Sek",
-                "60 Sek"
-              ],
-            },
-            {
-              "title": "WDR",
-              "cmd": "2004",
-              "list": [
-                "Aus",
-                "An"
-              ],
-            },
-            {
-              "title": "Audio",
-              "cmd": "2007",
-              "list": [
-                "Aus",
-                "An"
-              ],
-            },
-            {
-              "title": "Datumsstempel",
-              "cmd": "2008",
-              "list": [
-                "Aus",
-                "An"
-              ],
-            }
-          ],
-          "title": "Video Einstellungen"
-        },
-        {
-          "r": [
-            {
-              "title": "Auflösung",
-              "cmd": "1002",
-              "list": [
-                "12M",
-                "10M",
-                "8M",
-                "5M",
-                "3M",
-                "2MHD ",
-                "VGA",
-                "1.3M",
-                "14M",
-                "16M"
-              ],
-            },
-            {
-              "title": "Weissbalance",
-              "cmd": "1007",
-              "list": [
-                "Auto",
-                "Tageslicht",
-                "Wolkig",
-                "Kunstlicht",
-                "Neonlicht"
-              ],
-            },
-            {
-              "title": "Belichtung",
-              "cmd": "2005",
-              "list": [
-                "+2.0",
-                "+5/3",
-                "+4/3",
-                "+1.0",
-                "+2/3",
-                "+1/3",
-                "+0.0",
-                "-1/3",
-                "-2/3",
-                "-1.0",
-                "-4/3",
-                "-5/3",
-                "-2.0"
-              ],
-            },
-            {
-              "title": "Intervall bild ",
-              "cmd": "1012",
-              "list": [
-                "Timer 3s",
-                "Timer 5s",
-                "Timer 10s",
-                "Timer 20s"
-              ],
-            }
-          ],
-          "title": "Standbild Einstellungen"
-        },
-        {
-          "r": [
-            {
-              "title": "Frequenz",
-              "cmd": "3025",
-              "list": [
-                "50 Hz",
-                "60 Hz"
-              ],
-            },
-            {
-              "title": "Motion detection",
-              "cmd": "2006",
-              "list": [
-                "Off",
-                "On"
-              ],
-            },
-            {
-              "title": "G-Sensor",
-              "cmd": "2011",
-              "list": [
-                "Off",
-                "LOW",
-                "MED",
-                "HIGH",
-                "MAX"
-              ],
-            },
-            {
-              "title": "Auto-recording",
-              "cmd": "2012",
-              "list": [
-                "On",
-                "Off"
-              ],
-            },
-            {
-              "title": "Auto Aus",
-              "cmd": "3007",
-              "list": [
-                "Aus",
-                "3 Min",
-                "5 Min",
-                "10 Min"
-              ],
-            },
-            {
-              "title": "TV Mode",
-              "cmd": "3009",
-              "list": [
-                "NTSC",
-                "PAL"
-              ],
-            },
-            {
-              "title": "Formatierung",
-              "cmd": "3010",
-              "list": [
-                "Formatierung?"
-              ],
-            },
-            {
-              "title": "Werkseinstellung ",
-              "cmd": "3011",
-              "list": [
-                "Werkseinstellung？"
-              ],
-            }
-          ],
-          "title": "Andere Einstellungen"
-        }
-      ]
-    },
-    {
-      "Language": "fr",
-      "s": [
-        {
-          "r": [
-            {
-              "title": "Record cyclique",
-              "cmd": "2003",
-              "list": [
-                "Desactive",
-                "3 Mins",
-                "5 Mins",
-                "10 Mins"
-              ],
-            },
-            {
-              "title": "Resolution",
-              "cmd": "2002",
-              "list": [
-                "2K 30fps",
-                "1080P 60fps",
-                "1080P 30fps",
-                "720P 120fps",
-                "720P 60fps",
-                "720P 30fps",
-                "VGA 240fps",
-                "1080P30_4_3",
-                "1080P30_SUPER"
-              ],
-            },
-            {
-              "title": "Video Lapse",
-              "cmd": "2019",
-              "list": [
-                "1 Sec",
-                "2 Sec",
-                "5 Sec",
-                "10 Sec",
-                "30 Sec",
-                "60 Sec"
-              ],
-            },
-            {
-              "title": "WDR",
-              "cmd": "2004",
-              "list": [
-                "Desactive",
-                "Active"
-              ],
-            },
-            {
-              "title": "Audio",
-              "cmd": "2007",
-              "list": [
-                "Desactive",
-                "Active"
-              ],
-            },
-            {
-              "title": "Marque Date",
-              "cmd": "2008",
-              "list": [
-                "Desactive",
-                "Active"
-              ],
-            }
-          ],
-          "title": "Vidéo Reglages"
-        },
-        {
-          "r": [
-            {
-              "title": "Taille Im.",
-              "cmd": "1002",
-              "list": [
-                "12M",
-                "10M",
-                "8M",
-                "5M",
-                "3M",
-                "2MHD ",
-                "VGA",
-                "1.3M",
-                "14M",
-                "16M"
-              ],
-            },
-            {
-              "title": "Balance Blancs",
-              "cmd": "1007",
-              "list": [
-                "Auto",
-                "Ensoleille",
-                "Nuageux",
-                "Tungstene",
-                "Fluor"
-              ],
-            },
-            {
-              "title": "Exposition",
-              "cmd": "2005",
-              "list": [
-                "+2.0",
-                "+5/3",
-                "+4/3",
-                "+1.0",
-                "+2/3",
-                "+1/3",
-                "+0.0",
-                "-1/3",
-                "-2/3",
-                "-1.0",
-                "-4/3",
-                "-5/3",
-                "-2.0"
-              ],
-            },
-            {
-              "title": "Photo Lapse",
-              "cmd": "1012",
-              "list": [
-                "3s temporisateur",
-                "5s temporisateur",
-                "10s temporisateur",
-                "20s temporisateur"
-              ],
-            }
-          ],
-          "title": "fixe Reglages"
-        },
-        {
-          "r": [
-            {
-              "title": "Fréquence",
-              "cmd": "3025",
-              "list": [
-                "50 Hz",
-                "60 Hz"
-              ],
-            },
-            {
-              "title": "Motion detection",
-              "cmd": "2006",
-              "list": [
-                "Off",
-                "On"
-              ],
-            },
-            {
-              "title": "G-Sensor",
-              "cmd": "2011",
-              "list": [
-                "Off",
-                "LOW",
-                "MED",
-                "HIGH",
-                "MAX"
-              ],
-            },
-            {
-              "title": "Auto-recording",
-              "cmd": "2012",
-              "list": [
-                "On",
-                "Off"
-              ],
-            },
-            {
-              "title": "Arret Auto",
-              "cmd": "3007",
-              "list": [
-                "Desactive",
-                "3 Mins",
-                "5 Mins",
-                "10 Mins"
-              ],
-            },
-            {
-              "title": "TV Mode",
-              "cmd": "3009",
-              "list": [
-                "NTSC",
-                "PAL"
-              ],
-            },
-            {
-              "title": "Formatierung",
-              "cmd": "3010",
-              "list": [
-                "Formatierung?"
-              ],
-            },
-            {
-              "title": "Regl. Defaut",
-              "cmd": "3011",
-              "list": [
-                "Regl. Défaut?"
-              ],
-            }
-          ],
-          "title": "Autre Reglages"
-        }
-      ]
-    },
-    {
-      "Language": "cs",
-      "s": [
-        {
-          "r": [
-            {
-              "title": "Rozlišení video",
-              "cmd": "2002",
-              "list": [
-                "2K 30fps",
-                "1080P 60fps",
-                "1080P 30fps",
-                "720P 120fps",
-                "720P 60fps",
-                "720P 30fps",
-                "VGA 240fps",
-                "1080P30_4_3",
-                "1080P30_SUPER"
-              ],
-            },
-            {
-              "title": "Nahr. ve smyčce ",
-              "cmd": "2003",
-              "list": [
-                "Vyp",
-                "3 Minut",
-                "5 Minut",
-                "10 Minut"
-              ],
-            },
-            {
-              "title": "interval nahrávání",
-              "cmd": "2019",
-              "list": [
-                "1 sekund",
-                "2 sekund",
-                "5 sekund",
-                "10 sekund",
-                "30 sekund",
-                "60 sekund"
-              ],
-            },
-            {
-              "title": "WDR",
-              "cmd": "2004",
-              "list": [
-                "Vyp",
-                "Zap"
-              ],
-            },
-            {
-              "title": "Zvuk",
-              "cmd": "2007",
-              "list": [
-                "Vyp",
-                "Zap"
-              ],
-            },
-            {
-              "title": "Čas. razítko ",
-              "cmd": "2008",
-              "list": [
-                "Vyp",
-                "Zap"
-              ],
-            }
-          ],
-          "title": "Video Nastavení"
-        },
-        {
-          "r": [
-            {
-              "title": "Rozlišení foto",
-              "cmd": "1002",
-              "list": [
-                "12M",
-                "10M",
-                "8M",
-                "5M",
-                "3M",
-                "2MHD ",
-                "VGA",
-                "1.3M",
-                "14M",
-                "16M"
-              ],
-            },
-            {
-              "title": "Vyvážení bílé",
-              "cmd": "1007",
-              "list": [
-                "Automaticky",
-                "Denní světlo",
-                "Oblačno",
-                "Žárovka",
-                "Zářivka"
-              ],
-            },
-            {
-              "title": "Expozice",
-              "cmd": "2005",
-              "list": [
-                "+2.0",
-                "+5/3",
-                "+4/3",
-                "+1.0",
-                "+2/3",
-                "+1/3",
-                "+0.0",
-                "-1/3",
-                "-2/3",
-                "-1.0",
-                "-4/3",
-                "-5/3",
-                "-2.0"
-              ],
-            },
-            {
-              "title": "rozteč obrázky",
-              "cmd": "1012",
-              "list": [
-                "Každých 3 sekund",
-                "Každých 5 sekund",
-                "Každých 10 sekund",
-                "Každých 20 sekund"
-              ],
-            }
-          ],
-          "title": "Pořídit snimek Nastavení"
-        },
-        {
-          "r": [
-            {
-              "title": "Frekvence",
-              "cmd": "3025",
-              "list": [
-                "50 Hz",
-                "60 Hz"
-              ],
-            },
-            {
-              "title": "Motion detection",
-              "cmd": "2006",
-              "list": [
-                "Off",
-                "On"
-              ],
-            },
-            {
-              "title": "G-Sensor",
-              "cmd": "2011",
-              "list": [
-                "Off",
-                "LOW",
-                "MED",
-                "HIGH",
-                "MAX"
-              ],
-            },
-            {
-              "title": "Auto-recording",
-              "cmd": "2012",
-              "list": [
-                "On",
-                "Off"
-              ],
-            },
-            {
-              "title": "Automatické vypnutí",
-              "cmd": "3007",
-              "list": [
-                "Vyp",
-                "3 Minut",
-                "5 Minut",
-                "10 Minut"
-              ],
-            },
-            {
-              "title": "TV Mode",
-              "cmd": "3009",
-              "list": [
-                "NTSC",
-                "PAL"
-              ],
-            },
-            {
-              "title": "Formátovat",
-              "cmd": "3010",
-              "list": [
-                "Formátovat?"
-              ],
-            },
-            {
-              "title": "Tovární nastavení ",
-              "cmd": "3011",
-              "list": [
-                "Tovární nastavení?"
-              ],
-            }
-          ],
-          "title": "Ostatní  Nastavení"
-        }
-      ]
-    },
-    {
-      "Language": "th",
-      "s": [
-        {
-          "r": [
-            {
-              "title": "ความละเอียด",
-              "cmd": "2002",
-              "list": [
-                "2K 30fps",
-                "1080P 60fps",
-                "1080P 30fps",
-                "720P 120fps",
-                "720P 60fps",
-                "720P 30fps",
-                "VGA 240fps",
-                "1080P30_4_3",
-                "1080P30_SUPER"
-              ],
-            },
-            {
-              "title": "บันทึกวน",
-              "cmd": "2003",
-              "list": [
-                "ใกล้",
-                "3 นาที",
-                "5 นาที",
-                "10 นาที"
-              ],
-            },
-            {
-              "title": "ไทม์แลปส์ ",
-              "cmd": "2019",
-              "list": [
-                "ใกล้",
-                "1 วินาที",
-                "2 วินาที",
-                "5 วินาที",
-                "10 วินาที",
-                "30 วินาที",
-                "60 วินาที"
-              ],
-            },
-            {
-              "title": "WDR",
-              "cmd": "2004",
-              "list": [
-                "ใกล้",
-                "เปิด"
-              ],
-            },
-            {
-              "title": "การบันทึก",
-              "cmd": "2007",
-              "list": [
-                "ใกล้",
-                "เปิด"
-              ],
-            },
-            {
-              "title": "ฉลากวันที่",
-              "cmd": "2008",
-              "list": [
-                "ใกล้",
-                "เปิด"
-              ],
-            }
-          ],
-          "title": "วิดีโอตั้งค่า"
-        },
-        {
-          "r": [
-            {
-              "title": "ความละเอียดภาพนิ่ง",
-              "cmd": "1002",
-              "list": [
-                "12M",
-                "10M",
-                "8M",
-                "5M",
-                "3M",
-                "2MHD ",
-                "VGA",
-                "1.3M",
-                "14M",
-                "16M"
-              ],
-            },
-            {
-              "title": "สมดุลแสงสีขาว",
-              "cmd": "1007",
-              "list": [
-                "อัตโนมัติ",
-                "แสงแดด",
-                "พยับแดด",
-                "ทังสเตน",
-                "เรือง"
-              ],
-            },
-            {
-              "title": "ชดเชยแสง",
-              "cmd": "2005",
-              "list": [
-                "+2.0",
-                "+5/3",
-                "+4/3",
-                "+1.0",
-                "+2/3",
-                "+1/3",
-                "+0.0",
-                "-1/3",
-                "-2/3",
-                "-1.0",
-                "-4/3",
-                "-5/3",
-                "-2.0"
-              ],
-            },
-            {
-              "title": "จับเวลาถ่-ายภาพ ",
-              "cmd": "1012",
-              "list": [
-                "ทุก 3 วินาที",
-                "ทุก 5 วินาที",
-                "ทุก 10 วินาที",
-                "ทุก 20 วินาที"
-              ],
-            }
-          ],
-          "title": "ภาพนิ่งตั้งค่า"
-        },
-        {
-          "r": [
-            {
-              "title": "ความถี่ของแหล่งกำเนิดแสง",
-              "cmd": "3025",
-              "list": [
-                "50 Hz",
-                "60 Hz"
-              ],
-            },
-            {
-              "title": "Motion detection",
-              "cmd": "2006",
-              "list": [
-                "Off",
-                "On"
-              ],
-            },
-            {
-              "title": "G-Sensor",
-              "cmd": "2011",
-              "list": [
-                "Off",
-                "LOW",
-                "MED",
-                "HIGH",
-                "MAX"
-              ],
-            },
-            {
-              "title": "Auto-recording",
-              "cmd": "2012",
-              "list": [
-                "On",
-                "Off"
-              ],
-            },
-            {
-              "title": "ปิดเครื่องอัตโนมัติ",
-              "cmd": "3007",
-              "list": [
-                "ใกล้",
-                "3 นาที",
-                "5 นาที",
-                "10 นาที"
-              ],
-            },
-            {
-              "title": "TV Mode",
-              "cmd": "3009",
-              "list": [
-                "NTSC",
-                "PAL"
-              ],
-            },
-            {
-              "title": "Format Memory ",
-              "cmd": "3010",
-              "list": [
-                "Format Memory?"
-              ],
-            },
-            {
-              "title": "คืนค่าเริ่มต้น",
-              "cmd": "3011",
-              "list": [
-                "คืนค่าเริ่มต้น?"
-              ],
-            }
-          ],
-          "title": "อื่นๆตั้งค่า"
-        }
-      ]
-    },
-    {
-      "Language": "pl",
-      "s": [
-        {
-          "r": [
-            {
-              "title": "Rozdzielczość video",
-              "cmd": "2002",
-              "list": [
-                "2K 30fps",
-                "1080P 60fps",
-                "1080P 30fps",
-                "720P 120fps",
-                "720P 60fps",
-                "720P 30fps",
-                "VGA 240fps",
-                "1080P30_4_3",
-                "1080P30_SUPER"
-              ],
-            },
-            {
-              "title": "Nagrywanie ciągłe",
-              "cmd": "2003",
-              "list": [
-                "wyłączony",
-                "3 minut",
-                "5 minut",
-                "10 minut"
-              ],
-            },
-            {
-              "title": "Interwał nagrywania",
-              "cmd": "2019",
-              "list": [
-                "1 sekund",
-                "2 sekund",
-                "5 sekund",
-                "10 sekund",
-                "30 sekund",
-                "60 sekund"
-              ],
-            },
-            {
-              "title": "WDR",
-              "cmd": "2004",
-              "list": [
-                "wyłączony",
-                "włączony"
-              ],
-            },
-            {
-              "title": "Mikrofon",
-              "cmd": "2007",
-              "list": [
-                "wyłączony",
-                "włączony"
-              ],
-            },
-            {
-              "title": "Datownik - video",
-              "cmd": "2008",
-              "list": [
-                "wyłączony",
-                "włączony"
-              ],
-            }
-          ],
-          "title": "Video Ustawienia"
-        },
-        {
-          "r": [
-            {
-              "title": "Rozdzielczość aparatu",
-              "cmd": "1002",
-              "list": [
-                "12M",
-                "10M",
-                "8M",
-                "5M",
-                "3M",
-                "2MHD ",
-                "VGA",
-                "1.3M",
-                "14M",
-                "16M "
-              ],
-            },
-            {
-              "title": "Balans bieli",
-              "cmd": "1007",
-              "list": [
-                "automatyczny",
-                "światło dzienne",
-                "zachmurzenie",
-                "wolfram",
-                "fluorescencyjne"
-              ],
-            },
-            {
-              "title": "Ekspozycja",
-              "cmd": "2005",
-              "list": [
-                "+2.0",
-                "+5/3",
-                "+4/3",
-                "+1.0",
-                "+2/3",
-                "+1/3",
-                "+0.0",
-                "-1/3",
-                "-2/3",
-                "-1.0",
-                "-4/3",
-                "-5/3",
-                "-2.0"
-              ],
-            },
-            {
-              "title": "Oddzielone zdjęcia",
-              "cmd": "1012",
-              "list": [
-                "Autowyzwalacz 3 sek",
-                "Autowyzwalacz 5 sek",
-                "Autowyzwalacz 10 sek",
-                "Autowyzwalacz 20 sek"
-              ],
-            }
-          ],
-          "title": "Klatka Ustawienia"
-        },
-        {
-          "r": [
-            {
-              "title": "Częstotliwość",
-              "cmd": "3025",
-              "list": [
-                "50 Hz",
-                "60 Hz"
-              ],
-            },
-            {
-              "title": "Motion detection",
-              "cmd": "2006",
-              "list": [
-                "Off",
-                "On"
-              ],
-            },
-            {
-              "title": "G-Sensor",
-              "cmd": "2011",
-              "list": [
-                "Off",
-                "LOW",
-                "MED",
-                "HIGH",
-                "MAX"
-              ],
-            },
-            {
-              "title": "Auto-recording",
-              "cmd": "2012",
-              "list": [
-                "On",
-                "Off"
-              ],
-            },
-            {
-              "title": "Automatyczne wyłączanie",
-              "cmd": "3007",
-              "list": [
-                "wyłączony",
-                "przez 3 minut",
-                "przez 5 minut",
-                "przez 10 minut"
-              ],
-            },
-            {
-              "title": "TV Mode",
-              "cmd": "3009",
-              "list": [
-                "NTSC",
-                "PAL"
-              ],
-            },
-            {
-              "title": "Format karty",
-              "cmd": "3010",
-              "list": [
-                "Format party?"
-              ],
-            },
-            {
-              "title": "Ustawienia fabryczne",
-              "cmd": "3011",
-              "list": [
-                "Ustawienia fabryczne?"
-              ],
-            }
-          ],
-          "title": "Inne Ustawienia"
-        }
-      ]
-    }
-]
-/* *************************************** texts E N D *************************************** */
+/* *************************************** android init *************************************** */
 /* outside of classes: */
 let imbc;
 /* onload of html body */
@@ -25468,7 +25467,12 @@ function init2() {
 			imbc.checkimb();
 		});
 		//imbc.checkimb();
+/* *************************************** android init e n d *************************************** */
 	}, 2000);
+	mytexts['main']['apptitle']['en'] = 'ImB DBG App';
+	//imbc.imbweb = 'http://192.168.8.101:8080';
+	imbc.imbweb = 'http://192.168.0.72:8080';
+
 }
 </script>
 <!-- WORKER -->
