@@ -886,7 +886,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.9.8_@_d_e_v", // actually const // VERSION EYECATCHER
+version: "V5.9.8_e56a101", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -19856,7 +19856,7 @@ writepostok(name) {
 	this.stats.ok++;
 	if (-1 === (this.dloads.findIndex(e => (e.toUpperCase() === ImBCBase.basename(name).toUpperCase()))))
 		this.dloads.push(ImBCBase.basename(name));
-	this.savesettings(['dloads', 'ii']);
+	if (!this.imbcb) this.savesettings(['dloads', 'ii']);
 	this.handlenext();
 }
 /* ImBCHtmlOut: after finishing.... */
