@@ -737,7 +737,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.9.8_a76dcc2", // actually const // VERSION EYECATCHER
+version: "V5.9.8_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -745,7 +745,7 @@ fulltsregex: /^([02-3][0-9][0-9][0-9])([^0-9])([01][0-9])([^0-9])([0123][0-9])([
 // generic user input timestamp (any prefix)
 //                  y      y     y     y      .      m     m     .      d      d      .      h     h      .      m     m      .      s     s
 tsregex: /^[02-3]([0-9]([0-9]([0-9](([^0-9])[01]([0-9](([^0-9])[0123]([0-9](([^0-9])[012]([0-9](([^0-9])[0-5]([0-9](([^0-9])[0-5]([0-9])?)?)?)?)?)?)?)?)?)?)?)?)?$/ , // actually const
-/* ImBCBase: Data for the Imback variants and exif stuff */
+/* globals: Data for the Imback variants and exif stuff */
 // generic imb filename format
 //                   y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s     EXT
 fnregex: /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])(.*[.])([^.]*)$/ , // actually const
@@ -826,7 +826,7 @@ infos: [ // actually const
 		mode: ''
 	}
 ],
-/* ImBCBase: get white balance */
+/* globals: get white balance */
 getwb: function(view, typidx, whitelvl) {
 	//console.log('GWB ' + typidx + ' ' + JSON.stringify(globals.infos[typidx]));
 	const t = globals.infos[typidx < 32 ? typidx : ((typidx< 64)? (typidx - 32) : (typidx - 64))];
@@ -860,7 +860,7 @@ getwb: function(view, typidx, whitelvl) {
 		return [ Math.ceil(300000*r/g), 300000, 10, 10, Math.ceil(300000*b/g), 300000 ];
 	}
 },
-/* ImBCBase: get one downsampled median image value [ r g b ] */
+/* globals: get one downsampled median image value [ r g b ] */
 getPix: function(x, y, w, view, typ, whitelvl) {
 	let outrgb = [];
 	let reds = [];
@@ -1022,7 +1022,7 @@ getPix: function(x, y, w, view, typ, whitelvl) {
 	outrgb.push((blues[1] + blues[2]) / 2.0);
 	return outrgb;
 },
-/* ImBCBase: build preview in array */
+/* globals: build preview in array */
 buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) {
 	if (undefined === wb) wb = [ 6, 10, 1, 1, 6, 10 ];
 	let sfact = scale ? scale : 8;
@@ -1157,7 +1157,7 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 	}
 	return uic;
 },
-/* ImBCBase: adjust A:\imback\... format to /imback/... */
+/* globals: adjust A:\imback\... format to /imback/... */
 adjurl: function(url) {
 	if (url.url) url = url.url;
 	if (url.toUpperCase().substring(0,3) !== 'A:\\')
@@ -20941,6 +20941,7 @@ const apptexts = [];
 let imbc;
 /* node js handling main function */
 var document = undefined;
+var window = undefined;
 if (ImBCBase.basename(process.argv[1].toUpperCase()).indexOf('IMBDNG2RAW') !== -1) {
 	imbc = new ImBCNodeBackw();
 	ImBCBase.progname = 'imbdng2raw.js';

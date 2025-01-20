@@ -88,6 +88,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAA">
 <style type="text/css">
+/* *************************************** CSS *************************************** */
 @font-face  {
 	font-family:'Symbol3';
 	src:url('data:font/woff;base64,d09GRgABAAAAADFcABQAAAAAUSwAAgAIAAAAAAAAAAAAAAAAAAAAAAAAAABGRlRN\
@@ -591,8 +592,7 @@ body:has(dialog[open]), html:has(dialog[open]) {
 	text-shadow: 3px 3px rgba(255,255,255,0.6);
 }
 .lbtn { font-family:Symbol3; height:1.4em; font-size:200%; }
-.delsel.green { color: green /*#aaff88*/; }
-.delsel.blue { color: #333399; }
+/* *************************************** CSS E N D *************************************** */
 </style>
 <!-- javascript code CURRENTLY NOT identical to imbraw2dng.js  for the classes IFDOut, TIFFOut, ZIPHelp, ImBCBase, ImBCBackw. -->
 <script type="text/javascript" language="javascript">
@@ -1021,7 +1021,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.9.8_a76dcc2", // actually const // VERSION EYECATCHER
+version: "V5.9.8_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -1029,7 +1029,7 @@ fulltsregex: /^([02-3][0-9][0-9][0-9])([^0-9])([01][0-9])([^0-9])([0123][0-9])([
 // generic user input timestamp (any prefix)
 //                  y      y     y     y      .      m     m     .      d      d      .      h     h      .      m     m      .      s     s
 tsregex: /^[02-3]([0-9]([0-9]([0-9](([^0-9])[01]([0-9](([^0-9])[0123]([0-9](([^0-9])[012]([0-9](([^0-9])[0-5]([0-9](([^0-9])[0-5]([0-9])?)?)?)?)?)?)?)?)?)?)?)?)?$/ , // actually const
-/* ImBCBase: Data for the Imback variants and exif stuff */
+/* globals: Data for the Imback variants and exif stuff */
 // generic imb filename format
 //                   y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s     EXT
 fnregex: /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])(.*[.])([^.]*)$/ , // actually const
@@ -1110,7 +1110,7 @@ infos: [ // actually const
 		mode: ''
 	}
 ],
-/* ImBCBase: get white balance */
+/* globals: get white balance */
 getwb: function(view, typidx, whitelvl) {
 	//console.log('GWB ' + typidx + ' ' + JSON.stringify(globals.infos[typidx]));
 	const t = globals.infos[typidx < 32 ? typidx : ((typidx< 64)? (typidx - 32) : (typidx - 64))];
@@ -1144,7 +1144,7 @@ getwb: function(view, typidx, whitelvl) {
 		return [ Math.ceil(300000*r/g), 300000, 10, 10, Math.ceil(300000*b/g), 300000 ];
 	}
 },
-/* ImBCBase: get one downsampled median image value [ r g b ] */
+/* globals: get one downsampled median image value [ r g b ] */
 getPix: function(x, y, w, view, typ, whitelvl) {
 	let outrgb = [];
 	let reds = [];
@@ -1306,7 +1306,7 @@ getPix: function(x, y, w, view, typ, whitelvl) {
 	outrgb.push((blues[1] + blues[2]) / 2.0);
 	return outrgb;
 },
-/* ImBCBase: build preview in array */
+/* globals: build preview in array */
 buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) {
 	if (undefined === wb) wb = [ 6, 10, 1, 1, 6, 10 ];
 	let sfact = scale ? scale : 8;
@@ -1441,7 +1441,7 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 	}
 	return uic;
 },
-/* ImBCBase: adjust A:\imback\... format to /imback/... */
+/* globals: adjust A:\imback\... format to /imback/... */
 adjurl: function(url) {
 	if (url.url) url = url.url;
 	if (url.toUpperCase().substring(0,3) !== 'A:\\')
@@ -19612,7 +19612,7 @@ dloads = []; // already known downloaded
 // current preview image
 currentrot = 1; // see oriecw above
 // single-step/process all/skip all
-stepmode = 1;
+stepmode = 0;
 // bottom most text index
 dispcnt = 1;
 // const if html:
@@ -20020,7 +20020,7 @@ loaderrunning=false; // currently handled browser raw preview download
 fromvisbrows = false;
 /* deleting/downloading */
 rotphase = 0;
-/* ImBCHtml: init the worker */
+/* TopApp: init the worker */
 initworker() {
 	let scripttext = document.querySelector("script[type='text/js-previewworker']").textContent;
 	scripttext += '\nvar globals = {';
@@ -20054,8 +20054,8 @@ initworker() {
 }
 
 
-/* ImBCHtml: browserdisplay: copyright checkbox change */
-chgcopycheck() {
+/* TopApp: browserdisplay: copyright checkbox change */
+chgcopycheck(init) {
     const copytext = document.getElementById('copytext');
     const artist = document.getElementById('artist');
     const copycheck = document.getElementById('copycheck');
@@ -20064,9 +20064,10 @@ chgcopycheck() {
    		copytext.disabled = !this.metadata;
     if (null !== artist)
     	artist.disabled = !this.metadata;
-    this.dirtysettings();
+    if (!init)
+    	this.savesettings('meta');
 }
-/* ImBCHtml: preview: switch preview config to jpeg img */
+/* TopApp: preview: switch preview config to jpeg img */
 setjpegpv() {
 	document.getElementById('previewwait').style['display'] = 'none';
 	document.getElementById('previewerr').style['display'] = 'none';
@@ -20075,7 +20076,7 @@ setjpegpv() {
 	document.getElementById('jpegpreview').style['display'] = '';
 	document.getElementById('continues').style['display']='';
 }
-/* ImBCHtml: preview: switch preview config to err */
+/* TopApp: preview: switch preview config to err */
 setpverr() {
 	document.getElementById('jpegpreview').style['display'] = 'none';
 	document.getElementById('rotations').style['display'] = 'none';
@@ -20084,7 +20085,7 @@ setpverr() {
 	document.getElementById('continues').style['display']='';
 	document.getElementById('previewerr').style['display'] = '';
 }
-/* ImBCHtml: preview: switch preview config to wait */
+/* TopApp: preview: switch preview config to wait */
 setpvwait() {
 	document.getElementById('jpegpreview').style['display'] = 'none';
 	document.getElementById('rotations').style['display'] = 'none';
@@ -20093,7 +20094,7 @@ setpvwait() {
 	document.getElementById('preview').style['display'] = 'none';
 	document.getElementById('previewwait').style['display'] = '';
 }
-/* ImBCHtml: use generic msg for alert */
+/* TopApp: use generic msg for alert */
 myalert(txt) {
 	document.getElementById('phpv').src="";
 	document.getElementById('overlay').style['display'] = 'none';
@@ -20103,14 +20104,14 @@ myalert(txt) {
 	document.getElementById('genericok').showModal();
 	this.modalback = 'closegeneric';
 }
-/* ImBCHtml: show generic msg */
+/* TopApp: show generic msg */
 showmsg() {
 	document.getElementById('phpv').src="";
 	document.getElementById('overlay').style['display'] = 'none';
 	document.getElementById('genericok').showModal();
 	this.modalback = 'closegeneric';
 }
-/* ImBCHtml: show the normal pages */
+/* TopApp: show the normal pages */
 showpages() {
 	this.onback = 'quit';
 	window.onscroll = undefined;
@@ -20143,7 +20144,7 @@ showpages() {
 	document.getElementById('genericok').close();
 	if (document.getElementById('scaledownquest')) document.getElementById('scaledownquest').close();
 }
-/* ImBCHtml: browserdisplay: show magnified image */
+/* TopApp: browserdisplay: show magnified image */
 showmag(entry) {
 	window.onscroll = undefined;
 	window.onresize = undefined;
@@ -20192,7 +20193,7 @@ showmag(entry) {
 	this.onback = 'closemag';
 	this.handletimadj();
 }
-/* ImBCHtml: browserdisplay: handle time adjustment in magn. view */
+/* TopApp: browserdisplay: handle time adjustment in magn. view */
 handletimadj() {
 	let res = globals.fnregexx.exec(this.magentry.raw);
 	if (res) {
@@ -20222,7 +20223,7 @@ handletimadj() {
 		document.querySelector('#xmag .timebtn').style['display'] = 'none';
 	}
 }
-/* ImBCHtml: browserdisplay: magnification: click on clock */
+/* TopApp: browserdisplay: magnification: click on clock */
 magtimex() {
 	if (document.querySelector('#xmag .timetxt').style['display'] !== 'none' && !document.querySelector('#xmag .timetxt').disabled) {
 		this.corrdelta = 0;
@@ -20245,7 +20246,7 @@ magtimex() {
 		document.querySelector('#xmag .timetxt').value = '';
 	}
 }
-/* ImBCHtml: browserdisplay: close magnification */
+/* TopApp: browserdisplay: close magnification */
 closemag(notreally) {
 	const ne = this.magentry.entry;
 	ne.querySelector('.waitdiv').style['display'] = 'none';
@@ -20275,7 +20276,7 @@ closemag(notreally) {
 		this.startloadimg();
 	}
 }
-/* ImBCHtml: browserdisplay: magni: keypress check in time adjust stamp */
+/* TopApp: browserdisplay: magni: keypress check in time adjust stamp */
 magtimechg() {
 	let a = globals.fulltsregex.exec(document.getElementById('refts').value);
 	if (!a) {
@@ -20305,7 +20306,7 @@ magtimechg() {
 		}
 	}
 }
-/* ImBCHtml: browserdisplay: select in magnification */
+/* TopApp: browserdisplay: select in magnification */
 selmag() {
 	let check = this.magentry.entry.querySelector('input.selcb');
 	if (check) {
@@ -20317,7 +20318,7 @@ selmag() {
 		this.#updateselections();
 	}
 }
-/* ImBCHtml: browserdisplay: sort for navigate in magnification */
+/* TopApp: browserdisplay: sort for navigate in magnification */
 magrecsort(grps) {
 	let res = [];
 	for (const e of grps.sort((a,b) => this.#mysort(a,b))) {
@@ -20326,7 +20327,7 @@ magrecsort(grps) {
 	}
 	return res;
 }
-/* ImBCHtml: browserdisplay: navigate in magnification */
+/* TopApp: browserdisplay: navigate in magnification */
 magnav(fwd) {
 	let list;
 	if (document.getElementById('sbytype').checked) {
@@ -20345,7 +20346,7 @@ magnav(fwd) {
 	this.closemag(true);
 	this.showmag(r[ne]);
 }
-/* ImBCHtml: browserdisplay: show main screen */
+/* TopApp: browserdisplay: show main screen */
 showmain() {
 	if (ImBCBase.progname === 'imbapp_app' && this.fromintent) {
 		this.doquit();
@@ -20368,7 +20369,7 @@ showmain() {
 	} else
 		this.showlocal();
 }
-/* ImBCHtml: browserdisplay: show slpash */
+/* TopApp: browserdisplay: show slpash */
 showsplash() {
 	window.onscroll = undefined;
 	window.onresize = undefined;
@@ -20389,7 +20390,7 @@ showsplash() {
 	document.getElementById('takephotos').style['display']='none';
 	window.scrollTo({ top: 0 });
 }
-/* ImBCHtml: browserdisplay: take photos */
+/* TopApp: browserdisplay: take photos */
 showphotoi() {
 	this.showpages();
 	this.dispmode = 0;
@@ -20400,7 +20401,7 @@ showphotoi() {
 		document.getElementById('phpv').src=this.photourl;
 	},300);
 }
-/* ImBCHtml: browserdisplay: take photos */
+/* TopApp: browserdisplay: take photos */
 showphoto() {
 	this.custcmdB(3001, 'document', 'par=0', (rc) => {
 		if (!rc) {
@@ -20411,14 +20412,14 @@ showphoto() {
 		}
 	});
 }
-/* ImBCHtml: browserdisplay: take movies */
+/* TopApp: browserdisplay: take movies */
 showmoviei() {
 	this.showpages();
 	document.getElementById('takemovies').style['display'] = '';
 	document.getElementById('tomov').classList.add('active');
 	window.scrollTo({ top: 0 });
 }
-/* ImBCHtml: browserdisplay: take movies */
+/* TopApp: browserdisplay: take movies */
 showmovie() {
 	this.custcmdB(3001, 'document', 'par=1', (rc) => {
 		if (!rc) {
@@ -20429,7 +20430,7 @@ showmovie() {
 		}
 	});
 }
-/* ImBCHtml: show disconnection */
+/* TopApp: show disconnection */
 showdisconnect(alsoerr) {
 	if (this.disconnected) return;
 	this.disconnected = true;
@@ -20457,7 +20458,7 @@ checkscroll() {
 	this.scrollx = document.getElementById('thebody').scrollLeft;
 	this.scrolly = document.getElementById('thebody').scrollTop;
 }
-/* ImBCHtml: browserdisplay: open visual browser */
+/* TopApp: browserdisplay: open visual browser */
 showbrowseri() {
 	if (this.imbeles.length === 0) return this.showlocal();
 	this.showpages();
@@ -20473,7 +20474,7 @@ showbrowseri() {
 	window.onresize = () => { this.addallimgs();this.checkscroll(); };
 	this.addallimgs();
 }
-/* ImBCHtml: browserdisplay: open visual browser */
+/* TopApp: browserdisplay: open visual browser */
 showbrowser() {
 	document.getElementById('phpv').src="";
 	if (this.disconnected)
@@ -20487,13 +20488,13 @@ showbrowser() {
 		});
 	}
 }
-/* ImBCHtml: show local file selection */
+/* TopApp: show local file selection */
 showlocal() {
 	this.showpages();
 	document.getElementById('notimback').style['display'] = '';
 	document.getElementById('toloc').classList.add('active');
 }
-/* ImBCHtml: show download progress (start) */
+/* TopApp: show download progress (start) */
 showdlprog() {
 	document.getElementById('dlprogress').showModal();
 	document.querySelector('body').style['overflow'] = 'hidden';
@@ -20518,7 +20519,7 @@ closedlprog() {
 	document.getElementById('dlprogress').close();
 	this.startloadimg();
 }
-/* ImBCHtml: show message log */
+/* TopApp: show message log */
 showlog() {
 	window.onscroll = undefined;
 	window.onresize = undefined;
@@ -20533,7 +20534,7 @@ showlog() {
 	document.getElementById('msglog').style['display'] = '';
 	window.setTimeout(() => { this.showlastmsg(); }, 100);
 }
-/* ImBCHtml: visual browser: prepare the browser display, group the stuff */
+/* TopApp: visual browser: prepare the browser display, group the stuff */
 aftercheck() {
 	//if (this.untypedclasses[0].title) return;
 	for (const x of this.untypedclasses) {
@@ -20642,7 +20643,7 @@ aftercheck() {
 		this.buildtree();
 	}
 }
-/* ImBCHtml: make display empty */
+/* TopApp: make display empty */
 cleartree() {
 	// first, make everything empty
 	for (const e of this.untypedclasses) {
@@ -20658,7 +20659,7 @@ cleartree() {
 			d.entry.remove();
 	}
 }
-/* ImBCHtml: visual browser: build ordered lists */
+/* TopApp: visual browser: build ordered lists */
 buildtree() {
 	// first, make everything empty
 	this.cleartree();
@@ -20679,7 +20680,7 @@ buildtree() {
 	this.startloadimg();
 	this.xlateall();
 }
-/* ImBCHtml: visual browser: find next to load */
+/* TopApp: visual browser: find next to load */
 /* four phases, finding a match for one skips all following phases */
 /* 0: visible JPG+MP4 */
 /* 1: visible RAW */
@@ -20740,7 +20741,7 @@ buildtree() {
 	}
 	return res;
 }
-/* ImBCHtml: visual browser: sort helper */
+/* TopApp: visual browser: sort helper */
 #mysort(a, b) {
 	let at = a.title, bt = b.title;
 	const fact = document.getElementById('solder').checked ? 1 : -1
@@ -20756,14 +20757,14 @@ buildtree() {
 	else if (at < bt) return -1 * fact;
 	else return 0;
 }
-/* ImBCHtml: visual browser: sort helper */
+/* TopApp: visual browser: sort helper */
 #myisort(a, b) {
 	const fact = document.getElementById('solder').checked ? 1 : -1
 	if (a.raw > b.raw) return fact;
 	else if (a.raw < b.raw) return -1 * fact;
 	else return 0;
 }
-/* ImBCHtml: visual browser: add images sorted  */
+/* TopApp: visual browser: add images sorted  */
 #addimgsorted(el) {
 	let rect = el.entry.getBoundingClientRect();
 	if (rect.top > window.innerHeight || rect.bottom <= 0)
@@ -20777,7 +20778,7 @@ buildtree() {
 	}
 	return true;
 }
-/* ImBCHtml: visual browser: add sorted recursively */
+/* TopApp: visual browser: add sorted recursively */
 #addsorted(el) {
 	if (el.smembers === null || el.smembers ===  undefined) return;
 	for (const e of el.smembers.sort((a,b) => this.#mysort(a, b))) {
@@ -20785,7 +20786,7 @@ buildtree() {
 		el.entry.append(e.entry);
 	}
 }
-/* ImBCHtml: visual browser: recursive texts */
+/* TopApp: visual browser: recursive texts */
 #buildtitlerec(el) {
 	this.#buildtitle(el);
 	if (el.smembers === null || el.smembers ===  undefined) return;
@@ -20793,7 +20794,7 @@ buildtree() {
 		this.#buildtitlerec(e);
 	}
 }
-/* ImBCHtml: visual browser: recursive fold close */
+/* TopApp: visual browser: recursive fold close */
 #doclose(gr, recurse) {
 	const e = gr.entry;
 	e.querySelector('.ggtt').classList.add('ggttclosed');
@@ -20804,7 +20805,7 @@ buildtree() {
 		for (const m of gr.smembers) this.#doclose(m, recurse);
 	this.addallimgs();
 }
-/* ImBCHtml: visual browser: recursive fold open */
+/* TopApp: visual browser: recursive fold open */
 #doopen(gr, recurse) {
 	const e = gr.entry;
 	e.querySelector('.ggtt').classList.remove('ggttclosed');
@@ -20820,7 +20821,7 @@ buildtree() {
 	}
 	this.addallimgs(gr, e);
 }
-/* ImBCHtml: add images */
+/* TopApp: add images */
 addallimgs(gr, e) {
 	let retry = false;
 	if (!gr) {
@@ -20857,13 +20858,13 @@ addallimgs(gr, e) {
 		}, 100);
 	}
 }
-/* ImBCHtml: visual browser: select all from top */
+/* TopApp: visual browser: select all from top */
 topreccheck(force) {
 	if (undefined === force)
 		force = document.getElementById('selall').checked;
 	this.#reccheck(force);
 }
-/* ImBCHtml: visual browser: select all */
+/* TopApp: visual browser: select all */
 #reccheck(to, root) {
 	if (undefined === root) {
 		for (const e of this.typedclasses) this.#reccheck(to, e);
@@ -20882,7 +20883,7 @@ topreccheck(force) {
 	}
 	this.#updateselections();
 }
-/* ImBCHtml: visual browser: text and controls on top of a group */
+/* TopApp: visual browser: text and controls on top of a group */
 #buildtitle(gr) {
 	let t = '', s = gr.title;
 	const d = document.querySelector('#titlet').content.querySelector('.titletop').cloneNode(true);
@@ -20935,7 +20936,7 @@ topreccheck(force) {
 		gr.entry.append(ig);
 	}
 }
-/* ImBCHtml: visual browser: add classes upwards */
+/* TopApp: visual browser: add classes upwards */
 #higherclasses(arr, len, curlevel) {
 	for (const u of arr.filter((o) => o.level === curlevel)) {
 		if (u.ischild) continue;
@@ -20986,7 +20987,7 @@ topreccheck(force) {
 			res += this.#countfiles(s);
 	return res;
 }
-/* ImBCHtml: visual browser: recursive count selection */
+/* TopApp: visual browser: recursive count selection */
 #countsel(gr) {
 	let res = 0;
 	if (gr.fmembers) {
@@ -21001,7 +21002,7 @@ topreccheck(force) {
 	gr.sels = res;
 	return res;
 }
-/* ImBCHtml: visual browser: update all "selected" values */
+/* TopApp: visual browser: update all "selected" values */
 #updateselections() {
 	for (const s of this.typedclasses) this.#countsel(s);
 	for (const s of this.untypedclasses) this.#countsel(s);
@@ -21015,7 +21016,7 @@ topreccheck(force) {
 	document.getElementById('delselbut').disabled = (this.disconnected || (res === 0));
 	document.getElementById('doselbut').disabled = (res === 0);
 }
-/* ImBCHtml: visual browser: fill a html div into an imbele */
+/* TopApp: visual browser: fill a html div into an imbele */
 #displaydiv(e) {
 	e.entry = document.querySelector('#onepict').content.querySelector('.onepic').cloneNode(true);
 	const ne = e.entry;
@@ -21137,7 +21138,7 @@ topreccheck(force) {
 		}
 	}
 }
-/* ImBCHtml: visual browser: rotate magnified */
+/* TopApp: visual browser: rotate magnified */
 rotmag(ccw) {
 	if (!this.magentry || this.magentry.type !== 'RAW') return;
 	const ne = this.magentry.entry;
@@ -21162,7 +21163,7 @@ rotmag(ccw) {
 	}
 	this.startloadimg();
 }
-/* ImBCHtml: visual browser: download magnified */
+/* TopApp: visual browser: download magnified */
 dlmag() {
 	if (!this.magentry) return;
 	if (this.actnum !== this.allfiles.length) return;
@@ -21180,7 +21181,7 @@ dlmag() {
 	document.getElementById('magni').style['display'] = 'none';
 	this.startloadimg();
 }
-/* ImBCHtml: visual browser: image loader call */
+/* TopApp: visual browser: image loader call */
 #loadimg(url, type, to) {
 	const e = to.entry;
 	if (e.attributes.getNamedItem('data-state').value !== 'err' && e.attributes.getNamedItem('data-state').value !== 'wait') {
@@ -21268,7 +21269,7 @@ dlmag() {
 		if (this.debugflag) console.log('li raw end bpv ' + url);
 	}
 }
-/* ImBCHtml: visual browser or from imback: load next from todo list */
+/* TopApp: visual browser or from imback: load next from todo list */
 loadnextimg() {
 	if (this.debugflag) console.log('L  N  I');
 	if (this.loaderrunning !== 'blah!' && this.allfiles.length > 0 && this.actnum <= this.allfiles.length - 1) {
@@ -21299,7 +21300,7 @@ loadnextimg() {
 		}, 33);
 	}
 }
-/* ImBCHtml: visual browser: start loading */
+/* TopApp: visual browser: start loading */
 startloadimg() {
 	setTimeout(() => {
 		if (!this.loaderrunning) {
@@ -21311,7 +21312,7 @@ startloadimg() {
 		}
 	}, 100);
 }
-/* ImBCHtml: visual browser: delete browser selected */
+/* TopApp: visual browser: delete browser selected */
 browserdelete() {
 	document.getElementById('del_text').setAttribute('data-myxlarg0', this.imbeles.filter((o) => o.selected).length);
 	this.xl1(document.getElementById('del_text'));
@@ -21322,7 +21323,7 @@ browserdelete() {
 	this.modalback = 'closedelprog';
 	this.rotphase = 1;
 }
-/* ImBCHtml: visual browser: delete from magnified view */
+/* TopApp: visual browser: delete from magnified view */
 magdelete() {
 	document.getElementById('del_text').setAttribute('data-myxlarg0', 1);
 	this.xl1(document.getElementById('del_text'));
@@ -21333,7 +21334,7 @@ magdelete() {
 	this.modalback = 'closedelprog';
 	this.rotphase = 1;
 }
-/* ImBCHtml: visual browser: do delete */
+/* TopApp: visual browser: do delete */
 dodelete(list, status) {
 	if (list === undefined && document.getElementById('delcancelbut').disabled) {
 		/* ok press after end */
@@ -21376,6 +21377,7 @@ dodelete(list, status) {
 				}
 				this.#updateselections();
 				this.dloads = this.dloads.filter(e => e.toLowerCase() !== list[0].raw.toLowerCase());
+				this.iinf = this.iinf.filter(e => e.n.toLowerCase() !== list[0].raw.toLowerCase());
 			} else {
 				status.err++;
 			}
@@ -21388,11 +21390,11 @@ dodelete(list, status) {
 		document.getElementById('delokbut').disabled = false;
 		document.getElementById('delcancelbut').disabled = true;
 		this.modalback = 'closedelprog';
-		this.savesettings();
+		this.savesettings(['dloads','ii']);
 		this.rotphase = -1;
 	}
 }
-/* ImBCHtml: visual browser: cancel the delete */
+/* TopApp: visual browser: cancel the delete */
 delcancel() {
 	document.getElementById('delq').close();
 	document.getElementById('browser').style['display'] = '';
@@ -21400,7 +21402,7 @@ delcancel() {
 	document.getElementById('delprogmsg').innerHTML = '';
 	this.startloadimg();
 }
-/* ImBCHtml: visual browser: process browser selected */
+/* TopApp: visual browser: process browser selected */
 browserprocess() {
 	if (this.actnum !== this.allfiles.length) return;
 	let selecteds = [];
@@ -21445,18 +21447,18 @@ browserprocess() {
 		this.showbrowseri();
 	}
 }
-/* ImBCHtml: html dng preview checkbox handler */
+/* TopApp: html dng preview checkbox handler */
 chgdngpreview() {
     const dngprev = document.getElementById('dngpreview');
     this.withpreview = (dngprev !== null && dngprev.checked);
-    this.dirtysettings();
+    this.savesettings('np');
 }
-/* ImBCHtml: overwrite file checkbox */
+/* TopApp: overwrite file checkbox */
 chgoverwrite() {
 	this.dooverwrite = document.getElementById('dooverwrite')?.checked;
-	this.dirtysettings();
+	this.savesettings('dooverwrite');
 }
-/* ImBCHtml: translate html for new language */
+/* TopApp: translate html for new language */
 setlang() {
 	this.mylang = document.getElementById('langsel').value;
 	if (this.mylang === '99' && this.imblang) {
@@ -21472,23 +21474,76 @@ setlang() {
 	else
 		this.useimblang = false;
 	this.xlateall();
-	if (this.mylang !== document.getElementById('langsel').value) this.dirtysettings();
+	this.savesettings(['l', 'll']);
 }
-/* ImBCHtml: browserdisplay: settings are dirty */
-dirtysettings() {
-	this.autotime = document.getElementById('autotime').checked;
-	this.savesettings();
+/* TopApp: browserdisplay: settings are dirty */
+dirtysettings(which) {
+	if (which === 'autotime') {
+		this.autotime = document.getElementById('autotime').checked;
+		if (document.getElementById('autotime')) this.savesettings('autotime');
+	}
+	else if (which === 'incdcp') {
+		this.incdcp = document.getElementById('incdcp').checked;
+		this.savesettings('ndcp');
+	}
+	else if (which === 'owb') {
+		const oldwb = document.getElementById('oldstylewb');
+		this.constwb = (oldwb !== null && oldwb.checked);
+		if (this.previewworker) this.previewworker.postMessage({ cmd: 'constwb', constwb: this.constwb });
+		if (oldwb) this.savesettings('owb');
+	}
+	else if (which === 'cr') {
+		const copytext = document.getElementById('copytext');
+		this.copyright = copytext?.value?.length ? copytext.value : '';
+		if (copytext) this.savesettings('cr');
+	}
+	else if (which === 'at') {
+		this.artist = document.getElementById('artist')?.value?.length ? document.getElementById('artist')?.value : '';
+		if (document.getElementById('artist')) this.savesettings('at');
+	}
+	else if (which === 'zip') {
+		if (document.getElementById('usezip')) this.savesettings('zip');
+		if (document.getElementById('usezipdest') && window.showSaveFilePicker) this.savesettings('zipdest');
+	}
+	else
+		this.savesettings();
 }
-/* ImBCHtml: browserdisplay: save settings */
-savesettings() {
+/* TopApp: browserdisplay: save settings */
+savesettings(which) {
 	if (ImBCBase.progname === 'imbapp_app' || (window.location.origin.startsWith('http') && window.localStorage)) {
 		try {
-			const copytext = document.getElementById('copytext');
-			const copycheck = document.getElementById('copycheck');
-			let stepmode = 0;
-			const stepprev = document.getElementById('steppreview');
-			if (stepprev !== null && stepprev.checked) stepmode = 1;
-			window.localStorage.setItem('imbapp_json', JSON.stringify(
+			window.localStorage.setItem('imbraw2dng_writtenby', ImBCBase.progname + ' ' + globals.version);
+			if ((which === 'meta') || !which?.length || -1 !== which.indexOf('meta'))
+				window.localStorage.setItem('imbraw2dng_meta', this.metadata ? 'true': 'false');
+			if ((which === 'cr') || !which?.length || -1 !== which.indexOf('cr'))
+				window.localStorage.setItem('imbraw2dng_cr', this.copyright?.length ? this.copyright : '');
+			if ((which === 'at') || !which?.length || -1 !== which.indexOf('at'))
+				window.localStorage.setItem('imbraw2dng_at', this.artist?.length ? this.artist : '');
+			if ((which === 'np') || !which?.length || -1 !== which.indexOf('np'))
+				window.localStorage.setItem('imbraw2dng_np', this.withpreview ? 'false': 'true');
+			if ((which === 'l') || !which?.length || -1 !== which.indexOf('l'))
+				window.localStorage.setItem('imbraw2dng_l', this.useimblang ? '99': this.mylang);
+			if ((which === 'll') || !which?.length || -1 !== which.indexOf('ll'))
+				window.localStorage.setItem('imbraw2dng_ll', (ImBCBase.progname === 'imbapp_app') ? this.mylang : this.lastlang);
+			if ((which === 'owb') || !which?.length || -1 !== which.indexOf('owb'))
+				window.localStorage.setItem('imbraw2dng_owb', this.constwb ? 'true': 'false');
+			if ((which === 'ndcp') || !which?.length || -1 !== which.indexOf('ndcp'))
+				window.localStorage.setItem('imbraw2dng_ndcp', this.incdcp ? 'false': 'true');
+			if ((which === 'exitmode') || !which?.length || -1 !== which.indexOf('exitmode'))
+				window.localStorage.setItem('imbraw2dng_exitmode', JSON.stringify(this.exitmode));
+			if ((which === 'maxcache') || !which?.length || -1 !== which.indexOf('maxcache'))
+				window.localStorage.setItem('imbraw2dng_maxcache', JSON.stringify(this.maxcache));
+			if ((which === 'dloads') || !which?.length || -1 !== which.indexOf('dloads'))
+				if (this.dloads?.length) window.localStorage.setItem('imbraw2dng_dloads', JSON.stringify(this.dloads));
+			if ((which === 'ii') || !which?.length || -1 !== which.indexOf('ii'))
+				if (this.iinf?.length) window.localStorage.setItem('imbraw2dng_ii', JSON.stringify(this.iinf));
+			if ((which === 'autotime') || !which?.length || -1 !== which.indexOf('autotime'))
+				window.localStorage.setItem('imbraw2dng_autotime', JSON.stringify(this.autotime));
+			if (ImBCBase.progname === 'imbapp_app') {
+				if ((which === 'dooverwrite') || !which?.length || -1 !== which.indexOf('dooverwrite'))
+					window.localStorage.setItem('imbraw2dng_f', JSON.stringify(this.dooverwrite));
+			}
+			/*window.localStorage.setItem('imbapp_json', JSON.stringify(
 				{
 					'meta': copycheck?.checked,
 					'cr': copytext?.value,
@@ -21496,7 +21551,6 @@ savesettings() {
 					'np': document.getElementById('dngpreview') ? !document.getElementById('dngpreview').checked : false,
 					'l': this.useimblang ? '99' : this.mylang,
 					'll': (ImBCBase.progname === 'imbapp_app') ? this.mylang : this.lastlang,
-					'step': stepmode,
 					'version': globals.version,
 					'loca': window.location.origin,
 					'owb': document.getElementById('oldstylewb')?.checked,
@@ -21504,26 +21558,26 @@ savesettings() {
 					'exitmode': this.exitmode,
 					'maxcache': this.maxcache,
 					'dl': this.dloads,
+					'ii': this.iinf,
 					'dooverwrite': this.dooverwrite,
 					'autotime': this.autotime
 				}
-			));
+			));*/
 		}
 		catch (e) {
 			console.log(JSON.stringify(e));
 		}
-		this.initsettings();
 	}
 }
-/* ImBCHtml: try lang from node param */
+/* TopApp: try lang from node param */
 trylang(i) {
 	document.getElementById('langsel').value = this.findlang(i);
 }
-/* ImBCHtml: browserdisplay: some handler on the drop rectangle */
+/* TopApp: browserdisplay: some handler on the drop rectangle */
 prevdef(ev) {
 	ev.preventDefault();
 }
-/* ImBCHtml: browserdisplay: put preview into canvas */
+/* TopApp: browserdisplay: put preview into canvas */
 // orientation: 1: norm, 3: rot 180, 6 rot 90 CW, 8: rot 270 CCW
 buildpreview(f, size, onok, onerr, orientation, targ, afterload) {
 	let w, h, typ;
@@ -21594,7 +21648,7 @@ buildpreview(f, size, onok, onerr, orientation, targ, afterload) {
 	};
 	reader.readAsArrayBuffer(f);
 }
-/* ImBCHtml: preview: raw preview okay */
+/* TopApp: preview: raw preview okay */
 setrawpv() {
 	document.getElementById('previewwait').style['display'] = 'none';
 	document.getElementById('previewerr').style['display'] = 'none';
@@ -21603,7 +21657,7 @@ setrawpv() {
 	document.getElementById('rotations').style['display'] = '';
 	document.getElementById('continues').style['display']='';
 }
-/* ImBCHtml: preview: no preview in question */
+/* TopApp: preview: no preview in question */
 setnopv() {
 	document.getElementById('preview').style['display'] = 'none';
 	document.getElementById('rotations').style['display'] = 'none';
@@ -21612,7 +21666,7 @@ setnopv() {
 	document.getElementById('jpegpreview').style['display'] = 'none';
 	document.getElementById('continues').style['display']='';
 }
-/* ImBCHtml: browserdisplay: show the preview question skip/process */
+/* TopApp: browserdisplay: show the preview question skip/process */
 showquestion() {
 	const norm = document.getElementById('normal');
 	const quest = document.getElementById('question');
@@ -21622,7 +21676,7 @@ showquestion() {
 	document.getElementById('qhdr').innerHTML = '';
 	document.getElementById('browser').style['display'] = 'none';
 }
-/* ImBCHtml: show extras */
+/* TopApp: show extras */
 showextras() {
    window.onscroll = undefined;
    window.onresize = undefined;
@@ -21631,7 +21685,7 @@ showextras() {
    this.onback = 'main';
    document.getElementById('extraid').style['display'] = '';
 }
-/* ImBCHtml: browserdisplay: as it says */
+/* TopApp: browserdisplay: as it says */
 shownormal() {
 	document.getElementById('phpv').src="";
 	this.custcmdB(3019, 'document', undefined, () => {
@@ -21644,52 +21698,18 @@ shownormal() {
 		window.setTimeout(() => { this.showlastmsg(); }, 100);
 	});
 }
-/* ImBCHtml: preview: skip handler in the step preview */
+/* TopApp: preview: skip handler in the step preview */
 skipthis() {
 	this.onback = 'nothing';
 	this.cancelled = true;
 	document.getElementById('skipthis').disabled = true;
 	this.stepmode = 2;
 }
-/* ImBCHtml: previewquestion: process handler in the step preview */
-procthis() {
-	this.stepmode = 0;
-	this.shownormal();
-	this.setpvwait();
-	this.handleone(this.currentrot);
-}
-/* ImBCHtml: previewquestion, rotation hepler */
-#rotxx(r) {
-	this.setpvwait();
-	let j = globals.oriecw.indexOf(this.currentrot);
-	j = ((j + r) % 4);
-	this.currentrot = globals.oriecw[j];
-	this.buildpreview(this.allfiles[this.actnum], 2, () => { this.setrawpv(); }, () => { this.setpverr(); }, this.currentrot);
-}
-/* ImBCHtml: previewquestion: handler for clockwise rotation */
-rotcw() {
-	this.#rotxx(1);
-}
-/* ImBCHtml: previewquestion: handler for counterclockwise rotation */
-rotccw() {
-	this.#rotxx(3);
-}
-/* ImBCHtml: previewquestion: handler for upside down rotation */
-rot180() {
-	this.#rotxx(2);
-}
-/* ImBCHtml: previewquestion: handler for reset rotation */
-rot0() {
-	if (1 === this.currentrot) return;
-	this.setpvwait();
-	this.currentrot = 1;
-	this.buildpreview(this.allfiles[this.actnum], 2, () => { this.setrawpv(); }, () => { this.setpverr(); }, 1);
-}
-/* ImBCHtml: visual browser: change cache size (currently only visible in debug _00) */
+/* TopApp: visual browser: change cache size (currently only visible in debug _00) */
 chgcache() {
 	this.maxcache = document.getElementById('dbgcache').value;
 }
-/* ImBCHtml: continue with the next file if any */
+/* TopApp: continue with the next file if any */
 handlenext() {
 	if (this.cancelled) {
 		this.appmsg('', true);
@@ -21745,7 +21765,7 @@ handlenext() {
 		//this.shownormal();
 	}
 }
-/* ImBCHtml: command handler */
+/* TopApp: command handler */
 custcmd(cmd, type, restargs, cb) {
 	if (this.disconnected && this.discknown) {
 		if (cb) cb({ ok: false, cmd: 'custcmd', rc: -1 });
@@ -21754,7 +21774,7 @@ custcmd(cmd, type, restargs, cb) {
 	this.workerstate.push({ cb: cb, type: type });
 	this.previewworker.postMessage({ cmd: 'custcmd', c:cmd, type: type, rest: restargs });
 }
-/* ImBCHtml: command handler BLOCKING */
+/* TopApp: command handler BLOCKING */
 custcmdB(cmd, type, restargs, cb) {
 	if (this.disconnected && this.discknown) {
 		if (cb) cb({ ok: false, cmd: 'custcmd', rc: -1 });
@@ -21766,7 +21786,7 @@ custcmdB(cmd, type, restargs, cb) {
 		document.getElementById('overlay').style['display'] = 'none';
 	});
 }
-/* ImBCHtml: load imgs from back */
+/* TopApp: load imgs from back */
 loadimgs() {
 	this.showsplash();
 	// first, make everything empty
@@ -21791,7 +21811,7 @@ loadimgs() {
 		}
 	});
 }
-/* ImBCHtml: check if we are directly on a back */
+/* TopApp: check if we are directly on a back */
 checkimb() {
 	if (null === this.previewworker) this.initworker();
 	document.getElementById('dbgcache').value = this.maxcache;
@@ -22039,47 +22059,88 @@ checkimb() {
 		this.xlateall();
 	});
 }
-/* ImBCHtml: browserdisplay: initialize settings */
+/* TopApp: browserdisplay: initialize settings */
 initsettings() {
+	this.trylang(this.mylang);
 	if (ImBCBase.progname === 'imbapp.htm' && (!window.location.origin.startsWith('http') || !window.localStorage))
 		return;
 	try {
 		let e = window.localStorage.getItem('imbapp_json');
 		if (e) {
 			this.parseconfig(e);
-			const copytext = document.getElementById('copytext');
-			const artist = document.getElementById('artist');
-			const copycheck = document.getElementById('copycheck');
-			const stepprev = document.getElementById('steppreview');
-			const incdcp = document.getElementById('incdcp');
-			const oldstylewb = document.getElementById('oldstylewb');
-			if (copycheck !== null) {
-				copycheck.checked = this.metadata;
-				if (copytext) {
-					if (this.copyright?.length) copytext.value = this.copyright;
-					copytext.disabled = !this.metadata;
-				}
-				if (artist) {
-					if (this.artist?.length) artist.value = this.artist;
-					artist.disabled = !this.metadata;
-				}
-			}
-			if (stepprev !== null) stepprev.checked = (this.stepmode===1);
-			if (incdcp !== null) incdcp.checked = this.incdcp;
-			if (oldstylewb !== null) oldstylewb.checked = this.constwb;
-			const dngprev = document.getElementById('dngpreview');
-			if (dngprev) dngprev.checked = this.withpreview;
-			document.getElementById('exitsel').value = this.exitmode;
-			if (document.getElementById('dooverwrite')) document.getElementById('dooverwrite').checked = this.dooverwrite;
-			document.getElementById('autotime').checked = this.autotime;
-			this.xlateall();
 		}
+		let itm = window.localStorage.getItem('imbraw2dng_meta');
+		if (itm !== null) {
+			this.metadata = JSON.parse(itm) ? true: false;
+		}
+		itm = window.localStorage.getItem('imbraw2dng_cr');
+		if (itm !== null) this.copyright = itm;
+		itm = window.localStorage.getItem('imbraw2dng_at');
+		if (itm !== null) this.artist = itm;
+		itm = window.localStorage.getItem('imbraw2dng_np');
+		if (itm !== null) {
+			this.withpreview = JSON.parse(itm) ? false: true;
+		}
+		itm = window.localStorage.getItem('imbraw2dng_ll');
+		if (itm !== null) this.lastlang = itm;
+		itm = window.localStorage.getItem('imbraw2dng_l');
+		if (itm !== null) this.trylang(itm);
+		itm = window.localStorage.getItem('imbraw2dng_ll');
+		if (itm !== null) this.lastlang = itm;
+		itm = window.localStorage.getItem('imbraw2dng_owb');
+		if (itm !== null) {
+			this.constwb = JSON.parse(itm) ? true: false;
+		}
+		itm = window.localStorage.getItem('imbraw2dng_ndcp');
+		if (itm !== null) {
+			this.incdcp = JSON.parse(itm) ? false: true;
+		}
+		itm = window.localStorage.getItem('imbraw2dng_dloads');
+		if (itm !== null) this.dloads = JSON.parse(itm);
+		itm = window.localStorage.getItem('imbraw2dng_ii');
+		if (itm !== null) this.iinf = JSON.parse(itm);
+		itm = window.localStorage.getItem('imbraw2dng_exitmode');
+		if (itm !== null) this.exitmode = JSON.parse(itm);
+		itm = window.localStorage.getItem('imbraw2dng_autotime');
+		if (itm !== null) {
+			this.autotime = JSON.parse(itm) ? true: false;
+		}
+		itm = window.localStorage.getItem('imbraw2dng_maxcache');
+		if (itm !== null) this.maxcache = JSON.parse(itm);
+		itm = window.localStorage.getItem('imbraw2dng_f');
+		if (itm !== null && ImBCBase.progname === 'imbapp_app') {
+			this.dooverwrite = JSON.parse(itm) ? true: false;
+		}
+		const copytext = document.getElementById('copytext');
+		const artist = document.getElementById('artist');
+		const copycheck = document.getElementById('copycheck');
+		const incdcp = document.getElementById('incdcp');
+		const oldstylewb = document.getElementById('oldstylewb');
+		if (copycheck !== null) {
+			copycheck.checked = this.metadata;
+			if (copytext) {
+				if (this.copyright?.length) copytext.value = this.copyright;
+				copytext.disabled = !this.metadata;
+			}
+			if (artist) {
+				if (this.artist?.length) artist.value = this.artist;
+				artist.disabled = !this.metadata;
+			}
+		}
+		if (incdcp !== null) incdcp.checked = this.incdcp;
+		if (oldstylewb !== null) oldstylewb.checked = this.constwb;
+		const dngprev = document.getElementById('dngpreview');
+		if (dngprev) dngprev.checked = this.withpreview;
+		document.getElementById('exitsel').value = this.exitmode;
+		if (document.getElementById('dooverwrite')) document.getElementById('dooverwrite').checked = this.dooverwrite;
+		document.getElementById('autotime').checked = this.autotime;
+		this.xlateall();
 	} catch (e) {
 		console.log('Error init settings : ' + e.toString());
 		this.xlateall();
 	}
 }
-/* ImBCHtml: find in cache */
+/* TopApp: find in cache */
 findcache(url) {
 	let e;
 	if (url.url) {
@@ -22107,12 +22168,12 @@ findcache(url) {
 	}
 	return undefined;
 }
-/* ImBCHtml: add to cache */
+/* TopApp: add to cache */
 addcache(name, entry) {
 	this.#cache.push({ url: ImBCBase.basename(name), d: entry.data, l: entry.len, reader: entry.reader });
 	while (this.#cache.length > this.maxcache) this.#cache.splice(0,1);
 }
-/* ImBCHtml: worker on message */
+/* TopApp: worker on message */
 workermsg(msg) {
 	const d = msg.data;
 	let w0;
@@ -22250,7 +22311,7 @@ workermsg(msg) {
 		console.log('workermsg: unexpected response for ' + d.cmd);
 	}
 }
-/* ImBCHtml: handle click on hamburger */
+/* TopApp: handle click on hamburger */
 handleham() {
 	if (undefined !== document.getElementById('thebody').popover) {
 		if (this.showham) {
@@ -22268,7 +22329,7 @@ handleham() {
 	}
 	return false;
 }
-/* ImBCHtml: close hamburger */
+/* TopApp: close hamburger */
 closeham() {
 	if (undefined !== document.getElementById('thebody').popover) {
 			document.getElementById('hammen').hidePopover();
@@ -22277,14 +22338,12 @@ closeham() {
        document.getElementById('hammen').style['display'] = 'none';
 	}
 }
-toggleham(ev) {
-	console.log(ev);
-}
-/* ImBCHtml: exit mode select change */
+/* TopApp: exit mode select change */
 chgexit() {
 	this.exitmode = document.getElementById('exitsel').value;
+	this.savesettings('exitmode');
 }
-/* ImBCHtml: set device time */
+/* TopApp: set device time */
 settime() {
 	const d = new Date();
 	const m = d.getMonth();
@@ -22311,7 +22370,7 @@ settime() {
 		}
 	});
 }
-/* ImBCHtml: take a photo */
+/* TopApp: take a photo */
 takephoto() {
 	document.getElementById('phpv').src="";
 	this.custcmdB(1001, 'document', 'par=0', (rc, doc) => {
@@ -22351,7 +22410,7 @@ takephoto() {
 		}, 300);
 	});
 }
-/* ImBCHtml: start a movie */
+/* TopApp: start a movie */
 takemovie() {
 	this.custcmdB(2001, 'document', 'par=1', (rc/*, doc*/) => {
 		this.imgsdirty = true;
@@ -22362,7 +22421,7 @@ takemovie() {
 		}
 	});
 }
-/* ImBCHtml: stop a movie */
+/* TopApp: stop a movie */
 stopmovie() {
 	if (!this.movierec) return;
 	this.movierec = false;
@@ -22371,7 +22430,7 @@ stopmovie() {
 		this.showmain();
 	});
 }
-/* ImBHtml: do quit */
+/* TopApp: do quit */
 doquit() {
 	if (!this.fromintent) this.savesettings();
 	let ex = 0;
@@ -22387,7 +22446,7 @@ doquit() {
 	});
 
 }
-/* ImBHtml: do switch off */
+/* TopApp: do switch off */
 dopoweroff() {
 	this.savesettings();
 	let ex = 0;
@@ -22400,7 +22459,7 @@ dopoweroff() {
 		}
 });
 }
-/* ImBHtml: handle back button */
+/* TopApp: handle back button */
 handleback() {
 	let b = this.onback;
 	if (this.modalback.length > 0) {
@@ -22433,28 +22492,28 @@ handleback() {
 	else if (b === 'closemag')
 		this.closemag();
 }
-/* ImBCHtml: open parent */
+/* TopApp: open parent */
 static openp(el) {
 	el.parentElement.classList.add('ggttopen');
 	el.parentElement.classList.remove('ggttclosed');
 	el.parentElement.parentElement.classList.add('ggopen');
 	el.parentElement.parentElement.classList.remove('ggclosed');
 }
-/* ImBCHtml: close parent */
+/* TopApp: close parent */
 static closep(el) {
 	el.parentElement.classList.remove('ggttopen');
 	el.parentElement.classList.add('ggttclosed');
 	el.parentElement.parentElement.classList.remove('ggopen');
 	el.parentElement.parentElement.classList.add('ggclosed');
 }
-/* ImBCHtml: toggle parent */
+/* TopApp: toggle parent */
 static togglep(el) {
 	if (el.parentElement.classList.contains('ggttopen'))
 		ImBCHtml.closep(el);
 	else
 		ImBCHtml.openp(el);
 }
-/* ImBCHtml: de-select already downloaded */
+/* TopApp: de-select already downloaded */
 deselcop(el) {
 	this.imbeles.filter((el) => (el?.wasselected && el?.selected)).forEach((i) => {
 		if (i.entry) i.entry.querySelector('input.selcb').click();
@@ -22463,8 +22522,9 @@ deselcop(el) {
 	this.#updateselections();
 }
 clearcache() {
-	this.dloads = []; 
-	this.savesettings();
+	this.dloads = [];
+	this.iinf = [];
+	this.savesettings(['dloads', 'ii']);
 }
 modalkeyev(ev) {
 	//console.log(ev);
@@ -22477,7 +22537,7 @@ modalkeyev(ev) {
 	else
 		return true;
 }
-/* ImBCHtmlOut: find html style for translation */
+/* TopApp: find html style for translation */
 applystyle(span, msg, base) {
 	if (undefined === base) base = mytexts;
 	const i = msg.indexOf('.');
@@ -22495,7 +22555,7 @@ applystyle(span, msg, base) {
 		return this.applystyle(span, msg.substring(i+1), e);
 	}
 }
-/* ImBCHtmlOut: resolver */
+/* TopApp: resolver */
 resolver(f, onok, onerr) {
 	  let cachehit;
 	  if ((cachehit = this.findcache(f.name ? f.name : f))) {
@@ -22516,7 +22576,7 @@ resolver(f, onok, onerr) {
 		}, 10);
 	  }
 }
-/* ImBCHtmlOut: output function to main log */
+/* TopApp: output function to main log */
 appmsg(msg, opt) {
 	const s = document.createElement('span');
 	s.innerHTML = msg;
@@ -22533,7 +22593,7 @@ appmsg(msg, opt) {
 	if (opt === true)
 		msgel.innerHTML += '<br>&nbsp;<br>';
 }
-/* ImBCHtmlOut: output function to main log */
+/* TopApp: output function to main log */
 appmsgxl(opt, msg, arg0, arg1, arg2, arg3) {
 	const s = this.genspan(msg, arg0, arg1, arg2, arg3);
 	this.dispcnt++;
@@ -22553,7 +22613,7 @@ appmsgxl(opt, msg, arg0, arg1, arg2, arg3) {
 		logbt.disabled = false;
 	}
 }
-/* ImBCHtmlOut: translate one element */
+/* TopApp: translate one element */
 xl1(el) {
 	if (el.attributes.getNamedItem('data-myxlkey')) {
 		el.innerHTML = this.xl(el.attributes.getNamedItem('data-myxlkey').value, el.attributes.getNamedItem('data-myxlarg0')?.value, el.attributes.getNamedItem('data-myxlarg1')?.value, el.attributes.getNamedItem('data-myxlarg2')?.value, el.attributes.getNamedItem('data-myxlarg3')?.value );
@@ -22578,7 +22638,7 @@ xl1(el) {
 	}
 	return el;
 }
-/* ImBCHtmlOut: wrapper for zip output */
+/* TopApp: wrapper for zip output */
 starthandleone() {
 	if (this.allfiles.length === 0) {
 		this.totnum = 0;
@@ -22590,7 +22650,7 @@ starthandleone() {
 	}
 	this.handleonex();
 }
-/* ImBCHtmlOut: main handler function for one file */
+/* TopApp: main handler function for one file */
 handleonex() {
 	const f = (this.debugflag && this.useraw) ? this.useraw : this.allfiles[this.actnum];
 	this.currentrot = (f.rot || (f.rot === 0)) ? f.rot : 1;
@@ -22599,62 +22659,6 @@ handleonex() {
 		// skip rest
 		if (!this.imbcb && !this.fromvisbrows) this.shownormal();
 		return this.handlenext();
-	}
-	else if (this.stepmode === 1) {
-		// show preview and ask for rotation, skip, save
-		// then (in handler) set mode, call handleone (if save) or handlenext (if skip)
-		if (!this.imbcb) this.showquestion();
-		if (undefined === f) {
-			return;
-		}
-		if (this.totnum > 1) {
-			document.getElementById('qhdr').innerHTML = '[' + (1 + this.actnum) + ' / ' + this.totnum + '] ';
-		} else document.getElementById('qhdr').innerHTML = '';
-		if (rawname.substring(rawname.length -4).toUpperCase() === '.JPG' ||
-			rawname.substring(rawname.length -5).toUpperCase() === '.JPEG') {
-			/* jpeg preview */
-			this.#qappx('main.file.jpeg', rawname);
-			if (f.name) {
-				// read jpeg file for preview
-				const fr = f.imbackextension ? f : new FileReader();
-				fr.onload = (evt) => {
-					let contents = evt.target.result;
-					contents = 'data:image/jpeg;' + contents.substring(8);
-					document.getElementById('jpegpreview').src = contents;
-					/* shown in onload of img */
-				}
-				fr.onerror = (evt) => {
-					console.log('JPEG preview reader error for ' + f.name + ' ' + JSON.stringify(evt));
-					this.setpverr();
-				}
-				fr.readAsDataURL(f);
-			}
-			else {
-				// simply set image src
-				document.getElementById('jpegpreview').src = this.imbweb + globals.adjurl(f)+'?custom=1&cmd=4001';
-			}
-		}
-		else if (rawname.substring(rawname.length -4).toUpperCase() === '.MP4') {
-			// simply set image src
-			document.getElementById('jpegpreview').src = this.imbweb + globals.adjurl(f)+'?custom=1&cmd=4001';
-			this.#qappx('main.file', rawname);
-		}
-		else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
-			/* no preview */
-			this.#qappx('main.file.nopreview', rawname);
-			this.setnopv();
-		}
-		else {
-			const zz = globals.infos.findIndex(v => v.size === f.size);
-			if (zz === -1 && undefined !== f.size) {
-				/* no preview */
-				this.#qappx('main.file.rawunknown', rawname, f.size);
-				this.setnopv();
-			} else {
-				this.#qappx('main.file',rawname);
-				this.buildpreview(f, 1, () => { this.setrawpv(); }, () => { this.setpverr(); });
-			}
-		}
 	}
 	else { // normal processing without question
 		if (this.fromintent === 2)
@@ -22665,7 +22669,7 @@ handleonex() {
 		}
 	}
 }
-/* ImBCHtmlOut: translation helper */
+/* TopApp: translation helper */
 genspan(key, arg0, arg1, arg2, arg3) {
 	const s = this.applystyle(document.createElement('span'), key);
 	s.setAttribute('data-myxlkey', key);
@@ -22683,12 +22687,12 @@ genspan(key, arg0, arg1, arg2, arg3) {
 	}
 	return this.xl1(s);
 }
-/* ImBCHtmlOut: translated append to preview header */
+/* TopApp: translated append to preview header */
 #qappx(key, arg0, arg1, arg2, arg3) {
 	const s = this.genspan(key, arg0, arg1, arg2, arg3);
 	document.getElementById('qhdr').append(s);
 }
-/* ImBCHtmlOut: handle the normal selection from imback (do it button), also for nodejs */
+/* TopApp: handle the normal selection from imback (do it button), also for nodejs */
 imbdoit() {
 	if (this.actnum !== this.allfiles.length) return;
 	let selecteds = [];
@@ -22743,7 +22747,7 @@ imbdoit() {
 	}
 	else this.mappx(true, 'onimback.nomatch');
 }
-/* ImBCHtmlOut: translate everything */
+/* TopApp: translate everything */
 xlateall() {
 	document.getElementById('mainversion').innerHTML = globals.version;
 	document.documentElement.lang = this.mylang;
@@ -22773,7 +22777,7 @@ xlateall() {
 	else
 		document.title = this.xl('main.backw.title') + ' ' + globals.version;
 }
-/* ImBCHtmlOut: nodejs: parse config */
+/* TopApp: nodejs: parse config */
 parseconfig(data) {
 	const d = JSON.parse(data);
 	if (d.np) this.withpreview = false;
@@ -22786,12 +22790,11 @@ parseconfig(data) {
 	if (d.ndcp) this.incdcp = false; else this.incdcp = true;
 	if (d.owb) this.constwb = true; else this.constwb = false;
 	if (this.previewworker) this.previewworker.postMessage({ cmd: 'constwb', constwb: this.constwb });
-	//if (d.zip && window.showSaveFilePicker && !this.imbcb) document.getElementById('usezip').checked = true;
-	if (d.step) this.stepmode = 1;
-	else this.stepmode = 0;
+	this.stepmode = 0;
 	if (d.exitmode) this.exitmode = d.exitmode;
 	if (d.maxcache) this.maxcache = d.maxcache;
 	if (d.dl) this.dloads = d.dl;
+	if (d.ii?.length) this.iinf = d.ii;
 	if (d.dooverwrite)
 		this.dooverwrite = true;
 	if (d.autotime)
@@ -22799,14 +22802,14 @@ parseconfig(data) {
 	if (d.meta === undefined) this.metadata = true;
 	else this.metadata = d.meta;
 }
-/* ImBCHtmlOut: browserdisplay: put last message viewable */
+/* TopApp: browserdisplay: put last message viewable */
 showlastmsg() {
 	const ll = document.getElementById('mappx_' + this.dispcnt);
 	if (ll) {
 		ll.scrollIntoView(false, { block: 'nearest' });
 	}
 }
-/* ImBCHtmlOut: post write ok handler */
+/* TopApp: post write ok handler */
 writepostok(name) {
 	const ie = this.imbeles.find((v) => v.raw.toUpperCase() === ImBCBase.basename(name).toUpperCase());
 	if (ie) {
@@ -22817,12 +22820,13 @@ writepostok(name) {
 	this.stats.ok++;
 	if (-1 === (this.dloads.findIndex(e => (e.toUpperCase() === ImBCBase.basename(name).toUpperCase()))))
 		this.dloads.push(ImBCBase.basename(name));
+	this.savesettings(['dloads', 'ii']);
 	this.handlenext();
 }
-/* ImBCHtmlOut: after finishing.... */
+/* TopApp: after finishing.... */
 afterfinish() {
 	this.rotphase = -1;
-	if (!this.fromintent) this.savesettings();
+	if (!this.fromintent) this.savesettings(['dloads', 'ii']);
 	if (this.stats.total > 0) {
 		this.appmsg('');
 		this.mappx(true, 'process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
@@ -22850,11 +22854,9 @@ afterfinish() {
 	document.getElementById('infile').disabled = false;
 	if (document.getElementById('infileb')) document.getElementById('infileb').disabled = false;
 }
-/* ImBCHtmlOut: look at the checkboxes and set settings */
+/* TopApp: look at the checkboxes and set settings */
 checkchecks() {
     this.stepmode = 0;
-	const stepprev = document.getElementById('steppreview');
-	if (stepprev !== null && stepprev.checked) this.stepmode = 1;
 	const copytext = document.getElementById('copytext');
 	const copycheck = document.getElementById('copycheck');
 	this.copyright = copytext?.value?.length ? copytext.value : '';
@@ -25345,7 +25347,7 @@ function init() {
 	ImBCBase.progname = 'imbapp.htm';
 	document.getElementById('normal').style['display'] = 'none';
 	imbc.initsettings();
-	imbc.chgcopycheck();
+	imbc.chgcopycheck(true);
 	if (!window.showSaveFilePicker) {
 		document.getElementById('usezip').disabled = true;
 		document.getElementById('usezip').checked = false;
@@ -25752,9 +25754,8 @@ function readjpg(file) {
 <span class="grtit ggttminus" onclick="ImBCHtml.closep(this);" data-myxlkey="app.app"> APP </span>
 </div>
 <div class="igxtype">
-<div style="display:none;"><input type="checkbox" id="usezip" onchange="imbc.dirtysettings()"> <label for="usezip" data-myxlkey="main.usezip" id="useziplbl"></label></div>
-<div><input type="checkbox" id="autotime" onchange="imbc.dirtysettings()"> <label for="autotime" data-myxlkey="app.autotime"> </label></div>
-<div><span data-myxlkey="app.onexit"></span> <select id="exitsel" onchange="imbc.chgexit();"><option value="photo" data-myxlkey="app.exitphoto"> </option><option value="movie" data-myxlkey="app.exitmovie"> </option><option value="browse" data-myxlkey="app.exitbrowse"> </option></select></div>
+<div><input type="checkbox" id="autotime" onchange="imbc.dirtysettings('autotime')"> <label for="autotime" data-myxlkey="app.autotime"> </label></div>
+<div><span data-myxlkey="app.onexit"></span> <select id="exitsel" onchange="imbc.chgexit('exitmode');"><option value="photo" data-myxlkey="app.exitphoto"> </option><option value="movie" data-myxlkey="app.exitmovie"> </option><option value="browse" data-myxlkey="app.exitbrowse"> </option></select></div>
 <div><span data-myxlkey="app.lang"></span> <select id="langsel" onchange="imbc.setlang()"><option value="99" onclick="imbc.setlang()">ImB</option><option value="de" onclick="imbc.setlang()">DE</option><option value="en" selected onclick="imbc.setlang()">EN</option>
 <option value="ja" onclick="imbc.setlang()">JA</option><!--option value="fr" onclick="imbc.setlang()">FR</option><option value="ru" onclick="imbc.setlang()">RU</option--></select></div>
 </div>
@@ -25778,11 +25779,11 @@ function readjpg(file) {
 </div>
 <div class="igxtype">
 <div ><input type="checkbox" id="dngpreview" checked onchange="imbc.chgdngpreview()"> <label for="dngpreview" data-myxlkey="process.addpreview"></label></div>
-<div ><input type="checkbox" id="incdcp" checked onchange="imbc.dirtysettings()"> <label for="incdcp" data-myxlkey="process.includedcp"></label></div>
-<div ><input type="checkbox" id="oldstylewb" onchange="imbc.dirtysettings()"> <label for="oldstylewb" data-myxlkey="process.oldstylewb"></label></div>
+<div ><input type="checkbox" id="incdcp" checked onchange="imbc.dirtysettings('incdcp')"> <label for="incdcp" data-myxlkey="process.includedcp"></label></div>
+<div ><input type="checkbox" id="oldstylewb" onchange="imbc.dirtysettings('owb')"> <label for="oldstylewb" data-myxlkey="process.oldstylewb"></label></div>
 <div style="border:5px solid #50a070;max-width:fit-content;border-radius:10px;padding:2px;background-color:rgba(80,160,112,0.3);"><div><input type="checkbox" id="copycheck" onchange="imbc.chgcopycheck()"> <label for="copycheck" data-myxlkey="process.metadata"></label></div>
-<div ><span data-myxlkey="process.addcopyright"></span> <input onchange="imbc.dirtysettings()" type="text" id="copytext" size="22"></input></div>
-<div ><span data-myxlkey="process.addartist">Artist</span> <input onchange="imbc.dirtysettings()" type="text" id="artist" size="22"></input></div></div>
+<div ><span data-myxlkey="process.addcopyright"></span> <input onchange="imbc.dirtysettings('cr')" type="text" id="copytext" size="22"></input></div>
+<div ><span data-myxlkey="process.addartist">Artist</span> <input onchange="imbc.dirtysettings('at')" type="text" id="artist" size="22"></input></div></div>
 </div>
 </div>
 <div  style="margin-top: 0.5em;" id="genadvice" data-myxlkey="main.generaladvice"></div>
@@ -25853,7 +25854,7 @@ function readjpg(file) {
 <!-- end of the extras -->
 <div id="pages" style="display:none;"><!-- container for navigationable pages -->
 <!-- hamburger menu -->
-<div id="hammen" style="position:fixed; left: 0; width: fit-content; background-color:white; inset:unset; top:2em;color:black;border:1px solid gray;border-bottom-right-radius:10px;border-bottom-left-radius:10px;" popover="auto" ontoggle="imbc.toggleham(event);">
+<div id="hammen" style="position:fixed; left: 0; width: fit-content; background-color:white; inset:unset; top:2em;color:black;border:1px solid gray;border-bottom-right-radius:10px;border-bottom-left-radius:10px;" popover="auto">
 <div class="hammenent" onclick="imbc.closeham();imbc.settime()"><span  style="font-family:Symbol3;">&#x1f570;</span> <span data-myxlkey='app.menu.settime'>Set ImB Time</span></div>
 <div class="hammenent" id="hamlog" onclick="imbc.closeham();imbc.showlog();"><span  style="font-family:Symbol3;">&#x1f5ce;</span> <span data-myxlkey='app.menu.msglog'>Msg Log</span></div>
 <div class="hammenent" id="hamsett" onclick="imbc.closeham();imbc.shownormal();"><span  style="font-family:Symbol3;">&#x1f6e0;</span> <span data-myxlkey='app.menu.settings'>Settings</span></div>
@@ -25875,7 +25876,6 @@ function readjpg(file) {
 <input type="button" class="uhbtn moviesym" value="&#x1f4fd;" id="tomov" onclick="imbc.dispmode=1;imbc.showmovie();" style="font-family:Symbol3;font-weight:normal;">
 <input type="button" class="uhbtn foldersym" value="&#x1f5c2;" id="toloc" onclick="imbc.dispmode=3;imbc.showlocal();" style="font-family:Symbol3;">
 <span class="whbtn disconnected" style="padding-left:0.4em;padding-right:0.4em;display:none;"> ! &#x1f593; ! &#x1f5be; ! </span>
-<!--input type="button" data-myvalxlkey="app.install" class="whbtn" onclick="if (bfep) bfep.prompt(); bpef=null; this.style['display']='none';" id="installbutton" style="display:none;font-weight:bold;position:absolute; right:0.5em;"-->
 </div>
 <div id="browseselectors" style="margin-bottom:0.3em;font-size:85%;">&nbsp;<span data-myxlkey="main.sort" style="display:none;"></span> <label for="sbytype"><input type="checkbox" id="sbytype" onclick="imbc.buildtree()"><span data-myxlkey="browser.bytype"></span></label> - <label for="solder">
 <input type="checkbox" id="solder" onclick="imbc.buildtree()"><span data-myxlkey="browser.olderfirst"></span></label> -
@@ -25910,11 +25910,6 @@ function readjpg(file) {
 <div style="display:flex;flex-flow:wrap;">
 <input type="button" onclick="imbc.takephoto()" style="font-weight:bold;font-size:200%;background-color:red;width:97px;height:97px;margin:10px;font-family:Symbol3;border-radius:50%;margin-right: 30px;" value="&#x1f4f7; !">&nbsp;
 	<div id="takenpic" class="onepic" style="border:1px solid grey; border-radius:10px;width:fit-content; height:fit-content;border:1em solid black;">
-		<!--div class="labelholder">
-			<label class="pictitle">
-				<input type="checkbox" class="selcb">
-			</label>
-		</div-->
 		<div style="width:163px; height:117px; margin:0px; align-self:center; text-align:center; vertical-align: middle;">
 		<div id="takeerr" class="errimg" style="display:none;">X</div>
 		<img id="takejpg" class="eejpg" style="display:none;">

@@ -103,6 +103,7 @@ AAAAAAAAAAAAAAAAAAAAAA">
 "sizes":"393x682","form_factor":"narrow"}]}'>
 <title>ImB RAW to DNG Converter V???</title>
 <style type="text/css">
+/* * * ************************************* CSS *************************************** */
 @media (max-width: 600px) {
 div#xmsg {
 	white-space: pre-wrap !important;
@@ -209,6 +210,7 @@ div#xmsg {
 	padding-left: 0.1em;
 	padding-top: 0.1em;
 }
+/* * * ************************************* CSS E N D *************************************** */
 </style>
 <!-- javascript code identical to imbraw2dng.js  for the classes IFDOut, TIFFOut, ZIPHelp, ImBCBase, ImBCBackw. -->
 <script type="text/javascript" language="javascript">
@@ -884,7 +886,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.9.8_a76dcc2", // actually const // VERSION EYECATCHER
+version: "V5.9.8_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -892,7 +894,7 @@ fulltsregex: /^([02-3][0-9][0-9][0-9])([^0-9])([01][0-9])([^0-9])([0123][0-9])([
 // generic user input timestamp (any prefix)
 //                  y      y     y     y      .      m     m     .      d      d      .      h     h      .      m     m      .      s     s
 tsregex: /^[02-3]([0-9]([0-9]([0-9](([^0-9])[01]([0-9](([^0-9])[0123]([0-9](([^0-9])[012]([0-9](([^0-9])[0-5]([0-9](([^0-9])[0-5]([0-9])?)?)?)?)?)?)?)?)?)?)?)?)?$/ , // actually const
-/* ImBCBase: Data for the Imback variants and exif stuff */
+/* globals: Data for the Imback variants and exif stuff */
 // generic imb filename format
 //                   y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s     EXT
 fnregex: /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])(.*[.])([^.]*)$/ , // actually const
@@ -973,7 +975,7 @@ infos: [ // actually const
 		mode: ''
 	}
 ],
-/* ImBCBase: get white balance */
+/* globals: get white balance */
 getwb: function(view, typidx, whitelvl) {
 	//console.log('GWB ' + typidx + ' ' + JSON.stringify(globals.infos[typidx]));
 	const t = globals.infos[typidx < 32 ? typidx : ((typidx< 64)? (typidx - 32) : (typidx - 64))];
@@ -1007,7 +1009,7 @@ getwb: function(view, typidx, whitelvl) {
 		return [ Math.ceil(300000*r/g), 300000, 10, 10, Math.ceil(300000*b/g), 300000 ];
 	}
 },
-/* ImBCBase: get one downsampled median image value [ r g b ] */
+/* globals: get one downsampled median image value [ r g b ] */
 getPix: function(x, y, w, view, typ, whitelvl) {
 	let outrgb = [];
 	let reds = [];
@@ -1169,7 +1171,7 @@ getPix: function(x, y, w, view, typ, whitelvl) {
 	outrgb.push((blues[1] + blues[2]) / 2.0);
 	return outrgb;
 },
-/* ImBCBase: build preview in array */
+/* globals: build preview in array */
 buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) {
 	if (undefined === wb) wb = [ 6, 10, 1, 1, 6, 10 ];
 	let sfact = scale ? scale : 8;
@@ -1304,7 +1306,7 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 	}
 	return uic;
 },
-/* ImBCBase: adjust A:\imback\... format to /imback/... */
+/* globals: adjust A:\imback\... format to /imback/... */
 adjurl: function(url) {
 	if (url.url) url = url.url;
 	if (url.toUpperCase().substring(0,3) !== 'A:\\')
@@ -19477,6 +19479,8 @@ stepmode = 1;
 #dispcnt = 1;
 // const if html:
 checkdlfolder = true;
+dloads = []; // already known downloaded
+iinf = []; // infos for imgs, rotation, description ... { n: name, o: orie, i: desc }?
 constructor() {
 	super();
 }
@@ -19843,13 +19847,16 @@ showlastmsg() {
 }
 /* ImBCHtmlOut: post write ok handler */
 writepostok(name) {
-	const ie = this.imbeles.find((v) => v.raw.substring(0, v.raw.length - 3) === name.substring(0, name.length - 3));
+	const ie = this.imbeles.find((v) => v.raw.toUpperCase() === ImBCBase.basename(name).toUpperCase());
 	if (ie) {
 		ie.wasselected = true;
 		if (ie.entry)
 			ie.entry.classList.add('picprocd');
 	}
 	this.stats.ok++;
+	if (-1 === (this.dloads.findIndex(e => (e.toUpperCase() === ImBCBase.basename(name).toUpperCase()))))
+		this.dloads.push(ImBCBase.basename(name));
+	this.savesettings(['dloads', 'ii']);
 	this.handlenext();
 }
 /* ImBCHtmlOut: after finishing.... */
@@ -19932,7 +19939,7 @@ constructor() {
 #deletephase = 0;
 
 /* ImBCHtml: browserdisplay: copyright checkbox change */
-chgcopycheck() {
+chgcopycheck(init) {
     const copytext = document.getElementById('copytext');
     const artist = document.getElementById('artist');
     const copycheck = document.getElementById('copycheck');
@@ -19941,7 +19948,8 @@ chgcopycheck() {
    		copytext.disabled = !this.metadata;
     if (null !== artist)
     	artist.disabled = !this.metadata;
-    this.dirtysettings();
+    if (!init)
+    this.savesettings('meta');
 }
 /* ImBCHtml: browserdisplay: handler for file selection input */
 fselected() {
@@ -20767,34 +20775,83 @@ browserprocess() {
 chgdngpreview() {
     const dngprev = document.getElementById('dngpreview');
     this.withpreview = (dngprev !== null && dngprev.checked);
-    this.dirtysettings();
+    this.savesettings('np');
 }
 /* ImBCHtml: translate html for new language */
 setlang() {
-	if (this.mylang !== document.getElementById('langsel').value) this.dirtysettings();
 	this.mylang = document.getElementById('langsel').value;
 	this.xlateall();
+	this.savesettings('l');
 }
 /* ImBCHtml: browserdisplay: settings are dirty */
-dirtysettings() {
-	if (window.location.origin.startsWith('http') && window.localStorage) {
-		document.getElementById('onlyhttp').style['display'] = 'none';
-		document.getElementById('setsettings').style['display'] = '';
-		document.getElementById('settingsset').style['display'] = 'none';
-		document.getElementById('settingsset').setAttribute('data-myxlarg0',window.location.origin);
-		document.getElementById('setsettingsurl').setAttribute('data-myxlarg0',window.location.origin);
+dirtysettings(which) {
+	if (which === 'incdcp') {
+		this.incdcp = document.getElementById('incdcp').checked;
+		this.savesettings('ndcp');
 	}
+	else if (which === 'owb') {
+		const oldwb = document.getElementById('oldstylewb');
+		this.constwb = (oldwb !== null && oldwb.checked);
+		if (this.previewworker) this.previewworker.postMessage({ cmd: 'constwb', constwb: this.constwb });
+		if (oldwb) this.savesettings('owb');
+	}
+	else if (which === 'cr') {
+		const copytext = document.getElementById('copytext');
+		this.copyright = copytext?.value?.length ? copytext.value : '';
+		if (copytext) this.savesettings('cr');
+	}
+	else if (which === 'at') {
+		this.artist = document.getElementById('artist')?.value?.length ? document.getElementById('artist')?.value : '';
+		if (document.getElementById('artist')) this.savesettings('at');
+	}
+	else if (which === 'step') {
+		this.stepmode = 0;
+		const stepprev = document.getElementById('steppreview');
+		if (stepprev !== null && stepprev.checked) this.stepmode = 1;
+		if (stepprev) this.savesettings('step');
+	}
+	else if (which === 'zip') {
+		if (document.getElementById('usezip')) this.savesettings('zip');
+		if (document.getElementById('usezipdest')) this.savesettings('zipdest');
+	}
+	else
+		this.savesettings();
 }
 /* ImBCHtml: browserdisplay: save settings */
-savesettings() {
-	if (window.location.origin.startsWith('http') && window.localStorage) {
+savesettings(which) {
+	if (window.location.origin.startsWith('http') && window.localStorage && !this.imbcb) {
 		try {
-			const copytext = document.getElementById('copytext');
-			const copycheck = document.getElementById('copycheck');
 			let stepmode = 0;
 			const stepprev = document.getElementById('steppreview');
 			if (stepprev !== null && stepprev.checked) stepmode = 1;
-			window.localStorage.setItem('imbapp_json', JSON.stringify(
+			window.localStorage.setItem('imbraw2dng_writtenby', ImBCBase.progname + ' ' + globals.version);
+			if ((which === 'meta') || !which?.length || -1 !== which.indexOf('meta'))
+				window.localStorage.setItem('imbraw2dng_meta', this.metadata ? 'true': 'false');
+			if ((which === 'cr') || !which?.length || -1 !== which.indexOf('cr'))
+				window.localStorage.setItem('imbraw2dng_cr', this.copyright?.length ? this.copyright : '');
+			if ((which === 'at') || !which?.length || -1 !== which.indexOf('at'))
+				window.localStorage.setItem('imbraw2dng_at', this.artist?.length ? this.artist : '');
+			if ((which === 'np') || !which?.length || -1 !== which.indexOf('np'))
+				window.localStorage.setItem('imbraw2dng_np', this.withpreview ? 'false': 'true');
+			if ((which === 'l') || !which?.length || -1 !== which.indexOf('l'))
+				window.localStorage.setItem('imbraw2dng_l', this.useimblang ? '99': this.mylang);
+			if ((which === 'owb') || !which?.length || -1 !== which.indexOf('owb'))
+				window.localStorage.setItem('imbraw2dng_owb', this.constwb ? 'true': 'false');
+			if ((which === 'ndcp') || !which?.length || -1 !== which.indexOf('ndcp'))
+				window.localStorage.setItem('imbraw2dng_ndcp', this.incdcp ? 'false': 'true');
+			if ((which === 'step') || !which?.length || -1 !== which.indexOf('step'))
+				window.localStorage.setItem('imbraw2dng_step', JSON.stringify(stepmode));
+			if ((which === 'zip') || !which?.length || -1 !== which.indexOf('zip'))
+				window.localStorage.setItem('imbraw2dng_zip', document.getElementById('usezip')?.checked ? 'true' : 'false');
+			if ((which === 'zipdest') || !which?.length || -1 !== which.indexOf('zipdest')) {
+				if (window.showSaveFilePicker)
+					window.localStorage.setItem('imbraw2dng_zipdest', document.getElementById('usezipdest')?.checked ? 'true' : 'false');
+			}
+			/*if ((which === 'dloads') || !which?.length || -1 !== which.indexOf('dloads'))
+				window.localStorage.setItem('imbraw2dng_dloads', JSON.stringify(this.dloads));
+			if ((which === 'ii') || !which?.length || -1 !== which.indexOf('ii'))
+				window.localStorage.setItem('imbraw2dng_ii', JSON.stringify(this.iinf));*/
+			/*window.localStorage.setItem('imbapp_json', JSON.stringify(
 				{
 					'meta': copycheck?.checked,
 					'cr': copytext?.value,
@@ -20808,12 +20865,12 @@ savesettings() {
 					'owb': document.getElementById('oldstylewb')?.checked,
 					'ndcp': !document.getElementById('incdcp')?.checked
 				}
-			));
+			));*/
+			document.getElementById('onlyhttp').style['display'] = 'none';
 		}
 		catch (e) {
 			console.log(JSON.stringify(e));
 		}
-		this.initsettings();
 	}
 }
 /* ImBCHtml: try lang from node param */
@@ -20877,7 +20934,7 @@ iterate(iterator, cb, already) {
 /* ImBCHtml: traverse dropped directory/s */
 dirtraverse(items, cb, index = 0, already = []) {
 	if (!cb) {
-		return  new Promise((resolve, reject) => {
+		return  new Promise((resolve) => {
 			this.dirtraverse(items, resolve, index, already);
 		});
 	}
@@ -21253,50 +21310,70 @@ initsettings() {
 			let e = window.localStorage.getItem('imbapp_json');
 			if (e) {
 				this.parseconfig(e);
-				const copytext = document.getElementById('copytext');
-				const artist = document.getElementById('artist');
-				const copycheck = document.getElementById('copycheck');
-				const stepprev = document.getElementById('steppreview');
-				const incdcp = document.getElementById('incdcp');
-				const oldstylewb = document.getElementById('oldstylewb');
-				if (copycheck !== null) {
-					copycheck.checked = this.metadata;
-					if (copytext) {
-						if (this.copyright?.length) copytext.value = this.copyright;
-						copytext.disabled = !this.metadata;
-					}
-					if (artist) {
-						if (this.artist?.length) artist.value = this.artist;
-						artist.disabled = !this.metadata;
-					}
-				}
-				if (stepprev !== null) stepprev.checked = (this.stepmode===1);
-				if (incdcp !== null) incdcp.checked = this.incdcp;
-				if (oldstylewb !== null) oldstylewb.checked = this.constwb;
-				const dngprev = document.getElementById('dngpreview');
-				if (dngprev) dngprev.checked = this.withpreview;
-				document.getElementById('onlyhttp').style['display'] = 'none';
-				document.getElementById('setsettings').style['display'] = 'none';
-				document.getElementById('settingsset').style['display'] = '';
-				document.getElementById('settingsset').setAttribute('data-myxlarg0',window.location.origin);
-				document.getElementById('setsettingsurl').setAttribute('data-myxlarg0',window.location.origin);
-			} else {
-				document.getElementById('onlyhttp').style['display'] = 'none';
-				document.getElementById('setsettings').style['display'] = '';
-				document.getElementById('settingsset').style['display'] = 'none';
-				document.getElementById('settingsset').setAttribute('data-myxlarg0',window.location.origin);
-				document.getElementById('setsettingsurl').setAttribute('data-myxlarg0',window.location.origin);
 			}
+			let itm = window.localStorage.getItem('imbraw2dng_meta');
+			if (itm !== null) {
+				this.metadata = JSON.parse(itm) ? true: false;
+			}
+			itm = window.localStorage.getItem('imbraw2dng_cr');
+			if (itm !== null) this.copyright = itm;
+			itm = window.localStorage.getItem('imbraw2dng_at');
+			if (itm !== null) this.artist = itm;
+			itm = window.localStorage.getItem('imbraw2dng_np');
+			if (itm !== null) {
+				this.withpreview = JSON.parse(itm) ? false: true;
+			}
+			itm = window.localStorage.getItem('imbraw2dng_l');
+			if (itm !== null) this.trylang(itm);
+			itm = window.localStorage.getItem('imbraw2dng_owb');
+			if (itm !== null) {
+				this.constwb = JSON.parse(itm) ? true: false;
+			}
+			itm = window.localStorage.getItem('imbraw2dng_ndcp');
+			if (itm !== null) {
+				this.incdcp = JSON.parse(itm) ? false: true;
+			}
+			itm = window.localStorage.getItem('imbraw2dng_step');
+			if (itm !== null) {
+				this.stepmode = JSON.parse(itm) ? 1: 0;
+			}
+			itm = window.localStorage.getItem('imbraw2dng_zip');
+			if (itm !== null && document.getElementById('usezip')) {
+				document.getElementById('usezip').checked = (window.showSaveFilePicker && !this.imbcb && JSON.parse(itm)) ? true: false;
+			}
+			itm = window.localStorage.getItem('imbraw2dng_zipdest');
+			if (itm !== null && document.getElementById('usezipdest')) {
+				document.getElementById('usezipdest').checked = (!this.imbcb && JSON.parse(itm)) ? true: false;
+			}
+			const copytext = document.getElementById('copytext');
+			const artist = document.getElementById('artist');
+			const copycheck = document.getElementById('copycheck');
+			const stepprev = document.getElementById('steppreview');
+			const incdcp = document.getElementById('incdcp');
+			const oldstylewb = document.getElementById('oldstylewb');
+			if (copycheck !== null) {
+				copycheck.checked = this.metadata;
+				if (copytext) {
+					if (this.copyright?.length) copytext.value = this.copyright;
+					copytext.disabled = !this.metadata;
+				}
+				if (artist) {
+					if (this.artist?.length) artist.value = this.artist;
+					artist.disabled = !this.metadata;
+				}
+			}
+			if (stepprev !== null) stepprev.checked = (this.stepmode===1);
+			if (incdcp !== null) incdcp.checked = this.incdcp;
+			if (oldstylewb !== null) oldstylewb.checked = this.constwb;
+			const dngprev = document.getElementById('dngpreview');
+			if (dngprev) dngprev.checked = this.withpreview;
+			document.getElementById('onlyhttp').style['display'] = 'none';
 		} catch  {
 			document.getElementById('onlyhttp').style['display'] = '';
-			document.getElementById('setsettings').style['display'] = 'none';
-			document.getElementById('settingsset').style['display'] = 'none';
 			this.xlateall();
 		}
 	} else {
 		document.getElementById('onlyhttp').style['display'] = '';
-		document.getElementById('setsettings').style['display'] = 'none';
-		document.getElementById('settingsset').style['display'] = 'none';
 	}
 	this.xlateall();
 }
@@ -22138,8 +22215,11 @@ function init() {
 	else {
 		imbc = new ImBCHtml();
 		ImBCBase.progname = 'imbraw2dng.html';
-		imbc.chgcopycheck();
+		imbc.chgcopycheck(true);
 		imbc.initsettings();
+		window.onbeforeonload = () => {
+			imbc.savesettings();
+		};
 		if (!window.showSaveFilePicker) {
 			document.getElementById('choosezipdest').disabled = true;
 			//document.getElementById('useziplbl').style['display'] = 'none';
@@ -22160,21 +22240,21 @@ function init() {
 <br><!--div class="notwhenbackw">&nbsp;<!--b style="background-color:#888888; text-shadow: 0.07em 0.12em 0 #FFFFFF;font-size:200%;">&#x26f6; &#x1f5d1; &#x2715;</b- ->&nbsp;<br></div-->
 <!-- the normal display -->
 <div id="normal" style="margin-top: 0.5em;">
-<div class="notwhenbackw"><input type="checkbox" id="steppreview" onchange="imbc.dirtysettings()" checked><label for="steppreview" data-myxlkey="process.singlestep"></label></div>
+<div class="notwhenbackw"><input type="checkbox" id="steppreview" onchange="imbc.dirtysettings('step')" checked><label for="steppreview" data-myxlkey="process.singlestep"></label></div>
 <div class="notwhenbackw"><input type="checkbox" id="dngpreview" checked onchange="imbc.chgdngpreview()"><label for="dngpreview" data-myxlkey="process.addpreview"></label></div>
-<div class="notwhenbackw"><input type="checkbox" id="incdcp" checked onchange="imbc.dirtysettings()"><label for="incdcp" data-myxlkey="process.includedcp"></label></div>
-<div class="notwhenbackw"><input type="checkbox" id="usezip" onchange="imbc.dirtysettings()"><label for="usezip" data-myxlkey="main.usezip" id="useziplbl"></label> <input type="checkbox" id="choosezipdest" onchange="imbc.dirtysettings()"><label for="choosezipdest" data-myxlkey="main.usezip.choosedest" id="useziplbl"></label></div>
-<div class="notwhenbackw"><input type="checkbox" id="oldstylewb" onchange="imbc.dirtysettings()"><label for="oldstylewb" data-myxlkey="process.oldstylewb"></label></div>
+<div class="notwhenbackw"><input type="checkbox" id="incdcp" checked onchange="imbc.dirtysettings('incdcp')"><label for="incdcp" data-myxlkey="process.includedcp"></label></div>
+<div class="notwhenbackw"><input type="checkbox" id="usezip" onchange="imbc.dirtysettings('zip')"><label for="usezip" data-myxlkey="main.usezip" id="useziplbl"></label> <input type="checkbox" id="choosezipdest" onchange="imbc.dirtysettings('zip')"><label for="choosezipdest" data-myxlkey="main.usezip.choosedest" id="useziplbl"></label></div>
+<div class="notwhenbackw"><input type="checkbox" id="oldstylewb" onchange="imbc.dirtysettings('owb')"><label for="oldstylewb" data-myxlkey="process.oldstylewb"></label></div>
 <div class="notwhenbackw" style="border:5px solid #50a070;max-width:fit-content;border-radius:10px;padding:2px;background-color:rgba(80,160,112,0.3);"><input type="checkbox" id="copycheck" onchange="imbc.chgcopycheck()"><label for="copycheck" data-myxlkey="process.metadata"></label> 
 <br>
-<span data-myxlkey="process.addcopyright"></span> <input onchange="imbc.dirtysettings()" type="text" id="copytext" size="33"></input>
+<span data-myxlkey="process.addcopyright"></span> <input onchange="imbc.dirtysettings('cr')" type="text" id="copytext" size="33"></input>
 <br>
-<span data-myxlkey="process.addartist"></span> <input onchange="imbc.dirtysettings()" type="text" id="artist" size="33"></input>
+<span data-myxlkey="process.addartist"></span> <input onchange="imbc.dirtysettings('at')" type="text" id="artist" size="33"></input>
 </div>
 <div class="notwhenbackw" style="margin-top: 0.5em;">
 <span id="onlyhttp" data-myxlkey="browser.prefnotfile"></span>
-<span id="settingsset" data-myxlkey="browser.settingsset"></span>
-<span id="setsettings"><input type="button" data-myvalxlkey="browser.setfrom" onclick="imbc.savesettings()"></input>&#xa0;<span id="setsettingsurl" data-myxlkey="browser.forurl"></span></span>
+<!--span id="settingsset" data-myxlkey="browser.settingsset"></span>
+<span id="setsettings"><input type="button" data-myvalxlkey="browser.setfrom" onclick="imbc.savesettings()"></input>&#xa0;<span id="setsettingsurl" data-myxlkey="browser.forurl"></span></span-->
 <!-- here goes the save preferences .. -->
 </div>
 <div class="notwhenbackw" style="margin-top: 0.5em;" data-myxlkey="main.generaladvice"></div>

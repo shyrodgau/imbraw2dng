@@ -24,6 +24,7 @@ validcomb="
 IFDOut imbapp.htm imbapp.html imbraw2dng.html imbraw2dng.js imbapp-dbg.html
 WORKER imbapp.htm imbapp.html imbapp-dbg.html
 Top_class_for_App imbapp.htm imbapp.html imbapp-dbg.html
+CSS imbapp.htm imbapp.html imbapp-dbg.html
 Android_spec imbapp.html imbapp-dbg.html
 android_init imbapp.html imbapp-dbg.html
 Backward_helper_class imbraw2dng.html imbraw2dng.js

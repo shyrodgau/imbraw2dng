@@ -296,7 +296,7 @@ describe('A Convert Raw Local', function() {
 			console.log('= = = = = = = = = = = = = = = = = = =');
 			if (ma) {
 				console.log('***ERR: ' + ma);
-			} else
+			} else if (undefined === process.env.KEYX)
 				driver.quit();
 	});
 });
@@ -409,7 +409,7 @@ describe('B Convert Raw from Imback', function() {
 			console.log('= = = = = = = = = = = = = = = = = = =');
 			if (ma) {
 				console.log('***ERR: ' + ma);
-			} else
+			} else if (undefined === process.env.KEYX)
 				driver.quit();
 	});
 });
@@ -445,7 +445,7 @@ describe('C Convert Backward', function() {
 			console.log('= = = = = = = = = = = = = = = = = = =');
 			if (ma) {
 				console.log('***ERR: ' + ma);
-			} else
+			} else if (undefined === process.env.KEYX)
 				driver.quit();
 	});
 });
@@ -694,7 +694,7 @@ describe('E Convert Raw from Imback APP', function() {
 			console.log('= = = = = = = = = = = = = = = = = = =');
 			if (ma) {
 				console.log('***ERR: ' + ma);
-			} else
+			} else if (undefined === process.env.KEYX)
 				driver.quit();
 	});
 });
@@ -738,7 +738,7 @@ describe('F Convert Raw Local APP', function() {
 			console.log('= = = = = = = = = = = = = = = = = = =');
 			if (ma) {
 				console.log('***ERR: ' + ma);
-			} else
+			} else if (undefined === process.env.KEYX)
 				driver.quit();
 	});
 });
@@ -786,7 +786,7 @@ describe('G Stacking DNG and RAW on old html', function() {
 			console.log('= = = = = = = = = = = = = = = = = = =');
 			if (ma) {
 				console.log('***ERR: ' + ma);
-			} else
+			} else if (undefined === process.env.KEYX)
 				driver.quit();
 	});
 });
@@ -848,7 +848,7 @@ describe('H Stack DNG and Raw Local APP', function() {
 			console.log('= = = = = = = = = = = = = = = = = = =');
 			if (ma) {
 				console.log('***ERR: ' + ma);
-			} else
+			} else if (undefined === process.env.KEYX)
 				driver.quit();
 	});
 });
