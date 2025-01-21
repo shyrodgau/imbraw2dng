@@ -886,7 +886,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.9.8_e56a101", // actually const // VERSION EYECATCHER
+version: "V5.9.8_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -1322,7 +1322,7 @@ adjurl: function(url) {
 /* * * ************************************* globals, E N D *************************************** */
 /* * * ************************************* Main class *************************************** */
 class ImBCBase {
-static progname = '';
+static progname = 'whoami';
 /* Indentation out */
 
 // ImBCBase: generic data
@@ -1359,6 +1359,11 @@ earliestjpg='9999';
 latestjpg='0000';
 earliestraw='9999';
 latestraw='0000';
+
+// [0]: !=0 => use separate localstorage namespace from imbraw2dng
+// [1]: 1 => use imbweb = 'http://192.168.8.101:8080'; 2 => use imbweb = 'http://192.168.0.72:8080';
+// [2]: !=0 => use longer startup timeout
+expflags = [ 0, 0, 0, 0, 0 ];
 
 //////// DYNAMIC SOURCE 1
 ////////////////////////////////////////////
@@ -19020,7 +19025,7 @@ handleone(orientation) {
 			if (rightbytes.length === this.copyright.length)
 				ti.addEntry(33432, 'ASCII', this.copyright); /* copyright */
 			else
-				ti.addEntry(33432, 'BYTE', rightbytes); /* copyright */
+				ti.addEntry(33432, 'ASCII', rightbytes); /* copyright */ /* https://www.iptc.org/std/photometadata/documentation/mappingguidelines/ */
 		}
 		let artbytes = [];
 		if (this.metadata && this.artist?.length) {
@@ -19029,7 +19034,21 @@ handleone(orientation) {
 			if (artbytes.length === this.artist.length)
 				ti.addEntry(315, 'ASCII', this.artist); /* artist */
 			else
-				ti.addEntry(315, 'BYTE', artbytes); /* artist */
+				ti.addEntry(315, 'ASCII', artbytes); /* artist */ /* https://www.iptc.org/std/photometadata/documentation/mappingguidelines/ */
+		}
+		let desc = '', descbytes = [];
+		if (this.iinf?.length) {
+			const ii = this.iinf.findIndex((e) => e.n === rawname);
+			if (ii !== -1 && this.iinf[ii].d !== undefined)
+				desc = this.iinf[ii].d;
+			if (desc.length) {
+				// do UTF-8 bytes instead of ASCII if necessary
+				descbytes = new TextEncoder().encode(desc);
+				if (descbytes.length === desc.length)
+					ti.addEntry(270, 'ASCII', desc); /* image description */
+				else
+					ti.addEntry(270, 'ASCII', descbytes); /* image description */ /* https://www.iptc.org/std/photometadata/documentation/mappingguidelines/ */
+			}
 		}
 		if (!this.neutral) {
 			const xmp1 = `<?xpacket begin='`;
@@ -19050,6 +19069,10 @@ handleone(orientation) {
 				xmpx[xmpx.length-1] += `<dc:rights><rdf:Alt><rdf:li xml:lang='x-default'>`;
     			xmpx.push(`</rdf:li></rdf:Alt></dc:rights>`);
 			}
+			if (descbytes?.length) {
+				xmpx[xmpx.length-1] += `<dc:description><rdf:Alt><rdf:li xml:lang='x-default'>`;
+    			xmpx.push(`</rdf:li></rdf:Alt></dc:description>`);
+    		}
 			let swbytes;
 			if (this.imbweb?.length) {
 				swbytes = new TextEncoder().encode(ImBCBase.progname + ' ' + globals.version + ' (' + this.imbweb + ')');
@@ -19061,7 +19084,7 @@ handleone(orientation) {
 				datbytes = new TextEncoder().encode(datestr.substring(0,4)+'-'+ datestr.substring(5,7)+'-'+datestr.substring(8,10)+'T'+datestr.substring(11));
 			}
 			xmpx[xmpx.length-1] += xmp6;
-			const xmprdf = new Uint8Array(artbytes.length + rightbytes.length + swbytes.length + hxbytes.length + datbytes.length + 3 + xmpx.reduce((sum, a) => (sum + new TextEncoder().encode(a).length), 0));
+			const xmprdf = new Uint8Array(artbytes.length + rightbytes.length + descbytes.length + swbytes.length + hxbytes.length + datbytes.length + 3 + xmpx.reduce((sum, a) => (sum + new TextEncoder().encode(a).length), 0));
 			let o=0;
 			for (let c = 0; c < xmpx.length; c++) {
 				const et = new TextEncoder().encode(xmpx[c]);
@@ -19096,6 +19119,11 @@ handleone(orientation) {
 					xmprdf.set(rightbytes, o);
 					o += rightbytes.length;
 					rightbytes = undefined;
+				}
+				else if (descbytes?.length) {
+					xmprdf.set(descbytes, o);
+					o += descbytes.length;
+					descbytes = undefined;
 				}
 			}
 			ti.addEntry(700, 'BYTE', xmprdf); /* XMP */
@@ -19221,6 +19249,11 @@ handle1imb(url, time) {
 		};
 		if (this.dloads?.length)
 			newimbele.wasselected = (-1 !== (this.dloads.findIndex(e => (e.toUpperCase() === rawname.toUpperCase()))));
+		const ii = this.iinf.findIndex((e) => e.n === rawname);
+		if (ii !== -1 && this.iinf[ii].r !== undefined)
+			newimbele.rot = this.iinf[ii].r;
+		if (ii !== -1 && this.iinf[ii].d !== undefined)
+			newimbele.desc = this.iinf[ii].d;
 		this.imbeles.push(newimbele);
 	}
 	if (rawname.substring(rawname.length -4).toUpperCase() === '.RAW') {
@@ -19268,6 +19301,13 @@ handle1imb(url, time) {
 	else {
 		this.appmsgxl(false, 'words.warning');
 		this.appmsgxl(0, 'onimback.strangename', rawname);
+	}
+}
+/* ImBCBase : parse expert flags */
+parseexpflags(flags) {
+	for (let j=0; j < this.expflags.length; j++) {
+		this.expflags[j] = flags % 3;
+		flags = Math.floor(flags / 3);
 	}
 }
 /* * * ************************************* Backward helper STUFF *************************************** */
@@ -20847,9 +20887,9 @@ savesettings(which) {
 				if (window.showSaveFilePicker)
 					window.localStorage.setItem('imbraw2dng_zipdest', document.getElementById('usezipdest')?.checked ? 'true' : 'false');
 			}
-			/*if ((which === 'dloads') || !which?.length || -1 !== which.indexOf('dloads'))
+			if ((which === 'dloads') || !which?.length || -1 !== which.indexOf('dloads'))
 				window.localStorage.setItem('imbraw2dng_dloads', JSON.stringify(this.dloads));
-			if ((which === 'ii') || !which?.length || -1 !== which.indexOf('ii'))
+			/*if ((which === 'ii') || !which?.length || -1 !== which.indexOf('ii'))
 				window.localStorage.setItem('imbraw2dng_ii', JSON.stringify(this.iinf));*/
 			/*window.localStorage.setItem('imbapp_json', JSON.stringify(
 				{
@@ -21340,6 +21380,10 @@ initsettings() {
 			itm = window.localStorage.getItem('imbraw2dng_zip');
 			if (itm !== null && document.getElementById('usezip')) {
 				document.getElementById('usezip').checked = (window.showSaveFilePicker && !this.imbcb && JSON.parse(itm)) ? true: false;
+			}
+			itm = window.localStorage.getItem('imbraw2dng_dloads');
+			if (itm !== null) {
+				this.dloads = JSON.parse(itm);
 			}
 			itm = window.localStorage.getItem('imbraw2dng_zipdest');
 			if (itm !== null && document.getElementById('usezipdest')) {

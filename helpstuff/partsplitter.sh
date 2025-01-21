@@ -34,10 +34,10 @@ function onefile { # path
 
 
 if [ -z "$1" ]; then
-	for f in /home/hegny/prog/imbraw2dng/github/imbraw2dng.js /home/hegny/prog/imbraw2dng/github/imbraw2dng.html /home/hegny/prog/imbraw2dng/github/imbapp.htm /home/hegny/prog/imbraw2dng/github/cordova/imbapp/imbapp.html /home/hegny/prog/imbraw2dng/github/cordova/imbapp/imbapp-dbg.html; do
+	for f in /home/hegny/prog/imbraw2dng/github/imbraw2dng.js /home/hegny/prog/imbraw2dng/github/imbraw2dng.html /home/hegny/prog/imbraw2dng/github/imbapp.htm /home/hegny/prog/imbraw2dng/github/cordova/imbapp/imbapp.html; do
 		onefile $f
 	done
-	for t in android_init.js Android_spec_class.js Backward_helper_class.js CSS.js IFDOut.js Top_class_for_App.js WORKER.js; do
+	for t in Backward_helper_class.js CSS.js IFDOut.js Top_class_for_App.js WORKER.js; do
 		echo; echo $t; echo =======
 		for f in $outfiles; do
 			if [ ${f%%$t} != $f ]; then

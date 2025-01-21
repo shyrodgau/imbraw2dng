@@ -648,6 +648,28 @@ describe('E Convert Raw from Imback APP', function() {
 			const timetxt = await waitfor(driver, 'css','#xmag .timetxt');
 			await timetxt.sendKeys('2024-02-17T13:17:52');
 			//const bbb2 = await waitfor(driver, 'css', '#magnix .whbtn');
+			/*await driver.actions({ async: true })
+				.move({ origin: bbb })
+				.pause(100)
+				.click()
+				.pause(90)
+				.perform();*/
+			const zoom0x4 = await driver.findElement(By.id('backnr'));
+			await driver.actions({ async: true })
+				.move({ origin: zoom0x4 })
+				.pause(100)
+				.click()
+				.pause(600)
+				.perform();
+			const descbtn = await waitfor(driver, 'css','#xmag .descbtn');
+			await driver.actions({ async: true })
+				.move({ origin: descbtn })
+				.pause(100)
+				.click()
+				.pause(600)
+				.perform();
+			const desctxt = await waitfor(driver, 'css','#xmag .desctxt');
+			await desctxt.sendKeys('Krokus');
 			await driver.actions({ async: true })
 				.move({ origin: bbb })
 				.pause(100)

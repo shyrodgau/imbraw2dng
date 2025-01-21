@@ -93,14 +93,21 @@ function waitfor(driver, id, cnt=0) {
 async function runTest() {
   const driver = await remote(wdOpts);
   try {
+  	/*const contexts = await driver.getContexts();
+  	const webviewContext = contexts.find(context => context.includes('WEBVIEW'));
+  	const appContext = contexts.find(context => context.includes('eu.imback'));
+  	await driver.switchContext(webviewContext);*/
+
+  	// Initialize or set localStorage (for example, setting a key-value pair)
+  	await driver.executeScript('window.localStorage.setItem("imbapp_expflags", "3")',[]);
+
   	// empty the dir, first add a file so it is not empty
   	driver.executeScript('mobile: pushFile', [{remotePath: '/storage/emulated/0/DCIM/nn/x', payload: 'bml4Cg=='}]);
   	driver.executeScript('mobile: shell', [{command:'rm', args: [ '/storage/emulated/0/DCIM/nn/*' ]}]);
 	await driver.pause(300);
-    //const batteryItem = await driver.$('#tobrows');
-    //await batteryItem.click();
+
 	await driver.pause(400);
-    const imgrp = await driver.$('#SELC_2029_07');
+    const imgrp = await waitfor(driver,'#SELC_2029_07');
     await imgrp.click();
 	await driver.pause(300);
     const rotviox = await waitfor(driver, '#gg_2029_07_07_X .eeraw');
