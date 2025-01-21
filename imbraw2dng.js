@@ -737,7 +737,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.9.8_@_d_e_v", // actually const // VERSION EYECATCHER
+version: "V5.9.8_410930e", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -18889,7 +18889,7 @@ handleone(orientation) {
 		}
 		let desc = '', descbytes = [];
 		if (this.iinf?.length) {
-			const ii = this.iinf.findIndex((e) => e.n === rawname);
+			const ii = this.iinf.findIndex((e) => e.n === inname);
 			if (ii !== -1 && this.iinf[ii].d !== undefined)
 				desc = this.iinf[ii].d;
 			if (desc.length) {

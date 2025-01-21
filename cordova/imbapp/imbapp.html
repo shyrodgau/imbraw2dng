@@ -1067,7 +1067,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.9.8_@_d_e_v", // actually const // VERSION EYECATCHER
+version: "V5.9.8_410930e", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -19219,7 +19219,7 @@ handleone(orientation) {
 		}
 		let desc = '', descbytes = [];
 		if (this.iinf?.length) {
-			const ii = this.iinf.findIndex((e) => e.n === rawname);
+			const ii = this.iinf.findIndex((e) => e.n === inname);
 			if (ii !== -1 && this.iinf[ii].d !== undefined)
 				desc = this.iinf[ii].d;
 			if (desc.length) {
@@ -22913,10 +22913,6 @@ magtimechg() {
 		}
 	}
 }
-/* TopApp: browserdisplay: select in magnification */
-selmag() {
-	let check = this.magentry.entry.querySelector('input.selcb');
-}
 /* TopApp: browserdisplay: sort for navigate in magnification */
 magrecsort(grps) {
 	let res = [];
@@ -25243,7 +25239,6 @@ starthandleone() {
 /* TopApp: main handler function for one file */
 handleonex() {
 	const f = (this.debugflag && this.useraw) ? this.useraw : this.allfiles[this.actnum];
-	let rawname = ImBCBase.basename(f.url ? f.url : (f.name ? f.name : f));
 	if (this.stepmode === 2) {
 		// skip rest
 		if (!this.imbcb && !this.fromvisbrows) this.shownormal();
@@ -25275,11 +25270,6 @@ genspan(key, arg0, arg1, arg2, arg3) {
 		}
 	}
 	return this.xl1(s);
-}
-/* TopApp: translated append to preview header */
-#qappx(key, arg0, arg1, arg2, arg3) {
-	const s = this.genspan(key, arg0, arg1, arg2, arg3);
-	document.getElementById('qhdr').append(s);
 }
 /* TopApp: handle the normal selection from imback (do it button), also for nodejs */
 imbdoit() {
@@ -25957,7 +25947,7 @@ function readjpg(file) {
 			<span class="blink">.</span><span class="blink2">.</span><span class="blink3">.</span>
 		</div>
 		<div class="btnsrow" style="diplay:none;font-size:200%;line-height:1em;">
-			<span class="biggiebtn" style="left:3.8em;left: 1.3em;border:0.15em solid black;"><input type="checkbox" class="selcb" style="transform:scale(1.7);" onclick="imbc.selmag()"></span>
+			<span class="biggiebtn" style="left:3.8em;left: 1.3em;border:0.15em solid black;"><input type="checkbox" class="selcb" style="transform:scale(1.7);"></span>
 			<span class="dlbtn biggiebtn" style="font-family:Symbol3;top:-1.1em;" onclick="imbc.dlmag();">&#x2b73;</span>
 			<span class="biggiebtn rotbtn" style="left: 0.6em;top:-1.1em;" onclick="imbc.rotmag();">&#x2b6e;</span>
 			<span class="biggiebtn rotbtnr" style="left: 1.6em;top:-1.1em;" onclick="imbc.rotmag(true);">&#x2b6f;</span>
