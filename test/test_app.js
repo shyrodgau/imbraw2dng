@@ -99,7 +99,7 @@ async function runTest() {
   	await driver.switchContext(webviewContext);*/
 
   	// Initialize or set localStorage (for example, setting a key-value pair)
-  	await driver.executeScript('window.localStorage.setItem("imbapp_expflags", "3")',[]);
+  	await driver.executeScript('window.localStorage.setItem("imbapp_expflags", "4")',[]);
 
   	// empty the dir, first add a file so it is not empty
   	driver.executeScript('mobile: pushFile', [{remotePath: '/storage/emulated/0/DCIM/nn/x', payload: 'bml4Cg=='}]);
@@ -191,6 +191,24 @@ async function runTest() {
 	await driver.pause(200);
     const imgrp2b = await waitfor(driver, '#SELC_2024_02_17');
     await imgrp2b.click();
+    
+    
+	const hm = await waitfor(driver, '#hamb');
+	await hm.click();
+	await driver.pause(200);
+	const hms = await waitfor(driver, '#hamsett');
+	await hms.click();
+	await driver.pause(200);
+	const cpc = await waitfor(driver, '#copycheck');
+	await cpc.click();
+	await driver.pause(200);
+	const copytext = await waitfor(driver,'#artist');
+	await copytext.click();
+	const astr = 'isch debugging';
+	await copytext.sendKeys([astr]);
+	const setb = await waitfor(driver, '#settback');
+	await setb.click();
+	await driver.pause(200);
 	const zoom0x2 = await waitfor(driver,'#gg_2024_02_17_X .onepic');
 	await zoom0x2.click();
 	await driver.pause(200);
@@ -205,6 +223,16 @@ async function runTest() {
 	const str = '2024-02-17T13:17:52';
 	await timetxt.sendKeys([str]);
 	await driver.pause(700);
+	const bnrx = await waitfor(driver, '#backnr');
+	await bnrx.click();
+	await driver.pause(200);
+	const xdb = await waitfor(driver, '#xmag .descbtn');
+	await xdb.click();
+	await driver.pause(200);
+	const xdbt = await waitfor(driver, '#xmag .desctxt');
+	await xdbt.click();
+	const dstr = 'Krokus';
+	await xdbt.sendKeys([dstr]);
 	const bbb2 = await waitfor(driver, '#magnix .whbtn');
 	await driver.pause(900);
 	await bbb2.click();

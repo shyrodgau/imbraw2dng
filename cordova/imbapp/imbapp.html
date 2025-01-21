@@ -489,7 +489,11 @@ body { margin: 0; }
 .dlbtn.biggiebtn { left: .1em; margin-top: -0em; }
 .biggiebtn.disabled { display: none; }
 .biggiebtn.rotbtn, .biggiebtn.rotbtnr { margin-top: -0em; font-family:Symbol3;}
-.biggiebtn.magbtn, .biggiebtn.trashbin, .biggiebtn.timebtn { margin-top: 0.1em; font-family:Symbol3;}
+.biggiebtn.magbtn, .biggiebtn.trashbin { margin-top: 0.1em; font-family:Symbol3;}
+.biggiebtn.timebtn, .biggiebtn.descbtn { margin-top: 0.1em; font-family:Symbol3;font-weight:normal !important;}
+.biggiebtn.timebtn.red, .biggiebtn.descbtn.red { color:red !important;}
+.biggiebtn.timebtn.green, .biggiebtn.descbtn.green { color:green !important;font-weight:bold;}
+.biggiebtn.timebtn.grey, .biggiebtn.descbtn.grey { color:#666666 !important;}
 .biggiebtn.rotbtnr { margin-top: -0em; font-family:Symbol3; text-shadow: -0.1em 0.07em white !important;}
 .biggiebtn.timetxt:disabled { background-color:#446688; color:black !important; cursor:auto; }
 .dlbtn:not(.biggiebtn) { vertical-align: bottom; font-weight: bold; }
@@ -631,6 +635,8 @@ body:has(dialog[open]), html:has(dialog[open]) {
 	text-shadow: 3px 3px rgba(255,255,255,0.6);
 }
 .lbtn { font-family:Symbol3; height:1.4em; font-size:200%; }
+.delsel.green { color: green /*#aaff88*/; }
+.delsel.blue { color: #333399; }
 /* *************************************** CSS E N D *************************************** */
 </style>
 <!-- *************************************** CSS End *************************************** -->
@@ -22757,10 +22763,9 @@ showmag(entry) {
 		document.querySelector('#xmag .rotbtn').style['display'] = '';
 		document.querySelector('#xmag .descbtn').style['display'] = '';
 	}
+	document.querySelector('#xmag .descbtn').classList.remove('green');
 	if (entry.desc?.length)
-		document.querySelector('#xmag .descbtn').style['color'] = '#000000';
-	else
-		document.querySelector('#xmag .descbtn').style['color'] = '#888888';
+		document.querySelector('#xmag .descbtn').classList.add('green');
 	document.querySelector('#xmag .desctxt').style['display'] = 'none';
 	document.querySelector('#magni #magtext').innerHTML = entry.raw;
 	this.onback = 'closemag';
@@ -22771,7 +22776,8 @@ handletimadj() {
 	let res = globals.fnregexx.exec(this.magentry.raw);
 	if (res) {
 		document.querySelector('#xmag .timetxt').style['display'] = '';
-		document.querySelector('#xmag .timetxt').style['color'] = '';
+		document.getElementById('cortimebut').classList.remove('green');
+		document.getElementById('cortimebut').classList.remove('red');
 		document.querySelector('#xmag .timebtn').style['display'] = '';
 		if (this.corrdelta) {
 			let yr = Number.parseInt(res[1]);
@@ -22810,9 +22816,9 @@ magdescx() {
 magdescchg() {
 	this.magentry.desc = document.querySelector('#xmag .desctxt').value;
 	if (this.magentry.desc?.length)
-		document.querySelector('#xmag .descbtn').style['color'] = '#000000';
+		document.querySelector('#xmag .descbtn').classList.add('green');
 	else
-		document.querySelector('#xmag .descbtn').style['color'] = '#888888';
+		document.querySelector('#xmag .descbtn').classList.remove('green');
 }
 /* TopApp: browserdisplay: magnification: click on clock */
 magtimex() {
@@ -22834,7 +22840,9 @@ magtimex() {
 	}
 	else {
 		document.querySelector('#xmag .timetxt').style['display'] = '';
-		document.querySelector('#xmag .timetxt').value = '';
+		if (document.getElementById('refts').value?.length)
+			this.magtimechg();
+		//document.querySelector('#xmag .timetxt').value = '';
 	}
 }
 /* TopApp: browserdisplay: close magnification */
@@ -22842,6 +22850,8 @@ closemag(notreally) {
 	const ne = this.magentry.entry;
 	ne.querySelector('.waitdiv').style['display'] = 'none';
 	ne.querySelector('.eepvx').style['display'] = '';
+	ne.querySelector('.eejpg').style['display'] = 'none';
+	ne.querySelector('.eeraw').style['display'] = 'none';
 	ne.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
 	ne.querySelector('.dlbtn').classList.add('disabled');
 	ne.setAttribute('data-state', 'wait');
@@ -22881,11 +22891,16 @@ magtimechg() {
 	let a = globals.fulltsregex.exec(document.getElementById('refts').value);
 	if (!a) {
 		this.magentry.timesync = 0;
-		document.getElementById('refts').style['color'] = 'red';
+		document.getElementById('cortimebut').classList.remove('green');
+		if (document.getElementById('refts').value?.length)
+			document.getElementById('cortimebut').classList.add('red');
+		else
+			document.getElementById('cortimebut').classList.remove('red');
 	}
 	else {
 		document.querySelectorAll('.syncpic').forEach((e) => { e.classList.remove('syncpic');});
-		document.getElementById('refts').style['color'] = 'green';
+		document.getElementById('cortimebut').classList.add('green');
+		document.getElementById('cortimebut').classList.remove('red');
 		let res = globals.fnregexx.exec(this.magentry.raw);
 		if (res !== null) {
 			let yr = Number.parseInt(res[1]);
@@ -22941,7 +22956,7 @@ magnav(fwd) {
 	const el = r.findIndex((v) => v.raw === this.magentry.raw);
 	let ne = ((el+fwd) +r.length) % r.length;
 	while (r[ne].type === 'oth') {
-		ne = ((el+fwd) +r.length)  % r.length;
+		ne = ((ne+fwd) +r.length)  % r.length;
 	}
 	this.closemag(true);
 	this.showmag(r[ne]);
@@ -25506,8 +25521,7 @@ function init2() {
 			imbc.imbweb = 'http://192.168.8.101:8080';
 		else if (imbc.expflags[1] === 2)
 			imbc.imbweb = 'http://192.168.0.72:8080';
-	},  emu ? 2000 : 100);
-
+	},  emu ? 4000 : 100);
 }
 </script>
 <!-- WORKER -->
@@ -25964,9 +25978,10 @@ function readjpg(file) {
 			<span class="biggiebtn rotbtn" style="left: 0.6em;top:-1.1em;" onclick="imbc.rotmag();">&#x2b6e;</span>
 			<span class="biggiebtn rotbtnr" style="left: 1.6em;top:-1.1em;" onclick="imbc.rotmag(true);">&#x2b6f;</span>
 			<span class="biggiebtn trashbin" style="left:0em;" onclick="imbc.magdelete();">&#x1f5d1;</span>
+			<span class="biggiebtn timebtn" id="cortimebut" style="left: 3.5em;top:-1.6em;font-size:90%" onclick="imbc.magtimex();">&#x231a;&#xfe0e;</span>
 			<input class="biggiebtn timetxt" type="text" maxlength="19" id="refts" minlength="0" placeholder="yyyy-MM-ddThh:mm:ss" pattern="[0-9][0-9][0-9][0-9][^0-9][0-9][0-9][^0-9][0-9][0-9][^0-9][0-9][0-9][^0-9][0-9][0-9][^0-9][0-9][0-9]"
 			   onkeyup="imbc.magtimechg()" style="left:5.1em; top:-1.8em;background-color:rgba(255,255,255,0.7);font-weight:normal;border-radius:5px;border: 1px solid rgba(0,0,0,0);font-size:80%;width:15em;">
-			<span class="biggiebtn descbtn" style="left: 2.3em;color:#888888;" onclick="imbc.magdescx();">&#x270e;</span>
+			<span class="biggiebtn descbtn" id="descbut" style="left: 2.3em;" onclick="imbc.magdescx();">&#x270e;</span>
 			<input class="biggiebtn desctxt" type="text" id="desctxt" minlength="0" placeholder="Description of Photo"
 			   onkeyup="imbc.magdescchg()" style="left:5.1em; background-color:rgba(255,255,255,0.7);font-weight:normal;border-radius:5px;border: 1px solid rgba(0,0,0,0);font-size:80%;width:25em;">
 			<div class="backnextmag" id="backnl" style="left:3vw;" onclick="imbc.magnav();">&#x25c0;</div>

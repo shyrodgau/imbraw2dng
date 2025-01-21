@@ -623,6 +623,8 @@ body:has(dialog[open]), html:has(dialog[open]) {
 	text-shadow: 3px 3px rgba(255,255,255,0.6);
 }
 .lbtn { font-family:Symbol3; height:1.4em; font-size:200%; }
+.delsel.green { color: green /*#aaff88*/; }
+.delsel.blue { color: #333399; }
 /* *************************************** CSS E N D *************************************** */
 </style>
 <!-- javascript code CURRENTLY NOT identical to imbraw2dng.js  for the classes IFDOut, TIFFOut, ZIPHelp, ImBCBase, ImBCBackw. -->
@@ -20349,6 +20351,8 @@ closemag(notreally) {
 	const ne = this.magentry.entry;
 	ne.querySelector('.waitdiv').style['display'] = 'none';
 	ne.querySelector('.eepvx').style['display'] = '';
+	ne.querySelector('.eejpg').style['display'] = 'none';
+	ne.querySelector('.eeraw').style['display'] = 'none';
 	ne.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
 	ne.querySelector('.dlbtn').classList.add('disabled');
 	ne.setAttribute('data-state', 'wait');
@@ -20453,7 +20457,7 @@ magnav(fwd) {
 	const el = r.findIndex((v) => v.raw === this.magentry.raw);
 	let ne = ((el+fwd) +r.length) % r.length;
 	while (r[ne].type === 'oth') {
-		ne = ((el+fwd) +r.length)  % r.length;
+		ne = ((ne+fwd) +r.length)  % r.length;
 	}
 	this.closemag(true);
 	this.showmag(r[ne]);
@@ -21642,57 +21646,40 @@ dirtysettings(which) {
 savesettings(which) {
 	if (ImBCBase.progname === 'imbapp_app' || (window.location.origin.startsWith('http') && window.localStorage)) {
 		try {
-			window.localStorage.setItem('imbraw2dng_writtenby', ImBCBase.progname + ' ' + globals.version);
+			const pref = this.expflags[0] ? 'imbapp_' : 'imbraw2dng_';
+			window.localStorage.setItem(pref + 'writtenby', ImBCBase.progname + ' ' + globals.version);
 			if ((which === 'meta') || !which?.length || -1 !== which.indexOf('meta'))
-				window.localStorage.setItem('imbraw2dng_meta', this.metadata ? 'true': 'false');
+				window.localStorage.setItem(pref + 'meta', this.metadata ? 'true': 'false');
 			if ((which === 'cr') || !which?.length || -1 !== which.indexOf('cr'))
-				window.localStorage.setItem('imbraw2dng_cr', this.copyright?.length ? this.copyright : '');
+				window.localStorage.setItem(pref + 'cr', this.copyright?.length ? this.copyright : '');
 			if ((which === 'at') || !which?.length || -1 !== which.indexOf('at'))
-				window.localStorage.setItem('imbraw2dng_at', this.artist?.length ? this.artist : '');
+				window.localStorage.setItem(pref + 'at', this.artist?.length ? this.artist : '');
 			if ((which === 'np') || !which?.length || -1 !== which.indexOf('np'))
-				window.localStorage.setItem('imbraw2dng_np', this.withpreview ? 'false': 'true');
+				window.localStorage.setItem(pref + 'np', this.withpreview ? 'false': 'true');
 			if ((which === 'l') || !which?.length || -1 !== which.indexOf('l'))
-				window.localStorage.setItem('imbraw2dng_l', this.useimblang ? '99': this.mylang);
+				window.localStorage.setItem(pref + 'l', this.useimblang ? '99': this.mylang);
 			if ((which === 'll') || !which?.length || -1 !== which.indexOf('ll'))
-				window.localStorage.setItem('imbraw2dng_ll', (ImBCBase.progname === 'imbapp_app') ? this.mylang : this.lastlang);
+				window.localStorage.setItem(pref + 'll', (ImBCBase.progname === 'imbapp_app') ? this.mylang : this.lastlang);
 			if ((which === 'owb') || !which?.length || -1 !== which.indexOf('owb'))
-				window.localStorage.setItem('imbraw2dng_owb', this.constwb ? 'true': 'false');
+				window.localStorage.setItem(pref + 'owb', this.constwb ? 'true': 'false');
 			if ((which === 'ndcp') || !which?.length || -1 !== which.indexOf('ndcp'))
-				window.localStorage.setItem('imbraw2dng_ndcp', this.incdcp ? 'false': 'true');
+				window.localStorage.setItem(pref + 'ndcp', this.incdcp ? 'false': 'true');
 			if ((which === 'exitmode') || !which?.length || -1 !== which.indexOf('exitmode'))
-				window.localStorage.setItem('imbraw2dng_exitmode', JSON.stringify(this.exitmode));
+				window.localStorage.setItem(pref + 'exitmode', JSON.stringify(this.exitmode));
 			if ((which === 'maxcache') || !which?.length || -1 !== which.indexOf('maxcache'))
-				window.localStorage.setItem('imbraw2dng_maxcache', JSON.stringify(this.maxcache));
+				window.localStorage.setItem(pref + 'maxcache', JSON.stringify(this.maxcache));
+			if ((which === 'expflags') || !which?.length || -1 !== which.indexOf('expflags'))
+				if (ImBCBase.progname.startsWith('imbapp')) window.localStorage.setItem('imbapp_expflags', JSON.stringify(this.expflags[0] + 3*this.expflags[1] + 9*this.expflags[2] + 27*this.expflags[3] + 81*this.expflags[4]));
 			if ((which === 'dloads') || !which?.length || -1 !== which.indexOf('dloads'))
-				if (this.dloads?.length) window.localStorage.setItem('imbraw2dng_dloads', JSON.stringify(this.dloads));
+				if (this.dloads?.length) window.localStorage.setItem(pref + 'dloads', JSON.stringify(this.dloads));
 			if ((which === 'ii') || !which?.length || -1 !== which.indexOf('ii'))
-				if (this.iinf?.length) window.localStorage.setItem('imbraw2dng_ii', JSON.stringify(this.iinf));
+				if (this.iinf?.length) window.localStorage.setItem(pref + 'ii', JSON.stringify(this.iinf));
 			if ((which === 'autotime') || !which?.length || -1 !== which.indexOf('autotime'))
-				window.localStorage.setItem('imbraw2dng_autotime', JSON.stringify(this.autotime));
+				window.localStorage.setItem(pref + 'autotime', JSON.stringify(this.autotime));
 			if (ImBCBase.progname === 'imbapp_app') {
 				if ((which === 'dooverwrite') || !which?.length || -1 !== which.indexOf('dooverwrite'))
-					window.localStorage.setItem('imbraw2dng_f', JSON.stringify(this.dooverwrite));
+					window.localStorage.setItem(pref + 'f', JSON.stringify(this.dooverwrite));
 			}
-			/*window.localStorage.setItem('imbapp_json', JSON.stringify(
-				{
-					'meta': copycheck?.checked,
-					'cr': copytext?.value,
-					'at': document.getElementById('artist')?.value,
-					'np': document.getElementById('dngpreview') ? !document.getElementById('dngpreview').checked : false,
-					'l': this.useimblang ? '99' : this.mylang,
-					'll': (ImBCBase.progname === 'imbapp_app') ? this.mylang : this.lastlang,
-					'version': globals.version,
-					'loca': window.location.origin,
-					'owb': document.getElementById('oldstylewb')?.checked,
-					'ndcp': !document.getElementById('incdcp')?.checked,
-					'exitmode': this.exitmode,
-					'maxcache': this.maxcache,
-					'dl': this.dloads,
-					'ii': this.iinf,
-					'dooverwrite': this.dooverwrite,
-					'autotime': this.autotime
-				}
-			));*/
 		}
 		catch (e) {
 			console.log(JSON.stringify(e));
@@ -21807,9 +21794,19 @@ skipthis() {
 	document.getElementById('skipthis').disabled = true;
 	this.stepmode = 2;
 }
-/* TopApp: visual browser: change cache size (currently only visible in debug _00) */
+/* TopApp: visual browser: change cache size */
 chgcache() {
 	this.maxcache = document.getElementById('dbgcache').value;
+	this.savesettings('maxcache');
+}
+/* TopApp: visual browser: change expert flags */
+chgflags() {
+	try {
+		this.parseexpflags(JSON.parse(document.getElementById('expflags').value));
+		this.savesettings('expflags');
+	} catch (e) {
+		console.log('Exc parsing expflags ' + e.toString());
+	}
 }
 /* TopApp: continue with the next file if any */
 handlenext() {
@@ -22167,49 +22164,56 @@ initsettings() {
 	if (ImBCBase.progname === 'imbapp.htm' && (!window.location.origin.startsWith('http') || !window.localStorage))
 		return;
 	try {
-		let e = window.localStorage.getItem('imbapp_json');
-		if (e) {
-			this.parseconfig(e);
-		}
-		let itm = window.localStorage.getItem('imbraw2dng_meta');
+		let itm = window.localStorage.getItem('imbapp_expflags');
+		console.log('EXP x: ' + JSON.stringify(itm));
+		if (itm !== null) this.parseexpflags(JSON.parse(itm));
+		console.log('EXP: ' + JSON.stringify(this.expflags));
+		const pref = this.expflags[0] ? 'imbapp_' : 'imbraw2dng_';
+		itm = window.localStorage.getItem(pref + 'meta');
 		if (itm !== null) {
 			this.metadata = JSON.parse(itm) ? true: false;
 		}
-		itm = window.localStorage.getItem('imbraw2dng_cr');
+		if (null === itm) {
+			let e = window.localStorage.getItem('imbapp_json');
+			if (e) {
+				this.parseconfig(e);
+			}
+		}
+		itm = window.localStorage.getItem(pref + 'cr');
 		if (itm !== null) this.copyright = itm;
-		itm = window.localStorage.getItem('imbraw2dng_at');
+		itm = window.localStorage.getItem(pref + 'at');
 		if (itm !== null) this.artist = itm;
-		itm = window.localStorage.getItem('imbraw2dng_np');
+		itm = window.localStorage.getItem(pref + 'np');
 		if (itm !== null) {
 			this.withpreview = JSON.parse(itm) ? false: true;
 		}
-		itm = window.localStorage.getItem('imbraw2dng_ll');
+		itm = window.localStorage.getItem(pref + 'll');
 		if (itm !== null) this.lastlang = itm;
-		itm = window.localStorage.getItem('imbraw2dng_l');
+		itm = window.localStorage.getItem(pref + 'l');
 		if (itm !== null) this.trylang(itm);
-		itm = window.localStorage.getItem('imbraw2dng_ll');
+		itm = window.localStorage.getItem(pref + 'll');
 		if (itm !== null) this.lastlang = itm;
-		itm = window.localStorage.getItem('imbraw2dng_owb');
+		itm = window.localStorage.getItem(pref + 'owb');
 		if (itm !== null) {
 			this.constwb = JSON.parse(itm) ? true: false;
 		}
-		itm = window.localStorage.getItem('imbraw2dng_ndcp');
+		itm = window.localStorage.getItem(pref + 'ndcp');
 		if (itm !== null) {
 			this.incdcp = JSON.parse(itm) ? false: true;
 		}
-		itm = window.localStorage.getItem('imbraw2dng_dloads');
+		itm = window.localStorage.getItem(pref + 'dloads');
 		if (itm !== null) this.dloads = JSON.parse(itm);
-		itm = window.localStorage.getItem('imbraw2dng_ii');
+		itm = window.localStorage.getItem(pref + 'ii');
 		if (itm !== null) this.iinf = JSON.parse(itm);
-		itm = window.localStorage.getItem('imbraw2dng_exitmode');
+		itm = window.localStorage.getItem(pref + 'exitmode');
 		if (itm !== null) this.exitmode = JSON.parse(itm);
-		itm = window.localStorage.getItem('imbraw2dng_autotime');
+		itm = window.localStorage.getItem(pref + 'autotime');
 		if (itm !== null) {
 			this.autotime = JSON.parse(itm) ? true: false;
 		}
-		itm = window.localStorage.getItem('imbraw2dng_maxcache');
+		itm = window.localStorage.getItem(pref + 'maxcache');
 		if (itm !== null) this.maxcache = JSON.parse(itm);
-		itm = window.localStorage.getItem('imbraw2dng_f');
+		itm = window.localStorage.getItem(pref + 'f');
 		if (itm !== null && ImBCBase.progname === 'imbapp_app') {
 			this.dooverwrite = JSON.parse(itm) ? true: false;
 		}
@@ -22236,6 +22240,7 @@ initsettings() {
 		document.getElementById('exitsel').value = this.exitmode;
 		if (document.getElementById('dooverwrite')) document.getElementById('dooverwrite').checked = this.dooverwrite;
 		document.getElementById('autotime').checked = this.autotime;
+		document.getElementById('expflags').value = JSON.stringify(this.expflags[0] + 3*this.expflags[1] + 9*this.expflags[2] + 27*this.expflags[3] + 81*this.expflags[4]);
 		this.xlateall();
 	} catch (e) {
 		console.log('Error init settings : ' + e.toString());
@@ -25954,6 +25959,7 @@ function readjpg(file) {
 <div>
 <div><input type="button" onclick="imbc.clearcache();" data-myvalxlkey="app.menu.extras.clearcache"></div>
 <div class="btop"><span data-myxlkey="app.menu.extras.cachesize">Visual Browser Cache Size:</span> <input type="number" onchange="imbc.chgcache()" id="dbgcache" style="width: 5em;"></div>
+<div><span>Expert Flags:</span> <input type="number" onchange="imbc.chgflags()" id="expflags" style="width: 5em;"></div>
 </div></div>
 </div>
 <!-- end of the extras -->
