@@ -479,9 +479,9 @@ body { margin: 0; }
 .biggiebtn.rotbtn, .biggiebtn.rotbtnr { margin-top: -0em; font-family:Symbol3;}
 .biggiebtn.magbtn, .biggiebtn.trashbin { margin-top: 0.1em; font-family:Symbol3;}
 .biggiebtn.timebtn, .biggiebtn.descbtn { margin-top: 0.1em; font-family:Symbol3;font-weight:normal !important;}
-.biggiebtn.timebtn.red, .biggiebtn.descbtn.red { color:red !important;}
+.biggiebtn.timebtn.red { color:red !important;}
 .biggiebtn.timebtn.green, .biggiebtn.descbtn.green { color:green !important;font-weight:bold;}
-.biggiebtn.timebtn.grey, .biggiebtn.descbtn.grey { color:#666666 !important;}
+.biggiebtn.timebtn.grey { color:#666666 !important;}
 .biggiebtn.rotbtnr { margin-top: -0em; font-family:Symbol3; text-shadow: -0.1em 0.07em white !important;}
 .biggiebtn.timetxt:disabled { background-color:#446688; color:black !important; cursor:auto; }
 .dlbtn:not(.biggiebtn) { vertical-align: bottom; font-weight: bold; }
@@ -539,14 +539,14 @@ div[data-state='load'] .btnsrow, div[data-state='wait'] .btnsrow, div[data-state
 	padding-top: 0.1em;
 	pointer-events:none;
 }
-.syncpic:before {
+.syncpic:after {
 	content: '\231a\fe0e';
 	position: absolute;
 	font-size: 35px;
-	z-index: 99;
+	z-index: 98;
 	color: rgba(255,0,0,0.6);
 	text-shadow: 3px 1px white;
-	padding-left: 0.1em;
+	padding-left: 0.6em;
 	padding-top: 0.5em;
 	pointer-events:none;
 	font-weight:bold;
@@ -20275,9 +20275,11 @@ showmag(entry) {
 /* TopApp: browserdisplay: handle time adjustment in magn. view */
 handletimadj() {
 	let res = globals.fnregexx.exec(this.magentry.raw);
+	document.querySelector('#xmag .timetxt').style['display'] = 'none';
+	document.querySelector('#xmag .timetxt').disabled = false;
 	if (res) {
-		document.querySelector('#xmag .timetxt').style['display'] = '';
 		document.getElementById('cortimebut').classList.remove('green');
+		document.getElementById('cortimebut').classList.remove('grey');
 		document.getElementById('cortimebut').classList.remove('red');
 		document.querySelector('#xmag .timebtn').style['display'] = '';
 		if (this.corrdelta) {
@@ -20291,15 +20293,20 @@ handletimadj() {
 				((hr < 10) ? "0":"") + hr + ":" + ((min < 10) ? "0":"") + min + ":" + ((sec < 10) ? "0":"") + sec + 'Z';
 			let nd = new Date(new Date(datestr).valueOf() + this.corrdelta).toISOString().substring(0,19);
 			document.querySelector('#xmag .timetxt').value = nd;
-			document.querySelector('#xmag .timetxt').disabled = (this.corrdelta !== this.magentry.timesync);
-			if (!document.querySelector('#xmag .timetxt').disabled) this.magtimechg();
-			document.querySelector('#xmag .timetxt').style['display'] = '';
+			if (this.corrdelta !== this.magentry.timesync) {
+				document.querySelector('#xmag .timetxt').disabled = true;
+				document.getElementById('cortimebut').classList.add('grey');
+			}
+			else {
+				document.getElementById('cortimebut').classList.add('green');
+				document.querySelector('#xmag .timetxt').style['display'] = '';
+			}
 		} else {
 			document.querySelector('#xmag .timetxt').style['display'] = 'none';
 		}
 	}
 	else {
-		document.querySelector('#xmag .timetxt').style['display'] = 'none';
+		this.magentry.timesync = this.magentry.orig.timesync = 0;
 		document.querySelector('#xmag .timebtn').style['display'] = 'none';
 	}
 }
@@ -20323,28 +20330,7 @@ magdescchg() {
 }
 /* TopApp: browserdisplay: magnification: click on clock */
 magtimex() {
-	if (document.querySelector('#xmag .timetxt').style['display'] !== 'none' && !document.querySelector('#xmag .timetxt').disabled) {
-		this.corrdelta = 0;
-		this.magentry.timesync = 0;
-		document.querySelectorAll('.syncpic').forEach((e) => { e.classList.remove('syncpic');});
-		this.handletimadj();
-	}
-	else if (this.magentry.timesync) {
-		let cds = this.corrdelta;
-		this.corrdelta = this.magentry.timesync;
-		this.handletimadj();
-		this.corrdelta = cds;
-	}
-	else if (this.corrdelta) {
-		this.magentry.timesync = this.corrdelta;
-		this.handletimadj();
-	}
-	else {
-		document.querySelector('#xmag .timetxt').style['display'] = '';
-		if (document.getElementById('refts').value?.length)
-			this.magtimechg();
-		//document.querySelector('#xmag .timetxt').value = '';
-	}
+	document.querySelector('#xmag .timetxt').style['display'] = (document.querySelector('#xmag .timetxt').style['display'] === '') ? 'none' : '';
 }
 /* TopApp: browserdisplay: close magnification */
 closemag(notreally) {
@@ -20363,14 +20349,20 @@ closemag(notreally) {
 	check = this.magentry.orig.entry?.querySelector('input.selcb');
 	if (check) {
 		check.checked = this.magentry.orig.selected;
-		this.#updateselections();
 	}
-	this.magentry.orig.timesync = this.magentry.timesync;
-	if (this.magentry.timesync && !document.querySelector('#xmag .timetxt').disabled && document.querySelector('#xmag .timetxt').style['display'] !== 'none') {
+	this.#updateselections();
+	if (this.magentry.timesync && document.querySelector('#cortimebut').classList.contains('green')) {
+		// set new
 		this.corrdelta = this.magentry.timesync;
 		document.querySelectorAll('.syncpic').forEach((e) => { e.classList.remove('syncpic');});
 		this.magentry.orig.entry.classList.add('syncpic');
 	}
+	else if (!this.magentry.timesync && (this.magentry.orig.timesync === this.corrdelta)) {
+		// clear
+		this.corrdelta = this.magentry.timesync;
+		document.querySelectorAll('.syncpic').forEach((e) => { e.classList.remove('syncpic');});
+	}
+	this.magentry.orig.timesync = this.magentry.timesync;
 	if (this.magentry.orig.desc !== this.magentry.desc) {
 		this.magentry.orig.desc = this.magentry.desc;
 		const ii = this.iinf.findIndex((j) => j.n === this.magentry.raw);
@@ -20390,18 +20382,18 @@ closemag(notreally) {
 /* TopApp: browserdisplay: magni: keypress check in time adjust stamp */
 magtimechg() {
 	let a = globals.fulltsregex.exec(document.getElementById('refts').value);
+	document.getElementById('cortimebut').classList.remove('green');
+	document.getElementById('cortimebut').classList.remove('grey');
+	document.getElementById('cortimebut').classList.remove('red');
 	if (!a) {
-		this.magentry.timesync = 0;
-		document.getElementById('cortimebut').classList.remove('green');
+		// invalid time entered
 		if (document.getElementById('refts').value?.length)
 			document.getElementById('cortimebut').classList.add('red');
 		else
-			document.getElementById('cortimebut').classList.remove('red');
+			this.magentry.timesync = 0;
 	}
 	else {
-		document.querySelectorAll('.syncpic').forEach((e) => { e.classList.remove('syncpic');});
 		document.getElementById('cortimebut').classList.add('green');
-		document.getElementById('cortimebut').classList.remove('red');
 		let res = globals.fnregexx.exec(this.magentry.raw);
 		if (res !== null) {
 			let yr = Number.parseInt(res[1]);
@@ -20416,7 +20408,7 @@ magtimechg() {
 			let d2 = new Date(a[1] + '-' + a[3] + '-' + a[5] + 'T' + a[7] + ':' + a[9] + ':' + a[11] + 'Z');
 			this.magentry.timesync = d2 - d1;
 		}
-		else {
+		else { // should not happen
 			this.magentry.timesync = 0;
 			document.getElementById('refts').style['display'] = 'none';
 		}
@@ -20425,14 +20417,6 @@ magtimechg() {
 /* TopApp: browserdisplay: select in magnification */
 selmag() {
 	let check = this.magentry.entry.querySelector('input.selcb');
-	if (check) {
-		this.magentry.orig.selected = check.checked;
-	}
-	check = this.magentry.orig.entry?.querySelector('input.selcb');
-	if (check) {
-		check.checked = this.magentry.orig.selected;
-		this.#updateselections();
-	}
 }
 /* TopApp: browserdisplay: sort for navigate in magnification */
 magrecsort(grps) {

@@ -21,19 +21,19 @@ if [ "$tof" -nt "$frf" ]; then
 fi
 
 validcomb="
-IFDOut imbapp.htm imbapp.html imbraw2dng.html imbraw2dng.js
-WORKER imbapp.htm imbapp.html
-Top_class_for_App imbapp.htm imbapp.html
-CSS imbapp.htm imbapp.html
-Backward_helper_class imbraw2dng.html imbraw2dng.js
+IFDOut  imbapp.htm  imbapp.html  imbraw2dng.html  imbraw2dng.js
+WORKER  imbapp.htm  imbapp.html
+Top_class_for_App  imbapp.htm  imbapp.html
+CSS  imbapp.htm  imbapp.html
+Backward_helper_class  imbraw2dng.html  imbraw2dng.js
 "
 
 frb=$( basename $frf )
 tob=$( basename $tof )
 
-echo $validcomb | grep -iq "$pn .* $frb . $tob"
+echo "$validcomb" | grep -iq "$pn .* $frb .* $tob"
 if [ $? -ne 0 ]; then
-	echo $validcomb | grep -iq "$pn .*$tob .*$frb"
+	echo "$validcomb" | grep -iq "$pn .* $tob .* $frb"
 	if [ $? -ne 0 ]; then
 		echo "$pn $tob $frb seems not allowed"
 		exit
