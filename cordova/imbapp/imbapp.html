@@ -1067,7 +1067,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.9.8_410930e", // actually const // VERSION EYECATCHER
+version: "V5.9.8_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -22578,8 +22578,10 @@ showham = false;
 autotime = false;
 connvers = ''; // hw version from cmd 3012
 imbfree = -1;
-disconnected = true;
-discknown = false; // we do not know if connected
+// 0: no connection, 1: connection, 2: unknown
+connstate = 2;
+//disconnected = true;
+//discknown = false; // we do not know if connected
 dooverwrite = false;
 constructor() {
 	super();

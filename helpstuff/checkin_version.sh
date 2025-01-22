@@ -27,8 +27,7 @@ sed -i.bak \
 	~/prog/imbraw2dng/github/imbraw2dng.js \
 	~/prog/imbraw2dng/github/imbraw2dng.html \
 	~/prog/imbraw2dng/github/imbapp.htm \
-	~/prog/imbraw2dng/github/cordova/imbapp/imbapp.html \
-	~/prog/imbraw2dng/github/cordova/imbapp/imbapp-dbg.html
+	~/prog/imbraw2dng/github/cordova/imbapp/imbapp.html 
 
 function rvt {
 	echo back
@@ -37,8 +36,7 @@ function rvt {
 	~/prog/imbraw2dng/github/imbraw2dng.jsxx #
 	#~/prog/imbraw2dng/github/imbraw2dng.html \
 	#~/prog/imbraw2dng/github/imbapp.html \
-	#~/prog/imbraw2dng/github/cordova/github/imbapp.html \
-	#~/prog/imbraw2dng/github/cordova/github/imbapp-dbg.html
+	#~/prog/imbraw2dng/github/cordova/github/imbapp.html 
 }
 
 #trap rvt INT TERM
