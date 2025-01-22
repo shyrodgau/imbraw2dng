@@ -23706,12 +23706,6 @@ topreccheck(force) {
 			j = ((j + 1) % 4);
 			e.rot = globals.oriecw[j];
 			ne.setAttribute('data-state', 'wait');
-			/*e.preview.style['display'] = 'none';
-			ne.querySelector('.waitdiv').style['display'] = 'none';
-			ne.querySelector('.eepvx').style['display'] = '';
-			ne.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
-			ne.querySelector('.dlbtn').classList.add('disabled');
-			this.startloadimg();*/
 			globalfxns.rotvis(ne.querySelector('.eeraw'),0);
 			const ii = this.iinf.findIndex((j) => j.n === e.raw);
 			if (ii === -1)
@@ -23734,12 +23728,6 @@ topreccheck(force) {
 			j = ((j + 3) % 4);
 			e.rot = globals.oriecw[j];
 			ne.setAttribute('data-state', 'wait');
-			/*e.preview.style['display'] = 'none';
-			ne.querySelector('.waitdiv').style['display'] = 'none';
-			ne.querySelector('.eepvx').style['display'] = '';
-			ne.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
-			ne.querySelector('.dlbtn').classList.add('disabled');
-			this.startloadimg();*/
 			globalfxns.rotvis(ne.querySelector('.eeraw'),1);
 			const ii = this.iinf.findIndex((j) => j.n === e.raw);
 			if (ii === -1)
@@ -23815,11 +23803,6 @@ rotmag(ccw) {
 	j = ((j + (ccw ? 3 : 5)) % 4);
 	this.magentry.rot = globals.oriecw[j];
 	this.magentry.orig.rot = this.magentry.rot;
-	/*ne.querySelector('.waitdiv').style['display'] = 'none';
-	ne.querySelector('.eepvx').style['display'] = '';
-	ne.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
-	ne.querySelector('.dlbtn').classList.add('disabled');
-	ne.setAttribute('data-state', 'wait');*/
 	globalfxns.rotvis(ne.querySelector('.eeraw'),ccw);
 	const xne = this.magentry.orig.entry;
 	if (this.magentry.orig.preview) this.magentry.orig.preview.style['display'] = 'none';
@@ -25574,7 +25557,6 @@ function init2() {
 				imbc.checkimb();
 			});
 			//imbc.checkimb();
-/* *************************************** android init e n d *************************************** */
 		}, imbc.expflags[2] > 0 ? 5000 : 0);
 		mytexts['main']['apptitle']['en'] = imbc.expflags[2] > 0 ? 'ImB DBG App' : 'ImB OS App';
 		if (imbc.expflags[1] === 1)
@@ -25583,6 +25565,7 @@ function init2() {
 			imbc.imbweb = 'http://192.168.0.72:8080';
 	},  emu ? 4000 : 100);
 }
+/* *************************************** android init e n d *************************************** */
 </script>
 <!-- WORKER -->
 <script type="text/js-previewworker" language="javascript">

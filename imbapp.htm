@@ -21217,12 +21217,6 @@ topreccheck(force) {
 			j = ((j + 1) % 4);
 			e.rot = globals.oriecw[j];
 			ne.setAttribute('data-state', 'wait');
-			/*e.preview.style['display'] = 'none';
-			ne.querySelector('.waitdiv').style['display'] = 'none';
-			ne.querySelector('.eepvx').style['display'] = '';
-			ne.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
-			ne.querySelector('.dlbtn').classList.add('disabled');
-			this.startloadimg();*/
 			globalfxns.rotvis(ne.querySelector('.eeraw'),0);
 			const ii = this.iinf.findIndex((j) => j.n === e.raw);
 			if (ii === -1)
@@ -21245,12 +21239,6 @@ topreccheck(force) {
 			j = ((j + 3) % 4);
 			e.rot = globals.oriecw[j];
 			ne.setAttribute('data-state', 'wait');
-			/*e.preview.style['display'] = 'none';
-			ne.querySelector('.waitdiv').style['display'] = 'none';
-			ne.querySelector('.eepvx').style['display'] = '';
-			ne.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
-			ne.querySelector('.dlbtn').classList.add('disabled');
-			this.startloadimg();*/
 			globalfxns.rotvis(ne.querySelector('.eeraw'),1);
 			const ii = this.iinf.findIndex((j) => j.n === e.raw);
 			if (ii === -1)
@@ -21326,11 +21314,6 @@ rotmag(ccw) {
 	j = ((j + (ccw ? 3 : 5)) % 4);
 	this.magentry.rot = globals.oriecw[j];
 	this.magentry.orig.rot = this.magentry.rot;
-	/*ne.querySelector('.waitdiv').style['display'] = 'none';
-	ne.querySelector('.eepvx').style['display'] = '';
-	ne.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
-	ne.querySelector('.dlbtn').classList.add('disabled');
-	ne.setAttribute('data-state', 'wait');*/
 	globalfxns.rotvis(ne.querySelector('.eeraw'),ccw);
 	const xne = this.magentry.orig.entry;
 	if (this.magentry.orig.preview) this.magentry.orig.preview.style['display'] = 'none';

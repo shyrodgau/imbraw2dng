@@ -20562,7 +20562,6 @@ topreccheck(force) {
 	let rotbtn = ne.querySelector('.rotbtn');
 	if (e.type === 'RAW') {
 		e.rot = 0;
-		//rotbtn.id = 'rot_b_' + e.raw + '_Y';
 		rotbtn.classList.add('disabled');
 		rotbtn.onclick = () => {
 			if (!this.debugflag && rotbtn.classList.contains('disabled')) return;
@@ -20570,12 +20569,6 @@ topreccheck(force) {
 			j = ((j + 1) % 4);
 			e.rot = globals.oriecw[j];
 			ne.setAttribute('data-state', 'wait');
-			/*e.preview.style['display'] = 'none';
-			ne.querySelector('.waitdiv').style['display'] = 'none';
-			ne.querySelector('.eepvx').style['display'] = '';
-			ne.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
-			ne.querySelector('.dlbtn').classList.add('disabled');
-			this.startloadimg();*/
 			const canv = ne.querySelector('.eeraw');
 			globalfxns.rotvis(canv,0);
 			const sc = 120 / canv.height;
@@ -20600,21 +20593,8 @@ topreccheck(force) {
 		document.getElementById('droptarget').style['display'] = 'none';
 		document.getElementById('infile').disabled = true;
 		this.shownormal();
-		//this.#handleone(e.rot);
 		ne.classList.add('picprocd');
 	};
-	//dlbtn.id = 'dl_b_' + e.raw;
-	/*else {
-		rotbtn.remove();
-		dlbtn.onclick = (/ *ev* /) => {
-			if (!this.debugflag && dlbtn.classList.contains('disabled')) return;
-			const outel = document.getElementById('result');
-			outel.download = rawname;
-			outel.href = e.url;
-			outel.click();
-			ne.classList.add('picprocd');
-		};
-	}*/
 	let bigbtn = ne.querySelector('.bigbtn')
 	bigbtn.classList.add('disabled');
 	bigbtn.onclick = (/*ev*/) => {
@@ -20624,7 +20604,6 @@ topreccheck(force) {
 	if (e.type === 'RAW') {
 		ne.setAttribute('data-state', 'wait');
 		e.preview = ne.querySelector('.eeraw');
-		//e.preview.classList.add('eewait');
 		e.preview.style['display'] = 'none';
 		e.preview.onmouseout = (/*ev*/) => {
 			e.preview.classList.remove('picbig');
@@ -20632,7 +20611,6 @@ topreccheck(force) {
 	} else if (e.type === 'JPG') {
 		e.preview = ne.querySelector('.eejpg');
 		ne.setAttribute('data-state', 'wait');
-		//e.preview.classList.add('eewait');
 		e.preview.style['display'] = 'none';
 		e.preview.onmouseout = (/*ev*/) => {
 			e.preview.classList.remove('picbig');

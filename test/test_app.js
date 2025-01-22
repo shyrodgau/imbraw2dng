@@ -119,20 +119,22 @@ async function runTest() {
 	await driver.pause(600);
     const rotviox2 = await waitfor(driver, '#gg_2029_07_07_X .eeraw');
 	await driver.pause(900);
-	await driver.executeScript('mobile:swipeGesture', [{left:300,top:300,width:10,height:1200,direction:'up',percent:0.95}]);
+	await driver.executeScript('mobile:swipeGesture', [{left:350,top:300,width:10,height:1200,direction:'up',percent:0.95}]);
 	const iyy2 = await waitfor(driver, '#div_2019_0101_002053_001_RAW_X .eeraw');
 	await driver.pause(300);
-	await driver.executeScript('mobile:swipeGesture', [{left:300,top:300,width:10,height:1000,direction:'down',percent:0.7}]);
+	await driver.executeScript('mobile:swipeGesture', [{left:350,top:300,width:10,height:1000,direction:'down',percent:0.7}]);
     const imgrpz = await waitfor(driver, '#gg_2024_02_19_X');
     const imgrp2 = await waitfor(driver, '#SELC_2024_02_17');
-	await driver.executeScript('mobile:swipeGesture', [{left:300,top:300,width:10,height:50,direction:'up',percent:0.3}]);
+	await driver.executeScript('mobile:swipeGesture', [{left:350,top:300,width:10,height:50,direction:'up',percent:0.3}]);
     await imgrp2.click();
 	await driver.pause(1000);
 	const sbytype = await waitfor(driver, '#sbytype');
 	await sbytype.click();
-	await driver.pause(300);
+	await driver.pause(600);
 
-	await rotviox.click();
+    const rotviox3 = await waitfor(driver, '#gg_RAW2029_07_07_X .eeraw');
+	await driver.pause(300);
+	await rotviox3.click();
 	const zoom0 = await waitfor(driver,'#gg_RAW2029_07_07_X .magbtn');
 	await zoom0.click();
 	await driver.pause(400);
