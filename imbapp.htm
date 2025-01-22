@@ -19737,7 +19737,15 @@ writefile(name, type, okmsg, arr1, origname) {
 		this.writepostok(origname);
 }
 /* ImBCHtml: info screen */
-appinfo() {
+appinfo(doit) {
+	if (!doit && !this.disconnected && this.connvers) {
+		this.custcmd(3017, 'docstatus', null, (rc, doc) => {
+			if (rc >= 0 && doc.querySelector('Function Value'))
+				this.imbfree = doc.querySelector('Function Value').textContent;
+			this.appinfo(true);
+		});
+		return;
+	}
 	//document.getElementById('pages').style['display'] = 'none';
 	document.getElementById('phpv').src="";
 	document.getElementById('genericok').style['border-color'] = 'grey';
@@ -20499,7 +20507,7 @@ showphotoi() {
 }
 /* TopApp: browserdisplay: take photos */
 showphoto() {
-	this.custcmdB(3001, 'document', 'par=0', (rc) => {
+	this.custcmdB(3001, 'docstatus', 'par=0', (rc) => {
 		if (!rc) {
 			this.showphotoi();
 		} else {
@@ -20517,7 +20525,7 @@ showmoviei() {
 }
 /* TopApp: browserdisplay: take movies */
 showmovie() {
-	this.custcmdB(3001, 'document', 'par=1', (rc) => {
+	this.custcmdB(3001, 'docstatus', 'par=1', (rc) => {
 		if (!rc) {
 			this.showmoviei();
 		} else {
@@ -20556,7 +20564,14 @@ checkscroll() {
 }
 /* TopApp: browserdisplay: open visual browser */
 showbrowseri() {
-	if (this.imbeles.length === 0) return this.showlocal();
+	if (this.imbeles.length === 0) {
+		if (this.disconnected) return this.showlocal();
+		this.showpages();
+		this.dispmode = 2;
+		document.getElementById('genericok').style['border-color'] = 'red';
+		document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + 'No files!';
+		return this.showmsg();
+	}
 	this.showpages();
 	this.dispmode = 2;
 	document.getElementById('browser').style['display'] = '';
@@ -21469,7 +21484,7 @@ dodelete(list, status) {
 	} else if (list.length > 0) {
 		/* processing */
 		this.modalback = 'nothing';
-		this.custcmdB(4003, 'document', 'str=' + list[0].url, (res) => {
+		this.custcmdB(4003, 'docstatus', 'str=' + list[0].url, (res) => {
 			this.rotphase ++;
 			document.getElementById('delprogmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ' +  this.xl('process.totals', status.no, status.ok, 0, status.err);
 			if (0 <= res) {
@@ -21638,8 +21653,12 @@ savesettings(which) {
 				window.localStorage.setItem(pref + 'np', this.withpreview ? 'false': 'true');
 			if ((which === 'l') || !which?.length || -1 !== which.indexOf('l'))
 				window.localStorage.setItem(pref + 'l', this.useimblang ? '99': this.mylang);
-			if ((which === 'll') || !which?.length || -1 !== which.indexOf('ll'))
-				window.localStorage.setItem(pref + 'll', (ImBCBase.progname === 'imbapp_app') ? this.mylang : this.lastlang);
+			if ((which === 'll') || !which?.length || -1 !== which.indexOf('ll')) {
+				if ((ImBCBase.progname === 'imbapp_app') &&  this.mylang)
+					window.localStorage.setItem(pref + 'll', this.mylang);
+				else if (this.lastlang && ImBCBase.progname !== 'imbapp_app')
+					window.localStorage.setItem(pref + 'll', this.lastlang);
+			}
 			if ((which === 'owb') || !which?.length || -1 !== which.indexOf('owb'))
 				window.localStorage.setItem(pref + 'owb', this.constwb ? 'true': 'false');
 			if ((which === 'ndcp') || !which?.length || -1 !== which.indexOf('ndcp'))
@@ -22167,12 +22186,10 @@ initsettings() {
 		if (itm !== null) {
 			this.withpreview = JSON.parse(itm) ? false: true;
 		}
-		itm = window.localStorage.getItem(pref + 'll');
-		if (itm !== null) this.lastlang = itm;
 		itm = window.localStorage.getItem(pref + 'l');
 		if (itm !== null) this.trylang(itm);
 		itm = window.localStorage.getItem(pref + 'll');
-		if (itm !== null) this.lastlang = itm;
+		if (itm !== null && itm !== 'undefined') this.lastlang = itm;
 		itm = window.localStorage.getItem(pref + 'owb');
 		if (itm !== null) {
 			this.constwb = JSON.parse(itm) ? true: false;
@@ -22347,13 +22364,18 @@ workermsg(msg) {
 		if (!w0) {
 			console.log('OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOPS w1 empty!' + JSON.stringify(d));
 		}
-		else if (w0.type === 'document' && d.results instanceof Array) {
-			d.results = d.results.map((m) => {
+		else if (w0.cb) {
+			if (w0.type === 'document' && d.results instanceof Array) {
+				d.results = d.results.map((m) => {
 					return (new DOMParser()).parseFromString(m, 'text/xml');
-			});
-		} else if (w0.type === 'document')
-			d.results = (new DOMParser()).parseFromString(d.results, 'text/xml');
-		if (w0.cb) {
+				});
+			} else if (w0.type.startsWith('doc')) {
+				d.results = (new DOMParser()).parseFromString(d.results, 'text/xml');
+				if (w0.type === 'docstatus') {
+					const s = d.results.querySelector('Function Status')?.textContent;
+					if (s) d.rc = JSON.parse(s);
+				}
+			}
 			w0.cb(d.rc, d.results);
 		}
 		break;
@@ -22438,9 +22460,9 @@ settime() {
 	const h = d.getHours();
 	const i = d.getMinutes();
 	const s = d.getSeconds();
-	this.custcmdB(3005, 'document', 'str=' + d.getFullYear() + '-' + ((m < 9)?'0':'') + (m+1) + '-' + ((y < 10)?'0':'') + y, (rc) => {
+	this.custcmdB(3005, 'docstatus', 'str=' + d.getFullYear() + '-' + ((m < 9)?'0':'') + (m+1) + '-' + ((y < 10)?'0':'') + y, (rc) => {
 		if (!rc) {
-			this.custcmd(3006, 'document', 'str=' + ((h < 10)?'0':'') + h + ':' + ((i < 10)?'0':'') + i + ':' + ((s < 10)?'0':'') + s, (rc) => {
+			this.custcmd(3006, 'docstatus', 'str=' + ((h < 10)?'0':'') + h + ':' + ((i < 10)?'0':'') + i + ':' + ((s < 10)?'0':'') + s, (rc) => {
 				if (!rc) {
 					document.getElementById('genericok').style['border-color'] = 'green';
 					document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('app.okay'));
@@ -22460,51 +22482,73 @@ settime() {
 /* TopApp: take a photo */
 takephoto() {
 	document.getElementById('phpv').src="";
-	this.custcmdB(1001, 'document', 'par=0', (rc, doc) => {
-		this.imgsdirty = true;
-		if (rc >= 0) {
-			const e = doc.querySelector('Function FPATH');
-			const n = e?.textContent;
-			if (!n) return;
-			const r = ImBCBase.basename(n);
-			if (r.substring(r.length -4).toUpperCase() === '.JPG') {
-				document.getElementById('takejpg').src = this.imbweb + globals.adjurl(n) +'?custom=1&cmd=4001';
-				document.getElementById('takejpg').style['display'] = '';
-				document.getElementById('takenone').style['display'] = 'none';
-				document.getElementById('takeerr').style['display'] = 'none';
-				document.getElementById('takeraw').style['display'] = 'none';
-				document.getElementById('takewait').style['display'] = 'none';
-			}
-			else {
-				document.getElementById('takejpg').style['display'] = 'none';
-				document.getElementById('takenone').style['display'] = 'none';
-				document.getElementById('takeerr').style['display'] = 'none';
-				document.getElementById('takeraw').style['display'] = 'none';
-				document.getElementById('takewait').style['display'] = '';
-				this.buildpreview(n, 2, () => {
-					document.getElementById('takeraw').style['display'] = '';
+	setTimeout(() => {
+		this.custcmdB(1001, 'docstatus', 'par=0', (rc, doc) => {
+			this.imgsdirty = true;
+			if (rc >= 0) {
+				const e = doc.querySelector('Function FPATH');
+				const n = e?.textContent;
+				if (!n) {
+					document.getElementById('takejpg').style['display'] = 'none';
+					document.getElementById('takenone').style['display'] = 'none';
+					document.getElementById('takeerr').style['display'] = 'none';
+					document.getElementById('takeraw').style['display'] = 'none';
+					document.getElementById('genericok').style['border-color'] = 'red';
 					document.getElementById('takewait').style['display'] = 'none';
-				}, () => {
-					document.getElementById('takeerr').style['display'] = '';
+					document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.exitphoto'));
+					this.showmsg();
+					return;
+				}
+				const r = ImBCBase.basename(n);
+				if (r.substring(r.length -4).toUpperCase() === '.JPG') {
+					document.getElementById('takejpg').src = this.imbweb + globals.adjurl(n) +'?custom=1&cmd=4001';
+					document.getElementById('takejpg').style['display'] = '';
+					document.getElementById('takenone').style['display'] = 'none';
+					document.getElementById('takeerr').style['display'] = 'none';
 					document.getElementById('takeraw').style['display'] = 'none';
 					document.getElementById('takewait').style['display'] = 'none';
-				}, 0, document.getElementById('takeraw'));
-				// raw
+				}
+				else {
+					document.getElementById('takejpg').style['display'] = 'none';
+					document.getElementById('takenone').style['display'] = 'none';
+					document.getElementById('takeerr').style['display'] = 'none';
+					document.getElementById('takeraw').style['display'] = 'none';
+					document.getElementById('takewait').style['display'] = '';
+					this.buildpreview(n, 2, () => {
+						document.getElementById('takeraw').style['display'] = '';
+						document.getElementById('takewait').style['display'] = 'none';
+					}, () => {
+						document.getElementById('takeerr').style['display'] = '';
+						document.getElementById('takeraw').style['display'] = 'none';
+						document.getElementById('takewait').style['display'] = 'none';
+					}, 0, document.getElementById('takeraw'));
+					// raw
+				}
 			}
-		}
-		setTimeout(() => {
-			document.getElementById('phpv').src= this.photourl;
-		}, 300);
-	});
+			else {
+				document.getElementById('genericok').style['border-color'] = 'red';
+				document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.exitphoto'));
+				this.showmsg();
+			}
+			setTimeout(() => {
+				document.getElementById('phpv').src= this.photourl;
+			}, 300);
+		});
+	}, 300);
 }
 /* TopApp: start a movie */
 takemovie() {
-	this.custcmdB(2001, 'document', 'par=1', (rc/*, doc*/) => {
+	this.custcmdB(2001, 'docstatus', 'par=1', (rc/*, doc*/) => {
 		this.imgsdirty = true;
 		if (rc >= 0) {
 			this.movierec = true;
 			this.onback = 'nothing';
 			document.getElementById('movieprogress').showModal();
+		}
+		else {
+			document.getElementById('genericok').style['border-color'] = 'red';
+			document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.exitmovie'));
+			this.showmsg();
 		}
 	});
 }
@@ -22536,15 +22580,10 @@ doquit() {
 /* TopApp: do switch off */
 dopoweroff() {
 	this.savesettings();
-	let ex = 0;
-	if (this.exitmode === 'movie') ex = 1;
-	else if (this.exitmode === 'browse') ex = 2;
-	this.custcmdB( [[3001, ('par=' + ex)], [ 8006, 'par=4']] , 'document', null, (rc) => {
-		if (rc) {
+	this.custcmdB(8006, 'docstatus', 'par=4', (rc) => {
+		if (rc < 0)
 			this.myalert(this.rmesc(this.xl('words.error')) + ' ' + this.xl('app.menu.poweroff'));
-			return;
-		}
-});
+	});
 }
 /* TopApp: handle back button */
 handleback() {
@@ -25743,7 +25782,7 @@ function custcmdi(c, t, restargs, cb, results) {
 		if (xhr.status === 200) {
 			if (errcount) errcount--;
 			let resp = xhr.response;
-			if (t === 'document')
+			if (t.startsWith('doc'))
 				resp = (new TextDecoder()).decode(xhr.response);
 			if (results instanceof Array) results.push(resp);
 			if (c instanceof Array && c.length > 0) {
