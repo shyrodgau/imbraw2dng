@@ -3,7 +3,7 @@
 ***************************************************** 
 
 imbraw2dng(_LL).html
-imbdng2raw(_LL).html
+imbdng2raw.html
 
 Convert RAW from I'm back(R)(https://imback.eu) into DNG
 
@@ -27,6 +27,15 @@ DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS 
 // SPDX-License-Identifier: 0BSD
 
 ***************************************************** 
+
+Mapping of identical sections:
+IFDOut (TIFFOut, ImBCBase, globals): 	imbapp.htm imbapp.html imbraw2dng.html imbraw2dng.js		(all)
+globalfxns: 							imbapp.htm imbapp.html imbraw2dng.html						(all html)
+Backward_helper_class: 					imbraw2dng.html imbraw2dng.js								(classic)
+WORKER: 								imbapp.htm imbapp.html										(app-like)
+Top_class_for_App: 						imbapp.htm imbapp.html										(app-like)
+CSS: 									imbapp.htm imbapp.html										(app-like)
+
 -->
 <head>
 <meta name="viewport" content="width=200, initial-scale=1" />
@@ -215,6 +224,50 @@ div#xmsg {
 <!-- javascript code identical to imbraw2dng.js  for the classes IFDOut, TIFFOut, ZIPHelp, ImBCBase, ImBCBackw. -->
 <script type="text/javascript" language="javascript">
 "use strict;"
+/* *************************************** globalfxns *************************************** */
+const globalfxns = {
+/* globals: adjust A:\imback\... format to /imback/... */
+adjurl: function(url) {
+	if (url.url) url = url.url;
+	if (url.toUpperCase().substring(0,3) !== 'A:\\')
+		return url;
+	let n = url.substring(2);
+	while (n.indexOf("\\") > -1) {
+		n = n.substring(0, n.indexOf("\\")) + '/' + n.substring(n.indexOf('\\') +1);
+	}
+	return n;
+},
+/* ImBCBase: rotate image in canvas */
+rotvis: function(canv, ccw) {
+	const ow = canv.width;
+	const oh = canv.height;
+	const ctx = canv.getContext('2d', { alpha: false });
+	const imd = ctx.getImageData(0, 0, ow, oh).data;
+	ctx.clearRect(0,0,ow,ow);
+	ctx.clearRect(0,0,oh,oh);
+	canv.width = oh;
+	canv.height = ow;
+	const nd = new Uint8ClampedArray(ow*oh*4);
+	for (let r=0; r<oh; r++) {
+		for (let c=0; c<ow; c++) {
+			if (ccw) {
+				nd[oh*c*4 +r*4] = imd[ow*r*4 + (ow-c-1)*4];
+				nd[oh*c*4 +r*4 +1] = imd[ow*r*4 + (ow-c-1)*4 +1];
+				nd[oh*c*4 +r*4 +2] = imd[ow*r*4 + (ow-c-1)*4 +2];
+				nd[oh*c*4 +r*4 +3] = imd[ow*r*4 + (ow-c-1)*4 +3];
+			} else {
+				nd[oh*c*4 +r*4] = imd[ow*(oh-r-1)*4 + c*4];
+				nd[oh*c*4 +r*4 +1] = imd[ow*(oh-r-1)*4 + c*4 +1];
+				nd[oh*c*4 +r*4 +2] = imd[ow*(oh-r-1)*4 + c*4 +2];
+				nd[oh*c*4 +r*4 +3] = imd[ow*(oh-r-1)*4 + c*4 +3];
+			}
+		}
+	}
+	//ctx.setTransform(1,0,0,0,1,0);
+	ctx.putImageData(new ImageData(nd, oh, ow), 0, 0);
+}
+}
+/* *************************************** globalfxns E N D *************************************** */
 /* *************************************** Backward helper class *************************************** */
 class ImBCBackw {
 /* Indentation out */
@@ -1305,17 +1358,6 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 		}
 	}
 	return uic;
-},
-/* globals: adjust A:\imback\... format to /imback/... */
-adjurl: function(url) {
-	if (url.url) url = url.url;
-	if (url.toUpperCase().substring(0,3) !== 'A:\\')
-		return url;
-	let n = url.substring(2);
-	while (n.indexOf("\\") > -1) {
-		n = n.substring(0, n.indexOf("\\")) + '/' + n.substring(n.indexOf('\\') +1);
-	}
-	return n;
 },
 /* Indentation in - end of globals */
 }
@@ -20527,12 +20569,18 @@ topreccheck(force) {
 			let j = globals.oriecw.indexOf(e.rot);
 			j = ((j + 1) % 4);
 			e.rot = globals.oriecw[j];
-			e.preview.style['display'] = 'none';
-			ne.querySelector('.waitdiv').style['display'] = '';
+			ne.setAttribute('data-state', 'wait');
+			/*e.preview.style['display'] = 'none';
+			ne.querySelector('.waitdiv').style['display'] = 'none';
+			ne.querySelector('.eepvx').style['display'] = '';
 			ne.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
 			ne.querySelector('.dlbtn').classList.add('disabled');
-			ne.setAttribute('data-state', 'wait');
-			this.#startloadimg();
+			this.startloadimg();*/
+			const canv = ne.querySelector('.eeraw');
+			globalfxns.rotvis(canv,0);
+			const sc = 120 / canv.height;
+			canv.style['width'] = '' + (sc*canv.width) + 'px';
+			ne.setAttribute('data-state', 'ok');
 		};
 	} else
 		rotbtn.remove();
@@ -21231,26 +21279,41 @@ procthis() {
 	let j = globals.oriecw.indexOf(this.currentrot);
 	j = ((j + r) % 4);
 	this.currentrot = globals.oriecw[j];
-	this.buildpreview(this.allfiles[this.actnum], 2, () => { this.setrawpv(); }, () => { this.setpverr(); }, this.currentrot);
 }
 /* ImBCHtml: previewquestion: handler for clockwise rotation */
 rotcw() {
 	this.#rotxx(1);
+	globalfxns.rotvis(document.getElementById('preview'));
+	this.setrawpv();
 }
 /* ImBCHtml: previewquestion: handler for counterclockwise rotation */
 rotccw() {
 	this.#rotxx(3);
+	globalfxns.rotvis(document.getElementById('preview'), 1);
+	this.setrawpv();
 }
 /* ImBCHtml: previewquestion: handler for upside down rotation */
 rot180() {
 	this.#rotxx(2);
+	globalfxns.rotvis(document.getElementById('preview'));
+	globalfxns.rotvis(document.getElementById('preview'));
+	this.setrawpv();
 }
 /* ImBCHtml: previewquestion: handler for reset rotation */
 rot0() {
 	if (1 === this.currentrot) return;
 	this.setpvwait();
-	this.currentrot = 0;
-	this.buildpreview(this.allfiles[this.actnum], 2, (rot) => { this.currentrot = rot; this.setrawpv(); }, () => { this.setpverr(); }, 0);
+	if (this.currentrot === 3) {
+		globalfxns.rotvis(document.getElementById('preview'));
+		globalfxns.rotvis(document.getElementById('preview'));
+	}
+	else if (this.currentrot === 6) {
+		globalfxns.rotvis(document.getElementById('preview'), 1);
+	}
+	else
+		globalfxns.rotvis(document.getElementById('preview'), 0);
+	this.currentrot = 1;
+	this.setrawpv()
 }
 /* ImBCHtml: visual browser: change cache size (currently only visible in debug _00) */
 chgcache() {

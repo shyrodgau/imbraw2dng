@@ -49,10 +49,6 @@ Options:
 
 *****************************************************
 
-The following js code is identical to the js inside imbraw2dng.html for the classes IFDOut, TIFFOut, ZIPHelp, ImBCBase, ImBCBackw.
-
-***************************************************** 
-
 Copyright (C) 2023,2024,2025 by Stefan Hegny, stefan@hegny.de
 
 Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted.
@@ -64,6 +60,15 @@ DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS 
 // SPDX-License-Identifier: 0BSD
 
 ***************************************************** 
+
+Mapping of identical sections:
+IFDOut (TIFFOut, ImBCBase, globals): 	imbapp.htm imbapp.html imbraw2dng.html imbraw2dng.js		(all)
+globalfxns: 							imbapp.htm imbapp.html imbraw2dng.html						(all html)
+Backward_helper_class: 					imbraw2dng.html imbraw2dng.js								(classic)
+WORKER: 								imbapp.htm imbapp.html										(app-like)
+Top_class_for_App: 						imbapp.htm imbapp.html										(app-like)
+CSS: 									imbapp.htm imbapp.html										(app-like)
+
 */
 "use strict;"
 /* *************************************** Backward helper class *************************************** */
@@ -1156,17 +1161,6 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 		}
 	}
 	return uic;
-},
-/* globals: adjust A:\imback\... format to /imback/... */
-adjurl: function(url) {
-	if (url.url) url = url.url;
-	if (url.toUpperCase().substring(0,3) !== 'A:\\')
-		return url;
-	let n = url.substring(2);
-	while (n.indexOf("\\") > -1) {
-		n = n.substring(0, n.indexOf("\\")) + '/' + n.substring(n.indexOf('\\') +1);
-	}
-	return n;
 },
 /* Indentation in - end of globals */
 }

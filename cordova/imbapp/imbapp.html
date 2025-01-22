@@ -2,7 +2,7 @@
 <!--
 ***************************************************** 
 
-imbapp.html
+imbapp.html - use in cordova app
 
 Convert RAW from I'm back(R)(https://imback.eu) into DNG
 
@@ -36,12 +36,11 @@ DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS 
 
 Mapping of identical sections:
 IFDOut (TIFFOut, ImBCBase, globals): 	imbapp.htm imbapp.html imbraw2dng.html imbraw2dng.js		(all)
+globalfxns: 							imbapp.htm imbapp.html imbraw2dng.html						(all html)
+Backward_helper_class: 					imbraw2dng.html imbraw2dng.js								(classic)
 WORKER: 								imbapp.htm imbapp.html										(app-like)
 Top_class_for_App: 						imbapp.htm imbapp.html										(app-like)
 CSS: 									imbapp.htm imbapp.html										(app-like)
-Android_spec (texts): 					imbapp.html													(real app)
-android_init: 							imbapp.html													(real app)
-Backward_helper_class: 					imbraw2dng.html imbraw2dng.js								(classic)
 
 -->
 <head>
@@ -643,6 +642,50 @@ body:has(dialog[open]), html:has(dialog[open]) {
 <script src="cordova.js"></script>
 <script type="text/javascript" language="javascript">
 "use strict;"
+/* *************************************** globalfxns *************************************** */
+const globalfxns = {
+/* globals: adjust A:\imback\... format to /imback/... */
+adjurl: function(url) {
+	if (url.url) url = url.url;
+	if (url.toUpperCase().substring(0,3) !== 'A:\\')
+		return url;
+	let n = url.substring(2);
+	while (n.indexOf("\\") > -1) {
+		n = n.substring(0, n.indexOf("\\")) + '/' + n.substring(n.indexOf('\\') +1);
+	}
+	return n;
+},
+/* ImBCBase: rotate image in canvas */
+rotvis: function(canv, ccw) {
+	const ow = canv.width;
+	const oh = canv.height;
+	const ctx = canv.getContext('2d', { alpha: false });
+	const imd = ctx.getImageData(0, 0, ow, oh).data;
+	ctx.clearRect(0,0,ow,ow);
+	ctx.clearRect(0,0,oh,oh);
+	canv.width = oh;
+	canv.height = ow;
+	const nd = new Uint8ClampedArray(ow*oh*4);
+	for (let r=0; r<oh; r++) {
+		for (let c=0; c<ow; c++) {
+			if (ccw) {
+				nd[oh*c*4 +r*4] = imd[ow*r*4 + (ow-c-1)*4];
+				nd[oh*c*4 +r*4 +1] = imd[ow*r*4 + (ow-c-1)*4 +1];
+				nd[oh*c*4 +r*4 +2] = imd[ow*r*4 + (ow-c-1)*4 +2];
+				nd[oh*c*4 +r*4 +3] = imd[ow*r*4 + (ow-c-1)*4 +3];
+			} else {
+				nd[oh*c*4 +r*4] = imd[ow*(oh-r-1)*4 + c*4];
+				nd[oh*c*4 +r*4 +1] = imd[ow*(oh-r-1)*4 + c*4 +1];
+				nd[oh*c*4 +r*4 +2] = imd[ow*(oh-r-1)*4 + c*4 +2];
+				nd[oh*c*4 +r*4 +3] = imd[ow*(oh-r-1)*4 + c*4 +3];
+			}
+		}
+	}
+	//ctx.setTransform(1,0,0,0,1,0);
+	ctx.putImageData(new ImageData(nd, oh, ow), 0, 0);
+}
+}
+/* *************************************** globalfxns E N D *************************************** */
 /* *************************************** IFDOut *************************************** */
 /* Tiff IFD helper class */
 class IFDOut {
@@ -1486,17 +1529,6 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 		}
 	}
 	return uic;
-},
-/* globals: adjust A:\imback\... format to /imback/... */
-adjurl: function(url) {
-	if (url.url) url = url.url;
-	if (url.toUpperCase().substring(0,3) !== 'A:\\')
-		return url;
-	let n = url.substring(2);
-	while (n.indexOf("\\") > -1) {
-		n = n.substring(0, n.indexOf("\\")) + '/' + n.substring(n.indexOf('\\') +1);
-	}
-	return n;
 },
 /* Indentation in - end of globals */
 }
@@ -22177,7 +22209,7 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 			   this.rootfs = undefined;
 			   this.mappx(false, 'words.error');
 			   if (ext1 !== '.RAW' && ext1 !== '.DNG' && ext2 !== '.RAW' && ext2 !== '.DNG') {
-				   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + globals.adjurl(origname));
+				   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + globalfxns.adjurl(origname));
 			   } else {
 				   this.appmsgxl(0, 'process.errsave', name);
 				   this.appmsg(JSON.stringify(e), true);
@@ -22190,7 +22222,7 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 		   this.rootfs = undefined;
 		   this.mappx(false, 'words.error');
 		   if (ext1 !== '.RAW' && ext1 !== '.DNG' && ext2 !== '.RAW' && ext2 !== '.DNG') {
-			   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + globals.adjurl(origname));
+			   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + globalfxns.adjurl(origname));
 		   } else {
 			   this.appmsgxl(0, 'process.errsave', name);
 			   this.appmsg(JSON.stringify(e), true);
@@ -22246,7 +22278,7 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 				   console.log("catch Failed file write 2: " + e.toString());
 				   this.mappx(false, 'words.error');
 				   if (ext1 !== '.RAW' && ext1 !== '.DNG' && ext2 !== '.RAW' && ext2 !== '.DNG') {
-					   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + globals.adjurl(origname));
+					   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + globalfxns.adjurl(origname));
 				   } else {
 					   this.appmsgxl(0, 'process.errsave', name);
 					   this.appmsg(JSON.stringify(e), true);
@@ -22267,7 +22299,7 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 				   console.log("Failed file write: " + e.toString());
 				   this.mappx(false, 'words.error');
 				   if (ext1 !== '.RAW' && ext1 !== '.DNG' && ext2 !== '.RAW' && ext2 !== '.DNG') {
-					   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + globals.adjurl(origname));
+					   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + globalfxns.adjurl(origname));
 				   } else {
 					   this.appmsgxl(0, 'process.errsave', name);
 					   this.appmsg(JSON.stringify(e), true);
@@ -22281,7 +22313,7 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 		console.log('Error root get file ' + JSON.stringify(e));
 		this.mappx(false, 'words.error');
 	    if (ext1 !== '.RAW' && ext1 !== '.DNG' && ext2 !== '.RAW' && ext2 !== '.DNG') {
-		   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + globals.adjurl(origname));
+		   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + globalfxns.adjurl(origname));
 	    } else {
 		   this.appmsgxl(0, 'process.errsave', name);
 		   this.appmsg(JSON.stringify(e), true);
@@ -22609,6 +22641,16 @@ initworker() {
 				   scripttext += globals[s].toString();
 		   else
 				   scripttext += JSON.stringify(globals[s]);
+		   scripttext += ',\n';
+	}
+	scripttext += '};';
+	scripttext += '\nvar globalfxns = {';
+	for (const s in globalfxns) {
+		   scripttext += (s + ': ');
+		   if (typeof globalfxns[s] === 'function')
+				   scripttext += globalfxns[s].toString();
+		   else
+				   scripttext += JSON.stringify(globalfxns[s]);
 		   scripttext += ',\n';
 	}
 	scripttext += '};';
@@ -23663,20 +23705,22 @@ topreccheck(force) {
 			let j = globals.oriecw.indexOf(e.rot);
 			j = ((j + 1) % 4);
 			e.rot = globals.oriecw[j];
-			e.preview.style['display'] = 'none';
+			ne.setAttribute('data-state', 'wait');
+			/*e.preview.style['display'] = 'none';
 			ne.querySelector('.waitdiv').style['display'] = 'none';
 			ne.querySelector('.eepvx').style['display'] = '';
 			ne.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
 			ne.querySelector('.dlbtn').classList.add('disabled');
-			ne.setAttribute('data-state', 'wait');
-			this.startloadimg();
-			rotbtn.parentElement.style['display'] = 'none';
+			this.startloadimg();*/
+			globalfxns.rotvis(ne.querySelector('.eeraw'),0);
 			const ii = this.iinf.findIndex((j) => j.n === e.raw);
 			if (ii === -1)
 				this.iinf.push( { n: e.raw, r: e.rot });
 			else
 				this.iinf[ii].r = e.rot;
 			this.savesettings('ii');
+			ne.setAttribute('data-state', 'ok');
+			ne.parentElement.querySelector('.btnsrow').style['display'] = 'none';
 		};
 	} else {
 		rotbtn.remove();
@@ -23689,20 +23733,22 @@ topreccheck(force) {
 			let j = globals.oriecw.indexOf(e.rot);
 			j = ((j + 3) % 4);
 			e.rot = globals.oriecw[j];
-			e.preview.style['display'] = 'none';
+			ne.setAttribute('data-state', 'wait');
+			/*e.preview.style['display'] = 'none';
 			ne.querySelector('.waitdiv').style['display'] = 'none';
 			ne.querySelector('.eepvx').style['display'] = '';
 			ne.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
 			ne.querySelector('.dlbtn').classList.add('disabled');
-			ne.setAttribute('data-state', 'wait');
-			this.startloadimg();
-			rotbtnr.parentElement.style['display'] = 'none';
+			this.startloadimg();*/
+			globalfxns.rotvis(ne.querySelector('.eeraw'),1);
 			const ii = this.iinf.findIndex((j) => j.n === e.raw);
 			if (ii === -1)
 				this.iinf.push( { n: e.raw, r: e.rot });
 			else
 				this.iinf[ii].r = e.rot;
 			this.savesettings('ii');
+			ne.setAttribute('data-state', 'ok');
+			ne.parentElement.querySelector('.btnsrow').style['display'] = 'none';
 		};
 	} else {
 		rotbtnr.remove();
@@ -23769,11 +23815,12 @@ rotmag(ccw) {
 	j = ((j + (ccw ? 3 : 5)) % 4);
 	this.magentry.rot = globals.oriecw[j];
 	this.magentry.orig.rot = this.magentry.rot;
-	ne.querySelector('.waitdiv').style['display'] = 'none';
+	/*ne.querySelector('.waitdiv').style['display'] = 'none';
 	ne.querySelector('.eepvx').style['display'] = '';
 	ne.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
 	ne.querySelector('.dlbtn').classList.add('disabled');
-	ne.setAttribute('data-state', 'wait');
+	ne.setAttribute('data-state', 'wait');*/
+	globalfxns.rotvis(ne.querySelector('.eeraw'),ccw);
 	const xne = this.magentry.orig.entry;
 	if (this.magentry.orig.preview) this.magentry.orig.preview.style['display'] = 'none';
 	if (xne) {
@@ -23850,7 +23897,7 @@ dlmag() {
 			return;
 		}
 		else
-			to.preview.src = this.imbweb + globals.adjurl(url) + (to.isbig ? '' : '?custom=1&cmd=4001');
+			to.preview.src = this.imbweb + globalfxns.adjurl(url) + (to.isbig ? '' : '?custom=1&cmd=4001');
 	}
 	else {
 		let afterloadcalled = false;
@@ -25000,7 +25047,7 @@ takephoto() {
 				}
 				const r = ImBCBase.basename(n);
 				if (r.substring(r.length -4).toUpperCase() === '.JPG') {
-					document.getElementById('takejpg').src = this.imbweb + globals.adjurl(n) +'?custom=1&cmd=4001';
+					document.getElementById('takejpg').src = this.imbweb + globalfxns.adjurl(n) +'?custom=1&cmd=4001';
 					document.getElementById('takejpg').style['display'] = '';
 					document.getElementById('takenone').style['display'] = 'none';
 					document.getElementById('takeerr').style['display'] = 'none';
@@ -25675,9 +25722,9 @@ function resolver(url, preview, notfirst)  {
 	xhr.onabort = (evt) => { xhr.onerror(evt, 'abort'); };
 	xhr.ontimeout = (evt) => { xhr.onerror(evt, 'timeout'); };
 	if (preview && (url.substring(url.length -4).toUpperCase() !== '.RAW')) {
-		xhr.open('GET', base + globals.adjurl(url) +'?custom=1&cmd=4001');
+		xhr.open('GET', base + globalfxns.adjurl(url) +'?custom=1&cmd=4001');
 	} else {
-		xhr.open('GET', base + globals.adjurl(url));
+		xhr.open('GET', base + globalfxns.adjurl(url));
 	}
 	xhr.setRequestHeader('Cache-control','max-stale');
 	xhr.responseType = 'arraybuffer';
