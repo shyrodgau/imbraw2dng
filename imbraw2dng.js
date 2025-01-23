@@ -742,7 +742,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.9.8_@_d_e_v", // actually const // VERSION EYECATCHER
+version: "V5.9.9_b3891b8", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -18863,6 +18863,8 @@ handleone(orientation) {
 				ti.addExifIfd(e.data);
 			}
 		}
+		let metadatastr = this.xl('process.metadata') + ' ';
+		let metadatalen = 0;
 		let rightbytes = [];
 		if (this.metadata && this.copyright?.length) {
 			// do UTF-8 bytes instead of ASCII if necessary
@@ -18871,6 +18873,8 @@ handleone(orientation) {
 				ti.addEntry(33432, 'ASCII', this.copyright); /* copyright */
 			else
 				ti.addEntry(33432, 'ASCII', rightbytes); /* copyright */ /* https://www.iptc.org/std/photometadata/documentation/mappingguidelines/ */
+			metadatastr += this.xl('process.addcopyright');
+			metadatalen++;
 		}
 		let artbytes = [];
 		if (this.metadata && this.artist?.length) {
@@ -18880,6 +18884,9 @@ handleone(orientation) {
 				ti.addEntry(315, 'ASCII', this.artist); /* artist */
 			else
 				ti.addEntry(315, 'ASCII', artbytes); /* artist */ /* https://www.iptc.org/std/photometadata/documentation/mappingguidelines/ */
+			if (metadatalen) metadatastr += ', ';
+			metadatastr += this.xl('process.addartist');
+			metadatalen++;
 		}
 		let desc = '', descbytes = [];
 		if (this.iinf?.length) {
@@ -18893,8 +18900,12 @@ handleone(orientation) {
 					ti.addEntry(270, 'ASCII', desc); /* image description */
 				else
 					ti.addEntry(270, 'ASCII', descbytes); /* image description */ /* https://www.iptc.org/std/photometadata/documentation/mappingguidelines/ */
+				if (metadatalen) metadatastr += ', ';
+				metadatastr += 'Description of Photo';
+				metadatalen++;
 			}
 		}
+		if (metadatalen) this.appmsg(metadatastr);
 		if (!this.neutral) {
 			const xmp1 = `<?xpacket begin='`;
 			const xmp2 = `' id='W5M0MpCehiHzreSzNTczkc9d'?><x:xmpmeta xmlns:x='adobe:ns:meta/'><rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'><rdf:Description rdf:about='' xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:xmp='http://ns.adobe.com/xap/1.0/' dc:source='`;
@@ -20559,16 +20570,18 @@ const mytexts = { // actually const
 		},
 	},
 	process: {
-		singlestep: {
-			de: 'Einzelschritt mit Vorschau',
-			en: 'Single Step with preview',
-			fr: 'Seule étape avec aperçu',
-			ja: 'プレビューありでシングルステップ'
-		},
 		addcopyright: {
 			en: 'Copyright',
 			de: 'Copyright',
 			ja: '著作権を追加'
+		},
+		addartist: {
+			en: 'Artist/Creator',
+			de: 'Künstler/Ersteller'
+		},
+		metadata: {
+			en: 'Metadata:',
+			de: 'Metadaten:'
 		},
 		nothing: {
 			de: 'Nichts ausgewählt.. ?',
@@ -20587,18 +20600,6 @@ const mytexts = { // actually const
 			en: 'Passing through as not raw: $$0',
 			fr: 'Passage comme non RAW: $$0',
 			ja: 'RAW ではないのでスルー: $$0'
-		},
-		selectedn: {
-			de: '$$0 Datei(en) wurden ausgewählt.',
-			en: 'Got $$0 file(s) selected.',
-			fr: '$$0 fiche(s) sélectionné(s)',
-			ja: '$$0 ファイルが選択されました。'
-		},
-		copyokcheckdl: {
-			de: 'Nach $$0 kopiert (Downloads-Ordner prüfen)</b>&nbsp;',
-			en: 'Copied to $$0 (Check Downloads Folder)</b>&nbsp;',
-			fr: 'Copié sur $$0 (Vérifier le dossier de téléchargements/Downloads)</b>&nbsp;',
-			ja: '$$0 にコピーされました (ダウンロードフォルダーを確認)</b>&nbsp;'
 		},
 		copyok: {
 			de: 'Nach $$0 kopiert',
@@ -20648,12 +20649,6 @@ const mytexts = { // actually const
 			fr: 'Rotation: $$0',
 			ja: '向き: $$0'
 		},
-		convertedcheckdl: {
-			de: 'Nach $$0 konvertiert (Downloads-Ordner prüfen)',
-			en: 'Converted to $$0 (Check Downloads Folder)',
-			fr: 'Converti en $$0 (Vérifier le dossier de téléchargements/Downloads)',
-			ja: '$$0 に変換されました (ダウンロードフォルダーを確認してください)'
-		},
 		converted: {
 			de: 'Nach $$0 konvertiert',
 			en: 'Converted to $$0',
@@ -20666,31 +20661,13 @@ const mytexts = { // actually const
 			fr: 'Impossible d\'écrire le fiche $$0.',
 			ja: 'ファイル $$0 に書き込めませんでした'
 		},
-		droppedn: {
-			de: '$$0 Datei(en) wurden abgelegt.',
-			en: 'Got $$0 file(s) dropped.',
-			fr: '$$0 fiche(s) ont été stockés',
-			ja: '$$0 個のファイルがドロップされました。'
-		},
 		frombackn: {
 			de: '$$0 Datei(en) vom ImB zu verarbeiten.',
 			en: 'Got $$0 file(s) from ImB.',
 			fr: 'J\'ai reçu $$0 fiche(s) d\'ImB',
 			ja: 'ImB から $$0 ファイルを取得しました。'
 		},
-		frombrowsern: {
-			de: '$$0 Datei(en) vom Bild-Browser zu verarbeiten.',
-			en: 'Got $$0 file(s) from Visual browser.',
-			fr: 'J\'ai obtenu $$ fiche(s) du navigateur visuel',
-			ja: 'ビジュアル ブラウザから $$0 ファイルを取得しました。'
-		},
 		skipped: {
-			remaining: {
-				de: 'Verbleibende $$0 Dateien auf Anforderung übersprungen',
-				en: 'Skipping remaining $$0 images at your request',
-				fr: '$$0 fiches restants ignorés sur demande',
-				ja: 'リクエストに応じてスキップ: $$0'
-			},
 			de: 'Auf Anforderung übersprungen: $$0',
 			en: 'Skipped at your request: $$0',
 			fr: 'Ignoré à votre demande: $$0',
