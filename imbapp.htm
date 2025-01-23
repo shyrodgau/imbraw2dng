@@ -1063,7 +1063,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.9.9_f664e7a", // actually const // VERSION EYECATCHER
+version: "V5.9.9_605aee1", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -19222,7 +19222,7 @@ handleone(orientation) {
 				else
 					ti.addEntry(270, 'ASCII', descbytes); /* image description */ /* https://www.iptc.org/std/photometadata/documentation/mappingguidelines/ */
 				if (metadatalen) metadatastr += ', ';
-				metadatastr += 'Description of Photo';
+				metadatastr += this.xl0('process.photodesc');
 				metadatalen++;
 			}
 		}
@@ -22720,7 +22720,7 @@ checkchecks() {
 /* *************************************** Browser specifics *************************************** */
 /* Browserhelper: browserdisplay: put last message viewable */
 showlastmsg() {
-	const ll = document.querySelector('*[data-lastmsg]');
+	const ll = document.querySelector('#endoflog');
 	if (ll) {
 		ll.scrollIntoView(false, { block: 'nearest' });
 	}
@@ -22749,6 +22749,9 @@ xlateall() {
 		this.xl1(e);
 	const o = document.querySelectorAll('*[data-myxxlstx]');
 	for (const e of o)
+		this.xl1(e);
+	const p = document.querySelectorAll('*[data-myplaceholder]');
+	for (const e of p)
 		this.xl1(e);
 	if (ImBCBase.progname?.startsWith('imbapp'))
 		document.title = this.xl('main.apptitle') + ' ' + globals.version;
@@ -22802,11 +22805,9 @@ logdownload() {
 appmsg(msg, opt) {
 	const s = document.createElement('span');
 	s.innerHTML = msg;
-	document.querySelectorAll('*[data-lastmsg]').forEach((x) => { x.removeAttribute('data-lastmsg') });
-	s.setAttribute('data-lasgmsg', true);
 	const msgel = document.getElementById('outmsg');
 	msgel.append(s);
-	s.scrollIntoView(false, { block: 'nearest' });
+	this.showlastmsg();
 	if (opt !== false)
 		msgel.innerHTML += '<br>';
 	if (opt === true)
@@ -22815,11 +22816,9 @@ appmsg(msg, opt) {
 /* Browserhelper: output function to main log */
 appmsgxl(opt, msg, arg0, arg1, arg2, arg3) {
 	const s = this.genspan(msg, arg0, arg1, arg2, arg3);
-	document.querySelectorAll('*[data-lastmsg]').forEach((x) => { x.removeAttribute('data-lastmsg') });
-	s.setAttribute('data-lasgmsg', true);
 	const msgel = document.getElementById('outmsg');
 	msgel.append(s);
-	s.scrollIntoView(false, { block: 'nearest' });
+	this.showlastmsg();
 	if (opt !== false)
 		msgel.innerHTML += '<br>';
 	if (opt === true)
@@ -22842,6 +22841,9 @@ xl1(el) {
 	}
 	if (el.attributes.getNamedItem('data-myhrefxlkey')) {
 		el.href = this.xl(el.attributes.getNamedItem('data-myhrefxlkey').value);
+	}
+	if (el.attributes.getNamedItem('data-myplaceholder')) {
+		el.placeholder = this.xl(el.attributes.getNamedItem('data-myplaceholder').value);
 	}
 	if (el.attributes.getNamedItem('data-myxxlst')) {
 		el.innerHTML = this.xlx(el.attributes.getNamedItem('data-myxxlst').value) + ': ';
@@ -22949,7 +22951,7 @@ xl1(el) {
 /* Browserhelper: visual browser or from imback: load next from todo list */
 loadnextimg() {
 	if (this.debugflag) console.log('L  N  I');
-	if (this.loaderrunning !== 'blah!' && this.allfiles.length > 0 && this.actnum <= this.allfiles.length - 1) {
+	if ((!ImBCBase.progname.startsWith('imbapp') || this.loaderrunning !== 'blah!') && this.allfiles.length > 0 && this.actnum <= this.allfiles.length - 1) {
 		this.loaderrunning = 'blah!';
 		window.setTimeout(() => {
 			this.checkchecks();
@@ -23423,6 +23425,10 @@ const mytexts = { // actually const
 		addartist: {
 			en: 'Artist/Creator',
 			de: 'Künstler/Ersteller'
+		},
+		photodesc: {
+			en: 'Description of Photo',
+			de: 'Beschreibung des Fotos'
 		},
 		metadata: {
 			en: 'Metadata:',
@@ -25977,6 +25983,7 @@ function readjpg(file) {
 </div>
 <div id="xmsg" style="width: fit-content;white-space: pre;min-width:100%;min-height:100%; overflow:auto;"><span style="font-weight:bold;" data-myxlkey="main.log"></span><br>
 <div id="outmsg"></div></div>
+<span id="endoflog">&nbsp;</span>
 </div>
 <!-- end of the message log, generated content appended -->
 <!-- this is the magnification -->
@@ -26008,7 +26015,7 @@ function readjpg(file) {
 			<input class="biggiebtn timetxt" type="text" maxlength="19" id="refts" minlength="0" placeholder="yyyy-MM-ddThh:mm:ss" pattern="[0-9][0-9][0-9][0-9][^0-9][0-9][0-9][^0-9][0-9][0-9][^0-9][0-9][0-9][^0-9][0-9][0-9][^0-9][0-9][0-9]"
 			   onkeyup="imbc.magtimechg()" style="left:5.1em; top:-1.8em;background-color:rgba(255,255,255,0.7);font-weight:normal;border-radius:5px;border: 1px solid rgba(0,0,0,0);font-size:80%;width:15em;">
 			<span class="biggiebtn descbtn" id="descbut" style="left: 2.3em;" onclick="imbc.magdescx();">&#x270e;</span>
-			<input class="biggiebtn desctxt" type="text" id="desctxt" minlength="0" placeholder="Description of Photo"
+			<input class="biggiebtn desctxt" type="text" id="desctxt" minlength="0" data-myplaceholder="process.photodesc"
 			   onkeyup="imbc.magdescchg()" style="left:5.1em; background-color:rgba(255,255,255,0.7);font-weight:normal;border-radius:5px;border: 1px solid rgba(0,0,0,0);font-size:80%;width:25em;">
 			<div class="backnextmag" id="backnl" style="left:3vw;" onclick="imbc.magnav();">&#x25c0;</div>
 			<div class="backnextmag" id="backnr" style="right:3vw;" onclick="imbc.magnav(true);">&#x25b6;</div>

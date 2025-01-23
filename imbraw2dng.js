@@ -742,7 +742,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.9.9_f664e7a", // actually const // VERSION EYECATCHER
+version: "V5.9.9_605aee1", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -18901,7 +18901,7 @@ handleone(orientation) {
 				else
 					ti.addEntry(270, 'ASCII', descbytes); /* image description */ /* https://www.iptc.org/std/photometadata/documentation/mappingguidelines/ */
 				if (metadatalen) metadatastr += ', ';
-				metadatastr += 'Description of Photo';
+				metadatastr += this.xl0('process.photodesc');
 				metadatalen++;
 			}
 		}
@@ -20578,6 +20578,10 @@ const mytexts = { // actually const
 		addartist: {
 			en: 'Artist/Creator',
 			de: 'Künstler/Ersteller'
+		},
+		photodesc: {
+			en: 'Description of Photo',
+			de: 'Beschreibung des Fotos'
 		},
 		metadata: {
 			en: 'Metadata:',

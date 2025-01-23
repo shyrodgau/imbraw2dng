@@ -906,7 +906,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.9.9_f664e7a", // actually const // VERSION EYECATCHER
+version: "V5.9.9_605aee1", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -19065,7 +19065,7 @@ handleone(orientation) {
 				else
 					ti.addEntry(270, 'ASCII', descbytes); /* image description */ /* https://www.iptc.org/std/photometadata/documentation/mappingguidelines/ */
 				if (metadatalen) metadatastr += ', ';
-				metadatastr += 'Description of Photo';
+				metadatastr += this.xl0('process.photodesc');
 				metadatalen++;
 			}
 		}
@@ -19846,7 +19846,7 @@ checkchecks() {
 /* *************************************** Browser specifics *************************************** */
 /* Browserhelper: browserdisplay: put last message viewable */
 showlastmsg() {
-	const ll = document.querySelector('*[data-lastmsg]');
+	const ll = document.querySelector('#endoflog');
 	if (ll) {
 		ll.scrollIntoView(false, { block: 'nearest' });
 	}
@@ -19875,6 +19875,9 @@ xlateall() {
 		this.xl1(e);
 	const o = document.querySelectorAll('*[data-myxxlstx]');
 	for (const e of o)
+		this.xl1(e);
+	const p = document.querySelectorAll('*[data-myplaceholder]');
+	for (const e of p)
 		this.xl1(e);
 	if (ImBCBase.progname?.startsWith('imbapp'))
 		document.title = this.xl('main.apptitle') + ' ' + globals.version;
@@ -19928,11 +19931,9 @@ logdownload() {
 appmsg(msg, opt) {
 	const s = document.createElement('span');
 	s.innerHTML = msg;
-	document.querySelectorAll('*[data-lastmsg]').forEach((x) => { x.removeAttribute('data-lastmsg') });
-	s.setAttribute('data-lasgmsg', true);
 	const msgel = document.getElementById('outmsg');
 	msgel.append(s);
-	s.scrollIntoView(false, { block: 'nearest' });
+	this.showlastmsg();
 	if (opt !== false)
 		msgel.innerHTML += '<br>';
 	if (opt === true)
@@ -19941,11 +19942,9 @@ appmsg(msg, opt) {
 /* Browserhelper: output function to main log */
 appmsgxl(opt, msg, arg0, arg1, arg2, arg3) {
 	const s = this.genspan(msg, arg0, arg1, arg2, arg3);
-	document.querySelectorAll('*[data-lastmsg]').forEach((x) => { x.removeAttribute('data-lastmsg') });
-	s.setAttribute('data-lasgmsg', true);
 	const msgel = document.getElementById('outmsg');
 	msgel.append(s);
-	s.scrollIntoView(false, { block: 'nearest' });
+	this.showlastmsg();
 	if (opt !== false)
 		msgel.innerHTML += '<br>';
 	if (opt === true)
@@ -19968,6 +19967,9 @@ xl1(el) {
 	}
 	if (el.attributes.getNamedItem('data-myhrefxlkey')) {
 		el.href = this.xl(el.attributes.getNamedItem('data-myhrefxlkey').value);
+	}
+	if (el.attributes.getNamedItem('data-myplaceholder')) {
+		el.placeholder = this.xl(el.attributes.getNamedItem('data-myplaceholder').value);
 	}
 	if (el.attributes.getNamedItem('data-myxxlst')) {
 		el.innerHTML = this.xlx(el.attributes.getNamedItem('data-myxxlst').value) + ': ';
@@ -20075,7 +20077,7 @@ xl1(el) {
 /* Browserhelper: visual browser or from imback: load next from todo list */
 loadnextimg() {
 	if (this.debugflag) console.log('L  N  I');
-	if (this.loaderrunning !== 'blah!' && this.allfiles.length > 0 && this.actnum <= this.allfiles.length - 1) {
+	if ((!ImBCBase.progname.startsWith('imbapp') || this.loaderrunning !== 'blah!') && this.allfiles.length > 0 && this.actnum <= this.allfiles.length - 1) {
 		this.loaderrunning = 'blah!';
 		window.setTimeout(() => {
 			this.checkchecks();
@@ -22024,6 +22026,10 @@ const mytexts =  { // actually const
 			en: 'Artist/Creator',
 			de: 'Künstler/Ersteller'
 		},
+		photodesc: {
+			en: 'Description of Photo',
+			de: 'Beschreibung des Fotos'
+		},
 		metadata: {
 			en: 'Metadata:',
 			de: 'Metadaten:'
@@ -22411,6 +22417,7 @@ function init() {
 &nbsp;<br>
 <div id="xmsg" style="width: fit-content;white-space: pre;"><span style="font-weight:bold;" data-myxlkey="main.log"></span><br>
 <div id="outmsg"></div></div>
+<span id="endoflog">&nbsp;</span>
 <input type="button" value="&#x2b73;" class="uhbtn" onclick="imbc.logdownload()" id="dlmsgbut">
 </div>
 <!-- end of the normal display -->
