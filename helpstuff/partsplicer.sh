@@ -22,7 +22,7 @@ fi
 
 validcomb="
 IFDOut  imbapp.htm  imbapp.html  imbraw2dng.html  imbraw2dng.js
-globalfxns  imbapp.htm  imbapp.html  imbraw2dng.html
+Browser_specifics  imbapp.htm  imbapp.html  imbraw2dng.html
 Backward_helper_class  imbraw2dng.html  imbraw2dng.js
 WORKER  imbapp.htm  imbapp.html
 Top_class_for_App  imbapp.htm  imbapp.html

@@ -61,13 +61,13 @@ DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS 
 
 ***************************************************** 
 
-Mapping of identical sections:
+Mapping of identical sections: (* = missing here)
 IFDOut (TIFFOut, ImBCBase, globals): 	imbapp.htm imbapp.html imbraw2dng.html imbraw2dng.js		(all)
-globalfxns: 							imbapp.htm imbapp.html imbraw2dng.html						(all html)
+*Browser_specifics (globalfxns): 		imbapp.htm imbapp.html imbraw2dng.html						(all html)
 Backward_helper_class: 					imbraw2dng.html imbraw2dng.js								(classic)
-WORKER: 								imbapp.htm imbapp.html										(app-like)
-Top_class_for_App: 						imbapp.htm imbapp.html										(app-like)
-CSS: 									imbapp.htm imbapp.html										(app-like)
+*WORKER: 								imbapp.htm imbapp.html										(app-like)
+*Top_class_for_App: 					imbapp.htm imbapp.html										(app-like)
+*CSS: 									imbapp.htm imbapp.html										(app-like)
 
 */
 "use strict;"
@@ -742,7 +742,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.9.9_b3891b8", // actually const // VERSION EYECATCHER
+version: "V5.9.9_f664e7a", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s

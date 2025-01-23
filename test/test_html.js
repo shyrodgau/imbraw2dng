@@ -397,6 +397,9 @@ describe('B Convert Raw from Imback', function() {
 					.perform();
 			}
 			await driver.actions({async:true}).clear();
+			const dlmsgbut = await waitfor(driver, 'id', 'dlmsgbut');
+			await driver.actions({async: true})
+				.pause(700).move({ origin: dlmsgbut }).pause(300).click().pause(700).perform();
 	});
 	after(async function() {
 			let me = await driver.findElement(By.id('thebody'));
@@ -704,6 +707,9 @@ describe('E Convert Raw from Imback APP', function() {
 				.pause(600)
 				.perform();
 			await driver.actions({async:true}).clear();
+			const dlmsgbut = await waitfor(driver, 'id', 'dlmsgbut');
+			await driver.actions({async: true})
+				.pause(700).move({ origin: dlmsgbut }).pause(300).click().pause(700).perform();
 	});
 	after(async function() {
 			let me = await driver.findElement(By.id('thebody'));

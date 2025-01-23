@@ -28,13 +28,13 @@ DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS 
 
 ***************************************************** 
 
-Mapping of identical sections:
+Mapping of identical sections: (* = missing here)
 IFDOut (TIFFOut, ImBCBase, globals): 	imbapp.htm imbapp.html imbraw2dng.html imbraw2dng.js		(all)
-globalfxns: 							imbapp.htm imbapp.html imbraw2dng.html						(all html)
+Browser_specifics (globalfxns): 		imbapp.htm imbapp.html imbraw2dng.html						(all html)
 Backward_helper_class: 					imbraw2dng.html imbraw2dng.js								(classic)
-WORKER: 								imbapp.htm imbapp.html										(app-like)
-Top_class_for_App: 						imbapp.htm imbapp.html										(app-like)
-CSS: 									imbapp.htm imbapp.html										(app-like)
+*WORKER: 								imbapp.htm imbapp.html										(app-like)
+*Top_class_for_App: 					imbapp.htm imbapp.html										(app-like)
+*CSS: 									imbapp.htm imbapp.html										(app-like)
 
 -->
 <head>
@@ -219,55 +219,22 @@ div#xmsg {
 	padding-left: 0.1em;
 	padding-top: 0.1em;
 }
+.uhbtn {
+	font-weight:bold;
+	font-size:110%;
+	border:2px solid black !important;
+	margin-right: 1em;
+	border-radius: 15px;
+	width: 30px;
+	height: 30px;
+	text-align: center;
+	padding: 0;
+}
 /* * * ************************************* CSS E N D *************************************** */
 </style>
 <!-- javascript code identical to imbraw2dng.js  for the classes IFDOut, TIFFOut, ZIPHelp, ImBCBase, ImBCBackw. -->
 <script type="text/javascript" language="javascript">
 "use strict;"
-/* *************************************** globalfxns *************************************** */
-const globalfxns = {
-/* globals: adjust A:\imback\... format to /imback/... */
-adjurl: function(url) {
-	if (url.url) url = url.url;
-	if (url.toUpperCase().substring(0,3) !== 'A:\\')
-		return url;
-	let n = url.substring(2);
-	while (n.indexOf("\\") > -1) {
-		n = n.substring(0, n.indexOf("\\")) + '/' + n.substring(n.indexOf('\\') +1);
-	}
-	return n;
-},
-/* ImBCBase: rotate image in canvas */
-rotvis: function(canv, ccw) {
-	const ow = canv.width;
-	const oh = canv.height;
-	const ctx = canv.getContext('2d', { alpha: false });
-	const imd = ctx.getImageData(0, 0, ow, oh).data;
-	ctx.clearRect(0,0,ow,ow);
-	ctx.clearRect(0,0,oh,oh);
-	canv.width = oh;
-	canv.height = ow;
-	const nd = new Uint8ClampedArray(ow*oh*4);
-	for (let r=0; r<oh; r++) {
-		for (let c=0; c<ow; c++) {
-			if (ccw) {
-				nd[oh*c*4 +r*4] = imd[ow*r*4 + (ow-c-1)*4];
-				nd[oh*c*4 +r*4 +1] = imd[ow*r*4 + (ow-c-1)*4 +1];
-				nd[oh*c*4 +r*4 +2] = imd[ow*r*4 + (ow-c-1)*4 +2];
-				nd[oh*c*4 +r*4 +3] = imd[ow*r*4 + (ow-c-1)*4 +3];
-			} else {
-				nd[oh*c*4 +r*4] = imd[ow*(oh-r-1)*4 + c*4];
-				nd[oh*c*4 +r*4 +1] = imd[ow*(oh-r-1)*4 + c*4 +1];
-				nd[oh*c*4 +r*4 +2] = imd[ow*(oh-r-1)*4 + c*4 +2];
-				nd[oh*c*4 +r*4 +3] = imd[ow*(oh-r-1)*4 + c*4 +3];
-			}
-		}
-	}
-	//ctx.setTransform(1,0,0,0,1,0);
-	ctx.putImageData(new ImageData(nd, oh, ow), 0, 0);
-}
-}
-/* *************************************** globalfxns E N D *************************************** */
 /* *************************************** Backward helper class *************************************** */
 class ImBCBackw {
 /* Indentation out */
@@ -939,7 +906,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.9.9_b3891b8", // actually const // VERSION EYECATCHER
+version: "V5.9.9_f664e7a", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -19568,8 +19535,6 @@ imbeles = [];
 currentrot = 0; // see oriecw above, 0 means unknown
 // single-step/process all/skip all
 stepmode = 1;
-// bottom most text index
-#dispcnt = 1;
 // const if html:
 checkdlfolder = true;
 dloads = []; // already known downloaded
@@ -19609,79 +19574,8 @@ writefile(name, type, okmsg, arr1, ) {
 	outel.click();
 	this.appmsgxl(false, 'words.finished');
 	this.appmsgxl(true, okmsg, name);
-	if (type !== 'application/zip')
+	if (type !== 'application/zip' && type !== 'text/html')
 		this.writepostok(name);
-}
-/* ImBCHtmlOut: find html style for translation */
-applystyle(span, msg, base) {
-	if (undefined === base) base = mytexts;
-	const i = msg.indexOf('.');
-	if (i === -1) {
-		let r = base[msg]['htmlstyle'];
-		if (r !== undefined) {
-			for (const s of r) {
-				span.style[s[0]] = s[1];
-			}
-		}
-		return span;
-	}
-	else {
-		const e = base[msg.substring(0,i)];
-		return this.applystyle(span, msg.substring(i+1), e);
-	}
-}
-/* ImBCHtmlOut: output function to main log */
-appmsg(msg, opt) {
-	const s = document.createElement('span');
-	s.innerHTML = msg;
-	this.#dispcnt++;
-	s.id = 'mappx_' + this.#dispcnt;
-	const msgel = document.getElementById('outmsg');
-	const xmsg = document.getElementById('xmsg');
-	xmsg.style["display"] = "";
-	msgel.append(s);
-	const ll = document.getElementById('mappx_' + this.#dispcnt);
-	if (ll) {
-		ll.scrollIntoView(false, { block: 'nearest' });
-	}
-	if (opt !== false)
-		msgel.innerHTML += '<br>';
-	if (opt === true)
-		msgel.innerHTML += '<br>&nbsp;<br>';
-}
-/* ImBCHtmlOut: output function to main log */
-appmsgxl(opt, msg, arg0, arg1, arg2, arg3) {
-	const s = this.genspan(msg, arg0, arg1, arg2, arg3);
-	this.#dispcnt++;
-	s.id = 'mappx_' + this.#dispcnt;
-	const msgel = document.getElementById('outmsg');
-	const xmsg = document.getElementById('xmsg');
-	xmsg.style["display"] = "";
-	msgel.append(s);
-	const ll = document.getElementById('mappx_' + this.#dispcnt);
-	if (ll) {
-		ll.scrollIntoView(false, { block: 'nearest' });
-	}
-	if (opt !== false)
-		msgel.innerHTML += '<br>';
-	if (opt === true)
-		msgel.innerHTML += '<br>&nbsp;<br>';
-}
-/* ImBCHtmlOut: translate one element */
-xl1(el) {
-	if (el.attributes.getNamedItem('data-myxlkey')) {
-		el.innerHTML = this.xl(el.attributes.getNamedItem('data-myxlkey').value, el.attributes.getNamedItem('data-myxlarg0')?.value, el.attributes.getNamedItem('data-myxlarg1')?.value, el.attributes.getNamedItem('data-myxlarg2')?.value, el.attributes.getNamedItem('data-myxlarg3')?.value );
-	}
-	if (el.attributes.getNamedItem('data-myvalxlkey')) {
-		el.value = this.xl(el.attributes.getNamedItem('data-myvalxlkey').value);
-	}
-	if (el.attributes.getNamedItem('data-mytitlexlkey')) {
-		el.title = this.xl(el.attributes.getNamedItem('data-mytitlexlkey').value);
-	}
-	if (el.attributes.getNamedItem('data-myhrefxlkey')) {
-		el.href = this.xl(el.attributes.getNamedItem('data-myhrefxlkey').value);
-	}
-	return el;
 }
 /* ImBCHtmlOut: wrapper for zip output */
 starthandleone() {
@@ -19814,24 +19708,6 @@ handleonex() {
 		}
 	}
 }
-/* ImBCHtmlOut: translation helper */
-genspan(key, arg0, arg1, arg2, arg3) {
-	const s = this.applystyle(document.createElement('span'), key);
-	s.setAttribute('data-myxlkey', key);
-	if (undefined !== arg0) {
-		s.setAttribute('data-myxlarg0', arg0);
-		if (undefined !== arg1) {
-			s.setAttribute('data-myxlarg1', arg1);
-			if (undefined !== arg2) {
-				s.setAttribute('data-myxlarg2', arg2);
-				if (undefined !== arg3) {
-					s.setAttribute('data-myxlarg3', arg3);
-				}
-			}
-		}
-	}
-	return this.xl1(s);
-}
 /* ImBCHtmlOut: translated append to preview header */
 #qappx(key, arg0, arg1, arg2, arg3) {
 	const s = this.genspan(key, arg0, arg1, arg2, arg3);
@@ -19894,27 +19770,6 @@ imbdoit() {
 	}
 	else this.mappx(true, 'onimback.nomatch');
 }
-/* ImBCHtmlOut: translate everything */
-xlateall() {
-	document.getElementById('mainversion').innerHTML = globals.version;
-	document.documentElement.lang = this.mylang;
-	const k = document.querySelectorAll('*[data-myxlkey]');
-	for (const e of k)
-		this.xl1(e);
-	const l = document.querySelectorAll('*[data-myvalxlkey]');
-	for (const e of l)
-		this.xl1(e);
-	const m = document.querySelectorAll('*[data-mytitlexlkey]');
-	for (const e of m)
-		this.xl1(e);
-	const h = document.querySelectorAll('*[data-myhrefxlkey]');
-	for (const e of h)
-		this.xl1(e);
-	if (undefined === this.imbcb)
-		document.title = this.xl('main.title') + ' ' + globals.version;
-	else
-		document.title = this.xl('main.backw.title') + ' ' + globals.version;
-}
 /* ImBCHtmlOut: nodejs: parse config */
 parseconfig(data) {
 	const d = JSON.parse(data);
@@ -19930,27 +19785,6 @@ parseconfig(data) {
 	else this.stepmode = 0;
 	if (d.meta === undefined) this.metadata = true;
 	else this.metadata = d.meta;
-}
-/* ImBCHtmlOut: browserdisplay: put last message viewable */
-showlastmsg() {
-	const ll = document.getElementById('mappx_' + this.#dispcnt);
-	if (ll) {
-		ll.scrollIntoView(false, { block: 'nearest' });
-	}
-}
-/* ImBCHtmlOut: post write ok handler */
-writepostok(name) {
-	const ie = this.imbeles.find((v) => v.raw.toUpperCase() === ImBCBase.basename(name).toUpperCase());
-	if (ie) {
-		ie.wasselected = true;
-		if (ie.entry)
-			ie.entry.classList.add('picprocd');
-	}
-	this.stats.ok++;
-	if (-1 === (this.dloads.findIndex(e => (e.toUpperCase() === ImBCBase.basename(name).toUpperCase()))))
-		this.dloads.push(ImBCBase.basename(name));
-	if (!this.imbcb) this.savesettings(['dloads', 'ii']);
-	this.handlenext();
 }
 /* ImBCHtmlOut: after finishing.... */
 afterfinish() {
@@ -20008,9 +19842,342 @@ checkchecks() {
 	const incdcp = document.getElementById('incdcp');
 	this.incdcp = (incdcp !== null && incdcp.checked);
 }
-/* Indentation in - end of class ImBCHtmlOut */
-}
 /* *************************************** HTML helper class E N D *************************************** */
+/* *************************************** Browser specifics *************************************** */
+/* Browserhelper: browserdisplay: put last message viewable */
+showlastmsg() {
+	const ll = document.querySelector('*[data-lastmsg]');
+	if (ll) {
+		ll.scrollIntoView(false, { block: 'nearest' });
+	}
+}
+/* Browserhelper: translate everything */
+xlateall() {
+	document.getElementById('mainversion').innerHTML = globals.version;
+	document.documentElement.lang = this.mylang;
+	const k = document.querySelectorAll('*[data-myxlkey]');
+	for (const e of k)
+		this.xl1(e);
+	let l = document.querySelectorAll('*[data-myvalxlkey]');
+	for (const e of l)
+		this.xl1(e);
+	l = document.querySelectorAll('*[data-mytitlexlkey]');
+	for (const e of l)
+		this.xl1(e);
+	const h = document.querySelectorAll('*[data-myhrefxlkey]');
+	for (const e of h)
+		this.xl1(e);
+	const i = document.querySelectorAll('*[data-myxxlst]');
+	for (const e of i)
+		this.xl1(e);
+	const j = document.querySelectorAll('*[data-myxxlsti]');
+	for (const e of j)
+		this.xl1(e);
+	const o = document.querySelectorAll('*[data-myxxlstx]');
+	for (const e of o)
+		this.xl1(e);
+	if (ImBCBase.progname?.startsWith('imbapp'))
+		document.title = this.xl('main.apptitle') + ' ' + globals.version;
+	else if (undefined === this.imbcb)
+		document.title = this.xl('main.title') + ' ' + globals.version;
+	else
+		document.title = this.xl('main.backw.title') + ' ' + globals.version;
+}
+/* Browserhelper: translation helper */
+genspan(key, arg0, arg1, arg2, arg3) {
+	const s = this.applystyle(document.createElement('span'), key);
+	s.setAttribute('data-myxlkey', key);
+	if (undefined !== arg0) {
+		s.setAttribute('data-myxlarg0', arg0);
+		if (undefined !== arg1) {
+			s.setAttribute('data-myxlarg1', arg1);
+			if (undefined !== arg2) {
+				s.setAttribute('data-myxlarg2', arg2);
+				if (undefined !== arg3) {
+					s.setAttribute('data-myxlarg3', arg3);
+				}
+			}
+		}
+	}
+	return this.xl1(s);
+}
+/* Browserhelper: find html style for translation */
+applystyle(span, msg, base) {
+	if (undefined === base) base = mytexts;
+	const i = msg.indexOf('.');
+	if (i === -1) {
+		let r = base[msg]['htmlstyle'];
+		if (r !== undefined) {
+			for (const s of r) {
+				span.style[s[0]] = s[1];
+			}
+		}
+		return span;
+	}
+	else {
+		const e = base[msg.substring(0,i)];
+		return this.applystyle(span, msg.substring(i+1), e);
+	}
+}
+/* Browserhelper: download log */
+logdownload() {
+	let h = '<html><body>' + document.getElementById('xmsg').innerHTML + '</body></html>';
+	this.writefile('imbapp_' + ('' + Date.now()).substring(3,10) + '_msg.html', 'text/html', ImBCBase.progname.startsWith('imbapp') ? 'process.copyokcheckdl' : 'process.copyok', new TextEncoder().encode(h));
+}
+/* Browserhelper: output function to main log */
+appmsg(msg, opt) {
+	const s = document.createElement('span');
+	s.innerHTML = msg;
+	document.querySelectorAll('*[data-lastmsg]').forEach((x) => { x.removeAttribute('data-lastmsg') });
+	s.setAttribute('data-lasgmsg', true);
+	const msgel = document.getElementById('outmsg');
+	msgel.append(s);
+	s.scrollIntoView(false, { block: 'nearest' });
+	if (opt !== false)
+		msgel.innerHTML += '<br>';
+	if (opt === true)
+		msgel.innerHTML += '<br>&nbsp;<br>';
+}
+/* Browserhelper: output function to main log */
+appmsgxl(opt, msg, arg0, arg1, arg2, arg3) {
+	const s = this.genspan(msg, arg0, arg1, arg2, arg3);
+	document.querySelectorAll('*[data-lastmsg]').forEach((x) => { x.removeAttribute('data-lastmsg') });
+	s.setAttribute('data-lasgmsg', true);
+	const msgel = document.getElementById('outmsg');
+	msgel.append(s);
+	s.scrollIntoView(false, { block: 'nearest' });
+	if (opt !== false)
+		msgel.innerHTML += '<br>';
+	if (opt === true)
+		msgel.innerHTML += '<br>&nbsp;<br>';
+	let logbt = document.getElementById('logbut');
+	if (logbt) {
+		logbt.disabled = false;
+	}
+}
+/* Browserhelper: translate one element */
+xl1(el) {
+	if (el.attributes.getNamedItem('data-myxlkey')) {
+		el.innerHTML = this.xl(el.attributes.getNamedItem('data-myxlkey').value, el.attributes.getNamedItem('data-myxlarg0')?.value, el.attributes.getNamedItem('data-myxlarg1')?.value, el.attributes.getNamedItem('data-myxlarg2')?.value, el.attributes.getNamedItem('data-myxlarg3')?.value );
+	}
+	if (el.attributes.getNamedItem('data-myvalxlkey')) {
+		el.value = this.xl(el.attributes.getNamedItem('data-myvalxlkey').value);
+	}
+	if (el.attributes.getNamedItem('data-mytitlexlkey')) {
+		el.title = this.xl(el.attributes.getNamedItem('data-mytitlexlkey').value);
+	}
+	if (el.attributes.getNamedItem('data-myhrefxlkey')) {
+		el.href = this.xl(el.attributes.getNamedItem('data-myhrefxlkey').value);
+	}
+	if (el.attributes.getNamedItem('data-myxxlst')) {
+		el.innerHTML = this.xlx(el.attributes.getNamedItem('data-myxxlst').value) + ': ';
+	}
+	if (el.attributes.getNamedItem('data-myxxlsti')) {
+		el.innerHTML = this.xlxi(el.attributes.getNamedItem('data-myxxlsti').value, el.attributes.getNamedItem('data-myxlarg0')?.value) + ': ';
+	}
+	if (el.attributes.getNamedItem('data-myxxlstx')) {
+		el.innerHTML = this.xlxx(el.attributes.getNamedItem('data-myxxlstx').value, el.attributes.getNamedItem('data-myxlarg0')?.value, el.attributes.getNamedItem('data-myxlarg1')?.value);
+	}
+	return el;
+}
+/* Browserhelper: visual browser: image loader call */
+#loadimg(url, type, to) {
+	const e = to.entry;
+	if ((e.attributes.getNamedItem('data-state').value !== 'err' && e.attributes.getNamedItem('data-state').value !== 'wait')
+			|| (!ImBCBase.progname.startsWith('imbapp') && (type === 'oth'))) {
+		if (this.debugflag) console.log('ldr aa lnx ' + to.raw);
+		this.loadnextimg();
+		return;
+	}
+	e.setAttribute('data-state', 'load');
+	if (ImBCBase.progname.startsWith('imbapp')) e.querySelector('.eepvx').style['display'] = 'none';
+	e.querySelector('.errimg').style['display'] = 'none';
+	e.querySelector('.waitdiv').style['display'] = '';
+	to.preview.style['display'] = 'none';
+	if ((type === 'JPG') || (ImBCBase.progname.startsWith('imbapp') && type === 'oth')) {
+		to.preview.onload = (/*ev*/) => {
+			e.setAttribute('data-state', 'ok');
+			e.querySelector('.waitdiv').style['display'] = 'none';
+			to.preview.style['display'] = '';
+			//to.preview.style['height'] = to.preview.height * (163 / to.preview.width);
+			//to.preview.style['width'] = to.preview.width * (120 / to.preview.height);
+			e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.remove('disabled') });
+			e.querySelector('.dlbtn').classList.remove('disabled');
+			if (this.debugflag) console.log('ldr j f lnx ' + to.raw);
+			this.loadnextimg();
+		};
+		to.preview.onerror = (ev) => {
+			e.setAttribute('data-state', 'err');
+			console.log('JPEG preview load error for ' + url + ' ' + JSON.stringify(ev));
+			e.querySelector('.waitdiv').style['display'] = 'none';
+			e.querySelector('.errimg').style['display'] = '';
+			e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
+			e.querySelector('.dlbtn').classList.add('disabled');
+			if (this.debugflag) console.log('ldr j e lnx ' + to.raw);
+			to.nonewerr = true;
+			this.loadnextimg();
+		};
+		if (to.imbackintension && ImBCBase.progname.startsWith('imbapp')) {
+			this.workerstate.push({ cmd: 'readjpg', targ: to, ele: e});
+			this.previewworker.postMessage({ cmd: 'readjpg', f: to.imbackintension});
+			return;
+		}
+		else if (ImBCBase.progname.startsWith('imbapp'))
+			to.preview.src = this.imbweb + globalfxns.adjurl(url) + (to.isbig ? '' : '?custom=1&cmd=4001');
+		else
+			to.preview.src = url;
+	}
+	else if (type === 'RAW') {
+		let afterloadcalled = false;
+		if (this.debugflag) console.log('li raw start bpv ' + url);
+		this.buildpreview((this.debugflag && this.useraw) ? this.useraw : (to.imbackintension ? to.imbackintension : url),
+				to.isbig ? 2 : 1,
+				(xrot) => { /* on ok: */
+			if (to.rot === 0) to.rot = xrot;
+			e.setAttribute('data-state', 'ok');
+			e.querySelector('.waitdiv').style['display'] = 'none';
+			e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.remove('disabled') });
+			e.querySelector('.dlbtn').classList.remove('disabled');
+			to.preview.style['display'] = '';
+			if (this.debugflag) console.log('ldr r f ' + to.raw);
+			if (!afterloadcalled) {
+				if (this.debugflag) console.log('ldr r e lnx ' + to.raw);
+				this.loadnextimg();
+			} // else the afterload had already been called
+			else if (this.debugflag) {
+				console.log('ldr r ff lnyy ' + to.raw);
+			}
+		}, () => { /* on err: */
+			e.setAttribute('data-state', 'err');
+			e.querySelector('.waitdiv').style['display'] = 'none';
+			e.querySelector('.errimg').style['display'] = '';
+			e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
+			e.querySelector('.dlbtn').classList.add['disabled'];
+			to.nonewerr = true;
+			if (this.debugflag) console.log('ldr r e ' + to.raw);
+			if (!afterloadcalled) {
+				if (this.debugflag) console.log('ldr r e lnx ' + to.raw);
+				this.loadnextimg();
+			} // else the afterload had already been called
+			else if (this.debugflag) {
+				console.log('ldr r ee lnyy ' + to.raw);
+			}
+		}, to.rot, to.preview, () => { /* afterload: */
+			if (this.debugflag) console.log('ldr r l lnx ' + to.raw);
+			// invalidate url for err callback
+			this.loaderrunning = '1';
+			this.loadnextimg();
+			afterloadcalled = true;
+		});
+		if (this.debugflag) console.log('li raw end bpv ' + url);
+	}
+}
+/* Browserhelper: visual browser or from imback: load next from todo list */
+loadnextimg() {
+	if (this.debugflag) console.log('L  N  I');
+	if (this.loaderrunning !== 'blah!' && this.allfiles.length > 0 && this.actnum <= this.allfiles.length - 1) {
+		this.loaderrunning = 'blah!';
+		window.setTimeout(() => {
+			this.checkchecks();
+			if (this.debugflag) console.log('NN li dl ' + this.actnum);
+			this.fromvisbrows = true;
+			this.stepmode = 0;
+			if (ImBCBase.progname.startsWith('imbapp'))
+				this.starthandleone();
+			else
+				this.handleone();
+		}, 33);
+		return;
+	} else if (this.rotphase >= 1) {
+		if (this.loaderrunning !== 'blah!') this.loaderrunning = false;
+		return;
+	}
+	let e = this.findnexttoload();
+	if (!e && !ImBCBase.progname.startsWith('imbapp')) e = this.findnexttoload(true);
+	if (!e) {
+		this.loaderrunning = false;
+		if (this.debugflag) console.log('TERM loader');
+		return;
+	}
+	else {
+		this.loaderrunning = e.url;
+		window.setTimeout(() => {
+			if (this.debugflag) console.log('L ' + e.raw);
+			this.#loadimg(e.url, e.type, e)
+		}, 33);
+	}
+}
+/* Browserhelper: visual browser: start loading */
+startloadimg() {
+	setTimeout(() => {
+		if (!this.loaderrunning) {
+			if (this.debugflag) console.log('start loader');
+			this.loadnextimg();
+		}
+		else if (this.debugflag) {
+			if (this.debugflag) console.log('load already on ' + this.loaderrunning);
+		}
+	}, 100);
+}
+/* Browserhelper: post write ok handler */
+writepostok(name) {
+	const ie = this.imbeles.find((v) => v.raw.toUpperCase() === ImBCBase.basename(name).toUpperCase());
+	if (ie) {
+		ie.wasselected = true;
+		if (ie.entry)
+			ie.entry.classList.add('picprocd');
+		if (-1 === (this.dloads.findIndex(e => (e.toUpperCase() === ImBCBase.basename(name).toUpperCase()))))
+			this.dloads.push(ImBCBase.basename(name));
+	}
+	this.stats.ok++;
+	if (!this.imbcb) this.savesettings(['dloads', 'ii']);
+	this.handlenext();
+}
+/* Indentation in */
+}
+const globalfxns = {
+/* globals: adjust A:\imback\... format to /imback/... */
+adjurl: function(url) {
+	if (url.url) url = url.url;
+	if (url.toUpperCase().substring(0,3) !== 'A:\\')
+		return url;
+	let n = url.substring(2);
+	while (n.indexOf("\\") > -1) {
+		n = n.substring(0, n.indexOf("\\")) + '/' + n.substring(n.indexOf('\\') +1);
+	}
+	return n;
+},
+/* ImBCBase: rotate image in canvas */
+rotvis: function(canv, ccw) {
+	const ow = canv.width;
+	const oh = canv.height;
+	const ctx = canv.getContext('2d', { alpha: false });
+	const imd = ctx.getImageData(0, 0, ow, oh).data;
+	ctx.clearRect(0,0,ow,ow);
+	ctx.clearRect(0,0,oh,oh);
+	canv.width = oh;
+	canv.height = ow;
+	const nd = new Uint8ClampedArray(ow*oh*4);
+	for (let r=0; r<oh; r++) {
+		for (let c=0; c<ow; c++) {
+			if (ccw) {
+				nd[oh*c*4 +r*4] = imd[ow*r*4 + (ow-c-1)*4];
+				nd[oh*c*4 +r*4 +1] = imd[ow*r*4 + (ow-c-1)*4 +1];
+				nd[oh*c*4 +r*4 +2] = imd[ow*r*4 + (ow-c-1)*4 +2];
+				nd[oh*c*4 +r*4 +3] = imd[ow*r*4 + (ow-c-1)*4 +3];
+			} else {
+				nd[oh*c*4 +r*4] = imd[ow*(oh-r-1)*4 + c*4];
+				nd[oh*c*4 +r*4 +1] = imd[ow*(oh-r-1)*4 + c*4 +1];
+				nd[oh*c*4 +r*4 +2] = imd[ow*(oh-r-1)*4 + c*4 +2];
+				nd[oh*c*4 +r*4 +3] = imd[ow*(oh-r-1)*4 + c*4 +3];
+			}
+		}
+	}
+	//ctx.setTransform(1,0,0,0,1,0);
+	ctx.putImageData(new ImageData(nd, oh, ow), 0, 0);
+}
+}
+/* *************************************** Browser specifics, E N D *************************************** */
 /* *************************************** Top class for HTML, forward *************************************** */
 class ImBCHtml extends ImBCHtmlOut {
 /* Indentation out */
@@ -20026,7 +20193,7 @@ constructor() {
 // from the back itself
 #maxcache = 30; // max. length of cache for already downloaded raw data - you may increase or decrease this
 #cache = []; // actual cache buffer
-#loaderrunning=false; // currently handled browser raw preview download
+loaderrunning=false; // currently handled browser raw preview download
 #fromvisbrows = false;
 /* deleting */
 #deletephase = 0;
@@ -20114,9 +20281,9 @@ showbrowser() {
 	document.getElementById('browser').style['display'] = '';
 	quest.style['display'] = 'none';
 	norm.style['display'] = 'none';
-	window.onscroll = () => this.#startloadimg();
-	window.onresize = () => this.#startloadimg();
-	this.#startloadimg();
+	window.onscroll = () => this.startloadimg();
+	window.onresize = () => this.startloadimg();
+	this.startloadimg();
 }
 /* ImBCHtml: visual browser: prepare the browser display, group the stuff */
 aftercheck() {
@@ -20285,7 +20452,7 @@ buildtree() {
 	this.xlateall();
 }
 /* ImBCHtml: visual browser: find next to load */
-#findnexttoload(alsooutside) {
+findnexttoload(alsooutside) {
 	for (const e of this.imbeles.sort((a,b) => this.#myisort(a,b))) {
 		// display: none somewhere?
 		if (!e.entry) continue;
@@ -20386,7 +20553,7 @@ buildtree() {
 	}
 	if (gr.fmembers && !e.querySelector('.onepic'))
 		this.#addimgsorted(gr);
-	if (nontop !== true) this.#startloadimg();
+	if (nontop !== true) this.startloadimg();
 }
 /* ImBCHtml: visual browser: select all from top */
 topreccheck(force) {
@@ -20434,7 +20601,7 @@ topreccheck(force) {
 		d.classList.add('ggttclosed');
 		d.parentElement.classList.remove('ggopen');
 		d.parentElement.classList.add('ggclosed');
-		this.#startloadimg();
+		this.startloadimg();
 	};
 	const sp = d.querySelector('.gtype');
 	if (s.startsWith('JPG') || s.startsWith('RAW')) {
@@ -20598,7 +20765,7 @@ topreccheck(force) {
 		this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
 		this.actnum = 0;
 		this.allfiles = selecteds;
-		this.#startloadimg();
+		this.startloadimg();
 		document.getElementById('imbdoit').disabled = true;
 		document.getElementById('imbvisbrows').disabled = true;
 		document.getElementById('droptarget').style['display'] = 'none';
@@ -20626,129 +20793,6 @@ topreccheck(force) {
 		e.preview.onmouseout = (/*ev*/) => {
 			e.preview.classList.remove('picbig');
 		}
-	}
-}
-/* ImBCHtml: visual browser: image loader call */
-#loadimg(url, type, to/*, rot*/) {
-	const e = to.entry;
-	if ((e.attributes.getNamedItem('data-state').value !== 'err' && e.attributes.getNamedItem('data-state').value !== 'wait')
-			|| (type === 'oth')) {
-		if (this.debugflag) console.log('ldr aa lnx ' + to.raw);
-		this.#loadnextimg();
-		return;
-	}
-	e.setAttribute('data-state', 'load');
-	e.querySelector('.errimg').style['display'] = 'none';
-	e.querySelector('.waitdiv').style['display'] = '';
-	to.preview.style['display'] = 'none';
-	if (type === 'JPG') {
-		to.preview.onload = (/*ev*/) => {
-			e.setAttribute('data-state', 'ok');
-			e.querySelector('.waitdiv').style['display'] = 'none';
-			to.preview.style['display'] = '';
-			to.preview.style['width'] = to.preview.width * (120 / to.preview.height);
-			e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.remove('disabled') });
-			e.querySelector('.dlbtn').classList.remove('disabled');
-			if (this.debugflag) console.log('ldr j f lnx ' + to.raw);
-			this.#loadnextimg();
-		};
-		to.preview.onerror = (ev) => {
-			e.setAttribute('data-state', 'err');
-			console.log('JPEG preview load error for ' + url + ' ' + JSON.stringify(ev));
-			e.querySelector('.waitdiv').style['display'] = 'none';
-			e.querySelector('.errimg').style['display'] = '';
-			e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
-			e.querySelector('.dlbtn').classList.add('disabled');
-			if (this.debugflag) console.log('ldr j e lnx ' + to.raw);
-			to.nonewerr = true;
-			this.#loadnextimg();
-		};
-		to.preview.src = url;
-	}
-	else if (type === 'RAW') {
-		let afterloadcalled = false;
-		if (this.debugflag) console.log('li raw start bpv ' + url);
-		this.buildpreview(url, 1, (xrot) => { /* on ok: */
-			if (to.rot === 0) to.rot = xrot;
-			e.setAttribute('data-state', 'ok');
-			e.querySelector('.waitdiv').style['display'] = 'none';
-			e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.remove('disabled') });
-			e.querySelector('.dlbtn').classList.remove('disabled');
-			to.preview.style['display'] = '';
-			if (this.debugflag) console.log('ldr r f ' + to.raw);
-			if (!afterloadcalled) {
-				if (this.debugflag) console.log('ldr r e lnx ' + to.raw);
-				this.#loadnextimg();
-			} // else the afterload had already been called
-			else if (this.debugflag) {
-				console.log('ldr r ff lnyy ' + to.raw);
-			}
-		}, () => { /* on err: */
-			e.setAttribute('data-state', 'err');
-			e.querySelector('.waitdiv').style['display'] = 'none';
-			e.querySelector('.errimg').style['display'] = '';
-			e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
-			e.querySelector('.dlbtn').classList.add['disabled'];
-			to.nonewerr = true;
-			if (this.debugflag) console.log('ldr r e ' + to.raw);
-			if (!afterloadcalled) {
-				if (this.debugflag) console.log('ldr r e lnx ' + to.raw);
-				this.#loadnextimg();
-			} // else the afterload had already been called
-			else if (this.debugflag) {
-				console.log('ldr r ee lnyy ' + to.raw);
-			}
-		}, to.rot, to.preview, () => { /* afterload: */
-			if (this.debugflag) console.log('ldr r l lnx ' + to.raw);
-			// invalidate url for err callback
-			this.#loaderrunning = '1';
-			this.#loadnextimg();
-			afterloadcalled = true;
-		});
-		if (this.debugflag) console.log('li raw end bpv ' + url);
-	}
-}
-/* ImBCHtml: visual browser or from imback: load next from todo list */
-#loadnextimg() {
-	if (this.debugflag) console.log('L  N  I');
-	if (this.allfiles.length > 0 && this.actnum <= this.allfiles.length - 1) {
-		//e = this.allfiles[this.actnum];
-		this.#loaderrunning = 'blah!';
-		window.setTimeout(() => {
-			this.checkchecks();
-			if (this.debugflag) console.log('NN li dl ' + this.actnum);
-			this.fromvisbrows = true;
-			this.stepmode = 0;
-			this.handleone();
-		}, 33);
-		return;
-	} else if (this.rotphase >= 1) {
-		if (this.#loaderrunning !== 'blah!') this.#loaderrunning = false;
-		return;
-	}
-	let e = this.#findnexttoload();
-	if (!e) e = this.#findnexttoload(true);
-	if (!e) {
-		this.#loaderrunning = false;
-		if (this.debugflag) console.log('TERM loader');
-		return;
-	}
-	else {
-		this.#loaderrunning = e.url;
-		window.setTimeout(() => {
-			if (this.debugflag) console.log('L ' + e.raw);
-			this.#loadimg(e.url, e.type, e)
-		}, 33);
-	}
-}
-/* ImBCHtml: visual browser: start loading */
-#startloadimg() {
-	if (!this.#loaderrunning) {
-		if (this.debugflag) console.log('start loader');
-		this.#loadnextimg();
-	}
-	else if (this.debugflag) {
-		console.log('load already on ' + this.#loaderrunning);
 	}
 }
 /* ImBCHtml: visual browser: delete browser selected */
@@ -20842,7 +20886,7 @@ browserprocess() {
 		document.getElementById('droptarget').style['display'] = 'none';
 		document.getElementById('infile').disabled = true
 		this.shownormal();
-		this.#startloadimg();
+		this.startloadimg();
 		this.topreccheck(false);
 	} else {
 		this.shownormal();
@@ -20928,21 +20972,6 @@ savesettings(which) {
 				window.localStorage.setItem('imbraw2dng_dloads', JSON.stringify(this.dloads));
 			/*if ((which === 'ii') || !which?.length || -1 !== which.indexOf('ii'))
 				window.localStorage.setItem('imbraw2dng_ii', JSON.stringify(this.iinf));*/
-			/*window.localStorage.setItem('imbapp_json', JSON.stringify(
-				{
-					'meta': copycheck?.checked,
-					'cr': copytext?.value,
-					'at': document.getElementById('artist')?.value,
-					'np': document.getElementById('dngpreview') ? !document.getElementById('dngpreview').checked : false,
-					'l': this.mylang,
-					'step': stepmode,
-					'version': globals.version,
-					'loca': window.location.origin,
-					'zip': document.getElementById('usezip')?.checked,
-					'owb': document.getElementById('oldstylewb')?.checked,
-					'ndcp': !document.getElementById('incdcp')?.checked
-				}
-			));*/
 			document.getElementById('onlyhttp').style['display'] = 'none';
 		}
 		catch (e) {
@@ -21182,7 +21211,7 @@ buildpreview(f, size, onok, onerr, orientation, targ, afterload) {
 		const view = new DataView(contents);
 		const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : globals.getwb(view, zz, whitelvl);
 		let transpose = false;
-		console.log(JSON.stringify(wb));
+		//console.log(JSON.stringify(wb));
 		let outpix = globals.buildpvarray(view, size, typ, w, h, orientation, false, wb, whitelvl);
         if (orientation === 6 || orientation === 8) {
                 transpose = true;
@@ -21325,7 +21354,7 @@ handlenext() {
 		}
 		return;
 	}
-	if (this.#loaderrunning === 'blah!') {
+	if (this.loaderrunning === 'blah!') {
 		if (this.debugflag) console.log('HN fl an ' + this.actnum + ' aflen ' + this.allfiles.length);
 		if (this.actnum >= this.allfiles.length - 1) {
 			this.afterfinish();
@@ -21333,7 +21362,7 @@ handlenext() {
 				this.#fromvisbrows = false;
 				setTimeout(() => {
 						this.showbrowser();
-						this.#startloadimg();
+						this.startloadimg();
 				}, 1000);
 			} else {
 				this.shownormal();
@@ -21342,7 +21371,7 @@ handlenext() {
 		else {
 			this.actnum++;
 		}
-		this.#loadnextimg();
+		this.loadnextimg();
 		return;
 	}
 	if (this.actnum < this.allfiles.length - 1) {
@@ -22380,8 +22409,9 @@ function init() {
 </div><br>
 </div>
 &nbsp;<br>
-<div id="xmsg" style="display: none; width: fit-content;white-space: pre;"><span style="font-weight:bold;" data-myxlkey="main.log"></span><br>
+<div id="xmsg" style="width: fit-content;white-space: pre;"><span style="font-weight:bold;" data-myxlkey="main.log"></span><br>
 <div id="outmsg"></div></div>
+<input type="button" value="&#x2b73;" class="uhbtn" onclick="imbc.logdownload()" id="dlmsgbut">
 </div>
 <!-- end of the normal display -->
 <!-- normal preview with question -->
