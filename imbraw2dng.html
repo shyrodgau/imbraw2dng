@@ -907,7 +907,7 @@ static readinta(arr, off) {
 const globals = {
 /* Indentation out - globals */
 version: "V5.9.9_605aee1", // actually const // VERSION EYECATCHER
-alllangs: [ 'de' , 'en', 'fr', 'ru', 'ja', '00' ], // actually const
+alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
 fulltsregex: /^([02-3][0-9][0-9][0-9])([^0-9])([01][0-9])([^0-9])([0123][0-9])([^0-9])([012][0-9])([^0-9])([0-5][0-9])([^0-9])([0-5][0-9])$/, // actually const
@@ -21671,7 +21671,7 @@ handlenext(/*fromloop*/) {
 /* *************************************** Top class for HTML, backward E N D *************************************** */
 /* *************************************** texts *************************************** */
 const mytexts =  { // actually const
-	langs: { de: 'DE', en: 'EN', fr: 'FR' , ru: 'RU', ja: 'JA' },
+	langs: { de: 'DE', en: 'EN', ja: 'JA' /*, fr: 'FR' , ru: 'RU'*/},
 	words: {
 		error: {
 			de: '\u001b[31m\u001b[1mFEHLER:\u001b[0m ',
