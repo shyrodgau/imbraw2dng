@@ -742,7 +742,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.9.9_605aee1", // actually const // VERSION EYECATCHER
+version: "V5.9.9_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -18753,6 +18753,7 @@ handleone(orientation) {
 				} catch (e) {
 					this.stats.error++;
 					this.appmsg('Format Error', true);
+					if (this.debugflag) console.log('format error: ' + e.toString());
 				}
 				rawname = rawname.substring(0, rawname.length - 4) + '_MULTI.raw';
 				if (12 === targbits) {

@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 
-abc=$( grep 'version *[=:] *"V.*// VERSION EYECATCHER' ~/prog/imbraw2dng/github/cordova/imbapp/imbapp-dbg.html | sed 's!^.*version *[=:] *"V\([0-9]*\)[.]\([0-9]*\)[.]\([0-9]*\).*$!\1 \2 \3!g' )
+abc=$( grep 'version *[=:] *"V.*// VERSION EYECATCHER' ~/prog/imbraw2dng/github/cordova/imbapp/imbapp.html | sed 's!^.*version *[=:] *"V\([0-9]*\)[.]\([0-9]*\)[.]\([0-9]*\).*$!\1 \2 \3!g' )
 #grep 'version *[=:] *"V.*// VERSION EYECATCHER' ~/prog/imbraw2dng/github/cordova/imbapp/imbapp-dbg.html | sed 's!^.*version *[=:] *"V\([0-9]*\)[.]\([0-9]*\)[.]\([0-9]*\).*$!\1 \2 \3!g'
 #grep 'version *[=:] *"V.*// VERSION EYECATCHER' ~/prog/imbraw2dng/github/cordova/imbapp/imbapp-dbg.html
 

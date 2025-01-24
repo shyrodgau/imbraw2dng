@@ -1063,7 +1063,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.9.9_605aee1", // actually const // VERSION EYECATCHER
+version: "V5.9.9_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -19074,6 +19074,7 @@ handleone(orientation) {
 				} catch (e) {
 					this.stats.error++;
 					this.appmsg('Format Error', true);
+					if (this.debugflag) console.log('format error: ' + e.toString());
 				}
 				rawname = rawname.substring(0, rawname.length - 4) + '_MULTI.raw';
 				if (12 === targbits) {
@@ -20107,6 +20108,8 @@ constructor() {
 // from the back itself
 maxcache = 30; // max. length of cache for already downloaded raw data - you may increase or decrease this
 #cache = []; // actual cache buffer
+// to count how many invisble raws have been loaded
+preloadedraws = 0;
 loaderrunning=false; // currently handled browser raw preview download
 fromvisbrows = false;
 /* deleting/downloading */
@@ -20134,7 +20137,7 @@ initworker() {
 		   scripttext += ',\n';
 	}
 	scripttext += '};';
-    this.previewworker = new Worker(URL.createObjectURL(new Blob([scripttext], { type: "text/javascript" })));
+    this.previewworker = new Worker(URL.createObjectURL(new Blob([scripttext], { type: "text/javascript" })), {name:'myworker'});
 	if (!this.previewworker) {
 		// upload previewworker OR
 		console.log('BACKGOUND WORKER FAILED 3 ');
@@ -20287,11 +20290,15 @@ showmag(entry) {
 		document.querySelector('#xmag .eeraw').style['display'] = 'none';
 		document.querySelector('#xmag .rotbtn').style['display'] = 'none';
 		document.querySelector('#xmag .descbtn').style['display'] = 'none';
+		document.getElementById('cortimebut').style['left'] = '1.5em';
+		document.querySelector('#xmag .timetxt').style['left'] = '3.1em';
 	} else {
 		document.querySelector('#xmag .rotbtnr').style['display'] = '';
 		document.querySelector('#xmag .eejpg').style['display'] = 'none';
 		document.querySelector('#xmag .rotbtn').style['display'] = '';
 		document.querySelector('#xmag .descbtn').style['display'] = '';
+		document.getElementById('cortimebut').style['left'] = '3.5em';
+		document.querySelector('#xmag .timetxt').style['left'] = '5.1em';
 	}
 	document.querySelector('#xmag .descbtn').classList.remove('green');
 	if (entry.desc?.length)
@@ -20816,8 +20823,8 @@ buildtree() {
 /* four phases, finding a match for one skips all following phases */
 /* 0: visible JPG+MP4 */
 /* 1: visible RAW */
-/* 2: invisible JPG+MP4 */
-/* 3: invisible RAW */
+/* 2: invisible RAW */
+/* 3: invisible JPG+MP4 */
 findnexttoload() {
 	if (document.getElementById('browser').style['display'] === 'none') return undefined;
 	if (this.magentry) {
@@ -20838,17 +20845,28 @@ findnexttoload() {
 		let dispno = false;
 		let f = p.parentElement;
 		while (f) {
-			if (f.style['display'] === 'none') {
+			if (f.id === 'browser')
+				break;
+			else if (f.classList.contains('ggclosed')) {
 				dispno = true;
 				break;
 			}
-			if (f.classList.contains('ggclosed')) {
+			else if (getComputedStyle(f).getPropertyValue('display') === 'none') {
 				dispno = true;
 				break;
 			}
+			/*else if (f.classList.contains('ggopen')) {
+				break;
+			}*/
 			f = f.parentElement;
 		}
-		if (dispno) continue;
+		if (dispno) {
+			if (e.type === 'RAW' && ph >= 3 && (this.preloadedraws++ < this.maxcache)) {
+				ph = 2;
+				res = e;
+			}
+			continue;
+		}
 		// display not none, check pos
 		let rect = p.getBoundingClientRect();
 		let t = 0;
@@ -20857,16 +20875,18 @@ findnexttoload() {
 		if (rect.top < window.innerHeight && rect.bottom > t && rect.width > 0) {
 			// visible
 			if (e.type !== 'RAW' && ph >= 1) {
+				if (ph === 2 && this.preloadedraws) this.preloadedraws --;
 				res = e;
 				ph = 0;
 				break;
 			}
 			else if (ph >= 2) {
+				if (ph === 2 && this.preloadedraws) this.preloadedraws --;
 				res = e;
 				ph = 1;
 			}
 		}
-		else if (e.type !== 'RAW' && ph >= 3) {
+		else if (e.type === 'RAW' && ph >= 3 && (this.preloadedraws++ < this.maxcache)) {
 			res = e;
 			ph = 2;
 		}
@@ -20899,7 +20919,7 @@ findnexttoload() {
 /* TopApp: visual browser: add images sorted  */
 #addimgsorted(el) {
 	let rect = el.entry.getBoundingClientRect();
-	if (rect.top > window.innerHeight || rect.bottom <= 0)
+	if ((rect.top > window.innerHeight || rect.bottom <= 0) && this.preloadedraws++ >= this.maxcache)
 		return;
 	if (el.fmembers !== null && el.fmembers !== undefined) {
 		for (const e of el.fmembers.sort((a,b) => this.#myisort(a, b))) {
@@ -20951,10 +20971,10 @@ findnexttoload() {
 			if (m.entry?.remove) m.entry.remove();
 		}
 	}
-	this.addallimgs(gr, e);
+	this.addallimgs(gr);
 }
 /* TopApp: add images */
-addallimgs(gr, e) {
+addallimgs(gr) {
 	let retry = false;
 	if (!gr) {
 		let list;
@@ -20967,22 +20987,23 @@ addallimgs(gr, e) {
 		for (const xgr of list.sort((a,b) => this.#mysort(a, b))) {
 			const xe = xgr.entry;
 			let rect = xe.getBoundingClientRect();
-			if (rect.top > window.innerHeight || rect.bottom <= 0 || rect.width <= 0)
+			if ((rect.top > window.innerHeight || rect.bottom <= 0 || rect.width <= 0) && this.preloadedraws++ >= this.maxcache)
 				continue;
 			if (xgr.fmembers && xgr.fmembers.length > 0) {
 				retry |= this.#addimgsorted(xgr);
+				this.preloadedraws = 0;
 				this.startloadimg();
 			} else {
-				xgr.smembers.map((m) => { this.addallimgs(m, m.entry); });
+				xgr.smembers.map((m) => { this.addallimgs(m); });
 			}
 		}
 		return;
 	}
-	if (gr.fmembers && gr.fmembers.length > 0 && !e.querySelector('.onepic')) {
+	if (gr.fmembers && gr.fmembers.length > 0 && !gr.entry.querySelector('.onepic')) {
 		retry |= this.#addimgsorted(gr);
 		this.startloadimg();
 	} else
-		gr.smembers.map((m) => { this.addallimgs(m, m.entry) });
+		gr.smembers.map((m) => { this.addallimgs(m) });
 	if (retry) {
 		retry = false;
 		setTimeout(() => {
@@ -22153,7 +22174,7 @@ findcache(url) {
 /* TopApp: add to cache */
 addcache(name, entry) {
 	this.#cache.push({ url: ImBCBase.basename(name), d: entry.data, l: entry.len, reader: entry.reader });
-	while (this.#cache.length > this.maxcache) this.#cache.splice(0,1);
+	while (this.#cache.length > 2) this.#cache.splice(0,1);
 }
 /* TopApp: worker on message */
 workermsg(msg) {
@@ -22518,7 +22539,7 @@ static togglep(el) {
 		ImBCHtml.openp(el);
 }
 /* TopApp: de-select already downloaded */
-deselcop(el) {
+deselcop() {
 	this.imbeles.filter((el) => (el?.wasselected && el?.selected)).forEach((i) => {
 		if (i.entry) i.entry.querySelector('input.selcb').click();
 		i.selected = false;
@@ -25559,7 +25580,7 @@ window.addEventListener('pageshow', function (event) {
 <!-- WORKER -->
 <script type="text/js-previewworker" language="javascript">
 /* *************************************** WORKER *************************************** */
-let cmd, n, cache, ori, base, msg = false, siz;
+let cmd, n, cache, ori, base, msg = false, siz, curxhr, evtq = [];
 let progress = false, queue = [], wdtimer, currcust, dbgflag,	errcount = 0, constwb = false;
 /* WORKER onmessage */
 onmessage = (e) => {
@@ -25581,9 +25602,18 @@ onmessage = (e) => {
 		return;
 	}
 	if (progress) {
-		if (dbgflag) console.log('WORKER PUSHING ' + e.data.cmd + ' [' + progress + ']');
-		queue.push(e);
-		return;
+		if (curxhr && curxhr?.readyState !== 4 &&
+				e.data.cmd !== 'watchdog' &&
+				progress !== 'watchdog' &&
+				progress !== 'custcmd' &&
+				e.data.cmd !== 'custcmd') {
+			curxhr.abort();
+		}
+		else {
+			if (dbgflag) console.log('WORKER PUSHING ' + e.data.cmd + ' [' + progress + ']');
+			queue.push(e);
+			return;
+		}
 	}
 	//console.log(JSON.stringify(e.data));
 	n = e.data.n;
@@ -25648,6 +25678,7 @@ function resolver(url, preview, notfirst)  {
 	};
 	let xhr = new XMLHttpRequest();
 	xhr.onload = (/*evt*/) => {
+		curxhr = undefined;
 		if (errcount) errcount--;
 		let len = JSON.parse(xhr.getResponseHeader('content-length'));
 		if (0 >= len) len=1;
@@ -25674,9 +25705,11 @@ function resolver(url, preview, notfirst)  {
 		}
 	};
 	xhr.onerror = (evt, typ) => {
+		curxhr = undefined;
 		if (undefined === typ) typ = 'err';
-		errcount++;
-		console.log('WORKER XHR err (createfx, ' + typ + ') for ' + url + ' readyState:' + xhr.readyState + ' http status:' + xhr.status + ' text: ' + xhr.statusText);
+		//errcount++;
+		console.log('WORKER XHR err (createfx, ' + typ + ') for ' + url + ' readyState:' + xhr.readyState + ' http status:' + xhr.status + ' text: ' + xhr.statusText + ' E ' + evt.toString());
+		if (dbgflag) evtq.push(evt);
 		xhr.onerror = undefined;
 		xhr.onload = undefined;
 		xhr.ontimeout = undefined;
@@ -25691,7 +25724,9 @@ function resolver(url, preview, notfirst)  {
 			handlewait();
 		}
 	};
-	xhr.onabort = (evt) => { xhr.onerror(evt, 'abort'); };
+	xhr.onabort = (evt) => {
+		xhr.onerror(evt, 'abort');
+	};
 	xhr.ontimeout = (evt) => { xhr.onerror(evt, 'timeout'); };
 	if (preview && (url.substring(url.length -4).toUpperCase() !== '.RAW')) {
 		xhr.open('GET', base + globalfxns.adjurl(url) +'?custom=1&cmd=4001');
@@ -25706,12 +25741,15 @@ function resolver(url, preview, notfirst)  {
 	}
 	try {
 		xhr.send();
+		curxhr = xhr;
 	} catch (e) {
 		console.log('WORKER XHR send exception (createfx) for ' + url + ' ' + e.toString());
+		if (dbgflag) evtq.push(e);
 		xhr.onerror = undefined;
 		xhr.onload = undefined;
 		xhr.ontimeout = undefined;
 		xhr.onabort = undefined;
+		curxhr = undefined;
 		postMessage({ cmd: cmd, ok: false, n: n });
 		handlewait();
 	}
@@ -25755,8 +25793,8 @@ function buildpreview(f, size, orientation) {
 		postMessage({ cmd: cmd, pix: outpix, n: n, o: ori, c: cache, xori: (typ === 5 && ori === 0) ? 3 : ((ori === 0) ? 1 : ori), size: size });
 		handlewait();
 	};
-	reader.onerror = (/*evt*/) => {
-		console.log('WORKER preview: error reading ' + f.name);
+	reader.onerror = (evt) => {
+		console.log('WORKER preview: error reading ' + f.name + ' E ' + evt.toString());
 		postMessage({ cmd: cmd, ok: false, n: n });
 		handlewait();
 	};
@@ -25846,6 +25884,7 @@ function custcmdi(c, t, restargs, cb, results) {
 	}
 	const xhr = new XMLHttpRequest();
 	xhr.onload = (/*event*/) => {
+		curxhr = undefined;
 		if (xhr.status === 200) {
 			if (errcount) errcount--;
 			let resp = xhr.response;
@@ -25869,7 +25908,9 @@ function custcmdi(c, t, restargs, cb, results) {
 		}
 	};
 	xhr.onerror = (event) => {
-		console.log('WORKER custcmd onerror: ' + thecmd + ' ' + base);
+		curxhr = undefined;
+		console.log('WORKER custcmd onerror: ' + thecmd + ' ' + base + ' E ' + JSON.stringify(event));
+		if (dbgflag) evtq.push(event);
 		errcount++;
 		cb({ cmd: 'custcmd', ok: false, results: results, rc: -2, cmds: currcust });
 		currcust = undefined;
@@ -25888,6 +25929,7 @@ function custcmdi(c, t, restargs, cb, results) {
 	xhr.setRequestHeader('Cache-control','no-cache, no-store, max-age=0');
 	xhr.responseType = 'arraybuffer';
 	xhr.send();
+	curxhr = xhr;
 }
 /* WORKER read local jpeg */
 function readjpg(file) {
