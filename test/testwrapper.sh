@@ -79,6 +79,11 @@ find * -name \*[jJdD][pPnN][gG] -type f -print -exec sh -c  'echo ==== ; exiftoo
 find * -type f -print0 | sort -z | xargs '-I{}' -0 exiftool -X '{}' > ${TESTWORK}/imbraw2dng_test_${testid}_exif.xml 2>&1
 find * -name \*[jJdD][pPnN][gG] -type f -print0 | sort -z | xargs '-I{}' -0 exiv2 -pR -uvb '{}' > ${TESTWORK}/imbraw2dng_test_${testid}_exiv2.txt 2>&1
 
+( cd $TESTWORK && ( l=$( wc -l imbraw2dng_test_${testid}_exif.xml | cut -d' ' -f 1 ); 
+	uu=$(( $l - 3 )); 
+	sed -i -e '2,'$uu' s/^<[?]xml.*//g' -e '4,'$uu' s@</*rdf:RDF[^>]*>@@g' imbraw2dng_test_${testid}_exif.xml
+) )
+
 echo 'ZIP TESTS' | tee -a $log
 find . -name \*.zip -type f -print -exec unzip -v {} \; -exec unzip -t {} \; 2>&1 | tee -a $log
 
@@ -86,24 +91,25 @@ echo 'LINT TESTS' | tee -a $log
 ln -sf ${TESTEXES}/imbraw2dng.js ih.mjs
 echo imbraw2dng.js | tee -a $log
 node /home/hegny/prog/imbraw2dng/github/node_modules/eslint/bin/eslint.js -c ${TESTEXES}/eslint.config-node.mjs ih.mjs 2>&1 | tee -a $log
+
 stl=$( grep -n '<script' ${TESTEXES}/imbraw2dng.html|cut -d: -f1 )
 endl=$( grep -n '</script' ${TESTEXES}/imbraw2dng.html|cut -d: -f1 )
 head -$(( $endl - 1 )) ${TESTEXES}/imbraw2dng.html|tail -$(( $endl - $stl - 1 )) > ih.js
-echo imbraw2dng.html | tee -a $log
+echo  imbraw2dng.html $stl | tee -a $log
 node /home/hegny/prog/imbraw2dng/github/node_modules/eslint/bin/eslint.js -c ${TESTEXES}/eslint.config.mjs  ih.js 2>&1 | tee -a $log
 
 stla=$( grep -n '<script' ${TESTEXES}/imbapp.htm|cut -d: -f1 | head -1 )
 endla=$( grep -n '</script' ${TESTEXES}/imbapp.htm|cut -d: -f1 |head -1)
 head -$(( $endla - 1 )) ${TESTEXES}/imbapp.htm|tail -$(( $endla - $stla - 1 )) > iaa.js
-echo imbapp.html | tee -a $log
+echo  imbapp.html $stla | tee -a $log
 node /home/hegny/prog/imbraw2dng/github/node_modules/eslint/bin/eslint.js -c ${TESTEXES}/eslint.config.mjs  iaa.js 2>&1 | tee -a $log
 
 stlb=$( grep -n '<script' ${TESTEXES}/imbapp.htm|cut -d: -f1 | tail -1 )
 endlb=$( grep -n '</script' ${TESTEXES}/imbapp.htm|cut -d: -f1 |tail -1)
 head -$(( $endlb - 1 )) ${TESTEXES}/imbapp.htm|tail -$(( $endlb - $stlb - 1 )) > iaw.js
-echo imbapp.html worker | tee -a $log
+echo imbapp.html worker $stlb | tee -a $log
 node /home/hegny/prog/imbraw2dng/github/node_modules/eslint/bin/eslint.js -c ${TESTEXES}/eslint.config.mjs  iaw.js 2>&1 | tee -a $log
-ls -l ia*.js
+ls -l ia*.js ih.mjs ih.js
 
 cd ..
 for f in imbraw2dng_test_${testid}* ; do
