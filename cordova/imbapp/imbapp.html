@@ -1144,7 +1144,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.9.11__d_e_v", // actually const // VERSION EYECATCHER
+version: "V5.9.11_d20ec6", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -22609,6 +22609,9 @@ imbfree = -1;
 disconnected = true;
 discknown = false; // we do not know if connected
 dooverwrite = false;
+// swiping magview
+mdx = -1;
+mdy = -1;
 constructor() {
 	super();
 }
@@ -25256,6 +25259,64 @@ parseexpflags(flags) {
 	}
 	else this.debugflag = false;
 }
+magmd(ev) {
+	const mpb = document.getElementById('magpicback');
+	if (ev.srcElement === mpb || ev.srcElement === mpb.querySelector('.eejpg') || ev.srcElement === mpb.querySelector('.eeraw')) {
+		this.mdx = ev.clientX;
+		this.mdy = ev.clientY;
+		//console.log("MD");
+	}
+	else {
+		this.mdx = -1;
+		this.mdy = -1;
+	}
+}
+magmu(ev) {
+	if (this.mdx !== -1 && this.mdy !== -1) {
+		//console.log("MU");
+		let dmdx = ev.clientX - this.mdx;
+		let dmdy = ev.clientY - this.mdy;
+		if (Math.abs(dmdx) > Math.abs(dmdy) && dmdx > 100)
+			this.magnav();
+		else if (Math.abs(dmdx) > Math.abs(dmdy) && dmdx < -100)
+			this.magnav(true);
+		this.mdx = -1;
+		this.mdy = -1;
+	}
+}
+magtm(typ,ev) {
+	//console.log('MTM' + typ);
+	const mpb = document.getElementById('magpicback');
+	if (typ === 's' || typ === 'm' && ev.changedTouches.length === 1) {
+		if (ev.changedTouches[0].target === mpb || ev.changedTouches[0].target === mpb.querySelector('.eejpg') || ev.changedTouches[0].target === mpb.querySelector('.eeraw')) {
+			if (this.mdx === -1 && this.mdy === -1) {
+				this.mdx = ev.changedTouches[0].clientX;
+				this.mdy = ev.changedTouches[0].clientY;
+			}
+		}
+		else {
+			this.mdx = -1;
+			this.mdy = -1;
+		}
+	}
+	else if (typ === 'e' && ev.changedTouches.length === 1) {
+		if (this.mdx !== -1 && this.mdy !== -1) {
+			//console.log("MU");
+			let dmdx = ev.changedTouches[0].clientX - this.mdx;
+			let dmdy = ev.changedTouches[0].clientY - this.mdy;
+			if (Math.abs(dmdx) > Math.abs(dmdy) && dmdx > 100)
+				this.magnav();
+			else if (Math.abs(dmdx) > Math.abs(dmdy) && dmdx < -100)
+				this.magnav(true);
+			this.mdx = -1;
+			this.mdy = -1;
+		}
+	}
+	else {
+		this.mdx = -1;
+		this.mdy = -1;
+	}
+}
 /* *************************************** Top class for App E N D *************************************** */
 /* *************************************** Browser specifics *************************************** */
 /* Browserhelper: browserdisplay: put last message viewable */
@@ -26105,7 +26166,7 @@ function readjpg(file) {
 </div>
 <div id="xmag" style="width: fit-content;min-width:100%;min-height:90%; overflow:auto;background-color:#446688;">
 	<div class="magpic">
-		<div style="width:100%; height:95%; margin:0px; align-self:center; text-align:center; align-content:center;padding-top: 2em;">
+		<div style="width:100%; height:95%; margin:0px; align-self:center; text-align:center; align-content:center;padding-top: 2em;" id="magpicback" ontouchmove="imbc.magtm('m',event);" ontouchstart="imbc.magtm('s',event);" ontouchend="imbc.magtm('e',event);">
 		<div class="errimg" style="display:none;background-color:#aaaaaa;width:100%;height:100%;">X</div>
 		<img class="eejpg" style="display:none;max-width:85vw;max-height:70vh;border:0.5em solid white;">
 		<div class="eepvx" style="background-color:#aaaaaa;width:100%;height:100%;">?</div>
