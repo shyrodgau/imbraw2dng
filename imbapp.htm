@@ -38,9 +38,9 @@ Mapping of identical sections: (* = missing here)
 IFDOut (TIFFOut, ImBCBase, globals): 	imbapp.htm imbapp.html imbraw2dng.html imbraw2dng.js		(all)
 Browser_specifics (globalfxns): 		imbapp.htm imbapp.html imbraw2dng.html						(all html)
 *Backward_helper_class: 				imbraw2dng.html imbraw2dng.js								(classic)
-WORKER: 								imbapp.htm imbapp.html										(app-like)
+app_only (CSS): 						imbapp.htm imbapp.html										(app-like)
 Top_class_for_App: 						imbapp.htm imbapp.html										(app-like)
-CSS: 									imbapp.htm imbapp.html										(app-like)
+worker: 								imbapp.htm imbapp.html										(app-like)
 
 -->
 <head>
@@ -97,7 +97,8 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAA">
 <style type="text/css">
-/* *************************************** CSS *************************************** */
+/* *************************************** app only *************************************** */
+/* * * ************************************* CSS *************************************** */
 @font-face  {
 	font-family:'Symbol3';
 	src:url('data:font/woff;base64,d09GRgABAAAAADZ8ABQAAAAAWNwAAgAIAAAAAAAAAAAAAAAAAAAAAAAAAABGRlRN\
@@ -491,7 +492,8 @@ body { margin: 0; }
 .biggiebtn.timebtn.red { color:red !important;}
 .biggiebtn.timebtn.green, .biggiebtn.descbtn.green { color:green !important;font-weight:bold;}
 .biggiebtn.timebtn.grey { color:#666666 !important;}
-.biggiebtn.rotbtnr { margin-top: -0em; font-family:Symbol3; text-shadow: -0.1em 0.07em white !important;}
+.biggiebtn.rotbtnr { margin-top: -0em; font-family:Symbol3; text-shadow: -0.1em 0.07em rgba(255,255,255,0.7), 0.08em 0.06em rgba(255,255,255,0.5) !important;}
+.biggiebtn.descbtn { text-shadow: 0.03em 0.02em rgba(255,255,255,0.8), -0.04em 0.03em rgba(255,255,255,0.8) !important;}
 .biggiebtn.timetxt:disabled { background-color:#446688; color:black !important; cursor:auto; }
 .dlbtn:not(.biggiebtn) { vertical-align: bottom; font-weight: bold; }
 .igtype { display: flex; flex-flow: wrap;border-top: 0; padding:0.1em; min-height:9em; }
@@ -515,13 +517,13 @@ body { margin: 0; }
 	font-weight: bold;
 }
 #xmag .btnsrow { position: fixed !important; bottom: 1em !important;top:auto !important;background: none !important; padding:0 !important;}
-.btnsrow { position: absolute; top: 2em; left: 0.5em; height: 0.8em; width: 4em; padding:0.3em;background-color: rgba(200,200,180,0.7); }
+.btnsrow { position: absolute; top: 2em; left: 0.5em; height: 0.8em; width: 4em; padding:0.3em;background-color: rgba(200,200,180,0.5); }
 div[data-state='load'] .btnsrow, div[data-state='wait'] .btnsrow, div[data-state='err'] .btnsrow { display: none; }
 .oth_CL .btnsrow, .JPG_CL .btnsrow { width: 2em; }
 .JPG_CL .rotbtn, .oth_CL .rotbtn { display: none; }
 .JPG_CL .rotbtnr, .oth_CL .rotbtnr { display: none; }
 .JPG_CL .eeraw, .oth_CL .eeraw, .RAW_CL .eejpg { display: none; }
-.biggiebtn { position: absolute; top: -0.2em; font-weight:bold; font-size:120%; text-shadow: 0.1em 0.07em 0 white; z-index: 900;}
+.biggiebtn { position: absolute; top: -0.2em; font-weight:bold; font-size:120%; text-shadow: 0.1em 0.07em 0 rgba(255,255,255,0.8), -0.07em 0.08em 0 rgba(255,255,255,0.5); z-index: 900;}
 .pictitle { z-index: 90; font-size:66%; }
 .pictitle:not(:nth-child(1)) { border-top: 1px solid black; }
 .onepic .picdeleted:before {
@@ -634,17 +636,18 @@ body:has(dialog[open]), html:has(dialog[open]) {
 .lbtn { font-family:Symbol3; height:1.4em; font-size:200%; }
 .delsel.green { color: green /*#aaff88*/; }
 .delsel.blue { color: #333399; }
-/* *************************************** CSS E N D *************************************** */
+/* * * ************************************* CSS E N D *************************************** */
 </style>
-<!-- javascript code CURRENTLY NOT identical to imbraw2dng.js  for the classes IFDOut, TIFFOut, ZIPHelp, ImBCBase, ImBCBackw. -->
 <script type="text/javascript" language="javascript">
+/* *************************************** app only E N D *************************************** */
 "use strict;"
 /* *************************************** IFDOut *************************************** */
 /* Tiff IFD helper class */
 class IFDOut {
 /* Indentation out */
+issub = false;
+subs = [];
 camprofptr = -1; // first of the pointers, they are sequential, accessed by TIFFOut
-exifdataptr = -1; // the exif ifd, pointers therein must be adjusted
 // rest is private:
 #entrys = [];
 #currentoff = 0;
@@ -671,7 +674,7 @@ addEntry(tag, type, value) {
 	let l = value.length;
 	if (type === 'ASCII') l++;
 	else if (type === 'RATIONAL' || type === 'SRATIONAL') l /= 2;
-	if (tag === 273 || tag === 330 || tag === 34665) { /* special cases */
+	if (tag === 273 || tag === 330) { /* special cases */
 		let e = {
 			tag: tag,
 			type: x.t,
@@ -815,6 +818,8 @@ getData(offset) {
 	}
 	while (ioff < this.#imglen)
 		data[ioff++] = 0;
+	this.ifdstart = offset + ioff;
+	this.suboffs = [];
 	TIFFOut.writeshorttoout(data, this.#entrys.length, ioff);
 	ioff += 2;
 	for (const i of this.#entrys.sort((a,b) => a.tag - b.tag )) {
@@ -824,10 +829,12 @@ getData(offset) {
 		ioff+=2;
 		TIFFOut.writeinttoout(data, i.count, ioff);
 		ioff+=4;
+		let subptr = this.subs.find((e) => e.t === i.tag);
+		if (subptr) {
+			subptr.o = offset  + ioff;
+		}
 		if (i.tag === 273) { /* strip offsets is set here, subifd (-2), exififd and private stuff outside */
 			TIFFOut.writeinttoout(data, offset, ioff);
-		} else if (i.tag === 34665) { /* exififd */
-			this.exifdataptr = offset + ioff;
 		} else if (i.tag === 50933) { // camera profiles
 			if (undefined !== i.value) // only one, profile ptr fits into value
 				this.camprofptr = offset + ioff;
@@ -842,8 +849,8 @@ getData(offset) {
 		}
 		ioff+=4;
 	}
+	// next ifd - stays zero
 	TIFFOut.writeinttoout(data, 0, ioff);
-	// next ifd - stays zero if has sub ifd
 	ioff += 4;
 	data.set(this.#dyndata, ioff);
 	return data.slice(0, ioff + this.#currentoff);
@@ -852,14 +859,104 @@ getData(offset) {
 getOffset() {
 	return this.#imglen;
 }
-/* IFDOut: if has sub ifd, then return that */
+/* IFDOut: where the next ifd ptr goes */
 getNextIfdPosOffset() {
-	if (this.hassub) {
-		const i = this.#entrys.findIndex(v => v.tag === 330);
-		return this.#imglen + 2 + (12 * i) + 8;
-	} else {
-		return this.#imglen + 2 + (12 * this.#entrys.length);
+	return this.#imglen + 2 + (12 * this.#entrys.length);
+}
+static parseStr(view, off, len) {
+	let ab = new Uint8Array(len);
+	for (let j=0; j < len; j++)
+		ab[j] = view.getUint8(off+j);
+	return new TextDecoder().decode(ab);
+}
+static parseIfd(view, off0, baseoff) {
+	let res = [];
+	let nent = TIFFOut.readshort(view, off0);
+	let off = off0 + 2;
+	for (let j=0; j<nent; j++) {
+		// seek end of data for tags
+		let tag = TIFFOut.readshort(view, off);
+		let typ = TIFFOut.readshort(view, off+2);
+		let num = TIFFOut.readint(view, off+4);
+		let addr = TIFFOut.readint(view, off+8);
+		let ee = TIFFOut.types.find(e => e.t === typ);
+		if (undefined === ee) {
+			console.log('EXIF: TYP NOT FOUND ' + typ);
+			continue;
+		}
+		let f = { t: tag, y: ee.n, n: num };
+		if (ee.l * num <= 4) { /* fits into data */
+			switch (ee.n) {
+			case 'ASCII':
+				f.val = IFDOut.parseStr(view, off+8, num-1);
+				break;
+			case 'BYTE':
+			case 'SBYTE':
+			case 'UNDEFINED':
+				f.val = [];
+				for (let j=0; j<num; j++)
+					f.val.push(view.getUint8(off+8+j));
+				break;
+			case 'SHORT':
+			case 'SSHORT':
+				f.val = [];
+				for (let j=0; j<num; j++)
+					f.val.push(TIFFOut.readshort(view,off+8+j*2));
+				break;
+			case 'LONG':
+			case 'SLONG':
+				f.val = [];
+				f.val.push(TIFFOut.readint(view,off+8));
+				break;
+			case 'FLOAT':
+				f.val = [];
+				f.val.push(view.getFloat32(off+8));
+				break;
+			}
+		}
+		else { /* data accessed via pointer */
+			f.addr = addr+baseoff;
+			switch (ee.n) {
+			case 'ASCII':
+				f.val = IFDOut.parseStr(view, addr+baseoff, num-1);
+				break;
+			case 'BYTE':
+			case 'SBYTE':
+			case 'UNDEFINED':
+				f.val = [];
+				for (let j=0; j<num; j++)
+					f.val.push(view.getUint8(addr+baseoff+j));
+				break;
+			case 'SHORT':
+			case 'SSHORT':
+				f.val = [];
+				for (let j=0; j<num; j++)
+					f.val.push(TIFFOut.readshort(view,addr+baseoff+j*2));
+				break;
+			case 'LONG':
+			case 'SLONG':
+				f.val = [];
+				for (let j=0; j<num; j++)
+					f.val.push(TIFFOut.readint(view,addr+baseoff+j*4));
+				break;
+			case 'FLOAT':
+				f.val = [];
+				for (let j=0; j<num; j++)
+					f.val.push(view.getFloat32(addr+baseoff+j*4));
+				break;
+			case 'RATIONAL':
+			case 'SRATIONAL':
+				f.val = [];
+				for (let j=0; j<num; j++) {
+					f.val.push(TIFFOut.readint(view, addr+baseoff+j*4));
+					f.val.push(TIFFOut.readint(view, addr+baseoff+j*4 + 4));
+				}
+			}
+		}
+		res.push(f);
+		off+=12;
 	}
+	return res;
 }
 /* Indentation in - end of class IFD */
 };
@@ -872,27 +969,34 @@ class TIFFOut {
 #cameraprofiles = [];
 #bincameraprofiles = [];
 #currentifd = null;
-#exifdata = null;
 /* TIFFOut: add an ifd  (will set this as current IFD) */
 addIfd(issub) {
-	if (null !== this.#currentifd) {
-		this.#ifds.push(this.#currentifd);
+	if (issub) {
+		let cur = this.#currentifd;
+		this.#currentifd = new IFDOut();
+		cur.subs[cur.subs.length-1].i = this.#currentifd;
 	}
-	this.#currentifd = new IFDOut();
-	if (issub) this.#currentifd.issub = true;
+	else
+		this.#currentifd = new IFDOut();
+	this.#ifds.push(this.#currentifd);
+	if (issub) this.#currentifd.issub = issub;
 }
-/* TIFFOut: add sub ifd  (will set this as current IFD) */
-addSubIfd() {
+/* TIFFOut: add sub ifd  (will set this as current IFD), opt. tag for e.g. exif */
+addSubIfd(tag) {
 	if (null !== this.#currentifd) {
 		this.#currentifd.hassub = true;
-		this.#currentifd.addEntry(330, 'LONG', [ 0xFFFFFFFE ]); /* subifd, special */
+		this.#currentifd.subs.push({t:tag ? tag : 330});
+		this.#currentifd.addEntry(tag ? tag : 330, 'LONG', [ 0xFFFFFFFE ]); /* subifd, special */
 	}
-	this.addIfd(true);
+	this.addIfd(this.#currentifd);
 }
-/* TIFFOut: add exif ifd */
-addExifIfd(data) {
-	this.#currentifd.addEntry(34665, 'LONG', [ 0 ]); /* Exif ifd */
-	this.#exifdata = data;
+/* TIFFOut: close sub ifd and return to parent */
+closeSub() {
+	if (!this.#currentifd.issub) {
+		console.log('close sub: not sub');
+		return;
+	}
+	this.#currentifd = this.#currentifd.issub;
 }
 /* TIFFOut: add image data to current ifd */
 addImageStrip(typ, view, width, height) {
@@ -939,9 +1043,6 @@ static writeshorttoout(out, num, off) {
 }
 /* TIFFOut: return the tiff binary data */
 getData() {
-	if (null !== this.#currentifd) {
-		this.#ifds.push(this.#currentifd);
-	}
 	let partlens = this.#ifds.map(x => (100000+x.getOffset())).reduce((sum, a) => (sum + a), 0);
 	partlens += this.#cameraprofiles.map(() => 1000000).reduce((sum, a) => (sum + a), 0);
 	partlens += this.#bincameraprofiles.map(x => x.length).reduce((sum, a) => (sum + a), 0);
@@ -957,13 +1058,27 @@ getData() {
 	let lastoffpos = 4;
 	let lastlen = 8;
 	for (const i of this.#ifds) {
+		// top-level ifds (typically 1)
+		if (i.issub) continue;
 		TIFFOut.writeinttoout(data, i.getOffset() + lastlen, lastoffpos);
 		let d = i.getData(lastlen);
 		data.set(d, lastlen);
 		lastoffpos = i.getNextIfdPosOffset() + lastlen;
 		lastlen += d.length;
 	}
-	TIFFOut.writeinttoout(data, 0, lastoffpos);
+	for (const i of this.#ifds) {
+		// sub-ifds
+		if (!i.issub) continue;
+		let d = i.getData(lastlen);
+		data.set(d, lastlen);
+		lastlen += d.length;
+	}
+	for (const i of this.#ifds) {
+		// fill the pointers for sub ifds
+		for (const j of i.subs) {
+			TIFFOut.writeinttoout(data, j.i.ifdstart, j.o);
+		}
+	}
 	if (-1 !== this.#ifds[0].camprofptr && this.#cameraprofiles.length > 0) {
 		for (let l=0; l<this.#cameraprofiles.length; l++) {
 			TIFFOut.writeinttoout(data, lastlen, this.#ifds[0].camprofptr + (4*l));
@@ -980,41 +1095,6 @@ getData() {
 				data[lastlen+k] = cpd[k];
 			lastlen += cpd.length;
 		}
-	}
-	if (-1 !== this.#ifds[0].exifdataptr && this.#exifdata !== null) {
-		TIFFOut.writeinttoout(data, lastlen, this.#ifds[0].exifdataptr);
-		let lastbase = lastlen, aoff = 2;
-		let nent = TIFFOut.readshorta(this.#exifdata,0);
-		TIFFOut.writeshorttoout(data, nent, lastlen);
-		lastlen += 2;
-		for (let j = 0; j < nent; j++) {
-			let tag = TIFFOut.readshorta(this.#exifdata, aoff+0);
-			let typ = TIFFOut.readshorta(this.#exifdata, aoff+2);
-			let num = TIFFOut.readinta(this.#exifdata, aoff+4);
-			let addr = TIFFOut.readinta(this.#exifdata, aoff+8);
-			aoff += 12;
-			let ee = TIFFOut.types.find(e => e.t === typ);
-			if (undefined === ee) {
-				console.log('EXIFOUT: TYP NOT FOUND ' + typ);
-				continue;
-			}
-			TIFFOut.writeshorttoout(data, tag, lastlen);
-			lastlen += 2;
-			TIFFOut.writeshorttoout(data, typ, lastlen);
-			lastlen += 2;
-			TIFFOut.writeinttoout(data, num, lastlen);
-			lastlen += 4;
-			if (ee.l * num <= 4 && tag !== 40965) {
-				TIFFOut.writeinttoout(data, addr, lastlen);
-			}
-			else {
-				// correct the addresse
-				TIFFOut.writeinttoout(data, addr + lastbase, lastlen);
-			}
-			lastlen += 4;
-		}
-		for (let k = aoff; k<this.#exifdata.length; k++)
-			data[lastlen++] = this.#exifdata[k];
 	}
 	return data.slice(0, lastlen);
 }
@@ -1063,7 +1143,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.9.9_@_d_e_v", // actually const // VERSION EYECATCHER
+version: "V5.9.11__d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -1528,7 +1608,7 @@ latestraw='0000';
 
 // [0]: !=0 => use separate localstorage namespace from imbraw2dng
 // [1]: 1 => use imbweb = 'http://192.168.8.101:8080'; 2 => use imbweb = 'http://192.168.0.72:8080';
-// [2]: !=0 => use longer startup timeout
+// [2]: !=0 => use longer startup timeout, debug versio
 expflags = [ 0, 0, 0, 0, 0 ];
 
 //////// DYNAMIC SOURCE 1
@@ -18668,128 +18748,19 @@ xexif(name, view, datestr) {
 		off += 12;
 	}
 	if (exifoff === -1) return;
-	// but how long is it?
-	let maxdat = 0;
 	off = exifoff + baseoff;
-	nent = TIFFOut.readshort(view, off);
-	let na = [];
-	na.push(view.getUint8(off));
-	na.push(view.getUint8(off+1));
-	off += 2;
-	let off9003 = 0, off9004 = 0, len9003 = 0, len9004 = 0;
-	for (let j=0; j<nent; j++) {
-		// seek end of data for tags
-		let tag = TIFFOut.readshort(view, off);
-		let typ = TIFFOut.readshort(view, off+2);
-		let num = TIFFOut.readint(view, off+4);
-		let addr = TIFFOut.readint(view, off+8);
-		let ee = TIFFOut.types.find(e => e.t === typ);
-		if (undefined === ee) {
-			console.log('EXIF: TYP NOT FOUND ' + typ);
-			continue;
-		}
-		na.push(view.getUint8(off));
-		na.push(view.getUint8(off+1));
-		na.push(view.getUint8(off+2));
-		na.push(view.getUint8(off+3));
-		off += 12;
-		if (tag === 0x9003 && this.corrdelta && datestr) {
-			off9003 = addr +baseoff;
-			len9003 = num;
-		}
-		else if (tag === 0x9004 && this.corrdelta && datestr) {
-			off9004 = addr +baseoff;
-			len9004 = num;
-		}
-		if (tag === 40965) {
-			/* add interop, assume two entries (2x12 + 2 for the number of entries) */
-			na.push(view.getUint8(off-8));
-			na.push(view.getUint8(off-7));
-			na.push(view.getUint8(off-6));
-			na.push(view.getUint8(off-5));
-			if (addr + 26 > maxdat) maxdat = addr + 26;
-			// we correct the addresses so that 0 is start of exif ifd
-			addr = addr - exifoff;
-			na.push(addr % 256);
-			addr = Math.floor(addr / 256);
-			na.push(addr % 256);
-			addr = Math.floor(addr / 256);
-			na.push(addr % 256);
-			addr = Math.floor(addr / 256);
-			na.push(addr % 256);
-			addr = Math.floor(addr / 256);
-		}
-		else if (ee.l * num <= 4) {
-			na.push(view.getUint8(off-8));
-			na.push(view.getUint8(off-7));
-			na.push(view.getUint8(off-6));
-			na.push(view.getUint8(off-5));
-			na.push(view.getUint8(off-4));
-			na.push(view.getUint8(off-3));
-			na.push(view.getUint8(off-2));
-			na.push(view.getUint8(off-1));
-			continue;
-		}
-		else if (addr < exifoff) {
-			na.push(view.getUint8(off-8));
-			na.push(view.getUint8(off-7));
-			na.push(view.getUint8(off-6));
-			na.push(view.getUint8(off-5));
-			na.push(view.getUint8(off-4));
-			na.push(view.getUint8(off-3));
-			na.push(view.getUint8(off-2));
-			na.push(view.getUint8(off-1));
-			console.log('EXIF OFFSET BEFORE IFD');
-			continue;
-		}
-		else if (tag === 37500) {
-			// strip maker notes
-			na.push(1);
-			na.push(0);
-			na.push(0);
-			na.push(0);
-			na.push(view.getUint8(off-4));
-			na.push(view.getUint8(off-3));
-			na.push(view.getUint8(off-2));
-			na.push(view.getUint8(off-1));
-		}
-		else {
-			na.push(view.getUint8(off-8));
-			na.push(view.getUint8(off-7));
-			na.push(view.getUint8(off-6));
-			na.push(view.getUint8(off-5));
-			if (addr + ee.l * num > maxdat) maxdat = addr + ee.l * num;
-			// we correct the addresses so that 0 is start of exif ifd
-			addr = addr - exifoff;
-			na.push(addr % 256);
-			addr = Math.floor(addr / 256);
-			na.push(addr % 256);
-			addr = Math.floor(addr / 256);
-			na.push(addr % 256);
-			addr = Math.floor(addr / 256);
-			na.push(addr % 256);
-			addr = Math.floor(addr / 256);
+	let t = IFDOut.parseIfd(view, off, baseoff);
+	const iio = t.findIndex((v) => v.t === 40965);
+	if (iio !== -1) {
+		t[iio].ifd = IFDOut.parseIfd(view, t[iio].val[0]+  baseoff, 0);
+	}
+	if (this.corrdelta && datestr) {
+		for (const e of t.filter(v => v.t === 0x9003 || v.t === 0x9004)) {
+			for (let j = 0; j < e.n; j++)
+				view.setUint8(e.addr + j, datestr[j]);
 		}
 	}
-	if (maxdat === 0) maxdat = off+12;
-	else maxdat += 12;
-	if (maxdat - off > 100000) return;
-	for (let z = (baseoff+exifoff+2)+(12*nent); z<maxdat; z++) {
-		if (z === off9003 || z === off9004) {
-			let l = (z === off9003) ? len9003 : len9004;
-			for (let j=0; j<Math.min(l,datestr.length); j++) {
-				if (j===4 || j===7 || j===13 || j==16 || j === 10)
-					na.push(view.getUint8(z));
-				else
-					na.push(datestr.charCodeAt(j));
-				z++;
-			}
-			z--;
-		}
-		else
-			na.push(view.getUint8(z));
-	}
-	this.#exififds.push( { name: name, data: na } );
+	this.#exififds.push( { name: name, data: t } );
 }
 /* ImBCBase: time values from filename */
 static nametotime(name, corrdelta=0) {
@@ -18949,6 +18920,7 @@ handleone(orientation) {
 		mode += '(' + w + ' x ' + h + ')';
 		typ = globals.infos[zz].typ;
 	}
+	const typ0 = typ;
 	if (undefined !== this.rotphase) {
 		this.rotphase ++;
 		document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ' + this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
@@ -18959,6 +18931,7 @@ handleone(orientation) {
 	else datestr = '';
 	let whitelvl = 255;
 	if (typ === 5) whitelvl = 4095;
+	let addimgs = 0;
 
 	const reader = f.imbackextension ? f : new FileReader();
 	reader.onload = async (evt) => {
@@ -19109,6 +19082,7 @@ handleone(orientation) {
 				if (fc > 1) {
 					this.#historystring = '(' + this.#historystring + ')/' + Math.round(fc*100)/100;
 				}
+				addimgs = this.#addimgs.length;
 				this.#addimgs = [];
 			}
 			else {
@@ -19116,7 +19090,7 @@ handleone(orientation) {
 			}
 		}
 		this.mappx(0, 'process.processing', inname);
-		this.mappx(0, 'process.assuming', globals.types[typ < 32 ? typ : ((typ< 64)? (typ - 32) : (typ - 64))], mode);
+		this.mappx(0, 'process.assuming', globals.types[typ0], mode);
 		if (dateok) {
 			this.mappx(0, 'process.datetime', datestr);
 		}
@@ -19150,8 +19124,8 @@ handleone(orientation) {
 		ti.addEntry(50706, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Version */
 		ti.addEntry(50707, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Backward Version */
 		ti.addEntry(271, 'ASCII', 'ImBack'); /* Make */
-		ti.addEntry(50708, 'ASCII', 'ImBack' + ' ' + globals.types[typ < 32 ? typ : ((typ< 64)? (typ - 32) : (typ - 64))]); /* Unique model */
-		ti.addEntry(272, 'ASCII', globals.types[typ < 32 ? typ : ((typ< 64)? (typ - 32) : (typ - 64))]); /* Model */
+		ti.addEntry(50708, 'ASCII', 'ImBack' + ' ' + globals.types[typ0]); /* Unique model */
+		ti.addEntry(272, 'ASCII', globals.types[typ0]); /* Model */
 		ti.addEntry(274, 'SHORT', [ ori ]); /* Orientation */
 		ti.addEntry(305, 'ASCII', ImBCBase.progname + ' ' + globals.version); /* SW and version */
 		if (!this.#historystring?.length)
@@ -19165,6 +19139,7 @@ handleone(orientation) {
 		else
 			ti.addEntry(37395, 'ASCII', hbytes); /* Raw file name in history */
 		this.#historystring = '';
+		let myexif = null;
 		if (dateok) {
 			ti.addEntry(306, 'ASCII', datestr); /* datetime */
 			ti.addEntry(36867, 'ASCII', datestr); /* Original date time */
@@ -19182,7 +19157,7 @@ handleone(orientation) {
 			if (cand.length) {
 				let e =  cand.sort((a, b) => a.td - b.td)[0].e;
 				this.mappx(0, 'process.addexif', e.name);
-				ti.addExifIfd(e.data);
+				myexif = e.data;
 			}
 		}
 		let metadatastr = this.xl('process.metadata') + ' ';
@@ -19193,8 +19168,6 @@ handleone(orientation) {
 			rightbytes = new TextEncoder().encode(this.copyright);
 			if (rightbytes.length === this.copyright.length)
 				ti.addEntry(33432, 'ASCII', this.copyright); /* copyright */
-			else
-				ti.addEntry(33432, 'ASCII', rightbytes); /* copyright */ /* https://www.iptc.org/std/photometadata/documentation/mappingguidelines/ */
 			metadatastr += this.xl('process.addcopyright');
 			metadatalen++;
 		}
@@ -19204,11 +19177,51 @@ handleone(orientation) {
 			artbytes = new TextEncoder().encode(this.artist);
 			if (artbytes.length === this.artist.length)
 				ti.addEntry(315, 'ASCII', this.artist); /* artist */
-			else
-				ti.addEntry(315, 'ASCII', artbytes); /* artist */ /* https://www.iptc.org/std/photometadata/documentation/mappingguidelines/ */
 			if (metadatalen) metadatastr += ', ';
 			metadatastr += this.xl('process.addartist');
 			metadatalen++;
+		}
+		let exifopen = false, exifbasics = false;;
+		if (this.metadata && (artbytes.length !== this.artist.length || rightbytes.length !== this.copyright.length)) {
+			ti.addSubIfd(34665);
+			exifopen = true;
+			if (rightbytes.length !== this.copyright.length)
+				ti.addEntry(33432, 'ASCII', rightbytes); /* copyright */ /* https://www.iptc.org/std/photometadata/documentation/mappingguidelines/ */
+			if (artbytes.length !== this.artist.length)
+				ti.addEntry(315, 'ASCII', artbytes); /* artist */ /* https://www.iptc.org/std/photometadata/documentation/mappingguidelines/ */
+			
+		}
+		if (myexif) {
+			if (!exifopen)
+				ti.addSubIfd(34665);
+			exifopen = true;
+			exifbasics = true;
+			for (const x of myexif) {
+				if ((x.t === 0x9003 || x.t === 0x9004) && this.corrdelta && datestr) {
+					ti.addEntry(x.t, x.y, datestr);
+					continue;
+				}
+				if (x.t === 37500)
+					ti.addEntry(x.t, x.y, [1,0,0,0]);
+				else if (x.t === 40965) {
+					ti.addSubIfd(40965);
+					for (const u of x.ifd) {
+						ti.addEntry(u.t, u.y, u.val);
+					}
+					ti.closeSub();
+				}
+				else if (x.t === 40962 || x.t === 40963)
+					continue;
+				else
+					ti.addEntry(x.t, x.y, x.val);
+			}
+		}
+		if (exifopen) {
+			if (!exifbasics) {
+				ti.addEntry(36864, 'UNDEFINED', [48,50,51,48]); /* exif version */
+				ti.addEntry(36867, 'ASCII', datestr); /* Original date time */
+			}
+			ti.closeSub();
 		}
 		let desc = '', descbytes = [];
 		if (this.iinf?.length) {
@@ -19371,13 +19384,23 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		ti.addEntry(258 , 'SHORT', [ targbits ]); /* BitsPerSample */
 		ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression - none */
 		ti.addEntry(50717, 'LONG', [ (typ >= 5) ? (whitelvl > 0 ?  whitelvl : 4095) : 255 ]); /* White level */
-		if ((typ % 32)  === 5) ti.addEntry(50714, 'SHORT', [ 240, 240, 240, 240 ] ); /* Blacklevel */
-		if ((typ % 32)  === 5) ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
+		if (typ0  === 5) {
+			ti.addEntry(50714, 'SHORT', [ 240, 240, 240, 240 ] ); /* Blacklevel */
+		}
+		else if (typ0 > 1) {
+			const bl = Math.round(addimgs / 2);
+			ti.addEntry(50714, 'SHORT', [ 0, bl, bl, 0 ] ); /* Blacklevel */
+		}
+		else {
+			const bl = Math.round(addimgs / 2);
+			ti.addEntry(50714, 'SHORT', [ bl, 0, 0, bl ] ); /* Blacklevel */
+		}
+		ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
 		ti.addEntry(262, 'SHORT', [ 0x8023 ]); /* Photometric - CFA */
 		ti.addEntry(277, 'SHORT', [ 1 ]); /* Samples per Pixel */
 		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config - chunky */
 		ti.addEntry(33421, 'SHORT', [ 2, 2 ]); /* CFA Repeat Pattern Dim */
-		ti.addEntry(33422, 'BYTE', ((typ > 1 && typ < 5) || (typ > 33 && typ < 64) || (typ > 65 && typ < 69)) ? [ 2, 1, 1, 0 ] : [ 1, 0, 2, 1 ]); /* CFA Pattern dep. on MF/35mm*/
+		ti.addEntry(33422, 'BYTE', ((typ0 > 1) && (typ0 < 5)) ? [ 2, 1, 1, 0 ] : [ 1, 0, 2, 1 ]); /* CFA Pattern dep. on MF/35mm*/
 		this.writewrap(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted' + ((this.checkdlfolder && !this.zip) ? 'checkdl' : ''), ti.getData(), f.name);
 	};
 	reader.onerror = (evt) => {
@@ -19479,13 +19502,6 @@ handle1imb(url, time) {
 	else {
 		this.appmsgxl(false, 'words.warning');
 		this.appmsgxl(0, 'onimback.strangename', rawname);
-	}
-}
-/* ImBCBase : parse expert flags */
-parseexpflags(flags) {
-	for (let j=0; j < this.expflags.length; j++) {
-		this.expflags[j] = flags % 3;
-		flags = Math.floor(flags / 3);
 	}
 }
 /* * * ************************************* Backward helper STUFF *************************************** */
@@ -20861,7 +20877,7 @@ findnexttoload() {
 			f = f.parentElement;
 		}
 		if (dispno) {
-			if (e.type === 'RAW' && ph >= 3 && (this.preloadedraws++ < this.maxcache)) {
+			if (ImBCBase.progname !== 'imbapp_app' && ph >= 3 && (this.preloadedraws++ < this.maxcache)) {
 				ph = 2;
 				res = e;
 			}
@@ -20886,7 +20902,7 @@ findnexttoload() {
 				ph = 1;
 			}
 		}
-		else if (e.type === 'RAW' && ph >= 3 && (this.preloadedraws++ < this.maxcache)) {
+		else if (ImBCBase.progname !== 'imbapp_app' && ph >= 3 && (this.preloadedraws++ < this.maxcache)) {
 			res = e;
 			ph = 2;
 		}
@@ -22736,6 +22752,18 @@ checkchecks() {
 	if (this.previewworker) this.previewworker.postMessage({ cmd: 'constwb', constwb: this.constwb });
 	const incdcp = document.getElementById('incdcp');
 	this.incdcp = (incdcp !== null && incdcp.checked);
+}
+/* TopApp : parse expert flags */
+parseexpflags(flags) {
+	for (let j=0; j < this.expflags.length; j++) {
+		this.expflags[j] = flags % 3;
+		flags = Math.floor(flags / 3);
+	}
+	if (this.expflags[2] > 0) {
+		this.debugflag = true;
+		if (this.previewworker) this.previewworker.postMessage({ cmd: 'setdbg' });
+	}
+	else this.debugflag = false;
 }
 /* *************************************** Top class for App E N D *************************************** */
 /* *************************************** Browser specifics *************************************** */
@@ -25948,7 +25976,6 @@ function readjpg(file) {
 }
 /* *************************************** WORKER, E N D *************************************** */
 </script>
-<!-- WORKER END -->
 </head>
 <!-- here comes the html itself -->
 <body id="thebody" style="font-family: Helvetica, Arial, sans-serif;" onload="init();" lang="en">
