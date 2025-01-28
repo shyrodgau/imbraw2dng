@@ -16,7 +16,7 @@ function onepart { # basename startline endline
 
 function onefile { # path
 	pth="$1"
-	spl=$( grep -ne '^/[*] [*][*][*][*][*]' "$pth" | grep -vi 'backward.*helper.*stuff' | cut -d: -f1 )
+	spl=$( grep -ne '^/[*] [*][*][*][*][*]' "$pth" | cut -d: -f1 )
 	ind=0
 	for n in $spl ; do
 		if [ $ind -eq 0 ]; then

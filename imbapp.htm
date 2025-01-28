@@ -1144,7 +1144,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.9.11_b86445", // actually const // VERSION EYECATCHER
+version: "V5.9.11__d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -20149,6 +20149,8 @@ dooverwrite = false;
 // swiping magview
 mdx = -1;
 mdy = -1;
+// delete status - 0: nothing, 1: asking, 2: running, 3: result
+delstate = 0;
 constructor() {
 	super();
 }
@@ -20650,6 +20652,7 @@ showbrowseri() {
 		document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + 'No files!';
 		return this.showmsg();
 	}
+	this.#updateselections();
 	this.showpages();
 	this.dispmode = 2;
 	document.getElementById('browser').style['display'] = '';
@@ -20686,6 +20689,7 @@ showlocal() {
 /* TopApp: show download progress (start) */
 showdlprog() {
 	document.getElementById('dlprogress').showModal();
+	this.addmodkeyev();
 	document.querySelector('body').style['overflow'] = 'hidden';
 	document.querySelector('body').style['max-width'] = '100vw';
 	document.querySelector('body').style['max-height'] = '100vh';
@@ -21399,6 +21403,8 @@ browserdelete() {
 	document.getElementById('delcancelbut').disabled = false;
 	document.getElementById('delprogmsg').innerHTML = '';
 	document.getElementById('delq').showModal();
+	this.addmodkeyev();
+	this.delstate = 1;
 	this.modalback = 'closedelprog';
 	this.rotphase = 1;
 }
@@ -21410,20 +21416,23 @@ magdelete() {
 	document.getElementById('delcancelbut').disabled = false;
 	document.getElementById('delprogmsg').innerHTML = '';
 	document.getElementById('delq').showModal();
+	this.addmodkeyev();
+	this.delstate = 1;
 	this.modalback = 'closedelprog';
 	this.rotphase = 1;
 }
 /* TopApp: visual browser: do delete */
 dodelete(list, status) {
-	if (list === undefined && document.getElementById('delcancelbut').disabled) {
+	if (!list?.length && this.delstate === 3) {
 		/* ok press after end */
 		this.delcancel();
 		return;
 	}
 	else if (list === undefined) {
 		/* initial call */
+		this.delstate = 2;
 		document.getElementById('delokbut').disabled = true;
-		document.getElementById('delcancelbut').disabled = true;
+		document.getElementById('delcancelbut').disabled = false;
 		this.rotphase = 1;
 		document.getElementById('delprogmsg').innerHTML = this.rotphases[this.rotphase];
 		if (this.magentry)
@@ -21431,7 +21440,7 @@ dodelete(list, status) {
 		else
 			this.dodelete(this.imbeles.filter((o) => o.selected), { no: this.imbeles.filter((o) => o.selected).length, ok: 0, err: 0 });
 		return;
-	} else if (list.length > 0) {
+	} else if (list.length > 0 && this.delstate === 2) {
 		/* processing */
 		this.modalback = 'nothing';
 		this.custcmdB(4003, 'docstatus', 'str=' + list[0].url, (res) => {
@@ -21454,30 +21463,108 @@ dodelete(list, status) {
 					if (pvo?.parentElement)
 						pvo.parentElement.classList.add('picdeleted');
 				}
-				this.#updateselections();
 				this.dloads = this.dloads.filter(e => e.toLowerCase() !== list[0].raw.toLowerCase());
 				this.iinf = this.iinf.filter(e => e.n.toLowerCase() !== list[0].raw.toLowerCase());
+				this.#updateselections();
 			} else {
 				status.err++;
 			}
 			list.splice(0,1);
-			return this.dodelete(list, status);
+			setTimeout(() => {
+				this.dodelete(list, status);
+			}, 30);
 		});
 	} else {
 		/* list finished */
-		document.getElementById('delprogmsg').innerHTML = this.xl('process.totals', status.no, status.ok, 0, status.err);
+		document.getElementById('delprogmsg').innerHTML = this.xl('process.totals', status.no, status.ok, (status.no - status.ok - status.err), status.err);
 		document.getElementById('delokbut').disabled = false;
 		document.getElementById('delcancelbut').disabled = true;
 		this.modalback = 'closedelprog';
 		this.savesettings(['dloads','ii']);
 		this.rotphase = -1;
+		this.delstate = 3;
 	}
 }
+/* TopApp: visual browser: do delete */
+// dodelete(list, status, done=[]) {
+	// if (!list?.length && this.delstate === 3) {
+		// /* ok press after end */
+		// this.delcancel();
+		// return;
+	// }
+	// else if (list === undefined) {
+		// /* initial call */
+		// this.delstate = 2;
+		// document.getElementById('delokbut').disabled = true;
+		// document.getElementById('delcancelbut').disabled = false;
+		// this.rotphase = 1;
+		// document.getElementById('delprogmsg').innerHTML = this.rotphases[this.rotphase];
+		// if (this.magentry)
+			// this.dodelete([ this.magentry ], { no: 1, ok: 0, err: 0 });
+		// else
+			// this.dodelete(this.imbeles.filter((o) => o.selected), { no: this.imbeles.filter((o) => o.selected).length, ok: 0, err: 0 });
+		// return;
+	// } else if (list.length > 0 && this.delstate === 2) {
+		// /* processing */
+		// this.modalback = 'nothing';
+		// this.custcmdB(4003, 'docstatus', 'str=' + list[0].url, (res) => {
+			// this.rotphase ++;
+			// document.getElementById('delprogmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ' +  this.xl('process.totals', status.no, status.ok, 0, status.err);
+			// if (0 <= res) {
+				// status.ok++;
+				// done.push(list[0]);
+			// } else {
+			// 	status.err++;
+			// }
+			// list.splice(0,1);
+			// setTimeout(() => {
+				// this.dodelete(list, status, done);
+			// }, 20);
+		// });
+	// } else {
+		// /* list finished */
+		// document.getElementById('delprogmsg').innerHTML = this.xl('process.totals', status.no, status.ok, (status.no - status.ok - status.err), status.err);
+		// document.getElementById('delokbut').disabled = false;
+		// document.getElementById('delcancelbut').disabled = true;
+		// this.modalback = 'closedelprog';
+		// this.savesettings(['dloads','ii']);
+		// this.rotphase = -1;
+		// this.delstate = 3;
+		// if (done && done?.length) {
+			// for (const l of done) {
+				// l.selected = false;
+				// if (l.entry) l.entry.querySelector('.selcb').checked = false;
+				// const pv = l.preview;
+				// if (pv)
+					// pv.classList.add('picdeleted');
+				// if (pv?.parentElement)
+					// pv.parentElement.classList.add('picdeleted');
+				// if (this.magentry) {
+					// if (this.magentry.orig.entry) this.magentry.orig.entry.querySelector('.selcb').checked = false;
+					// const pvo = this.magentry.orig.preview;
+					// if (pvo)
+						// pvo.classList.add('picdeleted');
+					// if (pvo?.parentElement)
+						// pvo.parentElement.classList.add('picdeleted');
+				// }
+				// this.dloads = this.dloads.filter(e => e.toLowerCase() !== l.raw.toLowerCase());
+				// this.iinf = this.iinf.filter(e => e.n.toLowerCase() !== l.raw.toLowerCase());
+			// }
+			// this.#updateselections();
+		// }
+	// }
+// }
 /* TopApp: visual browser: cancel the delete */
 delcancel() {
+	this.savesettings(['dloads', 'ii']);
+	if (this.delstate === 2) {
+		this.delstate = 3;
+		return;
+	}
 	document.getElementById('delq').close();
 	document.getElementById('browser').style['display'] = '';
 	this.rotphase = 0;
+	this.delstate = 0;
 	document.getElementById('delprogmsg').innerHTML = '';
 	this.startloadimg();
 }
@@ -22494,6 +22581,7 @@ takemovie() {
 			this.movierec = true;
 			this.onback = 'nothing';
 			document.getElementById('movieprogress').showModal();
+			this.addmodkeyev();
 		}
 		else {
 			document.getElementById('genericok').style['border-color'] = 'red';
@@ -22605,10 +22693,14 @@ clearcache() {
 modalkeyev(ev) {
 	//console.log(ev);
 	if (window.getComputedStyle(document.getElementById('delq'))['display'] !== 'none') {
-		if (!document.getElementById('delcancelbut').disabled)
+		if (this.delstate === 2 && ev.code === 'Escape') {
+			if (ev.type === 'keyup') this.delcancel();
+			return false;
+		}
+		if (this.delstate === 3 || (!document.getElementById('delcancelbut').disabled && this.delstate !== 2))
 			return true;
 	}
-	if (ev.keyCode === 27)
+	if (ev.code === 'Escape')
 		return false;
 	else
 		return true;
@@ -22806,6 +22898,7 @@ magmd(ev) {
 		this.mdx = ev.clientX;
 		this.mdy = ev.clientY;
 		//console.log("MD");
+		return false;
 	}
 	else {
 		this.mdx = -1;
@@ -22875,6 +22968,21 @@ magtm(typ,ev) {
 		this.mdx = -1;
 		this.mdy = -1;
 	}
+}
+/* app top: add modal key event handlers */
+modkeyxx(ev) {
+	if (!imbc.modalkeyev(ev))
+		event.preventDefault();
+}
+addmodkeyev() {
+	window.addEventListener('keyup', imbc.modkeyxx);
+	window.addEventListener('keypress', imbc.modkeyxx);
+	window.addEventListener('keydown', imbc.modkeyxx);
+}
+remmodkeyev() {
+	window.removeEventListener('keyup', imbc.modkeyxx);
+	window.removeEventListener('keypress', imbc.modkeyxx);
+	window.removeEventListener('keydown', imbc.modkeyxx);
 }
 /* *************************************** Top class for App E N D *************************************** */
 /* *************************************** Browser specifics *************************************** */
@@ -26235,25 +26343,25 @@ function readjpg(file) {
 <!-- end of the take movies -->
 </div><!-- end of container for navigationable pages -->
 <!-- this is the wait for stop movie -->
-<dialog class="mymodal" id="movieprogress" style="border: 5px solid blue; border-radius: 20px; padding: 20px;width:fit-content;" onkeyup="return imbc.modalkeyev(event);" onkeydown="return imbc.modalkeyev(event);" onclose="imbc.stopmovie();this.close();">
+<dialog class="mymodal" id="movieprogress" style="border: 5px solid blue; border-radius: 20px; padding: 20px;width:fit-content;" onclose="imbc.stopmovie();this.close();imbc.remmodkeyev();">
 <div style="font-weight:bold;" id="progmoviemsg">&#x23f1;</div>
-<input id="stopbut" type="button" value="&#x2bc3;"  onclick="imbc.stopmovie()" style="font-size: 300%;color: red;font-family:Symbol3;width:1.5em; height:1.5em; border-radius:50%;" onkeyup="return imbc.modalkeyev(event);" onkeydown="return imbc.modalkeyev(event);">
+<input id="stopbut" type="button" value="&#x2bc3;"  onclick="imbc.stopmovie()" style="font-size: 300%;color: red;font-family:Symbol3;width:1.5em; height:1.5em; border-radius:50%;">
 </dialog>
 <!-- end of the wait for stop movie -->
 <!-- this is the delete question/progress -->
-<dialog class="mymodal" id="delq" style="border: 5px solid red; border-radius: 20px; padding: 20px;width:fit-content;" onkeyup="return imbc.modalkeyev(event);" onkeydown="return imbc.modalkeyev(event);">
+<dialog class="mymodal" id="delq" style="border: 5px solid red; border-radius: 20px; padding: 20px;width:fit-content;" onclose="imbc.delstate=3;imbc.delcancel();imbc.remmodkeyev();">
 <span id="del_text" data-myxlarg0="0" data-myxlkey="del.question"></span><br>
-<input id="delcancelbut" type="button" data-myvalxlkey="del.question.cancel" onclick="imbc.delcancel()" onkeyup="return imbc.modalkeyev(event);" onkeydown="return imbc.modalkeyev(event);"> - 
-<input id="delokbut" type="button" data-myvalxlkey="del.question.ok" onclick="imbc.dodelete()" onkeyup="return imbc.modalkeyev(event);" onkeydown="return imbc.modalkeyev(event);"><br>
+<input id="delcancelbut" type="button" data-myvalxlkey="del.question.cancel" onclick="imbc.delcancel()"> - 
+<input id="delokbut" type="button" data-myvalxlkey="del.question.ok" onclick="imbc.dodelete()"><br>
 <div style="font-weight:bold;" id="delprogmsg"></div>
 </dialog>
 <!-- end of the delete question/progress -->
 <!-- this is the download progress -->
-<dialog class="mymodal" id="dlprogress" style="border: 5px solid grey; border-radius: 20px; padding: 20px;width:fit-content;" onkeyup="return imbc.modalkeyev(event);" onkeydown="return imbc.modalkeyev(event);">
+<dialog class="mymodal" id="dlprogress" style="border: 5px solid grey; border-radius: 20px; padding: 20px;width:fit-content;" onclose="imbc.remmodkeyev();">
 <div style="font-weight:bold;" id="progmsg"></div>
-<input id="progokbut" type="button" data-myvalxlkey="del.question.ok" onclick="imbc.showbrowser()" disabled onkeyup="return imbc.modalkeyev(event);" onkeydown="return imbc.modalkeyev(event);">
-<input id="progcancelbut" type="button" data-myvalxlkey="del.question.cancel" onclick="imbc.skipthis()" onkeyup="return imbc.modalkeyev(event);" onkeydown="return imbc.modalkeyev(event);">
-<input id="dlprogresslogbtn" type="button" data-myvalxlkey="app.menu.msglog" onclick="imbc.closedlprog();imbc.showlog()" disabled onkeyup="return imbc.modalkeyev(event);" onkeydown="return imbc.modalkeyev(event);">
+<input id="progokbut" type="button" data-myvalxlkey="del.question.ok" onclick="imbc.showbrowser()" disabled>
+<input id="progcancelbut" type="button" data-myvalxlkey="del.question.cancel" onclick="imbc.skipthis()">
+<input id="dlprogresslogbtn" type="button" data-myvalxlkey="app.menu.msglog" onclick="imbc.closedlprog();imbc.showlog()" disabled>
 </dialog>
 <!-- end of the download progress -->
 <!-- generic OK/error -->

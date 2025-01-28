@@ -144,8 +144,9 @@ async function runTest() {
 	const rrrr = await waitfor(driver, '#xmag .rotbtnr');
 	await rrrr.click();
 	await driver.pause(600);
-	const zoomr = await waitfor(driver, '#backnr');
-	await zoomr.click();
+	await driver.executeScript('mobile:swipeGesture', [{left:80,top:300,width:300,height:100,direction:'left',percent:0.9}]);
+	//const zoomr = await waitfor(driver, '#backnr');
+	//await zoomr.click();
 	await driver.pause(600);
 	const rawbig = await waitfor(driver, '#magni .eeraw');
 	await driver.pause(600);
