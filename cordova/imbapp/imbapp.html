@@ -24176,10 +24176,14 @@ savesettings(which) {
 				window.localStorage.setItem(pref + 'maxcache', JSON.stringify(this.maxcache));
 			if ((which === 'expflags') || !which?.length || -1 !== which.indexOf('expflags'))
 				if (ImBCBase.progname.startsWith('imbapp')) window.localStorage.setItem('imbapp_expflags', JSON.stringify(this.expflags[0] + 3*this.expflags[1] + 9*this.expflags[2] + 27*this.expflags[3] + 81*this.expflags[4]));
-			if ((which === 'dloads') || !which?.length || -1 !== which.indexOf('dloads'))
+			if ((which === 'dloads') || !which?.length || -1 !== which.indexOf('dloads')) {
 				if (this.dloads?.length) window.localStorage.setItem(pref + 'dloads', JSON.stringify(this.dloads));
-			if ((which === 'ii') || !which?.length || -1 !== which.indexOf('ii'))
+				else if (which?.length)  window.localStorage.setItem(pref + 'dloads', JSON.stringify([]));
+			}
+			if ((which === 'ii') || !which?.length || -1 !== which.indexOf('ii')) {
 				if (this.iinf?.length) window.localStorage.setItem(pref + 'ii', JSON.stringify(this.iinf));
+				else if (which?.length) window.localStorage.setItem(pref + 'ii', JSON.stringify([]));
+			}
 			if ((which === 'autotime') || !which?.length || -1 !== which.indexOf('autotime'))
 				window.localStorage.setItem(pref + 'autotime', JSON.stringify(this.autotime));
 			if (ImBCBase.progname === 'imbapp_app') {
