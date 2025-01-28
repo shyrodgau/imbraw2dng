@@ -1143,7 +1143,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.9.11_d20ec6", // actually const // VERSION EYECATCHER
+version: "V5.9.11__d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -19181,15 +19181,14 @@ handleone(orientation) {
 			metadatastr += this.xl('process.addartist');
 			metadatalen++;
 		}
-		let exifopen = false, exifbasics = false;;
+		let exifopen = false, exifbasics = false;
 		if (this.metadata && (artbytes.length !== this.artist.length || rightbytes.length !== this.copyright.length)) {
 			ti.addSubIfd(34665);
 			exifopen = true;
-			if (rightbytes.length !== this.copyright.length)
+			if (rightbytes.length && (rightbytes.length !== this.copyright.length))
 				ti.addEntry(33432, 'ASCII', rightbytes); /* copyright */ /* https://www.iptc.org/std/photometadata/documentation/mappingguidelines/ */
-			if (artbytes.length !== this.artist.length)
+			if (artbytes.length && (artbytes.length !== this.artist.length))
 				ti.addEntry(315, 'ASCII', artbytes); /* artist */ /* https://www.iptc.org/std/photometadata/documentation/mappingguidelines/ */
-			
 		}
 		if (myexif) {
 			if (!exifopen)
@@ -19198,20 +19197,25 @@ handleone(orientation) {
 			exifbasics = true;
 			for (const x of myexif) {
 				if ((x.t === 0x9003 || x.t === 0x9004) && this.corrdelta && datestr) {
+					// date
 					ti.addEntry(x.t, x.y, datestr);
-					continue;
 				}
-				if (x.t === 37500)
+				else if (x.t === 37500) {
+					// maker notes
 					ti.addEntry(x.t, x.y, [1,0,0,0]);
+				}
 				else if (x.t === 40965) {
+					// interop
 					ti.addSubIfd(40965);
 					for (const u of x.ifd) {
 						ti.addEntry(u.t, u.y, u.val);
 					}
 					ti.closeSub();
 				}
-				else if (x.t === 40962 || x.t === 40963)
+				else if (x.t === 40962 || x.t === 40963) {
+					// dimensions
 					continue;
+				}
 				else
 					ti.addEntry(x.t, x.y, x.val);
 			}
@@ -19767,7 +19771,9 @@ writefile(name, type, okmsg, arr1, origname) {
 /* ImBCHtml: info screen */
 appinfo(doit) {
 	if (!doit && !this.disconnected && this.connvers) {
+		document.getElementById('overlay').style['display'] = '';
 		this.custcmd(3017, 'docstatus', null, (rc, doc) => {
+			document.getElementById('overlay').style['display'] = 'none';
 			if (rc >= 0 && doc.querySelector('Function Value'))
 				this.imbfree = doc.querySelector('Function Value').textContent;
 			this.appinfo(true);
@@ -20302,7 +20308,7 @@ showmag(entry) {
 	document.getElementById('magni').style['display'] = '';
 	if (entry.type === 'oth') return;
 	this.magentry = {
-		entry: document.querySelector('#xmag .magpic'),
+		entry: document.getElementById('magpic'),
 		error: false,
 		imbackintension: entry.imbackintension,
 		name: entry.name,
@@ -20319,12 +20325,10 @@ showmag(entry) {
 		desc: entry.desc,
 		orig: entry
 	};
-	this.magentry.entry.setAttribute('data-state', 'wait');
 	const check = this.magentry.entry.querySelector('input.selcb');
 	if (check) {
 		check.checked = entry.selected;
 	}
-	this.startloadimg();
 	if (entry.type === 'JPG') {
 		document.querySelector('#xmag .rotbtnr').style['display'] = 'none';
 		document.querySelector('#xmag .eeraw').style['display'] = 'none';
@@ -20347,6 +20351,8 @@ showmag(entry) {
 	document.querySelector('#magni #magtext').innerHTML = entry.raw;
 	this.onback = 'closemag';
 	this.handletimadj();
+	this.magentry.entry.setAttribute('data-state', 'wait');
+	this.startloadimg();
 }
 /* TopApp: browserdisplay: handle time adjustment in magn. view */
 handletimadj() {
@@ -20417,7 +20423,6 @@ closemag(notreally) {
 	ne.querySelector('.eeraw').style['display'] = 'none';
 	ne.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
 	ne.querySelector('.dlbtn').classList.add('disabled');
-	ne.setAttribute('data-state', 'wait');
 	let check = this.magentry.entry.querySelector('input.selcb');
 	if (check) {
 		this.magentry.orig.selected = check.checked;
@@ -20449,9 +20454,13 @@ closemag(notreally) {
 		this.savesettings('ii');
 	}
 	this.magentry = null;
+	document.getElementById('magpicback').style['margin-left'] = '';
+	this.mdx = -1;
+	this.mdy = -1;
+	ne.setAttribute('data-state', 'wait');
 	if (!notreally) {
 		document.getElementById('magni').style['display'] = 'none';
-		this.showbrowser();
+		this.showbrowseri();
 		this.startloadimg();
 	}
 }
@@ -20866,12 +20875,13 @@ buildtree() {
 /* 2: invisible RAW */
 /* 3: invisible JPG+MP4 */
 findnexttoload() {
-	if (document.getElementById('browser').style['display'] === 'none') return undefined;
+	if (document.getElementById('browser').style['display'] === 'none' && !this.magentry) return undefined;
 	if (this.magentry) {
 		const p = this.magentry.entry;
 		// not waiting or error at all?
 		if (this.magentry.nonewerr) return null;
-		if (p.attributes.getNamedItem('data-state').value !== 'err' && p.attributes.getNamedItem('data-state').value !== 'wait') return null;
+		console.log(this.magentry.raw + ' ' + p.attributes.getNamedItem('data-state').value);
+		if (p.attributes.getNamedItem('data-state').value !== 'err' && p.attributes.getNamedItem('data-state').value !== 'wait') return undefined;
 		return this.magentry;
 	}
 	let res = undefined, ph = 4;
@@ -22822,6 +22832,22 @@ magtm(typ,ev) {
 			if (this.mdx === -1 && this.mdy === -1) {
 				this.mdx = ev.changedTouches[0].clientX;
 				this.mdy = ev.changedTouches[0].clientY;
+				mpb.style['margin-left'] = '';
+			}
+			else {
+				let dmdx = ev.changedTouches[0].clientX - this.mdx;
+				let dmdy = ev.changedTouches[0].clientY - this.mdy;
+				if (Math.abs(dmdx) > Math.abs(dmdy) && dmdx > 1) {
+					dmdx *= 0.6;
+					mpb.style['margin-left'] = '' + dmdx + 'vw';
+				}
+				else if (Math.abs(dmdx) > Math.abs(dmdy) && dmdx < -1) {
+					dmdx *= 0.6;
+					mpb.style['margin-left'] = '' + dmdx + 'vw';
+				}
+				else {
+					mpb.style['margin-left'] = '';
+				}
 			}
 		}
 		else {
@@ -22834,6 +22860,7 @@ magtm(typ,ev) {
 			//console.log("MU");
 			let dmdx = ev.changedTouches[0].clientX - this.mdx;
 			let dmdy = ev.changedTouches[0].clientY - this.mdy;
+			mpb.style['margin-left'] = '';
 			if (Math.abs(dmdx) > Math.abs(dmdy) && dmdx > 100)
 				this.magnav();
 			else if (Math.abs(dmdx) > Math.abs(dmdy) && dmdx < -100)
@@ -22843,6 +22870,7 @@ magtm(typ,ev) {
 		}
 	}
 	else {
+		mpb.style['margin-left'] = '';
 		this.mdx = -1;
 		this.mdy = -1;
 	}
@@ -23003,6 +23031,12 @@ xl1(el) {
 	to.preview.style['display'] = 'none';
 	if ((type === 'JPG') || (ImBCBase.progname.startsWith('imbapp') && type === 'oth')) {
 		to.preview.onload = (/*ev*/) => {
+			if (this.magentry && this.magentry.url != url) {
+				console.log('MJ ' + this.magentry.url + ' ' + url);
+				this.loadnextimg();
+				e.setAttribute('data-state', 'wait');
+				return;
+			}
 			e.setAttribute('data-state', 'ok');
 			e.querySelector('.waitdiv').style['display'] = 'none';
 			to.preview.style['display'] = '';
@@ -23040,6 +23074,16 @@ xl1(el) {
 		this.buildpreview((this.debugflag && this.useraw) ? this.useraw : (to.imbackintension ? to.imbackintension : url),
 				to.isbig ? 2 : 1,
 				(xrot) => { /* on ok: */
+			if (this.magentry && this.magentry.url != url) {
+				console.log('MR ' + this.magentry.url + ' ' + url);
+				this.loadnextimg();
+				e.setAttribute('data-state', 'wait');
+				if (!afterloadcalled) {
+					if (this.debugflag) console.log('ldr r e lnx ' + to.raw);
+					this.loadnextimg();
+				} // else the afterload had already been called
+				return;
+			}
 			if (to.rot === 0) to.rot = xrot;
 			e.setAttribute('data-state', 'ok');
 			e.querySelector('.waitdiv').style['display'] = 'none';
@@ -26146,11 +26190,11 @@ function readjpg(file) {
 </div>
 </div>
 <div id="xmag" style="width: fit-content;min-width:100%;min-height:90%; overflow:auto;background-color:#446688;">
-	<div class="magpic">
-		<div style="width:100%; height:95%; margin:0px; align-self:center; text-align:center; align-content:center;padding-top: 2em;" id="magpicback" onmousedown="imbc.magmd(event);" onmouseup="imbc.magmu(event);">
+	<div id="magpic">
+		<div style="width:100%; height:95%; margin:0px; align-self:center; text-align:center; align-content:center;padding-top: 2em;" id="magpicback" onmousedown="imbc.magmd(event);" onmouseup="imbc.magmu(event);" ontouchmove="imbc.magtm('m',event);" ontouchstart="imbc.magtm('s',event);" ontouchend="imbc.magtm('e',event);">
 		<div class="errimg" style="display:none;background-color:#aaaaaa;width:100%;height:100%;">X</div>
 		<img class="eejpg" style="display:none;max-width:85vw;max-height:70vh;border:0.5em solid white;">
-		<div class="eepvx" style="background-color:#aaaaaa;width:100%;height:100%;">?</div>
+		<div class="eepvx" style="background-color:#aaaaaa;width:100%;height:100%;">&#x1f4f7;&#xfe0e;</div>
 		<canvas class="eeraw" style="display:none;max-width:85vw;max-height:70vh;border:0.5em solid white;"></canvas>
 		<div style="display:none;background-color:#aaaaaa;width:100%;height:100%;" class="waitdiv">
 			<span class="blink">.</span><span class="blink2">.</span><span class="blink3">.</span>

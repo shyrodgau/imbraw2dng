@@ -820,7 +820,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.9.11_d20ec6", // actually const // VERSION EYECATCHER
+version: "V5.9.11__d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -18858,15 +18858,14 @@ handleone(orientation) {
 			metadatastr += this.xl('process.addartist');
 			metadatalen++;
 		}
-		let exifopen = false, exifbasics = false;;
+		let exifopen = false, exifbasics = false;
 		if (this.metadata && (artbytes.length !== this.artist.length || rightbytes.length !== this.copyright.length)) {
 			ti.addSubIfd(34665);
 			exifopen = true;
-			if (rightbytes.length !== this.copyright.length)
+			if (rightbytes.length && (rightbytes.length !== this.copyright.length))
 				ti.addEntry(33432, 'ASCII', rightbytes); /* copyright */ /* https://www.iptc.org/std/photometadata/documentation/mappingguidelines/ */
-			if (artbytes.length !== this.artist.length)
+			if (artbytes.length && (artbytes.length !== this.artist.length))
 				ti.addEntry(315, 'ASCII', artbytes); /* artist */ /* https://www.iptc.org/std/photometadata/documentation/mappingguidelines/ */
-			
 		}
 		if (myexif) {
 			if (!exifopen)
@@ -18875,20 +18874,25 @@ handleone(orientation) {
 			exifbasics = true;
 			for (const x of myexif) {
 				if ((x.t === 0x9003 || x.t === 0x9004) && this.corrdelta && datestr) {
+					// date
 					ti.addEntry(x.t, x.y, datestr);
-					continue;
 				}
-				if (x.t === 37500)
+				else if (x.t === 37500) {
+					// maker notes
 					ti.addEntry(x.t, x.y, [1,0,0,0]);
+				}
 				else if (x.t === 40965) {
+					// interop
 					ti.addSubIfd(40965);
 					for (const u of x.ifd) {
 						ti.addEntry(u.t, u.y, u.val);
 					}
 					ti.closeSub();
 				}
-				else if (x.t === 40962 || x.t === 40963)
+				else if (x.t === 40962 || x.t === 40963) {
+					// dimensions
 					continue;
+				}
 				else
 					ti.addEntry(x.t, x.y, x.val);
 			}
