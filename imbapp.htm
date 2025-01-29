@@ -1144,7 +1144,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.9.21_121d61", // actually const // VERSION EYECATCHER
+version: "V5.9.89_de0069", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -26034,14 +26034,7 @@ function watchdog() {
 	}
 	custcmdi({}, 3019, 'document', undefined, (rc) => {
 		if (dbgflag || rc.rc) console.log('WW ' + JSON.stringify(rc));
-		if (rc.rc) {
-			errcount ++;
-			/*if (errcount > 2) {
-				postMessage({ cmd: 'disconnect'});
-				return;
-			}*/
-		}
-		else {
+		if (!rc?.rc) {
 			postMessage({ cmd: 'battstat', txt: rc.results });
 			//if (dbgflag) console.log('WORKER WATCHDOG' + rc.results);
 			if (wdtimer) clearTimeout(wdtimer);
@@ -26104,7 +26097,7 @@ function custcmdi(struc, c, t, restargs, cb, results) {
 		curxhr = undefined;
 		console.log('WORKER custcmd onerror: ' + thecmd + ' ' + base + ' E ' + JSON.stringify(event));
 		if (dbgflag) evtq.push(event);
-		errcount++;
+		if (event.type !== 'timeout') errcount++;
 		cb({ cmd: 'custcmd', ok: false, results: results, rc: -2, cmds: currcust, cid: struc.ci });
 		currcust = undefined;
 		handlewait();
