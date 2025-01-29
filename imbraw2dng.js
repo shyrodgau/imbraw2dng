@@ -820,7 +820,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.9.11_f89ec2", // actually const // VERSION EYECATCHER
+version: "V5.9.21_5bc5ed", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -18827,7 +18827,7 @@ handleone(orientation) {
 				if (date) {
 					//console.log('DGT ' + date.getTime() + ' OGT ' + odate.getTime() + ' nn ' + nn + ' onn ' + onn);
 					if (Math.abs(date.getTime() - odate.getTime()) < 5000 && Math.abs(nn -onn) < 2) {
-						cand.push( { e: e, td: date.getTime() - odate.getTime() });
+						cand.push( { e: e, td: Math.abs(date.getTime() - odate.getTime()) });
 					}
 				}
 			}
