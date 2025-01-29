@@ -19183,14 +19183,31 @@ handleone(orientation) {
 			metadatastr += this.xl('process.addartist');
 			metadatalen++;
 		}
+		let desc = '', descbytes = [];
+		if (this.iinf?.length) {
+			const ii = this.iinf.findIndex((e) => e.n === inname);
+			if (ii !== -1 && this.iinf[ii].d !== undefined)
+				desc = this.iinf[ii].d;
+			if (desc.length) {
+				// do UTF-8 bytes instead of ASCII if necessary
+				descbytes = new TextEncoder().encode(desc);
+				if (descbytes.length === desc.length)
+					ti.addEntry(270, 'ASCII', desc); /* image description */
+				if (metadatalen) metadatastr += ', ';
+				metadatastr += this.xl0('process.photodesc');
+				metadatalen++;
+			}
+		}
 		let exifopen = false, exifbasics = false;
-		if (this.metadata && (artbytes.length !== this.artist.length || rightbytes.length !== this.copyright.length)) {
+		if (artbytes.length || rightbytes.length || descbytes.length) {
 			ti.addSubIfd(34665);
 			exifopen = true;
-			if (rightbytes.length && (rightbytes.length !== this.copyright.length))
+			if (this.metadata && rightbytes.length)
 				ti.addEntry(33432, 'ASCII', rightbytes); /* copyright */ /* https://www.iptc.org/std/photometadata/documentation/mappingguidelines/ */
-			if (artbytes.length && (artbytes.length !== this.artist.length))
+			if (this.metadata && artbytes.length)
 				ti.addEntry(315, 'ASCII', artbytes); /* artist */ /* https://www.iptc.org/std/photometadata/documentation/mappingguidelines/ */
+			if (descbytes.length)
+				ti.addEntry(270, 'ASCII', descbytes); /* image description */ /* https://www.iptc.org/std/photometadata/documentation/mappingguidelines/ */
 		}
 		if (myexif) {
 			if (!exifopen)
@@ -19228,23 +19245,6 @@ handleone(orientation) {
 				ti.addEntry(36867, 'ASCII', datestr); /* Original date time */
 			}
 			ti.closeSub();
-		}
-		let desc = '', descbytes = [];
-		if (this.iinf?.length) {
-			const ii = this.iinf.findIndex((e) => e.n === inname);
-			if (ii !== -1 && this.iinf[ii].d !== undefined)
-				desc = this.iinf[ii].d;
-			if (desc.length) {
-				// do UTF-8 bytes instead of ASCII if necessary
-				descbytes = new TextEncoder().encode(desc);
-				if (descbytes.length === desc.length)
-					ti.addEntry(270, 'ASCII', desc); /* image description */
-				else
-					ti.addEntry(270, 'ASCII', descbytes); /* image description */ /* https://www.iptc.org/std/photometadata/documentation/mappingguidelines/ */
-				if (metadatalen) metadatastr += ', ';
-				metadatastr += this.xl0('process.photodesc');
-				metadatalen++;
-			}
 		}
 		if (metadatalen) this.appmsg(metadatastr);
 		if (!this.neutral) {
@@ -22607,6 +22607,7 @@ zipname = '';
 ziperr = false;
 previewworker = null;
 workerstate = [];
+cid = 0; // command id
 onback = 'quit'; // 'main', 'quit', 'nothing', 'close...', 'canceldl'
 modalback = '';
 showham = false;
@@ -23355,7 +23356,7 @@ findnexttoload() {
 		const p = this.magentry.entry;
 		// not waiting or error at all?
 		if (this.magentry.nonewerr) return null;
-		console.log(this.magentry.raw + ' ' + p.attributes.getNamedItem('data-state').value);
+		//console.log(this.magentry.raw + ' ' + p.attributes.getNamedItem('data-state').value);
 		if (p.attributes.getNamedItem('data-state').value !== 'err' && p.attributes.getNamedItem('data-state').value !== 'wait') return undefined;
 		return this.magentry;
 	}
@@ -24212,13 +24213,13 @@ buildpreview(f, size, onok, onerr, orientation, targ, afterload) {
 		window.setTimeout(() => {
 		  let cachehit;
 		  if ((cachehit = this.findcache(f.url ? f.url :f))) {
-			  this.workerstate.push({ cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :f), o: orientation, onok: onok, onerr: onerr, t: targ });
-			  this.previewworker.postMessage({ cmd: 'previewfromcache', c: { n: cachehit.url, d: cachehit.d, l: cachehit.l} , n: (f.url ? f.url :f), o: orientation, size: size });
+			  this.workerstate.push({ cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :f), o: orientation, onok: onok, onerr: onerr, t: targ, cid: this.cid });
+			  this.previewworker.postMessage({ cmd: 'previewfromcache', c: { n: cachehit.url, d: cachehit.d, l: cachehit.l} , n: (f.url ? f.url :f), o: orientation, size: size, cid: this.cid++ });
 			  // onmessage: { pix: array, c: cache, n: name, o: orientation }
 			  // ctx.putImageData(new ImageData(outpix, transpose ? h8: w8, transpose? w8 :h8), 0, 0); onok(f)
 		  } else {
-			  this.workerstate.push({ cmd: 'resolveandpreview', c: cachehit, n: (f.url ? f.url :f), o: orientation, onok: onok, onerr: onerr, t: targ, afterload: afterload });
-			  this.previewworker.postMessage({ cmd: 'resolveandpreview', n: (f.url ? f.url :f), o: orientation, size: size });
+			  this.workerstate.push({ cmd: 'resolveandpreview', c: cachehit, n: (f.url ? f.url :f), o: orientation, onok: onok, onerr: onerr, t: targ, afterload: afterload, cid: this.cid });
+			  this.previewworker.postMessage({ cmd: 'resolveandpreview', n: (f.url ? f.url :f), o: orientation, size: size, cid: this.cid++ });
 			  // onmessage: { pix: array, n: name, o: orientation, c: cacheentry }
 			  // ctx.putImageData(new ImageData(outpix, transpose ? h8: w8, transpose? w8 :h8), 0, 0); onok(f); add cache
 		  }
@@ -24379,8 +24380,8 @@ custcmd(cmd, type, restargs, cb) {
 		if (cb) cb({ ok: false, cmd: 'custcmd', rc: -1 });
 		return;
 	}
-	this.workerstate.push({ cb: cb, type: type });
-	if (this.previewworker) this.previewworker.postMessage({ cmd: 'custcmd', c:cmd, type: type, rest: restargs });
+	this.workerstate.push({ cmd: 'custcmd', cb: cb, type: type, cid: this.cid });
+	if (this.previewworker) this.previewworker.postMessage({ cmd: 'custcmd', c:cmd, type: type, rest: restargs, cid: this.cid++ });
 }
 /* TopApp: command handler BLOCKING */
 custcmdB(cmd, type, restargs, cb) {
@@ -24791,15 +24792,16 @@ addcache(name, entry) {
 /* TopApp: worker on message */
 workermsg(msg) {
 	const d = msg.data;
-	let w0;
+	let w0, w0i = -2;
 	let doc;
 	let stat;
-	//console.log('from worker ' + JSON.stringify(d));
+	//console.log('from worker ' + JSON.stringify(this.workerstate));
 	switch (d.cmd) {
 	case 'resolveandhandle':
 		// onmessage: { ok?, n: f.name, o: orientation, c: cacheentry }
-		w0 = this.workerstate[0];
-		this.workerstate.splice(0,1);
+		w0i = this.workerstate.findIndex(e => e.cid === d.cid);
+		w0 = this.workerstate[w0i];
+		this.workerstate.splice(w0i,1);
 		if (d.ok) {
 			let fx = {
 				imbackextension: true,
@@ -24825,8 +24827,9 @@ workermsg(msg) {
 		// no break
 	case 'previewfromcache':
 		// onmessage: { pix: array, c: cache, n: name, o: orientation, t: targ, onok, onerr }
-		w0 = this.workerstate[0];
-		this.workerstate.splice(0,1);
+		w0i = this.workerstate.findIndex(e => e.cid === d.cid);
+		w0 = this.workerstate[w0i];
+		this.workerstate.splice(w0i,1);
 		if (d.pix) {
 			const f = this.findcache(d.n).reader;
 			const zz = globals.infos.findIndex(v => v.size === f.size);
@@ -24870,8 +24873,9 @@ workermsg(msg) {
 		if (undefined !== this.workerstate[0].afterload) this.workerstate[0].afterload();
 		break;
 	case 'custcmd':
-		w0 = this.workerstate[0];
-		this.workerstate.splice(0,1);
+		w0i = this.workerstate.findIndex(e => e.cid === d.cid);
+		w0 = this.workerstate[w0i];
+		this.workerstate.splice(w0i,1);
 		if (!w0) {
 			console.log('OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOPS w1 empty!' + JSON.stringify(d));
 		}
@@ -24896,8 +24900,9 @@ workermsg(msg) {
 		if (this.onback === 'quit') this.showbrowser();
 		break;
 	case 'readjpg':
-		w0 = this.workerstate[0];
-		this.workerstate.splice(0,1);
+		w0i = this.workerstate.findIndex(e => e.cid === d.cid);
+		w0 = this.workerstate[w0i];
+		this.workerstate.splice(w0i,1);
 		if (d.ok) {
 			w0.targ.preview.src = d.c;
 		}
@@ -25079,6 +25084,7 @@ doquit() {
 	let ex = 0;
 	if (this.exitmode === 'movie') ex = 1;
 	else if (this.exitmode === 'browse') ex = 2;
+	if (this.previewworker) this.previewworker.postMessage({ cmd: 'readjpg' });
 	this.custcmdB( 3001,  'document', ('par=' + ex), () => {
 		if (navigator.app)
 			navigator.app.exitApp();
@@ -25192,8 +25198,8 @@ resolver(f, onok, onerr) {
 					d.c.reader = fx;
 					this.addcache(d.n, d.c);
 					onok(d.n, fx);
-			  }, errcb: onerr});
-			  this.previewworker.postMessage({ cmd: 'resolveandhandle', n: (f.url ? f.url : f) });
+			  }, errcb: onerr, cid: this.cid });
+			  this.previewworker.postMessage({ cmd: 'resolveandhandle', n: (f.url ? f.url : f), cid: this.cid++  });
 			  // onmessage: { ok?, n: f.name, o: orientation, c: cacheentry }
 			  // set allfiles[this.actnum] to cacheentry.reader and call handleone(o, fl)
 			  // add cache
@@ -25865,12 +25871,20 @@ function init2() {
 <!-- WORKER -->
 <script type="text/js-previewworker" language="javascript">
 /* *************************************** WORKER *************************************** */
-let cmd, n, cache, ori, base, msg = false, siz, curxhr, evtq = [];
+let base, msg = false, curxhr, evtq = [], imgstopped = false;
 let progress = false, queue = [], wdtimer, currcust, dbgflag,	errcount = 0, constwb = false;
 /* WORKER onmessage */
 onmessage = (e) => {
 	//console.log('WORKER received ' + e.data.cmd);
 	switch (e.data.cmd) {
+	case 'stopimg':
+		imgstopped = true;
+		if (curxhr && curxhr?.readyState !== 4 &&
+				progress !== 'watchdog' &&
+				progress !== 'custcmd') {
+			curxhr.abort();
+		}
+		return;
 	case 'setdbg':
 		dbgflag = true;
 		return;
@@ -25878,13 +25892,21 @@ onmessage = (e) => {
 		constwb = e.data.constwb;
 		return;
 	case 'readjpg':
-		readjpg(e.data.f);
+		readjpg({ n: e.data.n, cmd: e.data.cmd, ori: e.data.o, siz: e.data.size, ci: e.data.cid}, e.data.f);
 		return;
 	case 'stopwatch':
 		errcount = 0;
 		if (wdtimer) clearTimeout(wdtimer);
 		wdtimer = undefined;
 		return;
+	case 'previewfromcache':
+		buildpreviewcache({ cache: {}, n: e.data.n, cmd: e.data.cmd, ori: e.data.o, siz: e.data.size, ci: e.data.cid}, e.data.c, e.data.size, e.data.o);
+		// this.previewworker.postMessage({ cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :f), o: orientation });
+		// onmessage: { pix: array, c: cache, n: n, o: orientation }
+		return;
+	}
+	if (imgstopped && (e.data.cmd === 'resolveandhandle' || e.data.cmd === 'resolveandpreview')) {
+		return postMessage({ cmd: e.data.cmd, ok: false, n: e.data.n, cid: e.data.cid });
 	}
 	if (progress) {
 		if (curxhr && curxhr?.readyState !== 4 &&
@@ -25901,61 +25923,53 @@ onmessage = (e) => {
 		}
 	}
 	//console.log(JSON.stringify(e.data));
-	n = e.data.n;
-	cmd = e.data.cmd;
-	ori = e.data.o;
-	siz = e.data.size;
-	cache = {};
 	if (!msg) {
 		console.log('WORKER SEEMS OK');
 		msg = true;
 	}
 	/*eslint no-fallthrough: ["error", { "commentPattern": "no break" }]*/
-	switch (cmd) {
+	progress = e.data.cmd;
+	switch (progress) {
 	case 'seturl':
 		base = e.data.url;
 		// no break;
 	case 'watchdog':
-		progress = cmd;
 		watchdog();
 		break;
 	case 'resolveandpreview':
-		progress = cmd;
-		resolver(n, true);
+		resolver({ cache: {}, n: e.data.n, cmd: e.data.cmd, ori: e.data.o, siz: e.data.size, ci: e.data.cid}, e.data.n, true);
 		// this.previewworker.postMessage({ cmd: 'resolveandpreview', n: (f.url ? f.url :f), o: orientation });
  	  	// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
 		break;
 	case 'previewfromcache':
-		progress = cmd;
-		buildpreviewcache(e.data.c, e.data.size, e.data.o);
+		buildpreviewcache({ cache: {}, n: e.data.n, cmd: e.data.cmd, ori: e.data.o, siz: e.data.size, ci: e.data.cid}, e.data.c, e.data.size, e.data.o);
 		// this.previewworker.postMessage({ cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :f), o: orientation });
 		// onmessage: { pix: array, c: cache, n: n, o: orientation }
 		break;
 	case 'resolveandhandle':
-		progress = cmd;
-		resolver(n, false);
+		resolver({ cache: {}, n: e.data.n, cmd: e.data.cmd, ori: e.data.o, siz: e.data.size, ci: e.data.cid}, e.data.n, false);
 		//this.previewworker.postMessage({ cmd: 'resolveandhandle', n: (f.n ? f.n : f), o: orientation });
 		// onmessage: { ok?, n: f.n, o: orientation, c: cacheentry }
 		break;
 	case 'custcmd':
-		progress = cmd;
 		currcust = e.data.c;
 		//this.previewworker.postMessage({ cmd: 'custcmd', c: cmd, type: type, rest: rest, results: results });
-		custcmd(e.data.c, e.data.type, e.data.rest);
+		custcmd({ n: e.data.n, cmd: e.data.cmd, ori: e.data.o, siz: e.data.size, ci: e.data.cid}, e.data.c, e.data.type, e.data.rest);
 		break;
 	default:
 		console.log('WORKER: unexpected CMD ' + e.data.cmd);
-		postMessage({ cmd: cmd, ok: false });
+		postMessage({ cmd: progress, ok: false, cid: e.data.cid });
+		progress = false;
 	}
 };
 /* WORKER: handle communication */
-function resolver(url, preview, notfirst)  {
+function resolver(struc, url, preview, notfirst)  {
 	let e = url;
-	if (undefined === ori) ori = 0;
+	if (undefined === struc.ori) struc.ori = 0;
 	if (url.url) {
 		e = url;
 		url = e.url;
-		ori = e.rot;
+		struc.ori = e.rot;
 	}
 	let fx = {
 		imbackextension: true,
@@ -25967,8 +25981,8 @@ function resolver(url, preview, notfirst)  {
 		if (errcount) errcount--;
 		let len = JSON.parse(xhr.getResponseHeader('content-length'));
 		if (0 >= len) len=1;
-		cache.data = xhr.response;
-		cache.len = xhr.response.byteLength;
+		struc.cache.data = xhr.response;
+		struc.cache.len = xhr.response.byteLength;
 		fx.data = xhr.response;
 		fx.size = xhr.response.byteLength;
 		fx.readAsArrayBuffer = (fy) => {
@@ -25982,11 +25996,11 @@ function resolver(url, preview, notfirst)  {
 		xhr.onabort = undefined;
 		if (!preview) {
 			//console.log('POSTING ' + url);
-			postMessage({ cmd: cmd, ok: true, n: url, o: ori, c: cache, size: siz });
+			postMessage({ cmd: struc.cmd, ok: true, n: url, o: struc.ori, c: struc.cache, size: struc.siz, cid: struc.ci });
 			handlewait();
 		}
 		else {
-			buildpreview(fx, siz, ori);
+			buildpreview(struc, fx, struc.siz, struc.ori);
 		}
 	};
 	xhr.onerror = (evt, typ) => {
@@ -26005,7 +26019,7 @@ function resolver(url, preview, notfirst)  {
 				handlewait();
 			}, 300);
 		} else*/ {
-			postMessage({ cmd: cmd, ok: false, n: n });
+			postMessage({ cmd: struc.cmd, ok: false, n: struc.n, cid: struc.ci });
 			handlewait();
 		}
 	};
@@ -26035,7 +26049,7 @@ function resolver(url, preview, notfirst)  {
 		xhr.ontimeout = undefined;
 		xhr.onabort = undefined;
 		curxhr = undefined;
-		postMessage({ cmd: cmd, ok: false, n: n });
+		postMessage({ cmd: struc.cmd, ok: false, n: struc.n, cid: struc.ci });
 		handlewait();
 	}
 }
@@ -26052,12 +26066,12 @@ function handlewait() {
 }
 /* WORKER: browserdisplay: build preview */
 // orientation: 1: norm, 3: rot 180, 6 rot 90 CW, 8: rot 270 CCW
-function buildpreview(f, size, orientation) {
+function buildpreview(struc, f, size, orientation) {
 	let w, h, typ;
 	const zz = globals.infos.findIndex(v => v.size === f.size);
 	if (zz === -1) {
 		console.log('WORKER preview: unsupported size ' + f.size + ' of ' + f.name);
-		postMessage({ cmd: cmd, ok: false, n: n });
+		postMessage({ cmd: struc.cmd, ok: false, n: struc.n, cid: struc.ci });
 		handlewait();
 		return;
 	}
@@ -26075,24 +26089,24 @@ function buildpreview(f, size, orientation) {
 		//console.log(JSON.stringify(wb));
 		let outpix = globals.buildpvarray(view, size, typ, w, h, orientation, false, wb, whitelvl);
 		// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
-		postMessage({ cmd: cmd, pix: outpix, n: n, o: ori, c: cache, xori: (typ === 5 && ori === 0) ? 3 : ((ori === 0) ? 1 : ori), size: size });
+		postMessage({ cmd: struc.cmd, pix: outpix, n: struc.n, o: struc.ori, c: struc.cache, xori: (typ === 5 && struc.ori === 0) ? 3 : ((struc.ori === 0) ? 1 : struc.ori), size: struc.siz, cid: struc.ci });
 		handlewait();
 	};
 	reader.onerror = (evt) => {
 		console.log('WORKER preview: error reading ' + f.name + ' E ' + evt.toString());
-		postMessage({ cmd: cmd, ok: false, n: n });
+		postMessage({ cmd: struc.cmd, ok: false, n: struc.n, cid: struc.ci });
 		handlewait();
 	};
 	reader.readAsArrayBuffer(f);
 }
 /* WORKER: browserdisplay: build preview from cache */
 // orientation: 1: norm, 3: rot 180, 6 rot 90 CW, 8: rot 270 CCW
-function buildpreviewcache(f, size, orientation) {
+function buildpreviewcache(struc, f, size, orientation) {
 	let w, h, typ;
 	const zz = globals.infos.findIndex(v => v.size === f.l);
 	if (zz === -1) {
 		console.log('WORKER preview: unsupported size ' + f.l + ' of ' + f.n);
-		postMessage({ cmd: cmd, ok: false, n: n });
+		postMessage({ cmd: struc.cmd, ok: false, n: struc.n, cid: struc.ci });
 		handlewait();
 		return;
 	}
@@ -26109,12 +26123,12 @@ function buildpreviewcache(f, size, orientation) {
 	// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
 	if (dbgflag) {
 		setTimeout(() => {
-			postMessage({ cmd: cmd, pix: outpix, n: n, o: ori, c: cache, xori: (typ === 5 && ori === 0) ? 3 : ((ori === 0) ? 1 : ori), size: size });
+			postMessage({ cmd: struc.cmd, pix: outpix, n: struc.n, o: struc.ori, c: struc.cache, xori: (typ === 5 && struc.ori === 0) ? 3 : ((struc.ori === 0) ? 1 : struc.ori), size: struc.siz });
 			handlewait();
 		}, 300);
 	}
 	else {
-		postMessage({ cmd: cmd, pix: outpix, n: n, o: ori, c: cache, xori: (typ === 5 && ori === 0) ? 3 : ((ori === 0) ? 1 : ori), size: size });
+		postMessage({ cmd: struc.cmd, pix: outpix, n: struc.n, o: struc.ori, c: struc.cache, xori: (typ === 5 && struc.ori === 0) ? 3 : ((struc.ori === 0) ? 1 : struc.ori), size: struc.siz, cid: struc.ci });
 		handlewait();
 	}
 }
@@ -26124,7 +26138,7 @@ function watchdog() {
 		postMessage({ cmd: 'disconnect'});
 		return;
 	}
-	custcmdi(3019, 'document', undefined, (rc) => {
+	custcmdi({}, 3019, 'document', undefined, (rc) => {
 		if (dbgflag || rc.rc) console.log('WW ' + JSON.stringify(rc));
 		if (rc.rc) {
 			errcount ++;
@@ -26145,14 +26159,14 @@ function watchdog() {
 	});
 }
 /* WORKER: internal handler */
-function custcmd (c, t, restargs) {
-	custcmdi(c, t, restargs, postMessage)
+function custcmd (struc, c, t, restargs) {
+	custcmdi(struc, c, t, restargs, postMessage)
 }
 /* WORKER: internal command handler */
-function custcmdi(c, t, restargs, cb, results) {
+function custcmdi(struc, c, t, restargs, cb, results) {
 	let thecmd = c, therest = restargs;
 	if (undefined === base) {
-		cb({ cmd: 'custcmd', ok: false, rc: -1, cmds: currcust });
+		cb({ cmd: 'custcmd', ok: false, rc: -1, cmds: currcust, cid: struc.ci });
 		handlewait();
 		return;
 	}
@@ -26177,17 +26191,17 @@ function custcmdi(c, t, restargs, cb, results) {
 				resp = (new TextDecoder()).decode(xhr.response);
 			if (results instanceof Array) results.push(resp);
 			if (c instanceof Array && c.length > 0) {
-				custcmdi(c, t, restargs, cb, results);
+				custcmdi(struc, c, t, restargs, cb, results);
 			}
 			else {
-				cb({ cmd: 'custcmd', ok: true, results: (results instanceof Array) ? results : resp, rc: 0, cmds: currcust });
+				cb({ cmd: 'custcmd', ok: true, results: (results instanceof Array) ? results : resp, rc: 0, cmds: currcust, cid: struc.ci });
 				currcust = undefined;
 				handlewait();
 			}
 		}
 		else {
 			console.log('WORKER custcmd !== 200: ' + thecmd);
-			cb({ cmd: 'custcmd', ok: false, results: (results instanceof Array) ? results : xhr.response, rc: -1, cmds: currcust });
+			cb({ cmd: 'custcmd', ok: false, results: (results instanceof Array) ? results : xhr.response, rc: -1, cmds: currcust, cid: struc.ci });
 			currcust = undefined;
 			handlewait();
 		}
@@ -26197,7 +26211,7 @@ function custcmdi(c, t, restargs, cb, results) {
 		console.log('WORKER custcmd onerror: ' + thecmd + ' ' + base + ' E ' + JSON.stringify(event));
 		if (dbgflag) evtq.push(event);
 		errcount++;
-		cb({ cmd: 'custcmd', ok: false, results: results, rc: -2, cmds: currcust });
+		cb({ cmd: 'custcmd', ok: false, results: results, rc: -2, cmds: currcust, cid: struc.ci });
 		currcust = undefined;
 		handlewait();
 	};
@@ -26217,17 +26231,17 @@ function custcmdi(c, t, restargs, cb, results) {
 	curxhr = xhr;
 }
 /* WORKER read local jpeg */
-function readjpg(file) {
+function readjpg(struc, file) {
 	// read jpeg file for preview
 	const fr = file.imbackextension ? file : new FileReader();
 	fr.onload = (evt) => {
 		let contents = evt.target.result;
 		contents = 'data:image/jpeg;' + contents.substring(8);
 		/* shown in onload of img */
-		postMessage({ cmd: 'readjpg', ok: true, c: contents });
+		postMessage({ cmd: 'readjpg', ok: true, c: contents, cid: struc.ci });
 	}
 	fr.onerror = (evt) => {
-		postMessage({ cmd: 'readjpg', ok: false, evt: evt.toString() });
+		postMessage({ cmd: 'readjpg', ok: false, evt: evt.toString(), cid: struc.ci });
 	}
 	fr.readAsDataURL(file);
 }

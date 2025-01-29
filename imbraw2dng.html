@@ -19021,14 +19021,31 @@ handleone(orientation) {
 			metadatastr += this.xl('process.addartist');
 			metadatalen++;
 		}
+		let desc = '', descbytes = [];
+		if (this.iinf?.length) {
+			const ii = this.iinf.findIndex((e) => e.n === inname);
+			if (ii !== -1 && this.iinf[ii].d !== undefined)
+				desc = this.iinf[ii].d;
+			if (desc.length) {
+				// do UTF-8 bytes instead of ASCII if necessary
+				descbytes = new TextEncoder().encode(desc);
+				if (descbytes.length === desc.length)
+					ti.addEntry(270, 'ASCII', desc); /* image description */
+				if (metadatalen) metadatastr += ', ';
+				metadatastr += this.xl0('process.photodesc');
+				metadatalen++;
+			}
+		}
 		let exifopen = false, exifbasics = false;
-		if (this.metadata && (artbytes.length !== this.artist.length || rightbytes.length !== this.copyright.length)) {
+		if (artbytes.length || rightbytes.length || descbytes.length) {
 			ti.addSubIfd(34665);
 			exifopen = true;
-			if (rightbytes.length && (rightbytes.length !== this.copyright.length))
+			if (this.metadata && rightbytes.length)
 				ti.addEntry(33432, 'ASCII', rightbytes); /* copyright */ /* https://www.iptc.org/std/photometadata/documentation/mappingguidelines/ */
-			if (artbytes.length && (artbytes.length !== this.artist.length))
+			if (this.metadata && artbytes.length)
 				ti.addEntry(315, 'ASCII', artbytes); /* artist */ /* https://www.iptc.org/std/photometadata/documentation/mappingguidelines/ */
+			if (descbytes.length)
+				ti.addEntry(270, 'ASCII', descbytes); /* image description */ /* https://www.iptc.org/std/photometadata/documentation/mappingguidelines/ */
 		}
 		if (myexif) {
 			if (!exifopen)
@@ -19066,23 +19083,6 @@ handleone(orientation) {
 				ti.addEntry(36867, 'ASCII', datestr); /* Original date time */
 			}
 			ti.closeSub();
-		}
-		let desc = '', descbytes = [];
-		if (this.iinf?.length) {
-			const ii = this.iinf.findIndex((e) => e.n === inname);
-			if (ii !== -1 && this.iinf[ii].d !== undefined)
-				desc = this.iinf[ii].d;
-			if (desc.length) {
-				// do UTF-8 bytes instead of ASCII if necessary
-				descbytes = new TextEncoder().encode(desc);
-				if (descbytes.length === desc.length)
-					ti.addEntry(270, 'ASCII', desc); /* image description */
-				else
-					ti.addEntry(270, 'ASCII', descbytes); /* image description */ /* https://www.iptc.org/std/photometadata/documentation/mappingguidelines/ */
-				if (metadatalen) metadatastr += ', ';
-				metadatastr += this.xl0('process.photodesc');
-				metadatalen++;
-			}
 		}
 		if (metadatalen) this.appmsg(metadatastr);
 		if (!this.neutral) {
