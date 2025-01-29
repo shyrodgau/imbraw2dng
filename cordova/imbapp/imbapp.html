@@ -22168,7 +22168,7 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 	//if (undefined === basename) basename = name;
 	if (undefined === this.rootfs) {
 		try {
-			this.previewworker.postMessage({ cmd: 'stopwatch' });
+			if (this.previewworker) this.previewworker.postMessage({ cmd: 'stopwatch' });
 			cordova.plugins.safMediastore.selectFolder('').then((str) => {
 			   const d = str;
 			   this.rootfs = d;
@@ -22181,7 +22181,7 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 					   mytexts.process.convertedcheckdl[o] = this.isubst(mytexts.process.convertedcheckdl[o], 'X', dispstr);
 			   }
 				window.resolveLocalFileSystemURL(cordova.file.applicationStorageDirectory, (fs) => {
-					this.previewworker.postMessage({ cmd: 'watchdog' });
+					if (this.previewworker) this.previewworker.postMessage({ cmd: 'watchdog' });
 					this.rootfsx = fs;
 					let rr = this.rootfsx.createReader();
 					rr.readEntries((ee) => {
@@ -24380,7 +24380,7 @@ custcmd(cmd, type, restargs, cb) {
 		return;
 	}
 	this.workerstate.push({ cb: cb, type: type });
-	this.previewworker.postMessage({ cmd: 'custcmd', c:cmd, type: type, rest: restargs });
+	if (this.previewworker) this.previewworker.postMessage({ cmd: 'custcmd', c:cmd, type: type, rest: restargs });
 }
 /* TopApp: command handler BLOCKING */
 custcmdB(cmd, type, restargs, cb) {
@@ -25643,7 +25643,7 @@ xl1(el) {
 		};
 		if (to.imbackintension && ImBCBase.progname.startsWith('imbapp')) {
 			this.workerstate.push({ cmd: 'readjpg', targ: to, ele: e});
-			this.previewworker.postMessage({ cmd: 'readjpg', f: to.imbackintension});
+			if (this.previewworker) this.previewworker.postMessage({ cmd: 'readjpg', f: to.imbackintension});
 			return;
 		}
 		else if (ImBCBase.progname.startsWith('imbapp'))

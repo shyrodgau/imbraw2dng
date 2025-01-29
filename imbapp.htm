@@ -21910,7 +21910,7 @@ custcmd(cmd, type, restargs, cb) {
 		return;
 	}
 	this.workerstate.push({ cb: cb, type: type });
-	this.previewworker.postMessage({ cmd: 'custcmd', c:cmd, type: type, rest: restargs });
+	if (this.previewworker) this.previewworker.postMessage({ cmd: 'custcmd', c:cmd, type: type, rest: restargs });
 }
 /* TopApp: command handler BLOCKING */
 custcmdB(cmd, type, restargs, cb) {
