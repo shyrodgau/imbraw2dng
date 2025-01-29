@@ -25084,7 +25084,7 @@ doquit() {
 	let ex = 0;
 	if (this.exitmode === 'movie') ex = 1;
 	else if (this.exitmode === 'browse') ex = 2;
-	if (this.previewworker) this.previewworker.postMessage({ cmd: 'readjpg' });
+	if (this.previewworker) this.previewworker.postMessage({ cmd: 'stopimg' });
 	this.custcmdB( 3001,  'document', ('par=' + ex), () => {
 		if (navigator.app)
 			navigator.app.exitApp();
