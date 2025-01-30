@@ -983,7 +983,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.9.89_de0069", // actually const // VERSION EYECATCHER
+version: "V6.0.0_0a8a726", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -20046,8 +20046,8 @@ xl1(el) {
 			this.loadnextimg();
 		};
 		if (to.imbackintension && ImBCBase.progname.startsWith('imbapp')) {
-			this.workerstate.push({ cmd: 'readjpg', targ: to, ele: e});
-			if (this.previewworker) this.previewworker.postMessage({ cmd: 'readjpg', f: to.imbackintension});
+			this.workerstate.push({ cmd: 'readjpg', targ: to, ele: e, cid: this.cid});
+			if (this.previewworker) this.previewworker.postMessage({ cmd: 'readjpg', f: to.imbackintension, cid: this.cid++});
 			return;
 		}
 		else if (ImBCBase.progname.startsWith('imbapp'))
@@ -20113,6 +20113,7 @@ xl1(el) {
 /* Browserhelper: visual browser or from imback: load next from todo list */
 loadnextimg() {
 	if (this.debugflag) console.log('L  N  I');
+	this.loaderrunning = 'wait';
 	if ((!ImBCBase.progname.startsWith('imbapp') || this.loaderrunning !== 'blah!') && this.allfiles.length > 0 && this.actnum <= this.allfiles.length - 1) {
 		this.loaderrunning = 'blah!';
 		window.setTimeout(() => {
@@ -20150,7 +20151,7 @@ startloadimg() {
 	setTimeout(() => {
 		if (!this.loaderrunning) {
 			if (this.debugflag) console.log('start loader');
-			this.loadnextimg();
+				this.loadnextimg();
 		}
 		else if (this.debugflag) {
 			if (this.debugflag) console.log('load already on ' + this.loaderrunning);

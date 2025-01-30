@@ -1145,7 +1145,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V5.9.89_de0069", // actually const // VERSION EYECATCHER
+version: "V6.0.0_0a8a726", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -22631,8 +22631,9 @@ constructor() {
 // from the back itself
 maxcache = 30; // max. length of cache for already downloaded raw data - you may increase or decrease this
 #cache = []; // actual cache buffer
-// to count how many invisble raws have been loaded
-preloadedraws = 0;
+// to count how many invisble imgs have been loaded
+preloadedimgs = 0;
+uidirty = true; // if imgs/groups need to be added to visibile
 loaderrunning=false; // currently handled browser raw preview download
 fromvisbrows = false;
 /* deleting/downloading */
@@ -23366,6 +23367,8 @@ buildtree() {
 /* 3: invisible JPG+MP4 */
 findnexttoload() {
 	if (document.getElementById('browser').style['display'] === 'none' && !this.magentry) return undefined;
+	let i=0;
+	while (this.uidirty && i++ < 3) this.addallimgsi();
 	if (this.magentry) {
 		const p = this.magentry.entry;
 		// not waiting or error at all?
@@ -23401,7 +23404,7 @@ findnexttoload() {
 			f = f.parentElement;
 		}
 		if (dispno) {
-			if (ImBCBase.progname !== 'imbapp_app' && ph >= 3 && (this.preloadedraws++ < this.maxcache)) {
+			if (ImBCBase.progname !== 'imbapp_app' && ph >= 3 && (this.preloadedimgs++ < this.maxcache)) {
 				ph = 2;
 				res = e;
 			}
@@ -23415,18 +23418,18 @@ findnexttoload() {
 		if (rect.top < window.innerHeight && rect.bottom > t && rect.width > 0) {
 			// visible
 			if (e.type !== 'RAW' && ph >= 1) {
-				if (ph === 2 && this.preloadedraws) this.preloadedraws --;
+				if (ph === 2 && this.preloadeds) this.preloadedimgs --;
 				res = e;
 				ph = 0;
 				break;
 			}
 			else if (ph >= 2) {
-				if (ph === 2 && this.preloadedraws) this.preloadedraws --;
+				if (ph === 2 && this.preloadedimgs) this.preloadedimgs --;
 				res = e;
 				ph = 1;
 			}
 		}
-		else if (ImBCBase.progname !== 'imbapp_app' && ph >= 3 && (this.preloadedraws++ < this.maxcache)) {
+		else if (ImBCBase.progname !== 'imbapp_app' && ph >= 3 && (this.preloadedimgs++ < this.maxcache)) {
 			res = e;
 			ph = 2;
 		}
@@ -23459,7 +23462,7 @@ findnexttoload() {
 /* TopApp: visual browser: add images sorted  */
 #addimgsorted(el) {
 	let rect = el.entry.getBoundingClientRect();
-	if ((rect.top > window.innerHeight || rect.bottom <= 0) && this.preloadedraws++ >= this.maxcache)
+	if ((rect.top > window.innerHeight || rect.bottom <= 0) && this.preloadedimgs++ >= this.maxcache)
 		return;
 	if (el.fmembers !== null && el.fmembers !== undefined) {
 		for (const e of el.fmembers.sort((a,b) => this.#myisort(a, b))) {
@@ -23511,10 +23514,15 @@ findnexttoload() {
 			if (m.entry?.remove) m.entry.remove();
 		}
 	}
-	this.addallimgs(gr);
+	this.addallimgs();
 }
 /* TopApp: add images */
-addallimgs(gr) {
+addallimgs() {
+	this.uidirty = true;
+	debugger;
+	this.startloadimg();
+}
+addallimgsi(gr) {
 	let retry = false;
 	if (!gr) {
 		let list;
@@ -23524,31 +23532,29 @@ addallimgs(gr) {
 		else {
 			list = this.untypedclasses;
 		}
+		this.uidirty = false;
 		for (const xgr of list.sort((a,b) => this.#mysort(a, b))) {
 			const xe = xgr.entry;
 			let rect = xe.getBoundingClientRect();
-			if ((rect.top > window.innerHeight || rect.bottom <= 0 || rect.width <= 0) && this.preloadedraws++ >= this.maxcache)
+			if ((rect.top > window.innerHeight || rect.bottom <= 0 || rect.width <= 0) && this.preloadedimgs++ >= this.maxcache)
 				continue;
 			if (xgr.fmembers && xgr.fmembers.length > 0) {
 				retry |= this.#addimgsorted(xgr);
-				this.preloadedraws = 0;
 				this.startloadimg();
 			} else {
-				xgr.smembers.map((m) => { this.addallimgs(m); });
+				xgr.smembers.map((m) => { this.addallimgsi(m); });
 			}
 		}
+		if (!this.uidirty) this.preloadedimgs = 0;
 		return;
 	}
 	if (gr.fmembers && gr.fmembers.length > 0 && !gr.entry.querySelector('.onepic')) {
 		retry |= this.#addimgsorted(gr);
 		this.startloadimg();
 	} else
-		gr.smembers.map((m) => { this.addallimgs(m) });
+		gr.smembers.map((m) => { this.addallimgsi(m) });
 	if (retry) {
-		retry = false;
-		setTimeout(() => {
-			this.addallimgs();
-		}, 100);
+		this.uidirty = true;
 	}
 }
 /* TopApp: visual browser: select all from top */
@@ -25667,8 +25673,8 @@ xl1(el) {
 			this.loadnextimg();
 		};
 		if (to.imbackintension && ImBCBase.progname.startsWith('imbapp')) {
-			this.workerstate.push({ cmd: 'readjpg', targ: to, ele: e});
-			if (this.previewworker) this.previewworker.postMessage({ cmd: 'readjpg', f: to.imbackintension});
+			this.workerstate.push({ cmd: 'readjpg', targ: to, ele: e, cid: this.cid});
+			if (this.previewworker) this.previewworker.postMessage({ cmd: 'readjpg', f: to.imbackintension, cid: this.cid++});
 			return;
 		}
 		else if (ImBCBase.progname.startsWith('imbapp'))
@@ -25734,6 +25740,7 @@ xl1(el) {
 /* Browserhelper: visual browser or from imback: load next from todo list */
 loadnextimg() {
 	if (this.debugflag) console.log('L  N  I');
+	this.loaderrunning = 'wait';
 	if ((!ImBCBase.progname.startsWith('imbapp') || this.loaderrunning !== 'blah!') && this.allfiles.length > 0 && this.actnum <= this.allfiles.length - 1) {
 		this.loaderrunning = 'blah!';
 		window.setTimeout(() => {
@@ -25771,7 +25778,7 @@ startloadimg() {
 	setTimeout(() => {
 		if (!this.loaderrunning) {
 			if (this.debugflag) console.log('start loader');
-			this.loadnextimg();
+				this.loadnextimg();
 		}
 		else if (this.debugflag) {
 			if (this.debugflag) console.log('load already on ' + this.loaderrunning);
@@ -26228,9 +26235,13 @@ function buildpreview(struc, f, size, orientation) {
 	};
 	if (f.replaceread) {
 		f.readAsArrayBuffer = (fy) => {
-			fy.onload({
-				target: { result: fy.data }
-			});
+			if (fy.data && fy.onload) {
+				fy.onload( {
+					target: { result: fy.data }
+				} );
+			}
+			else if (fy.onerror)
+				fy.onerror( fy.errevent );
 		}
 	}
 	reader.readAsArrayBuffer(f);
