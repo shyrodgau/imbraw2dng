@@ -104,11 +104,18 @@ head -$(( $endla - 1 )) ${TESTEXES}/imbapp.htm|tail -$(( $endla - $stla - 1 )) >
 echo  imbapp.html $stla | tee -a $log
 node /home/hegny/prog/imbraw2dng/github/node_modules/eslint/bin/eslint.js -c ${TESTEXES}/eslint.config.mjs  iaa.js 2>&1 | tee -a $log
 
-stlb=$( grep -n '<script' ${TESTEXES}/imbapp.htm|cut -d: -f1 | tail -1 )
-endlb=$( grep -n '</script' ${TESTEXES}/imbapp.htm|cut -d: -f1 |tail -1)
-head -$(( $endlb - 1 )) ${TESTEXES}/imbapp.htm|tail -$(( $endlb - $stlb - 1 )) > iaw.js
-echo imbapp.html worker $stlb | tee -a $log
+stlb=$( grep -n '^<script.*js-netwwor' ${TESTEXES}/imbapp.htm|cut -d: -f1 | tail -1 )
+endlb=$( grep -n '^</script>.*js-netwwor' ${TESTEXES}/imbapp.htm|cut -d: -f1 |tail -1)
+head -$(( $endlb - 1 )) ${TESTEXES}/imbapp.htm|tail -$(( $endlb - $stlb - 1 )) | sed 's@</*script[^>]*>@@g' > iaw.js
+echo imbapp.html net worker $stlb | tee -a $log
 node /home/hegny/prog/imbraw2dng/github/node_modules/eslint/bin/eslint.js -c ${TESTEXES}/eslint.config.mjs  iaw.js 2>&1 | tee -a $log
+
+stlc=$( grep -n '^<script.*js-previewwor' ${TESTEXES}/imbapp.htm|cut -d: -f1 | tail -1 )
+endlc=$( grep -n '^</script>.*js-previewwor' ${TESTEXES}/imbapp.htm|cut -d: -f1 |tail -1)
+head -$(( $endlc - 1 )) ${TESTEXES}/imbapp.htm|tail -$(( $endlc - $stlc - 1 )) | sed 's@</*script[^>]*>@@g' > iapw.js
+echo imbapp.html preview worker $stlc | tee -a $log
+node /home/hegny/prog/imbraw2dng/github/node_modules/eslint/bin/eslint.js -c ${TESTEXES}/eslint.config.mjs  iapw.js 2>&1 | tee -a $log
+
 ls -l ia*.js ih.mjs ih.js
 
 cd ..

@@ -18617,6 +18617,7 @@ querylang(name, offset) {
 	let l = this.findlang(name.substring(name.length - offset + 1, name.length - offset + 3));
 	if ('00' === l) {
 		this.debugflag = true;
+		if (this.netwworker) this.netwworker.postMessage({ cmd: 'setdbg' });
 		if (this.previewworker) this.previewworker.postMessage({ cmd: 'setdbg' });
 		if (document) { // translation output into browser log
 			for (const el of Object.keys(mytexts))
@@ -18690,11 +18691,12 @@ findlang(i) {
 	if ('zZ' === i || ('00' === this.mylang)) {
 		this.debugflag = true;
 		this.mylang = 'en';
+		if (this.netwworker) this.netwworker.postMessage({ cmd: 'setdbg' });
 		if (this.previewworker) this.previewworker.postMessage({ cmd: 'setdbg' });
 	}
 	if ('zZ' === i || window?.location.href.startsWith('http://1')) {
 		if (document) this.imbweb = window.location.origin;
-		if (this.previewworker) this.previewworker.postMessage({ cmd: 'seturl', url: this.imbweb });
+		if (this.netwworker) this.netwworker.postMessage({ cmd: 'seturl', url: this.imbweb });
 	}
 	if (this.useimblang && this.imblang) {
 		this.mylang = this.imblang;
@@ -22605,6 +22607,7 @@ zipdata = null;
 zip = null;
 zipname = '';
 ziperr = false;
+netwworker = null;
 previewworker = null;
 workerstate = [];
 cid = 0; // command id
@@ -22636,31 +22639,32 @@ fromvisbrows = false;
 rotphase = 0;
 /* TopApp: init the worker */
 initworker() {
-	let scripttext = document.querySelector("script[type='text/js-previewworker']").textContent;
-	scripttext += '\nvar globals = {';
+	let scripttextg = 'var globals = {';
 	for (const s in globals) {
-		   scripttext += (s + ': ');
+		   scripttextg += (s + ': ');
 		   if (typeof globals[s] === 'function')
-				   scripttext += globals[s].toString();
+				   scripttextg += globals[s].toString();
 		   else
-				   scripttext += JSON.stringify(globals[s]);
-		   scripttext += ',\n';
+				   scripttextg += JSON.stringify(globals[s]);
+		   scripttextg += ',\n';
 	}
-	scripttext += '};';
-	scripttext += '\nvar globalfxns = {';
+	scripttextg += '};';
+	let scripttextf = '\nvar globalfxns = {';
 	for (const s in globalfxns) {
-		   scripttext += (s + ': ');
+		   scripttextf += (s + ': ');
 		   if (typeof globalfxns[s] === 'function')
-				   scripttext += globalfxns[s].toString();
+				   scripttextf += globalfxns[s].toString();
 		   else
-				   scripttext += JSON.stringify(globalfxns[s]);
-		   scripttext += ',\n';
+				   scripttextf += JSON.stringify(globalfxns[s]);
+		   scripttextf += ',\n';
 	}
-	scripttext += '};';
-    this.previewworker = new Worker(URL.createObjectURL(new Blob([scripttext], { type: "text/javascript" })), {name:'myworker'});
-	if (!this.previewworker) {
-		// upload previewworker OR
+	scripttextf += '};\n';
+    this.netwworker = new Worker(URL.createObjectURL(new Blob([scripttextf, document.querySelector("script[type='text/js-netwworker']").textContent], { type: "text/javascript" })), {name:'mynetworker'});
+    this.previewworker = new Worker(URL.createObjectURL(new Blob([scripttextg, document.querySelector("script[type='text/js-previewworker']").textContent], { type: "text/javascript" })), {name:'myprevworker'});
+	if (!this.netwworker || !this.previewworker) {
+		// upload netwworker OR
 		console.log('BACKGOUND WORKER FAILED 3 ');
+		this.netwworker = null;
 		this.previewworker = null;
 	}
 	else {
@@ -22668,12 +22672,22 @@ initworker() {
 			this.workermsg(e);
 		}
 		this.previewworker.onerror = (e) => {
-			console.log('EE ' + JSON.stringify(e));
-			this.previewworker = null;
+			console.log('EE NN ' + JSON.stringify(e));
+			this.netwworker = null;
 		}
-		this.previewworker.postMessage({ cmd: 'seturl', url: this.imbweb });
+		this.netwworker.onmessage = (e) => {
+			this.workermsg(e);
+		}
+		this.netwworker.onerror = (e) => {
+			console.log('EE NN ' + JSON.stringify(e));
+			this.netwworker = null;
+		}
 		this.previewworker.postMessage({ cmd: 'constwb', constwb: this.constwb });
-		if (this.debugflag) this.previewworker.postMessage({ cmd: 'setdbg' });
+		this.netwworker.postMessage({ cmd: 'seturl', url: this.imbweb });
+		if (this.debugflag) {
+			this.netwworker.postMessage({ cmd: 'setdbg' });
+			this.previewworker.postMessage({ cmd:'setdbg'});
+		}
 	}
 }
 
@@ -24219,7 +24233,7 @@ buildpreview(f, size, onok, onerr, orientation, targ, afterload) {
 			  // ctx.putImageData(new ImageData(outpix, transpose ? h8: w8, transpose? w8 :h8), 0, 0); onok(f)
 		  } else {
 			  this.workerstate.push({ cmd: 'resolveandpreview', c: cachehit, n: (f.url ? f.url :f), o: orientation, onok: onok, onerr: onerr, t: targ, afterload: afterload, cid: this.cid });
-			  this.previewworker.postMessage({ cmd: 'resolveandpreview', n: (f.url ? f.url :f), o: orientation, size: size, cid: this.cid++ });
+			  this.netwworker.postMessage({ cmd: 'resolveandpreview', n: (f.url ? f.url :f), o: orientation, size: size, cid: this.cid++ });
 			  // onmessage: { pix: array, n: name, o: orientation, c: cacheentry }
 			  // ctx.putImageData(new ImageData(outpix, transpose ? h8: w8, transpose? w8 :h8), 0, 0); onok(f); add cache
 		  }
@@ -24381,7 +24395,7 @@ custcmd(cmd, type, restargs, cb) {
 		return;
 	}
 	this.workerstate.push({ cmd: 'custcmd', cb: cb, type: type, cid: this.cid });
-	if (this.previewworker) this.previewworker.postMessage({ cmd: 'custcmd', c:cmd, type: type, rest: restargs, cid: this.cid++ });
+	if (this.netwworker) this.netwworker.postMessage({ cmd: 'custcmd', c:cmd, type: type, rest: restargs, cid: this.cid++ });
 }
 /* TopApp: command handler BLOCKING */
 custcmdB(cmd, type, restargs, cb) {
@@ -24422,7 +24436,7 @@ loadimgs() {
 }
 /* TopApp: check if we are directly on a back */
 checkimb() {
-	if (null === this.previewworker) this.initworker();
+	if (null === this.netwworker) this.initworker();
 	document.getElementById('dbgcache').value = this.maxcache;
 	let imblang = '';
 	this.imblang = false;
@@ -24787,7 +24801,7 @@ findcache(url) {
 /* TopApp: add to cache */
 addcache(name, entry) {
 	this.#cache.push({ url: ImBCBase.basename(name), d: entry.data, l: entry.len, reader: entry.reader });
-	while (this.#cache.length > 2) this.#cache.splice(0,1);
+	while (this.#cache.length > this.maxcache) this.#cache.splice(0,1);
 }
 /* TopApp: worker on message */
 workermsg(msg) {
@@ -24868,6 +24882,10 @@ workermsg(msg) {
 		} else {
 			w0.onerr(d.n);
 		}
+		break;
+	case 'tobuildpreview':
+		d.d.cmd = 'buildpreview';
+		this.previewworker.postMessage(d.d);
 		break;
 	case 'afterload':
 		if (undefined !== this.workerstate[0].afterload) this.workerstate[0].afterload();
@@ -25084,7 +25102,7 @@ doquit() {
 	let ex = 0;
 	if (this.exitmode === 'movie') ex = 1;
 	else if (this.exitmode === 'browse') ex = 2;
-	if (this.previewworker) this.previewworker.postMessage({ cmd: 'stopimg' });
+	if (this.netwworker) this.netwworker.postMessage({ cmd: 'stopimg' });
 	this.custcmdB( 3001,  'document', ('par=' + ex), () => {
 		if (navigator.app)
 			navigator.app.exitApp();
@@ -25199,7 +25217,7 @@ resolver(f, onok, onerr) {
 					this.addcache(d.n, d.c);
 					onok(d.n, fx);
 			  }, errcb: onerr, cid: this.cid });
-			  this.previewworker.postMessage({ cmd: 'resolveandhandle', n: (f.url ? f.url : f), cid: this.cid++  });
+			  this.netwworker.postMessage({ cmd: 'resolveandhandle', n: (f.url ? f.url : f), cid: this.cid++  });
 			  // onmessage: { ok?, n: f.name, o: orientation, c: cacheentry }
 			  // set allfiles[this.actnum] to cacheentry.reader and call handleone(o, fl)
 			  // add cache
@@ -25368,6 +25386,7 @@ parseexpflags(flags) {
 	}
 	if (this.expflags[2] > 0) {
 		this.debugflag = true;
+		if (this.netwworker) this.netwworker.postMessage({ cmd: 'setdbg' });
 		if (this.previewworker) this.previewworker.postMessage({ cmd: 'setdbg' });
 	}
 	else this.debugflag = false;
@@ -25869,10 +25888,10 @@ function init2() {
 /* *************************************** android init e n d *************************************** */
 </script>
 <!-- WORKER -->
-<script type="text/js-previewworker" language="javascript">
+<script type="text/js-netwworker" language="javascript">
 /* *************************************** WORKER *************************************** */
 let base, msg = false, curxhr, evtq = [], imgstopped = false;
-let progress = false, queue = [], wdtimer, currcust, dbgflag,	errcount = 0, constwb = false;
+let progress = false, queue = [], wdtimer, currcust, dbgflag,	errcount = 0;
 /* WORKER onmessage */
 onmessage = (e) => {
 	//console.log('WORKER received ' + e.data.cmd);
@@ -25888,21 +25907,10 @@ onmessage = (e) => {
 	case 'setdbg':
 		dbgflag = true;
 		return;
-	case 'constwb':
-		constwb = e.data.constwb;
-		return;
-	case 'readjpg':
-		readjpg({ n: e.data.n, cmd: e.data.cmd, ori: e.data.o, siz: e.data.size, ci: e.data.cid}, e.data.f);
-		return;
 	case 'stopwatch':
 		errcount = 0;
 		if (wdtimer) clearTimeout(wdtimer);
 		wdtimer = undefined;
-		return;
-	case 'previewfromcache':
-		buildpreviewcache({ cache: {}, n: e.data.n, cmd: e.data.cmd, ori: e.data.o, siz: e.data.size, ci: e.data.cid}, e.data.c, e.data.size, e.data.o);
-		// this.previewworker.postMessage({ cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :f), o: orientation });
-		// onmessage: { pix: array, c: cache, n: n, o: orientation }
 		return;
 	}
 	if (imgstopped && (e.data.cmd === 'resolveandhandle' || e.data.cmd === 'resolveandpreview')) {
@@ -25938,22 +25946,17 @@ onmessage = (e) => {
 		break;
 	case 'resolveandpreview':
 		resolver({ cache: {}, n: e.data.n, cmd: e.data.cmd, ori: e.data.o, siz: e.data.size, ci: e.data.cid}, e.data.n, true);
-		// this.previewworker.postMessage({ cmd: 'resolveandpreview', n: (f.url ? f.url :f), o: orientation });
+		// this.netwworker.postMessage({ cmd: 'resolveandpreview', n: (f.url ? f.url :f), o: orientation });
  	  	// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
-		break;
-	case 'previewfromcache':
-		buildpreviewcache({ cache: {}, n: e.data.n, cmd: e.data.cmd, ori: e.data.o, siz: e.data.size, ci: e.data.cid}, e.data.c, e.data.size, e.data.o);
-		// this.previewworker.postMessage({ cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :f), o: orientation });
-		// onmessage: { pix: array, c: cache, n: n, o: orientation }
 		break;
 	case 'resolveandhandle':
 		resolver({ cache: {}, n: e.data.n, cmd: e.data.cmd, ori: e.data.o, siz: e.data.size, ci: e.data.cid}, e.data.n, false);
-		//this.previewworker.postMessage({ cmd: 'resolveandhandle', n: (f.n ? f.n : f), o: orientation });
+		//this.netwworker.postMessage({ cmd: 'resolveandhandle', n: (f.n ? f.n : f), o: orientation });
 		// onmessage: { ok?, n: f.n, o: orientation, c: cacheentry }
 		break;
 	case 'custcmd':
 		currcust = e.data.c;
-		//this.previewworker.postMessage({ cmd: 'custcmd', c: cmd, type: type, rest: rest, results: results });
+		//this.netwworker.postMessage({ cmd: 'custcmd', c: cmd, type: type, rest: rest, results: results });
 		custcmd({ n: e.data.n, cmd: e.data.cmd, ori: e.data.o, siz: e.data.size, ci: e.data.cid}, e.data.c, e.data.type, e.data.rest);
 		break;
 	default:
@@ -26000,7 +26003,10 @@ function resolver(struc, url, preview, notfirst)  {
 			handlewait();
 		}
 		else {
-			buildpreview(struc, fx, struc.siz, struc.ori);
+			fx.readAsArrayBuffer = undefined;
+			fx.replaceread = true;
+			postMessage({ cmd:'tobuildpreview', d:{struc: struc, f: fx, size: struc.siz, orientation: struc.ori}});
+			handlewait();
 		}
 	};
 	xhr.onerror = (evt, typ) => {
@@ -26062,74 +26068,6 @@ function handlewait() {
 		if (dbgflag) console.log('WORKER CONTINUE ' + e.data.cmd + ' [' + p + ']');
 		queue.splice(0,1);
 		onmessage(e);
-	}
-}
-/* WORKER: browserdisplay: build preview */
-// orientation: 1: norm, 3: rot 180, 6 rot 90 CW, 8: rot 270 CCW
-function buildpreview(struc, f, size, orientation) {
-	let w, h, typ;
-	const zz = globals.infos.findIndex(v => v.size === f.size);
-	if (zz === -1) {
-		console.log('WORKER preview: unsupported size ' + f.size + ' of ' + f.name);
-		postMessage({ cmd: struc.cmd, ok: false, n: struc.n, cid: struc.ci });
-		handlewait();
-		return;
-	}
-	w = globals.infos[zz].w;
-	typ = globals.infos[zz].typ;
-	h = globals.infos[zz].h;
-	const whitelvl = (typ === 5) ? 4095: 255;
-
-	const reader = f.imbackextension ? f : new FileReader();
-	reader.onload = (evt) => {
-		let contents = evt.target.result;
-		if (contents.buffer) contents = contents.buffer;
-		const view = new DataView(contents);
-		const wb = constwb ? [ 6, 10, 1, 1, 6, 10 ] : globals.getwb(view, zz, whitelvl);
-		//console.log(JSON.stringify(wb));
-		let outpix = globals.buildpvarray(view, size, typ, w, h, orientation, false, wb, whitelvl);
-		// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
-		postMessage({ cmd: struc.cmd, pix: outpix, n: struc.n, o: struc.ori, c: struc.cache, xori: (typ === 5 && struc.ori === 0) ? 3 : ((struc.ori === 0) ? 1 : struc.ori), size: struc.siz, cid: struc.ci });
-		handlewait();
-	};
-	reader.onerror = (evt) => {
-		console.log('WORKER preview: error reading ' + f.name + ' E ' + evt.toString());
-		postMessage({ cmd: struc.cmd, ok: false, n: struc.n, cid: struc.ci });
-		handlewait();
-	};
-	reader.readAsArrayBuffer(f);
-}
-/* WORKER: browserdisplay: build preview from cache */
-// orientation: 1: norm, 3: rot 180, 6 rot 90 CW, 8: rot 270 CCW
-function buildpreviewcache(struc, f, size, orientation) {
-	let w, h, typ;
-	const zz = globals.infos.findIndex(v => v.size === f.l);
-	if (zz === -1) {
-		console.log('WORKER preview: unsupported size ' + f.l + ' of ' + f.n);
-		postMessage({ cmd: struc.cmd, ok: false, n: struc.n, cid: struc.ci });
-		handlewait();
-		return;
-	}
-	w = globals.infos[zz].w;
-	typ = globals.infos[zz].typ;
-	h = globals.infos[zz].h;
-	const whitelvl = (typ === 5) ? 4095: 255;
-
-	const contents = f.d;
-	const view = new DataView(contents);
-	const wb = constwb ? [ 6, 10, 1, 1, 6, 10 ] : globals.getwb(view, zz, whitelvl);
-	//console.log(JSON.stringify(wb));
-	let outpix = globals.buildpvarray(view, size, typ, w, h, orientation, false, wb, whitelvl);
-	// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
-	if (dbgflag) {
-		setTimeout(() => {
-			postMessage({ cmd: struc.cmd, pix: outpix, n: struc.n, o: struc.ori, c: struc.cache, xori: (typ === 5 && struc.ori === 0) ? 3 : ((struc.ori === 0) ? 1 : struc.ori), size: struc.siz });
-			handlewait();
-		}, 300);
-	}
-	else {
-		postMessage({ cmd: struc.cmd, pix: outpix, n: struc.n, o: struc.ori, c: struc.cache, xori: (typ === 5 && struc.ori === 0) ? 3 : ((struc.ori === 0) ? 1 : struc.ori), size: struc.siz, cid: struc.ci });
-		handlewait();
 	}
 }
 /* WORKER: watchdog */
@@ -26223,6 +26161,110 @@ function custcmdi(struc, c, t, restargs, cb, results) {
 	xhr.send();
 	curxhr = xhr;
 }
+</script><!-- js-netwworker -->
+<script type="text/js-previewworker" language="javascript">
+/* * * ************************************* preview WORKER *************************************** */
+let dbgflag,	constwb = false;
+/* WORKER onmessage */
+onmessage = (e) => {
+	//console.log('WORKER received ' + e.data.cmd);
+	switch (e.data.cmd) {
+	case 'setdbg':
+		dbgflag = true;
+		return;
+	case 'constwb':
+		constwb = e.data.constwb;
+		return;
+	case 'readjpg':
+		readjpg({ n: e.data.n, cmd: e.data.cmd, ori: e.data.o, siz: e.data.size, ci: e.data.cid}, e.data.f);
+		return;
+	case 'previewfromcache':
+		buildpreviewcache({ cache: {}, n: e.data.n, cmd: e.data.cmd, ori: e.data.o, siz: e.data.size, ci: e.data.cid}, e.data.c, e.data.size, e.data.o);
+		// this.netwworker.postMessage({ cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :f), o: orientation });
+		// onmessage: { pix: array, c: cache, n: n, o: orientation }
+		return;
+	case 'buildpreview':
+		buildpreview(e.data.struc, e.data.f, e.data.size, e.data.orientation);
+		// this.netwworker.postMessage({ cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :f), o: orientation });
+		// onmessage: { pix: array, c: cache, n: n, o: orientation }
+		return;
+	}
+	/*eslint no-fallthrough: ["error", { "commentPattern": "no break" }]*/
+	switch (e.data.cmd) {
+	default:
+		console.log('WORKER: unexpected CMD ' + e.data.cmd);
+		postMessage({ cmd: e.data.cmd, ok: false, cid: e.data.cid });
+	}
+};
+/* WORKER: browserdisplay: build preview */
+// orientation: 1: norm, 3: rot 180, 6 rot 90 CW, 8: rot 270 CCW
+function buildpreview(struc, f, size, orientation) {
+	let w, h, typ;
+	const zz = globals.infos.findIndex(v => v.size === f.size);
+	if (zz === -1) {
+		console.log('WORKER preview: unsupported size ' + f.size + ' of ' + f.name);
+		postMessage({ cmd: struc.cmd, ok: false, n: struc.n, cid: struc.ci });
+		return;
+	}
+	w = globals.infos[zz].w;
+	typ = globals.infos[zz].typ;
+	h = globals.infos[zz].h;
+	const whitelvl = (typ === 5) ? 4095: 255;
+
+	const reader = f.imbackextension ? f : new FileReader();
+	reader.onload = (evt) => {
+		let contents = evt.target.result;
+		if (contents.buffer) contents = contents.buffer;
+		const view = new DataView(contents);
+		const wb = constwb ? [ 6, 10, 1, 1, 6, 10 ] : globals.getwb(view, zz, whitelvl);
+		//console.log(JSON.stringify(wb));
+		let outpix = globals.buildpvarray(view, size, typ, w, h, orientation, false, wb, whitelvl);
+		// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
+		postMessage({ cmd: struc.cmd, pix: outpix, n: struc.n, o: struc.ori, c: struc.cache, xori: (typ === 5 && struc.ori === 0) ? 3 : ((struc.ori === 0) ? 1 : struc.ori), size: struc.siz, cid: struc.ci });
+	};
+	reader.onerror = (evt) => {
+		console.log('WORKER preview: error reading ' + f.name + ' E ' + evt.toString());
+		postMessage({ cmd: struc.cmd, ok: false, n: struc.n, cid: struc.ci });
+	};
+	if (f.replaceread) {
+		f.readAsArrayBuffer = (fy) => {
+			fy.onload({
+				target: { result: fy.data }
+			});
+		}
+	}
+	reader.readAsArrayBuffer(f);
+}
+/* WORKER: browserdisplay: build preview from cache */
+// orientation: 1: norm, 3: rot 180, 6 rot 90 CW, 8: rot 270 CCW
+function buildpreviewcache(struc, f, size, orientation) {
+	let w, h, typ;
+	const zz = globals.infos.findIndex(v => v.size === f.l);
+	if (zz === -1) {
+		console.log('WORKER preview: unsupported size ' + f.l + ' of ' + f.n);
+		postMessage({ cmd: struc.cmd, ok: false, n: struc.n, cid: struc.ci });
+		return;
+	}
+	w = globals.infos[zz].w;
+	typ = globals.infos[zz].typ;
+	h = globals.infos[zz].h;
+	const whitelvl = (typ === 5) ? 4095: 255;
+
+	const contents = f.d;
+	const view = new DataView(contents);
+	const wb = constwb ? [ 6, 10, 1, 1, 6, 10 ] : globals.getwb(view, zz, whitelvl);
+	//console.log(JSON.stringify(wb));
+	let outpix = globals.buildpvarray(view, size, typ, w, h, orientation, false, wb, whitelvl);
+	// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
+	if (dbgflag) {
+		setTimeout(() => {
+			postMessage({ cmd: struc.cmd, pix: outpix, n: struc.n, o: struc.ori, c: struc.cache, xori: (typ === 5 && struc.ori === 0) ? 3 : ((struc.ori === 0) ? 1 : struc.ori), size: struc.siz });
+		}, 300);
+	}
+	else {
+		postMessage({ cmd: struc.cmd, pix: outpix, n: struc.n, o: struc.ori, c: struc.cache, xori: (typ === 5 && struc.ori === 0) ? 3 : ((struc.ori === 0) ? 1 : struc.ori), size: struc.siz, cid: struc.ci });
+	}
+}
 /* WORKER read local jpeg */
 function readjpg(struc, file) {
 	// read jpeg file for preview
@@ -26239,7 +26281,7 @@ function readjpg(struc, file) {
 	fr.readAsDataURL(file);
 }
 /* *************************************** WORKER, E N D *************************************** */
-</script>
+</script><!-- js-previewworker -->
 </head>
 <!-- here comes the html itself -->
 <body id="thebody" style="font-family: Helvetica, Arial, sans-serif;" onload="init();" lang="en">
