@@ -780,7 +780,7 @@ describe('F Convert Raw Local APP', function() {
 				.move({ origin: okb })
 				.pause(300)
 				.click()
-				.pause(900)
+				.pause(1900)
 				.perform();
 			//await fi.clear();
 	});

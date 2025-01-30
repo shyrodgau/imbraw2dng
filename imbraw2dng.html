@@ -983,7 +983,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.0.0_8540cec", // actually const // VERSION EYECATCHER
+version: "V6.0.0_9ae5b78", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -20055,7 +20055,6 @@ xl1(el) {
 		};
 		if (to.imbackintension && ImBCBase.progname.startsWith('imbapp') && to.type === 'JPG' && to.imbackintension.readAsDataURL) {
 			this.workerstate.push({ cmd: 'readjpg', targ: to, ele: e, cid: this.cid});
-			debugger;
 			if (this.pvw) this.pvw({ cmd: 'readjpg', f: to.imbackintension, cid: this.cid++});
 			return;
 		}
