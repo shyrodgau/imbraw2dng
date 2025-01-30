@@ -820,7 +820,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.0.0_0a8a726", // actually const // VERSION EYECATCHER
+version: "V6.0.0_4036f5a", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -18293,7 +18293,10 @@ querylang(name, offset) {
 	if ('00' === l) {
 		this.debugflag = true;
 		if (this.netwworker) this.netwworker.postMessage({ cmd: 'setdbg' });
-		if (this.previewworker) this.previewworker.postMessage({ cmd: 'setdbg' });
+		if (this.previewworkers) {
+			for (let i=0; i<this.previewworkers.length; i++)
+				this.previewworkers[i].w.postMessage({ cmd: 'setdbg' });
+		}
 		if (document) { // translation output into browser log
 			for (const el of Object.keys(mytexts))
 				this.prxl(el, mytexts[el]);
@@ -18367,7 +18370,10 @@ findlang(i) {
 		this.debugflag = true;
 		this.mylang = 'en';
 		if (this.netwworker) this.netwworker.postMessage({ cmd: 'setdbg' });
-		if (this.previewworker) this.previewworker.postMessage({ cmd: 'setdbg' });
+		if (this.previewworkers) {
+			for (let j=0; j<this.previewworkers.length; j++)
+				this.previewworkers[j].w.postMessage({ cmd: 'setdbg' });
+		}
 	}
 	if ('zZ' === i || window?.location.href.startsWith('http://1')) {
 		if (document) this.imbweb = window.location.origin;

@@ -1144,7 +1144,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.0.0_0a8a726", // actually const // VERSION EYECATCHER
+version: "V6.0.0_4036f5a", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -18617,7 +18617,10 @@ querylang(name, offset) {
 	if ('00' === l) {
 		this.debugflag = true;
 		if (this.netwworker) this.netwworker.postMessage({ cmd: 'setdbg' });
-		if (this.previewworker) this.previewworker.postMessage({ cmd: 'setdbg' });
+		if (this.previewworkers) {
+			for (let i=0; i<this.previewworkers.length; i++)
+				this.previewworkers[i].w.postMessage({ cmd: 'setdbg' });
+		}
 		if (document) { // translation output into browser log
 			for (const el of Object.keys(mytexts))
 				this.prxl(el, mytexts[el]);
@@ -18691,7 +18694,10 @@ findlang(i) {
 		this.debugflag = true;
 		this.mylang = 'en';
 		if (this.netwworker) this.netwworker.postMessage({ cmd: 'setdbg' });
-		if (this.previewworker) this.previewworker.postMessage({ cmd: 'setdbg' });
+		if (this.previewworkers) {
+			for (let j=0; j<this.previewworkers.length; j++)
+				this.previewworkers[j].w.postMessage({ cmd: 'setdbg' });
+		}
 	}
 	if ('zZ' === i || window?.location.href.startsWith('http://1')) {
 		if (document) this.imbweb = window.location.origin;
@@ -20138,7 +20144,9 @@ zip = null;
 zipname = '';
 ziperr = false;
 netwworker = null;
-previewworker = null;
+maxnpvw = 2;
+previewworkers = [];
+pvwjobs = [];
 workerstate = [];
 cid = 0; // command id
 onback = 'quit'; // 'main', 'quit', 'nothing', 'close...', 'canceldl'
@@ -20191,21 +20199,26 @@ initworker() {
 	}
 	scripttextf += '};\n';
     this.netwworker = new Worker(URL.createObjectURL(new Blob([scripttextf, document.querySelector("script[type='text/js-netwworker']").textContent], { type: "text/javascript" })), {name:'mynetworker'});
-    this.previewworker = new Worker(URL.createObjectURL(new Blob([scripttextg, document.querySelector("script[type='text/js-previewworker']").textContent], { type: "text/javascript" })), {name:'myprevworker'});
-	if (!this.netwworker || !this.previewworker) {
+    for (let i=0; i < this.maxnpvw; i++) {
+    	this.previewworkers.push({ w: new Worker(URL.createObjectURL(new Blob([scripttextg, document.querySelector("script[type='text/js-previewworker']").textContent], { type: "text/javascript" })), {name:'myprevworker'}), busy: false});
+		this.previewworkers[i].w.postMessage({ cmd: 'constwb', constwb: this.constwb });
+    	this.previewworkers[i].w.onmessage = (m) => {
+			this.workermsg(m);
+			if (this.pvwjobs?.length) {
+				const m = this.pvwjobs[0];
+				this.pvwjobs.splice(0,1);
+				this.previewworkers[i].w.postMessage(m);
+			}
+			else
+				this.previewworkers[i].busy = false;
+    	}
+    }
+	if (!this.netwworker) {
 		// upload netwworker OR
 		console.log('BACKGOUND WORKER FAILED 3 ');
 		this.netwworker = null;
-		this.previewworker = null;
 	}
 	else {
-		this.previewworker.onmessage = (e) => {
-			this.workermsg(e);
-		}
-		this.previewworker.onerror = (e) => {
-			console.log('EE NN ' + JSON.stringify(e));
-			this.netwworker = null;
-		}
 		this.netwworker.onmessage = (e) => {
 			this.workermsg(e);
 		}
@@ -20213,15 +20226,28 @@ initworker() {
 			console.log('EE NN ' + JSON.stringify(e));
 			this.netwworker = null;
 		}
-		this.previewworker.postMessage({ cmd: 'constwb', constwb: this.constwb });
 		this.netwworker.postMessage({ cmd: 'seturl', url: this.imbweb });
 		if (this.debugflag) {
 			this.netwworker.postMessage({ cmd: 'setdbg' });
-			this.previewworker.postMessage({ cmd:'setdbg'});
+			for (let i=0; i<this.maxnpvw; i++)
+				this.previewworkers[i].w.postMessage({ cmd:'setdbg'});
 		}
 	}
 }
-
+/* TopApp: browserdisplay: create on previewworker */
+pvw(cmd) {
+	let found = false;
+	for (let i=0; i<this.maxnpvw; i++) {
+		if (!this.previewworkers[i].busy) {
+			this.previewworkers[i].w.postMessage(cmd);
+			found = true;
+			this.previewworkers[i].busy = true;
+			break;
+		}
+	}
+	if (!found)
+		this.pvwjobs.push(cmd);
+}
 
 /* TopApp: browserdisplay: copyright checkbox change */
 chgcopycheck(init) {
@@ -21049,7 +21075,6 @@ findnexttoload() {
 /* TopApp: add images */
 addallimgs() {
 	this.uidirty = true;
-	debugger;
 	this.startloadimg();
 }
 addallimgsi(gr) {
@@ -21676,7 +21701,8 @@ dirtysettings(which) {
 	else if (which === 'owb') {
 		const oldwb = document.getElementById('oldstylewb');
 		this.constwb = (oldwb !== null && oldwb.checked);
-		if (this.previewworker) this.previewworker.postMessage({ cmd: 'constwb', constwb: this.constwb });
+		for (let i=0; i<this.maxnpvw; i++)
+			this.previewworkers[i].w.postMessage({ cmd: 'constwb', constwb: this.constwb });
 		if (oldwb) this.savesettings('owb');
 	}
 	else if (which === 'cr') {
@@ -21764,7 +21790,7 @@ buildpreview(f, size, onok, onerr, orientation, targ, afterload) {
 		  let cachehit;
 		  if ((cachehit = this.findcache(f.url ? f.url :f))) {
 			  this.workerstate.push({ cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :f), o: orientation, onok: onok, onerr: onerr, t: targ, cid: this.cid });
-			  this.previewworker.postMessage({ cmd: 'previewfromcache', c: { n: cachehit.url, d: cachehit.d, l: cachehit.l} , n: (f.url ? f.url :f), o: orientation, size: size, cid: this.cid++ });
+			  this.pvw({ cmd: 'previewfromcache', c: { n: cachehit.url, d: cachehit.d, l: cachehit.l} , n: (f.url ? f.url :f), o: orientation, size: size, cid: this.cid++ });
 			  // onmessage: { pix: array, c: cache, n: name, o: orientation }
 			  // ctx.putImageData(new ImageData(outpix, transpose ? h8: w8, transpose? w8 :h8), 0, 0); onok(f)
 		  } else {
@@ -22421,10 +22447,12 @@ workermsg(msg) {
 		break;
 	case 'tobuildpreview':
 		d.d.cmd = 'buildpreview';
-		this.previewworker.postMessage(d.d);
+		this.pvw(d.d);
 		break;
 	case 'afterload':
-		if (undefined !== this.workerstate[0].afterload) this.workerstate[0].afterload();
+		w0i = this.workerstate.findIndex(e => e.cid === d.cid);
+		w0 = this.workerstate[w0i];
+		if (undefined !== w0.afterload) w0.afterload();
 		break;
 	case 'custcmd':
 		w0i = this.workerstate.findIndex(e => e.cid === d.cid);
@@ -22855,8 +22883,9 @@ parseconfig(data) {
 	else this.useimblang = true;
 	if (d.ll) this.lastlang = d.ll;
 	if (d.ndcp) this.incdcp = false; else this.incdcp = true;
-	if (d.owb) this.constwb = true; else this.constwb = false;
-	if (this.previewworker) this.previewworker.postMessage({ cmd: 'constwb', constwb: this.constwb });
+	if (d.owb) this.constwb = true; else this.constwb = false; 
+	for (let i=0; i<this.previewworkers.length; i++)
+			this.previewworkers[i].w.postMessage({ cmd: 'constwb', constwb: this.constwb });
 	this.stepmode = 0;
 	if (d.exitmode) this.exitmode = d.exitmode;
 	if (d.maxcache) this.maxcache = d.maxcache;
@@ -22910,7 +22939,8 @@ checkchecks() {
 	this.metadata = copycheck?.checked; 
 	const oldwb = document.getElementById('oldstylewb');
 	this.constwb = (oldwb !== null && oldwb.checked);
-	if (this.previewworker) this.previewworker.postMessage({ cmd: 'constwb', constwb: this.constwb });
+	for (let i=0; i<this.previewworkers.length; i++)
+			this.previewworkers[i].w.postMessage({ cmd: 'constwb', constwb: this.constwb });
 	const incdcp = document.getElementById('incdcp');
 	this.incdcp = (incdcp !== null && incdcp.checked);
 }
@@ -22923,7 +22953,8 @@ parseexpflags(flags) {
 	if (this.expflags[2] > 0) {
 		this.debugflag = true;
 		if (this.netwworker) this.netwworker.postMessage({ cmd: 'setdbg' });
-		if (this.previewworker) this.previewworker.postMessage({ cmd: 'setdbg' });
+		for (let i=0; i<this.previewworkers.length; i++)
+			this.previewworkers[i].w.postMessage({ cmd: 'setdbg' });
 	}
 	else this.debugflag = false;
 }
@@ -23204,7 +23235,7 @@ xl1(el) {
 		};
 		if (to.imbackintension && ImBCBase.progname.startsWith('imbapp')) {
 			this.workerstate.push({ cmd: 'readjpg', targ: to, ele: e, cid: this.cid});
-			if (this.previewworker) this.previewworker.postMessage({ cmd: 'readjpg', f: to.imbackintension, cid: this.cid++});
+			if (this.pvw) this.pvw({ cmd: 'readjpg', f: to.imbackintension, cid: this.cid++});
 			return;
 		}
 		else if (ImBCBase.progname.startsWith('imbapp'))
@@ -25907,6 +25938,7 @@ function resolver(struc, url, preview, notfirst)  {
 			fx.readAsArrayBuffer = undefined;
 			fx.replaceread = true;
 			postMessage({ cmd:'tobuildpreview', d:{struc: struc, f: fx, size: struc.siz, orientation: struc.ori}});
+			postMessage({ cmd:'afterload',  cid: struc.ci});
 			handlewait();
 		}
 	};
