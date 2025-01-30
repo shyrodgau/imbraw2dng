@@ -745,7 +745,37 @@ describe('F Convert Raw Local APP', function() {
 			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw');
 			await driver.actions({async: true}).pause(900).perform();
 			await driver.actions({async: true}).clear();
-			const okb = await driver.findElement(By.id('dlprogresslogbtn'));
+			const okb = await waitfor(driver, 'id','progokbut');
+			await driver.actions({ async: true })
+				.move({ origin: okb })
+				.pause(300)
+				.click()
+				.pause(900)
+				.perform();
+			//await fi.clear();
+	});
+	it('F.2 Convert multipe', async function dotest() {
+			this.timeout(6000);
+			const fi = await driver.findElement(By.id('infile'));
+			await fi.clear();
+			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2024_0217_121754_002.JPG' + '\n' + TESTDAT + '/IMBACK/PHOTO/2024_0217_121752_001.RAW');
+			await driver.actions({async: true}).pause(900).perform();
+			await driver.actions({async: true}).clear();
+			const selall = await waitfor(driver, 'id', 'selall');
+			await driver.actions({async: true})
+				.move({origin: selall })
+				.pause(100)
+				.click()
+				.pause(100)
+				.perform();
+			const dosel = await waitfor(driver,'id','doselbut');
+			await driver.actions({async: true})
+				.move({origin: dosel })
+				.pause(100)
+				.click()
+				.pause(100)
+				.perform();
+			const okb = await waitfor(driver, 'id','dlprogresslogbtn');
 			await driver.actions({ async: true })
 				.move({ origin: okb })
 				.pause(300)

@@ -820,7 +820,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.0.0_9920c0e", // actually const // VERSION EYECATCHER
+version: "V6.0.0_8540cec", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -19158,7 +19158,7 @@ handle1imb(url, time) {
 			if (this.typedclasses.findIndex(v => v === ('RAW' + cl)) === -1)
 				this.typedclasses.push('RAW' + cl);
 		}
-		this.imbeles.push(newimbele);
+		if (this.imbeles) this.imbeles.push(newimbele);
 	}
 	else if (['.JPG','JPEG'].find(x => x === rawname.substring(rawname.length -4).toUpperCase())) {
 		if (null !== timest) {
@@ -19173,7 +19173,7 @@ handle1imb(url, time) {
 			if (this.typedclasses.findIndex(v => v === ('JPG' + cl)) === -1)
 				this.typedclasses.push('JPG' + cl);
 		}
-		this.imbeles.push(newimbele);
+		if (this.imbeles) this.imbeles.push(newimbele);
 	}
 	else if (rawname.substring(rawname.length -4).toUpperCase() === '.MP4') {
 		if (null !== timest) {
@@ -19188,7 +19188,7 @@ handle1imb(url, time) {
 			if (this.typedclasses.findIndex(v => v === ('oth' + cl)) === -1)
 				this.typedclasses.push('oth' + cl);
 		}
-		this.imbeles.push(newimbele);
+		if (this.imbeles) this.imbeles.push(newimbele);
 	}
 	else {
 		this.appmsgxl(false, 'words.warning');
