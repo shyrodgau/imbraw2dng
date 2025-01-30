@@ -19468,7 +19468,6 @@ handle1imb(url, time) {
 			newimbele.rot = this.iinf[ii].r;
 		if (ii !== -1 && this.iinf[ii].d !== undefined)
 			newimbele.desc = this.iinf[ii].d;
-		this.imbeles.push(newimbele);
 	}
 	if (rawname.substring(rawname.length -4).toUpperCase() === '.RAW') {
 		if (null !== timest) {
@@ -19483,8 +19482,9 @@ handle1imb(url, time) {
 			if (this.typedclasses.findIndex(v => v === ('RAW' + cl)) === -1)
 				this.typedclasses.push('RAW' + cl);
 		}
+		this.imbeles.push(newimbele);
 	}
-	else if (rawname.substring(rawname.length -4).toUpperCase() === '.JPG') {
+	else if (['.JPG','JPEG'].find(x => x === rawname.substring(rawname.length -4).toUpperCase())) {
 		if (null !== timest) {
 			if (timest < this.earliestjpg) this.earliestjpg = timest;
 			if (timest > this.latestjpg) this.latestjpg = timest;
@@ -19497,6 +19497,7 @@ handle1imb(url, time) {
 			if (this.typedclasses.findIndex(v => v === ('JPG' + cl)) === -1)
 				this.typedclasses.push('JPG' + cl);
 		}
+		this.imbeles.push(newimbele);
 	}
 	else if (rawname.substring(rawname.length -4).toUpperCase() === '.MP4') {
 		if (null !== timest) {
@@ -19511,6 +19512,7 @@ handle1imb(url, time) {
 			if (this.typedclasses.findIndex(v => v === ('oth' + cl)) === -1)
 				this.typedclasses.push('oth' + cl);
 		}
+		this.imbeles.push(newimbele);
 	}
 	else {
 		this.appmsgxl(false, 'words.warning');
@@ -20177,7 +20179,7 @@ fromvisbrows = false;
 /* deleting/downloading */
 rotphase = 0;
 /* TopApp: init the worker */
-initworker() {
+initworker(withnet) {
 	let scripttextg = 'var globals = {';
 	for (const s in globals) {
 		   scripttextg += (s + ': ');
@@ -20188,17 +20190,19 @@ initworker() {
 		   scripttextg += ',\n';
 	}
 	scripttextg += '};';
-	let scripttextf = '\nvar globalfxns = {';
-	for (const s in globalfxns) {
-		   scripttextf += (s + ': ');
-		   if (typeof globalfxns[s] === 'function')
-				   scripttextf += globalfxns[s].toString();
-		   else
-				   scripttextf += JSON.stringify(globalfxns[s]);
-		   scripttextf += ',\n';
+	if (withnet !== false) {
+		let scripttextf = '\nvar globalfxns = {';
+		for (const s in globalfxns) {
+			   scripttextf += (s + ': ');
+			   if (typeof globalfxns[s] === 'function')
+					   scripttextf += globalfxns[s].toString();
+			   else
+					   scripttextf += JSON.stringify(globalfxns[s]);
+			   scripttextf += ',\n';
+		}
+		scripttextf += '};\n';
+		this.netwworker = new Worker(URL.createObjectURL(new Blob([scripttextf, document.querySelector("script[type='text/js-netwworker']").textContent], { type: "text/javascript" })), {name:'mynetworker'});
 	}
-	scripttextf += '};\n';
-    this.netwworker = new Worker(URL.createObjectURL(new Blob([scripttextf, document.querySelector("script[type='text/js-netwworker']").textContent], { type: "text/javascript" })), {name:'mynetworker'});
     for (let i=0; i < this.maxnpvw; i++) {
     	this.previewworkers.push({ w: new Worker(URL.createObjectURL(new Blob([scripttextg, document.querySelector("script[type='text/js-previewworker']").textContent], { type: "text/javascript" })), {name:'myprevworker'}), busy: false});
 		this.previewworkers[i].w.postMessage({ cmd: 'constwb', constwb: this.constwb });
@@ -20925,12 +20929,8 @@ findnexttoload() {
 	if (document.getElementById('browser').style['display'] === 'none' && !this.magentry) return undefined;
 	let i=0;
 	while (this.uidirty && i++ < 3) this.addallimgsi();
-	if (this.magentry) {
-		const p = this.magentry.entry;
-		// not waiting or error at all?
-		if (this.magentry.nonewerr) return null;
-		//console.log(this.magentry.raw + ' ' + p.attributes.getNamedItem('data-state').value);
-		if (p.attributes.getNamedItem('data-state').value !== 'err' && p.attributes.getNamedItem('data-state').value !== 'wait') return undefined;
+	if (this.magentry && !this.magentry.nonewerr
+			&& !(this.magentry.entry?.attributes.getNamedItem('data-state').value !== 'err' && this.magentry.entry?.attributes.getNamedItem('data-state').value !== 'wait')) {
 		return this.magentry;
 	}
 	let res = undefined, ph = 4;
@@ -20938,6 +20938,7 @@ findnexttoload() {
 		if (!e.entry) continue;
 		const p = e.entry;
 		if (!p.parentElement) continue;
+		if (e.type === 'oth' && this.disconnected) continue;
 		// not waiting or error at all?
 		if (e.nonewerr) continue;
 		if (p.attributes.getNamedItem('data-state').value !== 'err' && p.attributes.getNamedItem('data-state').value !== 'wait') continue;
@@ -21701,7 +21702,7 @@ dirtysettings(which) {
 	else if (which === 'owb') {
 		const oldwb = document.getElementById('oldstylewb');
 		this.constwb = (oldwb !== null && oldwb.checked);
-		for (let i=0; i<this.maxnpvw; i++)
+		for (let i=0; i<this.previewworkers.length; i++)
 			this.previewworkers[i].w.postMessage({ cmd: 'constwb', constwb: this.constwb });
 		if (oldwb) this.savesettings('owb');
 	}
@@ -21785,7 +21786,7 @@ prevdef(ev) {
 // orientation: 1: norm, 3: rot 180, 6 rot 90 CW, 8: rot 270 CCW
 buildpreview(f, size, onok, onerr, orientation, targ, afterload) {
 	let w, h, typ;
-	if (undefined === f.size) {
+	if (undefined === f.size && this.netwworker) {
 		window.setTimeout(() => {
 		  let cachehit;
 		  if ((cachehit = this.findcache(f.url ? f.url :f))) {
@@ -21998,19 +21999,20 @@ loadimgs() {
 }
 /* TopApp: check if we are directly on a back */
 checkimb() {
-	if (null === this.netwworker) this.initworker();
 	document.getElementById('dbgcache').value = this.maxcache;
 	let imblang = '';
 	this.imblang = false;
-	if (ImBCBase.progname === 'imbapp.htm' && (window.location.origin.startsWith('https') || window.location.origin.startsWith('file'))) {
+	if (ImBCBase.progname === 'imbapp.htm' && !window.location.origin.startsWith('http://1')) {
 		this.disknown = true;
 		this.disconnected = false;
 		this.showdisconnect();
 		this.showmain();
 		this.xlateall();
 		this.imbweb = '';
+		if (0 === this.previewworkers?.length) this.initworker(false);
 		return;
 	}
+	if (null === this.netwworker) this.initworker();
 	const ll = '00' === this.mylang ? 'en' : this.mylang;
 	this.custcmd([3012, 3024, [3001, 'par=2'], 3017, 2016, [2015, 'par=0'], 3014, [2015, 'par=1'], [3031, 'str=all'],  3030, 2019  ], 'document', null, (rc0, doc0) => {
 		if (0 <= rc0) {
@@ -22240,6 +22242,7 @@ checkimb() {
 			this.showlocal();
 			ImBCHtml.openp(document.getElementById('appsettopener'));
 			this.imbweb = '';
+			if (null !== this.netwworker) this.netwworker.terminate();
 		}
 		this.xlateall();
 	});
