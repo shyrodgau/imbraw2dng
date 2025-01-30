@@ -12,7 +12,7 @@ frf="$2"
 tof="$3"
 
 if [ "$tof" -nt "$frf" ]; then
-	echo $tof is newer that $frf
+	echo $tof is NEWER than $frf
 	echo are you 'sure? [Y]'
 	read yn
 	if [ $yn != 'Y' ]; then
