@@ -820,7 +820,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.0.0_9ae5b78", // actually const // VERSION EYECATCHER
+version: "V6.0.0_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -18806,7 +18806,7 @@ handleone(orientation) {
 			ti.addEntry(282, 'RATIONAL', [ 30, 1 ]); /* X resolution */
 			ti.addEntry(283, 'RATIONAL', [ 30, 1 ]); /* y resolution */
 		}
-		ti.addEntry(50706, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Version */
+		ti.addEntry(50706, 'BYTE', [ 1, 6, 0, 0 ]); /* DNG Version */
 		ti.addEntry(50707, 'BYTE', [ 1, 4, 0, 0 ]); /* DNG Backward Version */
 		ti.addEntry(271, 'ASCII', 'ImBack'); /* Make */
 		ti.addEntry(50708, 'ASCII', 'ImBack' + ' ' + globals.types[typ0]); /* Unique model */
@@ -18914,7 +18914,13 @@ handleone(orientation) {
 					}
 					ti.closeSub();
 				}
-				else if (x.t === 40962 || x.t === 40963) {
+				else if (x.t === 40962) {
+					ti.addEntry(x.t, x.y, [w]);
+					// dimensions
+					continue;
+				}
+				else if (x.t === 40963) {
+					ti.addEntry(x.t, x.y, [h]);
 					// dimensions
 					continue;
 				}
@@ -18926,6 +18932,8 @@ handleone(orientation) {
 			if (!exifbasics) {
 				ti.addEntry(36864, 'UNDEFINED', [48,50,51,48]); /* exif version */
 				ti.addEntry(36867, 'ASCII', datestr); /* Original date time */
+				ti.addEntry(40962, 'LONG', [w]); /* width */
+				ti.addEntry(40963, 'LONG', [h]); /* height */
 			}
 			ti.closeSub();
 		}
@@ -19073,18 +19081,18 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		ti.addEntry(258 , 'SHORT', [ targbits ]); /* BitsPerSample */
 		ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression - none */
 		ti.addEntry(50717, 'LONG', [ (typ >= 5) ? (whitelvl > 0 ?  whitelvl : 4095) : 255 ]); /* White level */
+		const bl = Math.round(addimgs / 2);
 		if (typ0  === 5) {
 			ti.addEntry(50714, 'SHORT', [ 240, 240, 240, 240 ] ); /* Blacklevel */
 		}
-		else if (typ0 > 1) {
-			const bl = Math.round(addimgs / 2);
+		else if (typ0 > 1 && bl) {
 			ti.addEntry(50714, 'SHORT', [ 0, bl, bl, 0 ] ); /* Blacklevel */
 		}
-		else {
-			const bl = Math.round(addimgs / 2);
+		else if (bl) {
 			ti.addEntry(50714, 'SHORT', [ bl, 0, 0, bl ] ); /* Blacklevel */
 		}
-		ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
+		if (bl || typ0 === 5)
+			ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
 		ti.addEntry(262, 'SHORT', [ 0x8023 ]); /* Photometric - CFA */
 		ti.addEntry(277, 'SHORT', [ 1 ]); /* Samples per Pixel */
 		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config - chunky */
