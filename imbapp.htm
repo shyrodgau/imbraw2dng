@@ -1144,7 +1144,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.0.1_a3fe422", // actually const // VERSION EYECATCHER
+version: "V6.0.1_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -25936,7 +25936,7 @@ function resolver(struc, url, preview, notfirst)  {
 	let xhr = new XMLHttpRequest();
 	xhr.onload = (/*evt*/) => {
 		curxhr = undefined;
-		if (errcount) errcount--;
+		if (errcount >= 2) errcount -= 2;
 		let len = JSON.parse(xhr.getResponseHeader('content-length'));
 		if (0 >= len) len=1;
 		struc.cache.data = xhr.response;
@@ -26028,7 +26028,7 @@ function handlewait() {
 }
 /* WORKER: watchdog */
 function watchdog() {
-	if (errcount > 2) {
+	if (errcount > 6) {
 		postMessage({ cmd: 'disconnect'});
 		return;
 	}
@@ -26097,7 +26097,8 @@ function custcmdi(struc, c, t, restargs, cb, results) {
 		curxhr = undefined;
 		console.log('WORKER custcmd onerror: ' + thecmd + ' ' + base + ' E ' + JSON.stringify(event));
 		if (dbgflag) evtq.push(event);
-		if (event.type !== 'timeout') errcount++;
+		if (event.type === 'timeout') errcount++;
+		else errcount += 3;
 		cb({ cmd: 'custcmd', ok: false, results: results, rc: -2, cmds: currcust, cid: struc.ci });
 		currcust = undefined;
 		handlewait();
