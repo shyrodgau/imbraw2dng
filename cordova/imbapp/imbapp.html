@@ -1165,7 +1165,7 @@ itsregex: new RegExp('^([2-3][0-9][0-9][0-9])([/])([01][0-9])([/])([0123][0-9])(
 fnregexx: /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-9]*)/ , // actually const
 orients: [ '', 'none', '', 'upsidedown', '', '', 'clockwise', '', 'counterclockwise' ], // actually const
 oriecw: [ 1, 6, 3, 8 ], // clockwise indices // actually const
-types: [ "unknown", "ImB35mm", "MF 6x7 ", "MF6x4.5", "MF 6x6 ", "Film35 " ], // all length 7, actually const
+types: [ "unknown", "35mm", "MF6x7", "MF6x4.5", "MF6x6", "Film" ], // all length 7, actually const
 twelvebitsizes: [ 9706416, 11501280, 14709888, 17428128, 17915904, 19406448, 21098880, 23003136, 23887872, 30607488 ],
 infos: [ // actually const
 	{
@@ -1181,7 +1181,7 @@ infos: [ // actually const
 		h: 3456,
 		typ: 2,
 		mode: ""
-	},
+	}, /* Missing angle medium, small */
 	{ /* MF 6x4.5 */
 		size: 12937632,
 		w: 4152, h: 3116,
@@ -1205,7 +1205,7 @@ infos: [ // actually const
 		w: 3456, h: 3456,
 		typ: 4,
 		mode: ""
-	},
+	}, /* Missing angle medium, small */
 	{ /* 35mm */
 		size: 15335424,
 		w: 4608, h: 3328,
