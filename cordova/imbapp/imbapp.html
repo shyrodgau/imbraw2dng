@@ -1145,7 +1145,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.0.1_a3fe422", // actually const // VERSION EYECATCHER
+version: "V6.0.2_18444fb", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -18762,7 +18762,7 @@ xexif(name, view, datestr) {
 	let t = IFDOut.parseIfd(view, off, baseoff);
 	const iio = t.findIndex((v) => v.t === 40965);
 	if (iio !== -1) {
-		t[iio].ifd = IFDOut.parseIfd(view, t[iio].val[0]+  baseoff, 0);
+		t[iio].ifd = IFDOut.parseIfd(view, t[iio].val[0] + baseoff, 0);
 	}
 	if (this.corrdelta && datestr) {
 		for (const e of t.filter(v => v.t === 0x9003 || v.t === 0x9004)) {
@@ -19543,57 +19543,27 @@ parseDng(f, onok, onerr) {
 		return;
 	}
 	const v = new DataView(f.data);
-	if (v.byteLength < 12) {
+	if (v.byteLength < 120 || TIFFOut.readshort(v,2) !== 42 || TIFFOut.readshort(v,0) !== 0x4949) {
 		this.appmsg('Works only for originally created DNGs.');
 		return onerr(f.name);
 	}
-	const ifd = TIFFOut.readint(v, 4);
-	const zz = globals.infos.findIndex(v => v.size === ifd - 8);
-	const nent = TIFFOut.readshort(v, ifd);
-	let subifdstart = -1, rawstripstart = -1, datalen = -1;
-	let off = ifd+2;
-	if (TIFFOut.readshort(v, 2) !== 42 || TIFFOut.readshort(v,0) !== 18761 /* 0x4949 */ || zz === -1) {
-		// seek sub ifd then therein the stripoffsets
-		for (let k=0; k<((nent<50)? nent: 0); k++) {
-			let tag = TIFFOut.readshort(v, off);
-			if (tag === 330) {
-				subifdstart = TIFFOut.readint(v, off+8);
-				break;
-			}
-			off += 12;
-		}
-		if (-1 !== subifdstart) {
-			let subnent = TIFFOut.readshort(v, subifdstart);
-			off = subifdstart + 2;
-			for (let j=0; j<((subnent < 50)? subnent: 0); j++) {
-				let stag = TIFFOut.readshort(v, off);
-				if (stag === 273) {
-					rawstripstart = TIFFOut.readint(v, off+8);
-					break;
-				}
-				off += 12;
-			}
-			if (-1 !== rawstripstart) {
-				datalen = subifdstart - rawstripstart;
-				const zzz = globals.infos.findIndex(v => v.size === datalen);
-				if (-1 === zzz) {
-					this.appmsg('Works only for originally created DNGs.', true);
-					return onerr(f.name);
-				}
-			}
-			else {
-				this.appmsg('Works only for originally created DNGs.', true);
-				return onerr(f.name);
-			}
-		}
-		else {
-			this.appmsg('Works only for originally created DNGs.', true);
-			return onerr(f.name);
-		}
+	const ifdst = TIFFOut.readint(v, 4);
+	let ifd = IFDOut.parseIfd(v, ifdst, 0);
+	const sio = ifd.findIndex((v) => v.t === 330);
+	if (sio !== -1) {
+		ifd = IFDOut.parseIfd(v, ifd[sio].val[0], 0);
 	}
-	else {
-		rawstripstart = 8;
-		datalen = ifd - 8;
+	let sbci = ifd.findIndex((v) => v.t === 279);
+	let sboi = ifd.findIndex((v) => v.t === 273);
+	let datalen = 0, rawstripstart = 0; // npic = 1, wl = 0;
+	if (sbci !== -1 || ifd[sbci].val[0] > 1000000 && sboi !== -1) {
+		datalen = ifd[sbci].val[0];
+		rawstripstart = ifd[sboi].val[0];
+	}
+	let zz = globals.infos.findIndex(v => v.size === datalen);
+	if (-1 === zz) {
+		this.appmsg('Works only for originally created DNGs.', true);
+		return onerr(f.name);
 	}
 	let fx = {
 		imbackextension: true,

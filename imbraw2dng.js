@@ -19235,27 +19235,10 @@ parseDng(f, onok, onerr) {
 		datalen = ifd[sbci].val[0];
 		rawstripstart = ifd[sboi].val[0];
 	}
-	/*let wli = ifd.findIndex(v => v.t === 50717);
-	if (wli !== -1)
-		wl = ifd[wli].val[0];
-	else
-		wl = 255;*/
 	let zz = globals.infos.findIndex(v => v.size === datalen);
 	if (-1 === zz) {
-		/*zz = globals.infos.findIndex(v => v.size === (datalen * 2) / 3);
-		// 12 bit for 8?
-		if (zz === -1) {
-			zz = globals.infos.findIndex(v => v.size === datalen / 2);
-			// 16 bit for 8?
-			if (zz === -1) {
-				zz = globals.infos.findIndex(v => v.size === (datalen * 3) / 4);
-				// 16 bit for 12 (film)?
-				if (zz === -1) {*/
-					this.appmsg('Works only for originally created DNGs.', true);
-					return onerr(f.name);
-				/*}
-			}
-		}*/
+		this.appmsg('Works only for originally created DNGs.', true);
+		return onerr(f.name);
 	}
 	let fx = {
 		imbackextension: true,
