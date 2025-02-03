@@ -820,7 +820,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.0.2_18444fb", // actually const // VERSION EYECATCHER
+version: "V6.0.2_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -18904,7 +18904,10 @@ handleone(orientation) {
 				}
 				else if (x.t === 37500) {
 					// maker notes
-					ti.addEntry(x.t, x.y, [1,0,0,0]);
+					ti.addSubIfd(37500);
+					ti.addEntry(37500, 'UNDEFINED', x.val);
+					ti.closeSub();
+					//ti.addEntry(x.t, x.y, [1,0,0,0]);
 				}
 				else if (x.t === 40965) {
 					// interop
@@ -19226,25 +19229,61 @@ parseDng(f, onok, onerr) {
 	let ifd = IFDOut.parseIfd(v, ifdst, 0);
 	const sio = ifd.findIndex((v) => v.t === 330);
 	if (sio !== -1) {
+		// replace with sub-ifd (raw-ifd)
 		ifd = IFDOut.parseIfd(v, ifd[sio].val[0], 0);
 	}
 	let sbci = ifd.findIndex((v) => v.t === 279);
 	let sboi = ifd.findIndex((v) => v.t === 273);
-	let datalen = 0, rawstripstart = 0; // npic = 1, wl = 0;
-	if (sbci !== -1 || ifd[sbci].val[0] > 1000000 && sboi !== -1) {
+	let datalen = 0, rawstripstart = 0, wl = 255, factc = 1, factd = 1;
+	if (sbci !== -1 && sboi !== -1) {
 		datalen = ifd[sbci].val[0];
 		rawstripstart = ifd[sboi].val[0];
 	}
-	let zz = globals.infos.findIndex(v => v.size === datalen);
-	if (-1 === zz) {
+	else {
 		this.appmsg('Works only for originally created DNGs.', true);
 		return onerr(f.name);
+	}
+	let wli = ifd.findIndex(v => v.t === 50717);
+	if (wli !== -1)
+		wl = ifd[wli].val[0];
+	let zz = globals.infos.findIndex(v => v.size === datalen);
+	if (-1 === zz) {
+		zz = globals.infos.findIndex(v => v.size === (datalen * 2) / 3);
+		if (this.fromintent !== 2) {
+			this.appmsg('Works only for originally created DNGs.', true);
+			return onerr(f.name);
+		}
+		// 12 bit for 8?
+		else if (zz === -1) {
+			zz = globals.infos.findIndex(v => v.size === datalen / 2);
+			// 16 bit for 8?
+			if (zz === -1) {
+				zz = globals.infos.findIndex(v => v.size === (datalen * 3) / 4);
+				// 16 bit for 12 (film)?
+				if (zz === -1) {
+					this.appmsg('Works only for originally created DNGs.', true);
+					return onerr(f.name);
+				}
+				else {
+					factc = 3; factd = 4;
+				}
+			}
+			else {
+				factc = 1; factd = 2;
+			}
+		}
+		else {
+			factc = 2; factd = 3;
+		}
 	}
 	let fx = {
 		imbackextension: true,
 		name: f.name.substring(0, f.name.length - 4) + '.raw',
 		size: datalen,
-		data: f.data.slice(rawstripstart, datalen + rawstripstart)
+		data: f.data.slice(rawstripstart, datalen + rawstripstart),
+		wl: wl,
+		factc: factc,
+		factd: factd
 	};
 	if (-1 !== globals.twelvebitsizes.indexOf(datalen)) {
 		const v = new DataView(fx.data);
