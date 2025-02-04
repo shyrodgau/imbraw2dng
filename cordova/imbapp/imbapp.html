@@ -401,6 +401,12 @@ div#xmsg {
 .mymodal {
 	margin-left: 2% !important;
 }
+#magtext { font-size: 100% !important; }
+}
+@media (max-height: 400px) {
+	#phpv { width: 240px !important; height: 160px !important; overflow: scroll;}
+	#takenpic > div { width: 122px !important; height: 87px !important; }
+	#takenpic div { font-size: 40px !important; }
 }
 body { margin: 0; }
 #rpiclbl, #piclbl, #movlbl, #rpiccnt, #piccnt, #movcnt { font-weight: bold; }
@@ -26543,8 +26549,13 @@ function readjpg(struc, file) {
 <!-- this is the take photos page -->
 <div id="takephotos" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
 <div style="display:flex;flex-flow:wrap;">
-<input type="button" onclick="imbc.takephoto()" style="font-weight:bold;font-size:200%;background-color:red;width:97px;height:97px;margin:10px;font-family:Symbol3;border-radius:50%;margin-right: 30px;" value="&#x1f4f7; !">&nbsp;
-	<div id="takenpic" class="onepic" style="border:1px solid grey; border-radius:10px;width:fit-content; height:fit-content;border:1em solid black;">
+<div style="margin-right: 1em;">
+<input type="button" onclick="imbc.takephoto()" style="font-weight:bold;font-size:200%;background-color:red;width:97px;height:97px;margin:10px;font-family:Symbol3;border-radius:50%;margin-right: 30px;" value="&#x1f4f7; !"><br>
+	<div id="photosett">
+
+	</div>
+</div>
+	<div id="takenpic" class="onepic" style="border-radius:0.4em;width:fit-content; height:fit-content;border:0.5em solid black;margin: 0.2em;margin-right:0.5em;overflow:scroll;">
 		<div style="width:163px; height:117px; margin:0px; align-self:center; text-align:center; vertical-align: middle;">
 		<div id="takeerr" class="errimg" style="display:none;">X</div>
 		<img id="takejpg" class="eejpg" style="display:none;">
@@ -26555,10 +26566,8 @@ function readjpg(struc, file) {
 		</div>
 		</div>
 	</div>
-	<img id="phpv" width="480" height="320" style="margin-left:3em;margin-right:3em;border:1em solid black;align-self:center; text-align:center; width:480px; height:320px;">
-	<div id="photosett">
-		
-	</div>
+	<!--div data-myxlkey="app.livehint" data-myxlarg0='http://192.168.1.254:8192/' style="align-self:center;margin:3em;"> </div-->
+	<img id="phpv" width="480" height="320" style="margin:0.2em;margin-left:0;border:0.5em solid black;border-radius:0.4em; align-self:center; text-align:center; width:480px; height:320px;">
 </div>
 </div>
 <!-- end of the take photos -->
@@ -26566,10 +26575,9 @@ function readjpg(struc, file) {
 <div id="takemovies" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
 <div style="display:flex;flex-flow:wrap;">
 <input type="button" onclick="imbc.takemovie()" style="font-weight:bold;font-size:200%;background-color:red;width:97px;height:97px;margin:10px;font-family:Symbol3;border-radius:50%;margin-right: 30px;" value="&#x1f3ac; !">&nbsp;
-	<div id="videohint" data-myxlkey="app.livehint" style="align-self:center;margin:3em;"> </div>
 	<div id="videosett">
-		
 	</div>
+	<div id="videohint" data-myxlkey="app.livehint" style="align-self:center;margin:3em;"> </div>
 </div></div>
 <!-- end of the take movies -->
 </div><!-- end of container for navigationable pages -->
