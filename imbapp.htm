@@ -20290,33 +20290,6 @@ chgcopycheck(init) {
     if (!init)
     	this.savesettings('meta');
 }
-/* TopApp: preview: switch preview config to jpeg img */
-setjpegpv() {
-	document.getElementById('previewwait').style['display'] = 'none';
-	document.getElementById('previewerr').style['display'] = 'none';
-	document.getElementById('preview').style['display'] = 'none';
-	document.getElementById('rotations').style['display'] = 'none';
-	document.getElementById('jpegpreview').style['display'] = '';
-	document.getElementById('continues').style['display']='';
-}
-/* TopApp: preview: switch preview config to err */
-setpverr() {
-	document.getElementById('jpegpreview').style['display'] = 'none';
-	document.getElementById('rotations').style['display'] = 'none';
-	document.getElementById('previewwait').style['display'] = 'none';
-	document.getElementById('preview').style['display'] = 'none';
-	document.getElementById('continues').style['display']='';
-	document.getElementById('previewerr').style['display'] = '';
-}
-/* TopApp: preview: switch preview config to wait */
-setpvwait() {
-	document.getElementById('jpegpreview').style['display'] = 'none';
-	document.getElementById('rotations').style['display'] = 'none';
-	document.getElementById('continues').style['display']='none';
-	document.getElementById('previewerr').style['display'] = 'none';
-	document.getElementById('preview').style['display'] = 'none';
-	document.getElementById('previewwait').style['display'] = '';
-}
 /* TopApp: use generic msg for alert */
 myalert(txt) {
 	document.getElementById('phpv').src="";
@@ -20575,7 +20548,7 @@ magtimechg() {
 /* TopApp: browserdisplay: sort for navigate in magnification */
 magrecsort(grps) {
 	let res = [];
-	for (const e of grps.sort((a,b) => this.#mysort(a,b))) {
+	for (const e of grps.sort((a,b) => this.mysort(a,b))) {
 		if (e.smembers) res = res.concat(this.magrecsort(e.smembers));
 		if (e.fmembers) res = res.concat(e.fmembers.sort((a,b) => this.#myisort(a,b)));
 	}
@@ -20797,153 +20770,6 @@ showlog() {
 	document.getElementById('msglog').style['display'] = '';
 	window.setTimeout(() => { this.showlastmsg(); }, 100);
 }
-/* TopApp: visual browser: prepare the browser display, group the stuff */
-aftercheck() {
-	//if (this.untypedclasses[0].title) return;
-	for (const x of this.untypedclasses) {
-		if (x.title) continue;
-		const cl = {
-			title: x,
-			level: 5,
-			fmembers: [],
-			smembers: [],
-			entry: undefined
-		};
-		cl.entry = document.createElement('div');
-		cl.entry.id = 'gg_' + x + '_X';
-		cl.entry.classList.add('gg');
-		cl.entry.classList.add('ggopen');
-		cl.entry.classList.add('gl5');
-		for (const y of this.imbeles) {
-			if (x === y.ts)
-			{
-				// todo: sort
-				cl.fmembers.push(y);
-				y.inuntyped = true;
-			}
-		}
-		this.untypedclasses.splice(this.untypedclasses.findIndex(v => v === x), 1, cl);
-	}
-	for (const x of this.typedclasses) {
-		if (x.title) continue;
-		const cl = {
-			title: x,
-			level: 5,
-			fmembers: [],
-			smembers: [],
-			entry: undefined
-		};
-		cl.entry = document.createElement('div');
-		cl.entry.id = 'gg_' + x + '_X';
-		cl.entry.classList.add('gg');
-		cl.entry.classList.add('ggopen');
-		cl.entry.classList.add('gl5');
-		for (const y of this.imbeles) {
-			if (x === y.type + y.ts)
-			{
-				// todo: sort
-				cl.fmembers.push(y);
-				y.intyped = true;
-			}
-		}
-		this.typedclasses.splice(this.typedclasses.findIndex(v => v === x), 1, cl);
-	}
-	if (this.mingrp === 'h') {
-		this.#higherclasses(this.untypedclasses, 10, 5);
-		this.#higherclasses(this.typedclasses, 13, 5);
-	} else if (this.mingrp !== this.maxgrp) {
-		this.#higherclasses(this.untypedclasses, 7, 5);
-		this.#higherclasses(this.typedclasses, 10, 5);
-	}
-	// top type classes here
-	for (const u of this.typedclasses) {
-		if (u.ischild) continue;
-		if (this.typedclasses.filter((o) => u.title.substring(0,3) === o.title.substring(0,3)).length === 1) {
-			u.level --;
-			u.entry.classList.add('gl' + u.level);
-			u.entry.classList.remove('gl' + (u.level + 1));
-		} else if (this.typedclasses.findIndex((o) => o.title === u.title.substring(0,3)) === -1) {
-			const cl = {
-				title: u.title.substring(0,3),
-				level: 1,
-				smembers: [],
-				fmembers: [],
-				entry: undefined
-			};
-			cl.entry = document.createElement('div');
-			cl.entry.id = 'gg_' + u.title.substring(0,3) + '_X';
-			cl.entry.classList.add('gg');
-			cl.entry.classList.add('ggopen');
-			cl.entry.classList.add('gl1');
-			for (const x of this.typedclasses.filter((o) => u.title.substring(0,3) === o.title.substring(0,3))) {
-				x.ischild = true;
-				// todo: sort when display
-				cl.smembers.push(x);
-				cl.haschildren = true;
-				this.typedclasses.splice(this.typedclasses.findIndex((o) => o.title === x.title),1);
-			}
-			this.typedclasses.push(cl);
-		}
-	}
-	// non-typed upgraded to gl1, unless only one
-	if (this.untypedclasses.length === 1 && this.untypedclasses[0].smembers && this.untypedclasses[0].smembers.length > 0) {
-		const t = this.untypedclasses[0];
-		this.untypedclasses.splice(0,1);
-		for (const s of t.smembers) {
-			s.entry.classList.add('gl1');
-			this.untypedclasses.push(s);
-		}
-	} else
-		for (const s of this.untypedclasses) s.entry.classList.add('gl1');
-	// build title elements
-	for (const s of this.untypedclasses) this.#buildtitlerec(s);
-	for (const s of this.typedclasses) this.#buildtitlerec(s);
-	this.imgsdirty = false;
-	document.getElementById('sbytype').disabled = (this.typedclasses.length === 1);
-	if (document) {
-		document.getElementById('brnsel').innerHTML = '0';
-		document.getElementById('brntot').innerHTML = '' + this.imbeles.length;
-		this.showmain();
-		this.buildtree();
-	}
-}
-/* TopApp: make display empty */
-cleartree() {
-	// first, make everything empty
-	for (const e of this.untypedclasses) {
-		e.entry.remove();
-		//this.#doclose(e, true);
-	}
-	for (const e of this.typedclasses) {
-		e.entry.remove();
-		//this.#doclose(e, true);
-	}
-	for (const d of this.imbeles) {
-		if (undefined !== d.entry && null !== d.entry && d.entry.remove)
-			d.entry.remove();
-	}
-}
-/* TopApp: visual browser: build ordered lists */
-buildtree() {
-	// first, make everything empty
-	this.cleartree();
-
-	// now, sort and add
-	let list;
-	if (document.getElementById('sbytype').checked) {
-		list = this.typedclasses;
-	}
-	else {
-		list = this.untypedclasses;
-	}
-	for (const e of list.sort((a,b) => this.#mysort(a, b))) {
-		document.getElementById('browser').append(e.entry);
-		this.#addsorted(e);
-		this.#doopen(e, true);
-	}
-	this.startloadimg();
-	this.xlateall();
-}
 /* TopApp: visual browser: find next to load */
 /* four phases, finding a match for one skips all following phases */
 /* 0: visible JPG+MP4 */
@@ -21019,7 +20845,7 @@ findnexttoload() {
 	return res;
 }
 /* TopApp: visual browser: sort helper */
-#mysort(a, b) {
+mysort(a, b) {
 	let at = a.title, bt = b.title;
 	const fact = document.getElementById('solder').checked ? 1 : -1
 	if (a.title.startsWith('oth') && !b.title.startsWith('oth')) return -1;		// oR oJ
@@ -21055,22 +20881,6 @@ findnexttoload() {
 	}
 	return true;
 }
-/* TopApp: visual browser: add sorted recursively */
-#addsorted(el) {
-	if (el.smembers === null || el.smembers ===  undefined) return;
-	for (const e of el.smembers.sort((a,b) => this.#mysort(a, b))) {
-		this.#addsorted(e);
-		el.entry.append(e.entry);
-	}
-}
-/* TopApp: visual browser: recursive texts */
-#buildtitlerec(el) {
-	this.#buildtitle(el);
-	if (el.smembers === null || el.smembers ===  undefined) return;
-	for (const e of el.smembers) {
-		this.#buildtitlerec(e);
-	}
-}
 /* TopApp: visual browser: recursive fold close */
 #doclose(gr, recurse) {
 	const e = gr.entry;
@@ -21083,14 +20893,14 @@ findnexttoload() {
 	this.addallimgs();
 }
 /* TopApp: visual browser: recursive fold open */
-#doopen(gr, recurse) {
+doopen(gr, recurse) {
 	const e = gr.entry;
 	e.querySelector('.ggtt').classList.remove('ggttclosed');
 	e.querySelector('.ggtt').classList.add('ggttopen');
 	e.classList.remove('ggclosed');
 	e.classList.add('ggopen');
 	if (recurse && gr.smembers)
-		for (const m of gr.smembers) this.#doopen(m, recurse);
+		for (const m of gr.smembers) this.doopen(m, recurse);
 	if (gr.fmembers) {
 		for (const m of gr.fmembers) {
 			if (m.entry?.remove) m.entry.remove();
@@ -21114,7 +20924,7 @@ addallimgsi(gr) {
 			list = this.untypedclasses;
 		}
 		this.uidirty = false;
-		for (const xgr of list.sort((a,b) => this.#mysort(a, b))) {
+		for (const xgr of list.sort((a,b) => this.mysort(a, b))) {
 			const xe = xgr.entry;
 			let rect = xe.getBoundingClientRect();
 			if ((rect.top > window.innerHeight || rect.bottom <= 0 || rect.width <= 0) && this.preloadedimgs++ >= this.maxcache)
@@ -21164,18 +20974,18 @@ topreccheck(force) {
 	this.#updateselections();
 }
 /* TopApp: visual browser: text and controls on top of a group */
-#buildtitle(gr) {
+buildtitle(gr) {
 	let t = '', s = gr.title;
 	const d = document.querySelector('#titlet').content.querySelector('.titletop').cloneNode(true);
 	const pluss = d.querySelector('.ggttp');
 	pluss.onclick = () => {
-		this.#doopen(gr, false);
+		this.doopen(gr, false);
 	};
 	const pluspluss = d.querySelector('.ggttpp');
 	if (pluspluss && gr.haschildren) {
 		pluspluss.innerHTML = '[++]';
 		pluspluss.onclick = () => {
-			this.#doopen(gr, true);
+			this.doopen(gr, true);
 		};
 	}
 	const minuss = d.querySelector('.ggttm');
@@ -21215,48 +21025,6 @@ topreccheck(force) {
 		ig.classList.add('igtype');
 		gr.entry.append(ig);
 	}
-}
-/* TopApp: visual browser: add classes upwards */
-#higherclasses(arr, len, curlevel) {
-	for (const u of arr.filter((o) => o.level === curlevel)) {
-		if (u.ischild) continue;
-		if (arr.filter((o) => u.title.substring(0,len) === o.title.substring(0,len)).length === 1) {
-			u.level --;
-			u.title = u.title.substring(0,len);
-			u.entry.classList.add('gl' + u.level);
-			u.entry.classList.remove('gl' + (u.level + 1));
-		} else if (arr.findIndex((o) => o.title === u.title.substring(0,len)) === -1) {
-			const cl = {
-				title: u.title.substring(0,len),
-				level: curlevel - 1,
-				smembers: []
-			};
-			cl.entry = document.createElement('div');
-			const ce = cl.entry;
-			ce.id = 'gg_' + u.title.substring(0,len) + '_X';
-			ce.classList.add('gg');
-			ce.classList.add('ggclosed');
-			ce.classList.add('gl' + (curlevel - 1));
-			for (const x of arr.filter((o) => u.title.substring(0,len) === o.title.substring(0,len))) {
-				x.ischild = true;
-				// todo: sort when open
-				cl.smembers.push(x);
-				cl.haschildren = true;
-				arr.splice(arr.findIndex((o) => o.title === x.title),1);
-			}
-			arr.push(cl);
-		}
-	}
-	// 5	h	y => again ->
-	// 4	h  	y => again
-	// 5	h	m => again 1x
-	// 5    d   y => again 1x
-	// 5    d   m ready
-	// (5	d	d	 not called at all)
-	if (curlevel === 5 && ((this.maxgrp === 'y') || ((this.mingrp === 'h')) && (this.maxgrp === 'm')))
-		this.#higherclasses(arr, len - 3, 4);
-	else if (curlevel === 4 && (this.maxgrp === 'y') && (this.mingrp === 'h'))
-		this.#higherclasses(arr, len - 3, 3);
 }
 /* visual browser: return count of files in class */
 #countfiles(cla) {
@@ -23080,6 +22848,211 @@ remmodkeyev() {
 }
 /* *************************************** Top class for App E N D *************************************** */
 /* *************************************** Browser specifics *************************************** */
+/* TopApp: visual browser: recursive texts */
+#buildtitlerec(el) {
+	this.buildtitle(el);
+	if (el.smembers === null || el.smembers ===  undefined) return;
+	for (const e of el.smembers) {
+		this.#buildtitlerec(e);
+	}
+}
+/* TopApp: visual browser: add classes upwards */
+#higherclasses(arr, len, curlevel) {
+	for (const u of arr.filter((o) => o.level === curlevel)) {
+		if (u.ischild) continue;
+		if (arr.filter((o) => u.title.substring(0,len) === o.title.substring(0,len)).length === 1) {
+			u.level --;
+			u.title = u.title.substring(0,len);
+			u.entry.classList.add('gl' + u.level);
+			u.entry.classList.remove('gl' + (u.level + 1));
+		} else if (arr.findIndex((o) => o.title === u.title.substring(0,len)) === -1) {
+			const cl = {
+				title: u.title.substring(0,len),
+				level: curlevel - 1,
+				smembers: []
+			};
+			cl.entry = document.createElement('div');
+			const ce = cl.entry;
+			ce.id = 'gg_' + u.title.substring(0,len) + '_X';
+			ce.classList.add('gg');
+			ce.classList.add('ggclosed');
+			ce.classList.add('gl' + (curlevel - 1));
+			for (const x of arr.filter((o) => u.title.substring(0,len) === o.title.substring(0,len))) {
+				x.ischild = true;
+				// todo: sort when open
+				cl.smembers.push(x);
+				cl.haschildren = true;
+				arr.splice(arr.findIndex((o) => o.title === x.title),1);
+			}
+			arr.push(cl);
+		}
+	}
+	// 5	h	y => again ->
+	// 4	h  	y => again
+	// 5	h	m => again 1x
+	// 5    d   y => again 1x
+	// 5    d   m ready
+	// (5	d	d	 not called at all)
+	if (curlevel === 5 && ((this.maxgrp === 'y') || ((this.mingrp === 'h')) && (this.maxgrp === 'm')))
+		this.#higherclasses(arr, len - 3, 4);
+	else if (curlevel === 4 && (this.maxgrp === 'y') && (this.mingrp === 'h'))
+		this.#higherclasses(arr, len - 3, 3);
+}
+/* browserhelper: visual browser: prepare the browser display, group the stuff */
+aftercheck(defclosed) {
+	//if (this.untypedclasses[0].title) return;
+	for (const x of this.untypedclasses) {
+		if (x.title) continue;
+		const cl = {
+			title: x,
+			level: 5,
+			fmembers: [],
+			smembers: [],
+			entry: undefined
+		};
+		cl.entry = document.createElement('div');
+		cl.entry.id = 'gg_' + x + '_X';
+		cl.entry.classList.add('gg');
+		cl.entry.classList.add(defclosed ? 'ggclosed' : 'ggopen');
+		cl.entry.classList.add('gl5');
+		for (const y of this.imbeles) {
+			if (x === y.ts)
+			{
+				// todo: sort
+				cl.fmembers.push(y);
+				y.inuntyped = true;
+			}
+		}
+		this.untypedclasses.splice(this.untypedclasses.findIndex(v => v === x), 1, cl);
+	}
+	for (const x of this.typedclasses) {
+		if (x.title) continue;
+		const cl = {
+			title: x,
+			level: 5,
+			fmembers: [],
+			smembers: [],
+			entry: undefined
+		};
+		cl.entry = document.createElement('div');
+		cl.entry.id = 'gg_' + x + '_X';
+		cl.entry.classList.add('gg');
+		cl.entry.classList.add(defclosed ? 'ggclosed' : 'ggopen');
+		cl.entry.classList.add('gl5');
+		for (const y of this.imbeles) {
+			if (x === y.type + y.ts)
+			{
+				// todo: sort
+				cl.fmembers.push(y);
+				y.intyped = true;
+			}
+		}
+		this.typedclasses.splice(this.typedclasses.findIndex(v => v === x), 1, cl);
+	}
+	if (this.mingrp === undefined || this.mingrp === 'h') {
+		this.#higherclasses(this.untypedclasses, 10, 5);
+		this.#higherclasses(this.typedclasses, 13, 5);
+	} else if (this.mingrp !== this.maxgrp) {
+		this.#higherclasses(this.untypedclasses, 7, 5);
+		this.#higherclasses(this.typedclasses, 10, 5);
+	}
+	// top type classes here
+	for (const u of this.typedclasses) {
+		if (u.ischild) continue;
+		if (this.typedclasses.filter((o) => u.title.substring(0,3) === o.title.substring(0,3)).length === 1) {
+			u.level --;
+			u.entry.classList.add('gl' + u.level);
+			u.entry.classList.remove('gl' + (u.level + 1));
+		} else if (this.typedclasses.findIndex((o) => o.title === u.title.substring(0,3)) === -1) {
+			const cl = {
+				title: u.title.substring(0,3),
+				level: 1,
+				smembers: [],
+				fmembers: [],
+				entry: undefined
+			};
+			cl.entry = document.createElement('div');
+			cl.entry.id = 'gg_' + u.title.substring(0,3) + '_X';
+			cl.entry.classList.add('gg');
+			cl.entry.classList.add(defclosed ? 'ggclosed' : 'ggopen');
+			cl.entry.classList.add('gl1');
+			for (const x of this.typedclasses.filter((o) => u.title.substring(0,3) === o.title.substring(0,3))) {
+				x.ischild = true;
+				// todo: sort when display
+				cl.smembers.push(x);
+				cl.haschildren = true;
+				this.typedclasses.splice(this.typedclasses.findIndex((o) => o.title === x.title),1);
+			}
+			this.typedclasses.push(cl);
+		}
+	}
+	// non-typed upgraded to gl1, unless only one
+	if (this.untypedclasses.length === 1 && this.untypedclasses[0].smembers && this.untypedclasses[0].smembers.length > 0) {
+		const t = this.untypedclasses[0];
+		this.untypedclasses.splice(0,1);
+		for (const s of t.smembers) {
+			s.entry.classList.add('gl1');
+			this.untypedclasses.push(s);
+		}
+	} else
+		for (const s of this.untypedclasses) s.entry.classList.add('gl1');
+	// build title elements
+	for (const s of this.untypedclasses) this.#buildtitlerec(s);
+	for (const s of this.typedclasses) this.#buildtitlerec(s);
+	this.imgsdirty = false;
+	document.getElementById('sbytype').disabled = (this.typedclasses.length === 1);
+	if (document) {
+		document.getElementById('brnsel').innerHTML = '0';
+		document.getElementById('brntot').innerHTML = '' + this.imbeles.length;
+		if (ImBCBase.progname?.startsWith('imbapp')) this.showmain();
+		this.buildtree(defclosed);
+	}
+}
+/* browserhelper: make display empty */
+cleartree() {
+	// first, make everything empty
+	for (const e of this.untypedclasses) {
+		e.entry.remove();
+		//this.#doclose(e, true);
+	}
+	for (const e of this.typedclasses) {
+		e.entry.remove();
+		//this.#doclose(e, true);
+	}
+	for (const d of this.imbeles) {
+		if (undefined !== d.entry && null !== d.entry && d.entry.remove)
+			d.entry.remove();
+	}
+}
+/* browserhelper: visual browser: build ordered lists */
+buildtree(defclosed) {
+	// first, make everything empty
+	this.cleartree();
+
+	// now, sort and add
+	let list;
+	if (document.getElementById('sbytype').checked) {
+		list = this.typedclasses;
+	}
+	else {
+		list = this.untypedclasses;
+	}
+	for (const e of list.sort((a,b) => this.mysort(a, b))) {
+		document.getElementById('browser').append(e.entry);
+		this.#addsorted(e);
+		if (!defclosed) this.doopen(e, true);
+	}
+	this.startloadimg();
+	this.xlateall();
+}
+/* ImBCHtml: visual browser: add sorted recursively */
+#addsorted(el) {
+	if (el.smembers === null || el.smembers ===  undefined) return;
+	for (const e of el.smembers.sort((a,b) => this.mysort(a, b))) {
+		this.#addsorted(e);
+		el.entry.append(e.entry);
+	}
+}
 /* Browserhelper: browserdisplay: put last message viewable */
 showlastmsg() {
 	const ll = document.querySelector('#endoflog');
