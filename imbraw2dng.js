@@ -820,7 +820,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.0.3_ff33b3e", // actually const // VERSION EYECATCHER
+version: "V6.0.3_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -1284,7 +1284,7 @@ earliestraw='9999';
 latestraw='0000';
 
 // [0]: !=0 => use separate localstorage namespace from imbraw2dng
-// [1]: 1 => use imbweb = 'http://192.168.8.101:8080'; 2 => use imbweb = 'http://192.168.0.72:8080';
+// [1]: imbweb: for non-emulator: 1 => use = 'http://192.168.8.101:8080'; 2 => use = 'http://192.168.0.72:8080'; android emulator: !=0 => use 10.0.2.2 (host connection)
 // [2]: !=0 => use longer startup timeout, debug versio
 expflags = [ 0, 0, 0, 0, 0 ];
 
@@ -18626,6 +18626,23 @@ handleone(orientation) {
 		let contents = evt.target.result;
 		if (contents.buffer) contents = contents.buffer;
 		let view = new DataView(contents);
+		/*if (this.expflags[3] !== 0 && typ0 === 5) {
+			let nnv = new ArrayBuffer(w * h * 3 / 2);
+			let nvv = new DataView(nnv);
+			for (let j=0; j< (w*h*3)/2; j+=6) {
+				let a = view.getUint8(j);
+				let b = view.getUint8(j+1);
+				let c = view.getUint8(j+2);
+				nvv.setUint8(j, view.getUint8(j+3));
+				nvv.setUint8(j+1, view.getUint8(j+4));
+				nvv.setUint8(j+2, view.getUint8(j+5));
+				nvv.setUint8(j+3, a);
+				nvv.setUint8(j+4, b);
+				nvv.setUint8(j+5, c);
+			}
+			contents = nnv;
+			view = nvv; //new DataView(nnv);
+		}*/
 		let targbits = 8;
 		if (typ === 5)
 			targbits = 12;
@@ -19205,6 +19222,20 @@ handle1imb(url, time) {
 		this.appmsgxl(false, 'words.warning');
 		this.appmsgxl(0, 'onimback.strangename', rawname);
 	}
+}
+/* ImBCBase : parse expert flags */
+parseexpflags(flags) {
+	for (let j=0; j < this.expflags.length; j++) {
+		this.expflags[j] = flags % 3;
+		flags = Math.floor(flags / 3);
+	}
+	if (this.expflags[2] > 0) {
+		this.debugflag = true;
+		if (this.netwworker) this.netwworker.postMessage({ cmd: 'setdbg' });
+		for (let i=0; i<this.previewworkers.length; i++)
+			this.previewworkers[i].w.postMessage({ cmd: 'setdbg' });
+	}
+	//else this.debugflag = false;
 }
 /* * * ************************************* Backward helper STUFF *************************************** */
 /* ImBCBackw: backward: handle dng like raw */
@@ -19805,6 +19836,13 @@ parseconfig(data) {
 	else this.withpreview = true;
 	if (undefined !== d.cr) this.copyright = d.cr;
 	if (undefined !== d.at) this.artist = d.at;
+	if (undefined !== d.ef) {
+		this.parseexpflags(parseInt(d.ef));
+		if (this.expflags[1] === 1)
+			this.imbweb = 'http://192.168.8.101:8080';
+		else if (this.expflags[1] === 2)
+			this.imbweb = 'http://192.168.0.72:8080';
+	}
 	if (d.l) this.findlang(d.l);
 	if (d.d) this.outdir = d.d;
 	if (d.f) this.ovwout = true;
@@ -20002,10 +20040,6 @@ startnode(notfirst) {
 					flagging = 0;
 					this.copyright = v;
 				}
-				else if (flagging === 6) {
-					flagging = 0;
-					this.artist = v;
-				}
 				else if (flagging === 5) {
 					flagging = 0;
 					let tssep = v.indexOf('=');
@@ -20038,6 +20072,18 @@ startnode(notfirst) {
 							this.corrdelta = d1 - d2;
 						}
 					}
+				}
+				else if (flagging === 6) {
+					flagging = 0;
+					this.artist = v;
+				}
+				else if (flagging === 7) {
+					flagging = 0;
+					this.parseexpflags(parseInt(v));
+					if (this.expflags[1] === 1)
+						this.imbweb = 'http://192.168.8.101:8080';
+					else if (this.expflags[1] === 2)
+						this.imbweb = 'http://192.168.0.72:8080';
 				}
 				else if (v.substring(0,4)==='-CSV' && this.debugflag) {
 					for (const el of Object.keys(mytexts))
@@ -20151,6 +20197,17 @@ startnode(notfirst) {
 				}
 				else if (v ==='-r') {
 					this.renamefiles = true;
+				}
+				else if (v.substring(0,3) ==='-ef') {
+					if (v.substring(3).length === 0)
+						flagging = 7;
+					else {
+						this.parseexpflags(parseInt(v));
+						if (this.expflags[1] === 1)
+							this.imbweb = 'http://192.168.8.101:8080';
+						else if (this.expflags[1] === 2)
+							this.imbweb = 'http://192.168.0.72:8080';
+					}
 				}
 				else if (v ==='-e') {
 					this.neutral = true;

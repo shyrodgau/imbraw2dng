@@ -1151,7 +1151,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.0.3_ff33b3e", // actually const // VERSION EYECATCHER
+version: "V6.0.3_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -1615,7 +1615,7 @@ earliestraw='9999';
 latestraw='0000';
 
 // [0]: !=0 => use separate localstorage namespace from imbraw2dng
-// [1]: 1 => use imbweb = 'http://192.168.8.101:8080'; 2 => use imbweb = 'http://192.168.0.72:8080';
+// [1]: imbweb: for non-emulator: 1 => use = 'http://192.168.8.101:8080'; 2 => use = 'http://192.168.0.72:8080'; android emulator: !=0 => use 10.0.2.2 (host connection)
 // [2]: !=0 => use longer startup timeout, debug versio
 expflags = [ 0, 0, 0, 0, 0 ];
 
@@ -18957,6 +18957,23 @@ handleone(orientation) {
 		let contents = evt.target.result;
 		if (contents.buffer) contents = contents.buffer;
 		let view = new DataView(contents);
+		/*if (this.expflags[3] !== 0 && typ0 === 5) {
+			let nnv = new ArrayBuffer(w * h * 3 / 2);
+			let nvv = new DataView(nnv);
+			for (let j=0; j< (w*h*3)/2; j+=6) {
+				let a = view.getUint8(j);
+				let b = view.getUint8(j+1);
+				let c = view.getUint8(j+2);
+				nvv.setUint8(j, view.getUint8(j+3));
+				nvv.setUint8(j+1, view.getUint8(j+4));
+				nvv.setUint8(j+2, view.getUint8(j+5));
+				nvv.setUint8(j+3, a);
+				nvv.setUint8(j+4, b);
+				nvv.setUint8(j+5, c);
+			}
+			contents = nnv;
+			view = nvv; //new DataView(nnv);
+		}*/
 		let targbits = 8;
 		if (typ === 5)
 			targbits = 12;
@@ -19536,6 +19553,20 @@ handle1imb(url, time) {
 		this.appmsgxl(false, 'words.warning');
 		this.appmsgxl(0, 'onimback.strangename', rawname);
 	}
+}
+/* ImBCBase : parse expert flags */
+parseexpflags(flags) {
+	for (let j=0; j < this.expflags.length; j++) {
+		this.expflags[j] = flags % 3;
+		flags = Math.floor(flags / 3);
+	}
+	if (this.expflags[2] > 0) {
+		this.debugflag = true;
+		if (this.netwworker) this.netwworker.postMessage({ cmd: 'setdbg' });
+		for (let i=0; i<this.previewworkers.length; i++)
+			this.previewworkers[i].w.postMessage({ cmd: 'setdbg' });
+	}
+	//else this.debugflag = false;
 }
 /* * * ************************************* Backward helper STUFF *************************************** */
 /* ImBCBackw: backward: handle dng like raw */
@@ -25208,20 +25239,6 @@ checkchecks() {
 			this.previewworkers[i].w.postMessage({ cmd: 'constwb', constwb: this.constwb });
 	const incdcp = document.getElementById('incdcp');
 	this.incdcp = (incdcp !== null && incdcp.checked);
-}
-/* TopApp : parse expert flags */
-parseexpflags(flags) {
-	for (let j=0; j < this.expflags.length; j++) {
-		this.expflags[j] = flags % 3;
-		flags = Math.floor(flags / 3);
-	}
-	if (this.expflags[2] > 0) {
-		this.debugflag = true;
-		if (this.netwworker) this.netwworker.postMessage({ cmd: 'setdbg' });
-		for (let i=0; i<this.previewworkers.length; i++)
-			this.previewworkers[i].w.postMessage({ cmd: 'setdbg' });
-	}
-	else this.debugflag = false;
 }
 magmd(ev) {
 	const mpb = document.getElementById('magpicback');
