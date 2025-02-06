@@ -975,7 +975,6 @@ class TIFFOut {
 /* Indentation out */
 #ifds = [];
 #cameraprofiles = [];
-#bincameraprofiles = [];
 #currentifd = null;
 /* TIFFOut: add an ifd  (will set this as current IFD) */
 addIfd(issub) {
@@ -1053,12 +1052,10 @@ static writeshorttoout(out, num, off) {
 getData() {
 	let partlens = this.#ifds.map(x => (100000+x.getOffset())).reduce((sum, a) => (sum + a), 0);
 	partlens += this.#cameraprofiles.map(() => 1000000).reduce((sum, a) => (sum + a), 0);
-	partlens += this.#bincameraprofiles.map(x => x.length).reduce((sum, a) => (sum + a), 0);
 	let data = new Uint8Array(partlens + 1000000);
-	if ((this.#bincameraprofiles.length + this.#cameraprofiles.length) > 0) {
+	if (this.#cameraprofiles.length > 0) {
 		let camprofarr = [];
 		for (let j=0; j<this.#cameraprofiles.length; j++) camprofarr.push(1);
-		for (let j=0; j<this.#bincameraprofiles.length; j++) camprofarr.push(1);
 		this.#ifds[0].addEntry(50933, 'LONG', camprofarr); /* camera profiles pointer */
 	}
 	TIFFOut.writeshorttoout(data, 0x4949, 0); // magics
@@ -1092,15 +1089,6 @@ getData() {
 			TIFFOut.writeinttoout(data, lastlen, this.#ifds[0].camprofptr + (4*l));
 			let cpd = this.#getCamProfData(this.#cameraprofiles[l]);
 			data.set(cpd, lastlen);
-			lastlen += cpd.length;
-		}
-	}
-	if (-1 !== this.#ifds[0].camprofptr && this.#bincameraprofiles.length > 0) {
-		for (let l=0; l<this.#bincameraprofiles.length; l++) {
-			TIFFOut.writeinttoout(data, lastlen, this.#ifds[0].camprofptr + (4*l));
-			let cpd = this.#bincameraprofiles[l];
-			for (let k=0; k<cpd.length; k++)
-				data[lastlen+k] = cpd[k];
 			lastlen += cpd.length;
 		}
 	}
@@ -1151,7 +1139,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.0.3_@_d_e_v", // actually const // VERSION EYECATCHER
+version: "V6.0.4_665bc1d", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -24866,15 +24854,17 @@ settime() {
 	const s = d.getSeconds();
 	this.custcmdB(3005, 'docstatus', 'str=' + d.getFullYear() + '-' + ((m < 9)?'0':'') + (m+1) + '-' + ((y < 10)?'0':'') + y, (rc) => {
 		if (!rc) {
-			this.custcmd(3006, 'docstatus', 'str=' + ((h < 10)?'0':'') + h + ':' + ((i < 10)?'0':'') + i + ':' + ((s < 10)?'0':'') + s, (rc) => {
-				if (!rc) {
-					document.getElementById('genericok').style['border-color'] = 'green';
-					document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('app.okay'));
-				} else {
-					document.getElementById('genericok').style['border-color'] = 'red';
-					document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.menu.settime'));
-				}
-				this.showmsg();
+			this.custcmd(3017, 'docstatus', null, () => {
+				this.custcmd(3006, 'docstatus', 'str=' + ((h < 10)?'0':'') + h + ':' + ((i < 10)?'0':'') + i + ':' + ((s < 10)?'0':'') + s, (rc) => {
+					if (!rc) {
+						document.getElementById('genericok').style['border-color'] = 'green';
+						document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('app.okay'));
+					} else {
+						document.getElementById('genericok').style['border-color'] = 'red';
+						document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.menu.settime'));
+					}
+					this.showmsg();
+				});
 			});
 		} else {
 			document.getElementById('genericok').style['border-color'] = 'red';
