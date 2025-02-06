@@ -18960,23 +18960,6 @@ handleone(orientation) {
 		let contents = evt.target.result;
 		if (contents.buffer) contents = contents.buffer;
 		let view = new DataView(contents);
-		/*if (this.expflags[3] !== 0 && typ0 === 5) {
-			let nnv = new ArrayBuffer(w * h * 3 / 2);
-			let nvv = new DataView(nnv);
-			for (let j=0; j< (w*h*3)/2; j+=6) {
-				let a = view.getUint8(j);
-				let b = view.getUint8(j+1);
-				let c = view.getUint8(j+2);
-				nvv.setUint8(j, view.getUint8(j+3));
-				nvv.setUint8(j+1, view.getUint8(j+4));
-				nvv.setUint8(j+2, view.getUint8(j+5));
-				nvv.setUint8(j+3, a);
-				nvv.setUint8(j+4, b);
-				nvv.setUint8(j+5, c);
-			}
-			contents = nnv;
-			view = nvv; //new DataView(nnv);
-		}*/
 		let targbits = 8;
 		if (typ === 5)
 			targbits = 12;
@@ -20228,10 +20211,7 @@ class ImBCHtml extends ImBCHtmlOut {
 /* Indentation out */
 rotphases = [ '-' , '/', '|', '\\', '=', '\\', '|', '/' ]; // actually const
 writestream = null;
-zipdata = null;
 zip = null;
-zipname = '';
-ziperr = false;
 netwworker = null;
 maxnpvw = 2;
 previewworkers = [];
@@ -21570,10 +21550,6 @@ dirtysettings(which) {
 	else if (which === 'at') {
 		this.artist = document.getElementById('artist')?.value?.length ? document.getElementById('artist')?.value : '';
 		if (document.getElementById('artist')) this.savesettings('at');
-	}
-	else if (which === 'zip') {
-		if (document.getElementById('usezip')) this.savesettings('zip');
-		if (document.getElementById('usezipdest') && window.showSaveFilePicker) this.savesettings('zipdest');
 	}
 	else
 		this.savesettings();
@@ -23649,16 +23625,6 @@ const mytexts = { // actually const
 				en: 'Added picture $$0',
 				de: 'Bild $$0 hinzugefügt',
 				ja: '画像を追加しました $$0'
-			}
-		},
-		usezip: {
-			de: 'Nicht mehrere Dateien einzeln, sondern in wenigen ZIP Archiven herunteladen.',
-			en: 'Do not use several single downloads, but in fewer ZIP archives.',
-			ja: '複数のファイルを個別にダウンロードするのではなく、いくつかの ZIP アーカイブとしてダウンロードしてください。',
-			choosedest: {
-				de: 'Ziel auswählen',
-				en: 'Choose destination',
-				ja: '目的地を選択'
 			}
 		},
 		newmsg: {

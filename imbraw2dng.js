@@ -18630,23 +18630,6 @@ handleone(orientation) {
 		let contents = evt.target.result;
 		if (contents.buffer) contents = contents.buffer;
 		let view = new DataView(contents);
-		/*if (this.expflags[3] !== 0 && typ0 === 5) {
-			let nnv = new ArrayBuffer(w * h * 3 / 2);
-			let nvv = new DataView(nnv);
-			for (let j=0; j< (w*h*3)/2; j+=6) {
-				let a = view.getUint8(j);
-				let b = view.getUint8(j+1);
-				let c = view.getUint8(j+2);
-				nvv.setUint8(j, view.getUint8(j+3));
-				nvv.setUint8(j+1, view.getUint8(j+4));
-				nvv.setUint8(j+2, view.getUint8(j+5));
-				nvv.setUint8(j+3, a);
-				nvv.setUint8(j+4, b);
-				nvv.setUint8(j+5, c);
-			}
-			contents = nnv;
-			view = nvv; //new DataView(nnv);
-		}*/
 		let targbits = 8;
 		if (typ === 5)
 			targbits = 12;
