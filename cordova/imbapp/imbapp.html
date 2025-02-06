@@ -18823,7 +18823,10 @@ static async mydecode(data, act) {
 	   act(v);
 	});
 }
-
+/* ImBCBase: uppercase last four chars */
+static ucex(name) {
+	return name.substring(name.length - 4).toUpperCase();
+}
 /* ImBCBase: actual processing function for one file */
 handleone(orientation) {
 	let f = (this.debugflag && this.useraw) ? this.useraw : this.allfiles[this.actnum];
@@ -18864,8 +18867,8 @@ handleone(orientation) {
 	let inname = rawname;
 	let { date, datestr, nn, newname } = ImBCBase.nametotime(rawname, this.corrdelta);
 	if (this.corrdelta && newname?.length) rawname = newname;
-	if (rawname.substring(rawname.length - 4).toUpperCase() !== '.RAW') {
-		if (ImBCBase.progname.startsWith('imbapp') && f.imbackextension && rawname.substring(rawname.length - 4).toUpperCase() !== '.JPG') {
+	if (ImBCBase.ucex(rawname) !== '.RAW') {
+		if (ImBCBase.progname.startsWith('imbapp') && f.imbackextension && ImBCBase.ucex(rawname) !== '.JPG') {
 			this.mappx(0, 'process.notraw',inname);
 			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), f, f.name);
 			return;
@@ -18883,7 +18886,7 @@ handleone(orientation) {
 			for (let j=0; j<contents.byteLength; j++) {
 				out[j] = view.getUint8(j);
 			}
-			if (rawname.substring(rawname.length - 4).toUpperCase() === '.JPG') this.xexif(rawname, view, datestr);
+			if (ImBCBase.ucex(rawname) === '.JPG') this.xexif(rawname, view, datestr);
 			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out, f.name);
 		}
 		reader.onerror = (evt) => {
@@ -19504,7 +19507,7 @@ handle1imb(url, time) {
 		if (ii !== -1 && this.iinf[ii].d !== undefined)
 			newimbele.desc = this.iinf[ii].d;
 	}
-	if (rawname.substring(rawname.length -4).toUpperCase() === '.RAW') {
+	if (ImBCBase.ucex(rawname) === '.RAW') {
 		if (null !== timest) {
 			if (timest < this.earliestraw) this.earliestraw = timest;
 			if (timest > this.latestraw) this.latestraw = timest;
@@ -19519,7 +19522,7 @@ handle1imb(url, time) {
 		}
 		if (this.imbeles) this.imbeles.push(newimbele);
 	}
-	else if (['.JPG','JPEG'].find(x => x === rawname.substring(rawname.length -4).toUpperCase())) {
+	else if (['.JPG','JPEG'].find(x => x === ImBCBase.ucex(rawname))) {
 		if (null !== timest) {
 			if (timest < this.earliestjpg) this.earliestjpg = timest;
 			if (timest > this.latestjpg) this.latestjpg = timest;
@@ -19534,7 +19537,7 @@ handle1imb(url, time) {
 		}
 		if (this.imbeles) this.imbeles.push(newimbele);
 	}
-	else if (rawname.substring(rawname.length -4).toUpperCase() === '.MP4') {
+	else if (ImBCBase.ucex(rawname) === '.MP4') {
 		if (null !== timest) {
 			if (timest < this.earliestmov) this.earliestmov = timest;
 			if (timest > this.latestmov) this.latestmov = timest;
@@ -19699,7 +19702,7 @@ handleoneback(fx) {
 		};
 	}
 	let rawname = ImBCBase.basename(f.name);
-	if (rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
+	if (ImBCBase.ucex(rawname) === '.DNG') {
 		try {
 			this.parseDng(f,
 				(name, fx) => {
@@ -19720,7 +19723,7 @@ handleoneback(fx) {
 		}
 		return;
 	}
-	else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
+	else if (ImBCBase.ucex(rawname) !== '.RAW') {
 		this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
 		this.appmsg('Seems not to be DNG: ' + f.name, true);
 		this.stats.error++;
@@ -22729,7 +22732,7 @@ initworker(withnet) {
 	}
 	for (let i=0; i < this.maxnpvw; i++) {
 		if (this.previewworkers.length > i) continue;
-    	this.previewworkers.push({ w: new Worker(URL.createObjectURL(new Blob([scripttextg, document.querySelector("script[type='text/js-previewworker']").textContent], { type: "text/javascript" })), {name:'myprevworker'}), busy: false});
+    	this.previewworkers.push({ w: new Worker(URL.createObjectURL(new Blob([scripttextg, document.querySelector("script[type='text/js-previewworker']").textContent], { type: "text/javascript" })), {name:'myprevworker'+i}), busy: false});
 		this.previewworkers[i].w.postMessage({ cmd: 'constwb', constwb: this.constwb });
 		this.previewworkers[i].w.postMessage({ cmd:'setdbg'});
     	this.previewworkers[i].w.onmessage = (m) => {
@@ -22765,7 +22768,7 @@ initworker(withnet) {
 /* TopApp: browserdisplay: create on previewworker */
 pvw(cmd) {
 	let found = false;
-	for (let i=0; i<this.maxnpvw; i++) {
+	for (let i=0; i<this.previewworkers.length; i++) {
 		if (!this.previewworkers[i].busy) {
 			this.previewworkers[i].busy = true;
 			this.previewworkers[i].w.postMessage(cmd);
@@ -24250,8 +24253,10 @@ custcmd(cmd, type, restargs, cb) {
 		if (cb) cb({ ok: false, cmd: 'custcmd', rc: -1 });
 		return;
 	}
-	this.workerstate.push({ cmd: 'custcmd', cb: cb, type: type, cid: this.cid });
-	if (this.netwworker) this.netwworker.postMessage({ cmd: 'custcmd', c:cmd, type: type, rest: restargs, cid: this.cid++ });
+	if (this.netwworker) {
+		this.workerstate.push({ cmd: 'custcmd', cb: cb, type: type, cid: this.cid });
+		this.netwworker.postMessage({ cmd: 'custcmd', c:cmd, type: type, rest: restargs, cid: this.cid++ });
+	}
 }
 /* TopApp: command handler BLOCKING */
 custcmdB(cmd, type, restargs, cb) {
@@ -24894,7 +24899,7 @@ takephoto() {
 					return;
 				}
 				const r = ImBCBase.basename(n);
-				if (r.substring(r.length -4).toUpperCase() === '.JPG') {
+				if (ImBCBase.ucex(r) === '.JPG') {
 					document.getElementById('takejpg').src = this.imbweb + globalfxns.adjurl(n) +'?custom=1&cmd=4001';
 					document.getElementById('takejpg').style['display'] = '';
 					document.getElementById('takenone').style['display'] = 'none';
@@ -25069,7 +25074,7 @@ resolver(f, onok, onerr) {
 	  if ((cachehit = this.findcache(f.name ? f.name : f))) {
 	  	  onok(f.name ? f.name : f, cachehit.reader);
 	  }
-	  else {
+	  else if (this.netwworker) {
 		setTimeout(() => {
 			  this.workerstate.push({ cmd: 'resolveandhandle', okcb: (d, fx) => {
 					this.allfiles[this.actnum] = fx;
@@ -25083,6 +25088,7 @@ resolver(f, onok, onerr) {
 			  // add cache
 		}, 10);
 	  }
+	  else onerr(f.name);
 }
 /* TopApp: wrapper for zip output */
 starthandleone() {
@@ -25720,9 +25726,9 @@ xl1(el) {
 			to.nonewerr = true;
 			this.loadnextimg();
 		};
-		if (to.imbackintension && ImBCBase.progname.startsWith('imbapp') && to.type === 'JPG' && to.imbackintension.readAsDataURL) {
+		if (to.imbackintension && ImBCBase.progname.startsWith('imbapp') && to.type === 'JPG' && to.imbackintension.readAsDataURL && this.pvw) {
 			this.workerstate.push({ cmd: 'readjpg', targ: to, ele: e, cid: this.cid});
-			if (this.pvw) this.pvw({ cmd: 'readjpg', f: to.imbackintension, cid: this.cid++});
+			this.pvw({ cmd: 'readjpg', f: to.imbackintension, cid: this.cid++});
 			return;
 		}
 		else if (to.imbackintension && ImBCBase.progname.startsWith('imbapp') && to.type === 'JPG') {

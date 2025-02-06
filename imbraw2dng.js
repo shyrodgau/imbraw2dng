@@ -18492,7 +18492,10 @@ static async mydecode(data, act) {
 	   act(v);
 	});
 }
-
+/* ImBCBase: uppercase last four chars */
+static ucex(name) {
+	return name.substring(name.length - 4).toUpperCase();
+}
 /* ImBCBase: actual processing function for one file */
 handleone(orientation) {
 	let f = (this.debugflag && this.useraw) ? this.useraw : this.allfiles[this.actnum];
@@ -18533,8 +18536,8 @@ handleone(orientation) {
 	let inname = rawname;
 	let { date, datestr, nn, newname } = ImBCBase.nametotime(rawname, this.corrdelta);
 	if (this.corrdelta && newname?.length) rawname = newname;
-	if (rawname.substring(rawname.length - 4).toUpperCase() !== '.RAW') {
-		if (ImBCBase.progname.startsWith('imbapp') && f.imbackextension && rawname.substring(rawname.length - 4).toUpperCase() !== '.JPG') {
+	if (ImBCBase.ucex(rawname) !== '.RAW') {
+		if (ImBCBase.progname.startsWith('imbapp') && f.imbackextension && ImBCBase.ucex(rawname) !== '.JPG') {
 			this.mappx(0, 'process.notraw',inname);
 			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), f, f.name);
 			return;
@@ -18552,7 +18555,7 @@ handleone(orientation) {
 			for (let j=0; j<contents.byteLength; j++) {
 				out[j] = view.getUint8(j);
 			}
-			if (rawname.substring(rawname.length - 4).toUpperCase() === '.JPG') this.xexif(rawname, view, datestr);
+			if (ImBCBase.ucex(rawname) === '.JPG') this.xexif(rawname, view, datestr);
 			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out, f.name);
 		}
 		reader.onerror = (evt) => {
@@ -19173,7 +19176,7 @@ handle1imb(url, time) {
 		if (ii !== -1 && this.iinf[ii].d !== undefined)
 			newimbele.desc = this.iinf[ii].d;
 	}
-	if (rawname.substring(rawname.length -4).toUpperCase() === '.RAW') {
+	if (ImBCBase.ucex(rawname) === '.RAW') {
 		if (null !== timest) {
 			if (timest < this.earliestraw) this.earliestraw = timest;
 			if (timest > this.latestraw) this.latestraw = timest;
@@ -19188,7 +19191,7 @@ handle1imb(url, time) {
 		}
 		if (this.imbeles) this.imbeles.push(newimbele);
 	}
-	else if (['.JPG','JPEG'].find(x => x === rawname.substring(rawname.length -4).toUpperCase())) {
+	else if (['.JPG','JPEG'].find(x => x === ImBCBase.ucex(rawname))) {
 		if (null !== timest) {
 			if (timest < this.earliestjpg) this.earliestjpg = timest;
 			if (timest > this.latestjpg) this.latestjpg = timest;
@@ -19203,7 +19206,7 @@ handle1imb(url, time) {
 		}
 		if (this.imbeles) this.imbeles.push(newimbele);
 	}
-	else if (rawname.substring(rawname.length -4).toUpperCase() === '.MP4') {
+	else if (ImBCBase.ucex(rawname) === '.MP4') {
 		if (null !== timest) {
 			if (timest < this.earliestmov) this.earliestmov = timest;
 			if (timest > this.latestmov) this.latestmov = timest;
@@ -19368,7 +19371,7 @@ handleoneback(fx) {
 		};
 	}
 	let rawname = ImBCBase.basename(f.name);
-	if (rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
+	if (ImBCBase.ucex(rawname) === '.DNG') {
 		try {
 			this.parseDng(f,
 				(name, fx) => {
@@ -19389,7 +19392,7 @@ handleoneback(fx) {
 		}
 		return;
 	}
-	else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
+	else if (ImBCBase.ucex(rawname) !== '.RAW') {
 		this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
 		this.appmsg('Seems not to be DNG: ' + f.name, true);
 		this.stats.error++;
