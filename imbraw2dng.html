@@ -20447,22 +20447,8 @@ writepostok(name) {
 	if (!this.imbcb) this.savesettings(['dloads', 'ii']);
 	this.handlenext();
 }
-/* Indentation in */
-}
-const globalfxns = {
-/* globals: adjust A:\imback\... format to /imback/... */
-adjurl: function(url) {
-	if (url.url) url = url.url;
-	if (url.toUpperCase().substring(0,3) !== 'A:\\')
-		return url;
-	let n = url.substring(2);
-	while (n.indexOf("\\") > -1) {
-		n = n.substring(0, n.indexOf("\\")) + '/' + n.substring(n.indexOf('\\') +1);
-	}
-	return n;
-},
 /* ImBCBase: rotate image in canvas */
-rotvis: function(canv, ccw) {
+rotvis(canv, ccw) {
 	const ow = canv.width;
 	const oh = canv.height;
 	const ctx = canv.getContext('2d', { alpha: false });
@@ -20489,6 +20475,20 @@ rotvis: function(canv, ccw) {
 	}
 	//ctx.setTransform(1,0,0,0,1,0);
 	ctx.putImageData(new ImageData(nd, oh, ow), 0, 0);
+}
+/* Indentation in */
+}
+const globalfxns = {
+/* globals: adjust A:\imback\... format to /imback/... */
+adjurl: function(url) {
+	if (url.url) url = url.url;
+	if (url.toUpperCase().substring(0,3) !== 'A:\\')
+		return url;
+	let n = url.substring(2);
+	while (n.indexOf("\\") > -1) {
+		n = n.substring(0, n.indexOf("\\")) + '/' + n.substring(n.indexOf('\\') +1);
+	}
+	return n;
 }
 }
 /* *************************************** Browser specifics, E N D *************************************** */
@@ -20881,7 +20881,7 @@ buildtitle(gr) {
 			e.rot = globals.oriecw[j];
 			ne.setAttribute('data-state', 'wait');
 			const canv = ne.querySelector('.eeraw');
-			globalfxns.rotvis(canv,0);
+			this.rotvis(canv,0);
 			const sc = 120 / canv.height;
 			canv.style['width'] = '' + (sc*canv.width) + 'px';
 			ne.setAttribute('data-state', 'ok');
@@ -21434,20 +21434,20 @@ procthis() {
 /* ImBCHtml: previewquestion: handler for clockwise rotation */
 rotcw() {
 	this.#rotxx(1);
-	globalfxns.rotvis(document.getElementById('preview'));
+	this.rotvis(document.getElementById('preview'));
 	this.setrawpv();
 }
 /* ImBCHtml: previewquestion: handler for counterclockwise rotation */
 rotccw() {
 	this.#rotxx(3);
-	globalfxns.rotvis(document.getElementById('preview'), 1);
+	this.rotvis(document.getElementById('preview'), 1);
 	this.setrawpv();
 }
 /* ImBCHtml: previewquestion: handler for upside down rotation */
 rot180() {
 	this.#rotxx(2);
-	globalfxns.rotvis(document.getElementById('preview'));
-	globalfxns.rotvis(document.getElementById('preview'));
+	this.rotvis(document.getElementById('preview'));
+	this.rotvis(document.getElementById('preview'));
 	this.setrawpv();
 }
 /* ImBCHtml: previewquestion: handler for reset rotation */
@@ -21455,14 +21455,14 @@ rot0() {
 	if (1 === this.currentrot) return;
 	this.setpvwait();
 	if (this.currentrot === 3) {
-		globalfxns.rotvis(document.getElementById('preview'));
-		globalfxns.rotvis(document.getElementById('preview'));
+		this.rotvis(document.getElementById('preview'));
+		this.rotvis(document.getElementById('preview'));
 	}
 	else if (this.currentrot === 6) {
-		globalfxns.rotvis(document.getElementById('preview'), 1);
+		this.rotvis(document.getElementById('preview'), 1);
 	}
 	else
-		globalfxns.rotvis(document.getElementById('preview'), 0);
+		this.rotvis(document.getElementById('preview'), 0);
 	this.currentrot = 1;
 	this.setrawpv()
 }

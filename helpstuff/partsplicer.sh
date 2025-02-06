@@ -7,9 +7,16 @@ if [ -z "$3" ]; then
 fi
 
 
-pn="$1"
-frf="$2"
-tof="$3"
+pns=( "$1" )
+pncnt=1
+shift
+while [ ! -e "$1" ]; do
+	pns[$pncnt]="$1"
+	pncnt=$(( $pncnt + 1 ))
+	shift
+done
+frf="$1"
+tof="$2"
 
 if [ "$tof" -nt "$frf" ]; then
 	echo $tof is NEWER than $frf
@@ -32,49 +39,66 @@ CSS  imbapp.htm  imbapp.html
 frb=$( basename $frf )
 tob=$( basename $tof )
 
-echo "$validcomb" | grep -iq "$pn .* $frb .* $tob"
-if [ $? -ne 0 ]; then
-	echo "$validcomb" | grep -iq "$pn .* $tob .* $frb"
+function spliceone()
+{
+	pn=$1
+	echo "$validcomb" | grep -iq "$pn .* $frb .* $tob"
 	if [ $? -ne 0 ]; then
-		echo "$pn $tob $frb seems not allowed"
-		exit
+		echo "$validcomb" | grep -iq "$pn .* $tob .* $frb"
+		if [ $? -ne 0 ]; then
+			echo "$pn $tob $frb seems not allowed"
+			return
+		fi
 	fi
-fi
 
-spl=$( grep -ne '^/[*] [*][*][*][*][*]* \([^*]*\) [*][*][*].*/' "$frf" | sed 's/[^a-zA-Z0-9][^a-zA-Z0-9]*/_/g' | grep -i "_${pn}_" | head -1 | cut -d_ -f1 )
+	spl=$( grep -ne '^/[*] [*][*][*][*][*]* \([^*]*\) [*][*][*].*/' "$frf" | sed 's/[^a-zA-Z0-9][^a-zA-Z0-9]*/_/g' | grep -i "_${pn}_" | head -1 | cut -d_ -f1 )
 
-if [ -z "$spl" ]; then
-	echo block $pn not found in $frf
-	exit
-fi
+	if [ -z "$spl" ]; then
+		echo block $pn start not found in src $frf
+		return
+	fi
 
-le=$( tail -n+$(( $spl + 1 )) "$frf" | grep -ne '^/[*] [*][*][*][*][*]* \([^*]*\) [*][*][*].*/' | head -1 | cut -d: -f1 )
+	le=$( tail -n+$(( $spl + 1 )) "$frf" | grep -ne '^/[*] [*][*][*][*][*]* \([^*]*\) [*][*][*].*/' | head -1 | cut -d: -f1 )
 
-if [ -z "$le" ]; then
-	echo block $pn not finished in $frf
-	exit
-fi
+	if [ -z "$le" ]; then
+		echo block $pn not finished in src $frf
+		return
+	fi
 
-splx=$( grep -ne '^/[*] [*][*][*][*][*]* \([^*]*\) [*][*][*].*/' "$tof" | sed 's/[^a-zA-Z0-9][^a-zA-Z0-9]*/_/g' | grep -i "_${pn}_" | head -1 | cut -d_ -f1 )
+	splx=$( grep -ne '^/[*] [*][*][*][*][*]* \([^*]*\) [*][*][*].*/' "$tof" | sed 's/[^a-zA-Z0-9][^a-zA-Z0-9]*/_/g' | grep -i "_${pn}_" | head -1 | cut -d_ -f1 )
 
-if [ -z "$splx" ]; then
-	echo block $pn not found in $tof
-	exit
-fi
+	if [ -z "$splx" ]; then
+		echo block $pn start not found in dest $tof
+		return
+	fi
 
-lex=$( tail -n+$(( $splx + 1 )) "$tof" | grep -ne '^/[*] [*][*][*][*][*]* \([^*]*\) [*][*][*].*/' | head -1 | cut -d: -f1 )
+	lex=$( tail -n+$(( $splx + 1 )) "$tof" | grep -ne '^/[*] [*][*][*][*][*]* \([^*]*\) [*][*][*].*/' | head -1 | cut -d: -f1 )
 
-if [ -z "$lex" ]; then
-	echo block $pn not finished in $tof
-	exit
-fi
+	if [ -z "$lex" ]; then
+		echo block $pn not finished in dest $tof
+		return
+	fi
+
+	head -$splx "$tox" > "$tof"
+
+	tail -n+$(( $spl + 1 )) "$frf" | head -$le >> "$tof"
+
+	tail -n+$(( $splx + $lex + 1 )) "$tox" >> "$tof"
+
+}
 
 tox=$( dirname $tof )/.${tob}_$( date +%m%d%M%S )
 cp -v "$tof" "$tox"
 
-head -$splx "$tox" > "$tof"
+k=0
+while [ $k -lt $pncnt ]; do
+	spliceone ${pns[$k]}
+	if [ $(( $k + 1 )) -lt $pncnt ] ; then
+		toxn=$( dirname $tof )/.${tob}.tmp
+		cp "$tof" "$toxn"
+		tox="$toxn"
+	fi
+	k=$(( $k + 1 ))
+done
 
-tail -n+$(( $spl + 1 )) "$frf" | head -$le >> "$tof"
-
-tail -n+$(( $splx + $lex + 1 )) "$tox" >> "$tof"
-
+test -e "$toxn" && rm "$toxn"

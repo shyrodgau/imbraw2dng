@@ -22704,7 +22704,7 @@ fromvisbrows = false;
 rotphase = 0;
 /* TopApp: init the worker */
 initworker(withnet) {
-	let scripttextg = 'var globals = {';
+	let scripttextg = 'var globals = {\n';
 	for (const s in globals) {
 		   scripttextg += (s + ': ');
 		   if (typeof globals[s] === 'function')
@@ -22715,7 +22715,7 @@ initworker(withnet) {
 	}
 	scripttextg += '};';
 	if (withnet !== false) {
-		let scripttextf = '\nvar globalfxns = {';
+		let scripttextf = 'var globalfxns = {\n';
 		for (const s in globalfxns) {
 			   scripttextf += (s + ': ');
 			   if (typeof globalfxns[s] === 'function')
@@ -22727,9 +22727,11 @@ initworker(withnet) {
 		scripttextf += '};\n';
 		this.netwworker = new Worker(URL.createObjectURL(new Blob([scripttextf, document.querySelector("script[type='text/js-netwworker']").textContent], { type: "text/javascript" })), {name:'mynetworker'});
 	}
-    for (let i=0; i < this.maxnpvw; i++) {
+	for (let i=0; i < this.maxnpvw; i++) {
+		if (this.previewworkers.length > i) continue;
     	this.previewworkers.push({ w: new Worker(URL.createObjectURL(new Blob([scripttextg, document.querySelector("script[type='text/js-previewworker']").textContent], { type: "text/javascript" })), {name:'myprevworker'}), busy: false});
 		this.previewworkers[i].w.postMessage({ cmd: 'constwb', constwb: this.constwb });
+		this.previewworkers[i].w.postMessage({ cmd:'setdbg'});
     	this.previewworkers[i].w.onmessage = (m) => {
 			this.workermsg(m);
 			if (this.pvwjobs?.length) {
@@ -22743,7 +22745,7 @@ initworker(withnet) {
     }
 	if (!this.netwworker) {
 		// upload netwworker OR
-		console.log('BACKGOUND WORKER FAILED 3 ');
+		if (withnet !== false) console.log('BACKGOUND WORKER FAILED 3 ');
 		this.netwworker = null;
 	}
 	else {
@@ -22757,8 +22759,6 @@ initworker(withnet) {
 		this.netwworker.postMessage({ cmd: 'seturl', url: this.imbweb });
 		if (this.debugflag) {
 			this.netwworker.postMessage({ cmd: 'setdbg' });
-			for (let i=0; i<this.maxnpvw; i++)
-				this.previewworkers[i].w.postMessage({ cmd:'setdbg'});
 		}
 	}
 }
@@ -22767,9 +22767,9 @@ pvw(cmd) {
 	let found = false;
 	for (let i=0; i<this.maxnpvw; i++) {
 		if (!this.previewworkers[i].busy) {
+			this.previewworkers[i].busy = true;
 			this.previewworkers[i].w.postMessage(cmd);
 			found = true;
-			this.previewworkers[i].busy = true;
 			break;
 		}
 	}
@@ -23602,7 +23602,7 @@ buildtitle(gr) {
 			j = ((j + 1) % 4);
 			e.rot = globals.oriecw[j];
 			ne.setAttribute('data-state', 'wait');
-			globalfxns.rotvis(ne.querySelector('.eeraw'),0);
+			this.rotvis(ne.querySelector('.eeraw'),0);
 			const ii = this.iinf.findIndex((j) => j.n === e.raw);
 			if (ii === -1)
 				this.iinf.push( { n: e.raw, r: e.rot });
@@ -23624,7 +23624,7 @@ buildtitle(gr) {
 			j = ((j + 3) % 4);
 			e.rot = globals.oriecw[j];
 			ne.setAttribute('data-state', 'wait');
-			globalfxns.rotvis(ne.querySelector('.eeraw'),1);
+			this.rotvis(ne.querySelector('.eeraw'),1);
 			const ii = this.iinf.findIndex((j) => j.n === e.raw);
 			if (ii === -1)
 				this.iinf.push( { n: e.raw, r: e.rot });
@@ -23699,7 +23699,7 @@ rotmag(ccw) {
 	j = ((j + (ccw ? 3 : 5)) % 4);
 	this.magentry.rot = globals.oriecw[j];
 	this.magentry.orig.rot = this.magentry.rot;
-	globalfxns.rotvis(ne.querySelector('.eeraw'),ccw);
+	this.rotvis(ne.querySelector('.eeraw'),ccw);
 	const xne = this.magentry.orig.entry;
 	if (this.magentry.orig.preview) this.magentry.orig.preview.style['display'] = 'none';
 	if (xne) {
@@ -25858,22 +25858,8 @@ writepostok(name) {
 	if (!this.imbcb) this.savesettings(['dloads', 'ii']);
 	this.handlenext();
 }
-/* Indentation in */
-}
-const globalfxns = {
-/* globals: adjust A:\imback\... format to /imback/... */
-adjurl: function(url) {
-	if (url.url) url = url.url;
-	if (url.toUpperCase().substring(0,3) !== 'A:\\')
-		return url;
-	let n = url.substring(2);
-	while (n.indexOf("\\") > -1) {
-		n = n.substring(0, n.indexOf("\\")) + '/' + n.substring(n.indexOf('\\') +1);
-	}
-	return n;
-},
 /* ImBCBase: rotate image in canvas */
-rotvis: function(canv, ccw) {
+rotvis(canv, ccw) {
 	const ow = canv.width;
 	const oh = canv.height;
 	const ctx = canv.getContext('2d', { alpha: false });
@@ -25900,6 +25886,20 @@ rotvis: function(canv, ccw) {
 	}
 	//ctx.setTransform(1,0,0,0,1,0);
 	ctx.putImageData(new ImageData(nd, oh, ow), 0, 0);
+}
+/* Indentation in */
+}
+const globalfxns = {
+/* globals: adjust A:\imback\... format to /imback/... */
+adjurl: function(url) {
+	if (url.url) url = url.url;
+	if (url.toUpperCase().substring(0,3) !== 'A:\\')
+		return url;
+	let n = url.substring(2);
+	while (n.indexOf("\\") > -1) {
+		n = n.substring(0, n.indexOf("\\")) + '/' + n.substring(n.indexOf('\\') +1);
+	}
+	return n;
 }
 }
 /* *************************************** Browser specifics, E N D *************************************** */
@@ -26329,7 +26329,7 @@ function buildpreviewcache(struc, f, size, orientation) {
 	// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
 	if (dbgflag) {
 		setTimeout(() => {
-			postMessage({ cmd: struc.cmd, pix: outpix, n: struc.n, o: struc.ori, c: struc.cache, xori: (typ === 5 && struc.ori === 0) ? 3 : ((struc.ori === 0) ? 1 : struc.ori), size: struc.siz });
+			postMessage({ cmd: struc.cmd, pix: outpix, n: struc.n, o: struc.ori, c: struc.cache, xori: (typ === 5 && struc.ori === 0) ? 3 : ((struc.ori === 0) ? 1 : struc.ori), size: struc.siz, cid: struc.ci });
 		}, 300);
 	}
 	else {
