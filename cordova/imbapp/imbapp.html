@@ -22502,7 +22502,12 @@ fselect() {
 	});
 }
 /* AndroidSpec: upload html */
-copytoimb() {
+copytoimb(names) {
+   if (undefined === names) {
+   	   this.copytoimb(['imbapp.htm', 'imbapp.json']);
+   	   return;
+   }
+   let n = names[0];
    let xhr = new XMLHttpRequest();
    xhr.responseType = 'blob';
    xhr.onload = (/*evt*/) => {
@@ -22515,7 +22520,7 @@ copytoimb() {
            }
            let xhr2 = new XMLHttpRequest();
            let fd = new FormData();
-           fd.append('fileupload1', xhr.response, 'IMBAPP.HTM');
+           fd.append('fileupload1', xhr.response, n);
            fd.append('upbtn', 'Upload Files');
            xhr2.onerror = (e) => { xhr.onerror(e); };
            xhr2.onaboer = (e) => { xhr.onerror(e); };
@@ -22529,9 +22534,15 @@ copytoimb() {
                            this.showmsg();
                            return;
                    }
-                   document.getElementById('genericok').style['border-color'] = 'green';
-                   document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('app.okay'));
-                   this.showmsg();
+                   if (names.length > 1) {
+                   	   names.splice(0,1);
+                   	   this.copytoimb(names);
+                   }
+                   else {
+					   document.getElementById('genericok').style['border-color'] = 'green';
+					   document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('app.okay'));
+					   this.showmsg();
+				   }
            };
            try {
                    xhr2.open('POST', this.imbweb + '/IMBACK');
@@ -22551,7 +22562,7 @@ copytoimb() {
    };
    xhr.onabort = (evt) => { xhr.onerror(evt, 'abort'); };
    xhr.ontimeout = (evt) => { xhr.onerror(evt, 'timeout'); };
-   xhr.open('GET', 'http://localhost/res/imbapp.htm');
+   xhr.open('GET', 'http://localhost/res/' + n);
    xhr.setRequestHeader('Cache-control','max-stale');
    xhr.timeout = 30000;
    try {
