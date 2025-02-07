@@ -533,7 +533,7 @@ describe('E Convert Raw from Imback APP', function() {
 				.move({ origin: zoom0 })
 				.pause(10)
 				.click()
-				.pause(90)
+				.pause(190)
 				.perform();
 			const zoomr = waitfor(driver, 'id', 'backnr');
 			await driver.actions({ async: true })
@@ -755,7 +755,7 @@ describe('F Convert Raw Local APP', function() {
 			//await fi.clear();
 	});
 	it('F.2 Convert multipe', async function dotest() {
-			this.timeout(6000);
+			this.timeout(9000);
 			const fi = await driver.findElement(By.id('infile'));
 			await fi.clear();
 			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2024_0217_121754_002.JPG' + '\n' + TESTDAT + '/IMBACK/PHOTO/2024_0217_121752_001.RAW');

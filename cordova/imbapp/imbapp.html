@@ -1140,7 +1140,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.0.4_665bc1d", // actually const // VERSION EYECATCHER
+version: "V6.0.4_3765bb2", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -19145,6 +19145,8 @@ handleone(orientation) {
 		const hbytes = txe.encode(this.#historystring);
 		if (hbytes.length === this.#historystring.length)
 			ti.addEntry(37395, 'ASCII', this.#historystring); /* image history */
+		else
+			ti.addEntry(37395, 'BYTES', hbytes); /* image history */
 		let privdatstr = 'IMBACK.EU_SHY ' + this.#historystring;
 		const privdatbytes = txe.encode(privdatstr);
 		privdatbytes[13] = 0;
