@@ -525,7 +525,8 @@ body { margin: 0; }
 }
 #xmag .btnsrow { position: fixed !important; bottom: 1em !important;top:auto !important;background: none !important; padding:0 !important;}
 .btnsrow { position: absolute; top: 2em; left: 0.5em; height: 0.8em; width: 4em; padding:0.3em;background-color: rgba(200,200,180,0.5); }
-div[data-state='load'] .btnsrow, div[data-state='wait'] .btnsrow, div[data-state='err'] .btnsrow { display: none; }
+/*div[data-state='load'] .btnsrow, div[data-state='wait'] .btnsrow, div[data-state='err'] .btnsrow { display: none; }*/
+div[data-state='load'] .btnsrow, div[data-state='err'] .btnsrow { display: none; }
 .oth_CL .btnsrow, .JPG_CL .btnsrow { width: 2em; }
 .JPG_CL .rotbtn, .oth_CL .rotbtn { display: none; }
 .JPG_CL .rotbtnr, .oth_CL .rotbtnr { display: none; }
@@ -23688,6 +23689,12 @@ buildtitle(gr) {
 				magb.style['left'] = '0.8em';
 			}
 		}
+		else {
+			const magb = ne.querySelector('.magbtn');
+			if (magb) {
+				magb.style['display'] = 'none';
+			}
+		}
 	}
 }
 /* TopApp: visual browser: rotate magnified */
@@ -25727,6 +25734,23 @@ xl1(el) {
 			return;
 		}
 		else if (to.imbackintension && ImBCBase.progname.startsWith('imbapp') && to.type === 'JPG') {
+			if (!to.imbackintension.buffer) {
+				const fr = new FileReader();
+				fr.onerror = (x) => { to.preview.onerror(x); };
+				fr.onload = (d) => {
+					const b = new Blob([d.target.result], { type: 'image/jpeg' });
+					const fr = new FileReader();
+					fr.onerror = (x) => {
+						to.preview.onerror(x);
+					};
+					fr.onload = (d) => {
+						to.preview.src = d.target.result;
+					}
+					fr.readAsDataURL(b);
+				}
+				fr.readAsArrayBuffer(to.imbackintension);
+				return;
+			}
 			const b = new Blob([to.imbackintension.buffer], { type: 'image/jpeg' });
 			const fr = new FileReader();
 			fr.onerror = (x) => {

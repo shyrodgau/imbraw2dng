@@ -20318,6 +20318,23 @@ xl1(el) {
 			return;
 		}
 		else if (to.imbackintension && ImBCBase.progname.startsWith('imbapp') && to.type === 'JPG') {
+			if (!to.imbackintension.buffer) {
+				const fr = new FileReader();
+				fr.onerror = (x) => { to.preview.onerror(x); };
+				fr.onload = (d) => {
+					const b = new Blob([d.target.result], { type: 'image/jpeg' });
+					const fr = new FileReader();
+					fr.onerror = (x) => {
+						to.preview.onerror(x);
+					};
+					fr.onload = (d) => {
+						to.preview.src = d.target.result;
+					}
+					fr.readAsDataURL(b);
+				}
+				fr.readAsArrayBuffer(to.imbackintension);
+				return;
+			}
 			const b = new Blob([to.imbackintension.buffer], { type: 'image/jpeg' });
 			const fr = new FileReader();
 			fr.onerror = (x) => {
