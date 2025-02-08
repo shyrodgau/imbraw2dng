@@ -1095,7 +1095,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.0.5_336a5d4", // actually const // VERSION EYECATCHER
+version: "V6.0.5_a79ac35", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -22459,7 +22459,7 @@ fselect() {
 /* AndroidSpec: upload html */
 copytoimb(names) {
    if (undefined === names) {
-   	   this.copytoimb(['imbapp.htm', 'imbapp.json']);
+   	   this.copytoimb(['imbapp.htm' /*, 'imbapp.json'*/ ]);
    	   return;
    }
    let n = names[0];

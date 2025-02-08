@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<widget xmlns:android="http://schemas.android.com/apk/res/android" id="eu.imback.os.app" version="V6.0.4_3765bb2" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0"
- android-versionCode="60004">
+<widget xmlns:android="http://schemas.android.com/apk/res/android" id="eu.imback.os.app" version="V6.0.5_a79ac35" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0"
+ android-versionCode="60005">
   <name>ImB OS App</name>
   <description>ImBack OS App</description>
   <author email="stefan@hegny.de">Stefan Hegny</author>
@@ -17,7 +17,6 @@
       <application android:usesCleartextTraffic="true" android:requestLegacyExternalStorage="true" />
     </edit-config>
     <resource-file src="../../imbapp.htm" target="app/src/main/assets/www/res/imbapp.htm"/>
-    <resource-file src="../../imbapp_imback.json" target="app/src/main/assets/www/res/imbapp.json"/>
     <resource-file src="imbapp.html" target="app/src/main/assets/www/imbapp.html"/>
     <resource-file src="../../LICENSE.txt" target="app/src/main/assets/www/res/LICENSE.txt"/>
     <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application">
@@ -40,7 +39,6 @@
   </platform>
     <platform name="ios">
       <resource-file src="../../imbapp.htm" target="app/src/main/assets/www/res/imbapp.htm"/>
-      <resource-file src="../../imbapp_imback.json" target="app/src/main/assets/www/res/imbapp.json"/>
       <resource-file src="imbapp.html" target="app/src/main/assets/www/imbapp.html"/>
       <resource-file src="../../LICENSE.txt" target="app/src/main/assets/www/res/LICENSE.txt"/>
     </platform>
