@@ -1095,7 +1095,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.0.4_3765bb2", // actually const // VERSION EYECATCHER
+version: "V6.0.5_336a5d4", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -23281,8 +23281,8 @@ findnexttoload() {
 			f = f.parentElement;
 		}
 		if (dispno) {
-			if (ImBCBase.progname !== 'imbapp_app' && ph >= 3 && (this.preloadedimgs++ < this.maxcache)) {
-				ph = 2;
+			if (ImBCBase.progname !== 'imbapp_app' && ph >= 4 && (this.preloadedimgs++ < this.maxcache) && e.type === 'JPG') {
+				ph = 3;
 				res = e;
 			}
 			continue;
@@ -23306,7 +23306,7 @@ findnexttoload() {
 				ph = 1;
 			}
 		}
-		else if (ImBCBase.progname !== 'imbapp_app' && ph >= 3 && (this.preloadedimgs++ < this.maxcache)) {
+		else if (ImBCBase.progname !== 'imbapp_app' && ph >= 3 && (this.preloadedimgs++ < this.maxcache) && e.type === 'JPG') {
 			res = e;
 			ph = 2;
 		}
@@ -24239,32 +24239,6 @@ custcmdB(cmd, type, restargs, cb) {
 	});
 }
 /* TopApp: load imgs from back */
-ckraw(arr,ind) {
-	if (ind >= arr.length) {
-		if (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0) {
-			this.aftercheck();
-			this.showbrowser();
-		} else {
-			this.showmain();
-		}
-		return;
-	}
-	if (ImBCBase.ucex(arr[ind].textContent) !== '.JPG') return this.ckraw(arr, ind+1);
-	let x = globalfxns.adjurl(arr[ind].textContent);
-	let y = x.substring(0,x.length-4);
-	let xhr = new XMLHttpRequest();
-	xhr.onloadend = (evt) => {
-		if (evt.target.status === 200)
-			this.handle1imb(y + '.RAW');
-		this.ckraw(arr,ind+1);
-	};
-	xhr.onerror = (evt, typ) => {
-		this.ckraw(arr,ind+1);
-	};
-	xhr.open('HEAD', this.imbweb + '/' + y + '.RAW');
-	xhr.responseType = 'arraybuffer';
-	xhr.send();
-}
 loadimgs() {
 	this.showsplash();
 	// first, make everything empty
@@ -24294,7 +24268,7 @@ loadimgs() {
 						const sel2 = xhr.responseXML.querySelectorAll('a');
 						for (const r of sel2) {
 							let n = r.href;
-							if (ImBCBase.ucex(n) !== '.RAW') continue;
+							if (ImBCBase.ucex(n) !== '.RAW' || -1 !== n.indexOf('del=')) continue;
 							if (n.startsWith(this.imbweb)) n = n.substring(this.imbweb.length);
 							this.handle1imb('A:\\IMBACK\\PHOTO\\' + ImBCBase.basename(n));
 							/*if (r && r.href.indexOf('del=') === -1 && ImBCBase.ucex(r.href) === '.RAW') {
@@ -24323,6 +24297,7 @@ loadimgs() {
 				xhr.open('GET', this.imbweb + '/IMBACK/PHOTO/');
 				xhr.responseType = 'document';
 				xhr.send();
+				return;
 			}
 			if (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0) {
 				this.aftercheck();
@@ -26025,13 +26000,14 @@ let base, msg = false, curxhr, evtq = [], imgstopped = false;
 let progress = false, queue = [], wdtimer, currcust, dbgflag,	errcount = 0;
 /* WORKER onmessage */
 onmessage = (e) => {
-	//console.log('WORKER received ' + e.data.cmd);
+	//console.log('N WORKER received ' + e.data.cmd + ' ' + JSON.stringify(e));
 	switch (e.data.cmd) {
 	case 'stopimg':
 		imgstopped = true;
 		if (curxhr && curxhr?.readyState !== 4 &&
 				progress !== 'watchdog' &&
 				progress !== 'custcmd') {
+			if (dbgflag) console.log('abort 1 ' + progress);
 			curxhr.abort();
 		}
 		return;
@@ -26050,9 +26026,11 @@ onmessage = (e) => {
 	if (progress) {
 		if (curxhr && curxhr?.readyState !== 4 &&
 				e.data.cmd !== 'watchdog' &&
+				!e.data.cmd.startsWith('resolve') &&
 				progress !== 'watchdog' &&
 				progress !== 'custcmd' &&
 				e.data.cmd !== 'custcmd') {
+			if (dbgflag) console.log('abort 2 ' + progress + ' ' + e.data.cmd);
 			curxhr.abort();
 		}
 		else {
@@ -26299,7 +26277,7 @@ function custcmdi(struc, c, t, restargs, cb, results) {
 let dbgflag,	constwb = false;
 /* WORKER onmessage */
 onmessage = (e) => {
-	//console.log('WORKER received ' + e.data.cmd);
+	//console.log('P WORKER received ' + e.data.cmd + ' ' + JSON.stringify(e));
 	switch (e.data.cmd) {
 	case 'setdbg':
 		dbgflag = true;
