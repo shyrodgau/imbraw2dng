@@ -808,7 +808,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.0.5_a79ac35", // actually const // VERSION EYECATCHER
+version: "V6.0.5_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -1145,7 +1145,7 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 			outpix.push(a[1]);
 			outpix.push(a[2]);
 			rhist[a[0]]++;
-			ghist[a[2]]++;
+			ghist[a[1]]++;
 			bhist[a[2]]++;
 			cnt++;
 		}
