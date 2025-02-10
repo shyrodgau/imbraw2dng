@@ -1095,23 +1095,23 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.0.6_64b37f4", // actually const // VERSION EYECATCHER
+version: "V6.0.6_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
 fulltsregex: /^([02-3][0-9][0-9][0-9])([^0-9])([01][0-9])([^0-9])([0123][0-9])([^0-9])([012][0-9])([^0-9])([0-5][0-9])([^0-9])([0-5][0-9])$/, // actually const
 // generic user input timestamp (any prefix)
-//                  y      y     y     y      .      m     m     .      d      d      .      h     h      .      m     m      .      s     s
+//           y      y     y     y      .      m     m     .      d      d      .     h     h      .      m     m      .      s     s
 tsregex: /^[02-3]([0-9]([0-9]([0-9](([^0-9])[01]([0-9](([^0-9])[0123]([0-9](([^0-9])[012]([0-9](([^0-9])[0-5]([0-9](([^0-9])[0-5]([0-9])?)?)?)?)?)?)?)?)?)?)?)?)?$/ , // actually const
 /* globals: Data for the Imback variants and exif stuff */
 // generic imb filename format
-//                   y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s     EXT
+//           y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s     EXT
 fnregex: /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])(.*[.])([^.]*)$/ , // actually const
 // generic imb xml timestamp format
-//                               y    y    y    y      /    m    m     /    d     d    . .  h    h      :    m    m      :    s    s
+//                       y    y    y    y      /    m    m     /    d     d    . .  h    h      :    m    m      :    s    s
 itsregex: new RegExp('^([2-3][0-9][0-9][0-9])([/])([01][0-9])([/])([0123][0-9])( )([012][0-9])([:])([0-6][0-9])([:])([0-6][0-9])$') , // actually const
 // generic imb filename format, only timestamp
-//                    y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s      .        n
+//            y    y    y    y     .         m    m     .        d     d      .        h    h      .        m    m      .        s    s      .        n
 fnregexx: /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-9]*)/ , // actually const
 orients: [ '', 'none', '', 'upsidedown', '', '', 'clockwise', '', 'counterclockwise' ], // actually const
 oriecw: [ 1, 6, 3, 8 ], // clockwise indices // actually const
@@ -18773,7 +18773,7 @@ static ucex(name) {
 }
 /* ImBCBase: actual processing function for one file */
 handleone(orientation) {
-	let f = (this.debugflag && this.useraw) ? this.useraw : this.allfiles[this.actnum];
+	let f = this.allfiles[this.actnum];
 	if (undefined === f) {
 		this.mappx(true, 'process.nothing');
 		return this.handlenext();
@@ -25121,7 +25121,7 @@ starthandleone() {
 }
 /* TopApp: main handler function for one file */
 handleonex() {
-	const f = (this.debugflag && this.useraw) ? this.useraw : this.allfiles[this.actnum];
+	const f = this.allfiles[this.actnum];
 	if (this.stepmode === 2) {
 		// skip rest
 		if (!this.imbcb && !this.fromvisbrows) this.shownormal();
@@ -25784,7 +25784,7 @@ xl1(el) {
 	else if (type === 'RAW') {
 		let afterloadcalled = false;
 		if (this.debugflag) console.log('li raw start bpv ' + url);
-		this.buildpreview((this.debugflag && this.useraw) ? this.useraw : (to.imbackintension ? to.imbackintension : url),
+		this.buildpreview((to.imbackintension ? to.imbackintension : url),
 				to.isbig ? 2 : 1,
 				(xrot) => { /* on ok: */
 			if (this.magentry && this.magentry.url != url) {
