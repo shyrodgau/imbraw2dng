@@ -1304,57 +1304,52 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 	for (let i = rowiterstart; i < rowiterend; i +=1) {
 		for (let j = coliterstart; j < coliterend; j+=1) {
 			let a = globals.getPix(Math.abs(transpose ? i :j)*sfact, Math.abs(transpose ? j :i)*sfact, w, view, typ, whitelvl);
+			let r = Math.floor(rfact * a[0]), g = Math.floor(gfact * a[1]), b = Math.floor(bfact * a[2]);
 			outpix.push(a[0]);
 			outpix.push(a[1]);
 			outpix.push(a[2]);
-			rhist[a[0]]++;
-			ghist[a[1]]++;
-			bhist[a[2]]++;
+			rhist[r]++;
+			ghist[g]++;
+			bhist[b]++;
 			cnt++;
 		}
 	}
-	// cut off top and bottom 0.2 and 3%
+	// cut off top and bottom 1 and 3%
 	let cntx = 0, rallmin = 0, rallmax = 255;
 	while (cntx < (cnt * 0.03))
 		cntx += rhist[rallmin++];
 	if (rallmin > 0) rallmin --;
 	cntx = 0;
-	while (cntx < (cnt * 0.002))
+	while (cntx < (cnt * 0.01))
 		cntx += rhist[rallmax--];
 	if (rallmax < 255) rallmax++;
-	let gallmin = 0, gallmax = 255;
+	let gallmin = 0, gallmax = 255, gmed = 255;
 	cntx = 0;
 	while (cntx < (cnt * 0.03))
 		cntx += ghist[gallmin++];
 	if (gallmin > 0) gallmin --;
 	cntx = 0;
-	while (cntx < (cnt * 0.002))
+	while (cntx < (cnt * 0.01))
 		cntx += ghist[gallmax--];
 	if (gallmax < 255) gallmax++;
+	cntx = 0;
+	while (cntx < (cnt * 0.5))
+		cntx += ghist[gmed--];
 	let ballmin = 0, ballmax = 255;
 	cntx = 0;
 	while (cntx < (cnt * 0.03))
 		cntx += bhist[ballmin++];
 	if (ballmin > 0) ballmin --;
 	cntx = 0;
-	while (cntx < (cnt * 0.002))
+	while (cntx < (cnt * 0.01))
 		cntx += bhist[ballmax--];
 	if (ballmax < 255) ballmax++;
 	let allmin = Math.min(rallmin, gallmin, ballmin);
 	let allmax = Math.max(rallmax, gallmax, ballmax);
-	let fact;
-	if (allmax > 247 && allmin < 8) {
-		fact = 1;
-		allmin = 0;
-		//console.log('Fact 1 ' + fact + ' i ' + allmin + ' a ' + allmax);
-	}
-	else if (allmax - allmin < 1) {
-		fact = 1;
-		//console.log('Fact 2 ' + fact + ' i ' + allmin + ' a ' + allmax);
-	}
-	else {
-		fact = 254/(allmax - allmin);
-		//console.log('Fact 3 ' + fact + ' i ' + allmin + ' a ' + allmax);
+	if (allmin < 120) allmin = 0;
+	let fact = 1;
+	if (allmax - allmin >= 1) {
+		fact = 255/(allmax - allmin);
 	}
 	//console.log('ai ' + allmin + ' aa ' + allmax + ' ff ' + fact);
 	const o = scale ? 3 : 4;
@@ -1364,31 +1359,27 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 			let nr = ((outpix[3*((i * w8) + j)] * rfact) - allmin) * fact + allmin;
 			let ng = ((outpix[3*((i * w8) + j) + 1] * gfact) - allmin) * fact + allmin;
 			let nb = ((outpix[3*((i * w8) + j) + 2] * bfact) - allmin) * fact + allmin;
-			if (nr >= 255) {
-				if (ng < 250) ng = Math.floor(ng * 255 / nr);
-				if (nb < 250) nb = Math.floor(nb * 255 / nr);
-				nr = 255;
+			let gfac = 1;
+			if (gmed < 80) {
+				// maybe some brightening gamma?
+				let ngr = 1, ngg = 1, ngb = 1;
+				if (ng)
+					ngg = (255-Math.floor(255*((255-ng)/255)*((255-ng)/255))) / ng;
+				if (nr)
+					ngr = (255-Math.floor(255*((255-nr)/255)*((255-nr)/255))) / nr;
+				if (nb)
+					ngb = (255-Math.floor(255*((255-nb)/255)*((255-nb)/255))) / nb;
+				gfac = Math.max(ngg, ngr, ngb);
+				if (gfac < 1) gfac = 1;
 			}
-			else if (nr <= 0) nr = 0;
-			if (ng >= 255) {
-				if (nr < 250) nr = Math.floor(nr * 255 / ng);
-				if (nb < 250) nb = Math.floor(nb * 255 / ng);
-				ng = 255;
-			}
-			else if (ng <= 0) ng = 0;
-			if (nb >= 255) {
-				if (ng < 250) ng = Math.floor(ng * 255 / nb);
-				if (nr < 250) nr = Math.floor(nr * 255 / nb);
-				nb = 255;
-			}
-			else if (nb <= 0) nb = 0;
-			// maybe some brightening gamma?
-			uic[o * ((i*w8) + j)] = 255-Math.floor(255*((255-nr)/255)*((255-nr)/255));
-			uic[o * ((i*w8) + j) + 1] = 255-Math.floor(255*((255-ng)/255)*((255-ng)/255));
-			uic[o * ((i*w8) + j) + 2] = 255-Math.floor(255*((255-nb)/255)*((255-nb)/255));
+			uic[o * ((i*w8) + j)] = nr * gfac;
+			uic[o * ((i*w8) + j) + 1] = ng * gfac;
+			uic[o * ((i*w8) + j) + 2] = nb * gfac;
 			if (!scale) uic[o * ((i*w8) + j) + 3] = 255;
 		}
 	}
+	if (gmed >= 130 && this.debugflag)
+		console.log('x');
 	return uic;
 },
 /* Indentation in - end of globals */
