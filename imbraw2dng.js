@@ -20465,144 +20465,13 @@ const mytexts = { // actually const
 			fr: 'https://shyrodgau.github.io/imbraw2dng/',
 			ja: 'https://shyrodgau.github.io/imbraw2dng/README_ja'
 		},
-		generaladvice: {
-			de: 'Daten werden nur im Browser verarbeitet, nicht im \'Internet\'.<br>Kann sein, dass der Browser fragt, ob Sie zulassen wollen, dass mehrere Dateien heruntergeladen werden.<br>Dateien, die nicht oder unbekannte RAW-Dateien sind, werden 1:1 kopiert.',
-			en: 'Data processing is entirely in the browser, not in \'the internet\'<br>Browser may ask you if you want to allow downloading multiple files.<br>Not or unrecognized RAW Files simply will be copied.',
-			fr: 'L\'information est entièrement traitée dans le navigateur et non sur \'Internet\'<br>Le navigateur peux questionner que vous acceptez le téléchargement de beaucoup de fiches.<br>Fiches pas-RAW ou RAW inconnue sont copiée 1:1.',
-			ru: 'Данные обрабатываются только в браузере, а не в \'Интернете\'.<br>Браузер может спросить, хотите ли вы разрешить загрузку нескольких файлов.<br>Файлы, которые не являются или неизвестными файлами RAW, копируются 1:1.',
-			ja: 'データ処理は完全にブラウザ内で行われ、\'インターネット\'では行われません。<br>ブラウザにより複数のファイルのダウンロードを許可するかを尋ねることがあります。<br>RAW ファイルが存在しない、または認識されない場合は、単純にコピーされます。'
-		},
-		drophere: {
-			de: 'Dateien von ImB hier ablegen: ',
-			en: 'Drop Files from ImB here: ',
-			fr: 'Posez fiches de ImB ici: ',
-			ru: 'Храните файлы из ImB здесь: ',
-			ja: 'ここに ImB のファイルをドロップします。: '
-		},
-		selectraw: {
-			de: 'Oder diese Seite per WLAN <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README_de.md#gucken-auf-imback-selbst\'>direkt von ImB</a> verwenden.<br>Oder <tt>.RAW</tt> Datei(en) auswählen:',
-			en: 'Or use this page via Wifi <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\'>directly from ImB</a>.<br>Or select <tt>.RAW</tt> File(s):',
-			fr: 'Ou utiliez cette page <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\'>via Wifi sur ImB</a>.<br>Ou selectez <tt>.RAW</tt> fiche(s):',
-			ru: 'Или используйте эту страницу через Wi-Fi <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#browsing-on-the-imback\'>прямо из ImB</a>.<br>Или выберите файл(ы) <tt>RAW</tt>:',
-			ja: 'または、Wifi 経由で <a href=\'https://github.com/shyrodgau/imbraw2dng/blob/master/moredoc_ja.md#imback-での閲覧\'>ImB から直接</a>このページを使用します。<br> または、 <tt>.RAW</tt> ファイルを選択します。:'
-		},
-		stillcounting: {
-			de: '... zähle ... ',
-			en: '... counting ... ',
-			fr: '... compter ...',
-			ru: '... подсчет ...',
-			ja: '... カウント中 ... '
-		},
-		types: {
-			rawpics: {
-				de: 'RAW Bilder',
-				en: 'RAW Pictures',
-				fr: 'RAW images',
-				ja: 'RAW 画像'
-			},
-			jpgpics: {
-				de: 'JPEG-Bilder',
-				en: 'JPEG Pictures',
-				fr: 'JPEG images',
-				ja: 'JPEG 画像'
-			},
-			other: {
-				de: 'Andere',
-				en: 'Other',
-				fr: 'Autre',
-				ja: 'その他'
-			},
-			notpic: {
-				de: 'Keine Bilder',
-				en: 'Not pictures',
-				fr: 'Pas images',
-				ja: '画像ではない'
-			}
-		},
-		file: {
-			jpeg: {
-				de: 'Datei $$0 (JPEG)',
-				en: 'File $$0 (JPEG)',
-				fr: 'Fiche $$0 (JPEG)',
-				ja: 'ファイル $$0 (JPEG)'
-			},
-			nopreview: {
-				de: 'Datei $$0<br>Nicht jpeg oder raw, keine Vorschau...',
-				en: 'File $$0<br>Not jpeg or raw, no preview...',
-				fr: 'Fiche $$0<br>Ni jpeg ni raw, pas de aperçu...',
-				ja: 'ファイル $$0<br>jpeg または、raw 以外、プレビューなし...'
-			},
-			rawunknown: {
-				de: 'Datei $$0<br>Unerkannte RAW Dateigröße $$1, bitte Entwickler kontaktieren! Keine Vorschau...',
-				en: 'File $$0<br>Unknown raw size $$1, please contact developer! No preview...',
-				fr: 'Fiche $$0<br>taille de fiche $$1 non reconnue, contacter le développeur, pas de aperçu...',
-				ja: 'File $$0<br>不明な raw サイズ $$1, 開発者にお問い合わせください! プレビューなし...'
-			},
-			dngimpnote: {
-				de: 'Import eines DNG geht nur, wenn diese genau das hiermit erzeugte Original ist.',
-				en: 'Re-import of a DNG is only possible if this is exactly the original that was created here.',
-				fr: 'La réimportation d\'un DNG n\'est possible que s\'il s\'agit exactement de l\'original créé ici.',
-				ja: 'DNG の再インポートは、これがここで作成されたオリジナルである場合にのみ可能です。'
-			},
-			de: 'Datei $$0',
-			en: 'File $$0',
-			fr: 'Fiche $$0',
-			ja: 'ファイル $$0'
-		},
-		sort: {
-			de: 'Sortiere',
-			en: 'Sort:',
-			fr: 'Trier:',
-			ja: 'ソート:'
-		},
-		or: {
-			de: 'Oder ',
-			en: 'Or ',
-			fr: 'Ou ',
-			ja: 'または '
-		},
-		log: {
-			de: 'Protokoll-Ausgabe:',
-			en: 'Message Log:',
-			fr: 'Journal des messages',
-			ja: 'メッセージ ログ:'
-		},
-		selected: {
-			de: 'Ausgewählt',
-			en: 'Selected',
-			fr: 'Sélectionné(s)',
-			ja: '選択済み'
-		},
 		fakelong: {
-			en: 'Fake long exposure by adding up all (<a href="https://github.com/shyrodgau/imbraw2dng/blob/master/README.md#a-lot-more-tricks-and-details">read more</a>)',
-			de: 'Langzeitbelichtung durch Addieren simulieren (<a href="github.com/shyrodgau/imbraw2dng/blob/master/README_de.md#mehr-tricks-und-details">mehr lesen</a>)',
-			ja: 'すべてを加算して長時間露光をシミュレートする',
-			scale: {
-				en: 'Scale values down',
-				de: 'Werte dabei herunterskalieren',
-				ja: 'スケールダウン値'
-			},
 			added: {
 				en: 'Added picture $$0',
 				de: 'Bild $$0 hinzugefügt',
 				ja: '画像を追加しました $$0'
 			}
 		},
-		usezip: {
-			de: 'Nicht mehrere Dateien einzeln, sondern in wenigen ZIP Archiven herunteladen.',
-			en: 'Do not use several single downloads, but in fewer ZIP archives.',
-			ja: '複数のファイルを個別にダウンロードするのではなく、いくつかの ZIP アーカイブとしてダウンロードしてください。',
-			choosedest: {
-				de: 'Ziel auswählen',
-				en: 'Choose destination',
-				ja: '目的地を選択'
-			}
-		},
-		newmsg: {
-			en: '<a href="https://github.com/shyrodgau/imbraw2dng/issues" target="_new">Report bugs</a>',
-			de: '<a href="https://github.com/shyrodgau/imbraw2dng/issues" target="_new">Fehler melden</a>',
-			ja: '<a href="https://github.com/shyrodgau/imbraw2dng/issues" target="_new">バグ報告</a>'
-		}
 	},
 	onimback: {
 		connected: {
@@ -20610,42 +20479,6 @@ const mytexts = { // actually const
 			en: 'ImB Connected! ',
 			fr: 'ImB Connecté! ',
 			ja: 'ImB 接続済み! '
-		},
-		dlconvert: {
-			de: 'Konvertiere / Lade herunter: ',
-			en: 'Download / convert: ',
-			fr: 'Telecharger / convertir',
-			ja: 'ダウンロード / 変換: '
-		},
-		totalnum: {
-			de: 'gesamt:',
-			en: 'total:',
-			fr: 'total:',
-			ja: '合計:'
-		},
-		fromtime: {
-			de: 'ab Zeitstempel bzw. jünger als ',
-			en: 'from timestamp or younger than ',
-			fr: 'à partir de l\'horodatage ou plus jeune que ',
-			ja: 'タイムスタンプ以降またはそれより古い '
-		},
-		nullforall: {
-			de: '0000 oder leer für \'alle\'',
-			en: '0000 or empty for \'all\'',
-			fr: '0000 ou déposer pour \'tout\'',
-			ja: '0000 または、 \'すべて\' 空 '
-		},
-		doit: {
-			de: 'Mach es',
-			en: 'Do it',
-			fr: 'Fais-le',
-			ja: '実行'
-		},
-		visual: {
-			de: 'Bild-Browser benutzen',
-			en: 'Use visual Picture Browser',
-			fr: 'Ou outilizer navigateur visuel des images',
-			ja: 'ビジュアルな画像ブラウザを使用する'
 		},
 		errconnect: {
 			de: '\u001b[31mFEHLER\u001b[0m bei der Verbindung zu ImB auf $$0! Im ImB WLAN?',
@@ -20725,12 +20558,6 @@ const mytexts = { // actually const
 			fr: 'de lecture du fiche $$0',
 			ja: 'ファイル $$0 の読み取り中にエラーが発生しました。 '
 		},
-		unknownsize: {
-			de: 'Die Dateigröße <b>$$0</b> passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!',
-			en: 'File Size <b>$$0</b> does not match known formats. Please contact developer!',
-			fr: 'La taille du fiche <b>$$0</b> ne correspond pas au format connu. Veuillez contacter le développeur',
-			ja: 'が、ファイルサイズ <b>$$0</b> は既知の形式と一致しません。開発者にお問い合わせください。'
-		},
 		unknownsizex: {
 			de: 'Die Dateigröße $$0 passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!',
 			en: 'File Size $$0 does not match known formats. Please contact developer!',
@@ -20779,12 +20606,6 @@ const mytexts = { // actually const
 			fr: 'J\'ai reçu $$0 fiche(s) d\'ImB',
 			ja: 'ImB から $$0 ファイルを取得しました。'
 		},
-		skipped: {
-			de: 'Auf Anforderung übersprungen: $$0',
-			en: 'Skipped at your request: $$0',
-			fr: 'Ignoré à votre demande: $$0',
-			ja: 'リクエストに応じて残りの $$0 画像をスキップします'
-		},
 		totals: {
 			en: 'Total: $$0, ok: $$1, skipped: $$2, Errors: $$3',
 			de: 'Total: $$0, ok $$1, übersprungen: $$2, Fehler: $$3',
@@ -20831,53 +20652,13 @@ const mytexts = { // actually const
 			ja: '反時計回り'
 		},
 	},
-	selection: {
-		got: {
-			de: '$$0 Dateien wurden ausgewählt.',
-			en: 'Got $$0 files selected.',
-			fr: '$$0 dossiers ont été sélectionnés.',
-			ja: '$$0 ファイルが選択されました。'
-		},
-	},
-	del: {
-		question: {
-			en: 'Deleting $$0 file(s) can not be undone! Are you sure you want to continue?',
-			de: 'Löschen von $$0 Datei(en) kann nicht rückgängig gemacht werden. Sicher damit weitermachen?',
-			fr: 'La suppression de $$0 fiche(s) est irréversible. Es-tu sur de vouloir continuer?',
-			ja: '$$0 ファイルを削除すると、元に戻すことはできません。 続行してもよろしいですか?',
-			ok: {
-				de: 'Ok',
-				en: 'Ok',
-				fr: 'Ok',
-				ja: 'はい'
-			},
-			cancel: {
-				de: 'Abbrechen',
-				en: 'Cancel',
-				fr: 'Annuler',
-				ja: 'キャンセル'
-			}
-		},
-		nostatus: {
-			de: 'Der Status des Löschens kann nicht sicher geprüft werden. Bitte laden Sie die Seite nach dem Löschen neu.',
-			en: 'The status of the delete can not be checked safely. Reload the page after deleting.',
-			fr: 'Le statut de la suppression ne peut pas être vérifié avec certitude. Veuillez recharger la page après la suppression.',
-			ja: '削除のステータスを安全に確認することはできません。 削除後はページを再読み込みしてください。'
-		},
-		reload: {
-			de: 'Bitte Seite neu laden.',
-			en: 'Please reload page.',
-			fr: 'Veuillez recharger la page.',
-			ja: 'ページをリロードしてください。'
-		}
-	},
 	node: {
 	    backw: {
 			   help: {
 					   en: [ 'Welcome to imbdng2raw $$0 (BACKWARD!) !', 'Usage: node $$0 [-l lang] [-d dir] [ [--] <files>* ]',
 					   'Options:',
 					   ' -h - show this help',
-					   ' -l XX - where XX is a valid language code (currently: DE, EN, FR, JA)',
+					   ' -l XX - where XX is a valid language code (currently: DE, EN, JA)',
 					   '         Language can also be set by changing filename to imbdng2raw_XX.js .',
 					   ' -d dir - put output files into dir',
 					   ' -----',
@@ -20886,7 +20667,7 @@ const mytexts = { // actually const
 					   de: [ 'Willkommen bei imbdng2raw $$0 (RÜCKWÄRTS!) !', 'Aufruf: node $$0 [-l sprache] [-d ordner] [ [--] <dateien>* ]',
 					   'Optionen:',
 						' -h - diesen Hilfetext zeigen',
-						' -l XX - wo XX ein gültiger Sprachcode ist (derzeit: DE, EN, FR, JA)',
+						' -l XX - wo XX ein gültiger Sprachcode ist (derzeit: DE, EN, JA)',
 						'         Die Sprache kann auch durch Umbenennen in imbdng2raw_XX.js geändert werden.',
 						' -d ordner - Ausgabedateien in diesen Ordner ablegen',
 						' -----',
@@ -20894,7 +20675,7 @@ const mytexts = { // actually const
 					   ' <dateien> - lokale Dateien verarbeiten', ],
 						ja: [ 'imbdng2raw $$0 (戻る!) へようこそ!', '使い方: node $$0 [-l lang] [-d dir] [ [--] <files>* ]', 'オプション:', 
 							' -h - このヘルプを表示します',
-							' -l XX - XX は有効な言語コードです (現在: DE、EN、FR、JA)',
+							' -l XX - XX は有効な言語コードです (現在: DE、EN, JA)',
 							'         ファイル名を imbdng2raw_XX.js に変更することで言語を設定することもできます。',
 							' -d dir - 出力ファイルを dir に置きます',
 							' -----',
@@ -20913,7 +20694,7 @@ const mytexts = { // actually const
 				' \u001b[1m-h\u001b[0m - show this help',
 				' \u001b[1m-nc\u001b[0m - do not use coloured text',
 				' \u001b[1m-co\u001b[0m - force coloured text',
-				' \u001b[1m-l XX\u001b[0m - where XX is a valid language code (currently: DE, EN, FR, JA)',
+				' \u001b[1m-l XX\u001b[0m - where XX is a valid language code (currently: DE, EN, JA)',
 				'         Language can also be set by changing filename to imbraw2dng_XX.js .',
 				' \u001b[1m-d dir\u001b[0m - put output files into dir',
 				' \u001b[1m-f\u001b[0m - overwrite existing files',
@@ -20941,7 +20722,7 @@ const mytexts = { // actually const
 				' \u001b[1m-h\u001b[0m - montrer cette aide',
 				' \u001b[1m-nc\u001b[0m - n\'utilisez pas de texte en couleur',
 				' \u001b[1m-co\u001b[0m - utilisez de texte en couleur',
-				' \u001b[1m-l XX\u001b[0m - quand XX est une code du langue valide (actuellement: DE, EN, FR, JA)',
+				' \u001b[1m-l XX\u001b[0m - quand XX est une code du langue valide (actuellement: DE, EN, JA)',
 				'         La langue peut également être définie en changeant le nom du fiche en imbraw2dng_XX.js .',
 				' \u001b[1m-d repertoire\u001b[0m - mettre les fiches de sortie dans le répertoire',
 				' \u001b[1m-f\u001b[0m - écraser les fiches existants',
@@ -20997,20 +20778,21 @@ const mytexts = { // actually const
 				'\u001b[1m-h\u001b[0m - このヘルプを表示する',
 				' \u001b[1m-nc\u001b[0m - 色付きのテキストを使用しない',
 				' \u001b[1m-co\u001b[0m - 色付きのテキストを強制',
-				' \u001b[1m-l XX\u001b[0m - ここで、XX は有効な言語コードです (現在: DE、EN、FR、JA)',
+				' \u001b[1m-l XX\u001b[0m - ここで、XX は有効な言語コードです (現在: DE、EN, JA)',
 				'         ファイル名を imbraw2dng_XX.js に変更することで言語を設定することもできます。',
 				' \u001b[1m-d dir\u001b[0m - 出力ファイルを dir に置く',
 				' \u001b[1m-f\u001b[0m - 現在のファイルを上書きする',
 				' \u001b[1m-r\u001b[0m - rename output file, if already exists',
 				' \u001b[1m-np\u001b[0m - Do not add preview thumbnail to DNG',
-				' \u001b[1m-np\u001b[0m - Do not add preview thumbnail to DNG',
 				' \u001b[1m-owb\u001b[0m - Use old style constant white balance',
+				' \u001b[1m-ndcp\u001b[0m - Do not include new DNG Camera profile',
 				' \u001b[1m-cr \'copyright...\'\u001b[0m - add copyright to DNG',
 				' \u001b[1m-at \'author...\'\u001b[0m - add author/creator to DNG',
 				' \u001b[1m-fla\u001b[0m, \u001b[1m-flx\u001b[0m - add multiple images to fake long exposure, flx scales down',
 				' \u001b[1m-R\u001b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリからRAWを取得する',
 				' \u001b[1m-J\u001b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリからJPEGを取得する',
 				' \u001b[1m-O\u001b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリから非RAW/非JPEGを取得する',
+				' \u001b[1m-da correcttimestamp=cameratimestamp\u001b[0m - correct times in yyyy_mm_dd-hh_mm_ss format',
 				' \u001b[1m-n yyyy_mmdd_hhmmss\u001b[0m (または任意の長さのプレフィックス) - ImB からこのタイムスタンプより新しいもののみを選択する',
 				' -----',
 				' \u001b[1m--\u001b[0m - 残りのパラメータをローカル ファイルまたはディレクトリとして扱う',
