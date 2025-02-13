@@ -1478,23 +1478,19 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 	//console.log('ai ' + allmin + ' aa ' + allmax + ' ff ' + fact);
 	const o = scale ? 3 : 4;
 	const uic = new Uint8ClampedArray(h8 * w8 * o);
+	console.log('gm ' + gmed);
 	for (let i = 0; i < h8; i++) {
 		for (let j=0; j< w8; j++) {
 			let nr = ((outpix[3*((i * w8) + j)] * rfact) - allmin) * fact + allmin;
 			let ng = ((outpix[3*((i * w8) + j) + 1] * gfact) - allmin) * fact + allmin;
 			let nb = ((outpix[3*((i * w8) + j) + 2] * bfact) - allmin) * fact + allmin;
 			let gfac = 1;
-			if (gmed < 80) {
+			if (gmed < 90) {
 				// maybe some brightening gamma?
-				let ngr = 1, ngg = 1, ngb = 1;
-				if (ng)
-					ngg = (255-Math.floor(255*((255-ng)/255)*((255-ng)/255))) / ng;
-				if (nr)
-					ngr = (255-Math.floor(255*((255-nr)/255)*((255-nr)/255))) / nr;
-				if (nb)
-					ngb = (255-Math.floor(255*((255-nb)/255)*((255-nb)/255))) / nb;
+				let ngg = Math.sqrt(ng)*16/ng;
+				let ngr = Math.sqrt(nr)*16/nr;
+				let ngb = Math.sqrt(nb)*16/nb;
 				gfac = Math.max(ngg, ngr, ngb);
-				if (gfac < 1) gfac = 1;
 			}
 			uic[o * ((i*w8) + j)] = nr * gfac;
 			uic[o * ((i*w8) + j) + 1] = ng * gfac;
