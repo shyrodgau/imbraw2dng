@@ -808,7 +808,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.0.7_c03649a", // actually const // VERSION EYECATCHER
+version: "V6.0.7_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -1151,13 +1151,13 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 			cnt++;
 		}
 	}
-	// cut off top and bottom 1 and 3%
+	// cut off top and bottom 0.3 and 3%
 	let cntx = 0, rallmin = 0, rallmax = 255;
 	while (cntx < (cnt * 0.03))
 		cntx += rhist[rallmin++];
 	if (rallmin > 0) rallmin --;
 	cntx = 0;
-	while (cntx < (cnt * 0.01))
+	while (cntx < (cnt * 0.003))
 		cntx += rhist[rallmax--];
 	if (rallmax < 255) rallmax++;
 	let gallmin = 0, gallmax = 255, gmed = 255;
@@ -1166,7 +1166,7 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 		cntx += ghist[gallmin++];
 	if (gallmin > 0) gallmin --;
 	cntx = 0;
-	while (cntx < (cnt * 0.01))
+	while (cntx < (cnt * 0.003))
 		cntx += ghist[gallmax--];
 	if (gallmax < 255) gallmax++;
 	cntx = 0;
@@ -1178,7 +1178,7 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 		cntx += bhist[ballmin++];
 	if (ballmin > 0) ballmin --;
 	cntx = 0;
-	while (cntx < (cnt * 0.01))
+	while (cntx < (cnt * 0.003))
 		cntx += bhist[ballmax--];
 	if (ballmax < 255) ballmax++;
 	let allmin = Math.min(rallmin, gallmin, ballmin);
@@ -1193,20 +1193,20 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 	const uic = new Uint8ClampedArray(h8 * w8 * o);
 	for (let i = 0; i < h8; i++) {
 		for (let j=0; j< w8; j++) {
-			let nr = ((outpix[3*((i * w8) + j)] * rfact) - allmin) * fact + allmin;
-			let ng = ((outpix[3*((i * w8) + j) + 1] * gfact) - allmin) * fact + allmin;
-			let nb = ((outpix[3*((i * w8) + j) + 2] * bfact) - allmin) * fact + allmin;
+			let nr = (outpix[3*((i * w8) + j)] - allmin) * fact + allmin;
+			let ng = (outpix[3*((i * w8) + j) + 1] - allmin) * fact + allmin;
+			let nb = (outpix[3*((i * w8) + j) + 2] - allmin) * fact + allmin;
 			let gfac = 1;
 			if (gmed < 90) {
 				// maybe some brightening gamma?
 				let ngg = Math.sqrt(ng)*16/ng;
 				let ngr = Math.sqrt(nr)*16/nr;
 				let ngb = Math.sqrt(nb)*16/nb;
-				gfac = Math.max(ngg, ngr, ngb);
+				gfac = (ngg+ ngr+ ngb)/3;
 			}
-			uic[o * ((i*w8) + j)] = nr * gfac;
-			uic[o * ((i*w8) + j) + 1] = ng * gfac;
-			uic[o * ((i*w8) + j) + 2] = nb * gfac;
+			uic[o * ((i*w8) + j)] = Math.floor(nr* gfac * rfact);
+			uic[o * ((i*w8) + j) + 1] = Math.floor(ng* gfac * gfact);
+			uic[o * ((i*w8) + j) + 2] = Math.floor(nb* gfac * bfact);
 			if (!scale) uic[o * ((i*w8) + j) + 3] = 255;
 		}
 	}
