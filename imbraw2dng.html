@@ -971,7 +971,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.0.6_@_d_e_v", // actually const // VERSION EYECATCHER
+version: "V6.0.7_c03649a", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -1354,7 +1354,6 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 	//console.log('ai ' + allmin + ' aa ' + allmax + ' ff ' + fact);
 	const o = scale ? 3 : 4;
 	const uic = new Uint8ClampedArray(h8 * w8 * o);
-	console.log('gm ' + gmed);
 	for (let i = 0; i < h8; i++) {
 		for (let j=0; j< w8; j++) {
 			let nr = ((outpix[3*((i * w8) + j)] * rfact) - allmin) * fact + allmin;
