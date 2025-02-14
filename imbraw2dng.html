@@ -971,7 +971,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.0.7_0411935", // actually const // VERSION EYECATCHER
+version: "V6.0.7_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -1315,19 +1315,12 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 		}
 	}
 	// cut off top and bottom 0.3 and 3%
-	let cntx = 0, rallmin = 0, rallmax = 255;
-	while (cntx < (cnt * 0.03))
-		cntx += rhist[rallmin++];
-	if (rallmin > 0) rallmin --;
+	let cntx = 0, rallmax = 255;
 	cntx = 0;
 	while (cntx < (cnt * 0.003))
 		cntx += rhist[rallmax--];
 	if (rallmax < 255) rallmax++;
-	let gallmin = 0, gallmax = 255, gmed = 255;
-	cntx = 0;
-	while (cntx < (cnt * 0.03))
-		cntx += ghist[gallmin++];
-	if (gallmin > 0) gallmin --;
+	let gallmax = 255, gmed = 255;
 	cntx = 0;
 	while (cntx < (cnt * 0.003))
 		cntx += ghist[gallmax--];
@@ -1335,32 +1328,27 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 	cntx = 0;
 	while (cntx < (cnt * 0.5))
 		cntx += ghist[gmed--];
-	let ballmin = 0, ballmax = 255;
-	cntx = 0;
-	while (cntx < (cnt * 0.03))
-		cntx += bhist[ballmin++];
-	if (ballmin > 0) ballmin --;
+	if (gmed < 255) gmed++;
+	let ballmax = 255;
 	cntx = 0;
 	while (cntx < (cnt * 0.003))
 		cntx += bhist[ballmax--];
 	if (ballmax < 255) ballmax++;
-	let allmin = Math.min(rallmin, gallmin, ballmin);
 	let allmax = Math.max(rallmax, gallmax, ballmax);
-	if (allmin < 120) allmin = 0;
 	let fact = 1;
-	if (allmax - allmin >= 1) {
-		fact = 255/(allmax - allmin);
+	if (allmax >= 1) {
+		fact = 255/allmax;
 	}
-	//console.log('ai ' + allmin + ' aa ' + allmax + ' ff ' + fact);
+	//console.log('ai ' + allmin + ' aa ' + allmax + ' ae ' + gmed + ' ff ' + fact + ' ffx ' + (gmed*fact));
 	const o = scale ? 3 : 4;
 	const uic = new Uint8ClampedArray(h8 * w8 * o);
 	for (let i = 0; i < h8; i++) {
 		for (let j=0; j< w8; j++) {
-			let nr = (outpix[3*((i * w8) + j)] - allmin) * fact + allmin;
-			let ng = (outpix[3*((i * w8) + j) + 1] - allmin) * fact + allmin;
-			let nb = (outpix[3*((i * w8) + j) + 2] - allmin) * fact + allmin;
+			let nr = outpix[3*((i * w8) + j)] * fact;
+			let ng = outpix[3*((i * w8) + j) + 1] * fact;
+			let nb = outpix[3*((i * w8) + j) + 2] * fact;
 			let gfac = 1;
-			if (gmed < 90) {
+			if (gmed *fact < 120) {
 				// maybe some brightening gamma?
 				let ngg = Math.sqrt(ng)*16/ng;
 				let ngr = Math.sqrt(nr)*16/nr;
