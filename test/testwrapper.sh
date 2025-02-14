@@ -73,16 +73,12 @@ done
 
 find */* -type f|while read x; do z=$( echo "$x" | sed 's@/@_@g' ); ln -sv "$x" "$z"; done >> $log 2>&1
 
-find . -maxdepth 1 -name \*.[dD][nN][gG] -exec dcraw -e {} \; 2>/dev/null
+#find . -maxdepth 1 -name \*.[dD][nN][gG] -exec dcraw -e {} \; 2>/dev/null
+exiftool -b -preview:all -w .tif *.[dD][nN][gG] > /dev/nul 2>&1 # -execute -overwrite_original -orientation= %f.tif
 
 find * -name \*[jJdD][pPnN][gG] -type f -print -exec sh -c  'echo ==== ; exiftool -xmp -b  "{}" | xmllint -format - '  \; > ${TESTWORK}/imbraw2dng_test_${testid}_xmp.xml 2>&1
-find * -type f -print0 | sort -z | xargs '-I{}' -0 exiftool -X '{}' > ${TESTWORK}/imbraw2dng_test_${testid}_exif.xml 2>&1
+find * -type f | sort |  exiftool -X -@ - > ${TESTWORK}/imbraw2dng_test_${testid}_exif.xml
 find * -name \*[jJdD][pPnN][gG] -type f -print0 | sort -z | xargs '-I{}' -0 exiv2 -pR -uvb '{}' > ${TESTWORK}/imbraw2dng_test_${testid}_exiv2.txt 2>&1
-
-( cd $TESTWORK && ( l=$( wc -l imbraw2dng_test_${testid}_exif.xml | cut -d' ' -f 1 ); 
-	uu=$(( $l - 3 )); 
-	sed -i -e '2,'$uu' s/^<[?]xml.*//g' -e '4,'$uu' s@</*rdf:RDF[^>]*>@@g' imbraw2dng_test_${testid}_exif.xml
-) )
 
 echo 'ZIP TESTS' | tee -a $log
 find . -name \*.zip -type f -print -exec unzip -v {} \; -exec unzip -t {} \; 2>&1 | tee -a $log
