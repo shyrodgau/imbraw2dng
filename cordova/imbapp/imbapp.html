@@ -1136,7 +1136,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.0.8_1a25fae", // actually const // VERSION EYECATCHER
+version: "V6.0.8_ad8dfd1", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -19080,11 +19080,10 @@ handleone(orientation) {
 			this.mappx(0, 'process.datetime', datestr);
 		}
 		let ori = orientation ? orientation : 1;
-		let transp = false;
-		if (ori !== 1) {
+		/*if (ori !== 1) {
 			//this.mappx(0, 'process.orientation', this.xl0('preview.orients.' + globals.orients[ori]));
 			if (ori === 6 || ori === 8) transp = true;
-		}
+		}*/
 		const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : globals.getwb(view, zz, whitelvl);
 		//console.log('WB ' + JSON.stringify(wb));
 		//if (!this.constwb)
