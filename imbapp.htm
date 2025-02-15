@@ -1136,7 +1136,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.0.7_@_d_e_v", // actually const // VERSION EYECATCHER
+version: "V6.0.8_1a25fae", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -19097,7 +19097,7 @@ handleone(orientation) {
 			/* **** PREVIEW image **** */
 			let scale = 32;
 			if (w < 4096 && h < 4096) scale=16;
-			ti.addImageStrip(1, globals.buildpvarray(view, 0, typ, w, h, 1, scale, wb, whitelvl), Math.floor(transp ? (h+scale-1)/scale:(w+scale-1)/scale), Math.floor(transp ? (w+scale-1)/scale: (h+scale-1)/scale));
+			ti.addImageStrip(1, globals.buildpvarray(view, 0, typ, w, h, 1, scale, wb, whitelvl), Math.floor((w+scale-1)/scale), Math.floor((h+scale-1)/scale));
 			ti.addEntry(258 , 'SHORT', [ 8, 8, 8 ]); /* BitsPerSample */
 			ti.addEntry(259 , 'SHORT', [ 1 ]); /* Compression - none */
 			ti.addEntry(262, 'SHORT', [ 2 ]); /* Photometric - RGB */
@@ -19631,10 +19631,18 @@ parseDng(f, onok, onerr) {
 		factd: factd
 	};
 	if (datalen === 30607488 && splitt) {
+		const v = new DataView(fx.data);
 		for (let k=0; k < datalen/2; k++) {
+			// just backward but line-wise
 			let i = v.getUint8(k);
-			v.setUint8(k, v.getUint8(datalen-k));
-			v.setUint8(datalen-k, i);
+			if (k % 15648 < 7824) {
+				v.setUint8(k, v.getUint8(datalen-k-1-7824));
+				v.setUint8(datalen-k-1-7824, i);
+			}
+			else {
+				v.setUint8(k, v.getUint8(datalen-k-1+7824));
+				v.setUint8(datalen-k-1+7824, i);
+			}
 		}
 	}
 	else if (-1 !== globals.twelvebitsizes.indexOf(datalen)) {
