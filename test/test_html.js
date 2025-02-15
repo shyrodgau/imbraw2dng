@@ -456,7 +456,7 @@ describe('C Convert Backward', function() {
 describe('E Convert Raw from Imback APP', function() {
 	let driver, opts, errflg = false;
 	before(async function() {
-			this.timeout(66000);
+			this.timeout(96000);
 			//const chromcapa = Capabilities.chrome();
 			const opts = [ 'prefs', { 'download.default_directory': '/home/hegny/Downloads/testoutputdir' } ];
 			//chromcapa.set('chromeOptions', opts);
@@ -466,7 +466,7 @@ describe('E Convert Raw from Imback APP', function() {
 			driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));}');
 	});
 	it('E.1 Convert from visual browser', async function dotest() {
-			this.timeout(76000);
+			this.timeout(96000);
 			await driver.actions({ async: true })
 				.pause(1000)
 				.click()

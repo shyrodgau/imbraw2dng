@@ -302,7 +302,7 @@ tn=$(( $tn + 1 ))
 echo '##########    15    ##########'
 echo Test ${tn} stacking DNG
 set -x
-${TESTEXES}/imbraw2dng.js -fla 2023_0314_231116_004.dng 2029_0707_120426_021.dng 2023_0311_120252_002.dng 
+${TESTEXES}/imbraw2dng.js -fla 2029_0710_010203_001.dng 2029_0707_120426_021.dng 2023_0311_120252_002.dng 
 rc=$?
 n=$( ls .|wc -l )
 set +x

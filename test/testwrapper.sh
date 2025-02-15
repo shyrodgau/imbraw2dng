@@ -73,8 +73,8 @@ done
 
 find */* -type f|while read x; do z=$( echo "$x" | sed 's@/@_@g' ); ln -sv "$x" "$z"; done >> $log 2>&1
 
-#find . -maxdepth 1 -name \*.[dD][nN][gG] -exec dcraw -e {} \; 2>/dev/null
-exiftool -b -preview:all -w .tif *.[dD][nN][gG] > /dev/null 2>&1 # -execute -overwrite_original -orientation= %f.tif
+find . -maxdepth 1 -name \*.[dD][nN][gG] -print0 | xargs -0  dcraw -e  2>/dev/null
+#exiftool -b -preview:all -w .tif *.[dD][nN][gG] > /dev/null 2>&1 # -execute -overwrite_original -orientation= %f.tif
 
 find * -name \*[jJdD][pPnN][gG] -type f -print -exec sh -c  'echo ==== ; exiftool -xmp -b  "{}" | xmllint -format - '  \; > ${TESTWORK}/imbraw2dng_test_${testid}_xmp.xml 2>&1
 find * -type f | sort |  exiftool -X -@ - > ${TESTWORK}/imbraw2dng_test_${testid}_exif.xml

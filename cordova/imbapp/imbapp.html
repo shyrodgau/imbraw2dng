@@ -620,17 +620,26 @@ camprofptr = -1; // first of the pointers, they are sequential, accessed by TIFF
 #imglen = 0;
 #imglen0 = 0;
 #dyndata = [] ; //new Uint8Array(20000);
+#splitstrip = false;
 /* IFDOut: add image data to ifd */
 addImageStrip(typ, view, width, height) {
 	this.#imgdata = view;
 	this.#imglen0 = view.byteLength ? this.#imgdata.byteLength : view.length;
 	this.#imglen = (this.#imglen0 + 3) & 0xFFFFFFFC;
+	this.#splitstrip = (this.#imglen === 30607488);
 	this.addEntry(254 , 'LONG', [ typ ]); /* SubFileType */
 	this.addEntry(256 , 'SHORT', [ width ]); /* width */
 	this.addEntry(257 , 'SHORT', [ height ]); /* height */
-	this.addEntry(273 , 'LONG', [ 0xFFFFFFFF ]); /* StipOffsets , special */
-	this.addEntry(279 , 'LONG', [ this.#imglen0 ]); /* StripByte count */
-	this.addEntry(278 , 'LONG', [ height ]); /* Rows per strip */
+	if (this.#splitstrip) {
+		this.addEntry(273 , 'LONG', [ 0, this.#imglen0 / 2 ]); /* StipOffsets , special */
+		this.addEntry(279 , 'LONG', [ this.#imglen0 / 2, this.#imglen0 / 2]); /* StripByte count */
+		this.addEntry(278 , 'SHORT', [ height / 2]); /* Rows per strip */
+	}
+	else {
+		this.addEntry(273 , 'LONG', [ 0xFFFFFFFF ]); /* StipOffsets , special */
+		this.addEntry(279 , 'LONG', [ this.#imglen0 ]); /* StripByte count */
+		this.addEntry(278 , 'LONG', [ height ]); /* Rows per strip */
+	}
 }
 /* IFDOut: add entry to ifd */
 addEntry(tag, type, value) {
@@ -638,7 +647,7 @@ addEntry(tag, type, value) {
 	let l = value.length;
 	if (type === 'ASCII') l++;
 	else if (type === 'RATIONAL' || type === 'SRATIONAL') l /= 2;
-	if (tag === 273 || tag === 330) { /* special cases */
+	if (tag === 330) { /* special cases */
 		let e = {
 			tag: tag,
 			type: x.t,
@@ -765,17 +774,45 @@ addEntry(tag, type, value) {
 getData(offset) {
 	let ioff = 0, data = new Uint8Array(this.#imglen + (12 * this.#entrys.length) + this.#currentoff + 16);
 	if (this.#imgdata?.getUint8) {
-		if (-1 !== globals.twelvebitsizes.indexOf(this.#imglen)) {
-			for (let z=0; z<this.#imgdata.byteLength; z+=3) {
-				let n = this.#imgdata.getUint8(z);
-				data[ioff++] = this.#imgdata.getUint8(z+2);
-				data[ioff++] = this.#imgdata.getUint8(z+1);
-				data[ioff++] = n;
+		if (this.#imglen === 30607488) {
+			for (let z=0; z<this.#imgdata.byteLength; z++) {
+				// just backward but line-wise
+				if (z % 15648 < 7824) {
+					data[ioff++] = this.#imgdata.getUint8(this.#imgdata.byteLength - z - 1-7824);
+				}
+				else {
+					data[ioff++] = this.#imgdata.getUint8(this.#imgdata.byteLength - z - 1+7824);
+				}
 			}
 		}
-		else
+		else if (this.#imglen === 40809984) {
+			for (let z=0; z<this.#imgdata.byteLength; z+=4) {
+				if (z % 20864 < 10432) {
+					// keep groups of 4 byte = 2 samples
+					data[ioff++] = this.#imgdata.getUint8(this.#imgdata.byteLength - z - 4-10432);
+					data[ioff++] = this.#imgdata.getUint8(this.#imgdata.byteLength - z - 3-10432);
+					data[ioff++] = this.#imgdata.getUint8(this.#imgdata.byteLength - z - 2-10432);
+					data[ioff++] = this.#imgdata.getUint8(this.#imgdata.byteLength - z - 1-10432);
+				}
+				else {
+					data[ioff++] = this.#imgdata.getUint8(this.#imgdata.byteLength - z - 4+10432);
+					data[ioff++] = this.#imgdata.getUint8(this.#imgdata.byteLength - z - 3+10432);
+					data[ioff++] = this.#imgdata.getUint8(this.#imgdata.byteLength - z - 2+10432);
+					data[ioff++] = this.#imgdata.getUint8(this.#imgdata.byteLength - z - 1+10432);
+				}
+			}
+		}
+		else if (-1 !== globals.twelvebitsizes.indexOf(this.#imglen)) {
+			for (let z=0; z<this.#imgdata.byteLength; z+=3) {
+				data[ioff++] = this.#imgdata.getUint8(z+2);
+				data[ioff++] = this.#imgdata.getUint8(z+1);
+				data[ioff++] = this.#imgdata.getUint8(z);
+			}
+		}
+		else {
 			for (let z=0; z<this.#imgdata.byteLength; z++)
 				data[ioff++] = this.#imgdata.getUint8(z);
+		}
 	} else if (this.#imgdata) {
 		for (let z=0; z<this.#imgdata.length; z++)
 			data[ioff++] = this.#imgdata[z];
@@ -797,8 +834,12 @@ getData(offset) {
 		if (subptr) {
 			subptr.o = offset  + ioff;
 		}
-		if (i.tag === 273) { /* strip offsets is set here, subifd (-2), exififd and private stuff outside */
+		if (i.tag === 273 && !this.#splitstrip) { /* strip offsets is set here, subifd (-2), exififd and private stuff outside */
 			TIFFOut.writeinttoout(data, offset, ioff);
+		} else if (i.tag === 273 && this.#splitstrip) { /* strip offsets is set here, subifd (-2), exififd and private stuff outside */
+			TIFFOut.writeinttoout(this.#dyndata, offset, i.ptr);
+			TIFFOut.writeinttoout(this.#dyndata, offset + this.#imglen0 / 2, i.ptr + 4);
+			TIFFOut.writeinttoout(data, i.ptr + offset + this.#imglen + 6 + (12 * this.#entrys.length), ioff);
 		} else if (i.tag === 50933) { // camera profiles
 			if (undefined !== i.value) // only one, profile ptr fits into value
 				this.camprofptr = offset + ioff;
@@ -1095,7 +1136,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.0.7_5079a96", // actually const // VERSION EYECATCHER
+version: "V6.0.7_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -1395,30 +1436,36 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 	let rowiterstart, rowiterend;
 	let coliterstart, coliterend;
 	let transpose = false;
-	if (typ === 5 && orientation === 0)
-		orientation = 3;
-	if (orientation === 3) {
+	if ((orientation === 3 && (typ % 32 !== 5)) ||
+		(orientation == 1 && (typ % 32 === 5))) {
 		rowiterstart = -1*(h8 -1);
 		rowiterend = 1;
 		coliterstart = -1*(w8 - 1);
 		coliterend = 1;
-	} else if (orientation === 6) {
+	} else if ((orientation === 6 && (typ % 32 !== 5)) ||
+		(orientation == 8 && (typ % 32 === 5))) {
 		transpose = true;
 		rowiterstart = 0;
 		rowiterend = w8;
 		coliterstart = -1*(h8 - 1);
 		coliterend = 1;
-	} else if (orientation === 8) {
+	} else if ((orientation === 8 && (typ % 32 !== 5)) ||
+		(orientation == 6 && (typ % 32 === 5))) {
 		transpose = true;
 		rowiterstart = -1*(w8 -1);
 		rowiterend = 1;
 		coliterstart = 0;
 		coliterend = h8;
-	} else {
+	} else if (typ % 32 !== 5) {
 		rowiterstart = 0;
 		rowiterend = h8;
 		coliterstart = 0;
 		coliterend = w8;
+	} else {
+		rowiterstart = -1*(h8 -1);
+		rowiterend = 1;
+		coliterstart = -1*(w8 - 1);
+		coliterend = 1;
 	}
 	let rhist = new Array(256), ghist = new Array(256), bhist = new Array(256);
 	for (let i = 0; i < 256; i++) {
@@ -19032,7 +19079,7 @@ handleone(orientation) {
 		if (dateok) {
 			this.mappx(0, 'process.datetime', datestr);
 		}
-		let ori = orientation ? orientation : ((typ % 32) === 5 ? 3 : 1);
+		let ori = orientation ? orientation : 1;
 		let transp = false;
 		if (ori !== 1) {
 			//this.mappx(0, 'process.orientation', this.xl0('preview.orients.' + globals.orients[ori]));
@@ -19531,10 +19578,11 @@ parseDng(f, onok, onerr) {
 	}
 	let sbci = ifd.findIndex((v) => v.t === 279);
 	let sboi = ifd.findIndex((v) => v.t === 273);
-	let datalen = 0, rawstripstart = 0, wl = 255, factc = 1, factd = 1;
+	let datalen = 0, rawstripstart = 0, wl = 255, factc = 1, factd = 1, splitt = 0;
 	if (sbci !== -1 && sboi !== -1) {
-		datalen = ifd[sbci].val[0];
+		datalen = ifd[sbci].val.reduce((a,b) => a+b, 0);
 		rawstripstart = ifd[sboi].val[0];
+		splitt = (ifd[sboi].val.length > 0);
 	}
 	else {
 		this.appmsg('Works only for originally created DNGs.', true);
@@ -19582,7 +19630,14 @@ parseDng(f, onok, onerr) {
 		factc: factc,
 		factd: factd
 	};
-	if (-1 !== globals.twelvebitsizes.indexOf(datalen)) {
+	if (datalen === 30607488 && splitt) {
+		for (let k=0; k < datalen/2; k++) {
+			let i = v.getUint8(k);
+			v.setUint8(k, v.getUint8(datalen-k));
+			v.setUint8(datalen-k, i);
+		}
+	}
+	else if (-1 !== globals.twelvebitsizes.indexOf(datalen)) {
 		const v = new DataView(fx.data);
 		for (let k=0; k < datalen; k+=3) {
 			let i = v.getUint8(k);
@@ -23380,9 +23435,7 @@ buildtitle(gr) {
 		ne.querySelector('.eepvx').style['font-family'] = 'Symbol3';
 		ne.querySelector('.eepvx').innerHTML = '&#x1f4f7;';
 		if (undefined === e.rot) {
-			if (e.imbackintension?.size && e.imbackintension?.size > 30000000)
-				e.rot = 3;
-			else if (e.imbackintension?.size && e.imbackintension?.size < 30000000)
+			if (e.imbackintension?.size)
 				e.rot = 1;
 			else
 				e.rot = 0;
@@ -26153,7 +26206,7 @@ function buildpreview(struc, f, size, orientation) {
 		//console.log(JSON.stringify(wb));
 		let outpix = globals.buildpvarray(view, size, typ, w, h, orientation, false, wb, whitelvl);
 		// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
-		postMessage({ cmd: struc.cmd, pix: outpix, n: struc.n, o: struc.ori, c: struc.cache, xori: (typ === 5 && struc.ori === 0) ? 3 : ((struc.ori === 0) ? 1 : struc.ori), size: struc.siz, cid: struc.ci });
+		postMessage({ cmd: struc.cmd, pix: outpix, n: struc.n, o: struc.ori, c: struc.cache, xori: (!struc.ori) ? 1 : struc.ori, size: struc.siz, cid: struc.ci });
 	};
 	reader.onerror = (evt) => {
 		console.log('WORKER preview: error reading ' + f.name + ' E ' + evt.toString());
@@ -26195,11 +26248,11 @@ function buildpreviewcache(struc, f, size, orientation) {
 	// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
 	if (dbgflag) {
 		setTimeout(() => {
-			postMessage({ cmd: struc.cmd, pix: outpix, n: struc.n, o: struc.ori, c: struc.cache, xori: (typ === 5 && struc.ori === 0) ? 3 : ((struc.ori === 0) ? 1 : struc.ori), size: struc.siz, cid: struc.ci });
+			postMessage({ cmd: struc.cmd, pix: outpix, n: struc.n, o: struc.ori, c: struc.cache, xori: (!struc.ori) ? 1 : struc.ori, size: struc.siz, cid: struc.ci });
 		}, 300);
 	}
 	else {
-		postMessage({ cmd: struc.cmd, pix: outpix, n: struc.n, o: struc.ori, c: struc.cache, xori: (typ === 5 && struc.ori === 0) ? 3 : ((struc.ori === 0) ? 1 : struc.ori), size: struc.siz, cid: struc.ci });
+		postMessage({ cmd: struc.cmd, pix: outpix, n: struc.n, o: struc.ori, c: struc.cache, xori: (!struc.ori) ? 1 : struc.ori, size: struc.siz, cid: struc.ci });
 	}
 }
 /* WORKER read local jpeg */
