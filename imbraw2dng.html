@@ -19457,7 +19457,7 @@ parseDng(f, onok, onerr) {
 	if (sbci !== -1 && sboi !== -1) {
 		datalen = ifd[sbci].val.reduce((a,b) => a+b, 0);
 		rawstripstart = ifd[sboi].val[0];
-		splitt = (ifd[sboi].val.length > 0);
+		splitt = (ifd[sboi].val.length > 1);
 	}
 	else {
 		this.appmsg('Works only for originally created DNGs.', true);

@@ -1510,7 +1510,7 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 	if (allmax >= 1) {
 		fact = 255/allmax;
 	}
-	console.log(' aa ' + allmax + ' ae ' + gmed + ' ff ' + fact + ' ffx ' + (gmed*fact));
+	//console.log('ai ' + allmin + ' aa ' + allmax + ' ae ' + gmed + ' ff ' + fact + ' ffx ' + (gmed*fact));
 	const o = scale ? 3 : 4;
 	const uic = new Uint8ClampedArray(h8 * w8 * o);
 	for (let i = 0; i < h8; i++) {
@@ -19581,7 +19581,7 @@ parseDng(f, onok, onerr) {
 	if (sbci !== -1 && sboi !== -1) {
 		datalen = ifd[sbci].val.reduce((a,b) => a+b, 0);
 		rawstripstart = ifd[sboi].val[0];
-		splitt = (ifd[sboi].val.length > 0);
+		splitt = (ifd[sboi].val.length > 1);
 	}
 	else {
 		this.appmsg('Works only for originally created DNGs.', true);

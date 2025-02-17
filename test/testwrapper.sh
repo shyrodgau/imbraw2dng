@@ -19,6 +19,8 @@ pushd $TESTDAT
 ( python3 -m http.server 8889 > ${log}_http 2>&1 )&
 webid=$!
 
+rm -rf ${TESTWORK}/outdir/*
+
 ${TESTWORK}/test_node.sh 2>&1 | tee --output-error=exit -a $log 2>&1
 xs=$(( ${PIPESTATUS[0]} + ${PIPESTATUS[1]} ))
 test ${xs} -ne 0 && echo node failed && exit
