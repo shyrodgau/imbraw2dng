@@ -949,16 +949,14 @@ getwb: function(view, typidx, whitelvl) {
 			let lr = x[0];
 			let lg = x[1] + 1;
 			let lb = x[2];
+			let mi = Math.min(lr,lg,lb);
+			let ax = Math.max(lr,lg,lb);
+			if (ax > 4*mi) continue;
 			let p = Math.sqrt(lg*lg + lb*lb + lr*lr);
-			if (p < 3 || p > (433)) continue;
-			//if (((i*t.w + j) % 50000) < 10)
-			//	console.log('i ' + i + ' j ' + j + ' R ' + lr + ' G ' + lg + ' B ' + lb + ' P ' + p);
-			//if (r + g == 2) {
-			//	console.log('R G B ' + x[0] + ' ' + x[1] + ' ' + x[2] + ' P ' + p + ' LB ' + lb + ' LR ' + lr + ' LG ' + lg);
-			//}
-			b += ((lb)/(p)>1) ? 1 : (lb)/(p);
-			g += ((lg)/(p)>1) ? 1 : (lg)/(p);
-			r += ((lr)/(p)>1) ? 1 : (lr)/(p);
+			if (p < 20) continue;
+			b += ((ax < 2*mi) ? 2:1)*lb/p;
+			g += ((ax < 2*mi) ? 2:1)*lg/p;
+			r += ((ax < 2*mi) ? 2:1)*lr/p;
 		}
 	}
 	//console.log('ER EG EB ' + r + ' ' + g + ' ' + b);
