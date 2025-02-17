@@ -1136,7 +1136,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.0.8_ef93393", // actually const // VERSION EYECATCHER
+version: "V6.0.8_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -1510,9 +1510,15 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 	if (allmax >= 1) {
 		fact = 255/allmax;
 	}
-	//console.log('ai ' + allmin + ' aa ' + allmax + ' ae ' + gmed + ' ff ' + fact + ' ffx ' + (gmed*fact));
+	//console.log(' aa ' + allmax + ' ae ' + gmed + ' ff ' + fact + ' ffx ' + (gmed*fact));
 	const o = scale ? 3 : 4;
 	const uic = new Uint8ClampedArray(h8 * w8 * o);
+	// exposure correction?
+	if (gmed*fact < 20) fact *= 1.2;
+	else if (gmed*fact < 40) fact *= 1.1;
+	else if (gmed*fact > 200) fact *= 0.9;
+	else if (gmed*fact > 190) fact *= 0.95;
+	//console.log('ff ' + fact + ' ffx ' + (gmed*fact));
 	for (let i = 0; i < h8; i++) {
 		for (let j=0; j< w8; j++) {
 			let nr = outpix[3*((i * w8) + j)] * fact;
@@ -25671,7 +25677,7 @@ xl1(el) {
 				to.isbig ? 2 : 1,
 				(xrot) => { /* on ok: */
 			if (this.magentry && this.magentry.url != url) {
-				console.log('MR ' + this.magentry.url + ' ' + url);
+				if (this.debugflag) console.log('MR ' + this.magentry.url + ' ' + url);
 				this.loadnextimg();
 				e.setAttribute('data-state', 'wait');
 				if (!afterloadcalled) {
