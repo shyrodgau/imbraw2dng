@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-/* 
-***************************************************** 
+/*
+*****************************************************
 
 imbraw2dng(_LL).js
 imbdng2raw.js
@@ -53,13 +53,13 @@ Copyright (C) 2023,2024,2025 by Stefan Hegny, stefan@hegny.de
 
 Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted.
 
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. 
-IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, 
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
 DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 // SPDX-License-Identifier: 0BSD
 
-***************************************************** 
+*****************************************************
 
 Mapping of identical sections: (* = missing here)
 IFDOut (TIFFOut, ImBCBase, globals): 	imbapp.htm imbapp.html imbraw2dng.html imbraw2dng.js		(all)
@@ -20713,7 +20713,7 @@ const mytexts = { // actually const
 						' -----',
 						' -- - weitere Parameter als lokale Dateien oder Ordner betrachten',
 					   ' <dateien> - lokale Dateien verarbeiten', ],
-						ja: [ 'imbdng2raw $$0 (戻る!) へようこそ!', '使い方: node $$0 [-l lang] [-d dir] [ [--] <files>* ]', 'オプション:', 
+						ja: [ 'imbdng2raw $$0 (戻る!) へようこそ!', '使い方: node $$0 [-l lang] [-d dir] [ [--] <files>* ]', 'オプション:',
 							' -h - このヘルプを表示します',
 							' -l XX - XX は有効な言語コードです (現在: DE、EN, JA)',
 							'         ファイル名を imbdng2raw_XX.js に変更することで言語を設定することもできます。',

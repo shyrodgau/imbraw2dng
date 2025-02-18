@@ -1,6 +1,6 @@
 <html>
 <!--
-***************************************************** 
+*****************************************************
 
 imbapp.html - use in cordova app
 
@@ -9,14 +9,14 @@ Convert RAW from I'm back(R)(https://imback.eu) into DNG
 Based on work by Michele Asciutti.
 Japanese translations by Sadami Inoue.
 
-Contains parts of NotoSansSymbols2-Regular https://fonts.google.com/noto/specimen/Noto+Sans+Symbols+2 
+Contains parts of NotoSansSymbols2-Regular https://fonts.google.com/noto/specimen/Noto+Sans+Symbols+2
 licensed under Open Font License http://scripts.sil.org/OFL
 
 https://github.com/shyrodgau/imbraw2dng
 
 Usage: open in browser and select RAW
 
-***************************************************** 
+*****************************************************
 
 Copyright (C) 2023,2024,2025 by Stefan Hegny, stefan@hegny.de
 
@@ -26,13 +26,13 @@ Open Font License (https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=
 
 Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted.
 
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. 
-IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, 
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
 DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 // SPDX-License-Identifier: 0BSD
 
-***************************************************** 
+*****************************************************
 
 Mapping of identical sections: (* = missing here)
 IFDOut (TIFFOut, ImBCBase, globals): 	imbapp.htm imbapp.html imbraw2dng.html imbraw2dng.js		(all)
@@ -22294,10 +22294,10 @@ appinfo(doit) {
 	document.getElementById('okmsg').innerHTML += `<br><span style="font-weight:normal;font-size:75%;">Contains parts of <a href="#" onclick="window.open('https://fonts.google.com/noto/specimen/Noto+Sans+Symbols+2', '_system'); return false;">NotoSansSymbols2-Regular</a> font
 	licensed under <a href="#" onclick=" window.open('http://scripts.sil.org/OFL', '_system'); return false;">Open Font License</a>.</span>`;
 	// https://github.com/apache/cordova-plugin-inappbrowser/ https://github.com/apache/cordova-plugin-file/ https://github.com/frontyard/cordova-plugin-exoplayer/
-	document.getElementById('okmsg').innerHTML += `<br><span style="font-weight:normal;font-size:75%;">Powered by <a href="#" onclick="window.open('https://cordova.apache.org','_system'); return false;">Apache Cordova</a> Plugins: 
-	<a href="#" onclick="window.open('https://github.com/apache/cordova-plugin-inappbrowser/','_system'); return false;">InAppBrowser</a>, 
-	<a href="#" onclick="window.open('https://github.com/apache/cordova-plugin-file/','_system'); return false;">File</a>, 
-	<a href="#" onclick="window.open('https://github.com/NeoLSN/cordova-plugin-android-permissions','_system'); return false;">AndroidPermissions</a>,  
+	document.getElementById('okmsg').innerHTML += `<br><span style="font-weight:normal;font-size:75%;">Powered by <a href="#" onclick="window.open('https://cordova.apache.org','_system'); return false;">Apache Cordova</a> Plugins:
+	<a href="#" onclick="window.open('https://github.com/apache/cordova-plugin-inappbrowser/','_system'); return false;">InAppBrowser</a>,
+	<a href="#" onclick="window.open('https://github.com/apache/cordova-plugin-file/','_system'); return false;">File</a>,
+	<a href="#" onclick="window.open('https://github.com/NeoLSN/cordova-plugin-android-permissions','_system'); return false;">AndroidPermissions</a>,
 	<a href="#" onclick="window.open('https://github.com/cyph/cordova-plugin-chooser/','_system'); return false;">Chooser</a>,
 	<a href="#" onclick="window.open('https://github.com/torsten-simon/cordova-plugin-intent/','_system'); return false;">Intent</a>,
 	<a href="#" onclick="window.open('https://github.com/shyrodgau/cordova-plugin-saf-mediastore/','_system'); return false;">SafMediastore</a><br>Based on work by Michele Asciutti from the ImBack User Group.</span>
@@ -26287,7 +26287,7 @@ function readjpg(struc, file) {
 </head>
 <!-- here comes the html itself -->
 <body id="thebody" style="font-family: Helvetica, Arial, sans-serif;" onload="init();" lang="en">
-<div style="font-weight:bold;display:none;"><span class="notwhenbackw" data-myxlkey='main.title'> </span><span class="onlywhenbackw" style="display:none;" data-myxlkey='main.backw.title'> </span>  - 
+<div style="font-weight:bold;display:none;"><span class="notwhenbackw" data-myxlkey='main.title'> </span><span class="onlywhenbackw" style="display:none;" data-myxlkey='main.backw.title'> </span>  -
  <a target="_new" data-myhrefxlkey="main.helplink" data-myxlkey='main.help'></a>
 <span class="notwhenbackw" data-myxlkey="main.newmsg"/></div>
 <br><div class="notwhenbackw" style="display:none;">&nbsp;<!--b style="background-color:#888888; text-shadow: 0.07em 0.12em 0 #FFFFFF;font-size:200%;">&#x26f6; &#x1f5d1; &#x2715;</b-->&nbsp;<br></div>
@@ -26438,8 +26438,8 @@ function readjpg(struc, file) {
 <span class="browserx"><input type="button" value="&#x2261;" style="padding-left: 0em; margin-top: -0.3em; margin-bottom: -0.5em;font-size:200%;border:0 !important;margin-right: 0;padding-right: 0;" class="whbtn" id="hamb" onclick="return imbc.handleham();"></span>
 <span id="batt1" class="batt1 battlo battery" style="font-weight:bold; display: inline-block; width: 1em; height:1.3em; vertical-align:bottom;position:relative; top: -0.7em;"><span>&#xa0;</span></span>
 <span id="batt2" class="batt2 battlo battery" style="position: relative; left: -1.1em; font-weight:bold; display: inline-block; color:green;width: 0.7em;background-color: black;margin-right: 1em;top: -0.3em;"><span>&#xa0;</span></span>
-<input type="button" value="&#x1f5d1;" class="uhbtn" onclick="imbc.browserdelete()" id="delselbut" disabled style="font-family:Symbol3;font-weight: normal;" data-mytitlexlkey="browser.delall"> 
-<input type="button" style="font-family:Symbol3;" value="&#x2b73;" class="uhbtn" onclick="imbc.browserprocess()" id="doselbut" disabled data-mytitlexlkey="browser.procall"> 
+<input type="button" value="&#x1f5d1;" class="uhbtn" onclick="imbc.browserdelete()" id="delselbut" disabled style="font-family:Symbol3;font-weight: normal;" data-mytitlexlkey="browser.delall">
+<input type="button" style="font-family:Symbol3;" value="&#x2b73;" class="uhbtn" onclick="imbc.browserprocess()" id="doselbut" disabled data-mytitlexlkey="browser.procall">
 <input type="button" class="uhbtn" value="&#x1f3d4;" id="tobrows" onclick="imbc.dispmode=2;imbc.showbrowser();" style="font-family:Symbol3;">
 <input type="button" class="uhbtn photosym" value="&#x1f4f7;" id="tophot" onclick="imbc.dispmode=0;imbc.showphoto();" style="font-family:Symbol3;font-weight:normal;">
 <input type="button" class="uhbtn moviesym" value="&#x1f4fd;" id="tomov" onclick="imbc.dispmode=1;imbc.showmovie();" style="font-family:Symbol3;font-weight:normal;">
@@ -26449,7 +26449,7 @@ function readjpg(struc, file) {
 <div id="browseselectors" style="margin-bottom:0.3em;font-size:85%;">&nbsp;<span data-myxlkey="main.sort" style="display:none;"></span> <label for="sbytype"><input type="checkbox" id="sbytype" onclick="imbc.buildtree()"><span data-myxlkey="browser.bytype"></span></label> - <label for="solder">
 <input type="checkbox" id="solder" onclick="imbc.buildtree()"><span data-myxlkey="browser.olderfirst"></span></label> -
  <span id="brnsel" class="selnumber">?</span> / <span id="brntot">?</span> <label for="selall" data-mytitlexlkey="browser.selall.tooltip">
- <input onclick="imbc.topreccheck()" type="checkbox" id="selall"><!--span data-myxlkey="browser.selall"></span--></label><!-- - --> 
+ <input onclick="imbc.topreccheck()" type="checkbox" id="selall"><!--span data-myxlkey="browser.selall"></span--></label><!-- - -->
 &nbsp;<div style="display:inline-block;height:1.2em;background-color:#888888; font-family:Symbol3;text-shadow: 1px 1px white;border:0;border-radius:4px;cursor:pointer;font-weight:bold;" onclick="imbc.deselcop();"><span style="color:green;font-size:75%;"> &#x1f6c7;</span><span style="color:green;"> &#x2713; </span></div>
  </div>
  <div id="nobrowse">&nbsp;</div>

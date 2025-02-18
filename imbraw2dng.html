@@ -1,6 +1,6 @@
 <html>
 <!--
-***************************************************** 
+*****************************************************
 
 imbraw2dng(_LL).html
 imbdng2raw.html
@@ -14,19 +14,19 @@ https://github.com/shyrodgau/imbraw2dng
 
 Usage: open in browser and select RAW
 
-***************************************************** 
+*****************************************************
 
 Copyright (C) 2023,2024,2025 by Stefan Hegny, stefan@hegny.de
 
 Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted.
 
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. 
-IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, 
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
 DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 // SPDX-License-Identifier: 0BSD
 
-***************************************************** 
+*****************************************************
 
 Mapping of identical sections: (* = missing here)
 IFDOut (TIFFOut, ImBCBase, globals): 	imbapp.htm imbapp.html imbraw2dng.html imbraw2dng.js		(all)
@@ -19960,7 +19960,7 @@ checkchecks() {
 	const copycheck = document.getElementById('copycheck');
 	this.copyright = copytext?.value?.length ? copytext.value : '';
 	this.artist = document.getElementById('artist')?.value?.length ? document.getElementById('artist')?.value : '';
-	this.metadata = copycheck?.checked; 
+	this.metadata = copycheck?.checked;
 	const oldwb = document.getElementById('oldstylewb');
 	this.constwb = (oldwb !== null && oldwb.checked);
 	const incdcp = document.getElementById('incdcp');
@@ -20973,7 +20973,7 @@ buildtitle(gr) {
 	bigbtn.onclick = (/*ev*/) => {
 		e.preview.classList.add('picbig');
 	};
-	
+
 	if (e.type === 'RAW') {
 		ne.setAttribute('data-state', 'wait');
 		e.preview = ne.querySelector('.eeraw');
@@ -21069,7 +21069,7 @@ browserprocess() {
     const copycheck = document.getElementById('copycheck');
 	this.copyright = copytext?.value?.length ? copytext.value : '';
 	this.artist = document.getElementById('artist')?.value?.length ? document.getElementById('artist')?.value : '';
-	this.metadata = copycheck?.checked; 
+	this.metadata = copycheck?.checked;
 	this.totnum = selecteds.length;
 	this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
 	this.actnum = 0;
@@ -22536,7 +22536,7 @@ function init() {
 </head>
 <!-- here comes the html itself -->
 <body id="thebody" style="font-family: Helvetica, Arial, sans-serif;" onload="init();" lang="en">
-<div style="font-weight:bold;"><span class="notwhenbackw" data-myxlkey='main.title'> </span><span class="onlywhenbackw" style="display:none;" data-myxlkey='main.backw.title'> </span> <a href="https://shyrodgau.github.io/imbraw2dng/HISTORY.txt" id="mainversion"> </a> - 
+<div style="font-weight:bold;"><span class="notwhenbackw" data-myxlkey='main.title'> </span><span class="onlywhenbackw" style="display:none;" data-myxlkey='main.backw.title'> </span> <a href="https://shyrodgau.github.io/imbraw2dng/HISTORY.txt" id="mainversion"> </a> -
  <a target="_new" data-myhrefxlkey="main.helplink" data-myxlkey='main.help'></a>
 <select id="langsel" onchange="imbc.setlang()" value="en"><option value="de" onclick="imbc.setlang()">DE</option><option value="en" selected onclick="imbc.setlang()">EN</option>
 <option value="ja" onclick="imbc.setlang()">JA</option><!--option value="fr" onclick="imbc.setlang()">FR</option><option value="ru" onclick="imbc.setlang()">RU</option--></select> <span class="notwhenbackw" data-myxlkey="main.newmsg"/></div>
@@ -22548,7 +22548,7 @@ function init() {
 <div class="notwhenbackw"><input type="checkbox" id="incdcp" checked onchange="imbc.dirtysettings('incdcp')"><label for="incdcp" data-myxlkey="process.includedcp"></label></div>
 <div class="notwhenbackw"><input type="checkbox" id="usezip" onchange="imbc.dirtysettings('zip')"><label for="usezip" data-myxlkey="main.usezip" id="useziplbl"></label> <input type="checkbox" id="choosezipdest" onchange="imbc.dirtysettings('zip')"><label for="choosezipdest" data-myxlkey="main.usezip.choosedest" id="useziplbl"></label></div>
 <div class="notwhenbackw"><input type="checkbox" id="oldstylewb" onchange="imbc.dirtysettings('owb')"><label for="oldstylewb" data-myxlkey="process.oldstylewb"></label></div>
-<div class="notwhenbackw" style="border:5px solid #50a070;max-width:fit-content;border-radius:10px;padding:2px;background-color:rgba(80,160,112,0.3);"><input type="checkbox" id="copycheck" onchange="imbc.chgcopycheck()"><label for="copycheck" data-myxlkey="process.metadata"></label> 
+<div class="notwhenbackw" style="border:5px solid #50a070;max-width:fit-content;border-radius:10px;padding:2px;background-color:rgba(80,160,112,0.3);"><input type="checkbox" id="copycheck" onchange="imbc.chgcopycheck()"><label for="copycheck" data-myxlkey="process.metadata"></label>
 <br>
 <span data-myxlkey="process.addcopyright"></span> <input onchange="imbc.dirtysettings('cr')" type="text" id="copytext" size="33"></input>
 <br>
@@ -22566,7 +22566,7 @@ function init() {
 <div id="onimback" style="background-color:#ffffbb;border: 5px solid #ffff88;border-radius: 10px;width:fit-content;padding:1em;display:none;"><div style="font-size:133%;" data-myxlkey="onimback.connected">&nbsp;<br></div>
 <span data-myxlkey="onimback.dlconvert"></span><br>
 <input checked type="checkbox" id="rpicfromimb"><label for="rpicfromimb" id="rpiclbl" data-myxlkey="main.types.rawpics"></label>, <span data-myxlkey="onimback.totalnum"></span> <span id="rpiccnt" data-myxlkey="main.stillcounting"></span> <span id="rpicinterval" style="display:none;"></span>
-<br><input checked type="checkbox" id="picfromimb"><label for="picfromimb" id="piclbl" data-myxlkey="main.types.jpgpics"></label>, <span data-myxlkey="onimback.totalnum"></span> <span id="piccnt" data-myxlkey="main.stillcounting"></span> <span id="picinterval" style="display:none;"></span> 
+<br><input checked type="checkbox" id="picfromimb"><label for="picfromimb" id="piclbl" data-myxlkey="main.types.jpgpics"></label>, <span data-myxlkey="onimback.totalnum"></span> <span id="piccnt" data-myxlkey="main.stillcounting"></span> <span id="picinterval" style="display:none;"></span>
 <br><input checked type="checkbox" id="movfromimb"><label for="movfromimb" id="movlbl" data-myxlkey="main.types.other"></label>, <span data-myxlkey="onimback.totalnum"></span> <span id="movcnt" data-myxlkey="main.stillcounting"></span> <span id="movinterval" style="display:none;"></span><br>
 <span data-myxlkey="onimback.fromtime"></span> <input type="text" maxlength="19" id="imbstartts" minlength="0" placeholder="YYYY_MM_DD-hh_mm_ss" pattern="[0-9][0-9][0-9][0-9](_[0-9][0-9](_[0-9][0-9]-([0-9][0-9](_[0-9]([0-9](_[0-9][0-9])*)*)*)*)*)*"> (<span data-myxlkey="onimback.nullforall"></span>) <br>
 <input onclick="imbc.imbdoit()" type="button" data-myvalxlkey="onimback.doit" id="imbdoit" disabled><br>
@@ -22578,10 +22578,10 @@ function init() {
 <div class="onlywhenbackw" style="font-size:133%;margin-top: 0.5em;display:none;" data-myxlkey="main.backw.drophere"></div>
 <div id="droptarget" ondrop="imbc.drophandler(event);" ondragenter="imbc.prevdef(event);" ondragover="imbc.prevdef(event);" style="border: 5px solid blue;border-radius: 10px;width:300px; height:70px;background-color: rgba(0,0,255,0.2);"></div><br>
 <div class="notwhenbackw" style="font-size:75%; background-color:rgba(0,0,255,0.1);width:fit-content;margin-top:-0.7em;color:#808080;">
-<input type="checkbox" id="fakelongexpadd"> <label for="fakelongexpadd" data-myxlkey="main.fakelong"> </label> - 
+<input type="checkbox" id="fakelongexpadd"> <label for="fakelongexpadd" data-myxlkey="main.fakelong"> </label> -
 <input type="checkbox" id="fakelongexpscale"> <label for="fakelongexpscale" data-myxlkey="main.fakelong.scale"> </label>
 </div>
-<div  style="font-size:133%;margin-top: 0.5em;"><span class="notwhenbackw" data-myxlkey="main.selectraw"></span><span class="onlywhenbackw" data-myxlkey="main.backw.selectdng" style="display:none;"></span> 
+<div  style="font-size:133%;margin-top: 0.5em;"><span class="notwhenbackw" data-myxlkey="main.selectraw"></span><span class="onlywhenbackw" data-myxlkey="main.backw.selectdng" style="display:none;"></span>
 <input class="notwhenbackw" type="file" accept=".raw,.RAW" id="infile" name="infile" multiple onchange="imbc.fselected()">
 <input class="onlywhenbackw" style="display:none;" type="file" accept=".dng,.DNG" id="infileb" name="infileb" multiple onchange="imbc.fselected()">
 </div><br>
@@ -22613,8 +22613,8 @@ function init() {
 <div style="margin-bottom:1em;"><span data-myxlkey="main.sort"></span>: <label for="sbytype"><input type="checkbox" id="sbytype" onclick="imbc.buildtree()"><span data-myxlkey="browser.bytype"></span></label> - <label for="solder">
 <input type="checkbox" id="solder" onclick="imbc.buildtree()"><span data-myxlkey="browser.olderfirst"></span></label>
  - <span data-myxlkey="main.selected"></span>: <span id="brnsel" class="selnumber">?</span> / <span id="brntot">?</span> - <label for="selall" data-mytitlexlkey="browser.selall.tooltip">
- <input onclick="imbc.topreccheck()" type="checkbox" id="selall"><span data-myxlkey="browser.selall"></span></label> - <input type="button" data-myvalxlkey="browser.procall" onclick="imbc.browserprocess()" id="doselbut"> - 
- <input type="button" data-myvalxlkey="browser.delall" onclick="imbc.browserdelete()" id="delselbut" disabled></div> 
+ <input onclick="imbc.topreccheck()" type="checkbox" id="selall"><span data-myxlkey="browser.selall"></span></label> - <input type="button" data-myvalxlkey="browser.procall" onclick="imbc.browserprocess()" id="doselbut"> -
+ <input type="button" data-myvalxlkey="browser.delall" onclick="imbc.browserdelete()" id="delselbut" disabled></div>
 </div>
 <!-- end of the picture browser, generated content appended -->
 <!-- this is the delete question/progress -->
@@ -22652,9 +22652,9 @@ function init() {
 <template id="titlet">
 	<div class="ggtt ggttclosed titletop">
 		<span class="ggttplus ggttp">[+]</span><span class="ggttplus ggttpp"></span><span class="ggttminus ggttm">[‒]</span><span class="ggttminus ggttmm"> </span>
-		<span class="gtype" style="display: none;"></span><span class="grtit"></span> - 
-		<span data-myxlkey="main.selected"></span>: 
-		<span class="selnumber">0</span> / <span class="totno"></span> - 
+		<span class="gtype" style="display: none;"></span><span class="grtit"></span> -
+		<span data-myxlkey="main.selected"></span>:
+		<span class="selnumber">0</span> / <span class="totno"></span> -
 		<label>
 			<input type="checkbox" class="selcb">
 			<span data-myxlkey="browser.selall" data-mytitlexlkey="browser.selall.tooltip"></span>
