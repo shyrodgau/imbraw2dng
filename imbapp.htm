@@ -1,6 +1,6 @@
 <html>
 <!--
-***************************************************** 
+*****************************************************
 
 imbapp.htm
 
@@ -9,14 +9,14 @@ Convert RAW from I'm back(R)(https://imback.eu) into DNG
 Based on work by Michele Asciutti.
 Japanese translations by Sadami Inoue.
 
-Contains parts of NotoSansSymbols2-Regular https://fonts.google.com/noto/specimen/Noto+Sans+Symbols+2 
+Contains parts of NotoSansSymbols2-Regular https://fonts.google.com/noto/specimen/Noto+Sans+Symbols+2
 licensed under Open Font License http://scripts.sil.org/OFL
 
 https://github.com/shyrodgau/imbraw2dng
 
 Usage: open in browser and select RAW
 
-***************************************************** 
+*****************************************************
 
 Copyright (C) 2023,2024,2025 by Stefan Hegny, stefan@hegny.de
 
@@ -26,13 +26,13 @@ Open Font License (https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=
 
 Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted.
 
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. 
-IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, 
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
 DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 // SPDX-License-Identifier: 0BSD
 
-***************************************************** 
+*****************************************************
 
 Mapping of identical sections: (* = missing here)
 IFDOut (TIFFOut, ImBCBase, globals): 	imbapp.htm imbapp.html imbraw2dng.html imbraw2dng.js		(all)
@@ -1136,7 +1136,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.0.9_1ff50e1", // actually const // VERSION EYECATCHER
+version: "V6.0.9_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -1234,16 +1234,15 @@ getwb: function(view, typidx, whitelvl) {
 		for (let j=Math.round(0.05*t.w)*2; j<Math.ceil(0.9*t.w); j+=8) {
 			let x = globals.getPix(j, i, t.w, view, typidx < 32 ? t.typ : (typidx < 64 ? 32 + t.typ : 64 + t.typ), whitelvl);
 			let lr = x[0];
-			let lg = x[1] + 1;
+			let lg = x[1];
 			let lb = x[2];
-			let mi = Math.min(lr,lg,lb);
-			let ax = Math.max(lr,lg,lb);
-			if (ax > 4*mi) continue;
-			let p = Math.sqrt(lg*lg + lb*lb + lr*lr);
-			if (p < 20) continue;
-			b += ((ax < 2*mi) ? 2:1)*lb/p;
-			g += ((ax < 2*mi) ? 2:1)*lg/p;
-			r += ((ax < 2*mi) ? 2:1)*lr/p;
+			let pa = [ lg, lr, lb ];
+			pa.sort(function(a,b) { return a - b; });
+			let p = pa[1];
+			if (p < 5) continue;
+			b += lb/p;
+			g += lg/p;
+			r += lr/p;
 		}
 	}
 	//console.log('ER EG EB ' + r + ' ' + g + ' ' + b);
@@ -1265,7 +1264,7 @@ getPix: function(x, y, w, view, typ, whitelvl) {
 	const xx = x + (typ >= 64 ? x : (x>>1));
 	let shiftr = 0, wbx = 255;
 	while (whitelvl > wbx) {
-		wbx = (2*(wbx+1)) -1; 
+		wbx = (2*(wbx+1)) -1;
 		shiftr ++;
 	}
 	const dd = (typ === 5 || typ === 69) ? 240 : 0;
@@ -1497,7 +1496,7 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 	cntx = 0;
 	while (cntx < (cnt * 0.5))
 		cntx += ghist[gmed--];
-	if (gmed < 255) gmed++;
+	gmed++;
 	let ballmax = 255;
 	cntx = 0;
 	while (cntx < (cnt * 0.003))
@@ -1508,22 +1507,23 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 	if (allmax >= 1) {
 		fact = 255/allmax;
 	}
-	//console.log(' aa ' + allmax + ' ae ' + gmed + ' ff ' + fact + ' ffx ' + (gmed*fact));
+	console.log(' aa ' + allmax + ' ae ' + gmed + ' ff ' + fact + ' ffx ' + (gmed*fact));
 	const o = scale ? 3 : 4;
 	const uic = new Uint8ClampedArray(h8 * w8 * o);
 	// exposure correction?
-	if (gmed*fact < 20) fact *= 1.2;
-	else if (gmed*fact < 40) fact *= 1.1;
-	else if (gmed*fact > 200) fact *= 0.9;
-	else if (gmed*fact > 190) fact *= 0.95;
-	//console.log('ff ' + fact + ' ffx ' + (gmed*fact));
+	if (gmed*fact < 20) fact *= 1.1;
+	else if (gmed*fact < 40) fact *= 1.05;
+	else if (gmed > 210) fact *= 0.8;
+	else if (gmed > 190) fact *= 0.9;
+	console.log('ff ' + fact + ' ffx ' + (gmed*fact));
+	const gam = (gmed*fact < 110);
 	for (let i = 0; i < h8; i++) {
 		for (let j=0; j< w8; j++) {
 			let nr = outpix[3*((i * w8) + j)] * fact;
 			let ng = outpix[3*((i * w8) + j) + 1] * fact;
 			let nb = outpix[3*((i * w8) + j) + 2] * fact;
 			let gfac = 1;
-			if (gmed *fact < 120) {
+			if (gam) {
 				// maybe some brightening gamma?
 				let ngg = Math.sqrt(ng)*16/ng;
 				let ngr = Math.sqrt(nr)*16/nr;
@@ -18451,7 +18451,7 @@ incdcp = true;
 /* ImBCBase: debug */
 debugflag = false;
 // mis-nomer from app
-fromintent = false; // 1: normal 2: stack/fakelong (> 1 DNG, to raw phase)  3: backward (== 1 DNG)  4: to dng phase when stacking 
+fromintent = false; // 1: normal 2: stack/fakelong (> 1 DNG, to raw phase)  3: backward (== 1 DNG)  4: to dng phase when stacking
 
 constructor() {
 }
@@ -19891,8 +19891,8 @@ The following license applies to the code inside these files with the exception 
 
 Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted.
 
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. 
-IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, 
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
 DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE." id="liciframe" style="width: 100%;zoom:50%;">`;
 	/*setTimeout(() => {
 		frames['liciframe'].contentDocument.head.innerHTML += ('<style type="text/css">*{font-size:5px;}</style>');
@@ -21181,7 +21181,7 @@ buildtitle(gr) {
 		this.startloadimg();
 		dlbtn.parentElement.style['display'] = 'none';
 	};
-	
+
 	if (e.type === 'RAW') {
 		ne.setAttribute('data-state', 'wait');
 		e.preview = ne.querySelector('.eeraw');
@@ -21468,7 +21468,7 @@ browserprocess() {
     const copycheck = document.getElementById('copycheck');
 	this.copyright = copytext?.value?.length ? copytext.value : '';
 	this.artist = document.getElementById('artist')?.value?.length ? document.getElementById('artist')?.value : '';
-	this.metadata = copycheck?.checked; 
+	this.metadata = copycheck?.checked;
 	this.totnum = selecteds.length;
 	this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
 	this.actnum = 0;
@@ -21614,7 +21614,7 @@ buildpreview(f, size, onok, onerr, orientation, targ, afterload) {
 		  let cachehit;
 		  if ((cachehit = this.findcache(f.url ? f.url :f))) {
 			  this.workerstate.push({ cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :f), o: orientation, onok: onok, onerr: onerr, t: targ, cid: this.cid });
-			  this.pvw({ cmd: 'previewfromcache', c: { n: cachehit.url, d: cachehit.d, l: cachehit.l} , n: (f.url ? f.url :f), o: orientation, size: size, cid: this.cid++ });
+			  this.pvw({ cmd: 'previewfromcache', c: { n: cachehit.url, d: cachehit.d, l: cachehit.l, wb: cachehit.wb } , n: (f.url ? f.url :f), o: orientation, size: size, cid: this.cid++ });
 			  // onmessage: { pix: array, c: cache, n: name, o: orientation }
 			  // ctx.putImageData(new ImageData(outpix, transpose ? h8: w8, transpose? w8 :h8), 0, 0); onok(f)
 		  } else {
@@ -21965,8 +21965,8 @@ checkimb() {
 					if (this.debugflag) console.log('Xy ' + JSON.stringify(xx));
 				}
 			}
-			
-			
+
+
 			// build the settings menu
 			const r = document.getElementById('menufromimb');
 			r.innerHTML = '';
@@ -21975,7 +21975,7 @@ checkimb() {
 			for (let i = 0; i < 3; i++) {
 				const s = document.createElement('div');
 				s.append(txt.s[i].title + ': ');
-				s.setAttribute('data-myxxlst',i); 
+				s.setAttribute('data-myxxlst',i);
 				s.style['font-size'] = '66%';
 				first = true;
 				if (i === 0)
@@ -22228,14 +22228,14 @@ findcache(url) {
 						result: fy.data				}
 				});
 			};
-			return { url: url, reader: fx, d: this.#cache[ii].d, l: this.#cache[ii].l };
-		} else return { url: url, reader: this.#cache[ii].reader, d: this.#cache[ii].d, l: this.#cache[ii].l  };
+			return { url: url, reader: fx, d: this.#cache[ii].d, l: this.#cache[ii].l, wb: this.#cache[ii].wb };
+		} else return { url: url, reader: this.#cache[ii].reader, d: this.#cache[ii].d, l: this.#cache[ii].l, wb: this.#cache[ii].wb  };
 	}
 	return undefined;
 }
 /* TopApp: add to cache */
 addcache(name, entry) {
-	this.#cache.push({ url: ImBCBase.basename(name), d: entry.data, l: entry.len, reader: entry.reader });
+	this.#cache.push({ url: ImBCBase.basename(name), d: entry.data, l: entry.len, reader: entry.reader, wb: entry.wb });
 	while (this.#cache.length > this.maxcache) this.#cache.splice(0,1);
 }
 /* TopApp: worker on message */
@@ -22289,7 +22289,7 @@ workermsg(msg) {
 			}
 			let w = globals.infos[zz].w;
 			let h = globals.infos[zz].h;
-		
+
 			let canv;
 			if (undefined !== w0.t)
 				canv = w0.t;
@@ -22761,7 +22761,7 @@ parseconfig(data) {
 	else this.useimblang = true;
 	if (d.ll) this.lastlang = d.ll;
 	if (d.ndcp) this.incdcp = false; else this.incdcp = true;
-	if (d.owb) this.constwb = true; else this.constwb = false; 
+	if (d.owb) this.constwb = true; else this.constwb = false;
 	for (let i=0; i<this.previewworkers.length; i++)
 			this.previewworkers[i].w.postMessage({ cmd: 'constwb', constwb: this.constwb });
 	this.stepmode = 0;
@@ -22814,7 +22814,7 @@ checkchecks() {
 	const copycheck = document.getElementById('copycheck');
 	this.copyright = copytext?.value?.length ? copytext.value : '';
 	this.artist = document.getElementById('artist')?.value?.length ? document.getElementById('artist')?.value : '';
-	this.metadata = copycheck?.checked; 
+	this.metadata = copycheck?.checked;
 	const oldwb = document.getElementById('oldstylewb');
 	this.constwb = (oldwb !== null && oldwb.checked);
 	for (let i=0; i<this.previewworkers.length; i++)
@@ -25885,8 +25885,8 @@ function resolver(struc, url, preview, notfirst)  {
 		else {
 			fx.readAsArrayBuffer = undefined;
 			fx.replaceread = true;
-			postMessage({ cmd:'tobuildpreview', d:{struc: struc, f: fx, size: struc.siz, orientation: struc.ori}});
 			postMessage({ cmd:'afterload',  cid: struc.ci});
+			postMessage({ cmd:'tobuildpreview', d:{struc: struc, f: fx, size: struc.siz, orientation: struc.ori}});
 			handlewait();
 		}
 	};
@@ -26098,6 +26098,7 @@ function buildpreview(struc, f, size, orientation) {
 		if (contents.buffer) contents = contents.buffer;
 		const view = new DataView(contents);
 		const wb = constwb ? [ 6, 10, 1, 1, 6, 10 ] : globals.getwb(view, zz, whitelvl);
+		struc.cache.wb = wb;
 		//console.log(JSON.stringify(wb));
 		let outpix = globals.buildpvarray(view, size, typ, w, h, orientation, false, wb, whitelvl);
 		// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
@@ -26137,7 +26138,7 @@ function buildpreviewcache(struc, f, size, orientation) {
 
 	const contents = f.d;
 	const view = new DataView(contents);
-	const wb = constwb ? [ 6, 10, 1, 1, 6, 10 ] : globals.getwb(view, zz, whitelvl);
+	const wb = constwb ? [ 6, 10, 1, 1, 6, 10 ] : (f.wb ? f.wb : globals.getwb(view, zz, whitelvl));
 	//console.log(JSON.stringify(wb));
 	let outpix = globals.buildpvarray(view, size, typ, w, h, orientation, false, wb, whitelvl);
 	// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
@@ -26170,7 +26171,7 @@ function readjpg(struc, file) {
 </head>
 <!-- here comes the html itself -->
 <body id="thebody" style="font-family: Helvetica, Arial, sans-serif;" onload="init();" lang="en">
-<div style="font-weight:bold;display:none;"><span class="notwhenbackw" data-myxlkey='main.title'> </span><span class="onlywhenbackw" style="display:none;" data-myxlkey='main.backw.title'> </span>  - 
+<div style="font-weight:bold;display:none;"><span class="notwhenbackw" data-myxlkey='main.title'> </span><span class="onlywhenbackw" style="display:none;" data-myxlkey='main.backw.title'> </span>  -
  <a target="_new" data-myhrefxlkey="main.helplink" data-myxlkey='main.help'></a>
 <span class="notwhenbackw" data-myxlkey="main.newmsg"/></div>
 <br><div class="notwhenbackw" style="display:none;">&nbsp;<!--b style="background-color:#888888; text-shadow: 0.07em 0.12em 0 #FFFFFF;font-size:200%;">&#x26f6; &#x1f5d1; &#x2715;</b-->&nbsp;<br></div>
@@ -26317,8 +26318,8 @@ function readjpg(struc, file) {
 <span class="browserx"><input type="button" value="&#x2261;" style="padding-left: 0em; margin-top: -0.3em; margin-bottom: -0.5em;font-size:200%;border:0 !important;margin-right: 0;padding-right: 0;" class="whbtn" id="hamb" onclick="return imbc.handleham();"></span>
 <span id="batt1" class="batt1 battlo battery" style="font-weight:bold; display: inline-block; width: 1em; height:1.3em; vertical-align:bottom;position:relative; top: -0.7em;"><span>&#xa0;</span></span>
 <span id="batt2" class="batt2 battlo battery" style="position: relative; left: -1.1em; font-weight:bold; display: inline-block; color:green;width: 0.7em;background-color: black;margin-right: 1em;top: -0.3em;"><span>&#xa0;</span></span>
-<input type="button" value="&#x1f5d1;" class="uhbtn" onclick="imbc.browserdelete()" id="delselbut" disabled style="font-family:Symbol3;font-weight: normal;" data-mytitlexlkey="browser.delall"> 
-<input type="button" style="font-family:Symbol3;" value="&#x2b73;" class="uhbtn" onclick="imbc.browserprocess()" id="doselbut" disabled data-mytitlexlkey="browser.procall"> 
+<input type="button" value="&#x1f5d1;" class="uhbtn" onclick="imbc.browserdelete()" id="delselbut" disabled style="font-family:Symbol3;font-weight: normal;" data-mytitlexlkey="browser.delall">
+<input type="button" style="font-family:Symbol3;" value="&#x2b73;" class="uhbtn" onclick="imbc.browserprocess()" id="doselbut" disabled data-mytitlexlkey="browser.procall">
 <input type="button" class="uhbtn" value="&#x1f3d4;" id="tobrows" onclick="imbc.dispmode=2;imbc.showbrowser();" style="font-family:Symbol3;">
 <input type="button" class="uhbtn photosym" value="&#x1f4f7;" id="tophot" onclick="imbc.dispmode=0;imbc.showphoto();" style="font-family:Symbol3;font-weight:normal;">
 <input type="button" class="uhbtn moviesym" value="&#x1f4fd;" id="tomov" onclick="imbc.dispmode=1;imbc.showmovie();" style="font-family:Symbol3;font-weight:normal;">
@@ -26328,7 +26329,7 @@ function readjpg(struc, file) {
 <div id="browseselectors" style="margin-bottom:0.3em;font-size:85%;">&nbsp;<span data-myxlkey="main.sort" style="display:none;"></span> <label for="sbytype"><input type="checkbox" id="sbytype" onclick="imbc.buildtree()"><span data-myxlkey="browser.bytype"></span></label> - <label for="solder">
 <input type="checkbox" id="solder" onclick="imbc.buildtree()"><span data-myxlkey="browser.olderfirst"></span></label> -
  <span id="brnsel" class="selnumber">?</span> / <span id="brntot">?</span> <label for="selall" data-mytitlexlkey="browser.selall.tooltip">
- <input onclick="imbc.topreccheck()" type="checkbox" id="selall"><!--span data-myxlkey="browser.selall"></span--></label><!-- - --> 
+ <input onclick="imbc.topreccheck()" type="checkbox" id="selall"><!--span data-myxlkey="browser.selall"></span--></label><!-- - -->
 &nbsp;<div style="display:inline-block;height:1.1em;line-height:1.5em;background-color:#888888; font-family:Symbol3;text-shadow: 1px 1px white;border:0;border-radius:4px;cursor:pointer;font-weight:bold;" class="delsel green" onclick="imbc.deselcop();" disabled><span style="font-size:85%;"> &#x1f6c7;</span><span> &#x2713; </span></div>
 </div>
  <div id="nobrowse">&nbsp;</div>
@@ -26343,11 +26344,11 @@ function readjpg(struc, file) {
 <div  style="font-size:133%;margin-top: 0.5em;" data-myxlkey="main.drophere"></div>
 <div id="droptarget" ondrop="imbc.drophandler(event);" ondragenter="imbc.prevdef(event);" ondragover="imbc.prevdef(event);" style="border: 5px solid blue;border-radius: 10px;width:300px; height:70px;background-color: rgba(0,0,255,0.2);"></div><br>
 <div  style="font-size:75%; background-color:rgba(0,0,255,0.1);width:fit-content;margin-top:-0.7em;color:#808080;">
-<input type="checkbox" id="fakelongexpadd"> <label for="fakelongexpadd" data-myxlkey="main.fakelong"> </label> - 
+<input type="checkbox" id="fakelongexpadd"> <label for="fakelongexpadd" data-myxlkey="main.fakelong"> </label> -
 <input type="checkbox" id="fakelongexpscale"> <label for="fakelongexpscale" data-myxlkey="main.fakelong.scale"> </label><br>
 <input type="checkbox" id="makebackw"> <label for="makebackw" ><span data-myxlkey="main.backw.title"></span> <span data-myxlkey="main.backw.drophere"></span> </label>
 </div>
-<div  style="font-size:133%;margin-top: 0.5em;"><span  data-myxlkey="main.selectraw"></span> 
+<div  style="font-size:133%;margin-top: 0.5em;"><span  data-myxlkey="main.selectraw"></span>
 <input  type="file" accept=".*" id="infile" name="infile" multiple onchange="imbc.fselected()">
 </div><br>
 <div class="notwhenbackw" style="margin-top: 0.5em;" data-myxlkey="main.generaladvice"></div>
@@ -26397,7 +26398,7 @@ function readjpg(struc, file) {
 <!-- this is the delete question/progress -->
 <dialog class="mymodal" id="delq" style="border: 5px solid red; border-radius: 20px; padding: 20px;width:fit-content;" onclose="imbc.delstate=3;imbc.delcancel();imbc.remmodkeyev();">
 <span id="del_text" data-myxlarg0="0" data-myxlkey="del.question"></span><br>
-<input id="delcancelbut" type="button" data-myvalxlkey="del.question.cancel" onclick="imbc.delcancel()"> - 
+<input id="delcancelbut" type="button" data-myvalxlkey="del.question.cancel" onclick="imbc.delcancel()"> -
 <input id="delokbut" type="button" data-myvalxlkey="del.question.ok" onclick="imbc.dodelete()"><br>
 <div style="font-weight:bold;" id="delprogmsg"></div>
 </dialog>

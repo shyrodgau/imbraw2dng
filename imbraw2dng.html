@@ -1012,7 +1012,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.0.9_1ff50e1", // actually const // VERSION EYECATCHER
+version: "V6.0.9_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -1141,7 +1141,7 @@ getPix: function(x, y, w, view, typ, whitelvl) {
 	const xx = x + (typ >= 64 ? x : (x>>1));
 	let shiftr = 0, wbx = 255;
 	while (whitelvl > wbx) {
-		wbx = (2*(wbx+1)) -1; 
+		wbx = (2*(wbx+1)) -1;
 		shiftr ++;
 	}
 	const dd = (typ === 5 || typ === 69) ? 240 : 0;
@@ -18327,7 +18327,7 @@ incdcp = true;
 /* ImBCBase: debug */
 debugflag = false;
 // mis-nomer from app
-fromintent = false; // 1: normal 2: stack/fakelong (> 1 DNG, to raw phase)  3: backward (== 1 DNG)  4: to dng phase when stacking 
+fromintent = false; // 1: normal 2: stack/fakelong (> 1 DNG, to raw phase)  3: backward (== 1 DNG)  4: to dng phase when stacking
 
 constructor() {
 }

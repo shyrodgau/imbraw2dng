@@ -1136,7 +1136,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.0.9_1ff50e1", // actually const // VERSION EYECATCHER
+version: "V6.0.9_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -1265,7 +1265,7 @@ getPix: function(x, y, w, view, typ, whitelvl) {
 	const xx = x + (typ >= 64 ? x : (x>>1));
 	let shiftr = 0, wbx = 255;
 	while (whitelvl > wbx) {
-		wbx = (2*(wbx+1)) -1; 
+		wbx = (2*(wbx+1)) -1;
 		shiftr ++;
 	}
 	const dd = (typ === 5 || typ === 69) ? 240 : 0;
@@ -18451,7 +18451,7 @@ incdcp = true;
 /* ImBCBase: debug */
 debugflag = false;
 // mis-nomer from app
-fromintent = false; // 1: normal 2: stack/fakelong (> 1 DNG, to raw phase)  3: backward (== 1 DNG)  4: to dng phase when stacking 
+fromintent = false; // 1: normal 2: stack/fakelong (> 1 DNG, to raw phase)  3: backward (== 1 DNG)  4: to dng phase when stacking
 
 constructor() {
 }
@@ -23509,7 +23509,7 @@ buildtitle(gr) {
 		this.startloadimg();
 		dlbtn.parentElement.style['display'] = 'none';
 	};
-	
+
 	if (e.type === 'RAW') {
 		ne.setAttribute('data-state', 'wait');
 		e.preview = ne.querySelector('.eeraw');
@@ -23796,7 +23796,7 @@ browserprocess() {
     const copycheck = document.getElementById('copycheck');
 	this.copyright = copytext?.value?.length ? copytext.value : '';
 	this.artist = document.getElementById('artist')?.value?.length ? document.getElementById('artist')?.value : '';
-	this.metadata = copycheck?.checked; 
+	this.metadata = copycheck?.checked;
 	this.totnum = selecteds.length;
 	this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
 	this.actnum = 0;
@@ -23942,7 +23942,7 @@ buildpreview(f, size, onok, onerr, orientation, targ, afterload) {
 		  let cachehit;
 		  if ((cachehit = this.findcache(f.url ? f.url :f))) {
 			  this.workerstate.push({ cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :f), o: orientation, onok: onok, onerr: onerr, t: targ, cid: this.cid });
-			  this.pvw({ cmd: 'previewfromcache', c: { n: cachehit.url, d: cachehit.d, l: cachehit.l} , n: (f.url ? f.url :f), o: orientation, size: size, cid: this.cid++ });
+			  this.pvw({ cmd: 'previewfromcache', c: { n: cachehit.url, d: cachehit.d, l: cachehit.l, wb: cachehit.wb } , n: (f.url ? f.url :f), o: orientation, size: size, cid: this.cid++ });
 			  // onmessage: { pix: array, c: cache, n: name, o: orientation }
 			  // ctx.putImageData(new ImageData(outpix, transpose ? h8: w8, transpose? w8 :h8), 0, 0); onok(f)
 		  } else {
@@ -24293,8 +24293,8 @@ checkimb() {
 					if (this.debugflag) console.log('Xy ' + JSON.stringify(xx));
 				}
 			}
-			
-			
+
+
 			// build the settings menu
 			const r = document.getElementById('menufromimb');
 			r.innerHTML = '';
@@ -24303,7 +24303,7 @@ checkimb() {
 			for (let i = 0; i < 3; i++) {
 				const s = document.createElement('div');
 				s.append(txt.s[i].title + ': ');
-				s.setAttribute('data-myxxlst',i); 
+				s.setAttribute('data-myxxlst',i);
 				s.style['font-size'] = '66%';
 				first = true;
 				if (i === 0)
@@ -24556,14 +24556,14 @@ findcache(url) {
 						result: fy.data				}
 				});
 			};
-			return { url: url, reader: fx, d: this.#cache[ii].d, l: this.#cache[ii].l };
-		} else return { url: url, reader: this.#cache[ii].reader, d: this.#cache[ii].d, l: this.#cache[ii].l  };
+			return { url: url, reader: fx, d: this.#cache[ii].d, l: this.#cache[ii].l, wb: this.#cache[ii].wb };
+		} else return { url: url, reader: this.#cache[ii].reader, d: this.#cache[ii].d, l: this.#cache[ii].l, wb: this.#cache[ii].wb  };
 	}
 	return undefined;
 }
 /* TopApp: add to cache */
 addcache(name, entry) {
-	this.#cache.push({ url: ImBCBase.basename(name), d: entry.data, l: entry.len, reader: entry.reader });
+	this.#cache.push({ url: ImBCBase.basename(name), d: entry.data, l: entry.len, reader: entry.reader, wb: entry.wb });
 	while (this.#cache.length > this.maxcache) this.#cache.splice(0,1);
 }
 /* TopApp: worker on message */
@@ -24617,7 +24617,7 @@ workermsg(msg) {
 			}
 			let w = globals.infos[zz].w;
 			let h = globals.infos[zz].h;
-		
+
 			let canv;
 			if (undefined !== w0.t)
 				canv = w0.t;
@@ -25089,7 +25089,7 @@ parseconfig(data) {
 	else this.useimblang = true;
 	if (d.ll) this.lastlang = d.ll;
 	if (d.ndcp) this.incdcp = false; else this.incdcp = true;
-	if (d.owb) this.constwb = true; else this.constwb = false; 
+	if (d.owb) this.constwb = true; else this.constwb = false;
 	for (let i=0; i<this.previewworkers.length; i++)
 			this.previewworkers[i].w.postMessage({ cmd: 'constwb', constwb: this.constwb });
 	this.stepmode = 0;
@@ -25142,7 +25142,7 @@ checkchecks() {
 	const copycheck = document.getElementById('copycheck');
 	this.copyright = copytext?.value?.length ? copytext.value : '';
 	this.artist = document.getElementById('artist')?.value?.length ? document.getElementById('artist')?.value : '';
-	this.metadata = copycheck?.checked; 
+	this.metadata = copycheck?.checked;
 	const oldwb = document.getElementById('oldstylewb');
 	this.constwb = (oldwb !== null && oldwb.checked);
 	for (let i=0; i<this.previewworkers.length; i++)
@@ -26001,8 +26001,8 @@ function resolver(struc, url, preview, notfirst)  {
 		else {
 			fx.readAsArrayBuffer = undefined;
 			fx.replaceread = true;
-			postMessage({ cmd:'tobuildpreview', d:{struc: struc, f: fx, size: struc.siz, orientation: struc.ori}});
 			postMessage({ cmd:'afterload',  cid: struc.ci});
+			postMessage({ cmd:'tobuildpreview', d:{struc: struc, f: fx, size: struc.siz, orientation: struc.ori}});
 			handlewait();
 		}
 	};
@@ -26214,6 +26214,7 @@ function buildpreview(struc, f, size, orientation) {
 		if (contents.buffer) contents = contents.buffer;
 		const view = new DataView(contents);
 		const wb = constwb ? [ 6, 10, 1, 1, 6, 10 ] : globals.getwb(view, zz, whitelvl);
+		struc.cache.wb = wb;
 		//console.log(JSON.stringify(wb));
 		let outpix = globals.buildpvarray(view, size, typ, w, h, orientation, false, wb, whitelvl);
 		// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
@@ -26253,7 +26254,7 @@ function buildpreviewcache(struc, f, size, orientation) {
 
 	const contents = f.d;
 	const view = new DataView(contents);
-	const wb = constwb ? [ 6, 10, 1, 1, 6, 10 ] : globals.getwb(view, zz, whitelvl);
+	const wb = constwb ? [ 6, 10, 1, 1, 6, 10 ] : (f.wb ? f.wb : globals.getwb(view, zz, whitelvl));
 	//console.log(JSON.stringify(wb));
 	let outpix = globals.buildpvarray(view, size, typ, w, h, orientation, false, wb, whitelvl);
 	// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
