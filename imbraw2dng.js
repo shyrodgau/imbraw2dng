@@ -1220,7 +1220,7 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 	if (allmax >= 1) {
 		fact = 255/allmax;
 	}
-	console.log(' aa ' + allmax + ' ae ' + gmed + ' ff ' + fact + ' ffx ' + (gmed*fact));
+	if (this.debugflag) console.log(' aa ' + allmax + ' ae ' + gmed + ' ff ' + fact + ' ffx ' + (gmed*fact));
 	const o = scale ? 3 : 4;
 	const uic = new Uint8ClampedArray(h8 * w8 * o);
 	// exposure correction?
@@ -1228,7 +1228,7 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 	else if (gmed*fact < 40) fact *= 1.05;
 	else if (gmed > 210) fact *= 0.8;
 	else if (gmed > 190) fact *= 0.9;
-	console.log('ff ' + fact + ' ffx ' + (gmed*fact));
+	if (this.debugflag) console.log('ff ' + fact + ' ffx ' + (gmed*fact));
 	const gam = (gmed*fact < 110);
 	for (let i = 0; i < h8; i++) {
 		for (let j=0; j< w8; j++) {
