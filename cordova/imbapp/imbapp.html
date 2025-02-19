@@ -1136,7 +1136,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.0.9_49852c6", // actually const // VERSION EYECATCHER
+version: "V6.0.9_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -22816,7 +22816,16 @@ magdescchg() {
 }
 /* TopApp: browserdisplay: magnification: click on clock */
 magtimex() {
-	document.querySelector('#xmag .timetxt').style['display'] = (document.querySelector('#xmag .timetxt').style['display'] === '') ? 'none' : '';
+	if (document.querySelector('#xmag .timetxt').style['display'] === '')
+		document.querySelector('#xmag .timetxt').style['display'] = 'none';
+	else {
+		let oldtime = this.iinf.find(x => (x.n === this.magentry.raw && x.adjt));
+		if (oldtime && !document.querySelector('#xmag .timetxt').value?.length) {
+			document.querySelector('#xmag .timetxt').value = oldtime.adjt;
+			this.handletimadj();
+		}
+		document.querySelector('#xmag .timetxt').style['display'] = '';
+	}
 }
 /* TopApp: browserdisplay: close magnification */
 closemag(notreally) {
@@ -22841,6 +22850,12 @@ closemag(notreally) {
 		this.corrdelta = this.magentry.timesync;
 		document.querySelectorAll('.syncpic').forEach((e) => { e.classList.remove('syncpic');});
 		this.magentry.orig.entry.classList.add('syncpic');
+		let el = this.iinf.find(x => x.n === this.magentry.raw);
+		if (el)
+			el.adjt = this.magentry.timestr;
+		else
+			this.iinf.push({ n: this.magentry.raw, adjt: this.magentry.timestr });
+		this.savesettings('ii');
 	}
 	else if (!this.magentry.timesync && (this.magentry.orig.timesync === this.corrdelta)) {
 		// clear
@@ -22878,8 +22893,10 @@ magtimechg() {
 		// invalid time entered
 		if (document.getElementById('refts').value?.length)
 			document.getElementById('cortimebut').classList.add('red');
-		else
+		else {
 			this.magentry.timesync = 0;
+			this.magentry.timestr = undefined;
+		}
 	}
 	else {
 		document.getElementById('cortimebut').classList.add('green');
@@ -22896,10 +22913,12 @@ magtimechg() {
 			let d1 = new Date(datestr);
 			let d2 = new Date(a[1] + '-' + a[3] + '-' + a[5] + 'T' + a[7] + ':' + a[9] + ':' + a[11] + 'Z');
 			this.magentry.timesync = d2 - d1;
+			this.magentry.timestr = document.getElementById('refts').value;
 		}
 		else { // should not happen
 			this.magentry.timesync = 0;
 			document.getElementById('refts').style['display'] = 'none';
+			this.magentry.timestr = undefined;
 		}
 	}
 }
