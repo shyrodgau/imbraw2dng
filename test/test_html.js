@@ -376,6 +376,13 @@ describe('B Convert Raw from Imback', function() {
 				.click()
 				.pause(600)
 				.perform();
+			const sbt = await driver.findElement(By.id('sbytype'));
+			await driver.actions({ async: true })
+				.move({ origin: sbt })
+				.pause(300)
+				.click()
+				.pause(600)
+				.perform();
 			const rcw = await driver.findElement(By.id('doselbut'));
 			await driver.actions({ async: true })
 				.move({ origin: rcw })

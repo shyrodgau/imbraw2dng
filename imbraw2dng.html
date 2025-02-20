@@ -1012,7 +1012,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.1.0_54bafc0", // actually const // VERSION EYECATCHER
+version: "V6.1.0_dd93951", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -20126,8 +20126,8 @@ aftercheck(defclosed) {
 	console.log('hi num ------------');
 	this.#higherclasses(this.numdclasses,2,5);
 	// top type classes here
-	for (const u of this.typedclasses) {
-		if (u.ischild) continue;
+	for (const u of this.typedclasses.filter(u => !u.ischild && u.level !== 1)) {
+		if (u.ischild || u.level === 1) continue;
 		if (this.typedclasses.filter((o) => u.title.substring(0,3) === o.title.substring(0,3)).length === 1) {
 			u.level --;
 			u.entry.classList.add('gl' + u.level);
