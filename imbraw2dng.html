@@ -19326,14 +19326,15 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 handle1imb(url, time) {
 	let rawname = ImBCBase.basename(url.name ? url.name : url);
 	if (rawname.substring(0,10).toUpperCase() === 'IMBRAW2DNG' || rawname.substring(0,6).toUpperCase() === 'IMBAPP' || rawname.substring(0,5).toUpperCase() === 'INDEX') return;
-	let timestx = globals.fnregex.exec(rawname);
+	let timestx = globals.fnregexx.exec(rawname);
 	let timesty = time ? globals.itsregex.exec(time) : null;
-	let timest = null, cl = '9999_99_99-99';
+	let timest = null, cl = '9999_99_99-99', seq = 99999;
 	let newimbele;
 	if (this.mingrp === 'd') cl = '9999_99_99';
 	if (null !== timestx) {
 		timest = timestx[1] + '_' + timestx[3] + '_' + timestx[5] + '-' + timestx[7] + '_' + timestx[9] + '_' + timestx[11];
 		cl = timestx[1] + '_' + timestx[3] + '_' + timestx[5] + (this.mingrp === 'h'? ('-' + timestx[7]) : '');
+		seq = parseInt(timestx[13])	;
 	} else {
 		this.mappx(false, 'words.warning');
 		this.mappx(true, 'onimback.strangename', rawname);
@@ -19355,7 +19356,8 @@ handle1imb(url, time) {
 			processed: false,
 			time: timest,
 			size: url?.size,
-			imbackintension: url.size ? url : undefined
+			imbackintension: url.size ? url : undefined,
+			seq: seq
 		};
 		if (this.dloads?.length)
 			newimbele.wasselected = (-1 !== (this.dloads.findIndex(e => (e.toUpperCase() === rawname.toUpperCase()))));
@@ -19413,6 +19415,13 @@ handle1imb(url, time) {
 	else {
 		this.appmsgxl(false, 'words.warning');
 		this.appmsgxl(0, 'onimback.strangename', rawname);
+	}
+	if (seq && newimbele) {
+		newimbele.numcl = Math.floor(seq/10);
+		if (this.imbeles && this.numdclasses) {
+			if (this.numdclasses.findIndex(v => v === Math.floor(seq/10)) === -1)
+				this.numdclasses.push(Math.floor(seq/10));
+		}
 	}
 }
 /* ImBCBase : parse expert flags */
@@ -19651,6 +19660,7 @@ class ImBCHtmlOut extends ImBCBase {
 // ImBCHtmlOut: from the back itself
 untypedclasses = []; // elements for groups with type for visual browser
 typedclasses = []; // elements for groups with type for visual browser
+numdclasses = []; // elements for groups with sequence number
 imbeles = [];
 // current preview image
 currentrot = 0; // see oriecw above, 0 means unknown
@@ -19982,7 +19992,11 @@ checkchecks() {
 		if (u.ischild) continue;
 		if (arr.filter((o) => u.title.substring(0,len) === o.title.substring(0,len)).length === 1) {
 			u.level --;
-			u.title = u.title.substring(0,len);
+			if (arr === this.numdclasses) {
+				u.title = u.title.substring(0,len)+'XXXXXXX'.substring(curlevel);
+			} else {
+				u.title = u.title.substring(0,len);
+			}
 			u.entry.classList.add('gl' + u.level);
 			u.entry.classList.remove('gl' + (u.level + 1));
 		} else if (arr.findIndex((o) => o.title === u.title.substring(0,len)) === -1) {
@@ -19991,6 +20005,9 @@ checkchecks() {
 				level: curlevel - 1,
 				smembers: []
 			};
+			if (arr === this.numdclasses) {
+				cl.title = u.title.substring(0,len)+'XXXXXXX'.substring(curlevel);
+			}
 			cl.entry = document.createElement('div');
 			const ce = cl.entry;
 			ce.id = 'gg_' + u.title.substring(0,len) + '_X';
@@ -20006,6 +20023,11 @@ checkchecks() {
 			}
 			arr.push(cl);
 		}
+	}
+	if (arr === this.numdclasses) {
+		if (curlevel > 0)
+			this.#higherclasses(arr, len-1, curlevel - 1);
+		return;
 	}
 	// 5	h	y => again ->
 	// 4	h  	y => again
@@ -20069,6 +20091,31 @@ aftercheck(defclosed) {
 		}
 		this.typedclasses.splice(this.typedclasses.findIndex(v => v === x), 1, cl);
 	}
+	for (const x of this.numdclasses) {
+		if (x.title) continue;
+		let xs = '' + x;
+		let xsx = '000'.substring(xs.length) + xs + 'X';
+		const cl = {
+			title: xsx,
+			level: 5,
+			fmembers: [],
+			smembers: [],
+			entry: undefined
+		};
+		cl.entry = document.createElement('div');
+		cl.entry.id = 'gg_' + xsx + '_X';
+		cl.entry.classList.add('gg');
+		cl.entry.classList.add(defclosed ? 'ggclosed' : 'ggopen');
+		cl.entry.classList.add('gl5');
+		for (const y of this.imbeles) {
+			if (x === y.numcl)
+			{
+				// todo: sort
+				cl.fmembers.push(y);
+			}
+		}
+		this.numdclasses.splice(this.numdclasses.findIndex(v => v === x), 1, cl);
+	}
 	if (this.mingrp === undefined || this.mingrp === 'h') {
 		this.#higherclasses(this.untypedclasses, 10, 5);
 		this.#higherclasses(this.typedclasses, 13, 5);
@@ -20076,6 +20123,8 @@ aftercheck(defclosed) {
 		this.#higherclasses(this.untypedclasses, 7, 5);
 		this.#higherclasses(this.typedclasses, 10, 5);
 	}
+	console.log('hi num ------------');
+	this.#higherclasses(this.numdclasses,2,5);
 	// top type classes here
 	for (const u of this.typedclasses) {
 		if (u.ischild) continue;
@@ -20116,11 +20165,22 @@ aftercheck(defclosed) {
 		}
 	} else
 		for (const s of this.untypedclasses) s.entry.classList.add('gl1');
+	// numdd upgraded to gl1, unless only one
+	if (this.numdclasses.length === 1 && this.numdclasses[0].smembers && this.numdclasses[0].smembers.length > 0) {
+		const t = this.numdclasses[0];
+		this.numdclasses.splice(0,1);
+		for (const s of t.smembers) {
+			s.entry.classList.add('gl1');
+			this.numdclasses.push(s);
+		}
+	} else
+		for (const s of this.numdclasses) s.entry.classList.add('gl1');
 	// build title elements
 	for (const s of this.untypedclasses) this.#buildtitlerec(s);
 	for (const s of this.typedclasses) this.#buildtitlerec(s);
+	for (const s of this.numdclasses) this.#buildtitlerec(s);
 	this.imgsdirty = false;
-	document.getElementById('sbytype').disabled = (this.typedclasses.length === 1);
+	//document.getElementById('sbytype').disabled = (this.typedclasses.length === 1);
 	if (document) {
 		document.getElementById('brnsel').innerHTML = '0';
 		document.getElementById('brntot').innerHTML = '' + this.imbeles.length;
@@ -20139,6 +20199,10 @@ cleartree() {
 		e.entry.remove();
 		//this.#doclose(e, true);
 	}
+	for (const e of this.numdclasses) {
+		e.entry.remove();
+		//this.#doclose(e, true);
+	}
 	for (const d of this.imbeles) {
 		if (undefined !== d.entry && null !== d.entry && d.entry.remove)
 			d.entry.remove();
@@ -20151,8 +20215,11 @@ buildtree(defclosed) {
 
 	// now, sort and add
 	let list;
-	if (document.getElementById('sbytype').checked) {
+	if (document.getElementById('grpsel')?.value === 'type' || document.getElementById('sbytype')?.checked) {
 		list = this.typedclasses;
+	}
+	else if (document.getElementById('grpsel')?.value === 'seq') {
+		list = this.numdclasses;
 	}
 	else {
 		list = this.untypedclasses;
@@ -22610,8 +22677,8 @@ function init() {
 <!-- this is the picture browser, generated content appended -->
 <div id="browser" style="background-color:#ffccbb;border: 5px solid #ff8833; border-radius: 10px;width: 90%;padding-left:2em;padding-right:2em;padding-top:1em; padding-bottom:1em;display:none;flex-direction:column;">
 <span id="browserx" style="position: fixed; right:9%;"><input type="button" value="&#x2715" style="font-weight: bold; font-size: 110%; border: 0.2px solid red; background-color: rgba(230,230,230,0.7);" onclick="imbc.shownormal()"></span>
-<div style="margin-bottom:1em;"><span data-myxlkey="main.sort"></span>: <label for="sbytype"><input type="checkbox" id="sbytype" onclick="imbc.buildtree()"><span data-myxlkey="browser.bytype"></span></label> - <label for="solder">
-<input type="checkbox" id="solder" onclick="imbc.buildtree()"><span data-myxlkey="browser.olderfirst"></span></label>
+<div style="margin-bottom:1em;"><span data-myxlkey="main.sort"></span>: <label for="sbytype"><input type="checkbox" id="sbytype" onclick="imbc.buildtree(true)"><span data-myxlkey="browser.bytype"></span></label> - <label for="solder">
+<input type="checkbox" id="solder" onclick="imbc.buildtree(true)"><span data-myxlkey="browser.olderfirst"></span></label>
  - <span data-myxlkey="main.selected"></span>: <span id="brnsel" class="selnumber">?</span> / <span id="brntot">?</span> - <label for="selall" data-mytitlexlkey="browser.selall.tooltip">
  <input onclick="imbc.topreccheck()" type="checkbox" id="selall"><span data-myxlkey="browser.selall"></span></label> - <input type="button" data-myvalxlkey="browser.procall" onclick="imbc.browserprocess()" id="doselbut"> -
  <input type="button" data-myvalxlkey="browser.delall" onclick="imbc.browserdelete()" id="delselbut" disabled></div>

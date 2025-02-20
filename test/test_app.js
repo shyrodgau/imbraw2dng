@@ -17,7 +17,7 @@ const TESTEXES='/home/hegny/prog/imbraw2dng/github';
 // workdir (this here):
 const TESTWORK='/home/hegny/prog/imbraw2dng/github/test';
 
-const {remote} = require('webdriverio');
+const {remote, Select} = require('webdriverio');
 
 const capabilities = {
   'platformName': 'Android',
@@ -128,8 +128,10 @@ async function runTest() {
 	await driver.executeScript('mobile:swipeGesture', [{left:350,top:300,width:10,height:50,direction:'up',percent:0.3}]);
     await imgrp2.click();
 	await driver.pause(1000);
-	const sbytype = await waitfor(driver, '#sbytype');
+	const sbytype = await waitfor(driver, '#grpsel');
 	await sbytype.click();
+	//const s = new Select(sbytype);
+	await sbytype.selectByIndex(0);
 	await driver.pause(600);
 
     const rotviox3 = await waitfor(driver, '#gg_RAW2029_07_07_X .eeraw');
@@ -189,8 +191,10 @@ async function runTest() {
 	await okbut.click();
 	await driver.pause(200);
 	//await driver.pause(27000);
-	const sbytype2 = await waitfor(driver, '#sbytype');
+	const sbytype2 = await waitfor(driver, '#grpsel');
 	await sbytype2.click();
+	//const s = new Select(sbytype);
+	await sbytype2.selectByIndex(1);
 	await driver.pause(200);
     const imgrp2b = await waitfor(driver, '#SELC_2024_02_17');
     await imgrp2b.click();

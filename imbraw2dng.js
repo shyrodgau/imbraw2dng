@@ -19163,14 +19163,15 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 handle1imb(url, time) {
 	let rawname = ImBCBase.basename(url.name ? url.name : url);
 	if (rawname.substring(0,10).toUpperCase() === 'IMBRAW2DNG' || rawname.substring(0,6).toUpperCase() === 'IMBAPP' || rawname.substring(0,5).toUpperCase() === 'INDEX') return;
-	let timestx = globals.fnregex.exec(rawname);
+	let timestx = globals.fnregexx.exec(rawname);
 	let timesty = time ? globals.itsregex.exec(time) : null;
-	let timest = null, cl = '9999_99_99-99';
+	let timest = null, cl = '9999_99_99-99', seq = 99999;
 	let newimbele;
 	if (this.mingrp === 'd') cl = '9999_99_99';
 	if (null !== timestx) {
 		timest = timestx[1] + '_' + timestx[3] + '_' + timestx[5] + '-' + timestx[7] + '_' + timestx[9] + '_' + timestx[11];
 		cl = timestx[1] + '_' + timestx[3] + '_' + timestx[5] + (this.mingrp === 'h'? ('-' + timestx[7]) : '');
+		seq = parseInt(timestx[13])	;
 	} else {
 		this.mappx(false, 'words.warning');
 		this.mappx(true, 'onimback.strangename', rawname);
@@ -19192,7 +19193,8 @@ handle1imb(url, time) {
 			processed: false,
 			time: timest,
 			size: url?.size,
-			imbackintension: url.size ? url : undefined
+			imbackintension: url.size ? url : undefined,
+			seq: seq
 		};
 		if (this.dloads?.length)
 			newimbele.wasselected = (-1 !== (this.dloads.findIndex(e => (e.toUpperCase() === rawname.toUpperCase()))));
@@ -19250,6 +19252,13 @@ handle1imb(url, time) {
 	else {
 		this.appmsgxl(false, 'words.warning');
 		this.appmsgxl(0, 'onimback.strangename', rawname);
+	}
+	if (seq && newimbele) {
+		newimbele.numcl = Math.floor(seq/10);
+		if (this.imbeles && this.numdclasses) {
+			if (this.numdclasses.findIndex(v => v === Math.floor(seq/10)) === -1)
+				this.numdclasses.push(Math.floor(seq/10));
+		}
 	}
 }
 /* ImBCBase : parse expert flags */

@@ -12,7 +12,7 @@ const TESTEXES='/home/hegny/prog/imbraw2dng/github';
 // workdir (this here):
 const TESTWORK='/home/hegny/prog/imbraw2dng/github/test';
 
-const {Builder, forBrowser, By, until, Browser, Capabilities} = require('selenium-webdriver');
+const {Builder, forBrowser, By, until, Browser, Capabilities, Select} = require('selenium-webdriver');
 //const chrome = require('chromedriver');
 //const { suite, test } = require('selenium-webdriver/testing');
 //const { ChromeOptions } = require('selenium-webdriver/chrome');
@@ -516,14 +516,13 @@ describe('E Convert Raw from Imback APP', function() {
 				.click()
 				.pause(30)
 				.perform();
-			const sor = await driver.findElement(By.id('sbytype'));
+			const sor = await driver.findElement(By.css('#grpsel'));
+			const sore = new Select(sor);
+			await sore.selectByIndex(0);
 			await driver.actions({ async: true })
-				.move({ origin: sor })
-				.pause(10)
-				.click()
-				.pause(600)
+				.pause(100)
 				.perform();
-			const zoom0x = await driver.findElement(By.css('#gg_RAW2029_07_10_X .onepic'));
+			const zoom0x = await waitfor(driver,'css','#gg_RAW2029_07_10_X .onepic');
 			await driver.actions({ async: true })
 				.move({ origin: zoom0x })
 				.pause(30)
@@ -586,11 +585,16 @@ describe('E Convert Raw from Imback APP', function() {
 				.click()
 				.pause(900)
 				.perform();
-			const sorb = await waitfor(driver, 'id', 'sbytype');
+			const sorb = await driver.findElement(By.css('#grpsel'));
+			const sorbe = new Select(sor);
+			await sorbe.selectByIndex(1);
 			await driver.actions({ async: true })
-				.move({ origin: sorb })
-				.pause(300)
-				.click()
+				.pause(100)
+				.perform();
+			await driver.actions({ async: true })
+				//.move({ origin: sor })
+				//.pause(10)
+				//.click()
 				.pause(600)
 				.perform();
 			await driver.actions({ async: true })
