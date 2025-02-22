@@ -65,9 +65,8 @@ Mapping of identical sections: (* = missing here)
 IFDOut (TIFFOut, ImBCBase, globals): 	imbapp.htm imbapp.html imbraw2dng.html imbraw2dng.js		(all)
 *Browser_specifics (globalfxns): 		imbapp.htm imbapp.html imbraw2dng.html						(all html)
 Backward_helper_class: 					imbraw2dng.html imbraw2dng.js								(classic)
-*app_only (CSS): 						imbapp.htm imbapp.html										(app-like)
+*app_only (CSS, worker): 				imbapp.htm imbapp.html										(app-like)
 *Top_class_for_App: 					imbapp.htm imbapp.html										(app-like)
-*worker: 								imbapp.htm imbapp.html										(app-like)
 
 */
 "use strict;"

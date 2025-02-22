@@ -38,9 +38,8 @@ Mapping of identical sections: (* = missing here)
 IFDOut (TIFFOut, ImBCBase, globals): 	imbapp.htm imbapp.html imbraw2dng.html imbraw2dng.js		(all)
 Browser_specifics (globalfxns): 		imbapp.htm imbapp.html imbraw2dng.html						(all html)
 *Backward_helper_class: 				imbraw2dng.html imbraw2dng.js								(classic)
-app_only (CSS): 						imbapp.htm imbapp.html										(app-like)
+app_only (CSS, worker): 				imbapp.htm imbapp.html										(app-like)
 Top_class_for_App: 						imbapp.htm imbapp.html										(app-like)
-worker: 								imbapp.htm imbapp.html										(app-like)
 
 -->
 <head>
@@ -602,6 +601,410 @@ body:has(dialog[open]), html:has(dialog[open]) {
 .delsel.blue { color: #333399; }
 /* * * ************************************* CSS E N D *************************************** */
 </style>
+<!-- WORKER -->
+<script type="text/js-netwworker" language="javascript">
+/* * * ************************************* WORKER *************************************** */
+let base, msg = false, curxhr, evtq = [], imgstopped = false;
+let progress = false, queue = [], wdtimer, currcust, dbgflag,	errcount = 0;
+/* WORKER onmessage */
+onmessage = (e) => {
+	//console.log('N WORKER received ' + e.data.cmd + ' ' + JSON.stringify(e));
+	switch (e.data.cmd) {
+	case 'stopimg':
+		imgstopped = true;
+		if (curxhr && curxhr?.readyState !== 4 &&
+				progress !== 'watchdog' &&
+				progress !== 'custcmd') {
+			if (dbgflag) console.log('abort 1 ' + progress);
+			curxhr.abort();
+		}
+		return;
+	case 'setdbg':
+		dbgflag = true;
+		return;
+	case 'stopwatch':
+		errcount = 0;
+		if (wdtimer) clearTimeout(wdtimer);
+		wdtimer = undefined;
+		return;
+	}
+	if (imgstopped && (e.data.cmd === 'resolveandhandle' || e.data.cmd === 'resolveandpreview')) {
+		return postMessage({ cmd: e.data.cmd, ok: false, n: e.data.n, cid: e.data.cid });
+	}
+	if (progress) {
+		if (curxhr && curxhr?.readyState !== 4 &&
+				e.data.cmd !== 'watchdog' &&
+				!e.data.cmd.startsWith('resolve') &&
+				progress !== 'watchdog' &&
+				progress !== 'custcmd' &&
+				e.data.cmd !== 'custcmd') {
+			if (dbgflag) console.log('abort 2 ' + progress + ' ' + e.data.cmd);
+			curxhr.abort();
+		}
+		else {
+			if (dbgflag) console.log('WORKER PUSHING ' + e.data.cmd + ' [' + progress + ']');
+			queue.push(e);
+			return;
+		}
+	}
+	//console.log(JSON.stringify(e.data));
+	if (!msg) {
+		console.log('WORKER SEEMS OK');
+		msg = true;
+	}
+	/*eslint no-fallthrough: ["error", { "commentPattern": "no break" }]*/
+	progress = e.data.cmd;
+	switch (progress) {
+	case 'seturl':
+		base = e.data.url;
+		// no break;
+	case 'watchdog':
+		watchdog();
+		break;
+	case 'resolveandpreview':
+		resolver({ cache: {}, n: e.data.n, cmd: e.data.cmd, ori: e.data.o, siz: e.data.size, ci: e.data.cid}, e.data.n, true);
+		// this.netwworker.postMessage({ cmd: 'resolveandpreview', n: (f.url ? f.url :f), o: orientation });
+ 	  	// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
+		break;
+	case 'resolveandhandle':
+		resolver({ cache: {}, n: e.data.n, cmd: e.data.cmd, ori: e.data.o, siz: e.data.size, ci: e.data.cid}, e.data.n, false);
+		//this.netwworker.postMessage({ cmd: 'resolveandhandle', n: (f.n ? f.n : f), o: orientation });
+		// onmessage: { ok?, n: f.n, o: orientation, c: cacheentry }
+		break;
+	case 'custcmd':
+		currcust = e.data.c;
+		//this.netwworker.postMessage({ cmd: 'custcmd', c: cmd, type: type, rest: rest, results: results });
+		custcmd({ n: e.data.n, cmd: e.data.cmd, ori: e.data.o, siz: e.data.size, ci: e.data.cid}, e.data.c, e.data.type, e.data.rest);
+		break;
+	default:
+		console.log('WORKER: unexpected CMD ' + e.data.cmd);
+		postMessage({ cmd: progress, ok: false, cid: e.data.cid });
+		progress = false;
+	}
+};
+/* WORKER: handle communication */
+function resolver(struc, url, preview, notfirst)  {
+	let e = url;
+	if (undefined === struc.ori) struc.ori = 0;
+	if (url.url) {
+		e = url;
+		url = e.url;
+		struc.ori = e.rot;
+	}
+	let fx = {
+		imbackextension: true,
+		name: url
+	};
+	let xhr = new XMLHttpRequest();
+	xhr.onload = (/*evt*/) => {
+		curxhr = undefined;
+		if (errcount) errcount--;
+		let len = JSON.parse(xhr.getResponseHeader('content-length'));
+		if (0 >= len) len=1;
+		struc.cache.data = xhr.response;
+		struc.cache.len = xhr.response.byteLength;
+		fx.data = xhr.response;
+		fx.size = xhr.response.byteLength;
+		fx.readAsArrayBuffer = (fy) => {
+			fy.onload({
+				target: {
+					result: fy.data				}
+			});
+		};
+		xhr.onerror = undefined;
+		xhr.ontimeout = undefined;
+		xhr.onabort = undefined;
+		if (!preview) {
+			//console.log('POSTING ' + url);
+			postMessage({ cmd: struc.cmd, ok: true, n: url, o: struc.ori, c: struc.cache, size: struc.siz, cid: struc.ci });
+			handlewait();
+		}
+		else {
+			fx.readAsArrayBuffer = undefined;
+			fx.replaceread = true;
+			postMessage({ cmd:'afterload',  cid: struc.ci});
+			postMessage({ cmd:'tobuildpreview', d:{struc: struc, f: fx, size: struc.siz, orientation: struc.ori}});
+			handlewait();
+		}
+	};
+	xhr.onerror = (evt, typ) => {
+		curxhr = undefined;
+		if (undefined === typ) typ = 'err';
+		//errcount++;
+		console.log('WORKER XHR err (createfx, ' + typ + ') for ' + url + ' readyState:' + xhr.readyState + ' http status:' + xhr.status + ' text: ' + xhr.statusText + ' E ' + evt.toString());
+		if (dbgflag) evtq.push(evt);
+		xhr.onerror = undefined;
+		xhr.onload = undefined;
+		xhr.ontimeout = undefined;
+		xhr.onabort = undefined;
+		/*if (dbgflag) {
+			setTimeout(() => {
+				postMessage({ cmd: cmd, ok: false, n: name });
+				handlewait();
+			}, 300);
+		} else*/ {
+			postMessage({ cmd: struc.cmd, ok: false, n: struc.n, cid: struc.ci });
+			handlewait();
+		}
+	};
+	xhr.onabort = (evt) => {
+		xhr.onerror(evt, 'abort');
+	};
+	xhr.ontimeout = (evt) => { xhr.onerror(evt, 'timeout'); };
+	if (preview && (url.substring(url.length -4).toUpperCase() !== '.RAW')) {
+		xhr.open('GET', base + globalfxns.adjurl(url) +'?custom=1&cmd=4001');
+	} else {
+		xhr.open('GET', base + globalfxns.adjurl(url));
+	}
+	xhr.setRequestHeader('Cache-control','max-stale');
+	xhr.responseType = 'arraybuffer';
+	xhr.timeout = (!notfirst || notfirst < 10000000) ? 30000 : Math.round(notfirst / 600);
+	if (!preview && (url.substring(url.length -4).toUpperCase() === '.MP4')) {
+		xhr.timeout = -1;
+	}
+	try {
+		xhr.send();
+		curxhr = xhr;
+	} catch (e) {
+		console.log('WORKER XHR send exception (createfx) for ' + url + ' ' + e.toString());
+		if (dbgflag) evtq.push(e);
+		xhr.onerror = undefined;
+		xhr.onload = undefined;
+		xhr.ontimeout = undefined;
+		xhr.onabort = undefined;
+		curxhr = undefined;
+		postMessage({ cmd: struc.cmd, ok: false, n: struc.n, cid: struc.ci });
+		handlewait();
+	}
+}
+/* WORKER: handle wait queue */
+function handlewait() {
+	let p = progress;
+	progress = false;
+	if (queue.length > 0) {
+		const e = queue[0];
+		if (dbgflag) console.log('WORKER CONTINUE ' + e.data.cmd + ' [' + p + ']');
+		queue.splice(0,1);
+		onmessage(e);
+	}
+}
+/* WORKER: watchdog */
+function watchdog() {
+	if (errcount > 2) {
+		postMessage({ cmd: 'disconnect'});
+		return;
+	}
+	custcmdi({}, 3019, 'document', undefined, (rc) => {
+		if (dbgflag || rc.rc) console.log('WW ' + JSON.stringify(rc));
+		if (!rc?.rc) {
+			postMessage({ cmd: 'battstat', txt: rc.results });
+			//if (dbgflag) console.log('WORKER WATCHDOG' + rc.results);
+			if (wdtimer) clearTimeout(wdtimer);
+		}
+		wdtimer = setTimeout(() => {
+			wdtimer = undefined;
+			onmessage({ data: { cmd: 'watchdog' } });
+		}, 12000);
+	});
+}
+/* WORKER: internal handler */
+function custcmd (struc, c, t, restargs) {
+	custcmdi(struc, c, t, restargs, postMessage)
+}
+/* WORKER: internal command handler */
+function custcmdi(struc, c, t, restargs, cb, results) {
+	let thecmd = c, therest = restargs;
+	if (undefined === base) {
+		cb({ cmd: 'custcmd', ok: false, rc: -1, cmds: currcust, cid: struc.ci });
+		handlewait();
+		return;
+	}
+	if (c instanceof Array) {
+		if (results === undefined) results = [];
+		if (c[0] instanceof Array) {
+			thecmd = c[0][0];
+			therest = c[0][1];
+		} else {
+			thecmd = c[0];
+			therest = '';
+		}
+		c.splice(0,1);
+	}
+	const xhr = new XMLHttpRequest();
+	xhr.onload = (/*event*/) => {
+		curxhr = undefined;
+		if (xhr.status === 200) {
+			if (errcount) errcount--;
+			let resp = xhr.response;
+			if (t.startsWith('doc'))
+				resp = (new TextDecoder()).decode(xhr.response);
+			if (results instanceof Array) results.push(resp);
+			if (c instanceof Array && c.length > 0) {
+				custcmdi(struc, c, t, restargs, cb, results);
+			}
+			else {
+				cb({ cmd: 'custcmd', ok: true, results: (results instanceof Array) ? results : resp, rc: 0, cmds: currcust, cid: struc.ci });
+				currcust = undefined;
+				handlewait();
+			}
+		}
+		else {
+			console.log('WORKER custcmd !== 200: ' + thecmd);
+			cb({ cmd: 'custcmd', ok: false, results: (results instanceof Array) ? results : xhr.response, rc: -1, cmds: currcust, cid: struc.ci });
+			currcust = undefined;
+			handlewait();
+		}
+	};
+	xhr.onerror = (event) => {
+		curxhr = undefined;
+		console.log('WORKER custcmd onerror: ' + thecmd + ' ' + base + ' E ' + JSON.stringify(event));
+		if (dbgflag) evtq.push(event);
+		if (event.type !== 'timeout') errcount++;
+		cb({ cmd: 'custcmd', ok: false, results: results, rc: -2, cmds: currcust, cid: struc.ci });
+		currcust = undefined;
+		handlewait();
+	};
+	xhr.ontimeout = xhr.onerror;
+	xhr.onabort = xhr.onerror;
+	if (thecmd === 3019 || thecmd === 3012)
+		xhr.timeout = 3000;
+	if (base.startsWith('http://192.168.1.254')) {
+		xhr.open('GET', base + '/?custom=1&cmd=' + thecmd + (therest ? ('&'  + therest): ''));
+	}
+	else {
+		xhr.open('GET', base+ '/i' + thecmd + '.xml' + (therest ? ('?'  + therest): ''));
+	}
+	xhr.setRequestHeader('Cache-control','no-cache, no-store, max-age=0');
+	xhr.responseType = 'arraybuffer';
+	xhr.send();
+	curxhr = xhr;
+}
+</script><!-- js-netwworker -->
+<script type="text/js-previewworker" language="javascript">
+/* * * ************************************* preview WORKER *************************************** */
+let dbgflag,	constwb = false;
+/* WORKER onmessage */
+onmessage = (e) => {
+	//console.log('P WORKER received ' + e.data.cmd + ' ' + JSON.stringify(e));
+	switch (e.data.cmd) {
+	case 'setdbg':
+		dbgflag = true;
+		return;
+	case 'constwb':
+		constwb = e.data.constwb;
+		return;
+	case 'readjpg':
+		readjpg({ n: e.data.n, cmd: e.data.cmd, ori: e.data.o, siz: e.data.size, ci: e.data.cid}, e.data.f);
+		return;
+	case 'previewfromcache':
+		buildpreviewcache({ cache: {}, n: e.data.n, cmd: e.data.cmd, ori: e.data.o, siz: e.data.size, ci: e.data.cid}, e.data.c, e.data.size, e.data.o);
+		// this.netwworker.postMessage({ cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :f), o: orientation });
+		// onmessage: { pix: array, c: cache, n: n, o: orientation }
+		return;
+	case 'buildpreview':
+		buildpreview(e.data.struc, e.data.f, e.data.size, e.data.orientation);
+		// this.netwworker.postMessage({ cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :f), o: orientation });
+		// onmessage: { pix: array, c: cache, n: n, o: orientation }
+		return;
+	}
+	/*eslint no-fallthrough: ["error", { "commentPattern": "no break" }]*/
+	switch (e.data.cmd) {
+	default:
+		console.log('WORKER: unexpected CMD ' + e.data.cmd);
+		postMessage({ cmd: e.data.cmd, ok: false, cid: e.data.cid });
+	}
+};
+/* WORKER: browserdisplay: build preview */
+// orientation: 1: norm, 3: rot 180, 6 rot 90 CW, 8: rot 270 CCW
+function buildpreview(struc, f, size, orientation) {
+	let w, h, typ;
+	const zz = globals.infos.findIndex(v => v.size === f.size);
+	if (zz === -1) {
+		console.log('WORKER preview: unsupported size ' + f.size + ' of ' + f.name);
+		postMessage({ cmd: struc.cmd, ok: false, n: struc.n, cid: struc.ci });
+		return;
+	}
+	w = globals.infos[zz].w;
+	typ = globals.infos[zz].typ;
+	h = globals.infos[zz].h;
+	const whitelvl = (typ === 5) ? 4095: 255;
+
+	const reader = f.imbackextension ? f : new FileReader();
+	reader.onload = (evt) => {
+		let contents = evt.target.result;
+		if (contents.buffer) contents = contents.buffer;
+		const view = new DataView(contents);
+		const wb = constwb ? [ 6, 10, 1, 1, 6, 10 ] : globals.getwb(view, zz, whitelvl);
+		struc.cache.wb = wb;
+		//console.log(JSON.stringify(wb));
+		let outpix = globals.buildpvarray(view, size, typ, w, h, orientation, false, wb, whitelvl);
+		// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
+		postMessage({ cmd: struc.cmd, pix: outpix, n: struc.n, o: struc.ori, c: struc.cache, xori: (!struc.ori) ? 1 : struc.ori, size: struc.siz, cid: struc.ci });
+	};
+	reader.onerror = (evt) => {
+		console.log('WORKER preview: error reading ' + f.name + ' E ' + evt.toString());
+		postMessage({ cmd: struc.cmd, ok: false, n: struc.n, cid: struc.ci });
+	};
+	if (f.replaceread) {
+		f.readAsArrayBuffer = (fy) => {
+			if (fy.data && fy.onload) {
+				fy.onload( {
+					target: { result: fy.data }
+				} );
+			}
+			else if (fy.onerror)
+				fy.onerror( fy.errevent );
+		}
+	}
+	reader.readAsArrayBuffer(f);
+}
+/* WORKER: browserdisplay: build preview from cache */
+// orientation: 1: norm, 3: rot 180, 6 rot 90 CW, 8: rot 270 CCW
+function buildpreviewcache(struc, f, size, orientation) {
+	let w, h, typ;
+	const zz = globals.infos.findIndex(v => v.size === f.l);
+	if (zz === -1) {
+		console.log('WORKER preview: unsupported size ' + f.l + ' of ' + f.n);
+		postMessage({ cmd: struc.cmd, ok: false, n: struc.n, cid: struc.ci });
+		return;
+	}
+	w = globals.infos[zz].w;
+	typ = globals.infos[zz].typ;
+	h = globals.infos[zz].h;
+	const whitelvl = (typ === 5) ? 4095: 255;
+
+	const contents = f.d;
+	const view = new DataView(contents);
+	const wb = constwb ? [ 6, 10, 1, 1, 6, 10 ] : (f.wb ? f.wb : globals.getwb(view, zz, whitelvl));
+	//console.log(JSON.stringify(wb));
+	let outpix = globals.buildpvarray(view, size, typ, w, h, orientation, false, wb, whitelvl);
+	// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
+	if (dbgflag) {
+		setTimeout(() => {
+			postMessage({ cmd: struc.cmd, pix: outpix, n: struc.n, o: struc.ori, c: struc.cache, xori: (!struc.ori) ? 1 : struc.ori, size: struc.siz, cid: struc.ci });
+		}, 300);
+	}
+	else {
+		postMessage({ cmd: struc.cmd, pix: outpix, n: struc.n, o: struc.ori, c: struc.cache, xori: (!struc.ori) ? 1 : struc.ori, size: struc.siz, cid: struc.ci });
+	}
+}
+/* WORKER read local jpeg */
+function readjpg(struc, file) {
+	// read jpeg file for preview
+	const fr = file.imbackextension ? file : new FileReader();
+	fr.onload = (evt) => {
+		let contents = evt.target.result;
+		contents = 'data:image/jpeg;' + contents.substring(8);
+		/* shown in onload of img */
+		postMessage({ cmd: 'readjpg', ok: true, c: contents, cid: struc.ci });
+	}
+	fr.onerror = (evt) => {
+		postMessage({ cmd: 'readjpg', ok: false, evt: evt.toString(), cid: struc.ci });
+	}
+	fr.readAsDataURL(file);
+}
+/* * * ************************************* WORKER, E N D *************************************** */
+</script><!-- js-previewworker -->
 <script type="text/javascript" language="javascript">
 /* *************************************** app only E N D *************************************** */
 "use strict;"
@@ -25820,410 +26223,6 @@ window.addEventListener('pageshow', function (event) {
     }
 });
 </script>
-<!-- WORKER -->
-<script type="text/js-netwworker" language="javascript">
-/* *************************************** WORKER *************************************** */
-let base, msg = false, curxhr, evtq = [], imgstopped = false;
-let progress = false, queue = [], wdtimer, currcust, dbgflag,	errcount = 0;
-/* WORKER onmessage */
-onmessage = (e) => {
-	//console.log('N WORKER received ' + e.data.cmd + ' ' + JSON.stringify(e));
-	switch (e.data.cmd) {
-	case 'stopimg':
-		imgstopped = true;
-		if (curxhr && curxhr?.readyState !== 4 &&
-				progress !== 'watchdog' &&
-				progress !== 'custcmd') {
-			if (dbgflag) console.log('abort 1 ' + progress);
-			curxhr.abort();
-		}
-		return;
-	case 'setdbg':
-		dbgflag = true;
-		return;
-	case 'stopwatch':
-		errcount = 0;
-		if (wdtimer) clearTimeout(wdtimer);
-		wdtimer = undefined;
-		return;
-	}
-	if (imgstopped && (e.data.cmd === 'resolveandhandle' || e.data.cmd === 'resolveandpreview')) {
-		return postMessage({ cmd: e.data.cmd, ok: false, n: e.data.n, cid: e.data.cid });
-	}
-	if (progress) {
-		if (curxhr && curxhr?.readyState !== 4 &&
-				e.data.cmd !== 'watchdog' &&
-				!e.data.cmd.startsWith('resolve') &&
-				progress !== 'watchdog' &&
-				progress !== 'custcmd' &&
-				e.data.cmd !== 'custcmd') {
-			if (dbgflag) console.log('abort 2 ' + progress + ' ' + e.data.cmd);
-			curxhr.abort();
-		}
-		else {
-			if (dbgflag) console.log('WORKER PUSHING ' + e.data.cmd + ' [' + progress + ']');
-			queue.push(e);
-			return;
-		}
-	}
-	//console.log(JSON.stringify(e.data));
-	if (!msg) {
-		console.log('WORKER SEEMS OK');
-		msg = true;
-	}
-	/*eslint no-fallthrough: ["error", { "commentPattern": "no break" }]*/
-	progress = e.data.cmd;
-	switch (progress) {
-	case 'seturl':
-		base = e.data.url;
-		// no break;
-	case 'watchdog':
-		watchdog();
-		break;
-	case 'resolveandpreview':
-		resolver({ cache: {}, n: e.data.n, cmd: e.data.cmd, ori: e.data.o, siz: e.data.size, ci: e.data.cid}, e.data.n, true);
-		// this.netwworker.postMessage({ cmd: 'resolveandpreview', n: (f.url ? f.url :f), o: orientation });
- 	  	// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
-		break;
-	case 'resolveandhandle':
-		resolver({ cache: {}, n: e.data.n, cmd: e.data.cmd, ori: e.data.o, siz: e.data.size, ci: e.data.cid}, e.data.n, false);
-		//this.netwworker.postMessage({ cmd: 'resolveandhandle', n: (f.n ? f.n : f), o: orientation });
-		// onmessage: { ok?, n: f.n, o: orientation, c: cacheentry }
-		break;
-	case 'custcmd':
-		currcust = e.data.c;
-		//this.netwworker.postMessage({ cmd: 'custcmd', c: cmd, type: type, rest: rest, results: results });
-		custcmd({ n: e.data.n, cmd: e.data.cmd, ori: e.data.o, siz: e.data.size, ci: e.data.cid}, e.data.c, e.data.type, e.data.rest);
-		break;
-	default:
-		console.log('WORKER: unexpected CMD ' + e.data.cmd);
-		postMessage({ cmd: progress, ok: false, cid: e.data.cid });
-		progress = false;
-	}
-};
-/* WORKER: handle communication */
-function resolver(struc, url, preview, notfirst)  {
-	let e = url;
-	if (undefined === struc.ori) struc.ori = 0;
-	if (url.url) {
-		e = url;
-		url = e.url;
-		struc.ori = e.rot;
-	}
-	let fx = {
-		imbackextension: true,
-		name: url
-	};
-	let xhr = new XMLHttpRequest();
-	xhr.onload = (/*evt*/) => {
-		curxhr = undefined;
-		if (errcount) errcount--;
-		let len = JSON.parse(xhr.getResponseHeader('content-length'));
-		if (0 >= len) len=1;
-		struc.cache.data = xhr.response;
-		struc.cache.len = xhr.response.byteLength;
-		fx.data = xhr.response;
-		fx.size = xhr.response.byteLength;
-		fx.readAsArrayBuffer = (fy) => {
-			fy.onload({
-				target: {
-					result: fy.data				}
-			});
-		};
-		xhr.onerror = undefined;
-		xhr.ontimeout = undefined;
-		xhr.onabort = undefined;
-		if (!preview) {
-			//console.log('POSTING ' + url);
-			postMessage({ cmd: struc.cmd, ok: true, n: url, o: struc.ori, c: struc.cache, size: struc.siz, cid: struc.ci });
-			handlewait();
-		}
-		else {
-			fx.readAsArrayBuffer = undefined;
-			fx.replaceread = true;
-			postMessage({ cmd:'afterload',  cid: struc.ci});
-			postMessage({ cmd:'tobuildpreview', d:{struc: struc, f: fx, size: struc.siz, orientation: struc.ori}});
-			handlewait();
-		}
-	};
-	xhr.onerror = (evt, typ) => {
-		curxhr = undefined;
-		if (undefined === typ) typ = 'err';
-		//errcount++;
-		console.log('WORKER XHR err (createfx, ' + typ + ') for ' + url + ' readyState:' + xhr.readyState + ' http status:' + xhr.status + ' text: ' + xhr.statusText + ' E ' + evt.toString());
-		if (dbgflag) evtq.push(evt);
-		xhr.onerror = undefined;
-		xhr.onload = undefined;
-		xhr.ontimeout = undefined;
-		xhr.onabort = undefined;
-		/*if (dbgflag) {
-			setTimeout(() => {
-				postMessage({ cmd: cmd, ok: false, n: name });
-				handlewait();
-			}, 300);
-		} else*/ {
-			postMessage({ cmd: struc.cmd, ok: false, n: struc.n, cid: struc.ci });
-			handlewait();
-		}
-	};
-	xhr.onabort = (evt) => {
-		xhr.onerror(evt, 'abort');
-	};
-	xhr.ontimeout = (evt) => { xhr.onerror(evt, 'timeout'); };
-	if (preview && (url.substring(url.length -4).toUpperCase() !== '.RAW')) {
-		xhr.open('GET', base + globalfxns.adjurl(url) +'?custom=1&cmd=4001');
-	} else {
-		xhr.open('GET', base + globalfxns.adjurl(url));
-	}
-	xhr.setRequestHeader('Cache-control','max-stale');
-	xhr.responseType = 'arraybuffer';
-	xhr.timeout = (!notfirst || notfirst < 10000000) ? 30000 : Math.round(notfirst / 600);
-	if (!preview && (url.substring(url.length -4).toUpperCase() === '.MP4')) {
-		xhr.timeout = -1;
-	}
-	try {
-		xhr.send();
-		curxhr = xhr;
-	} catch (e) {
-		console.log('WORKER XHR send exception (createfx) for ' + url + ' ' + e.toString());
-		if (dbgflag) evtq.push(e);
-		xhr.onerror = undefined;
-		xhr.onload = undefined;
-		xhr.ontimeout = undefined;
-		xhr.onabort = undefined;
-		curxhr = undefined;
-		postMessage({ cmd: struc.cmd, ok: false, n: struc.n, cid: struc.ci });
-		handlewait();
-	}
-}
-/* WORKER: handle wait queue */
-function handlewait() {
-	let p = progress;
-	progress = false;
-	if (queue.length > 0) {
-		const e = queue[0];
-		if (dbgflag) console.log('WORKER CONTINUE ' + e.data.cmd + ' [' + p + ']');
-		queue.splice(0,1);
-		onmessage(e);
-	}
-}
-/* WORKER: watchdog */
-function watchdog() {
-	if (errcount > 2) {
-		postMessage({ cmd: 'disconnect'});
-		return;
-	}
-	custcmdi({}, 3019, 'document', undefined, (rc) => {
-		if (dbgflag || rc.rc) console.log('WW ' + JSON.stringify(rc));
-		if (!rc?.rc) {
-			postMessage({ cmd: 'battstat', txt: rc.results });
-			//if (dbgflag) console.log('WORKER WATCHDOG' + rc.results);
-			if (wdtimer) clearTimeout(wdtimer);
-		}
-		wdtimer = setTimeout(() => {
-			wdtimer = undefined;
-			onmessage({ data: { cmd: 'watchdog' } });
-		}, 12000);
-	});
-}
-/* WORKER: internal handler */
-function custcmd (struc, c, t, restargs) {
-	custcmdi(struc, c, t, restargs, postMessage)
-}
-/* WORKER: internal command handler */
-function custcmdi(struc, c, t, restargs, cb, results) {
-	let thecmd = c, therest = restargs;
-	if (undefined === base) {
-		cb({ cmd: 'custcmd', ok: false, rc: -1, cmds: currcust, cid: struc.ci });
-		handlewait();
-		return;
-	}
-	if (c instanceof Array) {
-		if (results === undefined) results = [];
-		if (c[0] instanceof Array) {
-			thecmd = c[0][0];
-			therest = c[0][1];
-		} else {
-			thecmd = c[0];
-			therest = '';
-		}
-		c.splice(0,1);
-	}
-	const xhr = new XMLHttpRequest();
-	xhr.onload = (/*event*/) => {
-		curxhr = undefined;
-		if (xhr.status === 200) {
-			if (errcount) errcount--;
-			let resp = xhr.response;
-			if (t.startsWith('doc'))
-				resp = (new TextDecoder()).decode(xhr.response);
-			if (results instanceof Array) results.push(resp);
-			if (c instanceof Array && c.length > 0) {
-				custcmdi(struc, c, t, restargs, cb, results);
-			}
-			else {
-				cb({ cmd: 'custcmd', ok: true, results: (results instanceof Array) ? results : resp, rc: 0, cmds: currcust, cid: struc.ci });
-				currcust = undefined;
-				handlewait();
-			}
-		}
-		else {
-			console.log('WORKER custcmd !== 200: ' + thecmd);
-			cb({ cmd: 'custcmd', ok: false, results: (results instanceof Array) ? results : xhr.response, rc: -1, cmds: currcust, cid: struc.ci });
-			currcust = undefined;
-			handlewait();
-		}
-	};
-	xhr.onerror = (event) => {
-		curxhr = undefined;
-		console.log('WORKER custcmd onerror: ' + thecmd + ' ' + base + ' E ' + JSON.stringify(event));
-		if (dbgflag) evtq.push(event);
-		if (event.type !== 'timeout') errcount++;
-		cb({ cmd: 'custcmd', ok: false, results: results, rc: -2, cmds: currcust, cid: struc.ci });
-		currcust = undefined;
-		handlewait();
-	};
-	xhr.ontimeout = xhr.onerror;
-	xhr.onabort = xhr.onerror;
-	if (thecmd === 3019 || thecmd === 3012)
-		xhr.timeout = 3000;
-	if (base.startsWith('http://192.168.1.254')) {
-		xhr.open('GET', base + '/?custom=1&cmd=' + thecmd + (therest ? ('&'  + therest): ''));
-	}
-	else {
-		xhr.open('GET', base+ '/i' + thecmd + '.xml' + (therest ? ('?'  + therest): ''));
-	}
-	xhr.setRequestHeader('Cache-control','no-cache, no-store, max-age=0');
-	xhr.responseType = 'arraybuffer';
-	xhr.send();
-	curxhr = xhr;
-}
-</script><!-- js-netwworker -->
-<script type="text/js-previewworker" language="javascript">
-/* * * ************************************* preview WORKER *************************************** */
-let dbgflag,	constwb = false;
-/* WORKER onmessage */
-onmessage = (e) => {
-	//console.log('P WORKER received ' + e.data.cmd + ' ' + JSON.stringify(e));
-	switch (e.data.cmd) {
-	case 'setdbg':
-		dbgflag = true;
-		return;
-	case 'constwb':
-		constwb = e.data.constwb;
-		return;
-	case 'readjpg':
-		readjpg({ n: e.data.n, cmd: e.data.cmd, ori: e.data.o, siz: e.data.size, ci: e.data.cid}, e.data.f);
-		return;
-	case 'previewfromcache':
-		buildpreviewcache({ cache: {}, n: e.data.n, cmd: e.data.cmd, ori: e.data.o, siz: e.data.size, ci: e.data.cid}, e.data.c, e.data.size, e.data.o);
-		// this.netwworker.postMessage({ cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :f), o: orientation });
-		// onmessage: { pix: array, c: cache, n: n, o: orientation }
-		return;
-	case 'buildpreview':
-		buildpreview(e.data.struc, e.data.f, e.data.size, e.data.orientation);
-		// this.netwworker.postMessage({ cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :f), o: orientation });
-		// onmessage: { pix: array, c: cache, n: n, o: orientation }
-		return;
-	}
-	/*eslint no-fallthrough: ["error", { "commentPattern": "no break" }]*/
-	switch (e.data.cmd) {
-	default:
-		console.log('WORKER: unexpected CMD ' + e.data.cmd);
-		postMessage({ cmd: e.data.cmd, ok: false, cid: e.data.cid });
-	}
-};
-/* WORKER: browserdisplay: build preview */
-// orientation: 1: norm, 3: rot 180, 6 rot 90 CW, 8: rot 270 CCW
-function buildpreview(struc, f, size, orientation) {
-	let w, h, typ;
-	const zz = globals.infos.findIndex(v => v.size === f.size);
-	if (zz === -1) {
-		console.log('WORKER preview: unsupported size ' + f.size + ' of ' + f.name);
-		postMessage({ cmd: struc.cmd, ok: false, n: struc.n, cid: struc.ci });
-		return;
-	}
-	w = globals.infos[zz].w;
-	typ = globals.infos[zz].typ;
-	h = globals.infos[zz].h;
-	const whitelvl = (typ === 5) ? 4095: 255;
-
-	const reader = f.imbackextension ? f : new FileReader();
-	reader.onload = (evt) => {
-		let contents = evt.target.result;
-		if (contents.buffer) contents = contents.buffer;
-		const view = new DataView(contents);
-		const wb = constwb ? [ 6, 10, 1, 1, 6, 10 ] : globals.getwb(view, zz, whitelvl);
-		struc.cache.wb = wb;
-		//console.log(JSON.stringify(wb));
-		let outpix = globals.buildpvarray(view, size, typ, w, h, orientation, false, wb, whitelvl);
-		// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
-		postMessage({ cmd: struc.cmd, pix: outpix, n: struc.n, o: struc.ori, c: struc.cache, xori: (!struc.ori) ? 1 : struc.ori, size: struc.siz, cid: struc.ci });
-	};
-	reader.onerror = (evt) => {
-		console.log('WORKER preview: error reading ' + f.name + ' E ' + evt.toString());
-		postMessage({ cmd: struc.cmd, ok: false, n: struc.n, cid: struc.ci });
-	};
-	if (f.replaceread) {
-		f.readAsArrayBuffer = (fy) => {
-			if (fy.data && fy.onload) {
-				fy.onload( {
-					target: { result: fy.data }
-				} );
-			}
-			else if (fy.onerror)
-				fy.onerror( fy.errevent );
-		}
-	}
-	reader.readAsArrayBuffer(f);
-}
-/* WORKER: browserdisplay: build preview from cache */
-// orientation: 1: norm, 3: rot 180, 6 rot 90 CW, 8: rot 270 CCW
-function buildpreviewcache(struc, f, size, orientation) {
-	let w, h, typ;
-	const zz = globals.infos.findIndex(v => v.size === f.l);
-	if (zz === -1) {
-		console.log('WORKER preview: unsupported size ' + f.l + ' of ' + f.n);
-		postMessage({ cmd: struc.cmd, ok: false, n: struc.n, cid: struc.ci });
-		return;
-	}
-	w = globals.infos[zz].w;
-	typ = globals.infos[zz].typ;
-	h = globals.infos[zz].h;
-	const whitelvl = (typ === 5) ? 4095: 255;
-
-	const contents = f.d;
-	const view = new DataView(contents);
-	const wb = constwb ? [ 6, 10, 1, 1, 6, 10 ] : (f.wb ? f.wb : globals.getwb(view, zz, whitelvl));
-	//console.log(JSON.stringify(wb));
-	let outpix = globals.buildpvarray(view, size, typ, w, h, orientation, false, wb, whitelvl);
-	// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
-	if (dbgflag) {
-		setTimeout(() => {
-			postMessage({ cmd: struc.cmd, pix: outpix, n: struc.n, o: struc.ori, c: struc.cache, xori: (!struc.ori) ? 1 : struc.ori, size: struc.siz, cid: struc.ci });
-		}, 300);
-	}
-	else {
-		postMessage({ cmd: struc.cmd, pix: outpix, n: struc.n, o: struc.ori, c: struc.cache, xori: (!struc.ori) ? 1 : struc.ori, size: struc.siz, cid: struc.ci });
-	}
-}
-/* WORKER read local jpeg */
-function readjpg(struc, file) {
-	// read jpeg file for preview
-	const fr = file.imbackextension ? file : new FileReader();
-	fr.onload = (evt) => {
-		let contents = evt.target.result;
-		contents = 'data:image/jpeg;' + contents.substring(8);
-		/* shown in onload of img */
-		postMessage({ cmd: 'readjpg', ok: true, c: contents, cid: struc.ci });
-	}
-	fr.onerror = (evt) => {
-		postMessage({ cmd: 'readjpg', ok: false, evt: evt.toString(), cid: struc.ci });
-	}
-	fr.readAsDataURL(file);
-}
-/* *************************************** WORKER, E N D *************************************** */
-</script><!-- js-previewworker -->
 </head>
 <!-- here comes the html itself -->
 <body id="thebody" style="font-family: Helvetica, Arial, sans-serif;" onload="init();" lang="en">
