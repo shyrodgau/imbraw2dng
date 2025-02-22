@@ -20650,6 +20650,12 @@ loaderrunning=false; // currently handled browser raw preview download
 fromvisbrows = false;
 /* deleting/downloading */
 rotphase = 0;
+stylegrp() {
+	if (document.getElementById('grpsel')?.value === 'time')
+		document.getElementById('grpsel').style['font-family'] = 'Symbol3';
+	else
+		document.getElementById('grpsel').style['font-family'] = '';
+}
 /* TopApp: init the worker */
 initworker(withnet) {
 	let scripttextg = 'var globals = {\n';
@@ -26382,7 +26388,7 @@ window.addEventListener('pageshow', function (event) {
 <span class="whbtn disconnected" style="padding-left:0.4em;padding-right:0.4em;display:none;"> ! &#x1f593; ! &#x1f5be; ! </span>
 </div>
 <div id="browseselectors" style="margin-bottom:0.3em;font-size:85%;">&nbsp;<!--span data-myxlkey="main.sort" ></span> <label for="sbytype"><input type="checkbox" id="sbytype" style="display:none" onclick="imbc.buildtree()"><span style="display:none;" data-myxlkey="browser.bytype"></span></label-->
-<select id="grpsel" stype="font-family:Symbol3;" onchange="imbc.buildtree()"><option value="type" onclick="imbc.buildtree()" data-myxlkey="browser.bytype">ImB</option><option value="time" selected onclick="imbc.buildtree()" style="font-family:Symbol3;">&#x231a;&#xfe0e;</option><option value="seq" selected onclick="imbc.buildtree()">1,2,3...</option></select>&nbsp;
+<select id="grpsel" style="font-weight:bold;background-color:black;color:white;" onchange="imbc.stylegrp();imbc.buildtree()"><option value="type" onclick="imbc.stylegrp();imbc.buildtree()" data-myxlkey="browser.bytype" style="font-family: Helvetica, Arial, sans-serif;">ImB</option><option value="time" selected onclick="imbc.stylegrp();imbc.buildtree()" style="font-family:Symbol3;">&#x231a;&#xfe0e;</option><option value="seq" selected style="font-family: Helvetica, Arial, sans-serif;" onclick="imbc.stylegrp();imbc.buildtree()">1,2,3...</option></select>&nbsp;
  - <label for="solder">
 <input type="checkbox" id="solder" onclick="imbc.buildtree()"><span data-myxlkey="browser.olderfirst"></span></label> -
  <span id="brnsel" class="selnumber">?</span> / <span id="brntot">?</span> <label for="selall" data-mytitlexlkey="browser.selall.tooltip">
