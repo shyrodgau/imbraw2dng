@@ -1136,7 +1136,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.1.0_ae3aaaf", // actually const // VERSION EYECATCHER
+version: "V6.1.0_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -18474,8 +18474,12 @@ comptime(fname, compts) {
 		this.appmsgxl(0, 'onimback.strangename', fname);
 		return (compts === '0000');
 	} else {
-		const ts = res[1] + '_' + res[3] + '_' + res[5] + '-' + res[7] + '_' + res[9] + '_' + res[11];
-		if (ts.substring(0, ts.length) >= compts)
+		let xcompts='';
+		for (const u of compts) {
+			if (u >= '0' && u <= '9') xcompts += u;
+		}
+		const ts = res[1] + res[3] + res[5] + res[7] + res[9] + res[11];
+		if (ts.substring(0, xcompts.length) >= xcompts)
 			return true;
 	}
 	return false;
@@ -25070,61 +25074,6 @@ handleonex() {
 			this.handleone(f.rot);
 		}
 	}
-}
-/* TopApp: handle the normal selection from imback (do it button), also for nodejs */
-imbdoit() {
-	if (this.actnum !== this.allfiles.length) return;
-	let selecteds = [];
-	let compval = '0000';
-	if (document.getElementById('imbstartts').value != undefined && document.getElementById('imbstartts').value.length > 0) {
-		compval = document.getElementById('imbstartts').value;
-		if (null === globals.tsregex.exec(compval)) {
-			this.mappx(false, 'words.error');
-			this.mappx(0, 'onimback.invaltime', compval);
-			alert(this.rmesc(this.xl('onimback.invaltime'), compval));
-			return;
-		}
-	}
-	if (document.getElementById('rpicfromimb').checked) {
-		for (const e of this.rimbpics) {
-			let rawname = ImBCBase.basename(e.url);
-			if (this.comptime(rawname, compval))
-				selecteds.push(e);
-		}
-	}
-	if (document.getElementById('picfromimb').checked) {
-		for (const e of this.imbpics) {
-			let rawname = ImBCBase.basename(e.url);
-			if (this.comptime(rawname, compval))
-				selecteds.push(e);
-		}
-	}
-	if (document.getElementById('movfromimb').checked) {
-		for (const e of this.imbmovies) {
-			let rawname = ImBCBase.basename(e.url);
-			if (this.comptime(rawname, compval))
-				selecteds.push(e);
-		}
-	}
-	selecteds.sort((a, b) => {
-		let ra = ImBCBase.basename(a.url ? a.url :a);
-		let rb = ImBCBase.basename(b.url ? b.url :b);
-		if (ra < rb) return -1;
-		else if (ra === rb) return 0;
-		else return 1;
-	});
-	this.checkchecks();
-	this.totnum = selecteds.length;
-	this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
-	this.actnum = 0;
-	this.allfiles = selecteds;
-	this.mappx(true, 'process.frombackn', this.totnum);
-	if (this.totnum > 0) {
-		if (document.getElementById('droptarget')) document.getElementById('droptarget').style['display'] = 'none';
-		document.getElementById('infile').disabled = true;
-		this.starthandleone();
-	}
-	else this.mappx(true, 'onimback.nomatch');
 }
 /* TopApp: nodejs: parse config */
 parseconfig(data) {

@@ -849,7 +849,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.1.0_ae3aaaf", // actually const // VERSION EYECATCHER
+version: "V6.1.0_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -18187,8 +18187,12 @@ comptime(fname, compts) {
 		this.appmsgxl(0, 'onimback.strangename', fname);
 		return (compts === '0000');
 	} else {
-		const ts = res[1] + '_' + res[3] + '_' + res[5] + '-' + res[7] + '_' + res[9] + '_' + res[11];
-		if (ts.substring(0, ts.length) >= compts)
+		let xcompts='';
+		for (const u of compts) {
+			if (u >= '0' && u <= '9') xcompts += u;
+		}
+		const ts = res[1] + res[3] + res[5] + res[7] + res[9] + res[11];
+		if (ts.substring(0, xcompts.length) >= xcompts)
 			return true;
 	}
 	return false;
@@ -20080,7 +20084,8 @@ startnode(notfirst) {
 				}
 				else if (flagging === 3) {
 					flagging = 0;
-					if (null !== globals.tsregex.exec(v)) {
+					let vv = globals.tsregex.exec(v);
+					if (null !== vv) {
 						this.fromts = v;
 						datefound = true;
 					} else {
