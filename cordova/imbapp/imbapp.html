@@ -22520,7 +22520,7 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 	//if (undefined === basename) basename = name;
 	if (undefined === this.rootfs) {
 		try {
-			if (this.previewworker) this.previewworker.postMessage({ cmd: 'stopwatch' });
+			if (this.netwworker) this.netwworker.postMessage({ cmd: 'stopwatch' });
 			cordova.plugins.safMediastore.selectFolder('').then((str) => {
 			   const d = str;
 			   this.rootfs = d;
@@ -22533,7 +22533,7 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 					   mytexts.process.convertedcheckdl[o] = this.isubst(mytexts.process.convertedcheckdl[o], 'X', dispstr);
 			   }
 				window.resolveLocalFileSystemURL(cordova.file.applicationStorageDirectory, (fs) => {
-					if (this.previewworker) this.previewworker.postMessage({ cmd: 'watchdog' });
+					if (this.netwworker) this.netwworker.postMessage({ cmd: 'watchdog' });
 					this.rootfsx = fs;
 					let rr = this.rootfsx.createReader();
 					rr.readEntries((ee) => {
