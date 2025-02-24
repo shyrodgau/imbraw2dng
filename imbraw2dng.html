@@ -1109,12 +1109,30 @@ getwb: function(view, typidx, whitelvl) {
 		for (let j=Math.round(0.05*t.w)*2; j<Math.ceil(0.9*t.w); j+=8) {
 			let x = globals.getPix(j, i, t.w, view, typidx < 32 ? t.typ : (typidx < 64 ? 32 + t.typ : 64 + t.typ), whitelvl);
 			let lr = x[0];
-			let lg = x[1];
+			let lg = x[1]+1;
 			let lb = x[2];
-			let pa = [ lg, lr, lb ];
-			pa.sort(function(a,b) { return a - b; });
-			let p = pa[1];
-			if (p < 5) continue;
+			//let pa = [ lg, lr, lb ];
+			//pa.sort(function(a,b) { return a - b; });
+			let p = (lr + lg + lb)/3;
+			if (p < 5 || p > 250) continue;
+			if (lg > 2*lb && lg > 2*lr) {
+				continue;
+			}
+			else if (lb > 1.66*lr && lb > 1.66*lg) {
+				continue;
+			}
+			else if (lr > 1.66*lg && lr > 1.66*lb) {
+				continue;
+			}
+			if (lr < 0.6*lg && lr < 0.6*lb) {
+				continue;
+			}
+			else if (lb < 0.6*lg && lb < 0.6*lr) {
+				continue;
+			}
+			else if (lg < 0.66*lr && lg < 0.66*lb) {
+				continue;
+			}
 			b += lb/p;
 			g += lg/p;
 			r += lr/p;
@@ -1127,8 +1145,11 @@ getwb: function(view, typidx, whitelvl) {
 	else if ((b > r) && (b > g)) {
 		return [ Math.ceil(300000*r/b), 300000, Math.ceil(300000*g/b), 300000, 10, 10 ];
 	}
-	else {
+	else if (g > 5) {
 		return [ Math.ceil(300000*r/g), 300000, 10, 10, Math.ceil(300000*b/g), 300000 ];
+	}
+	else {
+		return [ 6, 10, 1, 1, 6, 10 ];
 	}
 },
 /* globals: get one downsampled median image value [ r g b ] */
