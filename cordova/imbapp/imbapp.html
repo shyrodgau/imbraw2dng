@@ -24400,6 +24400,10 @@ savesettings(which) {
 				if ((which === 'dooverwrite') || !which?.length || -1 !== which.indexOf('dooverwrite'))
 					window.localStorage.setItem(pref + 'f', JSON.stringify(this.dooverwrite));
 			}
+			else { // imbapp.htm
+				if (which === 'dnsad1')
+					window.localStorage.setItem('imbapp_dnsad1', 'true');
+			}
 		}
 		catch (e) {
 			console.log(JSON.stringify(e));
@@ -24690,6 +24694,9 @@ checkimb() {
 		this.xlateall();
 		this.imbweb = '';
 		if (0 === this.previewworkers?.length) this.initworker(false);
+		if (ImBCBase.progname === 'imbapp.htm' && window.location.origin.startsWith('https://shyrodga')) {
+			if (!this.dnsad1) document.getElementById('addmod1').showModal();
+		}
 		return;
 	}
 	if (null === this.netwworker) this.initworker();
@@ -24983,6 +24990,10 @@ initsettings() {
 		itm = window.localStorage.getItem(pref + 'f');
 		if (itm !== null && ImBCBase.progname === 'imbapp_app') {
 			this.dooverwrite = JSON.parse(itm) ? true: false;
+		}
+		itm = window.localStorage.getItem('imbapp_dnsad1');
+		if (itm !== null && ImBCBase.progname === 'imbapp.htm') {
+			this.dnsad1 = JSON.parse(itm) ? true: false;
 		}
 		const copytext = document.getElementById('copytext');
 		const artist = document.getElementById('artist');
@@ -26616,7 +26627,7 @@ function init2() {
 <dialog class="mymodal" id="scaledownquest" style="border: 5px solid grey; border-radius: 20px; padding: 20px;width:fit-content;">
 <div data-myxlkey="main.fakelong"></div>
 <div><input type="checkbox" id="scalednbox"> <label for="scalednbox" data-myxlkey="main.fakelong.scale"> </label></div>
-<input type="button" data-myvalxlkey="del.question.ok" onclick="imbc.intentinthandler(true); this.parentElement.style['display'] = 'none';">
+<input type="button" data-myvalxlkey="del.question.ok" autofocus onclick="imbc.intentinthandler(true); this.parentElement.style['display'] = 'none';">
 </dialog>
 <!-- end of fakelong/stack question scale? -->
 <!-- block overlay -->

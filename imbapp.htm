@@ -20245,6 +20245,7 @@ photourl = 'unknown';
 cancelled = false;
 scrollx = 0;
 scrolly = 0;
+dnsad1 = false; // dont show ad
 constructor() {
 	super();
 	if (undefined === document.getElementById('thebody').popover) {
@@ -20627,6 +20628,13 @@ async drophandler(ev) {
 		this.addall = false;
 		this.addscaleall = false;
 		this.aftercheck(); this.showbrowser();
+	}
+}
+closead1() {
+	document.getElementById('addmod1').close();
+	if (document.getElementById('dnsad1').checked) {
+		this.dnsad1 = true;
+		this.savesettings('dnsad1');
 	}
 }
 /* Indentation in - end of class ImBCHtmlOut */
@@ -22073,6 +22081,10 @@ savesettings(which) {
 				if ((which === 'dooverwrite') || !which?.length || -1 !== which.indexOf('dooverwrite'))
 					window.localStorage.setItem(pref + 'f', JSON.stringify(this.dooverwrite));
 			}
+			else { // imbapp.htm
+				if (which === 'dnsad1')
+					window.localStorage.setItem('imbapp_dnsad1', 'true');
+			}
 		}
 		catch (e) {
 			console.log(JSON.stringify(e));
@@ -22363,6 +22375,9 @@ checkimb() {
 		this.xlateall();
 		this.imbweb = '';
 		if (0 === this.previewworkers?.length) this.initworker(false);
+		if (ImBCBase.progname === 'imbapp.htm' && window.location.origin.startsWith('https://shyrodga')) {
+			if (!this.dnsad1) document.getElementById('addmod1').showModal();
+		}
 		return;
 	}
 	if (null === this.netwworker) this.initworker();
@@ -22656,6 +22671,10 @@ initsettings() {
 		itm = window.localStorage.getItem(pref + 'f');
 		if (itm !== null && ImBCBase.progname === 'imbapp_app') {
 			this.dooverwrite = JSON.parse(itm) ? true: false;
+		}
+		itm = window.localStorage.getItem('imbapp_dnsad1');
+		if (itm !== null && ImBCBase.progname === 'imbapp.htm') {
+			this.dnsad1 = JSON.parse(itm) ? true: false;
 		}
 		const copytext = document.getElementById('copytext');
 		const artist = document.getElementById('artist');
@@ -24532,6 +24551,20 @@ const mytexts = { // actually const
 		autotime: {
 			en: 'Automatically set ImB Time on connect',
 			de: 'ImB Zeit beim Verbinden automatisch setzen'
+		},
+	},
+	ads: {
+		dnsagain: {
+			en: 'Do not show again',
+			de: 'Nicht nochmal anzeigen'
+		},
+		haveyoutried: {
+			en: 'Have you tried it?',
+			de: 'Schon ausprobiert?'
+		},
+		adv1: {
+			en: 'You can copy <a target="_new" href="https://github.com/shyrodgau/imbraw2dng/raw/refs/heads/master/imbapp.htm">this file</a> to the SD card into the IMBACK folder<br>and then access it directly in the ImB WiFi as http://192.168.1.254/IMBACK/imbapp.htm!',
+			de: 'Man kann <a target="_new" href="https://github.com/shyrodgau/imbraw2dng/raw/refs/heads/master/imbapp.htm">diese Datei</a> auf die SD Karte im IMBACK Verzeichnis kopieren<br>und dann im ImB WLAN direkt als http://192.168.1.254/IMBACK/imbapp.htm ansurfen!',
 		}
 	}
 }
@@ -26499,6 +26532,15 @@ window.addEventListener('pageshow', function (event) {
 <dialog id="genericok" class="mymodal" style="border: 5px solid grey; border-radius: 20px; padding: 20px;width:fit-content;">
 <div style="font-weight:bold;" id="okmsg"></div>
 <input id="confirmbut" type="button" data-myvalxlkey="del.question.ok" onclick="this.parentElement.close();imbc.modalback = 'mainorquit';">
+</dialog>
+<!-- end of the generic ok/error -->
+<!-- advertisement -->
+<dialog id="addmod1" class="mymodal" style="border: 5px solid yellow; border-radius: 20px; padding: 20px;width:fit-content;">
+<div data-myxlkey="ads.haveyoutried" style="font-weight:bold;">Have you tried it?</div>
+<div data-myxlkey="ads.adv1">You can copy <a target="_new" href="https://github.com/shyrodgau/imbraw2dng/raw/refs/heads/master/imbapp.htm">this file</a> to the SD card into the IMBACK folder<br>
+and then access it directly in the ImB WiFi as http://192.168.1.254/IMBACK/imbapp.htm!</div>
+<div><input type="checkbox" id="dnsad1" autofocus><label for="dnsad1" data-myxlkey="ads.dnsagain">Do not show again</label></div>
+<input id="adconfirmbut" type="button" data-myvalxlkey="del.question.ok" onclick="imbc.closead1();">
 </dialog>
 <!-- end of the generic ok/error -->
 <!-- block overlay -->
