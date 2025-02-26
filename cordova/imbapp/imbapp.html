@@ -1539,7 +1539,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.1.3_6eec9b2", // actually const // VERSION EYECATCHER
+version: "V6.1.3_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -1633,45 +1633,87 @@ getwb: function(view, typidx, whitelvl) {
 	//console.log('GWB ' + typidx + ' ' + JSON.stringify(globals.infos[typidx]));
 	const t = globals.infos[typidx < 32 ? typidx : ((typidx< 64)? (typidx - 32) : (typidx - 64))];
 	let r=1, g=1, b=1;
-	for (let i=Math.round(0.05*t.h)*2; i<Math.ceil(0.9*t.h); i+=8) {
-		for (let j=Math.round(0.05*t.w)*2; j<Math.ceil(0.9*t.w); j+=8) {
-			let cfl = false;
+	for (let i=Math.round(0.05*t.h)*2; i<Math.ceil(0.9*t.h); i+=32) {
+		for (let j=Math.round(0.05*t.w)*2; j<Math.ceil(0.9*t.w); j+=32) {
 			let x = globals.getPix(j, i, t.w, view, typidx < 32 ? t.typ : (typidx < 64 ? 32 + t.typ : 64 + t.typ), whitelvl);
 			let lr = x[0];
 			let lg = x[1];
 			let lb = x[2];
+			if (lr === 0) lr = 1;
+			if (lg === 0) lg = 1;
+			if (lb === 0) lb = 1;
 			//let pa = [ lg, lr, lb ];
 			//pa.sort(function(a,b) { return a - b; });
 			let p = (lr + lg + lb)/3;
-			if (p < 5 || p > 250) continue;
-			if (lg > 2*lb && lg > 2*lr) {
-				lg *= 0.66; //lg = Math.max(lb,lr)*1.1; //continue;
+			lg *= 0.5;
+			if (p < 8 || p > 250) continue;
+			let rtb = lr/lb;
+			let rtg = lr/lg;
+			let btg = lb/lg;
+			const hbor = 1.5;
+			const lbor = 1/hbor;
+			const lfac = 0.03;
+			const mfac = 0.02;
+			const hfac = 0.01;
+			const lgfac = 0.02;
+			const mgfac = 0.016;
+			const hgfac = 0.066;
+			if (rtb > hbor && rtg > hbor && btg > hbor) {
+				// r > b > g
+				lr *= hfac; lg *= lgfac; lb *= mfac;
 			}
-			else if (lb > 1.66*lr && lb > 1.66*lg) {
-				lb *= 0.6; //lb = Math.max(lg,lr)*1.1; //continue;
+			else if (rtb > hbor && rtg > hbor && btg < lbor) {
+				// r > g > b
+				lr *= hfac; lg *= mgfac; lb *= lfac;
 			}
-			else if (lr > 1.66*lg && lr > 1.66*lb) {
-				lr *= 0.6; //lr = Math.max(lb,lg)*1.1; //continue;
+			else if (rtb > hbor && rtg > hbor) {
+				// r > g,b
+				lr *= hfac; lg *= mgfac; lb *= mfac;
 			}
-			if (lr < 0.6*lg && lr < 0.6*lb) {
-				//lr = Math.min(lg,lb)*0.9; //continue;
-				lg *= 0.66; lb *= 0.6;
+			if (btg > hbor && rtb < lbor && rtg > hbor) {
+				// b > r > g
+				lb *= hfac; lr *= mfac; lg *= lgfac;
 			}
-			else if (lb < 0.6*lg && lb < 0.6*lr) {
-				//lb = Math.min(lg,lr)*0.9; //continue;
-				lg *= 0.66; lr *= 0.6;
+			else if (btg > hbor && rtb < lbor && rtg < lbor) {
+				// b > g > r
+				lb *= hfac; lg *= mgfac; lr *= lfac;
 			}
-			else if (lg < 0.66*lr && lg < 0.66*lb) {
-				//lg = Math.min(lr,lb)*0.9; //continue
-				lr *= 0.6; lb *= 0.6;
+			else if (btg > hbor && rtb < lbor) {
+				// b > g,r
+				lb *= hfac; lg *= mgfac; lr *= mfac;
+			}
+			if (rtg < lbor && btg < lbor && rtb > hbor) {
+				// g > r > b
+				lg *= hgfac; lr *= mfac; lb *= lfac;
+			}
+			else if (rtg < lbor && btg < lbor && rtb < lbor) {
+				// g > b > r
+				lg *= hgfac; lr *= lfac; lb *= mfac;
+			}
+			else if (rtg < lbor && btg < lbor) {
+				// g > b,r
+				lg *= hgfac; lr *= mfac; lb *= mfac;
+			}
+			if (rtg > hbor && btg > hbor && Math.min(rtb,1/rtb) > lbor) {
+				// b,r > g
+				lr *= mfac; lb *= mfac; lg *= lgfac;
+			}
+			if (rtb < lbor && rtg < lbor && Math.min(btg,1/btg) > lbor) {
+				// b,g > r
+				lr *= lfac; lb *= mfac; lg *= mgfac;
+			}
+			if (rtb > hbor && btg < lbor && Math.min(rtg,1/rtg) > lbor) {
+				// r,g > b
+				lb *= lfac; lr *= mfac; lg *= mgfac;
 			}
 			//p = (lr + lg + lb)/3;
 			b += lb/p;
-			g += lg/p;
+			g += lg*2/p;
 			r += lr/p;
+			//console.log('X ' + i + ' ' + j + ' - ' + Math.round(lr*100)/100 + ' ' + Math.round(lg*100)/100 + ' ' + Math.round(lb*100)/100 + ' ' + Math.round(p*100)/100 + ' - ' +Math.round(r*10)/10 + ' ' +Math.round(g*10)/10 + ' ' + Math.round(b*10)/10 + ' - ' +   Math.round(r*100/p)/100 + ' ' + Math.round(g*100/p)/100 + ' ' + Math.round(b*100/p)/100); 
 		}
 	}
-	//console.log('ER ' + r + ' EG ' + g + ' EB ' + b + ' ER0 ' + r0 + ' EG0 ' + g0 + ' EB0 ' + b0 + ' RTB ' + rtb + ' GTB ' + gtb + ' BTB ' + btb + ' rts ' + rts + ' gts ' + gts + ' bts ' + bts);
+	//console.log('ER ' + r + ' EG ' + g + ' EB ' + b);
 	if ((r > b) && (r > g)) {
 		return [ 10, 10, Math.ceil(300000*g/r), 300000, Math.ceil(300000*b/r), 300000 ];
 	}
@@ -1858,21 +1900,6 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 	let rfact = (wb[1]/wb[0]);
 	let gfact = (wb[3]/wb[2]);
 	let bfact = (wb[5]/wb[4]);
-	/*if (rfact > gfact && rfact > bfact) {
-		gfact = gfact / rfact;
-		bfact = bfact / rfact;
-		rfact = 1;
-	}
-	else if (gfact > rfact && gfact > bfact) {
-		rfact = rfact / gfact;
-		bfact = bfact / gfact;
-		gfact = 1;
-	}
-	else if (bfact) {
-		rfact = rfact / bfact;
-		gfact = gfact / bfact;
-		bfact = 1;
-	}*/
 	let outpix = [];
 	let rowiterstart, rowiterend;
 	let coliterstart, coliterend;
@@ -1955,8 +1982,8 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 	const o = scale ? 3 : 4;
 	const uic = new Uint8ClampedArray(h8 * w8 * o);
 	// exposure correction?
-	if (gmed*fact < 20) fact *= 1.1;
-	else if (gmed*fact < 40) fact *= 1.05;
+	/*if (gmed*fact < 20) fact *= 1.1;
+	else*/ if (gmed*fact < 40) fact *= 1.05;
 	else if (gmed > 210) fact *= 0.8;
 	else if (gmed > 190) fact *= 0.9;
 	if (this.debugflag) console.log('ff ' + fact + ' ffx ' + (gmed*fact));
@@ -23019,6 +23046,7 @@ fromvisbrows = false;
 /* deleting/downloading */
 rotphase = 0;
 stylegrp() {
+	document.activeElement.blur();
 	if (document.getElementById('grpsel')?.value === 'time')
 		document.getElementById('grpsel').style['font-family'] = 'Symbol3';
 	else
@@ -25847,7 +25875,6 @@ aftercheck(defclosed) {
 		this.#higherclasses(this.untypedclasses, 7, 5);
 		this.#higherclasses(this.typedclasses, 10, 5);
 	}
-	console.log('hi num ------------');
 	this.#higherclasses(this.numdclasses,2,5);
 	// top type classes here
 	for (const u of this.typedclasses.filter(u => !u.ischild && u.level !== 1)) {
