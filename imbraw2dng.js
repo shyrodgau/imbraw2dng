@@ -848,7 +848,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.1.3_c597703", // actually const // VERSION EYECATCHER
+version: "V6.1.3_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -942,8 +942,8 @@ getwb: function(view, typidx, whitelvl) {
 	//console.log('GWB ' + typidx + ' ' + JSON.stringify(globals.infos[typidx]));
 	const t = globals.infos[typidx < 32 ? typidx : ((typidx< 64)? (typidx - 32) : (typidx - 64))];
 	let r=1, g=1, b=1;
-	for (let i=Math.round(0.05*t.h)*2; i<Math.ceil(0.9*t.h); i+=32) {
-		for (let j=Math.round(0.05*t.w)*2; j<Math.ceil(0.9*t.w); j+=32) {
+	for (let i=Math.round(0.05*t.h)*2; i<Math.ceil(0.9*t.h); i+=16) {
+		for (let j=Math.round(0.05*t.w)*2; j<Math.ceil(0.9*t.w); j+=16) {
 			let x = globals.getPix(j, i, t.w, view, typidx < 32 ? t.typ : (typidx < 64 ? 32 + t.typ : 64 + t.typ), whitelvl);
 			let lr = x[0];
 			let lg = x[1];
@@ -965,53 +965,65 @@ getwb: function(view, typidx, whitelvl) {
 			const mfac = 0.02;
 			const hfac = 0.01;
 			const lgfac = 0.02;
-			const mgfac = 0.016;
-			const hgfac = 0.066;
+			const mgfac = 0.0133;
+			const hgfac = 0.0066;
+			let mod = false;
 			if (rtb > hbor && rtg > hbor && btg > hbor) {
 				// r > b > g
 				lr *= hfac; lg *= lgfac; lb *= mfac;
+				mod = true;
 			}
 			else if (rtb > hbor && rtg > hbor && btg < lbor) {
 				// r > g > b
 				lr *= hfac; lg *= mgfac; lb *= lfac;
+				mod = true;
 			}
 			else if (rtb > hbor && rtg > hbor) {
 				// r > g,b
 				lr *= hfac; lg *= mgfac; lb *= mfac;
+				mod = true;
 			}
-			if (btg > hbor && rtb < lbor && rtg > hbor) {
+			if (btg > hbor && rtb < lbor && rtg > hbor && !mod) {
 				// b > r > g
 				lb *= hfac; lr *= mfac; lg *= lgfac;
+				mod = true;
 			}
-			else if (btg > hbor && rtb < lbor && rtg < lbor) {
+			else if (btg > hbor && rtb < lbor && rtg < lbor && !mod) {
 				// b > g > r
 				lb *= hfac; lg *= mgfac; lr *= lfac;
+				mod = true;
 			}
-			else if (btg > hbor && rtb < lbor) {
+			else if (btg > hbor && rtb < lbor && !mod) {
 				// b > g,r
 				lb *= hfac; lg *= mgfac; lr *= mfac;
+				mod = true;
 			}
-			if (rtg < lbor && btg < lbor && rtb > hbor) {
+			if (rtg < lbor && btg < lbor && rtb > hbor && !mod) {
 				// g > r > b
 				lg *= hgfac; lr *= mfac; lb *= lfac;
+				mod = true;
 			}
-			else if (rtg < lbor && btg < lbor && rtb < lbor) {
+			else if (rtg < lbor && btg < lbor && rtb < lbor && !mod) {
 				// g > b > r
 				lg *= hgfac; lr *= lfac; lb *= mfac;
+				mod = true;
 			}
-			else if (rtg < lbor && btg < lbor) {
+			else if (rtg < lbor && btg < lbor && !mod) {
 				// g > b,r
 				lg *= hgfac; lr *= mfac; lb *= mfac;
+				mod = true;
 			}
-			if (rtg > hbor && btg > hbor && Math.min(rtb,1/rtb) > lbor) {
+			if (rtg > hbor && btg > hbor && Math.min(rtb,1/rtb) > lbor && !mod) {
 				// b,r > g
 				lr *= mfac; lb *= mfac; lg *= lgfac;
+				mod = true;
 			}
-			if (rtb < lbor && rtg < lbor && Math.min(btg,1/btg) > lbor) {
+			if (rtb < lbor && rtg < lbor && Math.min(btg,1/btg) > lbor && !mod) {
 				// b,g > r
 				lr *= lfac; lb *= mfac; lg *= mgfac;
+				mod = true;
 			}
-			if (rtb > hbor && btg < lbor && Math.min(rtg,1/rtg) > lbor) {
+			if (rtb > hbor && btg < lbor && Math.min(rtg,1/rtg) > lbor && !mod) {
 				// r,g > b
 				lb *= lfac; lr *= mfac; lg *= mgfac;
 			}
