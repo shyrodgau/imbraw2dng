@@ -1011,7 +1011,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.1.3_0b32f7f", // actually const // VERSION EYECATCHER
+version: "V6.1.3_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -1105,111 +1105,208 @@ getwb: function(view, typidx, whitelvl) {
 	//console.log('GWB ' + typidx + ' ' + JSON.stringify(globals.infos[typidx]));
 	const t = globals.infos[typidx < 32 ? typidx : ((typidx< 64)? (typidx - 32) : (typidx - 64))];
 	let r=1, g=1, b=1;
-	for (let i=Math.round(0.05*t.h)*2; i<Math.ceil(0.9*t.h); i+=16) {
-		for (let j=Math.round(0.05*t.w)*2; j<Math.ceil(0.9*t.w); j+=16) {
+	const rbgb = [];
+	for (let m=0;m<256;m++) {
+		rbgb.push(new Array(256));
+		for (let n=0;n<256;n++)
+			rbgb[m][n]=0;
+	}
+	let logstr = '';
+	let rbgbm = 0, rbm, gbm,nn=0;
+	for (let i=Math.round(0.09*t.h)*2; i<Math.ceil(0.91*t.h); i+=32) {
+		for (let j=Math.round(0.09*t.w)*2; j<Math.ceil(0.91*t.w); j+=32) {
 			let x = globals.getPix(j, i, t.w, view, typidx < 32 ? t.typ : (typidx < 64 ? 32 + t.typ : 64 + t.typ), whitelvl);
-			let lr = x[0];
-			let lg = x[1];
-			let lb = x[2];
-			if (lr === 0) lr = 1;
-			if (lg === 0) lg = 1;
-			if (lb === 0) lb = 1;
-			//let pa = [ lg, lr, lb ];
-			//pa.sort(function(a,b) { return a - b; });
-			let p = (lr + lg + lb)/3;
-			lg *= 0.5;
-			if (p < 8 || p > 250) continue;
-			let rtb = lr/lb;
-			let rtg = lr/lg;
-			let btg = lb/lg;
-			const hbor = 1.5;
-			const lbor = 1/hbor;
-			const lfac = 0.03;
-			const mfac = 0.02;
-			const hfac = 0.01;
-			const lgfac = 0.02;
-			const mgfac = 0.0133;
-			const hgfac = 0.0066;
-			let mod = false;
-			if (rtb > hbor && rtg > hbor && btg > hbor) {
-				// r > b > g
-				lr *= hfac; lg *= lgfac; lb *= mfac;
-				mod = true;
+			const r=x[0], g=x[1], b=x[2];
+			if (r+g+b < 10 || g > 240) continue;
+			let rb = ((r) / (b+1));
+			let gb = ((g)*1 / (b+1));
+			let rbi, gbi;
+			if (rb >= 2.5) rbi = 255;
+			else if (rb <= 0.4) rbi = 0;
+			else if (rb < 1) {
+				rb = 1/rb;
+				rbi = Math.round(128-((rb-1)*84));
 			}
-			else if (rtb > hbor && rtg > hbor && btg < lbor) {
-				// r > g > b
-				lr *= hfac; lg *= mgfac; lb *= lfac;
-				mod = true;
+			else {
+				rbi = Math.round(127+((rb-1)*84));
 			}
-			else if (rtb > hbor && rtg > hbor) {
-				// r > g,b
-				lr *= hfac; lg *= mgfac; lb *= mfac;
-				mod = true;
+			if (gb >= 2) gbi = 127;
+			else if (gb <= 0.5) gbi = 0;
+			else if (gb < 1) {
+				gb = 1/gb;
+				gbi = Math.round(128-((gb-1)*84));
 			}
-			if (btg > hbor && rtb < lbor && rtg > hbor && !mod) {
-				// b > r > g
-				lb *= hfac; lr *= mfac; lg *= lgfac;
-				mod = true;
+			else {
+				gbi = Math.round(127+((gb-1)*84));
 			}
-			else if (btg > hbor && rtb < lbor && rtg < lbor && !mod) {
-				// b > g > r
-				lb *= hfac; lg *= mgfac; lr *= lfac;
-				mod = true;
+			nn++;
+			rbgb[rbi][gbi]++;
+			if (rbgb[rbi][gbi] > rbgbm) {
+				rbgbm=rbgb[rbi][gbi];
+				rbm = rbi; gbm = gbi;
 			}
-			else if (btg > hbor && rtb < lbor && !mod) {
-				// b > g,r
-				lb *= hfac; lg *= mgfac; lr *= mfac;
-				mod = true;
-			}
-			if (rtg < lbor && btg < lbor && rtb > hbor && !mod) {
-				// g > r > b
-				lg *= hgfac; lr *= mfac; lb *= lfac;
-				mod = true;
-			}
-			else if (rtg < lbor && btg < lbor && rtb < lbor && !mod) {
-				// g > b > r
-				lg *= hgfac; lr *= lfac; lb *= mfac;
-				mod = true;
-			}
-			else if (rtg < lbor && btg < lbor && !mod) {
-				// g > b,r
-				lg *= hgfac; lr *= mfac; lb *= mfac;
-				mod = true;
-			}
-			if (rtg > hbor && btg > hbor && Math.min(rtb,1/rtb) > lbor && !mod) {
-				// b,r > g
-				lr *= mfac; lb *= mfac; lg *= lgfac;
-				mod = true;
-			}
-			if (rtb < lbor && rtg < lbor && Math.min(btg,1/btg) > lbor && !mod) {
-				// b,g > r
-				lr *= lfac; lb *= mfac; lg *= mgfac;
-				mod = true;
-			}
-			if (rtb > hbor && btg < lbor && Math.min(rtg,1/rtg) > lbor && !mod) {
-				// r,g > b
-				lb *= lfac; lr *= mfac; lg *= mgfac;
-			}
-			//p = (lr + lg + lb)/3;
-			b += lb/p;
-			g += lg*2/p;
-			r += lr/p;
-			//console.log('X ' + i + ' ' + j + ' - ' + Math.round(lr*100)/100 + ' ' + Math.round(lg*100)/100 + ' ' + Math.round(lb*100)/100 + ' ' + Math.round(p*100)/100 + ' - ' +Math.round(r*10)/10 + ' ' +Math.round(g*10)/10 + ' ' + Math.round(b*10)/10 + ' - ' +   Math.round(r*100/p)/100 + ' ' + Math.round(g*100/p)/100 + ' ' + Math.round(b*100/p)/100); 
 		}
 	}
+	// global median
+	let med = 0;
+	let im, jm;
+	for (im=0;im<256;im++) {
+		for (jm=0;jm<256;jm++) {
+			med +=rbgb[im][jm];
+			if (med >= nn/2) break;
+		}
+		if (med >= nn/2) break;
+	}
+	// rtb NN i = 150
+	const rnn = 150;
+	// gtb NN i = 205
+	const gnn = 204;
+	// max of very neutral
+	let nmax = 0, ni, nj;
+	for (let i=0; i<5;i++) {
+		for (let j=0; j<5; j++) {
+			if (rbgb[rnn-2+i][gnn-2+j] > nmax) {
+				nmax = rbgb[rnn-2+i][gnn-2+j];
+				ni=rnn-2+i; nj=gnn-2+j;
+			}
+		}
+	}
+	if (ni && nj) logstr += '1'; else logstr += '.';
+	if (!ni || !nj) {
+		// max of nearly very neutral
+		for (let i=0; i<9;i++) {
+			for (let j=0; j<9; j++) {
+				if (rbgb[rnn-4+i][gnn-4+j] > nmax) {
+					nmax = rbgb[rnn-4+i][gnn-4+j];
+					ni=rnn-4+i; nj=gnn-4+j;
+				}
+			}
+		}
+	}
+	if (ni && nj) logstr += '2'; else logstr += '.';
+	if (!ni || !nj) {
+		// max of nearly very neutral
+		for (let i=0; i<13;i++) {
+			for (let j=0; j<13; j++) {
+				if (rbgb[rnn-6+i][gnn-6+j] > nmax) {
+					nmax = rbgb[rnn-6+i][gnn-6+j];
+					ni=rnn-6+i; nj=gnn-6+j;
+				}
+			}
+		}
+	}
+	if (ni && nj) logstr += '3'; else logstr += '.';
+	if (!ni || !nj) {
+		// max of nearly very neutral
+		for (let i=0; i<17;i++) {
+			for (let j=0; j<17; j++) {
+				if (rbgb[rnn-8+i][gnn-8+j] > nmax) {
+					nmax = rbgb[rnn-8+i][gnn-8+j];
+					ni=rnn-8+i; nj=gnn-8+j;
+				}
+			}
+		}
+	}
+	if (ni && nj) logstr += '4'; else logstr += '.';
+	let im3,jm3,nn3=rbgb[rnn][gnn];
+	if (!ni && !nj) {
+		for (im3=1;im3<300;im3++) {
+			// corners
+			if (gnn+im3 <= 255 && rnn+im3 <= 255)
+				nn3 += rbgb[rnn+im3][gnn+im3];
+			if (gnn+im3 <= 255 && rnn-im3 >= 0)
+				nn3 += rbgb[rnn-im3][gnn+im3];
+			if (gnn-im3 >= 0 && rnn+im3 <= 255)
+				nn3 += rbgb[rnn+im3][gnn-im3];
+			if (gnn-im3 >= 0 && rnn-im3 >= 0)
+				nn3 += rbgb[rnn-im3][gnn-im3];
+			for (jm3=0; jm3<im3; jm3++) {
+				if (rnn+im3 <= 255 && gnn+jm3 <= 255)
+					nn3 += rbgb[rnn+im3][gnn+jm3];
+				if (rnn+jm3 <= 255 && gnn+im3 <= 255)
+					nn3 += rbgb[rnn+jm3][gnn+im3];
+				if (rnn-im3 >= 0 && gnn+jm3 <= 255)
+					nn3 += rbgb[rnn-im3][gnn+jm3];
+				if (rnn-jm3 >= 0 && gnn+im3 <= 255)
+					nn3 += rbgb[rnn-jm3][gnn+im3];
+				if (rnn+im3 <= 255 && gnn-jm3 >= 0)
+					nn3 += rbgb[rnn+im3][gnn-jm3];
+				if (rnn+jm3 <= 255 && gnn-im3 >= 0)
+					nn3 += rbgb[rnn+jm3][gnn-im3];
+				if (rnn-im3 >=0 && gnn-jm3 >= 0)
+					nn3 += rbgb[rnn-im3][gnn-jm3];
+				if (rnn-jm3 >=0 && gnn-im3 >= 0)
+					nn3 += rbgb[rnn-jm3][gnn-im3];
+			}
+			if (nn3 > 0) {
+				//console.log('Im3 ' + im3 + '  NNNN ' + nn3);
+				break;
+			}
+		}
+		if (nn3) {
+			let rs=0,gs=0;
+			nn3=0;
+			for (let k=rnn-im3;k<=rnn+im3;k++) {
+				for (let l=gnn-im3;l<gnn+im3;l++) {
+					if (k>=0 && l >=0 && k < 256 && l < 256) {
+						rs += (1+k+im3-rnn)*rbgb[k][l];
+						gs += (1+l+im3-gnn)*rbgb[k][l];
+						nn3 += rbgb[k][l];
+					}
+				}
+			}
+			//console.log('Im3 ' + im3 + '  NNNN ' + nn3);
+			const ll=im3;
+			im3 = rnn+(rs/nn3)-ll;
+			jm3 = gnn+(gs/nn3)-ll;
+		}
+		else jm3 = undefined;
+	}
+	let sqrtflag = false;
+	if (!im3 && !jm3 && !ni && !nj) {
+		// nothing nearly neutral?
+		ni = (im+rnn)/2; nj=(jm+gnn)/2;
+		//sqrtflag = true;
+		logstr += '5';
+	}
+	else if (im3 && jm3 && !ni && !nj) {
+		// nothing neutral?
+		ni = (im3+rnn+rnn)/3; nj=(jm3+gnn+gnn)/3;
+		//sqrtflag = true;
+		logstr += '6';
+	}
+	if (ni && nj) {
+		// calculate backward from index to quotients
+		let rtb,gtb;
+		if (ni > 31)
+			rtb = (ni-127)/84+1;
+		else
+			rtb = 1/((128-ni)/84+1);
+		if (nj > 31)
+			gtb = (nj-127)/84+1;
+		else
+			gtb = 1/((128-nj)/84+1);
+		if (sqrtflag) {
+			gtb = Math.sqrt(gtb*0.5)*2;
+			rtb = Math.sqrt(rtb/1.5)*1.5;
+		}
+		//gtb /= 0.75;
+		if (rtb > 1 && rtb > gtb) {
+			//console.log(logstr + ' x1');
+			return [ 10, 10, Math.ceil(300000*gtb/rtb), 300000, Math.ceil(300000/rtb), 300000 ];
+		}
+		else if (rtb < 1 && gtb < 1) {
+			//console.log(logstr + ' x2');
+			return [ Math.ceil(300000*rtb), 300000, Math.ceil(300000*gtb), 300000, 10, 10 ];
+		}
+		else {
+			//console.log(logstr + ' x3');
+			return [ Math.ceil(300000*rtb/gtb), 300000, 10, 10, Math.ceil(300000/gtb), 300000 ];
+		}
+	}
+	// fallback?
 	//console.log('ER ' + r + ' EG ' + g + ' EB ' + b);
-	if ((r > b) && (r > g)) {
-		return [ 10, 10, Math.ceil(300000*g/r), 300000, Math.ceil(300000*b/r), 300000 ];
-	}
-	else if ((b > r) && (b > g)) {
-		return [ Math.ceil(300000*r/b), 300000, Math.ceil(300000*g/b), 300000, 10, 10 ];
-	}
-	else if (g > 5) {
-		return [ Math.ceil(300000*r/g), 300000, 10, 10, Math.ceil(300000*b/g), 300000 ];
-	}
-	else {
-		return [ 6, 10, 1, 1, 6, 10 ];
-	}
+	return [ 6, 10, 1, 1, 6, 10 ];
 },
 /* globals: get one downsampled median image value [ r g b ] */
 getPix: function(x, y, w, view, typ, whitelvl) {
@@ -1466,12 +1563,12 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 	const o = scale ? 3 : 4;
 	const uic = new Uint8ClampedArray(h8 * w8 * o);
 	// exposure correction?
-	/*if (gmed*fact < 20) fact *= 1.1;
-	else*/ if (gmed*fact < 40) fact *= 1.05;
+	if (gmed*fact < 20) fact *= 1.1;
+	else if (gmed*fact < 40) fact *= 1.05;
 	else if (gmed > 210) fact *= 0.8;
-	else if (gmed > 190) fact *= 0.9;
+	//else if (gmed > 190) fact *= 0.9;
 	if (this.debugflag) console.log('ff ' + fact + ' ffx ' + (gmed*fact));
-	const gam = (gmed*fact < 110);
+	const gam = (gmed*fact < 150);
 	for (let i = 0; i < h8; i++) {
 		for (let j=0; j< w8; j++) {
 			let nr = outpix[3*((i * w8) + j)] * fact;
@@ -1480,9 +1577,9 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 			let gfac = 1;
 			if (gam) {
 				// maybe some brightening gamma?
-				let ngg = Math.sqrt(ng)*16/ng;
-				let ngr = Math.sqrt(nr)*16/nr;
-				let ngb = Math.sqrt(nb)*16/nb;
+				let ngg = ((ng/256)**0.6)*256/ng; //*16/ng;
+				let ngr = ((nr/256)**0.6)*256/nr; //*16/nr;
+				let ngb = ((nb/256)**0.6)*256/nb; //*16/nb;
 				gfac = (ngg+ ngr+ ngb)/3;
 			}
 			uic[o * ((i*w8) + j)] = Math.floor(nr* gfac * rfact);
@@ -20629,7 +20726,7 @@ loadnextimg() {
 		window.setTimeout(() => {
 			if (this.debugflag) console.log('L ' + e.raw);
 			this.#loadimg(e.url, e.type, e)
-		}, 33);
+		}, 133);
 	}
 }
 /* Browserhelper: visual browser: start loading */
