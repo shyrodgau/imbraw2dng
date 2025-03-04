@@ -203,7 +203,7 @@ tn=$(( $tn + 1 ))
 echo '##########    10    ##########'
 echo Test ${tn} convert from imback
 set -x
-${TESTEXES}/imbraw2dng.js -ef 3 -np -at 'test creator debugging' -r -R -O -n 2023 -d fromback.zip
+${TESTEXES}/imbraw2dng.js -ef 6 -np -at 'test creator debugging' -r -R -O -n 2023 -d fromback.zip
 rc=$?
 n=$( ls .|wc -l )
 set +x

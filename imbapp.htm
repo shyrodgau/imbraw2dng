@@ -1539,7 +1539,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.1.4_ed1c029", // actually const // VERSION EYECATCHER
+version: "V6.1.4_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -19708,6 +19708,10 @@ handleone(orientation) {
 		else
 			ti.addEntry(37395, 'BYTES', hbytes); /* image history */
 		let privdatstr = 'IMBACK.EU_SHY ' + this.#historystring;
+		if (this.imbweb?.length) {
+			privdatstr += (' (' + this.imbweb + ')');
+		}
+		privdatstr += '\u000d\u000a';
 		const privdatbytes = txe.encode(privdatstr);
 		privdatbytes[13] = 0;
 		ti.addEntry(50740, 'BYTE', privdatbytes); /* dng private */
@@ -20800,7 +20804,7 @@ rotphases = [ '-' , '/', '|', '\\', '=', '\\', '|', '/' ]; // actually const
 writestream = null;
 zip = null;
 netwworker = null;
-maxnpvw = 2;
+maxnpvw = 5;
 previewworkers = [];
 pvwjobs = [];
 workerstate = [];
@@ -20906,12 +20910,11 @@ pvw(cmd) {
 		if (!this.previewworkers[i].busy) {
 			this.previewworkers[i].busy = true;
 			this.previewworkers[i].w.postMessage(cmd);
-			found = true;
-			break;
+			return true;
 		}
 	}
-	if (!found)
-		this.pvwjobs.push(cmd);
+	this.pvwjobs.push(cmd);
+	return false;
 }
 
 /* TopApp: browserdisplay: copyright checkbox change */
@@ -21471,7 +21474,7 @@ findnexttoload() {
 			f = f.parentElement;
 		}
 		if (dispno) {
-			if (ImBCBase.progname !== 'imbapp_app' && ph >= 4 && (this.preloadedimgs++ < this.maxcache) && e.type === 'JPG') {
+			if (ImBCBase.progname !== 'imbapp_app' && ph >= 4 && (this.preloadedimgs++ < this.maxcache) && (e.type === 'JPG' || !this.imbweb?.length)) {
 				ph = 3;
 				res = e;
 			}
@@ -21484,7 +21487,13 @@ findnexttoload() {
 		if (brhe) t = brhe.height;
 		if (rect.top < window.innerHeight && rect.bottom > t && rect.width > 0) {
 			// visible
-			if (e.type !== 'RAW' && ph >= 1) {
+			if (!this.imbweb?.length && ph >= 1) {
+				if (ph === 2 && this.preloadeds) this.preloadedimgs --;
+				res = e;
+				ph = 0;
+				break;
+			}
+			else if (e.type !== 'RAW' && ph >= 1) {
 				if (ph === 2 && this.preloadeds) this.preloadedimgs --;
 				res = e;
 				ph = 0;
@@ -22256,21 +22265,20 @@ prevdef(ev) {
 /* TopApp: browserdisplay: put preview into canvas */
 // orientation: 1: norm, 3: rot 180, 6 rot 90 CW, 8: rot 270 CCW
 buildpreview(f, size, onok, onerr, orientation, targ, afterload) {
-	let w, h, typ;
+	let w, h, typ, cachehit;
+	if ((cachehit = this.findcache(f.url ? f.url :(f.name ? f.name : f)))) {
+		  this.workerstate.push({ cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :f), o: orientation, onok: onok, onerr: onerr, t: targ, cid: this.cid });
+		  this.pvw({ cmd: 'previewfromcache', c: { n: cachehit.url, d: cachehit.d, l: cachehit.l, wb: cachehit.wb } , n: (f.url ? f.url :f), o: orientation, size: size, cid: this.cid++ });
+		  // onmessage: { pix: array, c: cache, n: name, o: orientation }
+		  // ctx.putImageData(new ImageData(outpix, transpose ? h8: w8, transpose? w8 :h8), 0, 0); onok(f)
+		  return;
+	}
 	if (undefined === f.size && this.netwworker) {
 		window.setTimeout(() => {
-		  let cachehit;
-		  if ((cachehit = this.findcache(f.url ? f.url :f))) {
-			  this.workerstate.push({ cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :f), o: orientation, onok: onok, onerr: onerr, t: targ, cid: this.cid });
-			  this.pvw({ cmd: 'previewfromcache', c: { n: cachehit.url, d: cachehit.d, l: cachehit.l, wb: cachehit.wb } , n: (f.url ? f.url :f), o: orientation, size: size, cid: this.cid++ });
-			  // onmessage: { pix: array, c: cache, n: name, o: orientation }
-			  // ctx.putImageData(new ImageData(outpix, transpose ? h8: w8, transpose? w8 :h8), 0, 0); onok(f)
-		  } else {
-			  this.workerstate.push({ cmd: 'resolveandpreview', c: cachehit, n: (f.url ? f.url :f), o: orientation, onok: onok, onerr: onerr, t: targ, afterload: afterload, cid: this.cid });
-			  this.netwworker.postMessage({ cmd: 'resolveandpreview', n: (f.url ? f.url :f), o: orientation, size: size, cid: this.cid++ });
-			  // onmessage: { pix: array, n: name, o: orientation, c: cacheentry }
-			  // ctx.putImageData(new ImageData(outpix, transpose ? h8: w8, transpose? w8 :h8), 0, 0); onok(f); add cache
-		  }
+		  this.workerstate.push({ cmd: 'resolveandpreview', c: cachehit, n: (f.url ? f.url :f), o: orientation, onok: onok, onerr: onerr, t: targ, afterload: afterload, cid: this.cid });
+		  this.netwworker.postMessage({ cmd: 'resolveandpreview', n: (f.url ? f.url :f), o: orientation, size: size, cid: this.cid++ });
+		  // onmessage: { pix: array, n: name, o: orientation, c: cacheentry }
+		  // ctx.putImageData(new ImageData(outpix, transpose ? h8: w8, transpose? w8 :h8), 0, 0); onok(f); add cache
 		}, 10);
 		return;
 	}
@@ -22290,33 +22298,21 @@ buildpreview(f, size, onok, onerr, orientation, targ, afterload) {
 		canv = targ;
 	else
 		canv = document.getElementById('preview');
-	let sf = 8;
-	if (size === 2) sf = 4;
-	else if (size === 1) sf = 16;
-	const w8 = Math.floor((w+sf-1)/sf);
-	const h8 = Math.floor((h+sf-1)/sf);
-	canv.width = w8;
-	canv.height = h8;
-	if (orientation === 6 || orientation === 8) {
-		canv.width = h8;
-		canv.height = w8;
-	}
-	const ctx = canv.getContext('2d', { alpha: false });
 	const reader = f.imbackextension ? f : new FileReader();
 	reader.onload = (evt) => {
-		if (undefined !== afterload) afterload();
+		//if (undefined !== afterload) afterload();
 		let contents = evt.target.result;
 		if (contents.buffer) contents = contents.buffer;
 		const view = new DataView(contents);
-		const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : globals.getwb(view, zz, whitelvl);
-		let transpose = false;
-		if (this.debugflag) console.log(JSON.stringify(wb));
-		let outpix = globals.buildpvarray(view, size, typ, w, h, orientation, false, wb, whitelvl);
-        if (orientation === 6 || orientation === 8) {
-                transpose = true;
-        }
-		ctx.putImageData(new ImageData(outpix, transpose ? h8: w8, transpose? w8 :h8), 0, 0);
-		onok(f);
+		//const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : globals.getwb(view, zz, whitelvl);
+		this.addcache(f.url ? f.url :(f.name ? f.name : f), { data:contents , len: f.size });
+		let cachehit = this.findcache(f.url ? f.url :(f.name ? f.name : f));
+		if (!cachehit?.reader) {
+			console.log('X');
+		}
+	    this.workerstate.push({ cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :(f.name ? f.name : f)), o: orientation, onok: onok, onerr: onerr, t: canv, cid: this.cid });
+	    if (this.pvw({ cmd: 'previewfromcache', c: { n: cachehit.url, d: cachehit.d, l: cachehit.l } , n: f.url ? f.url :(f.name ? f.name : f), o: orientation, size: f.size, cid: this.cid++ }) && afterload)
+		  	afterload();
 	};
 	reader.onerror = (/*evt*/) => {
 		console.log('preview: error reading ' + f.name);
@@ -22885,7 +22881,9 @@ findcache(url) {
 				});
 			};
 			return { url: url, reader: fx, d: this.#cache[ii].d, l: this.#cache[ii].l, wb: this.#cache[ii].wb };
-		} else return { url: url, reader: this.#cache[ii].reader, d: this.#cache[ii].d, l: this.#cache[ii].l, wb: this.#cache[ii].wb  };
+		}
+		else
+			return { url: url, reader: this.#cache[ii].reader, d: this.#cache[ii].d, l: this.#cache[ii].l, wb: this.#cache[ii].wb  };
 	}
 	return undefined;
 }
@@ -22936,7 +22934,7 @@ workermsg(msg) {
 		w0 = this.workerstate[w0i];
 		this.workerstate.splice(w0i,1);
 		if (d.pix) {
-			const f = this.findcache(d.n).reader;
+			const f = w0.c?.reader ? w0.c.reader: this.findcache(d.n).reader;
 			const zz = globals.infos.findIndex(v => v.size === f.size);
 			if (zz === -1) {
 				console.log('preview: unsupported size ' + f.size + ' of ' + f.name);

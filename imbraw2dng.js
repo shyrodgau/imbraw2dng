@@ -848,7 +848,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.1.4_ed1c029", // actually const // VERSION EYECATCHER
+version: "V6.1.4_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -19017,6 +19017,10 @@ handleone(orientation) {
 		else
 			ti.addEntry(37395, 'BYTES', hbytes); /* image history */
 		let privdatstr = 'IMBACK.EU_SHY ' + this.#historystring;
+		if (this.imbweb?.length) {
+			privdatstr += (' (' + this.imbweb + ')');
+		}
+		privdatstr += '\u000d\u000a';
 		const privdatbytes = txe.encode(privdatstr);
 		privdatbytes[13] = 0;
 		ti.addEntry(50740, 'BYTE', privdatbytes); /* dng private */
