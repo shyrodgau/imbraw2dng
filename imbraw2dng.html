@@ -1011,7 +1011,7 @@ static readinta(arr, off) {
 /* * * ************************************* globals *************************************** */
 const globals = {
 /* Indentation out - globals */
-version: "V6.1.3_@_d_e_v", // actually const // VERSION EYECATCHER
+version: "V6.1.4_ed1c029", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -1112,7 +1112,7 @@ getwb: function(view, typidx, whitelvl) {
 			rbgb[m][n]=0;
 	}
 	let logstr = '';
-	let rbgbm = 0, rbm, gbm,nn=0;
+	let nn=0;
 	for (let i=Math.round(0.09*t.h)*2; i<Math.ceil(0.91*t.h); i+=32) {
 		for (let j=Math.round(0.09*t.w)*2; j<Math.ceil(0.91*t.w); j+=32) {
 			let x = globals.getPix(j, i, t.w, view, typidx < 32 ? t.typ : (typidx < 64 ? 32 + t.typ : 64 + t.typ), whitelvl);
@@ -1141,10 +1141,6 @@ getwb: function(view, typidx, whitelvl) {
 			}
 			nn++;
 			rbgb[rbi][gbi]++;
-			if (rbgb[rbi][gbi] > rbgbm) {
-				rbgbm=rbgb[rbi][gbi];
-				rbm = rbi; gbm = gbi;
-			}
 		}
 	}
 	// global median
@@ -1158,9 +1154,9 @@ getwb: function(view, typidx, whitelvl) {
 		if (med >= nn/2) break;
 	}
 	// rtb NN i = 150
-	const rnn = 150;
+	const rnn = 151;
 	// gtb NN i = 205
-	const gnn = 204;
+	const gnn = 205;
 	// max of very neutral
 	let nmax = 0, ni, nj;
 	for (let i=0; i<5;i++) {
@@ -1221,6 +1217,7 @@ getwb: function(view, typidx, whitelvl) {
 			if (gnn-im3 >= 0 && rnn-im3 >= 0)
 				nn3 += rbgb[rnn-im3][gnn-im3];
 			for (jm3=0; jm3<im3; jm3++) {
+				if (Math.sqrt(jm3*jm3 + im3*im3) > im3) continue;
 				if (rnn+im3 <= 255 && gnn+jm3 <= 255)
 					nn3 += rbgb[rnn+im3][gnn+jm3];
 				if (rnn+jm3 <= 255 && gnn+im3 <= 255)
@@ -1292,20 +1289,20 @@ getwb: function(view, typidx, whitelvl) {
 		}
 		//gtb /= 0.75;
 		if (rtb > 1 && rtb > gtb) {
-			//console.log(logstr + ' x1');
+			if (this.debugflag) console.log(logstr + ' x1');
 			return [ 10, 10, Math.ceil(300000*gtb/rtb), 300000, Math.ceil(300000/rtb), 300000 ];
 		}
 		else if (rtb < 1 && gtb < 1) {
-			//console.log(logstr + ' x2');
+			if (this.debugflag) console.log(logstr + ' x2');
 			return [ Math.ceil(300000*rtb), 300000, Math.ceil(300000*gtb), 300000, 10, 10 ];
 		}
 		else {
-			//console.log(logstr + ' x3');
+			if (this.debugflag) console.log(logstr + ' x3');
 			return [ Math.ceil(300000*rtb/gtb), 300000, 10, 10, Math.ceil(300000/gtb), 300000 ];
 		}
 	}
 	// fallback?
-	//console.log('ER ' + r + ' EG ' + g + ' EB ' + b);
+	if (this.debugflag) console.log('ER ' + r + ' EG ' + g + ' EB ' + b);
 	return [ 6, 10, 1, 1, 6, 10 ];
 },
 /* globals: get one downsampled median image value [ r g b ] */
