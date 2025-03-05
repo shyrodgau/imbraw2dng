@@ -1645,27 +1645,29 @@ getwb: function(view, typidx, whitelvl) {
 		for (let j=Math.round(0.09*t.w)*2; j<Math.ceil(0.91*t.w); j+=32) {
 			let x = globals.getPix(j, i, t.w, view, typidx < 32 ? t.typ : (typidx < 64 ? 32 + t.typ : 64 + t.typ), whitelvl);
 			const r=x[0], g=x[1], b=x[2];
-			if (r+g+b < 10 || g > 240) continue;
+			if (r+g+b < 15 || g > 245) continue;
 			let rb = ((r) / (b+1));
 			let gb = ((g)*1 / (b+1));
 			let rbi, gbi;
 			if (rb >= 2.5) rbi = 255;
-			else if (rb <= 0.4) rbi = 0;
+			else if (rb <= 0.66) rbi = 0;
 			else if (rb < 1) {
 				rb = 1/rb;
-				rbi = Math.round(128-((rb-1)*84));
+				rbi = Math.round(100-((rb-1)*196));
+				if (rbi < 0) rbi = 0;
 			}
 			else {
-				rbi = Math.round(127+((rb-1)*84));
+				rbi = Math.round(100+((rb-1)*103));
 			}
-			if (gb >= 2) gbi = 127;
-			else if (gb <= 0.5) gbi = 0;
+			if (gb >= 2.5) gbi = 255;
+			else if (gb <= 0.66) gbi = 0;
 			else if (gb < 1) {
 				gb = 1/gb;
-				gbi = Math.round(128-((gb-1)*84));
+				gbi = Math.round(100-((gb-1)*196));
+				if (gbi < 0) gbi = 0;
 			}
 			else {
-				gbi = Math.round(127+((gb-1)*84));
+				gbi = Math.round(100+((gb-1)*103));
 			}
 			nn++;
 			rbgb[rbi][gbi]++;
@@ -1682,9 +1684,9 @@ getwb: function(view, typidx, whitelvl) {
 		if (med >= nn/2) break;
 	}
 	// rtb NN i = 150
-	const rnn = 151;
+	const rnn = 132; // 1.2857
 	// gtb NN i = 205
-	const gnn = 205;
+	const gnn = 197; // 1.9285
 	// max of very neutral
 	let nmax = 0, ni, nj;
 	for (let i=0; i<5;i++) {
@@ -1697,18 +1699,7 @@ getwb: function(view, typidx, whitelvl) {
 	}
 	if (ni && nj) logstr += '1'; else logstr += '.';
 	if (!ni || !nj) {
-		// max of nearly very neutral
-		for (let i=0; i<9;i++) {
-			for (let j=0; j<9; j++) {
-				if (rbgb[rnn-4+i][gnn-4+j] > nmax) {
-					nmax = rbgb[rnn-4+i][gnn-4+j];
-					ni=rnn-4+i; nj=gnn-4+j;
-				}
-			}
-		}
-	}
-	if (ni && nj) logstr += '2'; else logstr += '.';
-	if (!ni || !nj) {
+		nmax = 0;
 		// max of nearly very neutral
 		for (let i=0; i<13;i++) {
 			for (let j=0; j<13; j++) {
@@ -1719,22 +1710,37 @@ getwb: function(view, typidx, whitelvl) {
 			}
 		}
 	}
-	if (ni && nj) logstr += '3'; else logstr += '.';
+	if (ni && nj) logstr += '2'; else logstr += '.';
 	if (!ni || !nj) {
+		nmax = 0;
 		// max of nearly very neutral
-		for (let i=0; i<17;i++) {
-			for (let j=0; j<17; j++) {
-				if (rbgb[rnn-8+i][gnn-8+j] > nmax) {
-					nmax = rbgb[rnn-8+i][gnn-8+j];
-					ni=rnn-8+i; nj=gnn-8+j;
+		for (let i=0; i<21;i++) {
+			for (let j=0; j<21; j++) {
+				if (rbgb[rnn-10+i][gnn-10+j] > nmax) {
+					nmax = rbgb[rnn-10+i][gnn-10+j];
+					ni=rnn-10+i; nj=gnn-10+j;
 				}
 			}
 		}
 	}
+	if (ni && nj) logstr += '3'; else logstr += '.';
+	if (!ni || !nj) {
+		nmax = 0;
+		// max of nearly very neutral
+		for (let i=0; i<31;i++) {
+			for (let j=0; j<31; j++) {
+				if (rbgb[rnn-15+i][gnn-15+j] > nmax) {
+					nmax = rbgb[rnn-15+i][gnn-15+j];
+					ni=rnn-15+i; nj=gnn-15+j;
+				}
+			}
+		}
+	}
+	let sqrtflag = false;
 	if (ni && nj) logstr += '4'; else logstr += '.';
 	let im3,jm3,nn3=rbgb[rnn][gnn];
 	if (!ni && !nj) {
-		for (im3=1;im3<300;im3++) {
+		for (im3=1;im3<150;im3++) {
 			// corners
 			if (gnn+im3 <= 255 && rnn+im3 <= 255)
 				nn3 += rbgb[rnn+im3][gnn+im3];
@@ -1784,36 +1790,36 @@ getwb: function(view, typidx, whitelvl) {
 			const ll=im3;
 			im3 = rnn+(rs/nn3)-ll;
 			jm3 = gnn+(gs/nn3)-ll;
+			sqrtflag = true;
 		}
 		else jm3 = undefined;
 	}
-	let sqrtflag = false;
 	if (!im3 && !jm3 && !ni && !nj) {
 		// nothing nearly neutral?
 		ni = (im+rnn)/2; nj=(jm+gnn)/2;
-		//sqrtflag = true;
+		sqrtflag = true;
 		logstr += '5';
 	}
 	else if (im3 && jm3 && !ni && !nj) {
 		// nothing neutral?
 		ni = (im3+rnn+rnn)/3; nj=(jm3+gnn+gnn)/3;
-		//sqrtflag = true;
+		sqrtflag = true;
 		logstr += '6';
 	}
 	if (ni && nj) {
 		// calculate backward from index to quotients
 		let rtb,gtb;
-		if (ni > 31)
-			rtb = (ni-127)/84+1;
+		if (ni > 100)
+			rtb = (ni-100)/103+1;
 		else
-			rtb = 1/((128-ni)/84+1);
-		if (nj > 31)
-			gtb = (nj-127)/84+1;
+			rtb = 1/((100-ni)/196+1);
+		if (nj > 100)
+			gtb = (nj-100)/103+1;
 		else
-			gtb = 1/((128-nj)/84+1);
+			gtb = 1/((100-nj)/196+1);
 		if (sqrtflag) {
 			gtb = Math.sqrt(gtb*0.5)*2;
-			rtb = Math.sqrt(rtb/1.5)*1.5;
+			rtb = Math.sqrt(rtb/1.3)*1.3;
 		}
 		//gtb /= 0.75;
 		if (rtb > 1 && rtb > gtb) {
@@ -2102,9 +2108,9 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 			let gfac = 1;
 			if (gam) {
 				// maybe some brightening gamma?
-				let ngg = ((ng/256)**0.6)*256/ng; //*16/ng;
-				let ngr = ((nr/256)**0.6)*256/nr; //*16/nr;
-				let ngb = ((nb/256)**0.6)*256/nb; //*16/nb;
+				let ngg = ((ng/256)**0.56)*256/ng; //*16/ng;
+				let ngr = ((nr/256)**0.56)*256/nr; //*16/nr;
+				let ngb = ((nb/256)**0.56)*256/nb; //*16/nb;
 				gfac = (ngg+ ngr+ ngb)/3;
 			}
 			uic[o * ((i*w8) + j)] = Math.floor(nr* gfac * rfact);
