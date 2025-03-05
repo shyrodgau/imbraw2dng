@@ -897,7 +897,7 @@ onmessage = (e) => {
 		readjpg({ n: e.data.n, cmd: e.data.cmd, ori: e.data.o, siz: e.data.size, ci: e.data.cid}, e.data.f);
 		return;
 	case 'previewfromcache':
-		buildpreviewcache({ cache: {}, n: e.data.n, cmd: e.data.cmd, ori: e.data.o, siz: e.data.size, ci: e.data.cid}, e.data.c, e.data.size, e.data.o);
+		buildpreviewcache({ cache: e.data.c, n: e.data.n, cmd: e.data.cmd, ori: e.data.o, siz: e.data.size, ci: e.data.cid}, e.data.c, e.data.size, e.data.o);
 		// this.netwworker.postMessage({ cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :f), o: orientation });
 		// onmessage: { pix: array, c: cache, n: n, o: orientation }
 		return;
@@ -22303,15 +22303,8 @@ buildpreview(f, size, onok, onerr, orientation, targ, afterload) {
 		//if (undefined !== afterload) afterload();
 		let contents = evt.target.result;
 		if (contents.buffer) contents = contents.buffer;
-		const view = new DataView(contents);
-		//const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : globals.getwb(view, zz, whitelvl);
-		this.addcache(f.url ? f.url :(f.name ? f.name : f), { data:contents , len: f.size });
-		let cachehit = this.findcache(f.url ? f.url :(f.name ? f.name : f));
-		if (!cachehit?.reader) {
-			console.log('X');
-		}
-	    this.workerstate.push({ cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :(f.name ? f.name : f)), o: orientation, onok: onok, onerr: onerr, t: canv, cid: this.cid });
-	    if (this.pvw({ cmd: 'previewfromcache', c: { n: cachehit.url, d: cachehit.d, l: cachehit.l } , n: f.url ? f.url :(f.name ? f.name : f), o: orientation, size: f.size, cid: this.cid++ }) && afterload)
+	    this.workerstate.push({ cmd: 'previewfromcache', n: (f.url ? f.url :(f.name ? f.name : f)), o: orientation, onok: onok, onerr: onerr, t: canv, l: f.size, cid: this.cid });
+	    if (this.pvw({ cmd: 'previewfromcache', c: { n: f.url ? f.url :(f.name ? f.name : f), d: contents, l: f.size } , n: f.url ? f.url :(f.name ? f.name : f), o: orientation, size: size, cid: this.cid++ }) && afterload)
 		  	afterload();
 	};
 	reader.onerror = (/*evt*/) => {
@@ -22934,11 +22927,11 @@ workermsg(msg) {
 		w0 = this.workerstate[w0i];
 		this.workerstate.splice(w0i,1);
 		if (d.pix) {
-			const f = w0.c?.reader ? w0.c.reader: this.findcache(d.n).reader;
-			const zz = globals.infos.findIndex(v => v.size === f.size);
+			const l = d?.c?.l ? d?.c?.l: this.findcache(d.n).reader.size;
+			const zz = globals.infos.findIndex(v => v.size === l);
 			if (zz === -1) {
-				console.log('preview: unsupported size ' + f.size + ' of ' + f.name);
-				w0.onerr(f);
+				console.log('preview: unsupported size ' + d.size + ' of ' + d.n);
+				w0.onerr(d.n);
 				return;
 			}
 			let w = globals.infos[zz].w;
