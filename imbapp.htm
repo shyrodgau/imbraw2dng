@@ -1633,7 +1633,6 @@ infos: [ // actually const
 getwb: function(view, typidx, whitelvl) {
 	//console.log('GWB ' + typidx + ' ' + JSON.stringify(globals.infos[typidx]));
 	const t = globals.infos[typidx < 32 ? typidx : ((typidx< 64)? (typidx - 32) : (typidx - 64))];
-	let r=1, g=1, b=1;
 	const rbgb = [];
 	for (let m=0;m<256;m++) {
 		rbgb.push(new Array(256));
@@ -1647,8 +1646,8 @@ getwb: function(view, typidx, whitelvl) {
 			let x = globals.getPix(j, i, t.w, view, typidx < 32 ? t.typ : (typidx < 64 ? 32 + t.typ : 64 + t.typ), whitelvl);
 			const r=x[0], g=x[1], b=x[2];
 			if (r+g+b < 15 || g > 245) continue;
-			let rb = ((r) / (b+1));
-			let gb = ((g)*1 / (b+1));
+			let rb = r / (b+1);
+			let gb = g / (b+1);
 			let rbi, gbi;
 			if (rb >= 2.5) rbi = 255;
 			else if (rb <= 0.66) rbi = 0;
@@ -1743,31 +1742,31 @@ getwb: function(view, typidx, whitelvl) {
 	if (!ni && !nj) {
 		for (im3=1;im3<150;im3++) {
 			// corners
-			if (gnn+im3 <= 255 && rnn+im3 <= 255)
+			if (gnn+im3 < 255 && rnn+im3 < 255)
 				nn3 += rbgb[rnn+im3][gnn+im3];
-			if (gnn+im3 <= 255 && rnn-im3 >= 0)
+			if (gnn+im3 < 255 && rnn-im3 > 0)
 				nn3 += rbgb[rnn-im3][gnn+im3];
-			if (gnn-im3 >= 0 && rnn+im3 <= 255)
+			if (gnn-im3 > 0 && rnn+im3 < 255)
 				nn3 += rbgb[rnn+im3][gnn-im3];
-			if (gnn-im3 >= 0 && rnn-im3 >= 0)
+			if (gnn-im3 > 0 && rnn-im3 > 0)
 				nn3 += rbgb[rnn-im3][gnn-im3];
 			for (jm3=0; jm3<im3; jm3++) {
 				if (Math.sqrt(jm3*jm3 + im3*im3) > im3) continue;
-				if (rnn+im3 <= 255 && gnn+jm3 <= 255)
+				if (rnn+im3 < 255 && gnn+jm3 < 255)
 					nn3 += rbgb[rnn+im3][gnn+jm3];
-				if (rnn+jm3 <= 255 && gnn+im3 <= 255)
+				if (rnn+jm3 < 255 && gnn+im3 < 255)
 					nn3 += rbgb[rnn+jm3][gnn+im3];
-				if (rnn-im3 >= 0 && gnn+jm3 <= 255)
+				if (rnn-im3 > 0 && gnn+jm3 < 255)
 					nn3 += rbgb[rnn-im3][gnn+jm3];
-				if (rnn-jm3 >= 0 && gnn+im3 <= 255)
+				if (rnn-jm3 > 0 && gnn+im3 < 255)
 					nn3 += rbgb[rnn-jm3][gnn+im3];
-				if (rnn+im3 <= 255 && gnn-jm3 >= 0)
+				if (rnn+im3 < 255 && gnn-jm3 > 0)
 					nn3 += rbgb[rnn+im3][gnn-jm3];
-				if (rnn+jm3 <= 255 && gnn-im3 >= 0)
+				if (rnn+jm3 < 255 && gnn-im3 > 0)
 					nn3 += rbgb[rnn+jm3][gnn-im3];
-				if (rnn-im3 >=0 && gnn-jm3 >= 0)
+				if (rnn-im3 >0 && gnn-jm3 > 0)
 					nn3 += rbgb[rnn-im3][gnn-jm3];
-				if (rnn-jm3 >=0 && gnn-im3 >= 0)
+				if (rnn-jm3 >0 && gnn-im3 > 0)
 					nn3 += rbgb[rnn-jm3][gnn-im3];
 			}
 			if (nn3 > 0) {
@@ -1780,7 +1779,7 @@ getwb: function(view, typidx, whitelvl) {
 			nn3=0;
 			for (let k=rnn-im3;k<=rnn+im3;k++) {
 				for (let l=gnn-im3;l<gnn+im3;l++) {
-					if (k>=0 && l >=0 && k < 256 && l < 256) {
+					if (k>0 && l >0 && k < 255 && l < 255) {
 						rs += (1+k+im3-rnn)*rbgb[k][l];
 						gs += (1+l+im3-gnn)*rbgb[k][l];
 						nn3 += rbgb[k][l];
@@ -2056,7 +2055,7 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 	for (let i = rowiterstart; i < rowiterend; i +=1) {
 		for (let j = coliterstart; j < coliterend; j+=1) {
 			let a = globals.getPix(Math.abs(transpose ? i :j)*sfact, Math.abs(transpose ? j :i)*sfact, w, view, typ, whitelvl);
-			let r = Math.floor(rfact * a[0]), g = Math.floor(gfact * a[1]), b = Math.floor(bfact * a[2]);
+			const r = Math.floor(a[0]*rfact), g = Math.floor(a[1]*gfact), b = Math.floor(a[2]*bfact);
 			outpix.push(a[0]);
 			outpix.push(a[1]);
 			outpix.push(a[2]);
