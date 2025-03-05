@@ -1010,8 +1010,9 @@ static readinta(arr, off) {
 /* * * ************************************* TIFFOut E N D *************************************** */
 /* * * ************************************* globals *************************************** */
 const globals = {
+debugflag: false,
 /* Indentation out - globals */
-version: "V6.1.5_a431fc4", // actually const // VERSION EYECATCHER
+version: "V6.1.5_7c615c8", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -1295,20 +1296,20 @@ getwb: function(view, typidx, whitelvl) {
 		}
 		//gtb /= 0.75;
 		if (rtb > 1 && rtb > gtb) {
-			if (this.debugflag) console.log(logstr + ' x1');
+			if (globals.debugflag) console.log(logstr + ' x1');
 			return [ 10, 10, Math.ceil(300000*gtb/rtb), 300000, Math.ceil(300000/rtb), 300000 ];
 		}
 		else if (rtb < 1 && gtb < 1) {
-			if (this.debugflag) console.log(logstr + ' x2');
+			if (globals.debugflag) console.log(logstr + ' x2');
 			return [ Math.ceil(300000*rtb), 300000, Math.ceil(300000*gtb), 300000, 10, 10 ];
 		}
 		else {
-			if (this.debugflag) console.log(logstr + ' x3');
+			if (globals.debugflag) console.log(logstr + ' x3');
 			return [ Math.ceil(300000*rtb/gtb), 300000, 10, 10, Math.ceil(300000/gtb), 300000 ];
 		}
 	}
 	// fallback?
-	if (this.debugflag) console.log('ER ' + r + ' EG ' + g + ' EB ' + b);
+	if (globals.debugflag) console.log('ER ' + r + ' EG ' + g + ' EB ' + b);
 	return [ 6, 10, 1, 1, 6, 10 ];
 },
 /* globals: get one downsampled median image value [ r g b ] */
@@ -1562,7 +1563,7 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 	if (allmax >= 1) {
 		fact = 255/allmax;
 	}
-	if (this.debugflag) console.log(' aa ' + allmax + ' ae ' + gmed + ' ff ' + fact + ' ffx ' + (gmed*fact));
+	if (globals.debugflag) console.log(' aa ' + allmax + ' ae ' + gmed + ' ff ' + fact + ' ffx ' + (gmed*fact));
 	const o = scale ? 3 : 4;
 	const uic = new Uint8ClampedArray(h8 * w8 * o);
 	// exposure correction?
@@ -1570,7 +1571,7 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 	else if (gmed*fact < 40) fact *= 1.05;
 	else if (gmed > 210) fact *= 0.8;
 	//else if (gmed > 190) fact *= 0.9;
-	if (this.debugflag) console.log('ff ' + fact + ' ffx ' + (gmed*fact));
+	if (globals.debugflag) console.log('ff ' + fact + ' ffx ' + (gmed*fact));
 	const gam = (gmed*fact < 150);
 	for (let i = 0; i < h8; i++) {
 		for (let j=0; j< w8; j++) {
@@ -1591,7 +1592,7 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 			if (!scale) uic[o * ((i*w8) + j) + 3] = 255;
 		}
 	}
-	if (gmed >= 130 && this.debugflag)
+	if (gmed >= 130 && globals.debugflag)
 		console.log('x');
 	return uic;
 },
@@ -18503,8 +18504,6 @@ dcpProfileLookTableData_u='';
 // do not try dynamic wb:
 constwb = false;
 incdcp = true;
-/* ImBCBase: debug */
-debugflag = false;
 // mis-nomer from app
 fromintent = false; // 1: normal 2: stack/fakelong (> 1 DNG, to raw phase)  3: backward (== 1 DNG)  4: to dng phase when stacking
 
@@ -18650,7 +18649,7 @@ querylang(name, offset) {
 	if (name[name.length - offset] !== '_') return;
 	let l = this.findlang(name.substring(name.length - offset + 1, name.length - offset + 3));
 	if ('00' === l) {
-		this.debugflag = true;
+		globals.debugflag = true;
 		if (this.netwworker) this.netwworker.postMessage({ cmd: 'setdbg' });
 		if (this.previewworkers) {
 			for (let i=0; i<this.previewworkers.length; i++)
@@ -18726,7 +18725,7 @@ findlang(i) {
 		if (this.imbweb?.length) this.imbweb = 'http://127.0.0.1:8889';
 	}
 	if ('zZ' === i || ('00' === this.mylang)) {
-		this.debugflag = true;
+		globals.debugflag = true;
 		this.mylang = 'en';
 		if (this.netwworker) this.netwworker.postMessage({ cmd: 'setdbg' });
 		if (this.previewworkers) {
@@ -19095,7 +19094,7 @@ handleone(orientation) {
 				} catch (e) {
 					this.stats.error++;
 					this.appmsg('Format Error', true);
-					if (this.debugflag) console.log('format error: ' + e.toString());
+					if (globals.debugflag) console.log('format error: ' + e.toString());
 				}
 				rawname = rawname.substring(0, rawname.length - 4) + '_MULTI.raw';
 				if (12 === targbits) {
@@ -19618,12 +19617,12 @@ parseexpflags(flags) {
 		flags = Math.floor(flags / 3);
 	}
 	if (this.expflags[2] > 0) {
-		this.debugflag = true;
+		globals.debugflag = true;
 		if (this.netwworker) this.netwworker.postMessage({ cmd: 'setdbg' });
 		for (let i=0; i<this.previewworkers.length; i++)
 			this.previewworkers[i].w.postMessage({ cmd: 'setdbg' });
 	}
-	//else this.debugflag = false;
+	//else globals.debugflag = false;
 }
 /* * * ************************************* Backward helper STUFF *************************************** */
 /* ImBCBackw: backward: handle dng like raw */
@@ -20569,7 +20568,7 @@ xl1(el) {
 	const e = to.entry;
 	if ((e.attributes.getNamedItem('data-state').value !== 'err' && e.attributes.getNamedItem('data-state').value !== 'wait')
 			|| (!ImBCBase.progname.startsWith('imbapp') && (type === 'oth'))) {
-		if (this.debugflag) console.log('ldr aa lnx ' + to.raw);
+		if (globals.debugflag) console.log('ldr aa lnx ' + to.raw);
 		this.loadnextimg();
 		return;
 	}
@@ -20593,7 +20592,7 @@ xl1(el) {
 			//to.preview.style['width'] = to.preview.width * (120 / to.preview.height);
 			e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.remove('disabled') });
 			e.querySelector('.dlbtn').classList.remove('disabled');
-			if (this.debugflag) console.log('ldr j f lnx ' + to.raw);
+			if (globals.debugflag) console.log('ldr j f lnx ' + to.raw);
 			this.loadnextimg();
 		};
 		to.preview.onerror = (ev) => {
@@ -20603,7 +20602,7 @@ xl1(el) {
 			e.querySelector('.errimg').style['display'] = '';
 			e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
 			e.querySelector('.dlbtn').classList.add('disabled');
-			if (this.debugflag) console.log('ldr j e lnx ' + to.raw);
+			if (globals.debugflag) console.log('ldr j e lnx ' + to.raw);
 			to.nonewerr = true;
 			this.loadnextimg();
 		};
@@ -20647,16 +20646,16 @@ xl1(el) {
 	}
 	else if (type === 'RAW') {
 		let afterloadcalled = false;
-		if (this.debugflag) console.log('li raw start bpv ' + url);
+		if (globals.debugflag) console.log('li raw start bpv ' + url);
 		this.buildpreview((to.imbackintension ? to.imbackintension : url),
 				to.isbig ? 2 : 1,
 				(xrot) => { /* on ok: */
 			if (this.magentry && this.magentry.url != url) {
-				if (this.debugflag) console.log('MR ' + this.magentry.url + ' ' + url);
+				if (globals.debugflag) console.log('MR ' + this.magentry.url + ' ' + url);
 				this.loadnextimg();
 				e.setAttribute('data-state', 'wait');
 				if (!afterloadcalled) {
-					if (this.debugflag) console.log('ldr r e lnx ' + to.raw);
+					if (globals.debugflag) console.log('ldr r e lnx ' + to.raw);
 					this.loadnextimg();
 				} // else the afterload had already been called
 				return;
@@ -20667,12 +20666,12 @@ xl1(el) {
 			e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.remove('disabled') });
 			e.querySelector('.dlbtn').classList.remove('disabled');
 			to.preview.style['display'] = '';
-			if (this.debugflag) console.log('ldr r f ' + to.raw);
+			if (globals.debugflag) console.log('ldr r f ' + to.raw);
 			if (!afterloadcalled) {
-				if (this.debugflag) console.log('ldr r e lnx ' + to.raw);
+				if (globals.debugflag) console.log('ldr r e lnx ' + to.raw);
 				this.loadnextimg();
 			} // else the afterload had already been called
-			else if (this.debugflag) {
+			else if (globals.debugflag) {
 				console.log('ldr r ff lnyy ' + to.raw);
 			}
 		}, () => { /* on err: */
@@ -20682,33 +20681,33 @@ xl1(el) {
 			e.querySelectorAll('.biggiebtn').forEach((x) => { x.classList.add('disabled') });
 			e.querySelector('.dlbtn').classList.add['disabled'];
 			to.nonewerr = true;
-			if (this.debugflag) console.log('ldr r e ' + to.raw);
+			if (globals.debugflag) console.log('ldr r e ' + to.raw);
 			if (!afterloadcalled) {
-				if (this.debugflag) console.log('ldr r e lnx ' + to.raw);
+				if (globals.debugflag) console.log('ldr r e lnx ' + to.raw);
 				this.loadnextimg();
 			} // else the afterload had already been called
-			else if (this.debugflag) {
+			else if (globals.debugflag) {
 				console.log('ldr r ee lnyy ' + to.raw);
 			}
 		}, to.rot, to.preview, () => { /* afterload: */
-			if (this.debugflag) console.log('ldr r l lnx ' + to.raw);
+			if (globals.debugflag) console.log('ldr r l lnx ' + to.raw);
 			// invalidate url for err callback
 			this.loaderrunning = '1';
 			this.loadnextimg();
 			afterloadcalled = true;
 		});
-		if (this.debugflag) console.log('li raw end bpv ' + url);
+		if (globals.debugflag) console.log('li raw end bpv ' + url);
 	}
 }
 /* Browserhelper: visual browser or from imback: load next from todo list */
 loadnextimg() {
-	if (this.debugflag) console.log('L  N  I');
+	if (globals.debugflag) console.log('L  N  I');
 	this.loaderrunning = 'wait';
 	if ((!ImBCBase.progname.startsWith('imbapp') || this.loaderrunning !== 'blah!') && this.allfiles.length > 0 && this.actnum <= this.allfiles.length - 1) {
 		this.loaderrunning = 'blah!';
 		window.setTimeout(() => {
 			this.checkchecks();
-			if (this.debugflag) console.log('NN li dl ' + this.actnum);
+			if (globals.debugflag) console.log('NN li dl ' + this.actnum);
 			this.fromvisbrows = true;
 			this.stepmode = 0;
 			if (ImBCBase.progname.startsWith('imbapp'))
@@ -20725,13 +20724,13 @@ loadnextimg() {
 	if (!e && !ImBCBase.progname.startsWith('imbapp')) e = this.findnexttoload(true);
 	if (!e) {
 		this.loaderrunning = false;
-		if (this.debugflag) console.log('TERM loader');
+		if (globals.debugflag) console.log('TERM loader');
 		return;
 	}
 	else {
 		this.loaderrunning = e.url;
 		window.setTimeout(() => {
-			if (this.debugflag) console.log('L ' + e.raw);
+			if (globals.debugflag) console.log('L ' + e.raw);
 			this.#loadimg(e.url, e.type, e)
 		}, 133);
 	}
@@ -20740,11 +20739,11 @@ loadnextimg() {
 startloadimg() {
 	setTimeout(() => {
 		if (!this.loaderrunning) {
-			if (this.debugflag) console.log('start loader');
+			if (globals.debugflag) console.log('start loader');
 				this.loadnextimg();
 		}
-		else if (this.debugflag) {
-			if (this.debugflag) console.log('load already on ' + this.loaderrunning);
+		else if (globals.debugflag) {
+			if (globals.debugflag) console.log('load already on ' + this.loaderrunning);
 		}
 	}, 100);
 }
@@ -20794,6 +20793,7 @@ rotvis(canv, ccw) {
 /* Indentation in */
 }
 const globalfxns = {
+debugflag: false,
 /* globals: adjust A:\imback\... format to /imback/... */
 adjurl: function(url) {
 	if (url.url) url = url.url;
@@ -21190,7 +21190,7 @@ buildtitle(gr) {
 		e.rot = 0;
 		rotbtn.classList.add('disabled');
 		rotbtn.onclick = () => {
-			if (!this.debugflag && rotbtn.classList.contains('disabled')) return;
+			if (!globals.debugflag && rotbtn.classList.contains('disabled')) return;
 			let j = globals.oriecw.indexOf(e.rot);
 			j = ((j + 1) % 4);
 			e.rot = globals.oriecw[j];
@@ -21204,7 +21204,7 @@ buildtitle(gr) {
 	} else
 		rotbtn.remove();
 	dlbtn.onclick = (/*ev*/) => {
-		if (!this.debugflag && dlbtn.classList.contains('disabled')) return;
+		if (!globals.debugflag && dlbtn.classList.contains('disabled')) return;
 		if (this.actnum !== this.allfiles.length) return;
 		let selecteds = [ e ];
 		this.#fromvisbrows = true;
@@ -21803,7 +21803,7 @@ handlenext() {
 		return;
 	}
 	if (this.loaderrunning === 'blah!') {
-		if (this.debugflag) console.log('HN fl an ' + this.actnum + ' aflen ' + this.allfiles.length);
+		if (globals.debugflag) console.log('HN fl an ' + this.actnum + ' aflen ' + this.allfiles.length);
 		if (this.actnum >= this.allfiles.length - 1) {
 			this.afterfinish();
 			if (this.#fromvisbrows) {
@@ -21832,7 +21832,7 @@ handlenext() {
 }
 /* ImBCHtml: check if we are directly on a back */
 checkimb(type) {
-	if (this.debugflag && document) {
+	if (globals.debugflag && document) {
 		if (document.getElementById('dbgcache')) document.getElementById('dbgcache').value = this.#maxcache;
 		if (document.getElementById('debugonly')) document.getElementById('debugonly').style['display'] = '';
 	}

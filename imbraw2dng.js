@@ -847,8 +847,9 @@ static readinta(arr, off) {
 /* * * ************************************* TIFFOut E N D *************************************** */
 /* * * ************************************* globals *************************************** */
 const globals = {
+debugflag: false,
 /* Indentation out - globals */
-version: "V6.1.5_a431fc4", // actually const // VERSION EYECATCHER
+version: "V6.1.5_7c615c8", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -1132,20 +1133,20 @@ getwb: function(view, typidx, whitelvl) {
 		}
 		//gtb /= 0.75;
 		if (rtb > 1 && rtb > gtb) {
-			if (this.debugflag) console.log(logstr + ' x1');
+			if (globals.debugflag) console.log(logstr + ' x1');
 			return [ 10, 10, Math.ceil(300000*gtb/rtb), 300000, Math.ceil(300000/rtb), 300000 ];
 		}
 		else if (rtb < 1 && gtb < 1) {
-			if (this.debugflag) console.log(logstr + ' x2');
+			if (globals.debugflag) console.log(logstr + ' x2');
 			return [ Math.ceil(300000*rtb), 300000, Math.ceil(300000*gtb), 300000, 10, 10 ];
 		}
 		else {
-			if (this.debugflag) console.log(logstr + ' x3');
+			if (globals.debugflag) console.log(logstr + ' x3');
 			return [ Math.ceil(300000*rtb/gtb), 300000, 10, 10, Math.ceil(300000/gtb), 300000 ];
 		}
 	}
 	// fallback?
-	if (this.debugflag) console.log('ER ' + r + ' EG ' + g + ' EB ' + b);
+	if (globals.debugflag) console.log('ER ' + r + ' EG ' + g + ' EB ' + b);
 	return [ 6, 10, 1, 1, 6, 10 ];
 },
 /* globals: get one downsampled median image value [ r g b ] */
@@ -1399,7 +1400,7 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 	if (allmax >= 1) {
 		fact = 255/allmax;
 	}
-	if (this.debugflag) console.log(' aa ' + allmax + ' ae ' + gmed + ' ff ' + fact + ' ffx ' + (gmed*fact));
+	if (globals.debugflag) console.log(' aa ' + allmax + ' ae ' + gmed + ' ff ' + fact + ' ffx ' + (gmed*fact));
 	const o = scale ? 3 : 4;
 	const uic = new Uint8ClampedArray(h8 * w8 * o);
 	// exposure correction?
@@ -1407,7 +1408,7 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 	else if (gmed*fact < 40) fact *= 1.05;
 	else if (gmed > 210) fact *= 0.8;
 	//else if (gmed > 190) fact *= 0.9;
-	if (this.debugflag) console.log('ff ' + fact + ' ffx ' + (gmed*fact));
+	if (globals.debugflag) console.log('ff ' + fact + ' ffx ' + (gmed*fact));
 	const gam = (gmed*fact < 150);
 	for (let i = 0; i < h8; i++) {
 		for (let j=0; j< w8; j++) {
@@ -1428,7 +1429,7 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 			if (!scale) uic[o * ((i*w8) + j) + 3] = 255;
 		}
 	}
-	if (gmed >= 130 && this.debugflag)
+	if (gmed >= 130 && globals.debugflag)
 		console.log('x');
 	return uic;
 },
@@ -18340,8 +18341,6 @@ dcpProfileLookTableData_u='';
 // do not try dynamic wb:
 constwb = false;
 incdcp = true;
-/* ImBCBase: debug */
-debugflag = false;
 // mis-nomer from app
 fromintent = false; // 1: normal 2: stack/fakelong (> 1 DNG, to raw phase)  3: backward (== 1 DNG)  4: to dng phase when stacking
 
@@ -18487,7 +18486,7 @@ querylang(name, offset) {
 	if (name[name.length - offset] !== '_') return;
 	let l = this.findlang(name.substring(name.length - offset + 1, name.length - offset + 3));
 	if ('00' === l) {
-		this.debugflag = true;
+		globals.debugflag = true;
 		if (this.netwworker) this.netwworker.postMessage({ cmd: 'setdbg' });
 		if (this.previewworkers) {
 			for (let i=0; i<this.previewworkers.length; i++)
@@ -18563,7 +18562,7 @@ findlang(i) {
 		if (this.imbweb?.length) this.imbweb = 'http://127.0.0.1:8889';
 	}
 	if ('zZ' === i || ('00' === this.mylang)) {
-		this.debugflag = true;
+		globals.debugflag = true;
 		this.mylang = 'en';
 		if (this.netwworker) this.netwworker.postMessage({ cmd: 'setdbg' });
 		if (this.previewworkers) {
@@ -18932,7 +18931,7 @@ handleone(orientation) {
 				} catch (e) {
 					this.stats.error++;
 					this.appmsg('Format Error', true);
-					if (this.debugflag) console.log('format error: ' + e.toString());
+					if (globals.debugflag) console.log('format error: ' + e.toString());
 				}
 				rawname = rawname.substring(0, rawname.length - 4) + '_MULTI.raw';
 				if (12 === targbits) {
@@ -19455,12 +19454,12 @@ parseexpflags(flags) {
 		flags = Math.floor(flags / 3);
 	}
 	if (this.expflags[2] > 0) {
-		this.debugflag = true;
+		globals.debugflag = true;
 		if (this.netwworker) this.netwworker.postMessage({ cmd: 'setdbg' });
 		for (let i=0; i<this.previewworkers.length; i++)
 			this.previewworkers[i].w.postMessage({ cmd: 'setdbg' });
 	}
-	//else this.debugflag = false;
+	//else globals.debugflag = false;
 }
 /* * * ************************************* Backward helper STUFF *************************************** */
 /* ImBCBackw: backward: handle dng like raw */
@@ -20231,7 +20230,7 @@ writepostok() {
 	console.log(this.subst(texts[1], caller));
 	for (let j=2; j<texts.length; j++) {
 		console.log(this.rmesc(texts[j]));
-		if (this.debugflag && j === 7) {
+		if (globals.debugflag && j === 7) {
 			console.log(' \u001b[1m-CSV\u001b[0m - Translation CSV');
 		}
 	}
@@ -20327,7 +20326,7 @@ startnode(notfirst) {
 					else if (this.expflags[1] === 2)
 						this.imbweb = 'http://192.168.0.72:8080';
 				}
-				else if (v.substring(0,4)==='-CSV' && this.debugflag) {
+				else if (v.substring(0,4)==='-CSV' && globals.debugflag) {
 					for (const el of Object.keys(mytexts))
 						this.prxl(el, mytexts[el]);
 					wantxl = true;
