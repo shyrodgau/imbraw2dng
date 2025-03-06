@@ -1012,7 +1012,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.1.5_@_d_e_v", // actually const // VERSION EYECATCHER
+version: "V6.1.6_b73e518", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -1112,7 +1112,6 @@ getwb: function(view, typidx, whitelvl) {
 			rbgb[m][n]=0;
 	}
 	let logstr = '';
-	let nn=0;
 	for (let i=Math.round(0.09*t.h)*2; i<Math.ceil(0.91*t.h); i+=32) {
 		for (let j=Math.round(0.09*t.w)*2; j<Math.ceil(0.91*t.w); j+=32) {
 			let x = globals.getPix(j, i, t.w, view, typidx < 32 ? t.typ : (typidx < 64 ? 32 + t.typ : 64 + t.typ), whitelvl);
@@ -1136,7 +1135,6 @@ getwb: function(view, typidx, whitelvl) {
 			else {
 				gbi = Math.floor(((gb-1)*170));
 			}
-			nn++;
 			rbgb[rbi][gbi]++;
 		}
 	}
