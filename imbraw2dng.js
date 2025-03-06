@@ -849,7 +849,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.1.5_7c615c8", // actually const // VERSION EYECATCHER
+version: "V6.1.5_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -954,48 +954,33 @@ getwb: function(view, typidx, whitelvl) {
 		for (let j=Math.round(0.09*t.w)*2; j<Math.ceil(0.91*t.w); j+=32) {
 			let x = globals.getPix(j, i, t.w, view, typidx < 32 ? t.typ : (typidx < 64 ? 32 + t.typ : 64 + t.typ), whitelvl);
 			const r=x[0], g=x[1], b=x[2];
-			if (r+g+b < 15 || g > 245) continue;
+			if (r+g+b < 10 || g > 230) continue;
 			let rb = r / (b+1);
 			let gb = g / (b+1);
 			let rbi, gbi;
-			if (rb >= 2.5) rbi = 255;
-			else if (rb <= 0.66) rbi = 0;
+			if (rb >= 2) continue; // rbi = 255;
+			else if (rb <= 0.66) continue; // rbi = 0;
 			else if (rb < 1) {
 				rb = 1/rb;
-				rbi = Math.round(100-((rb-1)*196));
+				rbi = Math.ceil(100-((rb-1)*196));
 				if (rbi < 0) rbi = 0;
 			}
 			else {
-				rbi = Math.round(100+((rb-1)*103));
+				rbi = Math.floor(100+((rb-1)*155));
 			}
-			if (gb >= 2.5) gbi = 255;
-			else if (gb <= 0.66) gbi = 0;
-			else if (gb < 1) {
-				gb = 1/gb;
-				gbi = Math.round(100-((gb-1)*196));
-				if (gbi < 0) gbi = 0;
-			}
+			if (gb >= 2.5) continue; // gbi = 255;
+			else if (gb <= 1) continue; // gbi = 0;
 			else {
-				gbi = Math.round(100+((gb-1)*103));
+				gbi = Math.floor(((gb-1)*170));
 			}
 			nn++;
 			rbgb[rbi][gbi]++;
 		}
 	}
-	// global median
-	let med = 0;
-	let im, jm;
-	for (im=0;im<256;im++) {
-		for (jm=0;jm<256;jm++) {
-			med +=rbgb[im][jm];
-			if (med >= nn/2) break;
-		}
-		if (med >= nn/2) break;
-	}
-	// rtb NN i = 150
-	const rnn = 132; // 1.2857
-	// gtb NN i = 205
-	const gnn = 197; // 1.9285
+	// rtb neutral
+	const rnn = 145; // 1.2857-1.31
+	// gtb neutral
+	const gnn = 158; // 1.9285-1.941
 	// max of very neutral
 	let nmax = 0, ni, nj;
 	for (let i=0; i<5;i++) {
@@ -1049,7 +1034,7 @@ getwb: function(view, typidx, whitelvl) {
 	if (ni && nj) logstr += '4'; else logstr += '.';
 	let im3,jm3,nn3=rbgb[rnn][gnn];
 	if (!ni && !nj) {
-		for (im3=1;im3<150;im3++) {
+		for (im3=1;im3<100;im3++) {
 			// corners
 			if (gnn+im3 < 255 && rnn+im3 < 255)
 				nn3 += rbgb[rnn+im3][gnn+im3];
@@ -1103,50 +1088,40 @@ getwb: function(view, typidx, whitelvl) {
 		}
 		else jm3 = undefined;
 	}
-	if (!im3 && !jm3 && !ni && !nj) {
-		// nothing nearly neutral?
-		ni = (im+rnn)/2; nj=(jm+gnn)/2;
-		sqrtflag = true;
-		logstr += '5';
-	}
-	else if (im3 && jm3 && !ni && !nj) {
+	if (im3 && jm3 && !ni && !nj) {
 		// nothing neutral?
-		ni = (im3+rnn+rnn)/3; nj=(jm3+gnn+gnn)/3;
+		ni = (im3+rnn)/2; nj=(jm3+gnn)/2;
 		sqrtflag = true;
 		logstr += '6';
 	}
-	if (ni && nj) {
-		// calculate backward from index to quotients
-		let rtb,gtb;
-		if (ni > 100)
-			rtb = (ni-100)/103+1;
-		else
-			rtb = 1/((100-ni)/196+1);
-		if (nj > 100)
-			gtb = (nj-100)/103+1;
-		else
-			gtb = 1/((100-nj)/196+1);
-		if (sqrtflag) {
-			gtb = Math.sqrt(gtb*0.5)*2;
-			rtb = Math.sqrt(rtb/1.3)*1.3;
-		}
-		//gtb /= 0.75;
-		if (rtb > 1 && rtb > gtb) {
-			if (globals.debugflag) console.log(logstr + ' x1');
-			return [ 10, 10, Math.ceil(300000*gtb/rtb), 300000, Math.ceil(300000/rtb), 300000 ];
-		}
-		else if (rtb < 1 && gtb < 1) {
-			if (globals.debugflag) console.log(logstr + ' x2');
-			return [ Math.ceil(300000*rtb), 300000, Math.ceil(300000*gtb), 300000, 10, 10 ];
-		}
-		else {
-			if (globals.debugflag) console.log(logstr + ' x3');
-			return [ Math.ceil(300000*rtb/gtb), 300000, 10, 10, Math.ceil(300000/gtb), 300000 ];
-		}
+	else if (!ni && !nj) {
+		// nothing nearly neutral?
+		ni = rnn; nj = gnn;
 	}
-	// fallback?
-	if (globals.debugflag) console.log('ER ' + r + ' EG ' + g + ' EB ' + b);
-	return [ 6, 10, 1, 1, 6, 10 ];
+	// calculate backward from index to quotients
+	let rtb,gtb;
+	if (ni > 100)
+		rtb = (ni-100)/155+1;
+	else
+		rtb = 1/((100-ni)/196+1);
+	gtb = nj/170+1;
+	if (sqrtflag) {
+		gtb = Math.sqrt(gtb*0.5)*2;
+		rtb = Math.sqrt(rtb/1.3)*1.3;
+	}
+	//gtb /= 0.75;
+	if (rtb > 1 && rtb > gtb) {
+		if (globals.debugflag) console.log(logstr + ' x1 ' + ni + ' ' + nj + ' ' + rtb + ' ' + gtb);
+		return [ 10, 10, Math.ceil(300000*gtb/rtb), 300000, Math.ceil(300000/rtb), 300000 ];
+	}
+	else if (rtb < 1 && gtb < 1) {
+		if (globals.debugflag) console.log(logstr + ' x2 ' + ni + ' ' + nj + ' ' + rtb + ' ' + gtb);
+		return [ Math.ceil(300000*rtb), 300000, Math.ceil(300000*gtb), 300000, 10, 10 ];
+	}
+	else {
+		if (globals.debugflag) console.log(logstr + ' x3 ' + ni + ' ' + nj + ' ' + rtb + ' ' + gtb);
+		return [ Math.ceil(300000*rtb/gtb), 300000, 10, 10, Math.ceil(300000/gtb), 300000 ];
+	}
 },
 /* globals: get one downsampled median image value [ r g b ] */
 getPix: function(x, y, w, view, typ, whitelvl) {
@@ -1428,8 +1403,6 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 			if (!scale) uic[o * ((i*w8) + j) + 3] = 255;
 		}
 	}
-	if (gmed >= 130 && globals.debugflag)
-		console.log('x');
 	return uic;
 },
 /* Indentation in - end of globals */
@@ -20078,7 +20051,7 @@ parseconfig(data) {
 	if (undefined !== d.ef) {
 		this.parseexpflags(parseInt(d.ef));
 		if (this.expflags[1] === 1)
-			this.imbweb = 'http://192.168.8.101:8080';
+			this.imbweb = 'http://127.0.0.1:8080';
 		else if (this.expflags[1] === 2)
 			this.imbweb = 'http://192.168.0.72:8080';
 	}
@@ -20321,7 +20294,7 @@ startnode(notfirst) {
 					flagging = 0;
 					this.parseexpflags(parseInt(v));
 					if (this.expflags[1] === 1)
-						this.imbweb = 'http://192.168.8.101:8080';
+						this.imbweb = 'http://127.0.0.1:8080';
 					else if (this.expflags[1] === 2)
 						this.imbweb = 'http://192.168.0.72:8080';
 				}
@@ -20444,7 +20417,7 @@ startnode(notfirst) {
 					else {
 						this.parseexpflags(parseInt(v));
 						if (this.expflags[1] === 1)
-							this.imbweb = 'http://192.168.8.101:8080';
+							this.imbweb = 'http://127.0.0.1:8080';
 						else if (this.expflags[1] === 2)
 							this.imbweb = 'http://192.168.0.72:8080';
 					}
