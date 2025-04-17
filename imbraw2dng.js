@@ -849,7 +849,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.1.7_a5fef25", // actually const // VERSION EYECATCHER
+version: "V6.1.7_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -18616,31 +18616,44 @@ xexif(name, view, datestr) {
 static nametotime(name, corrdelta=0) {
 	let res = globals.fnregexx.exec(name);
 	if (res !== null) {
-		let yr = Number.parseInt(res[1]);
-		let mon = Number.parseInt(res[3]);
-		let day = Number.parseInt(res[5]);
-		let hr = Number.parseInt(res[7]);
-		let min = Number.parseInt(res[9]);
-		let sec = Number.parseInt(res[11]);
-		let nn = Number.parseInt(res[13]);
+		let yrstr = res[1];
+		let yr = Number.parseInt(yrstr,10);
+		let monstr = res[3];
+		let mon = Number.parseInt(monstr,10);
+		let daystr = res[5];
+		let day = Number.parseInt(daystr,10);
+		let hrstr = res[7];
+		let hr = Number.parseInt(hrstr,10);
+		let minstr = res[9];
+		let min = Number.parseInt(minstr,10);
+		let secstr = res[11];
+		let sec = Number.parseInt(secstr,10);
+		let nnstr = res[13];
+		let nn = Number.parseInt(nnstr,10);
 		let newname = name;
-		let datestr = "" + yr + "-" + ((mon < 10) ? "0":"") + mon + "-" + ((day < 10) ? "0":"") + day + "T"+
-			((hr < 10) ? "0":"") + hr + ":" + ((min < 10) ? "0":"") + min + ":" + ((sec < 10) ? "0":"") + sec + 'Z';
+		let datestr = "" + yrstr + "-" + monstr + "-" + daystr + "T"+
+			hrstr + ":" + minstr + ":" + secstr + 'Z';
 		if (corrdelta !== 0) {
 			let nd = new Date(new Date(datestr).valueOf() + corrdelta).toISOString();
-			yr = Number.parseInt(nd.substring(0,4));
-			mon = Number.parseInt(nd.substring(5,7));
-			day = Number.parseInt(nd.substring(8,10));
-			hr = Number.parseInt(nd.substring(11,13));
-			min = Number.parseInt(nd.substring(14,16));
-			sec = Number.parseInt(nd.substring(17));
-			newname = yr + res[2] + ((mon < 10) ? "0":"") + mon + res[4] + ((day < 10) ? "0":"") + day + res[6]+
-				((hr < 10) ? "0":"") + hr + res[8] + ((min < 10) ? "0":"") + min + res[10] + ((sec < 10) ? "0":"") + sec + '_' + ((nn < 100) ? "0":"") + ((nn < 10) ? "0":"") + nn;
+			yrstr = nd.substring(0,4);
+			yr = Number.parseInt(yrstr,10);
+			monstr = nd.substring(5,7),
+			mon = Number.parseInt(monstr,10);
+			daystr = nd.substring(8,10);
+			day = Number.parseInt(daystr,10);
+			hrstr = nd.substring(11,13);
+			hr = Number.parseInt(hrstr,10);
+			minstr = nd.substring(14,16);
+			min = Number.parseInt(minstr,10);
+			secstr = nd.substring(17,19);
+			sec = Number.parseInt(secstr,10);
+			newname = "" + yrstr + res[2] + monstr + res[4] + daystr + res[6] +
+				hrstr + res[8] + minstr + res[10] + secstr + res[12] + nnstr;
 			if (name.indexOf('.') !== -1) newname += name.substring(name.indexOf('.'));
 		}
 		const dd = new Date(yr, mon -1, day, hr, min, sec);
-		datestr = "" + yr + ":" + ((mon < 10) ? "0":"") + mon + ":" + ((day < 10) ? "0":"") + day + " "+
-			((hr < 10) ? "0":"") + hr + ":" + ((min < 10) ? "0":"") + min + ":" + ((sec < 10) ? "0":"") + sec;
+		datestr = "" + yrstr + ":" + monstr + ":" + daystr + " "+
+			hrstr + ":" + minstr + ":" + secstr;
 		return { date: dd, datestr: datestr, nn: nn, yr: yr, mon: mon, day: day, hr: hr, min: min, sec: sec, newname: newname }
 	}
 	else return {};
