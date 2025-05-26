@@ -7,9 +7,9 @@ const addResourcesToCache = async (resources) => {
 self.addEventListener("install", (event) => {
   event.waitUntil(
     addResourcesToCache([
-      "/imbappx.htm",
-      "/imbappx.json",
-      "/imbappsvcwx.js"
+      "/imbraw2dng/imbappx.htm",
+      "/imbraw2dng/imbappx.json",
+      "/imbraw2dng/imbappsvcwx.js"
     ]),
   );
 });
