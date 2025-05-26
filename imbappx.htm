@@ -96,7 +96,7 @@ LCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwgAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAA">
-<link rel="manifest" href="imbappy.json">
+<link rel="manifest" href="imbappx.json">
 <style type="text/css">
 /* *************************************** app only *************************************** */
 /* * * ************************************* CSS *************************************** */
@@ -19236,10 +19236,6 @@ findlang(i) {
 		if (document) this.imbweb = window.location.origin;
 		if (this.netwworker) this.netwworker.postMessage({ cmd: 'seturl', url: this.imbweb });
 	}
-	if (window?.location.href.indexOf('imbappx.htm') !== -1) {
-		if (document) this.imbweb = 'http://127.0.0.1:8080';
-		if (this.netwworker) this.netwworker.postMessage({ cmd: 'seturl', url: this.imbweb });
-	}
 	if (this.useimblang && this.imblang) {
 		this.mylang = this.imblang;
 		if (!found) this.mylang = 'en';
@@ -20026,6 +20022,10 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 }
 /* ImBCBase: handle one entry from imb PHOTO/MOVIE listing page */
 handle1imb(url, time) {
+	console.log(JSON.stringify(url.name ? 'UN:'+url.name : 'U:'+url) + JSON.stringify(url));
+	for (let yyy in url) {
+		console.log(JSON.stringify(yyy) + ' . . . ' + JSON.stringify(url[yyy]));
+	}
 	let rawname = ImBCBase.basename(url.name ? url.name : url);
 	if (rawname.substring(0,10).toUpperCase() === 'IMBRAW2DNG' || rawname.substring(0,6).toUpperCase() === 'IMBAPP' || rawname.substring(0,5).toUpperCase() === 'INDEX') return;
 	let timestx = globals.fnregexx.exec(rawname);
@@ -20061,6 +20061,7 @@ handle1imb(url, time) {
 			imbackintension: url.size ? url : undefined,
 			seq: seq
 		};
+		console.log(JSON.stringify(newimbele));
 		if (this.dloads?.length)
 			newimbele.wasselected = (-1 !== (this.dloads.findIndex(e => (e.toUpperCase() === rawname.toUpperCase()))));
 		const ii = this.iinf.findIndex((e) => e.n === rawname);
@@ -20395,7 +20396,9 @@ photourl = 'unknown';
 cancelled = false;
 scrollx = 0;
 scrolly = 0;
-dnsad1 = false; // dont show ad
+dnsad1 = false; // dont show ad1
+dnsad2 = false; // dont show ad2
+befinp = null; // set if before install prompt
 constructor() {
 	super();
 	if (undefined === document.getElementById('thebody').popover) {
@@ -20676,8 +20679,8 @@ async drophandler(ev) {
 	this.numdclasses = [];
 	this.imbeles = [];
 	let withpromise = false;
-	if (ev.dataTransfer.items) {
-		let mm = [...ev.dataTransfer.items];
+	if (ev.dataTransfer?.items) {
+		let mm = [...ev.dataTransfer?.items];
 		let m0 = mm.map(e => e.webkitGetAsEntry());
 		let mapped = [];
 		if (-1 !== m0.findIndex(e => e.isDirectory)) {
@@ -20721,8 +20724,8 @@ async drophandler(ev) {
 			}
 			if (globals.debugflag) console.log('LLL ' + a.length + ' ' + a);
 		} else {
-			this.totnum = [...ev.dataTransfer.items].length;
-			[...ev.dataTransfer.items].forEach((item/*, i*/) => {
+			this.totnum = [...ev.dataTransfer?.items].length;
+			[...ev.dataTransfer?.items].forEach((item/*, i*/) => {
 				 if (document.getElementById('makebackw')?.checked || document.getElementById('fakelongexpadd')?.checked)
 					 this.allfiles.push(item.getAsFile());
 				 else
@@ -20780,11 +20783,93 @@ async drophandler(ev) {
 		this.aftercheck(); this.showbrowser();
 	}
 }
+/* ImBCHtml: browserdisplay: handler function for dropping OS files into the rect */
+async openhandler(ev) {
+	if (this.actnum !== this.allfiles.length) return;
+	this.checkchecks();
+	this.allfiles = [];
+	//let auxfiles = [];
+	this.actnum = 0;
+	this.showsplash();
+	// first, make everything empty
+	this.cleartree();
+	this.imbpics = [];
+	this.rimbpics = [];
+	this.imbmovies = [];
+	this.untypedclasses = [];
+	this.typedclasses = [];
+	this.numdclasses = [];
+	this.imbeles = [];
+	let withpromise = false;
+	this.totnum = [...ev.files].length;
+	let mm = ev.files.map(x => x.getFile());
+	await Promise.all(mm).then((evf) => {;
+		[...evf].forEach((file/*, i*/) => {
+			 if (document.getElementById('makebackw')?.checked || document.getElementById('fakelongexpadd')?.checked)
+				 this.allfiles.push(file);
+			 else
+				 this.handle1imb(file);
+			 
+		});
+		if (document.getElementById('fakelongexpadd')?.checked) {
+			this.addall = true;
+			this.addscaleall = document.getElementById('fakelongexpscale')?.checked;
+			this.aftercheck();
+			document.getElementById('selall').click();
+			this.fromintent = 2;
+			this.showlog();
+			this.mappx(true, 'process.frombrowsern', this.totnum);
+			document.getElementById('droptarget').style['display'] = 'none';
+			document.getElementById('infile').disabled = true
+			this.fromvisbrows = true;
+			this.showdlprog();
+			this.loaderrunning = 'blah!';
+			this.totnum = this.allfiles.length;
+			this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
+			this.actnum = 0;
+			this.starthandleone();
+	
+		} else if (document.getElementById('makebackw')?.checked) {
+			this.totnum = this.allfiles.length;
+			this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
+			this.actnum = 0;
+			if (this.totnum > 0) {
+				this.fromintent = 3;
+				this.showlog();
+				this.mappx(true, 'process.frombrowsern', this.totnum);
+				document.getElementById('droptarget').style['display'] = 'none';
+				document.getElementById('infile').disabled = true
+				this.fromvisbrows = true;
+				this.showdlprog();
+				this.loaderrunning = 'blah!';
+				this.starthandleone();
+			} else {
+				this.showbrowseri();
+			}
+		} else {
+			this.addall = false;
+			this.addscaleall = false;
+			this.aftercheck(); this.showbrowser();
+		}
+	});
+}
 closead1() {
 	document.getElementById('addmod1').close();
 	if (document.getElementById('dnsad1').checked) {
 		this.dnsad1 = true;
 		this.savesettings('dnsad1');
+	}
+	if (!this.dnsad2 && this.befinp) {
+		document.getElementById('addmod2').showModal();
+		//document.getElementById('dnsad2').focus();
+	}
+}
+closead2() {
+	document.getElementById('addmod2').close();
+	this.befinp = null;
+	if (document.getElementById('dnsad2').checked) {
+		this.dnsad2 = true;
+		this.savesettings('dnsad2');
 	}
 }
 /* Indentation in - end of class ImBCHtmlOut */
@@ -22242,6 +22327,8 @@ savesettings(which) {
 			else { // imbapp.htm
 				if (which === 'dnsad1')
 					window.localStorage.setItem('imbapp_dnsad1', 'true');
+				if (which === 'dnsad2')
+					window.localStorage.setItem('imbapp_dnsad2', 'true');
 			}
 		}
 		catch (e) {
@@ -22505,7 +22592,7 @@ checkimb() {
 	document.getElementById('dbgcache').value = this.maxcache;
 	let imblang = '';
 	this.imblang = false;
-	if (false /*ImBCBase.progname === 'imbapp.htm' && !window.location.origin.startsWith('http://1')*/) {
+	if (ImBCBase.progname === 'imbapp.htm' /*&& !window.location.origin.startsWith('http://1')*/) {
 		this.disknown = true;
 		this.disconnected = false;
 		this.showdisconnect();
@@ -22513,8 +22600,12 @@ checkimb() {
 		this.xlateall();
 		this.imbweb = '';
 		if (0 === this.previewworkers?.length) this.initworker(false);
-		if (ImBCBase.progname === 'imbapp.htm' && window.location.origin.startsWith('https://shyrodga')) {
+		if (ImBCBase.progname === 'imbapp.htm' /*&& window.location.origin.startsWith('https://shyrodga')*/) {
 			if (!this.dnsad1) document.getElementById('addmod1').showModal();
+			else if (!this.dnsad2 && this.befinp) {
+				document.getElementById('addmod2').showModal();
+				//document.getElementById('dnsad2').focus();
+			}
 		}
 		return;
 	}
@@ -22813,6 +22904,10 @@ initsettings() {
 		itm = window.localStorage.getItem('imbapp_dnsad1');
 		if (itm !== null && ImBCBase.progname === 'imbapp.htm') {
 			this.dnsad1 = JSON.parse(itm) ? true: false;
+		}
+		itm = window.localStorage.getItem('imbapp_dnsad2');
+		if (itm !== null && ImBCBase.progname === 'imbapp.htm') {
+			this.dnsad2 = JSON.parse(itm) ? true: false;
 		}
 		const copytext = document.getElementById('copytext');
 		const artist = document.getElementById('artist');
@@ -24706,6 +24801,10 @@ const mytexts = { // actually const
 		adv1: {
 			en: 'You can copy <a target="_new" href="https://github.com/shyrodgau/imbraw2dng/raw/refs/heads/master/imbapp.htm">this file</a> to the SD card into the IMBACK folder<br>and then access it directly in the ImB WiFi as http://192.168.1.254/IMBACK/imbapp.htm!',
 			de: 'Man kann <a target="_new" href="https://github.com/shyrodgau/imbraw2dng/raw/refs/heads/master/imbapp.htm">diese Datei</a> auf die SD Karte im IMBACK Verzeichnis kopieren<br>und dann im ImB WLAN direkt als http://192.168.1.254/IMBACK/imbapp.htm ansurfen!',
+		},
+		adv2: {
+			en: 'You can install this as a PWA (portable web app) and then use it offline!<br><a href="#" onclick="document.getElementById(\'addmod2\').close();imbc.befinp.prompt(); imbc.befinp = null;return false;">Try it</a>',
+			de: 'Man kann es als portable web app (PWA) installieren und dann auch offline benutzen!<br><a href="#" onclick="document.getElementById(\'addmod2\').close();imbc.befinp.prompt(); imbc.befinp = null; return false;">Ausprobieren</a>',
 		}
 	}
 }
@@ -26396,6 +26495,24 @@ const apptexts = [
 /* outside of classes: */
 let imbc;
 /* onload of html body */
+async function initsvc() {
+	if ("serviceWorker" in navigator /*&& !imbc.befinp*/) {
+		try {
+		  const registration = await navigator.serviceWorker.register('/imbappsvcwx.js', {
+			scope: "/",
+		  });
+		  if (registration.installing) {
+			console.log("Service worker installing");
+		  } else if (registration.waiting) {
+			console.log("Service worker installed");
+		  } else if (registration.active) {
+			console.log("Service worker active");
+		  }
+		} catch (error) {
+		  console.error(`Registration failed with ${error}`);
+		}
+	}
+}
 function init() {
 	imbc = new ImBCHtml();
 	ImBCBase.progname = 'imbapp.htm';
@@ -26417,13 +26534,25 @@ function init() {
 			return true;
 		}
 	};
+	window.setTimeout(() => { initsvc(); }, 1000);
+	window.addEventListener('beforeinstallprompt', function (event) {
+		imbc.befinp = event;
+		if (imbc.disconnected && !imbc.dnsad2 && imbc.befinp) {
+			document.getElementById('addmod2').showModal();
+			//document.getElementById('dnsad2').focus();
+		}
+	});
+	window.addEventListener('pageshow', function (event) {
+		if (event.persisted || performance.getEntriesByType("navigation")[0].type === 'back_forward') {
+			window.location.reload();
+		}
+	});
+	if ("launchQueue" in window) {
+		launchQueue.setConsumer((launchParams) => { imbc.openhandler(launchParams) });
+	}
 }
-window.addEventListener('pageshow', function (event) {
-    if (event.persisted || performance.getEntriesByType("navigation")[0].type === 'back_forward') {
-        window.location.reload();
-    }
-});
 </script>
+<!-- SERVICE WORKER must be via http(s): imbappsvcw.js -->
 </head>
 <!-- here comes the html itself -->
 <body id="thebody" style="font-family: Helvetica, Arial, sans-serif;" onload="init();" lang="en">
@@ -26682,6 +26811,13 @@ window.addEventListener('pageshow', function (event) {
 and then access it directly in the ImB WiFi as http://192.168.1.254/IMBACK/imbapp.htm!</div>
 <div><input type="checkbox" id="dnsad1" autofocus><label for="dnsad1" data-myxlkey="ads.dnsagain">Do not show again</label></div>
 <input id="adconfirmbut" type="button" data-myvalxlkey="del.question.ok" onclick="imbc.closead1();">
+</dialog>
+<!-- advertisement 2 -->
+<dialog id="addmod2" class="mymodal" style="border: 5px solid yellow; border-radius: 20px; padding: 20px;width:fit-content;">
+<div data-myxlkey="ads.haveyoutried" style="font-weight:bold;">Have you tried it?</div>
+<div data-myxlkey="ads.adv2">You can install this as a PWA (portable web app) and use it offline.</div>
+<div><input type="checkbox" id="dnsad2" autofocus><label for="dnsad2" data-myxlkey="ads.dnsagain">Do not show again</label></div>
+<input id="adconfirmbut" type="button" data-myvalxlkey="del.question.ok" onclick="imbc.closead2();">
 </dialog>
 <!-- end of the generic ok/error -->
 <!-- block overlay -->
