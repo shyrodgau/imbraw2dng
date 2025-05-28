@@ -1541,7 +1541,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.1.8_@_d_e_v", // actually const // VERSION EYECATCHER
+version: "V6.2.0_c7a7b8c", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -20393,6 +20393,7 @@ scrollx = 0;
 scrolly = 0;
 dnsad1 = false; // dont show ad1
 dnsad2 = false; // dont show ad2
+showadmod1 = false;
 befinp = null; // set if before install prompt
 constructor() {
 	super();
@@ -20779,6 +20780,7 @@ async drophandler(ev) {
 	}
 }
 closead1() {
+	this.showadmod1 = false;
 	document.getElementById('addmod1').close();
 	if (document.getElementById('dnsad1').checked) {
 		this.dnsad1 = true;
@@ -22543,8 +22545,11 @@ checkimb() {
 		this.xlateall();
 		this.imbweb = '';
 		if (0 === this.previewworkers?.length) this.initworker(false);
-		if (ImBCBase.progname === 'imbapp.htm' && window.location.origin.startsWith('https://shyrodga')) {
-			if (!this.dnsad1) document.getElementById('addmod1').showModal();
+		if (ImBCBase.progname === 'imbapp.htm' && window.location.origin.startsWith('https')) {
+			if (!this.dnsad1) {
+				this.showadmod1 = true;
+				document.getElementById('addmod1').showModal();
+			}
 			else if (!this.dnsad2 && this.befinp) {
 				document.getElementById('addmod2').showModal();
 				//document.getElementById('dnsad2').focus();
@@ -26456,10 +26461,10 @@ const apptexts = [
 let imbc;
 /* onload of html body */
 async function initsvc() {
-	if ("serviceWorker" in navigator && window.location.origin.startsWith('https://')) {
+	if ("serviceWorker" in navigator && window.location.origin.startsWith('https')) {
 		try {
 		  const registration = await navigator.serviceWorker.register('imbappsvcw.js', {
-			scope: "/",
+			scope: "/imbraw2dng/",
 		  });
 		  if (registration.installing) {
 			console.log("Service worker installing");
@@ -26504,7 +26509,7 @@ function init() {
 	});
 	window.addEventListener('beforeinstallprompt', function (event) {
 		imbc.befinp = event;
-		if (imbc.disconnected && !imbc.dnsad2 && imbc.befinp) {
+		if (imbc.disconnected && !imbc.dnsad2 && imbc.befinp && !imbc.showadmod1) {
 			document.getElementById('addmod2').showModal();
 			//document.getElementById('dnsad2').focus();
 		}
@@ -26768,14 +26773,14 @@ function init() {
 <div data-myxlkey="ads.haveyoutried" style="font-weight:bold;">Have you tried it?</div>
 <div data-myxlkey="ads.adv1">You can copy <a target="_new" href="https://github.com/shyrodgau/imbraw2dng/raw/refs/heads/master/imbapp.htm">this file</a> to the SD card into the IMBACK folder<br>
 and then access it directly in the ImB WiFi as http://192.168.1.254/IMBACK/imbapp.htm!</div>
-<div><input type="checkbox" id="dnsad1" autofocus><label for="dnsad1" data-myxlkey="ads.dnsagain">Do not show again</label></div>
+<div><input type="checkbox" id="dnsad1" checked autofocus><label for="dnsad1" data-myxlkey="ads.dnsagain">Do not show again</label></div>
 <input id="adconfirmbut" type="button" data-myvalxlkey="del.question.ok" onclick="imbc.closead1();">
 </dialog>
 <!-- advertisement 2 -->
 <dialog id="addmod2" class="mymodal" style="border: 5px solid yellow; border-radius: 20px; padding: 20px;width:fit-content;">
 <div data-myxlkey="ads.haveyoutried" style="font-weight:bold;">Have you tried it?</div>
 <div data-myxlkey="ads.adv2">You can install this as a PWA (portable web app) and use it offline.</div>
-<div><input type="checkbox" id="dnsad2" autofocus><label for="dnsad2" data-myxlkey="ads.dnsagain">Do not show again</label></div>
+<div><input type="checkbox" id="dnsad2" checked autofocus><label for="dnsad2" data-myxlkey="ads.dnsagain">Do not show again</label></div>
 <input id="adconfirmbut" type="button" data-myvalxlkey="del.question.ok" onclick="imbc.closead2();">
 </dialog>
 <!-- end of the generic ok/error -->
