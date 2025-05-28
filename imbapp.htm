@@ -43,7 +43,7 @@ Top_class_for_App: 						imbapp.htm imbapp.html										(app-like)
 
 -->
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src data: 'self' http: 192.168.0.72:8080 192.168.8.101:8080 192.168.1.254; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval'">
+<meta http-equiv="Content-Security-Policy" content="default-src data: 'self' http: 192.168.0.72:8080 192.168.8.101:8080 192.168.1.254; connect-src 'self' http: 192.168.0.72:8080 192.168.8.101:8080 192.168.1.254; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval';">
 <meta http-equiv='cache-control' content='no-cache'>
 <meta http-equiv='expires' content='0'>
 <meta http-equiv='pragma' content='no-cache'>
@@ -19146,7 +19146,7 @@ xl(str, arg0, arg1, arg2, arg3, base) {
 querylang(name, offset) {
 	if (undefined === offset) offset = 8;
 	if (name[name.length - offset] !== '_') return;
-	let l = this.findlang(name.substring(name.length - offset + 1, name.length - offset + 3));
+	let l = this.trylang(name.substring(name.length - offset + 1, name.length - offset + 3));
 	if ('00' === l) {
 		globals.debugflag = true;
 		if (this.netwworker) this.netwworker.postMessage({ cmd: 'setdbg' });
@@ -20391,7 +20391,9 @@ photourl = 'unknown';
 cancelled = false;
 scrollx = 0;
 scrolly = 0;
-dnsad1 = false; // dont show ad
+dnsad1 = false; // dont show ad1
+dnsad2 = false; // dont show ad2
+befinp = null; // set if before install prompt
 constructor() {
 	super();
 	if (undefined === document.getElementById('thebody').popover) {
@@ -20781,6 +20783,18 @@ closead1() {
 	if (document.getElementById('dnsad1').checked) {
 		this.dnsad1 = true;
 		this.savesettings('dnsad1');
+	}
+	if (!this.dnsad2 && this.befinp) {
+		document.getElementById('addmod2').showModal();
+		//document.getElementById('dnsad2').focus();
+	}
+}
+closead2() {
+	document.getElementById('addmod2').close();
+	this.befinp = null;
+	if (document.getElementById('dnsad2').checked) {
+		this.dnsad2 = true;
+		this.savesettings('dnsad2');
 	}
 }
 /* Indentation in - end of class ImBCHtmlOut */
@@ -22147,12 +22161,12 @@ setlang() {
 	this.mylang = document.getElementById('langsel').value;
 	if (this.mylang === '99' && this.imblang) {
 		this.useimblang = true;
-		this.findlang(this.imblang);
+		this.trylang(this.imblang);
 		document.getElementById('langsel').value = '99';
 	}
 	else if (this.mylang === '99' && this.lastlang) {
 		this.useimblang = true;
-		this.findlang(this.lastlang);
+		this.trylang(this.lastlang);
 		document.getElementById('langsel').value = '99';
 	}
 	else
@@ -22238,6 +22252,8 @@ savesettings(which) {
 			else { // imbapp.htm
 				if (which === 'dnsad1')
 					window.localStorage.setItem('imbapp_dnsad1', 'true');
+				if (which === 'dnsad2')
+					window.localStorage.setItem('imbapp_dnsad2', 'true');
 			}
 		}
 		catch (e) {
@@ -22247,7 +22263,9 @@ savesettings(which) {
 }
 /* TopApp: try lang from node param */
 trylang(i) {
-	document.getElementById('langsel').value = this.findlang(i);
+	const l = this.findlang(i);
+	document.getElementById('langsel').value = l;
+	return l;
 }
 /* TopApp: browserdisplay: some handler on the drop rectangle */
 prevdef(ev) {
@@ -22511,6 +22529,10 @@ checkimb() {
 		if (0 === this.previewworkers?.length) this.initworker(false);
 		if (ImBCBase.progname === 'imbapp.htm' && window.location.origin.startsWith('https://shyrodga')) {
 			if (!this.dnsad1) document.getElementById('addmod1').showModal();
+			else if (!this.dnsad2 && this.befinp) {
+				document.getElementById('addmod2').showModal();
+				//document.getElementById('dnsad2').focus();
+			}
 		}
 		return;
 	}
@@ -22751,7 +22773,16 @@ checkimb() {
 }
 /* TopApp: browserdisplay: initialize settings */
 initsettings() {
-	this.trylang(this.mylang);
+	let nl = '';
+	for (let j=0; j < navigator.languages.length; j++) {
+		let tl = this.findlang(navigator.languages[navigator.languages.length - 1 - j].substring(0,2));
+		if (tl.toUpperCase() === navigator.languages[navigator.languages.length - 1 - j].toUpperCase().substring(0,2) || tl.toUpperCase === 'EN')
+			nl = tl;
+	}
+	if (nl.length)
+		this.trylang(nl);
+	else
+		this.trylang(this.mylang);
 	if (ImBCBase.progname === 'imbapp.htm' && (!window.location.origin.startsWith('http') || !window.localStorage))
 		return;
 	try {
@@ -22809,6 +22840,10 @@ initsettings() {
 		itm = window.localStorage.getItem('imbapp_dnsad1');
 		if (itm !== null && ImBCBase.progname === 'imbapp.htm') {
 			this.dnsad1 = JSON.parse(itm) ? true: false;
+		}
+		itm = window.localStorage.getItem('imbapp_dnsad2');
+		if (itm !== null && ImBCBase.progname === 'imbapp.htm') {
+			this.dnsad2 = JSON.parse(itm) ? true: false;
 		}
 		const copytext = document.getElementById('copytext');
 		const artist = document.getElementById('artist');
@@ -23340,7 +23375,7 @@ parseconfig(data) {
 	else this.withpreview = true;
 	if (undefined !== d.cr && d.cr !== 'undefined') this.copyright = d.cr;
 	if (undefined !== d.at && d.at !== 'undefined') this.artist = d.at;
-	if (d.l !== undefined) this.findlang(d.l);
+	if (d.l !== undefined) this.trylang(d.l);
 	else this.useimblang = true;
 	if (d.ll) this.lastlang = d.ll;
 	if (d.ndcp) this.incdcp = false; else this.incdcp = true;
@@ -24702,6 +24737,10 @@ const mytexts = { // actually const
 		adv1: {
 			en: 'You can copy <a target="_new" href="https://github.com/shyrodgau/imbraw2dng/raw/refs/heads/master/imbapp.htm">this file</a> to the SD card into the IMBACK folder<br>and then access it directly in the ImB WiFi as http://192.168.1.254/IMBACK/imbapp.htm!',
 			de: 'Man kann <a target="_new" href="https://github.com/shyrodgau/imbraw2dng/raw/refs/heads/master/imbapp.htm">diese Datei</a> auf die SD Karte im IMBACK Verzeichnis kopieren<br>und dann im ImB WLAN direkt als http://192.168.1.254/IMBACK/imbapp.htm ansurfen!',
+		},
+		adv2: {
+			en: 'You can install this as a PWA (portable web app) and use it offline!<br><a href="#" onclick="document.getElementById(\'addmod2\').close();imbc.befinp.prompt(); imbc.befinp = null;return false;">Try it</a>',
+			de: 'Man kann es als portable web app (PWA) installieren und offline benutzen!<br><a href="#" onclick="document.getElementById(\'addmod2\').close();imbc.befinp.prompt(); imbc.befinp = null; return false;">Ausprobieren</a>',
 		}
 	}
 }
@@ -26392,6 +26431,24 @@ const apptexts = [
 /* outside of classes: */
 let imbc;
 /* onload of html body */
+async function initsvc() {
+	if ("serviceWorker" in navigator) {
+		try {
+		  const registration = await navigator.serviceWorker.register('/imbappsvcw.js', {
+			scope: "/",
+		  });
+		  if (registration.installing) {
+			console.log("Service worker installing");
+		  } else if (registration.waiting) {
+			console.log("Service worker installed");
+		  } else if (registration.active) {
+			console.log("Service worker active");
+		  }
+		} catch (error) {
+		  console.error(`Service worker registration failed with ${error}`);
+		}
+	}
+}
 function init() {
 	imbc = new ImBCHtml();
 	ImBCBase.progname = 'imbapp.htm';
@@ -26413,13 +26470,22 @@ function init() {
 			return true;
 		}
 	};
+	//window.setTimeout(() => { initsvc(); }, 1000);
+	window.addEventListener('pageshow', function (event) {
+		if (event.persisted || performance.getEntriesByType("navigation")[0].type === 'back_forward') {
+			window.location.reload();
+		}
+	});
+	window.addEventListener('beforeinstallprompt', function (event) {
+		imbc.befinp = event;
+		if (imbc.disconnected && !imbc.dnsad2 && imbc.befinp) {
+			document.getElementById('addmod2').showModal();
+			//document.getElementById('dnsad2').focus();
+		}
+	});
 }
-window.addEventListener('pageshow', function (event) {
-    if (event.persisted || performance.getEntriesByType("navigation")[0].type === 'back_forward') {
-        window.location.reload();
-    }
-});
 </script>
+<!-- SERVICE WORKER must be via http(s): imbappsvcw.js -->
 </head>
 <!-- here comes the html itself -->
 <body id="thebody" style="font-family: Helvetica, Arial, sans-serif;" onload="init();" lang="en">
@@ -26678,6 +26744,13 @@ window.addEventListener('pageshow', function (event) {
 and then access it directly in the ImB WiFi as http://192.168.1.254/IMBACK/imbapp.htm!</div>
 <div><input type="checkbox" id="dnsad1" autofocus><label for="dnsad1" data-myxlkey="ads.dnsagain">Do not show again</label></div>
 <input id="adconfirmbut" type="button" data-myvalxlkey="del.question.ok" onclick="imbc.closead1();">
+</dialog>
+<!-- advertisement 2 -->
+<dialog id="addmod2" class="mymodal" style="border: 5px solid yellow; border-radius: 20px; padding: 20px;width:fit-content;">
+<div data-myxlkey="ads.haveyoutried" style="font-weight:bold;">Have you tried it?</div>
+<div data-myxlkey="ads.adv2">You can install this as a PWA (portable web app) and use it offline.</div>
+<div><input type="checkbox" id="dnsad2" autofocus><label for="dnsad2" data-myxlkey="ads.dnsagain">Do not show again</label></div>
+<input id="adconfirmbut" type="button" data-myvalxlkey="del.question.ok" onclick="imbc.closead2();">
 </dialog>
 <!-- end of the generic ok/error -->
 <!-- block overlay -->
