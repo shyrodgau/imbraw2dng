@@ -20737,15 +20737,18 @@ const mytexts = { // actually const
 		},
 		addartist: {
 			en: 'Artist/Creator',
-			de: 'Künstler/Ersteller'
+			de: 'Künstler/Ersteller',
+			ja: 'アーティスト/クリエイター'
 		},
 		photodesc: {
 			en: 'Description of Photo',
-			de: 'Beschreibung des Fotos'
+			de: 'Beschreibung des Fotos',
+			ja: '写真の説明'
 		},
 		metadata: {
 			en: 'Metadata:',
-			de: 'Metadaten:'
+			de: 'Metadaten:',
+			ja: 'メタデータ'
 		},
 		nothing: {
 			de: 'Nichts ausgewählt.. ?',
@@ -21011,7 +21014,7 @@ const mytexts = { // actually const
 				' \u001b[1m-R\u001b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリからRAWを取得する',
 				' \u001b[1m-J\u001b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリからJPEGを取得する',
 				' \u001b[1m-O\u001b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリから非RAW/非JPEGを取得する',
-				' \u001b[1m-da correcttimestamp=cameratimestamp\u001b[0m - correct times in yyyy_mm_dd-hh_mm_ss format',
+				' \u001b[1m-da 正しいタイムスタンプ=カメラのタイムスタンプ\u001b[0m - 正しい時刻を yyyy_mm_dd-hh_mm_ss 形式で指定します',
 				' \u001b[1m-n yyyy_mmdd_hhmmss\u001b[0m (または任意の長さのプレフィックス) - ImB からこのタイムスタンプより新しいもののみを選択する',
 				' -----',
 				' \u001b[1m--\u001b[0m - 残りのパラメータをローカル ファイルまたはディレクトリとして扱う',
