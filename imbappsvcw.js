@@ -1,6 +1,6 @@
 /* imbapp caching service worker for offline */
 const addResourcesToCache = async (resources) => {
-  const cache = await caches.open("v0");
+  const cache = await caches.open("v1");
   await cache.addAll(resources);
 };
 
