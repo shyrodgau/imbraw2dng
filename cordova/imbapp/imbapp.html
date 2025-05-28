@@ -1540,7 +1540,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.1.8_ead432f", // actually const // VERSION EYECATCHER
+version: "V6.1.8_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -19145,7 +19145,7 @@ xl(str, arg0, arg1, arg2, arg3, base) {
 querylang(name, offset) {
 	if (undefined === offset) offset = 8;
 	if (name[name.length - offset] !== '_') return;
-	let l = this.findlang(name.substring(name.length - offset + 1, name.length - offset + 3));
+	let l = this.trylang(name.substring(name.length - offset + 1, name.length - offset + 3));
 	if ('00' === l) {
 		globals.debugflag = true;
 		if (this.netwworker) this.netwworker.postMessage({ cmd: 'setdbg' });
@@ -19521,7 +19521,7 @@ handleone(orientation) {
 					fc = (npic / 16);
 					if (fc < 1) fc = 1;
 					targbits = 16;
-					whitelvl = Math.ceil(4095 * this.#addimgs.length / fc);
+					whitelvl = Math.ceil(240 + ((4095 - 240) * this.#addimgs.length / fc));
 					if (whitelvl > 65535) whitelvl = 65535;
 				}
 				else if (npic > 16) {
@@ -19546,7 +19546,7 @@ handleone(orientation) {
 				try {
 					let ovflag = false, ov5flag = false, ov6flag = false;
 					if (typ >= 5) {
-						/* FILM or stacked already */
+						/* input is FILM or (ould) stacked already (12 bpp) */
 						let o=0;
 						for (let j=0; j < (w*h*3)/2; j+=3) {
 							let res = 0;
@@ -24465,12 +24465,12 @@ setlang() {
 	this.mylang = document.getElementById('langsel').value;
 	if (this.mylang === '99' && this.imblang) {
 		this.useimblang = true;
-		this.findlang(this.imblang);
+		this.trylang(this.imblang);
 		document.getElementById('langsel').value = '99';
 	}
 	else if (this.mylang === '99' && this.lastlang) {
 		this.useimblang = true;
-		this.findlang(this.lastlang);
+		this.trylang(this.lastlang);
 		document.getElementById('langsel').value = '99';
 	}
 	else
@@ -24556,6 +24556,8 @@ savesettings(which) {
 			else { // imbapp.htm
 				if (which === 'dnsad1')
 					window.localStorage.setItem('imbapp_dnsad1', 'true');
+				if (which === 'dnsad2')
+					window.localStorage.setItem('imbapp_dnsad2', 'true');
 			}
 		}
 		catch (e) {
@@ -24565,7 +24567,9 @@ savesettings(which) {
 }
 /* TopApp: try lang from node param */
 trylang(i) {
-	document.getElementById('langsel').value = this.findlang(i);
+	const l = this.findlang(i);
+	document.getElementById('langsel').value = l;
+	return l;
 }
 /* TopApp: browserdisplay: some handler on the drop rectangle */
 prevdef(ev) {
@@ -24829,6 +24833,10 @@ checkimb() {
 		if (0 === this.previewworkers?.length) this.initworker(false);
 		if (ImBCBase.progname === 'imbapp.htm' && window.location.origin.startsWith('https://shyrodga')) {
 			if (!this.dnsad1) document.getElementById('addmod1').showModal();
+			else if (!this.dnsad2 && this.befinp) {
+				document.getElementById('addmod2').showModal();
+				//document.getElementById('dnsad2').focus();
+			}
 		}
 		return;
 	}
@@ -25069,7 +25077,18 @@ checkimb() {
 }
 /* TopApp: browserdisplay: initialize settings */
 initsettings() {
-	this.trylang(this.mylang);
+	let nl = '';
+	if (ImBCBase.progname === 'imbapp.htm') {
+		for (let j=0; j < navigator.languages.length; j++) {
+			let tl = this.findlang(navigator.languages[navigator.languages.length - 1 - j].substring(0,2));
+			if (tl.toUpperCase() === navigator.languages[navigator.languages.length - 1 - j].toUpperCase().substring(0,2) || tl.toUpperCase === 'EN')
+				nl = tl;
+		}
+	}
+	if (nl.length)
+		this.trylang(nl);
+	else
+		this.trylang(this.mylang);
 	if (ImBCBase.progname === 'imbapp.htm' && (!window.location.origin.startsWith('http') || !window.localStorage))
 		return;
 	try {
@@ -25127,6 +25146,10 @@ initsettings() {
 		itm = window.localStorage.getItem('imbapp_dnsad1');
 		if (itm !== null && ImBCBase.progname === 'imbapp.htm') {
 			this.dnsad1 = JSON.parse(itm) ? true: false;
+		}
+		itm = window.localStorage.getItem('imbapp_dnsad2');
+		if (itm !== null && ImBCBase.progname === 'imbapp.htm') {
+			this.dnsad2 = JSON.parse(itm) ? true: false;
 		}
 		const copytext = document.getElementById('copytext');
 		const artist = document.getElementById('artist');
@@ -25658,7 +25681,7 @@ parseconfig(data) {
 	else this.withpreview = true;
 	if (undefined !== d.cr && d.cr !== 'undefined') this.copyright = d.cr;
 	if (undefined !== d.at && d.at !== 'undefined') this.artist = d.at;
-	if (d.l !== undefined) this.findlang(d.l);
+	if (d.l !== undefined) this.trylang(d.l);
 	else this.useimblang = true;
 	if (d.ll) this.lastlang = d.ll;
 	if (d.ndcp) this.incdcp = false; else this.incdcp = true;

@@ -22774,10 +22774,12 @@ checkimb() {
 /* TopApp: browserdisplay: initialize settings */
 initsettings() {
 	let nl = '';
-	for (let j=0; j < navigator.languages.length; j++) {
-		let tl = this.findlang(navigator.languages[navigator.languages.length - 1 - j].substring(0,2));
-		if (tl.toUpperCase() === navigator.languages[navigator.languages.length - 1 - j].toUpperCase().substring(0,2) || tl.toUpperCase === 'EN')
-			nl = tl;
+	if (ImBCBase.progname === 'imbapp.htm') {
+		for (let j=0; j < navigator.languages.length; j++) {
+			let tl = this.findlang(navigator.languages[navigator.languages.length - 1 - j].substring(0,2));
+			if (tl.toUpperCase() === navigator.languages[navigator.languages.length - 1 - j].toUpperCase().substring(0,2) || tl.toUpperCase === 'EN')
+				nl = tl;
+		}
 	}
 	if (nl.length)
 		this.trylang(nl);

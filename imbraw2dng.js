@@ -849,7 +849,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.1.8_ead432f", // actually const // VERSION EYECATCHER
+version: "V6.1.8_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -18454,7 +18454,7 @@ xl(str, arg0, arg1, arg2, arg3, base) {
 querylang(name, offset) {
 	if (undefined === offset) offset = 8;
 	if (name[name.length - offset] !== '_') return;
-	let l = this.findlang(name.substring(name.length - offset + 1, name.length - offset + 3));
+	let l = this.trylang(name.substring(name.length - offset + 1, name.length - offset + 3));
 	if ('00' === l) {
 		globals.debugflag = true;
 		if (this.netwworker) this.netwworker.postMessage({ cmd: 'setdbg' });
@@ -18830,7 +18830,7 @@ handleone(orientation) {
 					fc = (npic / 16);
 					if (fc < 1) fc = 1;
 					targbits = 16;
-					whitelvl = Math.ceil(4095 * this.#addimgs.length / fc);
+					whitelvl = Math.ceil(240 + ((4095 - 240) * this.#addimgs.length / fc));
 					if (whitelvl > 65535) whitelvl = 65535;
 				}
 				else if (npic > 16) {
@@ -18855,7 +18855,7 @@ handleone(orientation) {
 				try {
 					let ovflag = false, ov5flag = false, ov6flag = false;
 					if (typ >= 5) {
-						/* FILM or stacked already */
+						/* input is FILM or (ould) stacked already (12 bpp) */
 						let o=0;
 						for (let j=0; j < (w*h*3)/2; j+=3) {
 							let res = 0;
