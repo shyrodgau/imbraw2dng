@@ -23107,6 +23107,20 @@ intenthandler(intent) {
 /* *************************************** Top class for App *************************************** */
 class ImBCHtml extends ImBCHtmlOut {
 /* Indentation out */
+langimg = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEIAAAAOCAYAAACbzsr/AAAEfUlEQVRIx8WWbUxTZxTHfxfKSyEby+acwc1NokbURAE
+nWRbKHDinZgZFF50zmXGQDCe4MDOBbImEwebLB8eW6d7U+VKdOqNGtjERGX7iRU3kRclEUFuRVCvtaoHSe/bhSguhrctS9STPh3vO/znPvef+n/85CmACQgmeqU
+BicXFxXEZGxlG9Xi/BSmw2m5umxcRkPT1jRjvA7m1tbNqhp6VlJPbz4hAKPxvLr19cJHPDUyPi06fD+g9drMiKg8nxAAwAEsTlBsZu3779NYfDIQHN5RKxWkUsFh
+G7XURVA8I7OzvPNzQ2xtZXX28TEAG5aLwq2avVwUfP2rJJFQGp3GYeEcvJEWn+rcvjqDTa5fEUQlVFLl8WKSkRMRhEpkwRWb5cxGgU6ekJWIj5819/MiysvbF4o
+8i1052ej9n79T2ZOMn7sV+WaoU4te2Gxzd1msiBnf0ekCttiXxa4JZQnTymQtTVicycKSN+FYisWydy927AQkB7I4ikpYn8ftjp2dtysF2ys7TH0hKtENXl1zUWf
+CByqfKmB3vyZ7ukpnqP1ZWD8kQQBeIecENR/AMsFigshIYG3/HycoiPh6wsCJQHqKqCCxciySlSyZ5rIt7wAjuAlHIn5n8iAIiIUDHudLFsVTh8Cz2leymzLOe7
+vBCsVm8u3dsQ8mwQC9EDNAHN/gB1dXDmjP8EbjcYjbB4MYwaNSIcFhbOrGSF0EF5V6CqRqHl8vPk/tGHYW4E767Vc6umHYCkuBu8kv4iAH8dd/DjkShsNpidBqGh
+MFhq3f1cj85aW2FgIDCmtha6u30W4uXJM5SiY+MTfe47DH2VtUS8kcJzqXEAhKe/qrWyvHwMC6Mx+DkyhEdtLteDMW63tnyYbsAdcGuI4rtb9xve9H2VP9mKZf9
+ZjRGP1CZM0O6+BBgvkpJ8sgGgvqNNMjM7z+l04xK5r84A+khYudRF+pxwAG7XtvFMyiTcf1YTOmc2kZlzOL7nHjsO6LHZvOrMWZBa0N0uCa5a2nrBYhL/A1pyMiQ
+kwLlzvuOKAosWwejRPsNOp52KCi8roqNh9SphbUYXE9JjATix20FTjZ4C4JJlHB2H+liwNIKFK6OYur+Zrafj2bVPwekckvjWdUR6g7d6unFXnmS83/apqiInToi
+MGeO7fWZkiJhM/6l9zkoWObSr17O3+6sKWf+xNlwVFYoIyPldVwRECgtEOs6YPFjjNw5JSPIe+3A0IpD6KgrMmwcHD8KKFV7/xIlQUqK1z9jYBx6Rnw97N5pY8l
+4kAMd2OliwZx6btyjDpGjwVUrL4J2iWCoO9QGwbE00lfP3kbtGHiIjKgIwYqjZ7SJXrmhTptks0t//wBH7VFXV6OqT11oHf+XVX5pl/Ueq6HTDiZWXqzGi6fvmYX
+5FESkoEGk/7WXHkR8colP9C/T/MrcbVDc4HA7u3LmDc9hF9GExMUMExhYQarVaSYmLSwwfP24ywNGf/qZ0cxQN9V0jtcqmceFurx246fGLQFkZ1NQobDjQwVvLXm
+Lx+9H8CwRURYotrXtgAAAAAElFTkSuQmCC`;
 rotphases = [ '-' , '/', '|', '\\', '=', '\\', '|', '/' ]; // actually const
 writestream = null;
 zip = null;
@@ -23630,6 +23644,8 @@ showmovie() {
 }
 /* TopApp: show disconnection */
 showdisconnect(alsoerr) {
+	document.getElementById('hamtime').style['display'] = 'none';
+	document.getElementById('powerelem').style['display'] = 'none';
 	if (this.disconnected) return;
 	this.disconnected = true;
 	if (alsoerr && this.discknown) {
@@ -26499,6 +26515,8 @@ function init() {
 function init2() {
 	window.open = cordova.InAppBrowser.open;
 	imbc = new ImBCHtml();
+	document.getElementById('langimg1').src = imbc.langimg;
+	document.getElementById('langimg2').src = imbc.langimg;
 	imbc.maxnpvw = 2;
 	document.getElementById('normal').style['display'] = 'none';
 	cordova.plugins.permissions.requestPermission(cordova.plugins.permissions.MANAGE_MEDIA, () => { console.log('M Med Ok '); }, () => { console.log('M Med NOk '); });

@@ -20803,6 +20803,20 @@ closead2() {
 /* *************************************** Top class for App *************************************** */
 class ImBCHtml extends ImBCHtmlOut {
 /* Indentation out */
+langimg = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEIAAAAOCAYAAACbzsr/AAAEfUlEQVRIx8WWbUxTZxTHfxfKSyEby+acwc1NokbURAE
+nWRbKHDinZgZFF50zmXGQDCe4MDOBbImEwebLB8eW6d7U+VKdOqNGtjERGX7iRU3kRclEUFuRVCvtaoHSe/bhSguhrctS9STPh3vO/znPvef+n/85CmACQgmeqU
+BicXFxXEZGxlG9Xi/BSmw2m5umxcRkPT1jRjvA7m1tbNqhp6VlJPbz4hAKPxvLr19cJHPDUyPi06fD+g9drMiKg8nxAAwAEsTlBsZu3779NYfDIQHN5RKxWkUsFh
+G7XURVA8I7OzvPNzQ2xtZXX28TEAG5aLwq2avVwUfP2rJJFQGp3GYeEcvJEWn+rcvjqDTa5fEUQlVFLl8WKSkRMRhEpkwRWb5cxGgU6ekJWIj5819/MiysvbF4o
+8i1052ej9n79T2ZOMn7sV+WaoU4te2Gxzd1msiBnf0ekCttiXxa4JZQnTymQtTVicycKSN+FYisWydy927AQkB7I4ikpYn8ftjp2dtysF2ys7TH0hKtENXl1zUWf
+CByqfKmB3vyZ7ukpnqP1ZWD8kQQBeIecENR/AMsFigshIYG3/HycoiPh6wsCJQHqKqCCxciySlSyZ5rIt7wAjuAlHIn5n8iAIiIUDHudLFsVTh8Cz2leymzLOe7
+vBCsVm8u3dsQ8mwQC9EDNAHN/gB1dXDmjP8EbjcYjbB4MYwaNSIcFhbOrGSF0EF5V6CqRqHl8vPk/tGHYW4E767Vc6umHYCkuBu8kv4iAH8dd/DjkShsNpidBqGh
+MFhq3f1cj85aW2FgIDCmtha6u30W4uXJM5SiY+MTfe47DH2VtUS8kcJzqXEAhKe/qrWyvHwMC6Mx+DkyhEdtLteDMW63tnyYbsAdcGuI4rtb9xve9H2VP9mKZf9
+ZjRGP1CZM0O6+BBgvkpJ8sgGgvqNNMjM7z+l04xK5r84A+khYudRF+pxwAG7XtvFMyiTcf1YTOmc2kZlzOL7nHjsO6LHZvOrMWZBa0N0uCa5a2nrBYhL/A1pyMiQ
+kwLlzvuOKAosWwejRPsNOp52KCi8roqNh9SphbUYXE9JjATix20FTjZ4C4JJlHB2H+liwNIKFK6OYur+Zrafj2bVPwekckvjWdUR6g7d6unFXnmS83/apqiInToi
+MGeO7fWZkiJhM/6l9zkoWObSr17O3+6sKWf+xNlwVFYoIyPldVwRECgtEOs6YPFjjNw5JSPIe+3A0IpD6KgrMmwcHD8KKFV7/xIlQUqK1z9jYBx6Rnw97N5pY8l
+4kAMd2OliwZx6btyjDpGjwVUrL4J2iWCoO9QGwbE00lfP3kbtGHiIjKgIwYqjZ7SJXrmhTptks0t//wBH7VFXV6OqT11oHf+XVX5pl/Ueq6HTDiZWXqzGi6fvmYX
+5FESkoEGk/7WXHkR8colP9C/T/MrcbVDc4HA7u3LmDc9hF9GExMUMExhYQarVaSYmLSwwfP24ywNGf/qZ0cxQN9V0jtcqmceFurx246fGLQFkZ1NQobDjQwVvLXm
+Lx+9H8CwRURYotrXtgAAAAAElFTkSuQmCC`;
 rotphases = [ '-' , '/', '|', '\\', '=', '\\', '|', '/' ]; // actually const
 writestream = null;
 zip = null;
@@ -21326,6 +21340,8 @@ showmovie() {
 }
 /* TopApp: show disconnection */
 showdisconnect(alsoerr) {
+	document.getElementById('hamtime').style['display'] = 'none';
+	document.getElementById('powerelem').style['display'] = 'none';
 	if (this.disconnected) return;
 	this.disconnected = true;
 	if (alsoerr && this.discknown) {
@@ -26434,9 +26450,9 @@ const apptexts = [
 let imbc;
 /* onload of html body */
 async function initsvc() {
-	if ("serviceWorker" in navigator) {
+	if ("serviceWorker" in navigator && window.location.protocol.startsWith('http')) {
 		try {
-		  const registration = await navigator.serviceWorker.register('/imbappsvcw.js', {
+		  const registration = await navigator.serviceWorker.register('imbappsvcw.js', {
 			scope: "/",
 		  });
 		  if (registration.installing) {
@@ -26453,6 +26469,8 @@ async function initsvc() {
 }
 function init() {
 	imbc = new ImBCHtml();
+	document.getElementById('langimg1').src = imbc.langimg;
+	document.getElementById('langimg2').src = imbc.langimg;
 	ImBCBase.progname = 'imbapp.htm';
 	document.getElementById('normal').style['display'] = 'none';
 	imbc.initsettings();
@@ -26472,7 +26490,7 @@ function init() {
 			return true;
 		}
 	};
-	//window.setTimeout(() => { initsvc(); }, 1000);
+	window.setTimeout(() => { initsvc(); }, 1000);
 	window.addEventListener('pageshow', function (event) {
 		if (event.persisted || performance.getEntriesByType("navigation")[0].type === 'back_forward') {
 			window.location.reload();
@@ -26520,7 +26538,7 @@ function init() {
 <div class="igxtype">
 <div><input type="checkbox" id="autotime" onchange="imbc.dirtysettings('autotime')"> <label for="autotime" data-myxlkey="app.autotime"> </label></div>
 <div><span data-myxlkey="app.onexit"></span> <select id="exitsel" onchange="imbc.chgexit('exitmode');"><option value="photo" data-myxlkey="app.exitphoto"> </option><option value="movie" data-myxlkey="app.exitmovie"> </option><option value="browse" data-myxlkey="app.exitbrowse"> </option></select></div>
-<div><span data-myxlkey="app.lang"></span> <select id="langsel" onchange="imbc.setlang()"><option value="99" onclick="imbc.setlang()">ImB</option><option value="de" onclick="imbc.setlang()">DE</option><option value="en" selected onclick="imbc.setlang()">EN</option>
+<div><span data-myxlkey="app.lang"></span> <img id="langimg2"> <select id="langsel" onchange="imbc.setlang()"><option value="99" onclick="imbc.setlang()">ImB</option><option value="de" onclick="imbc.setlang()">DE</option><option value="en" selected onclick="imbc.setlang()">EN</option>
 <option value="ja" onclick="imbc.setlang()">JA</option><!--option value="fr" onclick="imbc.setlang()">FR</option><option value="ru" onclick="imbc.setlang()">RU</option--></select></div>
 </div>
 </div>
@@ -26624,7 +26642,8 @@ function init() {
 <div id="pages" style="display:none;"><!-- container for navigationable pages -->
 <!-- hamburger menu -->
 <div id="hammen" style="position:fixed; left: 0; width: fit-content; background-color:white; inset:unset; top:2em;color:black;border:1px solid gray;border-bottom-right-radius:10px;border-bottom-left-radius:10px;" popover="auto">
-<div class="hammenent" onclick="imbc.closeham();imbc.settime()"><span  style="font-family:Symbol3;">&#x1f570;</span> <span data-myxlkey='app.menu.settime'>Set ImB Time</span></div>
+<div class="hammenent" id="hamlang" onclick="imbc.closeham();imbc.shownormal()"><img id="langimg1"> </div>
+<div class="hammenent" id="hamtime" onclick="imbc.closeham();imbc.settime()"><span  style="font-family:Symbol3;">&#x1f570;</span> <span data-myxlkey='app.menu.settime'>Set ImB Time</span></div>
 <div class="hammenent" id="hamlog" onclick="imbc.closeham();imbc.showlog();"><span  style="font-family:Symbol3;">&#x1f5ce;</span> <span data-myxlkey='app.menu.msglog'>Msg Log</span></div>
 <div class="hammenent" id="hamsett" onclick="imbc.closeham();imbc.shownormal();"><span  style="font-family:Symbol3;">&#x1f6e0;</span> <span data-myxlkey='app.menu.settings'>Settings</span></div>
 <div class="hammenent" onclick="imbc.closeham();imbc.showextras();"><span  style="font-family:Symbol3;">&#x1f578;</span> <span data-myxlkey='app.menu.extras'>Extras</span></div>
