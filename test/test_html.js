@@ -62,6 +62,8 @@ describe('A Convert Raw Local', function() {
 			//driver = await new Builder().forBrowser(Browser.CHROME).withCapabilities(chromcapa).build();
 			await driver.get(TESTURL + 'IMBACK/imbraw2dng.html');
 			driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));alert(JSON.stringify(e));}');
+			await driver.executeScript('window.localStorage.setItem("imbapp_dnsadd1", "1")',[]);
+			await driver.executeScript('window.localStorage.setItem("imbapp_dnsadd2", "1")',[]);
 	});
 	it('A.1 Convert without question', async function dotest() {
 			this.timeout(6000);
