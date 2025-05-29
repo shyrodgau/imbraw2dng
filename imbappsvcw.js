@@ -1,6 +1,6 @@
 /* imbapp caching service worker for offline */
 const addResourcesToCache = async (resources) => {
-  const cache = await caches.open("v1");
+  const cache = await caches.open("v2");
   await cache.addAll(resources);
 };
 
@@ -36,7 +36,7 @@ const deleteCache = async (key) => {
 };
 
 const deleteOldCaches = async () => {
-  const cacheKeepList = ["v0"];
+  const cacheKeepList = ["v2"];
   const keyList = await caches.keys();
   const cachesToDelete = keyList.filter((key) => !cacheKeepList.includes(key));
   await Promise.all(cachesToDelete.map(deleteCache));
