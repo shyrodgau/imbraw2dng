@@ -29,6 +29,9 @@ sed -i.bak \
 	~/prog/imbraw2dng/github/imbapp.htm \
 	~/prog/imbraw2dng/github/cordova/imbapp/imbapp.html 
 
+. ~/prog/imbraw2dng/github/helpstuff/licensehelp.sh
+
+
 function rvt {
 	echo back
       sed -i.bak2 \

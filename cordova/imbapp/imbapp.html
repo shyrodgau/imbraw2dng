@@ -22888,11 +22888,8 @@ appinfo(doit) {
 	<a href="#" onclick="window.open('https://github.com/cyph/cordova-plugin-chooser/','_system'); return false;">Chooser</a>,
 	<a href="#" onclick="window.open('https://github.com/torsten-simon/cordova-plugin-intent/','_system'); return false;">Intent</a>,
 	<a href="#" onclick="window.open('https://github.com/shyrodgau/cordova-plugin-saf-mediastore/','_system'); return false;">SafMediastore</a><br>Based on work by Michele Asciutti from the ImBack User Group.</span>
-	<br><a href="http://localhost/res/LICENSE.txt">License Info:</a>
-	<br><iframe src="http://localhost/res/LICENSE.txt" id="liciframe" style="width: 100%;zoom:50%;">`;
-	/*setTimeout(() => {
-		frames['liciframe'].contentDocument.head.innerHTML += ('<style type="text/css">*{font-size:5px;}</style>');
-	}, 100);*/
+	<br>License Info:
+	<br><iframe src="http://localhost/res/LICENSE.html" id="liciframe" style="width: 100%">`;
 	this.xlateall();
 	this.showmsg();
 }
@@ -24851,8 +24848,11 @@ checkimb() {
 		this.xlateall();
 		this.imbweb = '';
 		if (0 === this.previewworkers?.length) this.initworker(false);
-		if (ImBCBase.progname === 'imbapp.htm' && window.location.origin.startsWith('https://shyrodga')) {
-			if (!this.dnsad1) document.getElementById('addmod1').showModal();
+		if (ImBCBase.progname === 'imbapp.htm' && window.location.origin.startsWith('https')) {
+			if (!this.dnsad1) {
+				this.showadmod1 = true;
+				document.getElementById('addmod1').showModal();
+			}
 			else if (!this.dnsad2 && this.befinp) {
 				document.getElementById('addmod2').showModal();
 				//document.getElementById('dnsad2').focus();
