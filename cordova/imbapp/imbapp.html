@@ -1540,7 +1540,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.2.3_bb9ddfc", // actually const // VERSION EYECATCHER
+version: "V6.2.3_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -24785,10 +24785,8 @@ loadimgs() {
 				this.handle1imb(e.textContent, e.parentElement.querySelector('TIME').textContent);
 			}
 			const se = doc[1].querySelectorAll('LIST ALLFile File FPATH');
-			if (!rawfound && se.length && se[0].textContent.length === 40) {
+			if (!rawfound && se.length && se[0].textContent.length >= 40) {
 				// check existance of raw for all jpegs if film
-				/*this.ckraw(se, 0);
-				return;*/
 				const xhr = new XMLHttpRequest();
 				xhr.onloadend = (/*event*/) => {
 					if (xhr.status === 200) {
@@ -24798,12 +24796,6 @@ loadimgs() {
 							if (ImBCBase.ucex(n) !== '.RAW' || -1 !== n.indexOf('del=')) continue;
 							if (n.startsWith(this.imbweb)) n = n.substring(this.imbweb.length);
 							this.handle1imb('A:\\IMBACK\\PHOTO\\' + ImBCBase.basename(n));
-							/*if (r && r.href.indexOf('del=') === -1 && ImBCBase.ucex(r.href) === '.RAW') {
-								if (r.href.startsWith(this.imbweb))
-									this.handle1imb('A:' + r.href.substring(this.imbweb.length));
-								else
-									this.handle1imb('A:' +  r.href);
-							}*/
 						}
 						if (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0) {
 							this.aftercheck();
