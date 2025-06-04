@@ -1012,7 +1012,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.2.5_fe8cdff", // actually const // VERSION EYECATCHER
+version: "V6.2.5_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -20161,11 +20161,7 @@ checkchecks() {
 		if (u.ischild) continue;
 		if (arr.filter((o) => u.title.substring(0,len) === o.title.substring(0,len)).length === 1) {
 			u.level --;
-			if (arr === this.numdclasses) {
-				u.title = u.title.substring(0,len)+'XXXXXXX'.substring(curlevel);
-			} else {
-				u.title = u.title.substring(0,len);
-			}
+			u.title = u.title.substring(0,len);
 			u.entry.classList.add('gl' + u.level);
 			u.entry.classList.remove('gl' + (u.level + 1));
 		} else if (arr.findIndex((o) => o.title === u.title.substring(0,len)) === -1) {
@@ -20174,9 +20170,6 @@ checkchecks() {
 				level: curlevel - 1,
 				smembers: []
 			};
-			if (arr === this.numdclasses) {
-				cl.title = u.title.substring(0,len)+'XXXXXXX'.substring(curlevel);
-			}
 			cl.entry = document.createElement('div');
 			const ce = cl.entry;
 			ce.id = 'gg_' + u.title.substring(0,len) + '_X';
@@ -20193,11 +20186,6 @@ checkchecks() {
 			arr.push(cl);
 		}
 	}
-	if (arr === this.numdclasses) {
-		if (curlevel > 0)
-			this.#higherclasses(arr, len-1, curlevel - 1);
-		return;
-	}
 	// 5	h	y => again ->
 	// 4	h  	y => again
 	// 5	h	m => again 1x
@@ -20208,6 +20196,57 @@ checkchecks() {
 		this.#higherclasses(arr, len - 3, 4);
 	else if (curlevel === 4 && (this.maxgrp === 'y') && (this.mingrp === 'h'))
 		this.#higherclasses(arr, len - 3, 3);
+}
+/* TopApp: visual browser: add classes upwards (by number) */
+#higherclassesnum(arr, len, curlevel) {
+	for (const u of arr.filter((o) => o.level === curlevel)) {
+		console.log('0 ' + JSON.stringify(u));
+		const nt = u.title.substring(0,u.title.length - len)+'xxxxxxxxxxxxxxx'.substring(0,len);
+		if (u.ischild) continue;
+		if (arr.filter((o) => {
+			const ux = u.title.substring(0, u.title.length - len);
+			const ox = o.title.substring(0, o.title.length - len);
+			return (ox === ux);
+		}).length === 1) {
+			console.log('1 ' + JSON.stringify(u));
+			u.level --;
+			u.entry.classList.add('gl' + u.level);
+			u.entry.classList.remove('gl' + (u.level + 1));
+		} else if (arr.findIndex((o) => o.title === nt) === -1) {
+			console.log('2 ' + JSON.stringify(u));
+			const cl = {
+				title: nt,
+				leadzero: u.leadzero,
+				level: curlevel - 1,
+				smembers: []
+			};
+			if (/^x*$/.exec(nt.substring(0,len))?.length) {
+				cl.title = '0' + cl.title;
+				cl.leadzero = cl.leadzero.substring(1);
+			}
+			cl.entry = document.createElement('div');
+			const ce = cl.entry;
+			ce.id = 'gg_' + u.title.substring(0,u.title.length - len) + '_X';
+			ce.classList.add('gg');
+			ce.classList.add('ggclosed');
+			ce.classList.add('gl' + (curlevel - 1));
+			for (const x of arr.filter((o) => {
+				return o.title.substring(0,o.title.length - len) === u.title.substring(0,u.title.length - len);
+			})) {
+				x.ischild = true;
+				// todo: sort when open
+				cl.smembers.push(x);
+				cl.haschildren = true;
+				arr.splice(arr.findIndex((o) => o.title === x.title),1);
+			}
+			arr.push(cl);
+		}
+		else console.log('3 ' + JSON.stringify(u) + JSON.stringify(arr.find((o) => o.title.substring(0,o.title.length - len) === u.title.substring(0,u.title.length - len))));
+	}
+	if (curlevel > 0) {
+		console.log('4 ');
+		this.#higherclassesnum(arr, len+1, curlevel - 1);
+	}
 }
 /* browserhelper: visual browser: prepare the browser display, group the stuff */
 aftercheck(defclosed) {
@@ -20260,19 +20299,20 @@ aftercheck(defclosed) {
 		}
 		this.typedclasses.splice(this.typedclasses.findIndex(v => v === x), 1, cl);
 	}
+	const mxn = Math.max(...this.numdclasses).toString(10).length;
 	for (const x of this.numdclasses) {
 		if (x.title) continue;
-		let xs = '' + x;
-		let xsx = '000'.substring(xs.length) + xs + 'X';
+		const xsx = '' + x;
 		const cl = {
-			title: xsx,
+			title: xsx + 'x',
+			leadzero: '00000000000'.substring(0,mxn - xsx.length),
 			level: 5,
 			fmembers: [],
 			smembers: [],
 			entry: undefined
 		};
 		cl.entry = document.createElement('div');
-		cl.entry.id = 'gg_' + xsx + '_X';
+		cl.entry.id = 'gg_' + x + 'X_X';
 		cl.entry.classList.add('gg');
 		cl.entry.classList.add(defclosed ? 'ggclosed' : 'ggopen');
 		cl.entry.classList.add('gl5');
@@ -20292,7 +20332,7 @@ aftercheck(defclosed) {
 		this.#higherclasses(this.untypedclasses, 7, 5);
 		this.#higherclasses(this.typedclasses, 10, 5);
 	}
-	this.#higherclasses(this.numdclasses,2,5);
+	this.#higherclassesnum(this.numdclasses,2,5);
 	// top type classes here
 	for (const u of this.typedclasses.filter(u => !u.ischild && u.level !== 1)) {
 		if (u.ischild || u.level === 1) continue;
