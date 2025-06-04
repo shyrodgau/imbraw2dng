@@ -849,7 +849,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.2.5_@_d_e_v", // actually const // VERSION EYECATCHER
+version: "V6.2.6_26dcf2b", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -19334,7 +19334,7 @@ handle1imb(url, time) {
 	if (rawname.substring(0,10).toUpperCase() === 'IMBRAW2DNG' || rawname.substring(0,6).toUpperCase() === 'IMBAPP' || rawname.substring(0,5).toUpperCase() === 'INDEX') return;
 	let timestx = globals.fnregexx.exec(rawname);
 	let timesty = time ? globals.itsregex.exec(time) : null;
-	let timest = null, cl = '9999_99_99-99', seq = 99999;
+	let timest = null, cl = '9999_99_99-99', seq = 9999999;
 	let newimbele;
 	if (this.mingrp === 'd') cl = '9999_99_99';
 	if (null !== timestx) {
