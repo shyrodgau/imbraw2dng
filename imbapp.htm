@@ -1541,7 +1541,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.2.4_@_d_e_v", // actually const // VERSION EYECATCHER
+version: "V6.2.5_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -20775,6 +20775,39 @@ closead2() {
 		this.savesettings('dnsad2');
 	}
 }
+async handlePwaLaunch(para) {
+	if (this.actnum !== this.allfiles.length) return;
+	this.checkchecks();
+	this.allfiles = [];
+	//let auxfiles = [];
+	this.actnum = 0;
+	this.showsplash();
+	// first, make everything empty
+	this.cleartree();
+	this.imbpics = [];
+	this.rimbpics = [];
+	this.imbmovies = [];
+	this.untypedclasses = [];
+	this.typedclasses = [];
+	this.numdclasses = [];
+	this.imbeles = [];
+	let withpromise = false;
+	let mm = [...para.files];
+	let m0 = mm.map(e => e.getFile());
+	let mapped = [];
+	await Promise.all(m0).then((rmmp) => {
+		for (const l of rmmp) {
+			if (l) mapped.push(l);
+		}
+	});
+	for (const x of mapped) {
+		 this.handle1imb(x);
+	}
+	if (globals.debugflag) console.log('LLL ' + a.length + ' ' + a);
+	this.addall = false;
+	this.addscaleall = false;
+	this.aftercheck(); this.showbrowser();
+}
 /* Indentation in - end of class ImBCHtmlOut */
 }
 /* *************************************** HTML app class E N D *************************************** */
@@ -22505,8 +22538,8 @@ checkimb() {
 	document.getElementById('dbgcache').value = this.maxcache;
 	let imblang = '';
 	this.imblang = false;
-	if (ImBCBase.progname === 'imbapp.htm' && !window.location.origin.startsWith('http://1')) {
-		this.disknown = true;
+	if (ImBCBase.progname === 'imbapp.htm' && -1 !== window.location.pathname.indexOf('imbraw2dng')) {
+		this.discknown = true;
 		this.disconnected = false;
 		this.showdisconnect();
 		this.showmain();
@@ -24736,8 +24769,8 @@ const mytexts = { // actually const
 			ja: '<a target="_new" href="https://github.com/shyrodgau/imbraw2dng/raw/refs/heads/master/imbapp.htm">このファイルを SD カードの IMBACK ディレクトリにコピー</a>し、<br>http://192.168.1.254/IMBACK/imbapp.htm として ImB WiFi に直接アクセスできます。'
 		},
 		adv2: {
-			en: 'You can install this as a PWA (portable web app) and use it offline!<br><a href="#" onclick="document.getElementById(\'addmod2\').close();imbc.befinp.prompt(); imbc.befinp = null;return false;">Try it</a>',
-			de: 'Man kann es als portable web app (PWA) installieren und offline benutzen!<br><a href="#" onclick="document.getElementById(\'addmod2\').close();imbc.befinp.prompt(); imbc.befinp = null; return false;">Ausprobieren</a>',
+			en: 'You can install this as a PWA (portable web app) and use it offline (now really)!<br><a href="#" onclick="imbc.dnsad1 = true;imbc.savesettings(\'dnsad1\');imbc.dnsad2 = true;imbc.savesettings(\'dnsad2\');document.getElementById(\'addmod2\').close();imbc.befinp.prompt(); imbc.befinp = null;return false;">Try it</a>',
+			de: 'Man kann es als portable web app (PWA) installieren und offline benutzen (jetzt wirklich)!<br><a href="#" onclick="imbc.dnsad1 = true;imbc.savesettings(\'dnsad1\');document.getElementById(\'addmod2\').close();imbc.befinp.prompt(); imbc.befinp = null; return false;">Ausprobieren</a>',
 		}
 	}
 }
@@ -26457,6 +26490,13 @@ function init() {
 	imbc.querylang(window.location.pathname);
 	imbc.xlateall();
 	imbc.checkimb();
+	if ("launchQueue" in window) {
+		if (imbc.discknown && imbc.disconnected) {
+			launchQueue.setConsumer((launchpara) => {
+				imbc.handlePwaLaunch(launchpara);
+			});
+		}
+	}
 	document.getElementById('grpsel').value='time';
 	window.onbeforeunload = () => {
 		imbc.savesettings();

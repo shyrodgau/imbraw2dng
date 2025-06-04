@@ -1540,7 +1540,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.2.4_@_d_e_v", // actually const // VERSION EYECATCHER
+version: "V6.2.5_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -24832,8 +24832,8 @@ checkimb() {
 	document.getElementById('dbgcache').value = this.maxcache;
 	let imblang = '';
 	this.imblang = false;
-	if (ImBCBase.progname === 'imbapp.htm' && !window.location.origin.startsWith('http://1')) {
-		this.disknown = true;
+	if (ImBCBase.progname === 'imbapp.htm' && -1 !== window.location.pathname.indexOf('imbraw2dng')) {
+		this.discknown = true;
 		this.disconnected = false;
 		this.showdisconnect();
 		this.showmain();
