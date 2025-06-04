@@ -26522,6 +26522,10 @@ function init() {
 			//document.getElementById('dnsad2').focus();
 		}
 	});
+	window.addEventListener('appinstalled', function (event) {
+		imbc.dnsad2 = true;
+		imbc.savesettings('dnsad2');
+	});
 }
 </script>
 <!-- SERVICE WORKER must be via http(s): imbappsvcw.js -->
