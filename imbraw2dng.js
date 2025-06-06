@@ -849,7 +849,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.2.6_26dcf2b", // actually const // VERSION EYECATCHER
+version: "V6.2.6_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -1449,6 +1449,7 @@ latestraw='0000';
 // [0]: !=0 => use separate localstorage namespace from imbraw2dng
 // [1]: imbweb: for non-emulator: 1 => use = 'http://192.168.8.101:8080'; 2 => use = 'http://192.168.0.72:8080'; android emulator: !=0 => use 10.0.2.2 (host connection)
 // [2]: !=0 => use longer startup timeout, debug versio
+// [3]: ==1 => fake delete works for 2029_0710_010203_001..., ==2 => fake delete works for 2029_0707_120426_021...
 expflags = [ 0, 0, 0, 0, 0 ];
 
 //////// DYNAMIC SOURCE 1
