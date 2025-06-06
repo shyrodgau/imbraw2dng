@@ -62,8 +62,8 @@ describe('A Convert Raw Local', function() {
 			//driver = await new Builder().forBrowser(Browser.CHROME).withCapabilities(chromcapa).build();
 			await driver.get(TESTURL + 'IMBACK/imbraw2dng.html');
 			driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));alert(JSON.stringify(e));}');
-			await driver.executeScript('window.localStorage.setItem("imbapp_dnsadd1", "1")',[]);
-			await driver.executeScript('window.localStorage.setItem("imbapp_dnsadd2", "1")',[]);
+			await driver.executeScript('window.localStorage.setItem("imbapp_dnsad1", "1")',[]);
+			await driver.executeScript('window.localStorage.setItem("imbapp_dnsad2", "1")',[]);
 	});
 	it('A.1 Convert without question', async function dotest() {
 			this.timeout(6000);
@@ -472,7 +472,10 @@ describe('E Convert Raw from Imback APP', function() {
 			driver = await new Builder().forBrowser(Browser.CHROME).build();
 			//driver = await new Builder().forBrowser(Browser.CHROME).withCapabilities(chromcapa).build();
 			await driver.get(TESTURL + 'IMBACK/imbapp.htm');
-			driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));}');
+			// Initialize or set localStorage (for example, setting a key-value pair) /* 27 */
+			await driver.executeScript('window.localStorage.setItem("imbapp_expflags", "27");',[]);
+			await driver.executeScript('window.localStorage.setItem("imbapp_dnsad2", "1");',[]);
+			await driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));}');
 	});
 	it('E.1 Convert from visual browser', async function dotest() {
 			this.timeout(96000);
@@ -481,7 +484,7 @@ describe('E Convert Raw from Imback APP', function() {
 				.click()
 				.pause(1000)
 				.perform();
-			const cb = await driver.findElement(By.id('tobrows'));
+			const cb = await waitfor(driver, 'id','tobrows');
 			await driver.actions({ async: true}).pause(900).perform();
 			await driver.actions({ async: true })
 				.move({ origin: cb })
@@ -489,21 +492,21 @@ describe('E Convert Raw from Imback APP', function() {
 				.click()
 				.pause(300)
 				.perform();
-			const fi = await driver.findElement(By.id('SELC_2029_07'));
+			let fi = await driver.findElement(By.id('SELC_2029_07'));
 			await driver.actions({ async: true })
 				.move({ origin: fi })
 				.pause(10)
 				.click()
 				.pause(10)
 				.perform();
-			const fiyy = await driver.findElement(By.id('gg_2019_01_01_X'));
+			fi = await driver.findElement(By.id('gg_2019_01_01_X'));
 			await driver.actions({ async: true })
-				.move({ origin: fiyy })
+				.move({ origin: fi })
 				.pause(300)
 				.perform();
-			const fiy = await waitfor(driver, 'css', '#gg_2019_01_01_X .eeraw');
+			fi = await waitfor(driver, 'css', '#gg_2019_01_01_X .eeraw');
 			await driver.actions({ async: true })
-				.move({ origin: fiy })
+				.move({ origin: fi })
 				.pause(2000)
 				.perform();
 			const fi2 = await driver.findElement(By.id('SELC_2024_02_17'));
@@ -543,6 +546,22 @@ describe('E Convert Raw from Imback APP', function() {
 				.click()
 				.pause(190)
 				.perform();
+			const trash1 = await waitfor(driver, 'css', '.trashbin');
+			await driver.actions({async: true})
+				.move({ origin:trash1 })
+				.pause(10)
+				.click()
+				.pause(290)
+				.perform();
+			const okdela = await waitfor(driver, 'css', '#delokbut');
+			await driver.actions({async: true})
+				.move({ origin:okdela })
+				.pause(10)
+				.click()
+				.pause(3000)
+				.click()
+				.pause(1000)
+				.perform();
 			const zoomr = waitfor(driver, 'id', 'backnr');
 			await driver.actions({ async: true })
 				.move({ origin: zoomr })
@@ -564,6 +583,13 @@ describe('E Convert Raw from Imback APP', function() {
 				.click()
 				.pause(90)
 				.perform();
+			fi = await waitfor(driver, 'css','#cb_sel_2029_0710_010203_001_raw_X');
+			await driver.actions({ async: true })
+				.move({ origin: fi })
+				.pause(300)
+				.click()
+				.pause(90)
+				.perform();
 			const del = await waitfor(driver, 'id', 'delselbut');
 			await driver.actions({ async: true })
 				.move({ origin: del })
@@ -571,7 +597,7 @@ describe('E Convert Raw from Imback APP', function() {
 				.click()
 				.pause(600)
 				.perform();
-			const delok = await driver.findElement(By.id('delokbut'));
+			const delok = await waitfor(driver,'id','delokbut');
 			await driver.actions({ async: true })
 				.move({ origin: delok })
 				.pause(100)
@@ -580,12 +606,19 @@ describe('E Convert Raw from Imback APP', function() {
 				.click()
 				.pause(1000)
 				.perform();
-			const rcw = await driver.findElement(By.id('doselbut'));
+			fi = await waitfor(driver, 'css','#cb_sel_2029_0710_010203_001_raw_X');
+			await driver.actions({ async: true })
+				.move({ origin: fi })
+				.pause(300)
+				.click()
+				.pause(90)
+				.perform();
+			const rcw = await waitfor(driver, 'id','doselbut');
 			await driver.actions({ async: true })
 				.move({ origin: rcw })
 				.pause(100)
 				.click()
-				.pause(600)
+				.pause(1600)
 				.perform();
 			const okb = await waitfor(driver, 'id', 'progokbut');
 			await driver.actions({ async: true })
@@ -595,7 +628,7 @@ describe('E Convert Raw from Imback APP', function() {
 				.pause(900)
 				.perform();
 			const sorb = await driver.findElement(By.css('#grpsel'));
-			const sorbe = new Select(sor);
+			const sorbe = new Select(sorb);
 			await sorbe.selectByIndex(1);
 			await driver.actions({ async: true })
 				.pause(100)
@@ -750,7 +783,7 @@ describe('F Convert Raw Local APP', function() {
 			driver = await new Builder().forBrowser(Browser.CHROME).build();
 			//driver = await new Builder().forBrowser(Browser.CHROME).withCapabilities(chromcapa).build();
 			await driver.get('file://' + TESTDAT + '/IMBACK/imbapp.htm');
-			driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));}');
+			await driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));}');
 	});
 	it('F.1 Convert without question', async function dotest() {
 			this.timeout(6000);

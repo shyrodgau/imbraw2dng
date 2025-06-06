@@ -98,8 +98,8 @@ async function runTest() {
   	const appContext = contexts.find(context => context.includes('eu.imback'));
   	await driver.switchContext(webviewContext);*/
 
-  	// Initialize or set localStorage (for example, setting a key-value pair)
-  	await driver.executeScript('window.localStorage.setItem("imbapp_expflags", "4")',[]);
+  	// Initialize or set localStorage (for example, setting a key-value pair) /* 1 + 3 + (2*27) */
+  	await driver.executeScript('window.localStorage.setItem("imbapp_expflags", "58")',[]);
 
   	// empty the dir, first add a file so it is not empty
   	driver.executeScript('mobile: pushFile', [{remotePath: '/storage/emulated/0/DCIM/nn/x', payload: 'bml4Cg=='}]);
@@ -145,6 +145,28 @@ async function runTest() {
 	await driver.pause(600);
 	const rrrr = await waitfor(driver, '#xmag .rotbtnr');
 	await rrrr.click();
+	await driver.pause(600);
+	let dlxx = await waitfor(driver, '#xmag .dlbtn');
+	await dlxx.click();
+	await driver.pause(1000);
+    const logbut00 = await waitfor(driver, '#dlprogresslogbtn');
+    const okbut00 = await waitfor(driver, '#progokbut');
+    while (1) {
+		const cliki = await logbut00.getAttribute('disabled')
+		//console.log('CLICK *** ' + cliki + '*** CLIC ');
+		if (!cliki) break;
+		await sleep(500);
+	}
+	await okbut00.click();
+	await driver.pause(600);
+	dlxx = await waitfor(driver, '#xmag .trashbin');
+	await dlxx.click();
+	await driver.pause(600);
+	dlxx = await waitfor(driver,'#delokbut');
+	await dlxx.click();
+	await driver.pause(600);
+	dlxx = await waitfor(driver,'#delokbut');
+	await dlxx.click();
 	await driver.pause(600);
 	await driver.executeScript('mobile:swipeGesture', [{left:80,top:300,width:300,height:100,direction:'left',percent:0.9}]);
 	//const zoomr = await waitfor(driver, '#backnr');
