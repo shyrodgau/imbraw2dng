@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<widget xmlns:android="http://schemas.android.com/apk/res/android" id="eu.imback.os.app" version="V6.2.6_26dcf2b" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0"
- android-versionCode="60206">
+<widget xmlns:android="http://schemas.android.com/apk/res/android" id="eu.imback.os.app" version="V6.2.7_290adda" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0"
+ android-versionCode="60207">
   <name>ImB OS App</name>
   <description>ImBack OS App</description>
   <author email="stefan@hegny.de">Stefan Hegny</author>
@@ -16,6 +16,7 @@
     <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application">
       <application android:usesCleartextTraffic="true" android:requestLegacyExternalStorage="true" />
     </edit-config>
+    <resource-file src="network_config.xml" target="app/src/main/res/xml/network_config.xml"/>
     <resource-file src="../../imbapp.htm" target="app/src/main/assets/www/res/imbapp.htm"/>
     <resource-file src="imbapp.html" target="app/src/main/assets/www/imbapp.html"/>
     <resource-file src="../../LICENSE.txt" target="app/src/main/assets/www/res/LICENSE.txt"/>
