@@ -510,15 +510,15 @@ div[data-state='load'] .btnsrow, div[data-state='err'] .btnsrow { display: none;
 	padding-top: 0.1em;
 	pointer-events:none;
 }
-.syncpic:after {
+#browser.syncpic:before {
 	content: '\231a\fe0e';
-	position: absolute;
-	font-size: 35px;
+	position: fixed;
+	font-size: 46px;
 	z-index: 98;
 	color: rgba(255,0,0,0.6);
 	text-shadow: 3px 1px white;
-	padding-left: 0.6em;
-	padding-top: 0.5em;
+	padding-left: 0.1em;
+	padding-top: 0.1em;
 	pointer-events:none;
 	font-weight:bold;
 	font-family:Symbol3;
@@ -1542,7 +1542,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.2.7_290adda", // actually const // VERSION EYECATCHER
+version: "V6.2.7_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -23387,14 +23387,9 @@ handletimadj() {
 				((hr < 10) ? "0":"") + hr + ":" + ((min < 10) ? "0":"") + min + ":" + ((sec < 10) ? "0":"") + sec + 'Z';
 			let nd = new Date(new Date(datestr).valueOf() + this.corrdelta).toISOString().substring(0,19);
 			document.querySelector('#xmag .timetxt').value = nd;
-			if (this.corrdelta !== this.magentry.timesync) {
-				document.querySelector('#xmag .timetxt').disabled = true;
-				document.getElementById('cortimebut').classList.add('grey');
-			}
-			else {
-				document.getElementById('cortimebut').classList.add('green');
-				document.querySelector('#xmag .timetxt').style['display'] = '';
-			}
+			this.magentry.timesync = this.corrdelta;
+			document.getElementById('cortimebut').classList.add('green');
+			document.querySelector('#xmag .timetxt').style['display'] = '';
 		} else {
 			document.querySelector('#xmag .timetxt').style['display'] = 'none';
 		}
@@ -23459,16 +23454,18 @@ closemag(notreally) {
 	if (this.magentry.timesync && document.querySelector('#cortimebut').classList.contains('green')) {
 		// set new
 		this.corrdelta = this.magentry.timesync;
-		document.querySelectorAll('.syncpic').forEach((e) => { e.classList.remove('syncpic');});
-		this.magentry.orig.entry.classList.add('syncpic');
-		let el = this.iinf.find(x => x.n === this.magentry.raw);
-		if (el)
-			el.adjt = this.magentry.timestr;
+		//document.querySelectorAll('.syncpic').forEach((e) => { e.classList.remove('syncpic');});
+		document.getElementById('browser').classList.add('syncpic');
+		let el = this.iinf.findIndex(x => x.n === this.magentry.raw);
+		if (el !== -1) {
+			this.iinf[el].adjt = this.magentry.timestr;
+			this.iinf[el].mts = Math.round(Date.now()/60000);
+		}
 		else
-			this.iinf.push({ n: this.magentry.raw, adjt: this.magentry.timestr });
+			this.iinf.push({ n: this.magentry.raw, adjt: this.magentry.timestr, mts: Math.round(Date.now()/60000) });
 		this.savesettings('ii');
 	}
-	else if (!this.magentry.timesync && (this.magentry.orig.timesync === this.corrdelta)) {
+	else if (!this.magentry.timesync /*&& (this.magentry.orig.timesync === this.corrdelta)*/) {
 		// clear
 		this.corrdelta = this.magentry.timesync;
 		document.querySelectorAll('.syncpic').forEach((e) => { e.classList.remove('syncpic');});
@@ -23478,9 +23475,11 @@ closemag(notreally) {
 		this.magentry.orig.desc = this.magentry.desc;
 		const ii = this.iinf.findIndex((j) => j.n === this.magentry.raw);
 		if (ii === -1)
-			this.iinf.push( { n: this.magentry.raw, d: this.magentry.desc });
-		else
+			this.iinf.push( { n: this.magentry.raw, d: this.magentry.desc, mts: Math.round(Date.now()/60000) });
+		else {
 			this.iinf[ii].d = this.magentry.desc;
+			this.iinf[ii].mts = Math.round(Date.now()/60000);
+		}
 		this.savesettings('ii');
 	}
 	this.magentry = null;
@@ -23508,29 +23507,28 @@ magtimechg() {
 			this.magentry.timesync = 0;
 			this.magentry.timestr = undefined;
 		}
+		return;
 	}
-	else {
-		document.getElementById('cortimebut').classList.add('green');
-		let res = globals.fnregexx.exec(this.magentry.raw);
-		if (res !== null) {
-			let yr = Number.parseInt(res[1]);
-			let mon = Number.parseInt(res[3]);
-			let day = Number.parseInt(res[5]);
-			let hr = Number.parseInt(res[7]);
-			let min = Number.parseInt(res[9]);
-			let sec = Number.parseInt(res[11]);
-			let datestr = "" + yr + "-" + ((mon < 10) ? "0":"") + mon + "-" + ((day < 10) ? "0":"") + day + "T"+
-				((hr < 10) ? "0":"") + hr + ":" + ((min < 10) ? "0":"") + min + ":" + ((sec < 10) ? "0":"") + sec + 'Z';
-			let d1 = new Date(datestr);
-			let d2 = new Date(a[1] + '-' + a[3] + '-' + a[5] + 'T' + a[7] + ':' + a[9] + ':' + a[11] + 'Z');
-			this.magentry.timesync = d2 - d1;
-			this.magentry.timestr = document.getElementById('refts').value;
-		}
-		else { // should not happen
-			this.magentry.timesync = 0;
-			document.getElementById('refts').style['display'] = 'none';
-			this.magentry.timestr = undefined;
-		}
+	document.getElementById('cortimebut').classList.add('green');
+	let res = globals.fnregexx.exec(this.magentry.raw);
+	if (res !== null) {
+		let yr = Number.parseInt(res[1]);
+		let mon = Number.parseInt(res[3]);
+		let day = Number.parseInt(res[5]);
+		let hr = Number.parseInt(res[7]);
+		let min = Number.parseInt(res[9]);
+		let sec = Number.parseInt(res[11]);
+		let datestr = "" + yr + "-" + ((mon < 10) ? "0":"") + mon + "-" + ((day < 10) ? "0":"") + day + "T"+
+			((hr < 10) ? "0":"") + hr + ":" + ((min < 10) ? "0":"") + min + ":" + ((sec < 10) ? "0":"") + sec + 'Z';
+		let d1 = new Date(datestr);
+		let d2 = new Date(a[1] + '-' + a[3] + '-' + a[5] + 'T' + a[7] + ':' + a[9] + ':' + a[11] + 'Z');
+		this.magentry.timesync = d2 - d1;
+		this.magentry.timestr = document.getElementById('refts').value;
+	}
+	else { // should not happen
+		this.magentry.timesync = 0;
+		document.getElementById('refts').style['display'] = 'none';
+		this.magentry.timestr = undefined;
 	}
 }
 /* TopApp: browserdisplay: sort for navigate in magnification */
@@ -24138,9 +24136,11 @@ buildtitle(gr) {
 			this.rotvis(ne.querySelector('.eeraw'),0);
 			const ii = this.iinf.findIndex((j) => j.n === e.raw);
 			if (ii === -1)
-				this.iinf.push( { n: e.raw, r: e.rot });
-			else
+				this.iinf.push( { n: e.raw, r: e.rot, mts: Math.round(Date.now()/60000) });
+			else {
 				this.iinf[ii].r = e.rot;
+				this.iinf[ii].mts = Math.round(Date.now()/60000);
+			}
 			this.savesettings('ii');
 			ne.setAttribute('data-state', 'ok');
 			ne.parentElement.querySelector('.btnsrow').style['display'] = 'none';
@@ -24160,9 +24160,11 @@ buildtitle(gr) {
 			this.rotvis(ne.querySelector('.eeraw'),1);
 			const ii = this.iinf.findIndex((j) => j.n === e.raw);
 			if (ii === -1)
-				this.iinf.push( { n: e.raw, r: e.rot });
-			else
+				this.iinf.push( { n: e.raw, r: e.rot, mts: Math.round(Date.now()/60000) });
+			else {
 				this.iinf[ii].r = e.rot;
+				this.mts = Math.round(Date.now()/60000);
+			}
 			this.savesettings('ii');
 			ne.setAttribute('data-state', 'ok');
 			ne.parentElement.querySelector('.btnsrow').style['display'] = 'none';
@@ -24249,9 +24251,11 @@ rotmag(ccw) {
 	}
 	const ii = this.iinf.findIndex((e) => e.n === this.magentry.raw);
 	if (ii === -1)
-		this.iinf.push( { n: this.magentry.raw, r: this.magentry.rot });
-	else
+		this.iinf.push( { n: this.magentry.raw, r: this.magentry.rot, mts: Math.round(Date.now()/60000) });
+	else {
 		this.iinf[ii].r = this.magentry.rot;
+		this.iinf[ii].mts = Math.round(Date.now()/60000);
+	}
 	this.savesettings('ii');
 	this.startloadimg();
 }
@@ -24329,7 +24333,7 @@ dodelete(list, status) {
 			if ((0 <= res) /* more debug conditions */
 				|| (this.expflags[3] === 1 && list[0].url.indexOf('2029_0710_010203_001.') !== -1)
 				|| (this.expflags[3] === 2 && list[0].url.indexOf('2029_0707_120426_021.') !== -1))
-		{
+			{
 				status.ok++;
 				list[0].selected = false;
 				list[0].deleted = true;
@@ -24371,75 +24375,6 @@ dodelete(list, status) {
 		this.delstate = 3;
 	}
 }
-/* TopApp: visual browser: do delete */
-// dodelete(list, status, done=[]) {
-	// if (!list?.length && this.delstate === 3) {
-		// /* ok press after end */
-		// this.delcancel();
-		// return;
-	// }
-	// else if (list === undefined) {
-		// /* initial call */
-		// this.delstate = 2;
-		// document.getElementById('delokbut').disabled = true;
-		// document.getElementById('delcancelbut').disabled = false;
-		// this.rotphase = 1;
-		// document.getElementById('delprogmsg').innerHTML = this.rotphases[this.rotphase];
-		// if (this.magentry)
-			// this.dodelete([ this.magentry ], { no: 1, ok: 0, err: 0 });
-		// else
-			// this.dodelete(this.imbeles.filter((o) => o.selected), { no: this.imbeles.filter((o) => o.selected).length, ok: 0, err: 0 });
-		// return;
-	// } else if (list.length > 0 && this.delstate === 2) {
-		// /* processing */
-		// this.modalback = 'nothing';
-		// this.custcmdB(4003, 'docstatus', 'str=' + list[0].url, (res) => {
-			// this.rotphase ++;
-			// document.getElementById('delprogmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ' +  this.xl('process.totals', status.no, status.ok, 0, status.err);
-			// if (0 <= res) {
-				// status.ok++;
-				// done.push(list[0]);
-			// } else {
-			// 	status.err++;
-			// }
-			// list.splice(0,1);
-			// setTimeout(() => {
-				// this.dodelete(list, status, done);
-			// }, 20);
-		// });
-	// } else {
-		// /* list finished */
-		// document.getElementById('delprogmsg').innerHTML = this.xl('process.totals', status.no, status.ok, (status.no - status.ok - status.err), status.err);
-		// document.getElementById('delokbut').disabled = false;
-		// document.getElementById('delcancelbut').disabled = true;
-		// this.modalback = 'closedelprog';
-		// this.savesettings(['dloads','ii']);
-		// this.rotphase = -1;
-		// this.delstate = 3;
-		// if (done && done?.length) {
-			// for (const l of done) {
-				// l.selected = false;
-				// if (l.entry) l.entry.querySelector('.selcb').checked = false;
-				// const pv = l.preview;
-				// if (pv)
-					// pv.classList.add('picdeleted');
-				// if (pv?.parentElement)
-					// pv.parentElement.classList.add('picdeleted');
-				// if (this.magentry) {
-					// if (this.magentry.orig.entry) this.magentry.orig.entry.querySelector('.selcb').checked = false;
-					// const pvo = this.magentry.orig.preview;
-					// if (pvo)
-						// pvo.classList.add('picdeleted');
-					// if (pvo?.parentElement)
-						// pvo.parentElement.classList.add('picdeleted');
-				// }
-				// this.dloads = this.dloads.filter(e => e.toLowerCase() !== l.raw.toLowerCase());
-				// this.iinf = this.iinf.filter(e => e.n.toLowerCase() !== l.raw.toLowerCase());
-			// }
-			// this.#updateselections();
-		// }
-	// }
-// }
 /* TopApp: visual browser: cancel the delete */
 delcancel() {
 	this.savesettings(['dloads', 'ii']);
@@ -25174,8 +25109,6 @@ initsettings() {
 		}
 		itm = window.localStorage.getItem(pref + 'dloads');
 		if (itm !== null) this.dloads = JSON.parse(itm);
-		itm = window.localStorage.getItem(pref + 'ii');
-		if (itm !== null) this.iinf = JSON.parse(itm);
 		itm = window.localStorage.getItem(pref + 'exitmode');
 		if (itm !== null) this.exitmode = JSON.parse(itm);
 		itm = window.localStorage.getItem(pref + 'autotime');
@@ -25196,6 +25129,28 @@ initsettings() {
 		if (itm !== null && ImBCBase.progname === 'imbapp.htm') {
 			this.dnsad2 = JSON.parse(itm) ? true: false;
 		}
+		itm = window.localStorage.getItem(pref + 'ii');
+		if (itm !== null) this.iinf = JSON.parse(itm);
+		/*let mdir = false;
+		const no = Math.round(Date.now()/60000);
+		for (const e of this.iinf) {
+			if (!e.mts) {
+				e.mts = n;
+				mdir = true;
+			}
+		}
+		if (this.iinf.length > 33 * this.maxcache) {
+			const delt = this.iinf.length - 33*this.maxcache;
+			for (let jj=0; jj < delt / 2; jj++) {
+				const ee = this.iinf.sort((a,b)=> a.mts > b.mts)[this.iinf.length-1].mts;
+				const uu = this.iinf.findIndex(x => (x.mts === ee && (no - x.mts) > 333*this.maxcache);
+				if (uu !== -1) {
+					this.iinf.splice(uu,1);
+					mdir = true;
+				}
+			}
+		}
+		if* (mdir) this.savesettings('ii');*/
 		const copytext = document.getElementById('copytext');
 		const artist = document.getElementById('artist');
 		const copycheck = document.getElementById('copycheck');
@@ -25260,7 +25215,7 @@ findcache(url) {
 /* TopApp: add to cache */
 addcache(name, entry) {
 	this.#cache.push({ url: ImBCBase.basename(name), d: entry.data, l: entry.len, reader: entry.reader, wb: entry.wb });
-	while (this.#cache.length > this.maxcache) this.#cache.splice(0,1);
+	while (this.#cache.length > Math.ceil(this.maxcache)) this.#cache.splice(0,1);
 }
 /* TopApp: worker on message */
 workermsg(msg) {
@@ -25304,7 +25259,7 @@ workermsg(msg) {
 		w0 = this.workerstate[w0i];
 		this.workerstate.splice(w0i,1);
 		if (d.pix) {
-			const l = d?.c?.l ? d?.c?.l: this.findcache(d.n).reader.size;
+			const l = d?.c?.l ? d?.c?.l: this.findcache(d.n)?.reader?.size;
 			const zz = globals.infos.findIndex(v => v.size === l);
 			if (zz === -1) {
 				console.log('preview: unsupported size ' + d.size + ' of ' + d.n);
