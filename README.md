@@ -8,10 +8,10 @@ oder [AUF DEUTSCH](https://shyrodgau.github.io/imbraw2dng/README_de)
  
 ## What to find here
 
-- `imbraw2dng.html` - [Original converter](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) for use in browser from hard disk, internet, or directly from ImB   
-also in different languages as `imbraw2dng_XX.html` (see [Internationalization](#internationalization))
+- `imbapp.htm` - [App-Like converter](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) for use in browser from hard disk, internet, or directly from ImB
 
-- `imbapp.htm` - new [App-Like version of it](https://shyrodgau.github.io/imbraw2dng/imbapp.htm)
+- `imbraw2dng.html` - [Historic version](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html)   
+also in different languages as `imbraw2dng_XX.html` (see [Internationalization](#internationalization))
 
 - `imbapp.apk` - [Real Android app](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk).  For Apple, see [here](#iphone).
 
@@ -116,8 +116,8 @@ or a Canon EG-xxx screen.
 
 ## Internationalization
 
-The current supported langauges are english (EN), japanese (JA) and german (DE). If you save the html file with a name change to `imbraw2dng_XX.html` where `XX` 
-is the language shortcut, it will open the page directly in that language. If you want to contribute to translating, translate what you are reading now or look 
+The current supported langauges are english (EN), japanese (JA) and german (DE). If you save the imbraw2dng.js file with a name change to `imbraw2dng_XX.js` where `XX` 
+is the language shortcut, it will run directly in that language. If you want to contribute to translating, translate what you are reading now or look 
 [here](https://shyrodgau.github.io/imbraw2dng/translations.xls) and get in contact!
 
 ## Command line using node.js
@@ -171,7 +171,7 @@ Disadvantages over the APP from ImB:
 Differences over the APP from ImB:
 - time on device not set automatically on connect, click menu manually (or use Setting to do it automatically)
 
-Advantages over the my classic `imbraw2dng.html` when used on the ImB:
+Advantages over the historic `imbraw2dng.html` when used on the ImB:
 - can set the time of the ImB
 - can take photos and film video
 - faster jpeg previews
@@ -208,21 +208,3 @@ Your preferred settings can be saved in a configuration file for node.js (see ab
 You are welcome to browse the code, help translation or optimizing!
 
 ---------------------------
-
-
-## Original classic quick usage
-
-`.../IMBACK` refers to the path of the device, either by mounting via USB cable (select `MassStorage` on device), or by inserting the Micro SD into the PC or smartphone.
-
-1. Open [imbraw2dng.html](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) in browser. Drag and drop  `.../IMBACK/PHOTO` and `.../IMBACK/MOVIE` into the blue field. [(Details)](#usage)
-
-1. (After copying [imbraw2dng.html](https://raw.githubusercontent.com/shyrodgau/imbraw2dng/master/imbraw2dng.html) into `.../IMBACK` folder on MicroSD and ejecting cleanly) 
-Connect Smartphone or PC in ImB Wifi and navigate browser to [http://192.168.1.254/IMBACK/imbraw2dng.html](http://192.168.1.254/IMBACK/imbraw2dng.html) from ImB.
-
-1. Download [imbraw2dng.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) and invoke `node imbraw2dng.js .../IMBACK`.
-[(Details)](#command-line-using-nodejs)
-
-1. Connect PC into ImB Wifi, download [imbraw2dng.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) and invoke `node imbraw2dng.js -R -J -O`.
-[(Details)](#command-line-using-nodejs)
-
-

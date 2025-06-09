@@ -9,10 +9,10 @@ or [IN ENGLISH](https://shyrodgau.github.io/imbraw2dng/)
  
 ## Hier gibts:
 
-- `imbraw2dng.html` - [Original Konverter](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html) für Browser von Festplatte, Internet oder direkt von ImB    
-auch in verschiedenen Sprachen als `imbraw2dng_XX.html` (siehe [Internationalisierung](#internationalisierung))
+- `imbapp.htm` - [App-artiger Konverter](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) für Browser von Festplatte, Internet oder direkt von ImB
 
-- `imbapp.htm` - neue [app-artige Version davon](https://shyrodgau.github.io/imbraw2dng/imbapp.htm)
+- `imbraw2dng.html` - [Historische Version](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html)    
+auch in verschiedenen Sprachen als `imbraw2dng_XX.html` (siehe [Internationalisierung](#internationalisierung))
 
 - `imbapp.apk` - [Echte Android App](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk). Für Apple, [hier](#iphone) schauen.
 
@@ -124,8 +124,8 @@ einer Fresnel-Scheibe von I'm Back oder einer Canon EG-xxx Mattscheibe verbinden
 
 ## Internationalisierung
 
-Im Moment werden die Sprachen Englisch (EN), Japanisch (JA) und Deutsch (DE) unterstützt. Wenn man die HTML-Datei mit geändertem Namen
-als `imbraw2dng_XX.html` abspeichert, wobei `XX` das Sprachkürzel ist, öffnet sich die Seite direkt in dieser Sprache. Wenn
+Im Moment werden die Sprachen Englisch (EN), Japanisch (JA) und Deutsch (DE) unterstützt. Wenn man die imbraw2dng.js-Datei mit geändertem Namen
+als `imbraw2dng_XX.js` abspeichert, wobei `XX` das Sprachkürzel ist, arbeitet die Seite direkt in dieser Sprache. Wenn
 du beim Übersetzen helfen magst, übersetze die Seite, die du gerade liest oder schau [hier](https://shyrodgau.github.io/imbraw2dng/translations.xls) und nimm Kontakt
 auf.
 
@@ -182,7 +182,7 @@ Nachteile gegenüber APP vom ImB:
 Unterschiede gegenüber APP von ImB:
 - Zeit wird nicht bei jeder Verbindung einstellt, muss manuell aus Menü gewählt werden (oder in Einstellungen auf automatisch ändern)
 
-Vorteile gegenüber meinem klassischen `imbraw2dng.html`, wenn es auf ImB benutzt wird:
+Vorteile gegenüber historischem `imbraw2dng.html`, wenn es auf ImB benutzt wird:
 - Kann die Zeit auf ImB setzen
 - Kann Bilder und Videos aufnehmen
 - JPEG Vorschau schneller
@@ -221,22 +221,3 @@ Persönliche Voreinstellungen können für node.js in einer Konfigurationsdatei 
 Anschauen des Codes ist gern erwünscht.
 
 ------------------------------------
-
-## Original Schnellanleitung klassisch
-
-
-`.../IMBACK` ist das Verzeichnis auf der Micro SD Karte von ImB, zugänglich entweder per USB (`Massenspeicher` auf ImB auswählen), oder durch Einstecken der Micro SD Karte in PC oder Smartphone.
-
-1. [imbraw2dng_de.html](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html) im Browser öffnen. Dateien aus `.../IMBACK/PHOTO` und `.../IMBACK/MOVIE` Ordner in das blaue Feld ziehen. 
-[(Details)](https://shyrodgau.github.io/imbraw2dng/moredoc_de#benutzung)
-
-1. (Nachdem [imbraw2dng_de.html](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html) in den `.../IMBACK` Ordner abgespeichert und Karte sauber ausgeworfen) PC oder Smartphone ins ImB WLAN hängen 
-und dann [http://192.168.1.254/IMBACK/imbraw2dng_de.html](http://192.168.1.254/IMBACK/imbraw2dng_de.html) vom ImB im Browser öffnen. 
-[(Details)](https://shyrodgau.github.io/imbraw2dng/moredoc_de#gucken-auf-imback-selbst)
-
-1. [imbraw2dng_de.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.js) herunterladen und `node imbraw2dng_de.js .../IMBACK` aufrufen. 
-[(Details)](https://shyrodgau.github.io/imbraw2dng/moredoc_de#kommandozeile-mit-nodejs)
-
-1. PC ins WLAN von ImB verbinden, [imbraw2dng_de.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.js) herunterladen und `node imbraw2dng_de.js -R -J -O` aufrufen.
-[(Details)](https://shyrodgau.github.io/imbraw2dng//moredoc_de#kommandozeile-mit-nodejs)
-
