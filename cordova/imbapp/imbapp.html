@@ -25143,7 +25143,7 @@ initsettings() {
 			const delt = this.iinf.length - 33*this.maxcache;
 			for (let jj=0; jj < delt / 2; jj++) {
 				const ee = this.iinf.sort((a,b)=> a.mts > b.mts)[this.iinf.length-1].mts;
-				const uu = this.iinf.findIndex(x => (x.mts === ee && (no - x.mts) > 333*this.maxcache);
+				const uu = this.iinf.findIndex(x => (x.mts === ee && (no - x.mts) > 333*this.maxcache));
 				if (uu !== -1) {
 					this.iinf.splice(uu,1);
 					mdir = true;
@@ -26641,13 +26641,11 @@ function init2() {
 <span class="grtit ggttminus" onclick="ImBCHtml.closep(this);"> DNG </span>
 </div>
 <div class="igxtype">
-<div ><input type="checkbox" id="dngpreview" checked onchange="imbc.chgdngpreview()"> <label for="dngpreview" data-myxlkey="process.addpreview"></label></div>
-<div ><input type="checkbox" id="incdcp" checked onchange="imbc.dirtysettings('incdcp')"> <label for="incdcp" data-myxlkey="process.includedcp"></label></div>
-<div ><input type="checkbox" id="oldstylewb" onchange="imbc.dirtysettings('owb')"> <label for="oldstylewb" data-myxlkey="process.oldstylewb"></label></div>
-<div style="border:5px solid #50a070;max-width:fit-content;border-radius:10px;padding:2px;background-color:rgba(80,160,112,0.3);"><div><input type="checkbox" id="copycheck" onchange="imbc.chgcopycheck()"> <label for="copycheck" data-myxlkey="process.metadata"></label></div>
+<!--div style="border:5px solid #50a070;max-width:fit-content;border-radius:10px;padding:2px;background-color:rgba(80,160,112,0.3);"-->
+<div><input type="checkbox" id="copycheck" onchange="imbc.chgcopycheck()"> <label for="copycheck" data-myxlkey="process.metadata"></label></div>
 <div ><span data-myxlkey="process.addcopyright"></span> <input onchange="imbc.dirtysettings('cr')" type="text" id="copytext" size="22"></input></div>
 <div ><span data-myxlkey="process.addartist">Artist</span> <input onchange="imbc.dirtysettings('at')" type="text" id="artist" size="22"></input></div></div>
-</div>
+<!--/div-->
 </div>
 <div  style="margin-top: 0.5em;" id="genadvice" data-myxlkey="main.generaladvice"></div>
 </div>
@@ -26721,6 +26719,11 @@ function init2() {
 <div class="btop"><span data-myxlkey="app.menu.extras.cachesize">Visual Browser Cache Size:</span> <input type="number" onchange="imbc.chgcache()" id="dbgcache" style="width: 5em;"></div>
 <div><span>Expert Flags:</span> <input type="number" onchange="imbc.chgflags()" id="expflags" style="width: 5em;"></div>
 </div></div>
+<div class="igxtype">
+<div ><input type="checkbox" id="dngpreview" checked onchange="imbc.chgdngpreview()"> <label for="dngpreview" data-myxlkey="process.addpreview"></label></div>
+<div ><input type="checkbox" id="incdcp" checked onchange="imbc.dirtysettings('incdcp')"> <label for="incdcp" data-myxlkey="process.includedcp"></label></div>
+<div ><input type="checkbox" id="oldstylewb" onchange="imbc.dirtysettings('owb')"> <label for="oldstylewb" data-myxlkey="process.oldstylewb"></label></div>
+</div>
 </div>
 <!-- end of the extras -->
 <div id="pages" style="display:none;"><!-- container for navigationable pages -->
