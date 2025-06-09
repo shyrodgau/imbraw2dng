@@ -25131,7 +25131,7 @@ initsettings() {
 		}
 		itm = window.localStorage.getItem(pref + 'ii');
 		if (itm !== null) this.iinf = JSON.parse(itm);
-		/*let mdir = false;
+		let mdir = false;
 		const no = Math.round(Date.now()/60000);
 		for (const e of this.iinf) {
 			if (!e.mts) {
@@ -25150,7 +25150,7 @@ initsettings() {
 				}
 			}
 		}
-		if* (mdir) this.savesettings('ii');*/
+		if* (mdir) this.savesettings('ii');
 		const copytext = document.getElementById('copytext');
 		const artist = document.getElementById('artist');
 		const copycheck = document.getElementById('copycheck');
