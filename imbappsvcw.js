@@ -1,5 +1,5 @@
 /* imbapp caching service worker for offline */
-const curcache = "v7";
+const curcache = "v8";
 const addResourcesToCache = async (resources) => {
   const cache = await caches.open(curcache);
   await cache.addAll(resources);
