@@ -25135,7 +25135,7 @@ initsettings() {
 		const no = Math.round(Date.now()/60000);
 		for (const e of this.iinf) {
 			if (!e.mts) {
-				e.mts = n;
+				e.mts = no;
 				mdir = true;
 			}
 		}
