@@ -28,11 +28,20 @@ self.addEventListener("fetch", async (event) => {
 		  try {
 		  	const u = event.request.url;
 		  	const resp = await fetch(u);
-		  	const ca = await caches.open(curcache);
-		  	setTimeout(() => {
-		  			ca.put(u.url, resp);
-		  	}, 500);
-			return resp;
+		  	const j = await resp.json();
+            const newResponse = new Response(JSON.stringify(j), {
+                status: resp.status,
+                statusText: resp.statusText,
+                headers: resp.headers
+            });
+            const responseToCache = new Response(JSON.stringify(j), {
+                status: resp.status,
+                statusText: resp.statusText,
+                headers: resp.headers
+            });
+            const ca = await caches.open(curcache);
+	  		ca.put(u, responseToCache);
+			return newResponse;
 		  } catch (err) {
 			return caches.match(event.request);
 		  }
