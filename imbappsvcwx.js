@@ -26,10 +26,12 @@ self.addEventListener("fetch", async (event) => {
 	 event.respondWith(
 		(async function () {
 		  try {
-		  	const u = event.request;
+		  	const u = event.request.url;
 		  	const resp = await fetch(u);
 		  	const ca = await caches.open(curcache);
-		  	ca.put(u.url, resp);
+		  	setTimeout(() => {
+		  			ca.put(u.url, resp);
+		  	}, 500);
 			return resp;
 		  } catch (err) {
 			return caches.match(event.request);
