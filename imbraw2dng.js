@@ -849,7 +849,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.2.8_1edb88e", // actually const // VERSION EYECATCHER
+version: "V6.2.8_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -18605,7 +18605,7 @@ xexif(name, view, datestr) {
 	if (iio !== -1) {
 		t[iio].ifd = IFDOut.parseIfd(view, t[iio].val[0] + baseoff, 0);
 	}
-	if (this.corrdelta && datestr) {
+	if (this.corrdelta && datestr?.length) {
 		for (const e of t.filter(v => v.t === 0x9003 || v.t === 0x9004)) {
 			for (let j = 0; j < e.n; j++)
 				view.setUint8(e.addr + j, datestr[j]);
@@ -19134,13 +19134,19 @@ handleone(orientation) {
 		if (!this.neutral) {
 			const xmp1 = `<?xpacket begin='`;
 			const xmp2 = `' id='W5M0MpCehiHzreSzNTczkc9d'?><x:xmpmeta xmlns:x='adobe:ns:meta/'><rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'><rdf:Description rdf:about='' xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:xmp='http://ns.adobe.com/xap/1.0/' xmlns:history="http://purl.org/dc/terms/" dc:source='`;
-			const xmp3 = `' xmp:ModifyDate='`;
+			const xmp3 = `' xmp:CreateDate='`;
+			const xmp3b = `' xmp:ModifyDate='`;
 			const xmp4 = `' xmp:CreatorTool='`;
 			const xmp5 = `'>`;
   			const xmp6 = `</rdf:Description></rdf:RDF></x:xmpmeta><?xpacket end='r'?>`;
 			let xmpx = [ xmp1, xmp2 ];
 			let pvdx = '';
-			if (dateok) xmpx.push(xmp3);
+			let datbytes = [];
+			if (dateok) {
+				xmpx.push(xmp3);
+				xmpx.push(xmp3b);
+				datbytes = txe.encode(datestr.substring(0,4)+'-'+ datestr.substring(5,7)+'-'+datestr.substring(8,10)+'T'+datestr.substring(11));
+			}
 			xmpx.push(xmp4);
 			xmpx.push(xmp5);
 			if (artbytes?.length) {
@@ -19168,12 +19174,8 @@ handleone(orientation) {
 			}
 			else
 				swbytes = txe.encode(ImBCBase.progname + ' ' + globals.version);
-			let datbytes = [];
-			if (dateok) {
-				datbytes = txe.encode(datestr.substring(0,4)+'-'+ datestr.substring(5,7)+'-'+datestr.substring(8,10)+'T'+datestr.substring(11));
-			}
 			xmpx[xmpx.length-1] += xmp6;
-			const xmprdf = new Uint8Array(artbytes.length + rightbytes.length + descbytes.length + 2*swbytes.length + rawnamearr.length + datbytes.length + hxbytes.length +  pvdx.length + 3 + xmpx.reduce((sum, a) => (sum + txe.encode(a).length), 0));
+			const xmprdf = new Uint8Array(artbytes.length + rightbytes.length + descbytes.length + 2*swbytes.length + rawnamearr.length + 2*datbytes.length + hxbytes.length +  pvdx.length + 3 + xmpx.reduce((sum, a) => (sum + txe.encode(a).length), 0));
 			let o=0;
 			let swflag = true, rawflag = true;
 			for (let c = 0; c < xmpx.length; c++) {
@@ -19190,7 +19192,11 @@ handleone(orientation) {
 					o += rawnamearr.length;
 					rawflag = false;
 				}
-				else if (datbytes?.length) {
+				else if (datbytes?.length && c == 2) {
+					xmprdf.set(datbytes, o);
+					o += datbytes.length;
+				}
+				else if (datbytes?.length && c === 3) {
 					xmprdf.set(datbytes, o);
 					o += datbytes.length;
 					datbytes = undefined;
