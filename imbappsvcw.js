@@ -26,7 +26,22 @@ self.addEventListener("fetch", async (event) => {
 	 event.respondWith(
 		(async function () {
 		  try {
-			return await fetch(event.request);
+		  	const u = event.request.url;
+		  	const resp = await fetch(u);
+		  	const tees = resp.body.tee();
+            const newResponse = new Response(tees[0], {
+                status: resp.status,
+                statusText: resp.statusText,
+                headers: resp.headers
+            });
+            const responseToCache = new Response(tees[1], {
+                status: resp.status,
+                statusText: resp.statusText,
+                headers: resp.headers
+            });
+            const ca = await caches.open(curcache);
+	  		ca.put(u, responseToCache);
+			return newResponse;
 		  } catch (err) {
 			return caches.match(event.request);
 		  }
