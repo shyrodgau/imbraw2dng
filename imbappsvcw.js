@@ -1,5 +1,5 @@
 /* imbapp caching service worker for offline */
-const curcache = "v8";
+const curcache = "v9";
 const addResourcesToCache = async (resources) => {
   const cache = await caches.open(curcache);
   await cache.addAll(resources);
@@ -10,7 +10,9 @@ self.addEventListener("install", (event) => {
     addResourcesToCache([
       "imbapp.htm",
       "imbapp.json",
-      "imbappsvcw.js"
+      "imbappsvcw.js",
+      "LICENSE.txt",
+      "HISTORY.txt"
     ]),
   );
 });
@@ -18,6 +20,8 @@ self.addEventListener("install", (event) => {
 self.addEventListener("fetch", async (event) => {
   if (event.request.url.indexOf('imbapp.htm') !== -1
   	  || event.request.url.indexOf('imbapp.json') !== -1
+  	  || event.request.url.indexOf('LICENSE.txt') !== -1
+  	  || event.request.url.indexOf('HISTORY.txt') !== -1
 	  || event.request.url.indexOf('imbappsvcw.js') !== -1) {
 	 event.respondWith(
 		(async function () {
