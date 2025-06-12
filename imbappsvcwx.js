@@ -28,13 +28,13 @@ self.addEventListener("fetch", async (event) => {
 		  try {
 		  	const u = event.request.url;
 		  	const resp = await fetch(u);
-		  	const j = await resp.json();
-            const newResponse = new Response(JSON.stringify(j), {
+		  	const tees = resp.body.tee();
+            const newResponse = new Response(tees[0], {
                 status: resp.status,
                 statusText: resp.statusText,
                 headers: resp.headers
             });
-            const responseToCache = new Response(JSON.stringify(j), {
+            const responseToCache = new Response(tees[1], {
                 status: resp.status,
                 statusText: resp.statusText,
                 headers: resp.headers
