@@ -28,8 +28,8 @@ self.addEventListener("fetch", async (event) => {
 		  try {
 		  	const u = event.request;
 		  	const resp = await fetch(u);
-		  	const ca = caches.open(curcache);
-		  	ca.put(u, resp);
+		  	const ca = await caches.open(curcache);
+		  	ca.put(u.url, resp);
 			return resp;
 		  } catch (err) {
 			return caches.match(event.request);
