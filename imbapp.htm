@@ -26562,7 +26562,7 @@ function init() {
 			window.location.reload();
 		}
 	});
-	setTimeout(() => {
+	//setTimeout(() => {
 		window.addEventListener('beforeinstallprompt', function (event) {
 			imbc.befinp = event;
 			if (imbc.disconnected && !imbc.dnsad2 && imbc.befinp && !imbc.showadmod1 && !wbdrv) {
@@ -26570,7 +26570,7 @@ function init() {
 				//document.getElementById('dnsad2').focus();
 			}
 		});
-	},500);
+	//},500);
 	window.addEventListener('appinstalled', function (event) {
 		imbc.dnsad2 = true;
 		imbc.savesettings('dnsad2');
