@@ -1542,7 +1542,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.3.0_935b926", // actually const // VERSION EYECATCHER
+version: "V6.3.0_c625a17", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -24545,9 +24545,9 @@ savesettings(which) {
 			}
 			else { // imbapp.htm
 				if (which === 'dnsad1')
-					window.localStorage.setItem('imbapp_dnsad1', 'true');
+					window.localStorage.setItem('imbapp_dnsad1', this.dnsad1);
 				if (which === 'dnsad2')
-					window.localStorage.setItem('imbapp_dnsad2', 'true');
+					window.localStorage.setItem('imbapp_dnsad2', this.dnsad2);
 			}
 		}
 		catch (e) {
