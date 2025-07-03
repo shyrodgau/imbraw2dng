@@ -24544,9 +24544,9 @@ savesettings(which) {
 					window.localStorage.setItem(pref + 'f', JSON.stringify(this.dooverwrite));
 			}
 			else { // imbapp.htm
-				if (which === 'dnsad1')
+				if (which === 'dnsad1' || !which?.length || -1 !== which.indexOf('dnsad1'))
 					window.localStorage.setItem('imbapp_dnsad1', this.dnsad1);
-				if (which === 'dnsad2')
+				if (which === 'dnsad2' || !which?.length || -1 !== which.indexOf('dnsad2'))
 					window.localStorage.setItem('imbapp_dnsad2', this.dnsad2);
 			}
 		}
