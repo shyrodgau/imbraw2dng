@@ -26562,15 +26562,15 @@ function init() {
 			window.location.reload();
 		}
 	});
-	//setTimeout(() => {
-		window.addEventListener('beforeinstallprompt', function (event) {
-			imbc.befinp = event;
+	window.addEventListener('beforeinstallprompt', function (event) {
+		imbc.befinp = event;
+		setTimeout(() => {
 			if (imbc.disconnected && !imbc.dnsad2 && imbc.befinp && !imbc.showadmod1 && !wbdrv) {
 				document.getElementById('addmod2').showModal();
 				//document.getElementById('dnsad2').focus();
 			}
-		});
-	//},500);
+		},500);
+	});
 	window.addEventListener('appinstalled', function (event) {
 		imbc.dnsad2 = true;
 		imbc.savesettings('dnsad2');
