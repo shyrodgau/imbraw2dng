@@ -1,5 +1,5 @@
 /* imbapp caching service worker for offline */
-const curcache = "vA";
+const curcache = "vB";
 const addResourcesToCache = async (resources) => {
   const cache = await caches.open(curcache);
   await cache.addAll(resources);
@@ -32,12 +32,14 @@ self.addEventListener("fetch", async (event) => {
             const newResponse = new Response(tees[0], {
                 status: resp.status,
                 statusText: resp.statusText,
-                headers: resp.headers
+                headers: resp.headers,
+                url: u
             });
             const responseToCache = new Response(tees[1], {
                 status: resp.status,
                 statusText: resp.statusText,
-                headers: resp.headers
+                headers: resp.headers,
+                url: u
             });
             const ca = await caches.open(curcache);
 	  		ca.put(u, responseToCache);
