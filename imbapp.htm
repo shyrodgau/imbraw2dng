@@ -22252,9 +22252,9 @@ savesettings(which) {
 			}
 			else { // imbapp.htm
 				if (which === 'dnsad1')
-					window.localStorage.setItem('imbapp_dnsad1', 'true');
+					window.localStorage.setItem('imbapp_dnsad1', this.dnsad1);
 				if (which === 'dnsad2')
-					window.localStorage.setItem('imbapp_dnsad2', 'true');
+					window.localStorage.setItem('imbapp_dnsad2', this.dnsad2);
 			}
 		}
 		catch (e) {
