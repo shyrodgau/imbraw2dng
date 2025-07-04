@@ -206,6 +206,8 @@ Or use [imbdng2raw.html](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html)
 
 The android app consists of the same HTML/Javascript code as the html pages but wrapped with Apache Cordova. Building an IOS App should be possible similarly, but I neither own a Mac nor an iphone. If someone would like to help out??
 
+[Would look somehow like this](https://www.facebook.com/groups/imbackofficial/posts/1656635048623845/?__cft__[0]=AZUQGC5WjATUlof9OXx2kE7BZLYYyqvhqUxhPdWTr9FO4NQBNIas8aA9MyhgNrgwVi49RuFZHBUUa-BH2mrAIYT1HQ8NRqvdRuaopAgHHT71hD1ZsDm4yuag3Lez_Ok74OVOYIY2tGymh9nIzngaZ9bCO0_dj-dGBLbPSxlXcZJc5g&__tn__=%2CO%2CP-R)
+
 ### etc.
 
 Your preferred settings can be saved in a configuration file for node.js (see above) or in the browser when you load it from a web server (internet or from ImB).
