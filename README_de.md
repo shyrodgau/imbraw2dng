@@ -129,6 +129,8 @@ als `imbraw2dng_XX.js` abspeichert, wobei `XX` das Sprachkürzel ist, arbeitet d
 du beim Übersetzen helfen magst, übersetze die Seite, die du gerade liest oder schau [hier](https://shyrodgau.github.io/imbraw2dng/translations.xls) und nimm Kontakt
 auf.
 
+Z.B. [historische deutsche Version](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html), [historische japanische Version](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_ja.html) (gleiche Dateien, nur anderer Name). 
+
 ## Kommandozeile mit node.js
 
 Sofern man [node.js](https://nodejs.org) in Version &ge; V20.10(LTS) hat, kann man die Konvertierung auf der Kommandozeile durchführen. Hierzu die Datei 

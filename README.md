@@ -121,6 +121,8 @@ The current supported langauges are english (EN), japanese (JA) and german (DE).
 is the language shortcut, it will run directly in that language. If you want to contribute to translating, translate what you are reading now or look 
 [here](https://shyrodgau.github.io/imbraw2dng/translations.xls) and get in contact!
 
+E.g. [historic german version](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html), [historic japanese version](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_ja.html) (same files, different names). 
+
 ## Command line using node.js
 
 If and when you have [node.js](https://nodejs.org) version &ge; V20.10(LTS) installed, you can do the conversion via command line by getting the file 
