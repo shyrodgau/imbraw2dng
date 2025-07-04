@@ -4,7 +4,7 @@
 そのほとんどはフリーソフトウェア ([0 条項 BSD ライセンス](LICENSE.txt)) であり、商用サポートは提供されていません。
 
 または [deutsch](https://shyrodgau.github.io/imbraw2dng/README_de)   
-  [englisch](https://shyrodgau.github.io/imbraw2dng/README)
+  [english](https://shyrodgau.github.io/imbraw2dng/README)
 
 ## ここで見つけるもの
 
