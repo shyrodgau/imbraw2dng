@@ -9,12 +9,12 @@ or [IN ENGLISH](https://shyrodgau.github.io/imbraw2dng/)
  
 ## Hier gibts:
 
-- `imbapp.htm` - [App-artiger Konverter](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) für Browser von Festplatte, Internet oder direkt von ImB
+- [`imbapp.htm`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm)  - App-artiger Konverter für Browser von Festplatte, Internet oder direkt von ImB
 
-- `imbraw2dng.html` - [Historische Version](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html)    
+- [`imbraw2dng.html`](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html) - Historische Version    
 auch in verschiedenen Sprachen als `imbraw2dng_XX.html` (siehe [Internationalisierung](#internationalisierung))
 
-- `imbapp.apk` - [Echte Android App](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk). Für Apple, [hier](#iphone) schauen.
+- [`imbapp.apk`](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk) - Echte Android App. Für Apple, [hier](#iphone) schauen.
 
 - [`imbraw2dng.js`](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) - Node.js Version für Benutzung auf der Kommandozeile   
 auch in verschiedenen Sprachen als `imbraw2dng_XX.js` (siehe [Internationalisierung](#internationalisierung))
@@ -28,27 +28,23 @@ Es sind keine "Schwarz-Weiß RAW"-Dateien, sondern die echten Roh-Sensordaten mi
 
 DNG ist ein auf TIFF basierendes Dateiformat, das hauptsächlich konstante Daten um die ursprünglichen Bilddaten herum hat. 
 Bei Dateien von MF und Film ist die Farbfilter-Matrix (Color Filter Array) anders.
-Bei der Konvertierung nach DNG werden die Zeitstempel-Metadaten gesetzt, wenn der Dateiname wie ein normaler I'm Back Dateiname 
-aussieht (also `JJJJ_MMDD_hhmmss`), und OriginalRawFilename auf den Namen der RAW Eingabedatei. Somit können die DNG Dateien nach belieben 
-benannt werden, ohne viel der ursprünglichen Daten zu verlieren.
 
 Probleme und Ideen können auch unter "[Issues](https://github.com/shyrodgau/imbraw2dng/issues)" oder "[Discussions](https://github.com/shyrodgau/imbraw2dng/discussions)"  
 des [github Repositorys](https://github.com/shyrodgau/imbraw2dng) oder in der [I'm Back Users Gruppe auf Facebook](https://www.facebook.com/groups/1212628099691211) diskutiert werden.
 
 ## Los gehts
 
-Wenn jemand Android benutzt, probiert die [Android app](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk)
+Wenn jemand Android benutzt, probiert die [Android app](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk), mit dem Androiden im ImB WLAN.
 
 Wenn es jemand auf dem PC oder Smartphone im Browser verwenden möchte, folgende Möglichkeiten:
 
-- eine (oder beide) [neuere `IMBAPP.HTM`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) oder [klassiche `IMBRAW2DNG.HTML`](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html)   
+- die Datei [`IMBAPP.HTM`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) und/oder [historische `IMBRAW2DNG.HTML`](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html)   
 direkt im Internet benutzen oder auf die Festplatte oder sonstwohin kopieren.    
 (**Alle Daten bleiben im Browser!**)   
 In diesem Fall müssen die Dateien von ImB per USB, Micro SD Adapter, original App oder sonstwie geholt werden.
 
-- <a name="browsing-on-the-imback">  </a>wenn man diese Datei(en) auf die MicroSD vom ImB schiebt, ([wie macht man das?](#wie-kopiere-ich-html-dateien-auf-die-microsd)), kann Holen und Konvertieren nach DNG zusammengefasst werden (JPG und Filme können auch geholt werden).   
-`http://192.168.1.254/IMBACK/IMBAPP.HTM` (neuer, kann auch die Zeit einstellen und Bilder und Video aufnehmen!) oder   
-`http://192.168.1.254/IMBACK/IMBRAW2DNG.HTML`  (klassisch, nur herunterladen und konvertieren)   
+- <a name="browsing-on-the-imback">  </a>wenn man diese Datei auf die MicroSD vom ImB schiebt, ([wie macht man das?](#wie-kopiere-ich-html-dateien-auf-die-microsd)), kann Holen und Konvertieren nach DNG zusammengefasst werden (JPG und Filme können auch geholt werden).   
+`http://192.168.1.254/IMBACK/IMBAPP.HTM` (neuer, kann auch die Zeit einstellen und Bilder und Video aufnehmen!)   
 **Das Gerät, auf dem die Seite geöffnet wird, muss im ImB WLAN sein.**
 
 
@@ -57,9 +53,11 @@ man im WLAN ist. [Kommandozeilen-Doku](#kommandozeile-mit-nodejs)
 
 ## Wie kopiere ich HTML Dateien auf die MicroSD?
 
+.... wenn man direkt mit dem Browser per WLAN von ImB herunterladen/konvertieren möchte.
+
 #### Android
 
-Die [echte App](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk) installieren und Extras Menü schauen.
+Die [echte App](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk) installieren, dann ins ImB WLAN und Extras Menü schauen.
 
 #### Mit einem Micro SD Kartenleser/Adapter oder USB-Kabel
 
@@ -91,8 +89,10 @@ Der Browser wird das Herunterladen gemäß seiner Download-Einstellungen machen,
 Datei gespeichert werden soll, wenn er so eingestellt ist, oder alle Dateien ins Downloads Verzeichnis schreiben (unter Umständen mit 
 Umbenennung), wenn er so eingestellt ist, oder, oder, oder...
 
+Bedienung der Android-App, oder wenn die Konverter-Seite direkt im Browser von ImB geladen wird, sollte intuitiv sein. Für wen das nicht der Fall ist, bitte melden.
+
 Bei der Konvertierung nach DNG werden die Zeitstempel-Metadaten gesetzt, wenn der Dateiname wie ein normaler I'm Back Dateiname 
-aussieht (also `JJJJ_MMDD_hhmmss`), und OriginalRawFilename auf den Namen der RAW Eingabedatei. Somit können die DNG Dateien nach belieben 
+aussieht, und OriginalRawFilename auf den Namen der RAW Eingabedatei. Somit können die DNG Dateien nach belieben 
 benannt werden, ohne viel der ursprünglichen Daten zu verlieren.
 
 Falls jemals das Original-RAW wieder benötigt wird (z.B. um es mit einer neueren Version nochmal zu konvertieren), ist das mit [imbdng2raw.html](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html) möglich.
@@ -149,11 +149,13 @@ Optionen:
  -np - Kein kleines Vorschaubild im DNG
  -owb - Alten konstanten Weißabgleich verwenden
  -ndcp - neues DCP Profil nicht einbetten
- -cr copyright - Copyrightvermerk zum DNG dazufügen
+ -cr "copyright..." - Copyrightvermerk zum DNG dazufügen
+ -at "autor..." - Autor/Ersteller zum DNG dazufügen
  -fla, -flx - mehrere Bilder als Langzeitbelichtung aufaddieren, flx skaliert dabei herunter
  -R - RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen konvertieren
  -J - JPEG von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren
  -O - Nicht-JPEG/Nicht-RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren
+ -da rightigerzeitstempel=kamerazeitstempel - korrigiere Zeit (Format yyyy_mm_dd-hh_mm_ss)
  -n yyyy_mm_dd-hh_mm_ss (oder beliebig langer Anfang davon) - nur Dateien neuer als dieser Zeitstempel von ImB oder übergebenen Verzeichnissen holen
  -----
  -- - weitere Parameter als lokale Dateien oder Ordner betrachten
@@ -189,13 +191,12 @@ Vorteile gegenüber historischem `imbraw2dng.html`, wenn es auf ImB benutzt wird
 - Bildparameter (Größe, Belichtungskorrektur etc.) können gesetzt werden
 
 
-Nachteile gegenüber bisherigem imbraw2dng, wenn nicht auf ImB benutzt:
-- schrittweise Verarbeitung gibt es nicht mehr, es wird entweder alles (wenn man Dateien auswählt) verarbeitet oder der Bild-Browser präsentiert (bei drag-and-drop). Jetzt auch mit Lupe und Navigation darin.
-
 ### EXIF
 
 Die EXIF Daten in den JPEG Bildern von ImB sind nur eingeschränkt nützlich, da sie die Perspektive vom ImB Sensor abbilden. Aber wenn sie in den DNG Dateien drin gewünscht werden, ist das möglich. Zuerst das JPEG und dann das passende RAW verarbeiten.
 "Passend" ist definiert als: Zeitunterschied < 5 sec. und Unterschied des Zähler (letzter Teil des Dateinamens) eins. Muss nicht direkt aufeinanderfolgend sein, erst alle JPEGs und dann die RAWs sollte tun.
+
+Es können für alle Bilder Metadaten Autor/Ersteller und Copyright sowie pro Bild eine Beschreibung direkt gesetzt werden.
 
 ### Lange Aufnahme simulieren<a name="a-lot-more-tricks-and-details"> </a>
 

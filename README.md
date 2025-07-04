@@ -8,12 +8,12 @@ oder [AUF DEUTSCH](https://shyrodgau.github.io/imbraw2dng/README_de)
  
 ## What to find here
 
-- `imbapp.htm` - [App-Like converter](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) for use in browser from hard disk, internet, or directly from ImB
+- [`imbapp.htm`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) - App-Like converter for use in browser from hard disk, internet, or directly from ImB
 
-- `imbraw2dng.html` - [Historic version](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html)   
+- [`imbraw2dng.html`](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) - Historic version   
 also in different languages as `imbraw2dng_XX.html` (see [Internationalization](#internationalization))
 
-- `imbapp.apk` - [Real Android app](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk).  For Apple, see [here](#iphone).
+- [`imbapp.apk`](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk) - Real Android app.  For Apple, see [here](#iphone).
 
 - [`imbraw2dng.js`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js) - Node.js version for command line use   
 also in different languages as `imbraw2dng_XX.js`  (see [Internationalization](#internationalization))
@@ -27,26 +27,23 @@ The ImB RAWs are not really "B&W RAW" but actually the RAW sensor data that also
 
 DNG is an open TIFF-like format and consists mainly of constant data around the original image scanlines. 
 If it is from an MF or Film ImB then the Color Filter Array is different.
-Conversion to DNG currently sets the Timestamp Tags if the filename seems to be a reasonable I'm Back filename (i.e. `YYYY_MMDD_hhmmss`), and the 
-OriginalRawFilename to the name of the RAW inputfile. That way you can name the DNG file whatever you like without losing much of the original information.
 
 Problems and ideas can also be discussed on the "[Issues](https://github.com/shyrodgau/imbraw2dng/issues)" or "[Discussions](https://github.com/shyrodgau/imbraw2dng/discussions)" tabs 
 of the [github repos](https://github.com/shyrodgau/imbraw2dng) or in the [I'm Back Users Group on Facebook](https://www.facebook.com/groups/1212628099691211).
 
 ## Get Started
 
-If you use android, try the [Android app](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk)
+If you use android, try the [Android app](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk) with your android device in the ImB Wifi.
 
 If you prefer using it in the browser on your PC or smartphone, there are the choices:
 
-- use one (or both) of the [newer `IMBAPP.HTM`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) or [classic `IMBRAW2DNG.HTML`](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) 
+- use the [`IMBAPP.HTM`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) and/or [historic `IMBRAW2DNG.HTML`](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) 
 directly from the internet or copy them anywhere you like on your harddisk or memory.   
 (**All data will stay inside your browser!**)   
 In this case, you need to transfer the files from ImB or access the MicroSD via USB, adapter, original ImB App or whatsoever.
 
-- <a name="browsing-on-the-imback">  </a>when you copy one (or both) of the versions onto the MicroSD into the `IMBACK` folder ([How do I do that?](#how-do-i-copy-html-files-to-the-microsd)), you can directly combine download and conversion to DNG: (videos and JPG can also be downloaded)    
-`http://192.168.1.254/IMBACK/IMBAPP.HTM` (newer, also allows to set the clock time, record video or take pictures!) or   
-`http://192.168.1.254/IMBACK/IMBRAW2DNG.HTML`  (classic, only download and conversion)   
+- <a name="browsing-on-the-imback">  </a>when you copy that file directly onto the MicroSD into the `IMBACK` folder ([How do I do that?](#how-do-i-copy-html-files-to-the-microsd)), you can directly combine download and conversion to DNG: (videos and JPG can also be downloaded)    
+`http://192.168.1.254/IMBACK/IMBAPP.HTM` (newer, also allows to set the clock time, record video or take pictures!)   
 **The device where you open the page needs to be in the ImB Wifi.**
 
 If you like to use the command line, you can use the [imbraw2dng.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) with node.js. It can also access the ImB if you are in the device Wifi. 
@@ -55,9 +52,11 @@ If you like to use the command line, you can use the [imbraw2dng.js](https://shy
 
 ## How do I copy HTML files to the MicroSD?
 
+.... when you want to download/convert directly in your browser from ImB.
+
 #### Android:
 
-Install the [real app](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk) and use the extras menu.
+Install the [real app](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk), then enter ImB Wifi and use the extras menu.
 
 #### Using a Micro SD reader/adapter or USB cable
 
@@ -87,7 +86,9 @@ files exactly and convert the RAW files to DNG, replacing the `.raw`/`.RAW` file
 Your browser will download them according to its download settings, so it might pop up a dialog where to save it for each file if so configured, or 
 throw all files into your Downloads directory (possibly renaming it) if so configured , or, or, or...
 
-Conversion to DNG currently sets the Timestamp Tags if the filename seems to be a reasonable I'm Back filename (i.e. `YYYY_MMDD_hhmmss`), and the 
+When you use the android app or point browser directly to the converter page on your ImB, it should be intuitive! If you do not think so, let me know.
+
+Conversion to DNG currently sets the Timestamp Tags if the filename seems to be a reasonable I'm Back filename, and the 
 OriginalRawFilename to the name of the RAW inputfile. That way you can name the DNG file whatever you like without losing much of the original information.
 
 If you ever need to revert the original RAW from the DNG (e.g. to do the conversion again with a never version), this is possbile using [imbdng2raw.html](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html)
@@ -139,11 +140,13 @@ Options:
  -np - Do not add preview thumbnail to DNG
  -owb - Use old style constant white balance
  -ndcp - Do not include new DNG Color profile
- -cr 'copyright...' - add copyright to DNG
+ -cr "copyright..." - add copyright to DNG
+ -at "author..." - add author/creator to DNG
  -fla, -flx - add multiple images to fake long exposure, flx scales down
- -R - get RAW from ImB connected via Wifi or from given directories
+ -R - convert RAW from ImB connected via Wifi or from given directories
  -J - get JPEG from ImB connected via Wifi or from given directories
  -O - get non-RAW/non-JPEG from ImB connected via Wifi or from given directories
+ -da correcttimestamp=cameratimestamp - time stamp correction (format yyyy_mm_dd-hh_mm_ss)
  -n yyyy_mm_dd-hh_mm_ss (or prefix of any length) - select only newer than this timestamp from ImB or from given directories
  -----
  -- - treat rest of parameters as local files or dirs
@@ -177,13 +180,13 @@ Advantages over the historic `imbraw2dng.html` when used on the ImB:
 - faster jpeg previews
 - can set image parameters (size, EV...)
 
-Disadvantages over the classic imbraw2dng when not used on the ImB:
-- step-by-step is gone, either process all (file select button) or use app-like the picture browser (on drag and drop). Also now magnification glass with navigation.
 
 ### EXIF
 
 The EXIF data in the JPEG files from ImB is of limited use, because it reflects the perspective of the ImB optics and sensor and not of the actual camera. But if you would like to add it to your DNG files, this is possible. Process the JPEG first and then the corresponding RAW.
 Corresponding is defined as: time difference < 5 sec and counter (last part of filename) difference 1. It is not neccessary to be directly consecutive, first all JPEGs and then the RAWs should do it.
+
+Author/creator and copyright metadata can be set globally, and per-image a description can be set.
 
 ### Long Exposure<a name="a-lot-more-tricks-and-details"> </a>
 
