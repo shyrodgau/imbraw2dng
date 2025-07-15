@@ -64,7 +64,7 @@ Die [echte App](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp
 Die Micro SD aus der ImB entnehmen und in (einen Adapter am) Computer stecken, oder Computer und ImB via USB verbinden und auf ImB `Massenspeicher` wählen
 
 Inhalt der Micro SD/USB-Laufwerk öffnen, könnte `VOLUME1`  oder `0000-0001` heißen und müsste einen Ordner namens `IMBACK` oder `imback` enthalten.  
-Mit dem Dateiexplorer oder Betriebssystem die heruntergeladene Datei `imbapp.htm` in diesen `IMBACK` Ordner kopieren.  
+Mit dem Dateiexplorer oder Betriebssystem die [heruntergeladene Datei `imbapp.htm`](https://raw.githubusercontent.com/shyrodgau/imbraw2dng/master/imbapp.htm) in diesen `IMBACK` Ordner kopieren.  
 <!--Und/oder diese Datei in `imbapp_de.html` umbenennen. (Achtung, `html` statt `htm`)-->
 
 Micro SD aus dem Computer auswerfen und wieder ins ImB stecken - fertig.
@@ -75,7 +75,7 @@ Smartphone oder Computer in das ImB WLAN stecken..
 
 Neues Browserfenster (oder Registerkarte) verwenden, um auf  [http://192.168.1.254/IMBACK/](http://192.168.1.254/IMBACK/) zu navigieren.
 
-`Datei auswählen` klicken und die gerade heruntergeladene `imbapp.htm` auswählen. Auf `upload file` (exakter Wortlaut muss geprüft werden) - fertig!
+`Datei auswählen` klicken und die gerade [heruntergeladene `imbapp.htm`](https://raw.githubusercontent.com/shyrodgau/imbraw2dng/master/imbapp.htm) auswählen. Auf `upload file` (exakter Wortlaut muss geprüft werden) - fertig!
 
 
 ## Benutzung

@@ -64,7 +64,7 @@ Take the Micro SD from your back and insert it into Micro SD Adapter on your com
 
 Open the contents of the Micro SD/USB drive, it might be named `VOLUME1` or `0000-0001` and you should see a folder named `imback` or `IMBACK`.
 
-Use your operating system/file explorer to copy the file `imbapp.htm` that you downloaded into the `imback` or `IMBACK` folder.  
+Use your operating system/file explorer to copy the file [`imbapp.htm` that you downloaded](https://raw.githubusercontent.com/shyrodgau/imbraw2dng/master/imbapp.htm) into the `imback` or `IMBACK` folder.  
 <!--You can rename it with a language code `XX` (DE, JA, FR, more translations needed!) to `imbapp_XX.html` (note: `html` instead of `htm`!), but then you need to adjust the link below.-->
 
 Eject the Micro SD from computer or phone and put back into your device - ready!
@@ -75,7 +75,7 @@ Put your Phone or PC into the ImB Wifi.
 
 Use a new browser window or tab, navigate to [http://192.168.1.254/IMBACK/](http://192.168.1.254/IMBACK/).
 
-Click on `Choose file` and select the `imbapp.htm` you just downloaded. Click `upload file` (wordings need to be checked) - ready!
+Click on `Choose file` and select the [`imbapp.htm` you just downloaded](https://raw.githubusercontent.com/shyrodgau/imbraw2dng/master/imbapp.htm). Click `upload file` (wordings need to be checked) - ready!
 
 
 ## Usage
