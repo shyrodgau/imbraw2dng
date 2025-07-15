@@ -1542,7 +1542,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.3.2_e593448", // actually const // VERSION EYECATCHER
+version: "V6.3.2_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -19764,24 +19764,22 @@ handleone(orientation) {
 				metadatalen++;
 			}
 		}
-		let exifopen = false, exifbasics = false;
-		if (artbytes.length || rightbytes.length || descbytes.length) {
-			ti.addSubIfd(34665);
-			exifopen = true;
-			if (this.metadata && rightbytes.length)
-				ti.addEntry(33432, 'ASCII', rightbytes); /* copyright */ /* https://www.iptc.org/std/photometadata/documentation/mappingguidelines/ */
-			if (this.metadata && artbytes.length)
-				ti.addEntry(315, 'ASCII', artbytes); /* artist */ /* https://www.iptc.org/std/photometadata/documentation/mappingguidelines/ */
-			if (descbytes.length)
-				ti.addEntry(270, 'ASCII', descbytes); /* image description */ /* https://www.iptc.org/std/photometadata/documentation/mappingguidelines/ */
-		}
+		ti.addSubIfd(34665); /* **************************************** */
+		if (this.metadata && rightbytes.length)
+			ti.addEntry(33432, 'ASCII', rightbytes); /* copyright */ /* https://www.iptc.org/std/photometadata/documentation/mappingguidelines/ */
+		if (this.metadata && artbytes.length)
+			ti.addEntry(315, 'ASCII', artbytes); /* artist */ /* https://www.iptc.org/std/photometadata/documentation/mappingguidelines/ */
+		if (descbytes.length)
+			ti.addEntry(270, 'ASCII', descbytes); /* image description */ /* https://www.iptc.org/std/photometadata/documentation/mappingguidelines/ */
+		ti.addEntry(36867, 'ASCII', datestr); /* Original date time */
+		ti.addEntry(36864, 'UNDEFINED', [48,50,51,48]); /* exif version 0230 */
+		ti.addEntry(40962, 'LONG', [w]); /* width */
+		ti.addEntry(40963, 'LONG', [h]); /* height */
 		if (myexif) {
-			if (!exifopen)
-				ti.addSubIfd(34665);
-			exifopen = true;
-			exifbasics = true;
 			for (const x of myexif) {
-				if ((x.t === 0x9003 || x.t === 0x9004) && this.corrdelta && datestr) {
+				if (x.t === 0x9003 || x.t === 40962 || x.t === 40963)
+					continue;
+				else if (x.t === 0x9004 && this.corrdelta && datestr) {
 					// date
 					ti.addEntry(x.t, x.y, datestr);
 				}
@@ -19790,7 +19788,6 @@ handleone(orientation) {
 					ti.addSubIfd(37500);
 					ti.addEntry(37500, 'UNDEFINED', x.val);
 					ti.closeSub();
-					//ti.addEntry(x.t, x.y, [1,0,0,0]);
 				}
 				else if (x.t === 40965) {
 					// interop
@@ -19800,29 +19797,11 @@ handleone(orientation) {
 					}
 					ti.closeSub();
 				}
-				else if (x.t === 40962) {
-					ti.addEntry(x.t, x.y, [w]);
-					// dimensions
-					continue;
-				}
-				else if (x.t === 40963) {
-					ti.addEntry(x.t, x.y, [h]);
-					// dimensions
-					continue;
-				}
 				else
 					ti.addEntry(x.t, x.y, x.val);
 			}
 		}
-		if (exifopen) {
-			if (!exifbasics) {
-				ti.addEntry(36864, 'UNDEFINED', [48,50,51,48]); /* exif version */
-				ti.addEntry(36867, 'ASCII', datestr); /* Original date time */
-				ti.addEntry(40962, 'LONG', [w]); /* width */
-				ti.addEntry(40963, 'LONG', [h]); /* height */
-			}
-			ti.closeSub();
-		}
+		ti.closeSub();  /* **************************************** */
 		if (metadatalen) this.appmsg(metadatastr);
 		if (!this.neutral) {
 			const xmp1 = `<?xpacket begin='`;
