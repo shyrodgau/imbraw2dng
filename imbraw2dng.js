@@ -849,7 +849,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.3.1_7b0cf53", // actually const // VERSION EYECATCHER
+version: "V6.3.1_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -19004,7 +19004,7 @@ handleone(orientation) {
 		if (hbytes.length === this.#historystring.length)
 			ti.addEntry(37395, 'ASCII', this.#historystring); /* image history */
 		else
-			ti.addEntry(37395, 'BYTES', hbytes); /* image history */
+			ti.addEntry(37395, 'BYTE', hbytes); /* image history */
 		let privdatstr = 'IMBACK.EU_SHY ' + this.#historystring;
 		if (this.imbweb?.length) {
 			privdatstr += (' (' + this.imbweb + ')');
