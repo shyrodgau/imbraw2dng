@@ -1542,7 +1542,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.3.2_74a9099", // actually const // VERSION EYECATCHER
+version: "V6.3.2_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -22650,8 +22650,8 @@ writewrap(name, type, okmsg, arr1, origname) {
 }
 /* AndroidSpec: output one thing via browser */
 writefile(name, type, okmsg, arr1, origname, renameidx) {
-	let ext1 = name.substring(name.length -4).toUpperCase();
-	let ext2 = origname?.length ? origname.substring(origname.length -4).toUpperCase() : '';
+	let ext1 = ImBCBase.ucex(name);
+	let ext2 = origname?.length ? ImBCBase.ucex(origname) : '';
 	if (this.cancelled) return this.handlenext();
 	//if (undefined === basename) basename = name;
 	if (undefined === this.rootfs) {
@@ -22999,7 +22999,7 @@ intentinthandler(optarg) {
 	if (this.allfiles.length > 1) {
 		// only DNG for mode 2, stack?
 		let onlydng = true;
-		this.allfiles.map((mi) => { if (mi.name.substring(mi.name.length -4).toUpperCase() !== '.DNG') onlydng = false; });
+		this.allfiles.map((mi) => { if (ImBCBase.ucex(mi.name) !== '.DNG') onlydng = false; });
 		if (onlydng) {
 			// ask if average or sum...
 			if (!optarg) {
@@ -23013,7 +23013,7 @@ intentinthandler(optarg) {
 	}
 	if (this.allfiles.length === 1) {
 		// only DNG for mode 3, backward?
-		if (this.allfiles[0].name.substring(this.allfiles[0].name.length -4).toUpperCase() === '.DNG') {
+		if (ImBCBase.ucex(this.allfiles[0].name) === '.DNG') {
 			// backward goes loose
 			this.fromintent = 3;
 		}
@@ -23062,7 +23062,10 @@ intenthandler(intent) {
 			   }
 			   i.data = d;
 			   i.name = ImBCBase.basename(decodeURIComponent(i.uri));
-			   this.allfiles.push(i);
+			   if (ImBCBase.ucex(i.name) === '.RAW')
+			   	   this.allfiles.push(i);
+			   else
+			   	   this.allfiles.unshift(i);
 			   n++;
 			   if (n === intent.clipItems.length) {
 				   this.intentinthandler();
