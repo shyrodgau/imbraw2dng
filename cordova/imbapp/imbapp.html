@@ -477,7 +477,7 @@ body { margin: 0; }
 #xmag .btnsrow { position: fixed !important; bottom: 1em !important;top:auto !important;background: none !important; padding:0 !important;}
 .btnsrow { position: absolute; top: 2em; left: 0.5em; height: 0.8em; width: 4em; padding:0.3em;background-color: rgba(200,200,180,0.5); }
 /*div[data-state='load'] .btnsrow, div[data-state='wait'] .btnsrow, div[data-state='err'] .btnsrow { display: none; }*/
-div[data-state='load'] .btnsrow, div[data-state='err'] .btnsrow { display: none; }
+div[data-state='wait'] .btnsrow, div[data-state='load'] .btnsrow, div[data-state='err'] .btnsrow { display: none; }
 .oth_CL .btnsrow, .JPG_CL .btnsrow { width: 2em; }
 .JPG_CL .rotbtn, .oth_CL .rotbtn { display: none; }
 .picdeleted .magbtn { display: none; }
@@ -1542,7 +1542,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.3.3_367b77b", // actually const // VERSION EYECATCHER
+version: "V6.3.2_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -1976,12 +1976,96 @@ getPix: function(x, y, w, view, typ, whitelvl) {
 	outrgb.push((blues[1] + blues[2]) / 2.0);
 	return outrgb;
 },
+/* globals: get one downsampled median image value [ r g b ] but only 2x2 */
+getPixh: function(x, y, w, view, typ, whitelvl) {
+	let outrgb = [];
+	const w3 = w + (typ >= 64 ? w : (w>>1));
+	const xx = x + (typ >= 64 ? x : (x>>1));
+	let shiftr = 0, wbx = 255;
+	while (whitelvl > wbx) {
+		wbx = (2*(wbx+1)) -1;
+		shiftr ++;
+	}
+	const dd = (typ === 5 || typ === 69) ? 240 : 0;
+	if (typ === 5 || typ == 33) {
+		/* film or stacked 35mm */
+		outrgb.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+	}
+	else if (typ === 69 || typ == 65) {
+		/* 16 bit film or 35mm */
+		outrgb.push(((view.getUint8((y+0)*w3 + xx+2) +  ((view.getUint8((y+0)*w3 + xx+3)) << 8))-dd)>>shiftr);
+	}
+	else if (typ > 64) {
+		/* 16 bit mf */
+		outrgb.push(((view.getUint8((y+1)*w3 + xx+2) +  ((view.getUint8((y+1)*w3 + xx+3)) << 8))-dd)>>shiftr);
+	}
+	else if (typ > 33) {
+		/* stacked mf */
+		outrgb.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+	}
+	else if (typ > 1) {
+		/* mf */
+		outrgb.push(view.getUint8((y+1)*w + x + 1));
+	} else {
+		/* 35mm */
+		outrgb.push(view.getUint8(y*w + x + 1));
+	}
+	let greens = [];
+	if (typ === 5 || typ == 33) {
+		/* film or stacked 35mm */
+		greens.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+	}
+	else if (typ === 69 || typ == 65) {
+		/* 16 bit film or stacked 35mm */
+		greens.push((((view.getUint8((y+0)*w3 + xx+0)) +  ((view.getUint8((y+0)*w3 + xx+1) <<8)))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+2) +  ((view.getUint8((y+1)*w3 + xx+3)) << 8))-dd)>>shiftr);
+	}
+	else if (typ > 64) {
+		/* 16 bit mf */
+		greens.push((((view.getUint8((y+0)*w3 + xx+2)) +  ((view.getUint8((y+0)*w3 + xx+3) <<8)))-dd)>>shiftr);
+		greens.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1)) << 8))-dd)>>shiftr);
+	}
+	else if (typ > 33) {
+		/* stacked mf */
+		greens.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		greens.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+	}
+	else if (typ > 1) {
+		greens.push(view.getUint8(y*w + x + 1));
+		greens.push(view.getUint8((y+1)*w + x));
+	} else {
+		greens.push(view.getUint8(y*w + x));
+		greens.push(view.getUint8((y+1)*w + x + 1));
+	}
+	greens.sort(function(a,b) { return a - b; });
+	outrgb.push((greens[0] + greens[1]) / 2.0);
+	if (typ === 5 || typ === 33) {
+		outrgb.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+	}
+	else if (typ === 69 || typ === 65) {
+		outrgb.push((((view.getUint8((y+1)*w3 + xx+0)) +  ((view.getUint8((y+1)*w3 + xx+1) ) <<8))-dd)>>shiftr);
+	}
+	else if (typ > 65) {
+		outrgb.push((((view.getUint8((y+0)*w3 + xx+0)) +  ((view.getUint8((y+0)*w3 + xx+1) ) <<8))-dd)>>shiftr);
+	}
+	else if (typ > 33) {
+		outrgb.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+	}
+	else if (typ > 1) {
+		outrgb.push(view.getUint8(y*w + x));
+	} else {
+		outrgb.push(view.getUint8((y+1)*w + x));
+	}
+	return outrgb;
+},
 /* globals: build preview in array */
 buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) {
 	if (undefined === wb) wb = [ 6, 10, 1, 1, 6, 10 ];
 	let sfact = scale ? scale : 8;
 	if (size === 2) sfact = 4;
 	else if (size === 1) sfact = 16;
+	else if (size === 99) sfact = 2;
 	const w8 = Math.floor((w+(sfact -1))/sfact);
 	const h8 = Math.floor((h+(sfact -1))/sfact);
 	let rfact = (wb[1]/wb[0]);
@@ -2029,7 +2113,8 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 	let cnt = 0;
 	for (let i = rowiterstart; i < rowiterend; i +=1) {
 		for (let j = coliterstart; j < coliterend; j+=1) {
-			let a = globals.getPix(Math.abs(transpose ? i :j)*sfact, Math.abs(transpose ? j :i)*sfact, w, view, typ, whitelvl);
+			let a;
+			a = (sfact === 2 ? globals.getPixh : globals.getPix)(Math.abs(transpose ? i :j)*sfact, Math.abs(transpose ? j :i)*sfact, w, view, typ, whitelvl);
 			const r = Math.floor(a[0]*rfact), g = Math.floor(a[1]*gfact), b = Math.floor(a[2]*bfact);
 			outpix.push(a[0]);
 			outpix.push(a[1]);
@@ -2143,6 +2228,7 @@ latestraw='0000';
 // [1]: imbweb: for non-emulator: 1 => use = 'http://192.168.8.101:8080'; 2 => use = 'http://192.168.0.72:8080'; android emulator: !=0 => use 10.0.2.2 (host connection)
 // [2]: !=0 => use longer startup timeout, debug versio
 // [3]: ==1 => fake delete works for 2029_0710_010203_001..., ==2 => fake delete works for 2029_0707_120426_021...
+// [4]: ==1: show J download on mag, ==2 or ==3: additionally make image bigger
 expflags = [ 0, 0, 0, 0, 0 ];
 
 //////// DYNAMIC SOURCE 1
@@ -19996,6 +20082,7 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		ti.addEntry(33421, 'SHORT', [ 2, 2 ]); /* CFA Repeat Pattern Dim */
 		ti.addEntry(33422, 'BYTE', ((typ0 > 1) && (typ0 < 5)) ? [ 2, 1, 1, 0 ] : [ 1, 0, 2, 1 ]); /* CFA Pattern dep. on MF/35mm*/
 		this.writewrap(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted' + ((this.checkdlfolder && !this.zip) ? 'checkdl' : ''), ti.getData(), f.name);
+		//this.writejpeg(view, typ, w, h, wb, whitelvl, rawname.substring(0, rawname.length - 4) + '_x.jpg', ori);
 	};
 	reader.onerror = (evt) => {
 		console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
@@ -20007,6 +20094,48 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 	};
 	reader.readAsArrayBuffer(f.imbackintension ? f.imbackintension : f);
 }
+/* ImBCBase: write jpeg */
+dljpg() {
+	let c = document.querySelector('#xmag .eeraw');
+	c.toBlob((b) => {
+		if (!b) {
+			console.log('toblob failed');
+			return;
+		}
+		b.arrayBuffer().then((a) => {
+			this.writefile(this.magentry.raw.substring(0,this.magentry.raw.length - 4) + '_x.jpg', 'image/jpeg', '', a, this.magentry.raw.substring(0,this.magentry.raw.length - 4) + '_x.jpg');
+		});
+	}, 'image/jpeg', 90);
+}
+/* ImBCBase: write jpeg * /
+writejpeg(view, typ, w, h, wb, whitelvl, name, ori) {
+	let bigpv = globals.buildpvarray(view, 0, typ, w, h, 99, false, wb, whitelvl)
+	let c = document.querySelector('#xmag .eeraw');
+	let sf = 2;
+	const w8 = Math.floor((w+sf-1)/sf);
+	const h8 = Math.floor((h+sf-1)/sf);
+	c.width = w8;
+	c.height = h8;
+	if (ori === 6 || ori === 8) {
+		c.width = h8;
+		c.height = w8;
+	}
+	const ctx = c.getContext('2d', { alpha: false });
+	let transpose = false;
+	if (ori === 6 || ori === 8) {
+		transpose = true;
+	}
+	ctx.putImageData(new ImageData(bigpv, transpose ? h8: w8, transpose? w8 :h8), 0, 0);
+	c.toBlob((b) => {
+		if (!b) {
+			console.log('toblob failed');
+			return;
+		}
+		b.arrayBuffer().then((a) => {
+			this.writefile(name, 'image/jpeg', '', a, name);
+		});
+	}, 'image/jpeg', 90);
+}*/
 /* ImBCBase: handle one entry from imb PHOTO/MOVIE listing page */
 handle1imb(url, time) {
 	let rawname = ImBCBase.basename(url.name ? url.name : url);
@@ -20122,6 +20251,10 @@ parseexpflags(flags) {
 			this.previewworkers[i].w.postMessage({ cmd: 'setdbg' });
 	}
 	//else globals.debugflag = false;
+	if (this.expflags[4] > 0)
+		document.getElementById('xjbtn').style['display'] = '';
+	else
+		document.getElementById('xjbtn').style['display'] = 'none';
 }
 /* * * ************************************* Backward helper STUFF *************************************** */
 /* ImBCBackw: backward: handle dng like raw */
@@ -22774,7 +22907,7 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 			return mmv(fileEntry);
 		}
 		fileEntry.createWriter((fileWriter) => {
-		   this.writeslice(fileWriter, iname, (arr1.imbackextension ? arr1.data : arr1.buffer), () => { /* on ok */
+		   this.writeslice(fileWriter, iname, (arr1.imbackextension ? arr1.data : (arr1.buffer ? arr1.buffer : arr1)), () => { /* on ok */
 		   	   	mmv(fileEntry);
 			   }, (e) => { /* on error */
 				   console.log("Failed file write: " + e.toString());
@@ -25265,6 +25398,7 @@ workermsg(msg) {
 			let sf = 8;
 			if (d.size === 2) sf = 4;
 			else if (d.size === 1) sf = 16;
+			else if (d.size === 99) sf = 2;
 			const w8 = Math.floor((w+sf-1)/sf);
 			const h8 = Math.floor((h+sf-1)/sf);
 			canv.width = w8;
@@ -26357,7 +26491,7 @@ xl1(el) {
 		let afterloadcalled = false;
 		if (globals.debugflag) console.log('li raw start bpv ' + url);
 		this.buildpreview((to.imbackintension ? to.imbackintension : url),
-				to.isbig ? 2 : 1,
+				to.isbig ? (this.expflags[4] > 1 ? 99 : 2) : 1,
 				(xrot) => { /* on ok: */
 			if (this.magentry && this.magentry.url != url) {
 				if (globals.debugflag) console.log('MR ' + this.magentry.url + ' ' + url);
@@ -26682,6 +26816,7 @@ function init2() {
 			<span class="biggiebtn descbtn" id="descbut" style="left: 2.3em;" onclick="imbc.magdescx();">&#x270e;</span>
 			<input class="biggiebtn desctxt" type="text" id="desctxt" minlength="0" data-myplaceholder="process.photodesc"
 			   onkeyup="imbc.magdescchg()" style="left:5.1em; background-color:rgba(255,255,255,0.7);font-weight:normal;border-radius:5px;border: 1px solid rgba(0,0,0,0);font-size:80%;width:25em;">
+			<span class="dlbtn biggiebtn" id="xjbtn" style="top:-1.2em;left:3.5em" onclick="imbc.dljpg();">J</span>
 			<div class="backnextmag" id="backnl" style="left:3vw;" onclick="imbc.magnav();">&#x25c0;</div>
 			<div class="backnextmag" id="backnr" style="right:3vw;" onclick="imbc.magnav(true);">&#x25b6;</div>
 		</div>
