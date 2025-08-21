@@ -1543,7 +1543,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.3.4_@_d_e_v", // actually const // VERSION EYECATCHER
+version: "V6.3.5_5ebb180", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -20878,7 +20878,6 @@ async handlePwaLaunch(para) {
 	this.typedclasses = [];
 	this.numdclasses = [];
 	this.imbeles = [];
-	let withpromise = false;
 	let mm = [...para.files];
 	let m0 = mm.map(e => e.getFile());
 	let mapped = [];
@@ -20890,7 +20889,7 @@ async handlePwaLaunch(para) {
 	for (const x of mapped) {
 		 this.handle1imb(x);
 	}
-	if (globals.debugflag) console.log('LLL ' + a.length + ' ' + a);
+	//if (globals.debugflag) console.log('LLL ' + a.length + ' ' + a);
 	this.addall = false;
 	this.addscaleall = false;
 	this.aftercheck(); this.showbrowser();
@@ -21021,7 +21020,7 @@ initworker(withnet) {
 }
 /* TopApp: browserdisplay: create on previewworker */
 pvw(cmd) {
-	let found = false;
+	//let found = false;
 	for (let i=0; i<this.previewworkers.length; i++) {
 		if (!this.previewworkers[i].busy) {
 			this.previewworkers[i].busy = true;
@@ -21796,7 +21795,7 @@ topreccheck(force) {
 }
 /* TopApp: visual browser: text and controls on top of a group */
 buildtitle(gr) {
-	let t = '', s = gr.title;
+	let s = gr.title;
 	const d = document.querySelector('#titlet').content.querySelector('.titletop').cloneNode(true);
 	const pluss = d.querySelector('.ggttp');
 	pluss.onclick = () => {
@@ -22374,7 +22373,7 @@ prevdef(ev) {
 /* TopApp: browserdisplay: put preview into canvas */
 // orientation: 1: norm, 3: rot 180, 6 rot 90 CW, 8: rot 270 CCW
 buildpreview(f, size, onok, onerr, orientation, targ, afterload) {
-	let w, h, typ, cachehit;
+	let cachehit;
 	if ((cachehit = this.findcache(f.url ? f.url :(f.name ? f.name : f)))) {
 		  this.workerstate.push({ cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :f), o: orientation, onok: onok, onerr: onerr, t: targ, cid: this.cid });
 		  this.pvw({ cmd: 'previewfromcache', c: { n: cachehit.url, d: cachehit.d, l: cachehit.l, wb: cachehit.wb } , n: (f.url ? f.url :f), o: orientation, size: size, cid: this.cid++ });
@@ -22397,10 +22396,6 @@ buildpreview(f, size, onok, onerr, orientation, targ, afterload) {
 		onerr(f);
 		return;
 	}
-	w = globals.infos[zz].w;
-	typ = globals.infos[zz].typ;
-	h = globals.infos[zz].h;
-	const whitelvl = (typ === 5) ? 4095: 255;
 
 	let canv;
 	if (undefined !== targ)
@@ -22555,12 +22550,12 @@ loadimgs() {
 	this.typedclasses = [];
 	this.numdclasses = [];
 	this.imbeles = [];
-	let rawfound = false;
+	//let rawfound = false;
 	this.custcmd([ [3001, 'par=2'], 3015 ] , 'document', null, (rc, doc) => {
 		this.imgsdirty = false;
 		if (rc >= 0) {
 			for (const e of doc[1].querySelectorAll('LIST ALLFile File FPATH')) {
-				if (ImBCBase.ucex(e.textContent) === '.RAW') rawfound = true;
+				//if (ImBCBase.ucex(e.textContent) === '.RAW') rawfound = true;
 				this.handle1imb(e.textContent, e.parentElement.querySelector('TIME').textContent);
 			}
 			//const se = doc[1].querySelectorAll('LIST ALLFile File FPATH');
@@ -22574,6 +22569,9 @@ loadimgs() {
 							let n = r.href;
 							if (ImBCBase.ucex(n) !== '.RAW' || -1 !== n.indexOf('del=')) continue;
 							if (n.startsWith(this.imbweb)) n = n.substring(this.imbweb.length);
+							n = ImBCBase.basename(n);
+							//let z = this.imbeles.indexOf(e => (e.name === n));
+							if (-1 !== this.imbeles.findIndex(e => (e.name === n))) continue;
 							this.handle1imb('A:\\IMBACK\\PHOTO\\' + ImBCBase.basename(n));
 						}
 						if (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0) {
@@ -22596,13 +22594,13 @@ loadimgs() {
 				xhr.responseType = 'document';
 				xhr.send();
 				return;
-			//}
+			/*}
 			if (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0) {
 				this.aftercheck();
 				this.showbrowser();
 			} else {
 				this.showmain();
-			}
+			}*/
 		}
 	});
 }
@@ -26680,7 +26678,7 @@ function init() {
 			}
 		},500);
 	});
-	window.addEventListener('appinstalled', function (event) {
+	window.addEventListener('appinstalled', function (/*event*/) {
 		imbc.dnsad2 = true;
 		imbc.savesettings('dnsad2');
 	});
