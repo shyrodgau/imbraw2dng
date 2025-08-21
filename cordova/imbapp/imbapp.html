@@ -19919,10 +19919,10 @@ handleone(orientation) {
     			xmpx.push(`</rdf:li></rdf:Alt></dc:description>`);
     		}
 			if (hxbytes?.length) {
-				xmpx[xmpx.length-1] += ` <history:documentHistory><rdf:Seq><rdf:li stEvt:when="`;
+				xmpx[xmpx.length-1] += `<history:documentHistory><rdf:Seq><rdf:li stEvt:when="`;
     			xmpx.push(`" stEvt:softwareAgent="`);
-    			xmpx.push(`" stEvt:action="`);
-    			xmpx.push(`"/></rdf:Seq></history:documentHistory>`);
+    			xmpx.push(`" stEvt:parameters="`);
+    			xmpx.push(`" stEvt:action="converted"/></rdf:Seq></history:documentHistory>`);
     			pvdx = txe.encode(new Date(Date.now()).toISOString());
     		}
 			let swbytes;
