@@ -1543,7 +1543,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.3.4_9165d18", // actually const // VERSION EYECATCHER
+version: "V6.3.4_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -19891,7 +19891,7 @@ handleone(orientation) {
 		if (metadatalen) this.appmsg(metadatastr);
 		if (!this.neutral) {
 			const xmp1 = `<?xpacket begin='`;
-			const xmp2 = `' id='W5M0MpCehiHzreSzNTczkc9d'?><x:xmpmeta xmlns:x='adobe:ns:meta/'><rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'><rdf:Description rdf:about='' xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:xmp='http://ns.adobe.com/xap/1.0/' xmlns:history="http://purl.org/dc/terms/" dc:source='`;
+			const xmp2 = `' id='W5M0MpCehiHzreSzNTczkc9d'?><x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="imbraw2dng"><rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#' xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:xmp='http://ns.adobe.com/xap/1.0/' xmlns:history="http://ns.adobe.com/xap/1.0/history/" xmlns:stEvt='http://ns.adobe.com/xap/1.0/sType/ResourceEvent#'><rdf:Description rdf:about='' dc:source='`;
 			const xmp3 = `' xmp:CreateDate='`;
 			const xmp3b = `' xmp:ModifyDate='`;
 			const xmp4 = `' xmp:CreatorTool='`;
@@ -19920,10 +19920,10 @@ handleone(orientation) {
     			xmpx.push(`</rdf:li></rdf:Alt></dc:description>`);
     		}
 			if (hxbytes?.length) {
-				xmpx[xmpx.length-1] += ` <history:documentHistory><rdf:Seq><rdf:li><history:changeDate>`;
-    			xmpx.push(`</history:changeDate><history:author>`);
-    			xmpx.push(`</history:author><history:description>`);
-    			xmpx.push(`</history:description></rdf:li></rdf:Seq></history:documentHistory>`);
+				xmpx[xmpx.length-1] += ` <history:documentHistory><rdf:Seq><rdf:li stEvt:when="`;
+    			xmpx.push(`" stEvt:softwareAgent="`);
+    			xmpx.push(`" stEvt:action="`);
+    			xmpx.push(`"/></rdf:Seq></history:documentHistory>`);
     			pvdx = txe.encode(new Date(Date.now()).toISOString());
     		}
 			let swbytes;
