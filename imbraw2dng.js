@@ -19413,35 +19413,6 @@ dljpg() {
 		});
 	}, 'image/jpeg', 90);
 }
-/* ImBCBase: write jpeg * /
-writejpeg(view, typ, w, h, wb, whitelvl, name, ori) {
-	let bigpv = globals.buildpvarray(view, 0, typ, w, h, 99, false, wb, whitelvl)
-	let c = document.querySelector('#xmag .eeraw');
-	let sf = 2;
-	const w8 = Math.floor((w+sf-1)/sf);
-	const h8 = Math.floor((h+sf-1)/sf);
-	c.width = w8;
-	c.height = h8;
-	if (ori === 6 || ori === 8) {
-		c.width = h8;
-		c.height = w8;
-	}
-	const ctx = c.getContext('2d', { alpha: false });
-	let transpose = false;
-	if (ori === 6 || ori === 8) {
-		transpose = true;
-	}
-	ctx.putImageData(new ImageData(bigpv, transpose ? h8: w8, transpose? w8 :h8), 0, 0);
-	c.toBlob((b) => {
-		if (!b) {
-			console.log('toblob failed');
-			return;
-		}
-		b.arrayBuffer().then((a) => {
-			this.writefile(name, 'image/jpeg', '', a, name);
-		});
-	}, 'image/jpeg', 90);
-}*/
 /* ImBCBase: handle one entry from imb PHOTO/MOVIE listing page */
 handle1imb(url, time) {
 	let rawname = ImBCBase.basename(url.name ? url.name : url);

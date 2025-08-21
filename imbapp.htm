@@ -20107,35 +20107,6 @@ dljpg() {
 		});
 	}, 'image/jpeg', 90);
 }
-/* ImBCBase: write jpeg * /
-writejpeg(view, typ, w, h, wb, whitelvl, name, ori) {
-	let bigpv = globals.buildpvarray(view, 0, typ, w, h, 99, false, wb, whitelvl)
-	let c = document.querySelector('#xmag .eeraw');
-	let sf = 2;
-	const w8 = Math.floor((w+sf-1)/sf);
-	const h8 = Math.floor((h+sf-1)/sf);
-	c.width = w8;
-	c.height = h8;
-	if (ori === 6 || ori === 8) {
-		c.width = h8;
-		c.height = w8;
-	}
-	const ctx = c.getContext('2d', { alpha: false });
-	let transpose = false;
-	if (ori === 6 || ori === 8) {
-		transpose = true;
-	}
-	ctx.putImageData(new ImageData(bigpv, transpose ? h8: w8, transpose? w8 :h8), 0, 0);
-	c.toBlob((b) => {
-		if (!b) {
-			console.log('toblob failed');
-			return;
-		}
-		b.arrayBuffer().then((a) => {
-			this.writefile(name, 'image/jpeg', '', a, name);
-		});
-	}, 'image/jpeg', 90);
-}*/
 /* ImBCBase: handle one entry from imb PHOTO/MOVIE listing page */
 handle1imb(url, time) {
 	let rawname = ImBCBase.basename(url.name ? url.name : url);
@@ -21156,6 +21127,10 @@ showmag(entry) {
 		desc: entry.desc,
 		orig: entry
 	};
+	if (0 < this.jbigflag && entry.type === 'RAW')
+		document.getElementById('xjbtn').style['display'] = '';
+	else
+		document.getElementById('xjbtn').style['display'] = 'none';
 	const check = this.magentry.entry.querySelector('input.selcb');
 	if (check) {
 		check.checked = entry.selected;
@@ -26812,8 +26787,8 @@ function init() {
 		<div class="btnsrow" style="diplay:none;font-size:200%;line-height:1em;">
 			<span class="biggiebtn" style="left:3.8em;left: 1.3em;border:0.15em solid black;"><input type="checkbox" class="selcb" style="transform:scale(1.7);"></span>
 			<span class="dlbtn biggiebtn" style="font-family:Symbol3;top:-1.1em;" onclick="imbc.dlmag();">&#x2b73;</span>
-			<span class="biggiebtn rotbtn" style="left: 0.6em;top:-1.1em;" onclick="imbc.rotmag();">&#x2b6e;</span>
-			<span class="biggiebtn rotbtnr" style="left: 1.6em;top:-1.1em;" onclick="imbc.rotmag(true);">&#x2b6f;</span>
+			<span class="biggiebtn rotbtn" style="left: 0.7em;top:-1.1em;" onclick="imbc.rotmag();">&#x2b6e;</span>
+			<span class="biggiebtn rotbtnr" style="left: 1.7em;top:-1.1em;" onclick="imbc.rotmag(true);">&#x2b6f;</span>
 			<span class="biggiebtn trashbin" style="left:0em;" onclick="imbc.magdelete();">&#x1f5d1;</span>
 			<span class="biggiebtn timebtn" id="cortimebut" style="left: 3.5em;top:-1.6em;font-size:90%" onclick="imbc.magtimex();">&#x231a;&#xfe0e;</span>
 			<input class="biggiebtn timetxt" type="text" maxlength="19" id="refts" minlength="0" placeholder="yyyy-MM-ddThh:mm:ss" pattern="[0-9][0-9][0-9][0-9][^0-9][0-9][0-9][^0-9][0-9][0-9][^0-9][0-9][0-9][^0-9][0-9][0-9][^0-9][0-9][0-9]"
@@ -26821,7 +26796,7 @@ function init() {
 			<span class="biggiebtn descbtn" id="descbut" style="left: 2.3em;" onclick="imbc.magdescx();">&#x270e;</span>
 			<input class="biggiebtn desctxt" type="text" id="desctxt" minlength="0" data-myplaceholder="process.photodesc"
 			   onkeyup="imbc.magdescchg()" style="left:5.1em; background-color:rgba(255,255,255,0.7);font-weight:normal;border-radius:5px;border: 1px solid rgba(0,0,0,0);font-size:80%;width:25em;">
-			<span class="dlbtn biggiebtn" id="xjbtn" style="top:-1.2em;left:3.5em;display:none;" onclick="imbc.dljpg();">J</span>
+			<span class="dlbtn biggiebtn" id="xjbtn" style="top:-1.2em;left:3.5em;display:none;" data-mytitlexlkey="app.dlbigprev" onclick="imbc.dljpg();">J</span>
 			<div class="backnextmag" id="backnl" style="left:3vw;" onclick="imbc.magnav();">&#x25c0;</div>
 			<div class="backnextmag" id="backnr" style="right:3vw;" onclick="imbc.magnav(true);">&#x25b6;</div>
 		</div>
