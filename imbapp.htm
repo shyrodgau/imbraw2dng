@@ -22563,8 +22563,8 @@ loadimgs() {
 				if (ImBCBase.ucex(e.textContent) === '.RAW') rawfound = true;
 				this.handle1imb(e.textContent, e.parentElement.querySelector('TIME').textContent);
 			}
-			const se = doc[1].querySelectorAll('LIST ALLFile File FPATH');
-			if (!rawfound && se.length && se[0].textContent.length >= 40) {
+			//const se = doc[1].querySelectorAll('LIST ALLFile File FPATH');
+			//if (!rawfound && se.length && se[0].textContent.length >= 40) {
 				// check existance of raw for all jpegs if film
 				const xhr = new XMLHttpRequest();
 				xhr.onloadend = (/*event*/) => {
@@ -22596,7 +22596,7 @@ loadimgs() {
 				xhr.responseType = 'document';
 				xhr.send();
 				return;
-			}
+			//}
 			if (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0) {
 				this.aftercheck();
 				this.showbrowser();
