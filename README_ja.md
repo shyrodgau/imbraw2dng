@@ -209,7 +209,7 @@ Android アプリは HTML ページと同じ HTML/Javascript コードで構成�
 コードを閲覧したり、翻訳や最適化にご協力ください!
 
 
-## <a name="fmts">  </a>Formats
+## <a name="fmt">  </a>Formats
 
 30607488 B = 5216 x 3912 (12bpp) = Film
 

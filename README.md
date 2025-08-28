@@ -215,7 +215,7 @@ Your preferred settings can be saved in a configuration file for node.js (see ab
 You are welcome to browse the code, help translation or optimizing!
 
 
-## <a name="fmts">  </a>Formats
+## <a name="fmt">  </a>Formats
 
 30607488 B = 5216 x 3912 (12bpp) = Film
 

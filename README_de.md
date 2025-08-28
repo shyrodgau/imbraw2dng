@@ -225,7 +225,7 @@ Persönliche Voreinstellungen können für node.js in einer Konfigurationsdatei 
 
 Anschauen des Codes ist gern erwünscht.
 
-## <a name="fmts">  </a>Formate
+## <a name="fmt">  </a>Formate
 
 30607488 B = 5216 x 3912 (12bpp) = Film
 
