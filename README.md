@@ -214,4 +214,27 @@ Your preferred settings can be saved in a configuration file for node.js (see ab
 
 You are welcome to browse the code, help translation or optimizing!
 
+
+## <a name="fmts">  </a>Formats
+
+30607488 B = 5216 x 3912 (12bpp) = Film
+
+15335424 B = 4608 x 3328 = 35mm
+
+7667520 B = 3260 x 2352 = 35mm Small-angle
+
+11618752 B = 4012 x 2896 = 35mm Medium-angle
+
+11943936 B = 3456 x 3456 = MF6x6
+
+12937632 B = 4152 x 3116 = MF6x4.5
+
+6470944 B = 2936 x 2204 = MF6x4.5 Small-angle
+
+9806592 B = 3616 x 2712 = MF6x4.5 Medium-angle
+
+15925248 B = 4608 x 3456 = MF6x7
+
+14065920 B = 4320 x 3256 = unknown historic
+
 ---------------------------

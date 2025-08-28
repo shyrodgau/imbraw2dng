@@ -602,6 +602,13 @@ body:has(dialog[open]), html:has(dialog[open]) {
 .delsel.green { color: green /*#aaff88*/; }
 .delsel.blue { color: #333399; }
 .leadzero { color: #888888; }
+#supportedformats{
+	white-space: pre-wrap !important;
+	font-weight:normal !important;
+	font-size: 75%;
+	margin: 1em;
+	margin-left: 0 !important;
+}
 /* * * ************************************* CSS E N D *************************************** */
 </style>
 <!-- WORKER -->
@@ -1543,7 +1550,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.3.5_5ebb180", // actually const // VERSION EYECATCHER
+version: "V6.3.5_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -1580,12 +1587,6 @@ infos: [ // actually const
 		typ: 2,
 		mode: ""
 	}, /* Missing angle medium, small */
-	{ /* MF 6x4.5 */
-		size: 12937632,
-		w: 4152, h: 3116,
-		typ: 3,
-		mode: ""
-	},
 	{
 		size: 9806592,
 		w: 3616, h: 2712,
@@ -1598,18 +1599,18 @@ infos: [ // actually const
 		typ: 3,
 		mode: "Small-angle"
 	},
+	{ /* MF 6x4.5 */
+		size: 12937632,
+		w: 4152, h: 3116,
+		typ: 3,
+		mode: ""
+	},
 	{ /* MF 6x6 */
 		size: 11943936,
 		w: 3456, h: 3456,
 		typ: 4,
 		mode: ""
 	}, /* Missing angle medium, small */
-	{ /* 35mm */
-		size: 15335424,
-		w: 4608, h: 3328,
-		typ: 1,
-		mode: ""
-	},
 	{
 		size: 11618752,
 		w: 4012, h: 2896,
@@ -1622,6 +1623,12 @@ infos: [ // actually const
 		typ: 1,
 		mode: "Small-angle"
 	},
+	{ /* 35mm */
+		size: 15335424,
+		w: 4608, h: 3328,
+		typ: 1,
+		mode: ""
+	},
 	/* 12 bit down here: */
 	/* Film ! */
 	{
@@ -1632,6 +1639,14 @@ infos: [ // actually const
 		mode: ''
 	}
 ],
+/* globals: format supported stuff */
+fmtsupp: function() {
+	let res='';
+	for (let j=globals.infos.length -1 ; j >= 0; j--) {
+		res += (globals.infos[j].size + ' B = ' + globals.infos[j].w + ' x ' + globals.infos[j].h + ' = ' + globals.types[globals.infos[j].typ] + ' ' + globals.infos[j].mode + '\u000d\u000a'); 
+	}
+	return res;
+},
 /* globals: get white balance */
 getwb: function(view, typidx, whitelvl) {
 	//console.log('GWB ' + typidx + ' ' + JSON.stringify(globals.infos[typidx]));
@@ -20547,9 +20562,11 @@ appinfo(doit) {
 	licensed under <a href="#" onclick=" window.open('http://scripts.sil.org/OFL', 'imbapplic0'); return false;">Open Font License</a>.
 	<br>Based on work by Michele Asciutti from the ImBack User Group.</span>
 	<br><a href="#" onclick="window.open('LICENSE.txt', 'imbapplicx'); return false;">License Info:</a>
-	<br><iframe src="data:text/html,<html><head><meta http-equiv='content-type' content='text/html;charset=UTF-8'></head><body style='font-size:7px;'><!--@@LICENSESTART@@ -->Copyright (C) 2023,2024,2025 by Stefan Hegny, stefan@hegny.de<br><br>The following license applies to the code inside these files with the exception of<br><br>* the Symbol3 font which is an excerpt from<br>&nbsp;&nbsp;NotoSansSymbols2-Regular (https://fonts.google.com/noto/specimen/Noto+Sans+Symbols+2) which is licensed under the<br>&nbsp;&nbsp;Open Font License (https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL)<br><br>* the Android App which contains Apache Cordova (https://cordova.apache.org) and plugins with specific licenses:<br>&nbsp;&nbsp;https://github.com/apache/cordova-plugin-inappbrowser/   		InAppBrowser<br>&nbsp;&nbsp;https://github.com/apache/cordova-plugin-file/  				File<br>&nbsp;&nbsp;https://github.com/shyrodgau/cordova-plugin-saf-mediastore/ 	 SafMediastore<br>&nbsp;&nbsp;https://github.com/NeoLSN/cordova-plugin-android-permissions	AndroidPermissions<br>&nbsp;&nbsp;https://github.com/cyph/cordova-plugin-chooser/				Chooser<br>&nbsp;&nbsp;https://github.com/torsten-simon/cordova-plugin-intent/		Intent<br><br><br>Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted.<br><br>THE SOFTWARE IS PROVIDED &quot;AS IS&quot; AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.<br>IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,<br>DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.<br><!-- @@LICENSEEND@@ --></body></html>" id="liciframe" style="width: 100%;">`;
+	<br><iframe src="data:text/html,<html><head><meta http-equiv='content-type' content='text/html;charset=UTF-8'></head><body style='font-size:7px;'><!--@@LICENSESTART@@ -->Copyright (C) 2023,2024,2025 by Stefan Hegny, stefan@hegny.de<br><br>The following license applies to the code inside these files with the exception of<br><br>* the Symbol3 font which is an excerpt from<br>&nbsp;&nbsp;NotoSansSymbols2-Regular (https://fonts.google.com/noto/specimen/Noto+Sans+Symbols+2) which is licensed under the<br>&nbsp;&nbsp;Open Font License (https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL)<br><br>* the Android App which contains Apache Cordova (https://cordova.apache.org) and plugins with specific licenses:<br>&nbsp;&nbsp;https://github.com/apache/cordova-plugin-inappbrowser/   		InAppBrowser<br>&nbsp;&nbsp;https://github.com/apache/cordova-plugin-file/  				File<br>&nbsp;&nbsp;https://github.com/shyrodgau/cordova-plugin-saf-mediastore/ 	 SafMediastore<br>&nbsp;&nbsp;https://github.com/NeoLSN/cordova-plugin-android-permissions	AndroidPermissions<br>&nbsp;&nbsp;https://github.com/cyph/cordova-plugin-chooser/				Chooser<br>&nbsp;&nbsp;https://github.com/torsten-simon/cordova-plugin-intent/		Intent<br><br><br>Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted.<br><br>THE SOFTWARE IS PROVIDED &quot;AS IS&quot; AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.<br>IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,<br>DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.<br><!-- @@LICENSEEND@@ --></body></html>" id="liciframe" style="width: 100%;"></iframe>
+	<div id="supportedformats"><a data-myhrefxlapp="#fmt" data-myhrefxlkey="main.helplink">Formats</a></div>`;
 	this.xlateall();
 	this.showmsg();
+	//document.getElementById('supportedformats').innerHTML = globals.fmtsupp();
 }
 /* ImBCHtml: browserdisplay: handler for file selection input */
 fselected() {
@@ -24081,6 +24098,9 @@ xl1(el) {
 	}
 	if (el.attributes.getNamedItem('data-myhrefxlkey')) {
 		el.href = this.xl(el.attributes.getNamedItem('data-myhrefxlkey').value);
+		if (el.attributes.getNamedItem('data-myhrefxlapp')) {
+			el.href += el.attributes.getNamedItem('data-myhrefxlapp').value;
+		}
 	}
 	if (el.attributes.getNamedItem('data-myplaceholder')) {
 		el.placeholder = this.xl(el.attributes.getNamedItem('data-myplaceholder').value);

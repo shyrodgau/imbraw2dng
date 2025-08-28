@@ -849,7 +849,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.3.5_5ebb180", // actually const // VERSION EYECATCHER
+version: "V6.3.5_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -886,12 +886,6 @@ infos: [ // actually const
 		typ: 2,
 		mode: ""
 	}, /* Missing angle medium, small */
-	{ /* MF 6x4.5 */
-		size: 12937632,
-		w: 4152, h: 3116,
-		typ: 3,
-		mode: ""
-	},
 	{
 		size: 9806592,
 		w: 3616, h: 2712,
@@ -904,18 +898,18 @@ infos: [ // actually const
 		typ: 3,
 		mode: "Small-angle"
 	},
+	{ /* MF 6x4.5 */
+		size: 12937632,
+		w: 4152, h: 3116,
+		typ: 3,
+		mode: ""
+	},
 	{ /* MF 6x6 */
 		size: 11943936,
 		w: 3456, h: 3456,
 		typ: 4,
 		mode: ""
 	}, /* Missing angle medium, small */
-	{ /* 35mm */
-		size: 15335424,
-		w: 4608, h: 3328,
-		typ: 1,
-		mode: ""
-	},
 	{
 		size: 11618752,
 		w: 4012, h: 2896,
@@ -928,6 +922,12 @@ infos: [ // actually const
 		typ: 1,
 		mode: "Small-angle"
 	},
+	{ /* 35mm */
+		size: 15335424,
+		w: 4608, h: 3328,
+		typ: 1,
+		mode: ""
+	},
 	/* 12 bit down here: */
 	/* Film ! */
 	{
@@ -938,6 +938,14 @@ infos: [ // actually const
 		mode: ''
 	}
 ],
+/* globals: format supported stuff */
+fmtsupp: function() {
+	let res='';
+	for (let j=globals.infos.length -1 ; j >= 0; j--) {
+		res += (globals.infos[j].size + ' B = ' + globals.infos[j].w + ' x ' + globals.infos[j].h + ' = ' + globals.types[globals.infos[j].typ] + ' ' + globals.infos[j].mode + '\u000d\u000a'); 
+	}
+	return res;
+},
 /* globals: get white balance */
 getwb: function(view, typidx, whitelvl) {
 	//console.log('GWB ' + typidx + ' ' + JSON.stringify(globals.infos[typidx]));
@@ -20302,6 +20310,8 @@ writepostok() {
 			console.log(' \u001b[1m-CSV\u001b[0m - Translation CSV');
 		}
 	}
+	console.log('');
+	console.log(globals.fmtsupp());
 }
 /* ImBCNode: nodejs runup */
 startnode(notfirst) {
