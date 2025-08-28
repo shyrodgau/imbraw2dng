@@ -208,21 +208,26 @@ Android アプリは HTML ページと同じ HTML/Javascript コードで構成�
 
 コードを閲覧したり、翻訳や最適化にご協力ください!
 
----------------------------
 
+## <a name="fmts">  </a>Formats
 
-## オリジナルのクラシックなクイック使用法
+30607488 B = 5216 x 3912 (12bpp) = Film
 
-`.../IMBACK` は、USB ケーブル経由でマウントするか (デバイスで `MassStorage` を選択)、Micro SD を PC またはスマートフォンに挿入して、デバイスのパスを参照します。
+15335424 B = 4608 x 3328 = 35mm
 
-1. ブラウザで [imbraw2dng.html](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) を開きます。`.../IMBACK/PHOTO` と `.../IMBACK/MOVIE` を青いフィールドにドラッグ・アンド・ドロップします。 [(詳細)](#使用方法)
+7667520 B = 3260 x 2352 = 35mm Small-angle
 
-1. ([imbraw2dng.html](https://raw.githubusercontent.com/shyrodgau/imbraw2dng/master/imbraw2dng.html) を MicroSD の `.../IMBACK` フォルダにコピーし、正常に取り出した後)
-ImB Wifi にスマートフォンまたは PC を接続し、ブラウザで ImB から [http://192.168.1.254/IMBACK/imbraw2dng.html](http://192.168.1.254/IMBACK/imbraw2dng.html) に移動します。
+11618752 B = 4012 x 2896 = 35mm Medium-angle
 
-1. [imbraw2dng.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) をダウンロードし、`node imbraw2dng.js .../IMBACK` を呼び出します。
-[(詳細)](#nodejs-を使用したコマンドライン)
+11943936 B = 3456 x 3456 = MF6x6
 
-1. PC を ImB Wifi に接続し、[imbraw2dng.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) をダウンロードして、`node imbraw2dng.js -R -J -O` を呼び出します。
-[(詳細)](#nodejs-を使用したコマンドライン)
+12937632 B = 4152 x 3116 = MF6x4.5
+
+6470944 B = 2936 x 2204 = MF6x4.5 Small-angle
+
+9806592 B = 3616 x 2712 = MF6x4.5 Medium-angle
+
+15925248 B = 4608 x 3456 = MF6x7
+
+14065920 B = 4320 x 3256 = unknown historic
 
