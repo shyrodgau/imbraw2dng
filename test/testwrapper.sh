@@ -79,7 +79,9 @@ find */* -type f|while read x; do z=$( echo "$x" | sed 's@/@_@g' ); ln -sv "$x" 
 find . -maxdepth 1 -name \*.[dD][nN][gG] -print0 | xargs -0  dcraw -e  2>/dev/null
 exiftool -b -preview:all -w .tif *.[dD][nN][gG] > /dev/null 2>&1 # -execute -overwrite_original -orientation= %f.tif
 
-find * -name \*[jJdD][pPnN][gG] -type f -print -exec sh -c  'echo ==== ; exiftool -xmp -b  "{}" | xmllint -format - '  \; > ${TESTWORK}/imbraw2dng_test_${testid}_xmp.xml 2>&1
+find * -name \*[jJdD][pPnN][gG] -type f -print -exec \
+	sh -c  'echo ==== ; exiv2 -pX "{}"  | xmllint -format - '  \; > ${TESTWORK}/imbraw2dng_test_${testid}_xmp.xml 2>&1
+#find * -name \*[jJdD][pPnN][gG] -type f -print -exec sh -c  'echo ==== ; exiftool -xmp -b  "{}" | xmllint -format - '  \; > ${TESTWORK}/imbraw2dng_test_${testid}_xmp.xml 2>&1
 find * -type f | sort |  exiftool -X -@ - > ${TESTWORK}/imbraw2dng_test_${testid}_exif.xml
 find * -name \*[jJdD][pPnN][gG] -type f -print0 | sort -z | xargs '-I{}' -0 exiv2 -pR -uvb '{}' > ${TESTWORK}/imbraw2dng_test_${testid}_exiv2.txt 2>&1
 
