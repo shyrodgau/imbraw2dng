@@ -1012,7 +1012,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.3.7_bd0f6ea", // actually const // VERSION EYECATCHER
+version: "V6.3.7_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -18932,7 +18932,16 @@ static ucex(name) {
 	return name.substring(name.length - 4).toUpperCase();
 }
 /* ImBCBase: actual processing function for one file */
-handleone(orientation) {
+handleone(orientation, upd) {
+	if (!upd && (undefined !== this.rotphase)) {
+		this.rotphase ++;
+		if ((this.rotphase % this.rotphases.length) % 2 == 1)
+			document.getElementById('progmsg').innerHTML = '<div style="transform: rotate(90deg);display:inline-block;">' + this.rotphases[this.rotphase % this.rotphases.length] + '</div> ' + this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
+		else
+			document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ' + this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
+		setTimeout(() => { this.handleone(orientation, true); }, 10 );
+		return;
+	}
 	let f = this.allfiles[this.actnum];
 	if (undefined === f) {
 		this.mappx(true, 'process.nothing');
@@ -19045,10 +19054,6 @@ handleone(orientation) {
 		typ = globals.infos[zz].typ;
 	}
 	const typ0 = typ;
-	if (undefined !== this.rotphase) {
-		this.rotphase ++;
-		document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ' + this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
-	}
 	let dateok = false;
 	const rawnamearr = txe.encode(rawname);
 	if (date && datestr) dateok = true;

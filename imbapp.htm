@@ -1550,7 +1550,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.3.7_bd0f6ea", // actually const // VERSION EYECATCHER
+version: "V6.3.7_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -19470,7 +19470,16 @@ static ucex(name) {
 	return name.substring(name.length - 4).toUpperCase();
 }
 /* ImBCBase: actual processing function for one file */
-handleone(orientation) {
+handleone(orientation, upd) {
+	if (!upd && (undefined !== this.rotphase)) {
+		this.rotphase ++;
+		if ((this.rotphase % this.rotphases.length) % 2 == 1)
+			document.getElementById('progmsg').innerHTML = '<div style="transform: rotate(90deg);display:inline-block;">' + this.rotphases[this.rotphase % this.rotphases.length] + '</div> ' + this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
+		else
+			document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ' + this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
+		setTimeout(() => { this.handleone(orientation, true); }, 10 );
+		return;
+	}
 	let f = this.allfiles[this.actnum];
 	if (undefined === f) {
 		this.mappx(true, 'process.nothing');
@@ -19583,10 +19592,6 @@ handleone(orientation) {
 		typ = globals.infos[zz].typ;
 	}
 	const typ0 = typ;
-	if (undefined !== this.rotphase) {
-		this.rotphase ++;
-		document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ' + this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
-	}
 	let dateok = false;
 	const rawnamearr = txe.encode(rawname);
 	if (date && datestr) dateok = true;
@@ -20931,7 +20936,7 @@ MGeO7fWZkiJhM/6l9zkoWObSr17O3+6sKWf+xNlwVFYoIyPldVwRECgtEOs6YPFjjNw5JSPIe+3A0IpD
 4kAMd2OliwZx6btyjDpGjwVUrL4J2iWCoO9QGwbE00lfP3kbtGHiIjKgIwYqjZ7SJXrmhTptks0t//wBH7VFXV6OqT11oHf+XVX5pl/Ueq6HTDiZWXqzGi6fvmYX
 5FESkoEGk/7WXHkR8colP9C/T/MrcbVDc4HA7u3LmDc9hF9GExMUMExhYQarVaSYmLSwwfP24ywNGf/qZ0cxQN9V0jtcqmceFurx246fGLQFkZ1NQobDjQwVvLXm
 Lx+9H8CwRURYotrXtgAAAAAElFTkSuQmCC`;
-rotphases = [ '-' , '/', '|', '\\', '=', '\\', '|', '/' ]; // actually const
+rotphases = [ '\u29d6' , '\u29d7', '\u29d6' , '\u29d7', '\u29d6' , '\u29d7', '\u29d6' , '\u29d7', '\u29d6' , '\u29d7', '\u29d6' , '\u29d7', '\u29d6' , '\u29d7', /*'|', '\\', '=', '\\', '|', '/'*/ ]; // actually const
 writestream = null;
 zip = null;
 netwworker = null;
@@ -22140,7 +22145,10 @@ dodelete(list, status) {
 		this.modalback = 'nothing';
 		this.custcmd(4003, 'docstatus', 'str=' + list[0].url, (res) => {
 			this.rotphase ++;
-			document.getElementById('delprogmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ' +  this.xl('process.totals', status.no, status.ok, 0, status.err);
+			if ((this.rotphase % this.rotphases.length) % 2 == 1)
+				document.getElementById('delprogmsg').innerHTML = '<div style="transform: rotate(90deg);display:inline-block;">' + this.rotphases[this.rotphase % this.rotphases.length] + '</div> ' +  this.xl('process.totals', status.no, status.ok, 0, status.err);
+			else
+				document.getElementById('delprogmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ' +  this.xl('process.totals', status.no, status.ok, 0, status.err);
 			if ((0 <= res) /* more debug conditions */
 				|| (this.expflags[3] === 1 && list[0].url.indexOf('2029_0710_010203_001.') !== -1)
 				|| (this.expflags[3] === 2 && list[0].url.indexOf('2029_0707_120426_021.') !== -1))
@@ -22496,7 +22504,7 @@ handlenext() {
 			this.addall = true;
 			this.fromintent = 4;
 			this.stats.ok = 0;
-			setTimeout(() => { this.handleonex(); }, 100);
+			setTimeout(() => { this.handleonex(); }, 30);
 		} else {
 			this.afterfinish();
 		}
@@ -22513,19 +22521,22 @@ handlenext() {
 			if (this.fromvisbrows) {
 				document.getElementById('progmsg').style['display'] = '';
 				this.rotphase ++;
-				document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ' + this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
+				if ((this.rotphase % this.rotphases.length) % 2 == 1)
+					document.getElementById('progmsg').innerHTML = '<div style="transform: rotate(90deg);display:inline-block;">' + this.rotphases[this.rotphase % this.rotphases.length] + '</div> ' + this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
+				else
+					document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ' + this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
 			}
 			this.actnum++;
 			if (this.fromintent === 2 || this.fromintent === 3)
-				setTimeout(() => {this.handleoneback(); }, 100);
+				setTimeout(() => {this.handleoneback(); }, 30);
 			else
-				setTimeout(() => { this.handleonex(); }, 100);
+				setTimeout(() => { this.handleonex(); }, 30);
 		}
 		return;
 	}
 	if (this.actnum < this.allfiles.length - 1) {
 		this.actnum++;
-		setTimeout(() => { this.handleonex(); }, 100);
+		setTimeout(() => { this.handleonex(); }, 30);
 	} else {
 		this.afterfinish();
 		this.startloadimg();
