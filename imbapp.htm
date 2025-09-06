@@ -19910,113 +19910,7 @@ handleone(orientation, upd) {
 		ti.closeSub();  /* **************************************** */
 		if (metadatalen) this.appmsg(metadatastr);
 		if (!this.neutral) {
-			const xmp1 = `<?xpacket begin='`;
-			const xmp2 = `' id='W5M0MpCehiHzreSzNTczkc9d'?><x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="imbraw2dng"><rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#' xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:xmp='http://ns.adobe.com/xap/1.0/' xmlns:history="http://ns.adobe.com/xap/1.0/history/" xmlns:stEvt='http://ns.adobe.com/xap/1.0/sType/ResourceEvent#'><rdf:Description rdf:about='' dc:source='`;
-			const xmp3 = `' xmp:CreateDate='`;
-			const xmp3b = `' xmp:ModifyDate='`;
-			const xmp4 = `' xmp:CreatorTool='`;
-			const xmp5 = `'>`;
-  			const xmp6 = `</rdf:Description></rdf:RDF></x:xmpmeta><?xpacket end='r'?>`;
-			let xmpx = [ xmp1, xmp2 ];
-			let pvdx = '';
-			let datbytes = [];
-			if (dateok) {
-				xmpx.push(xmp3);
-				xmpx.push(xmp3b);
-				datbytes = txe.encode(datestr.substring(0,4)+'-'+ datestr.substring(5,7)+'-'+datestr.substring(8,10)+'T'+datestr.substring(11));
-			}
-			xmpx.push(xmp4);
-			xmpx.push(xmp5);
-			if (artbytes?.length) {
-				xmpx[xmpx.length-1] += `<dc:creator><rdf:Seq><rdf:li>`;
-    			xmpx.push(`</rdf:li></rdf:Seq></dc:creator>`);
-			}
-			if (rightbytes?.length) {
-				xmpx[xmpx.length-1] += `<dc:rights><rdf:Alt><rdf:li xml:lang='x-default'>`;
-    			xmpx.push(`</rdf:li></rdf:Alt></dc:rights>`);
-			}
-			if (descbytes?.length) {
-				xmpx[xmpx.length-1] += `<dc:description><rdf:Alt><rdf:li xml:lang='x-default'>`;
-    			xmpx.push(`</rdf:li></rdf:Alt></dc:description>`);
-    		}
-			if (hxbytes?.length) {
-				xmpx[xmpx.length-1] += `<history:documentHistory><rdf:Seq><rdf:li stEvt:when="`;
-    			xmpx.push(`" stEvt:softwareAgent="`);
-    			xmpx.push(`" stEvt:parameters="`);
-    			xmpx.push(`" stEvt:action="converted"/></rdf:Seq></history:documentHistory>`);
-    			pvdx = txe.encode(new Date(Date.now()).toISOString());
-    		}
-			let swbytes;
-			if (this.imbweb?.length) {
-				swbytes = txe.encode(ImBCBase.progname + ' ' + globals.version + ' (' + this.imbweb + ')');
-			}
-			else
-				swbytes = txe.encode(ImBCBase.progname + ' ' + globals.version);
-			xmpx[xmpx.length-1] += xmp6;
-			const xmprdf = new Uint8Array(artbytes.length + rightbytes.length + descbytes.length + 2*swbytes.length + rawnamearr.length + 2*datbytes.length + hxbytes.length +  pvdx.length + 3 + xmpx.reduce((sum, a) => (sum + txe.encode(a).length), 0));
-			let o=0;
-			let swflag = true, rawflag = true;
-			for (let c = 0; c < xmpx.length; c++) {
-				const et = txe.encode(xmpx[c]);
-				xmprdf.set(et, o);
-				o += et.length;
-				if (c === 0) {
-					// BOM like thingy
-					xmprdf.set(new Uint8Array([239, 187, 191]), o);
-					o+=3;
-				}
-				else if (rawnamearr?.length && rawflag) {
-					xmprdf.set(rawnamearr, o);
-					o += rawnamearr.length;
-					rawflag = false;
-				}
-				else if (datbytes?.length && c == 2) {
-					xmprdf.set(datbytes, o);
-					o += datbytes.length;
-				}
-				else if (datbytes?.length && c === 3) {
-					xmprdf.set(datbytes, o);
-					o += datbytes.length;
-					datbytes = undefined;
-				}
-				else if (swbytes?.length && swflag) {
-					xmprdf.set(swbytes, o);
-					o += swbytes.length;
-					swflag = false;
-				}
-				else if (artbytes?.length) {
-					xmprdf.set(artbytes, o);
-					o += artbytes.length;
-					artbytes = undefined;
-				}
-				else if (rightbytes?.length) {
-					xmprdf.set(rightbytes, o);
-					o += rightbytes.length;
-					rightbytes = undefined;
-				}
-				else if (descbytes?.length) {
-					xmprdf.set(descbytes, o);
-					o += descbytes.length;
-					descbytes = undefined;
-				}
-				else if (hxbytes?.length) {
-					xmprdf.set(pvdx, o);
-					o += pvdx.length;
-					let etx = txe.encode(xmpx[++c]);
-					xmprdf.set(etx, o);
-					o += etx.length;
-					xmprdf.set(swbytes, o);
-					o += swbytes.length;
-					etx = txe.encode(xmpx[++c]);
-					xmprdf.set(etx, o);
-					o += etx.length;
-					xmprdf.set(hxbytes, o);
-					o += hxbytes.length;
-					etx = txe.encode(xmpx[++c]);
-					xmprdf.set(etx, o);
-					o += etx.length;
-				}
-			}
+			const xmprdf = this.buildxmp(rawname, hxbytes, dateok, datestr, descbytes, artbytes, rightbytes);
 			ti.addEntry(700, 'BYTE', xmprdf); /* XMP */
 			ti.addEntry(50827, 'ASCII', rawnamearr); /* Raw file name */
 			ti.addEntry(50728, 'RATIONAL', wb); /* As shot neutral */
@@ -20102,7 +19996,6 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		ti.addEntry(33421, 'SHORT', [ 2, 2 ]); /* CFA Repeat Pattern Dim */
 		ti.addEntry(33422, 'BYTE', ((typ0 > 1) && (typ0 < 5)) ? [ 2, 1, 1, 0 ] : [ 1, 0, 2, 1 ]); /* CFA Pattern dep. on MF/35mm*/
 		this.writewrap(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted' + ((this.checkdlfolder && !this.zip) ? 'checkdl' : ''), ti.getData(), f.name);
-		//this.writejpeg(view, typ, w, h, wb, whitelvl, rawname.substring(0, rawname.length - 4) + '_x.jpg', ori);
 	};
 	reader.onerror = (evt) => {
 		console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
@@ -20117,15 +20010,158 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 /* ImBCBase: write jpeg */
 dljpg() {
 	let c = document.querySelector('#xmag .eeraw');
+	this.#historystring = this.magentry.raw;
+	// do UTF-8 bytes instead of ASCII if necessary
+	this.#historystring += (',' + ImBCBase.progname + ' ' + globals.version);
+	const hbytes = txe.encode(this.#historystring);
+	let { date, datestr, nn, newname } = ImBCBase.nametotime(this.magentry.raw, this.corrdelta);
+	const xnn = newname?.length ? newname : this.magentry.raw;
+	const xmprdf = this.buildxmp(xnn, hbytes, (undefined !== date), datestr);
 	c.toBlob((b) => {
 		if (!b) {
 			console.log('toblob failed');
 			return;
 		}
 		b.arrayBuffer().then((a) => {
-			this.writefile(this.magentry.raw.substring(0,this.magentry.raw.length - 4) + '_x.jpg', 'image/jpeg', '', a, this.magentry.raw.substring(0,this.magentry.raw.length - 4) + '_x.jpg');
+			this.writefile(xnn.substring(0,xnn.length - 4) + '_x.jpg', 'image/jpeg', '', a, xnn.substring(0,xnn.length - 4) + '_x.jpg');
 		});
 	}, 'image/jpeg', 90);
+}
+/* ImBCBase: build xmp for dng or direct jpeg export */
+buildxmp(rawname, hxbytes, dateok, datestr, descbytes, artby, rightby) {
+	const txe = new TextEncoder();
+	const xmp1 = `<?xpacket begin='\ufeff' id='W5M0MpCehiHzreSzNTczkc9d'?><x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="imbraw2dng"><rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#' xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:xmp='http://ns.adobe.com/xap/1.0/' xmlns:history="http://ns.adobe.com/xap/1.0/history/" xmlns:stEvt='http://ns.adobe.com/xap/1.0/sType/ResourceEvent#'><rdf:Description rdf:about='' dc:source='`;
+	const xmp3 = `' xmp:CreateDate='`;
+	const xmp3b = `' xmp:ModifyDate='`;
+	const xmp4 = `' xmp:CreatorTool='`;
+	const xmp5 = `'>`;
+	const xmp6 = `</rdf:Description></rdf:RDF></x:xmpmeta><?xpacket end='r'?>`;
+	let metadatalen = 0;
+	let metadatastr = this.xl('process.metadata') + ' ';
+	const rawnamearr = txe.encode(rawname);
+	let rightbytes = [];
+	if (this.copyright?.length && !rightby?.length) {
+		rightbytes = txe.encode(this.copyright);
+		metadatastr += this.xl('process.addcopyright');
+		metadatalen++;
+	}
+	else rightbytes = rightby;
+	let artbytes = [];
+	if (this.artist?.length && !artby?.length) {
+		artbytes = txe.encode(this.artist);
+		if (metadatalen) metadatastr += ', ';
+		metadatastr += this.xl('process.addartist');
+		metadatalen++;
+	}
+	else artbytes = artby;
+	let xmpx = [ xmp1 ];
+	let pvdx = '';
+	let datbytes = [];
+	if (dateok) {
+		xmpx.push(xmp3);
+		xmpx.push(xmp3b);
+		datbytes = txe.encode(datestr.substring(0,4)+'-'+ datestr.substring(5,7)+'-'+datestr.substring(8,10)+'T'+datestr.substring(11));
+	}
+	xmpx.push(xmp4);
+	xmpx.push(xmp5);
+	if (artbytes?.length) {
+		xmpx[xmpx.length-1] += `<dc:creator><rdf:Seq><rdf:li>`;
+		xmpx.push(`</rdf:li></rdf:Seq></dc:creator>`);
+	}
+	if (rightbytes?.length) {
+		xmpx[xmpx.length-1] += `<dc:rights><rdf:Alt><rdf:li xml:lang='x-default'>`;
+		xmpx.push(`</rdf:li></rdf:Alt></dc:rights>`);
+	}
+	if (descbytes?.length) {
+		xmpx[xmpx.length-1] += `<dc:description><rdf:Alt><rdf:li xml:lang='x-default'>`;
+		xmpx.push(`</rdf:li></rdf:Alt></dc:description>`);
+	}
+	else descbytes = '';
+	if (hxbytes?.length /*|| dateok*/) {
+		xmpx[xmpx.length-1] += `<history:documentHistory><rdf:Seq>`;
+		/*if (dateok) {
+			xmpx[xmpx.length-1] += `<rdf:li stEvt:when="`;
+			xmpx.push(`" stEvt:softwareAgent="`);
+			pvdx = txe.encode(new Date(Date.now()).toISOString());
+			xmpx.push(`" stEvt:parameters="`);
+			xmpx.push(`" stEvt:action="created"/>`;
+		}*/
+		if (hxbytes?.length) {
+			xmpx[xmpx.length-1] += `<rdf:li stEvt:when="`;
+			xmpx.push(`" stEvt:softwareAgent="`);
+			pvdx = txe.encode(new Date(Date.now()).toISOString());
+			xmpx.push(`" stEvt:parameters="`);
+			xmpx.push(`" stEvt:action="converted"/>`);
+		}
+		xmpx[xmpx.length-1] += `</rdf:Seq></history:documentHistory>`;
+	}
+	let swbytes;
+	if (this.imbweb?.length) {
+		swbytes = txe.encode(ImBCBase.progname + ' ' + globals.version + ' (' + this.imbweb + ')');
+	}
+	else
+		swbytes = txe.encode(ImBCBase.progname + ' ' + globals.version);
+	xmpx[xmpx.length-1] += xmp6;
+	const xmprdf = new Uint8Array(artbytes.length + rightbytes.length + descbytes.length + 2*swbytes.length + rawnamearr.length + 2*datbytes.length + hxbytes.length + pvdx.length + xmpx.reduce((sum, a) => (sum + txe.encode(a).length), 0));
+	let o=0;
+	let swflag = true, rawflag = true;
+	for (let c = 0; c < xmpx.length; c++) {
+		const et = txe.encode(xmpx[c]);
+		xmprdf.set(et, o);
+		o += et.length;
+		if (rawnamearr?.length && rawflag) {
+			xmprdf.set(rawnamearr, o);
+			o += rawnamearr.length;
+			rawflag = false;
+		}
+		else if (datbytes?.length && c == 1) {
+			xmprdf.set(datbytes, o);
+			o += datbytes.length;
+		}
+		else if (datbytes?.length && c === 2) {
+			xmprdf.set(datbytes, o);
+			o += datbytes.length;
+			datbytes = undefined;
+		}
+		else if (swbytes?.length && swflag) {
+			xmprdf.set(swbytes, o);
+			o += swbytes.length;
+			swflag = false;
+		}
+		else if (artbytes?.length) {
+			xmprdf.set(artbytes, o);
+			o += artbytes.length;
+			artbytes = undefined;
+		}
+		else if (rightbytes?.length) {
+			xmprdf.set(rightbytes, o);
+			o += rightbytes.length;
+			rightbytes = undefined;
+		}
+		else if (descbytes?.length) {
+			xmprdf.set(descbytes, o);
+			o += descbytes.length;
+			descbytes = undefined;
+		}
+		else if (hxbytes?.length) {
+			xmprdf.set(pvdx, o);
+			o += pvdx.length;
+			let etx = txe.encode(xmpx[++c]);
+			xmprdf.set(etx, o);
+			o += etx.length;
+			xmprdf.set(swbytes, o);
+			o += swbytes.length;
+			etx = txe.encode(xmpx[++c]);
+			xmprdf.set(etx, o);
+			o += etx.length;
+			xmprdf.set(hxbytes, o);
+			o += hxbytes.length;
+			etx = txe.encode(xmpx[++c]);
+			xmprdf.set(etx, o);
+			o += etx.length;
+		}
+	}
+	return xmprdf;
 }
 /* ImBCBase: handle one entry from imb PHOTO/MOVIE listing page */
 handle1imb(url, time) {
