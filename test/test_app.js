@@ -9,7 +9,8 @@ const TESTDAT0='/home/hegny/prog/imbraw2dng/samples';
 
 const TESTURL='http://127.0.0.1:8889/';
 
-const FILELIST=[ '2024_0217_121752_001.dng', '2029_0710_010203_001.dng', '2024_0217_121754_002.JPG', '2024_0217_131752_002.JPG', '2024_0217_131750_001.dng', '2029_0707_120426_021.dng' ];
+const FILELIST=[ /*'2024_0217_121752_001.dng', '2029_0710_010203_001.dng', '2024_0217_121754_002.JPG', '2024_0217_131752_002.JPG', '2024_0217_131750_001.dng', '2029_0707_120426_021.dng', '2024_0217_131750_001_x.jpg'*/ ];
+let dirzip;
 
 // test executable path:
 const TESTEXES='/home/hegny/prog/imbraw2dng/github';
@@ -39,14 +40,25 @@ const wdOpts = {
 //  logLevel: 'info',
 
 async function ffile(driver, idx, cb) {
-	const ff = await driver.executeScript('mobile: pullFile', [{remotePath: '/storage/emulated/0/DCIM/nn/' + FILELIST[idx]}]);
-	fs.writeFile('/home/hegny/Downloads/appium_' + FILELIST[idx] + '.b64', ff, {encoding: null, flush: true, flag: 'w' }, async (e) => {
-    	if (e) console.log(e?.toString());
-    	if (idx < FILELIST.length - 1) {
-    		ffile(driver, idx + 1, cb);
-    	}
-    	else if (cb) cb();
-    });
+	if (idx <= FILELIST.length - 1) {
+		console.log('I ' + idx);
+		const ff = await driver.executeScript('mobile: pullFile', [{remotePath: '/storage/emulated/0/DCIM/nn/' + FILELIST[idx]}]);
+		fs.writeFile('/home/hegny/Downloads/appium_' + FILELIST[idx] + '.b64', ff, {encoding: null, flush: true, flag: 'w' }, async (e) => {
+			if (e) console.log(e?.toString());
+			ffile(driver, idx + 1, cb);
+		});
+	}
+	else {
+		console.log('J ' + idx);
+		dirzip = await driver.executeScript('mobile: pullFolder', [{remotePath: '/storage/emulated/0/DCIM/nn'}]);
+		if (dirzip) {
+			fs.writeFile('/home/hegny/Downloads/appium_dirzip.b64', dirzip, {encoding: null, flush: true, flag: 'w' }, async (e) => {
+				if (e) console.log(e?.toString());
+				if (cb) cb();
+			});
+		}
+		else if (cb) cb();
+	}
 }
 
 function sleep(ms) {
@@ -152,7 +164,7 @@ async function runTest() {
     const logbut00 = await waitfor(driver, '#dlprogresslogbtn');
     const okbut00 = await waitfor(driver, '#progokbut');
     while (1) {
-		const cliki = await logbut00.getAttribute('disabled')
+		const cliki = await okbut00.getAttribute('disabled')
 		//console.log('CLICK *** ' + cliki + '*** CLIC ');
 		if (!cliki) break;
 		await sleep(500);
@@ -232,9 +244,19 @@ async function runTest() {
 	await cpc.click();
 	await driver.pause(200);
 	const copytext = await waitfor(driver,'#artist');
+	await driver.pause(200);
 	await copytext.click();
+	await driver.pause(200);
 	const astr = 'isch debugging';
 	await copytext.sendKeys([astr]);
+	await driver.pause(200);
+	const sbytype2xx = await waitfor(driver, '#jprev');
+	await driver.pause(200);
+	await sbytype2xx.click();
+	await driver.pause(200);
+	//const s = new Select(sbytype);
+	await sbytype2xx.selectByIndex(1);
+	await driver.pause(200);
 	const setb = await waitfor(driver, '#settback');
 	await setb.click();
 	await driver.pause(200);
@@ -262,6 +284,19 @@ async function runTest() {
 	await xdbt.click();
 	const dstr = 'Krokus';
 	await xdbt.sendKeys([dstr]);
+	await driver.pause(200);
+	const xjdbt = await waitfor(driver, '#xjbtn');
+	await xjdbt.click();
+	const logbut2x = await driver.$('#progokbtn');
+    //const fold = await driver.$('=USE THIS FOLDER');
+    while (1) {
+		const cliki = await okbut.getAttribute('disabled')
+		//console.log('CLICK *** ' + cliki + '*** CLIC ');
+		if (!cliki) break;
+		await sleep(500);
+	}
+	await okbut.click();
+	
 	const bbb2 = await waitfor(driver, '#magnix .whbtn');
 	await driver.pause(900);
 	await bbb2.click();
@@ -271,18 +306,19 @@ async function runTest() {
 	const logbut2 = await driver.$('#dlprogresslogbtn');
     //const fold = await driver.$('=USE THIS FOLDER');
     while (1) {
-		const cliki = await logbut.getAttribute('disabled')
+		const cliki = await logbut2.getAttribute('disabled')
 		//console.log('CLICK *** ' + cliki + '*** CLIC ');
 		if (!cliki) break;
 		await sleep(500);
 	}
-    await logbut.click();
+    await logbut2.click();
 	await driver.pause(1000);
     const msglog = await driver.$('#outmsg');
     const txt = await msglog.getText();
     console.log(txt);
     let proc = true;
     let fileidx = 0;
+  	driver.executeScript('mobile: shell', [{command:'ls', args: [ '/storage/emulated/0/DCIM/nn/' ]}]);
     await fs.writeFile('/home/hegny/Downloads/appium.log', txt, {encoding: null, flush: true, flag: 'w' }, async (e) => {
     	if (e) console.log(e?.toString());
 		await ffile(driver, 0, async () => {

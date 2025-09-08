@@ -668,6 +668,9 @@ describe('E Convert Raw from Imback APP', function() {
 				.perform();
 			const copytext = await waitfor(driver,'id','artist');
 			await copytext.sendKeys('isch debugging');
+			const sorcx = await driver.findElement(By.id('jprev'));
+			const sorcxe = new Select(sorcx);
+			await sorcxe.selectByIndex(1);
 			const setb = await waitfor(driver, 'id', 'settback');
 			await driver.actions({ async: true })
 				.move({ origin: setb })
@@ -719,6 +722,26 @@ describe('E Convert Raw from Imback APP', function() {
 				.perform();
 			const desctxt = await waitfor(driver, 'css','#xmag .desctxt');
 			await desctxt.sendKeys('Krokus');
+			const jjbtn = await waitfor(driver, 'css','#xjbtn');
+			await driver.actions({ async: true })
+				.move({ origin: jjbtn })
+				.pause(100)
+				.click()
+				.pause(600)
+				.perform();
+			const okbbaa = await waitfor(driver, 'id', 'progokbut');
+			await driver.actions({ async: true })
+				.move({ origin: okbbaa })
+				.pause(100)
+				.click()
+				.pause(900)
+				.perform();
+			await driver.actions({ async: true })
+				.move({ origin: descbtn })
+				.pause(100)
+				.click()
+				.pause(600)
+				.perform();
 			await driver.actions({ async: true })
 				.move({ origin: bbb })
 				.pause(100)

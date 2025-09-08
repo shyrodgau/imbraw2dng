@@ -60,6 +60,11 @@ echo Appium Log >> $log
 cat ${TESTWORK}/outdir/app/appium.log >> $log 2>&1
 echo >> $log
 
+pushd ${TESTWORK}/outdir/app
+( unzip -j appium_dirzip | grep -i inflating | awk '{print $2}' | while read x; do mv $x appium_${x}; done ) >> $log
+popd
+echo >> $log
+
 kk=1
 for f in $( ls ${TESTWORK}/outdir/html/imb*zip | sort ); do
 	nn=$( basename "$f" | sed 's/\(imb[^_]*_\)[0-9]*_/\1'$kk'_/g' )
