@@ -41,7 +41,7 @@ const wdOpts = {
 
 async function ffile(driver, idx, cb) {
 	if (idx <= FILELIST.length - 1) {
-		console.log('I ' + idx);
+		//console.log('I ' + idx);
 		const ff = await driver.executeScript('mobile: pullFile', [{remotePath: '/storage/emulated/0/DCIM/nn/' + FILELIST[idx]}]);
 		fs.writeFile('/home/hegny/Downloads/appium_' + FILELIST[idx] + '.b64', ff, {encoding: null, flush: true, flag: 'w' }, async (e) => {
 			if (e) console.log(e?.toString());
@@ -49,7 +49,7 @@ async function ffile(driver, idx, cb) {
 		});
 	}
 	else {
-		console.log('J ' + idx);
+		//console.log('J ' + idx);
 		dirzip = await driver.executeScript('mobile: pullFolder', [{remotePath: '/storage/emulated/0/DCIM/nn'}]);
 		if (dirzip) {
 			fs.writeFile('/home/hegny/Downloads/appium_dirzip.b64', dirzip, {encoding: null, flush: true, flag: 'w' }, async (e) => {

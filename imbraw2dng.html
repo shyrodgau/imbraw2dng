@@ -19471,23 +19471,28 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 }
 /* ImBCBase: write jpeg */
 dljpg() {
-	let c = document.querySelector('#xmag .eeraw');
-	this.#historystring = this.magentry.raw;
-	// do UTF-8 bytes instead of ASCII if necessary
-	this.#historystring += (',' + ImBCBase.progname + ' ' + globals.version);
-	const hbytes = txe.encode(this.#historystring);
-	let { date, datestr, nn, newname } = ImBCBase.nametotime(this.magentry.raw, this.corrdelta);
-	const xnn = newname?.length ? newname : this.magentry.raw;
-	const xmprdf = this.buildxmp(xnn, hbytes, (undefined !== date), datestr);
-	c.toBlob((b) => {
-		if (!b) {
-			console.log('toblob failed');
-			return;
-		}
-		b.arrayBuffer().then((a) => {
-			this.writefile(xnn.substring(0,xnn.length - 4) + '_x.jpg', 'image/jpeg', '', a, xnn.substring(0,xnn.length - 4) + '_x.jpg');
-		});
-	}, 'image/jpeg', 90);
+	this.mappx(0, 'process.processing', this.magentry.raw);
+	this.showdlprog(true);
+	setTimeout(() => {
+		let c = document.querySelector('#xmag .eeraw');
+		this.#historystring = this.magentry.raw;
+		// do UTF-8 bytes instead of ASCII if necessary
+		this.#historystring += (',' + ImBCBase.progname + ' ' + globals.version);
+		//const hbytes = txe.encode(this.#historystring);
+		let { date, datestr, newname } = ImBCBase.nametotime(this.magentry.raw, this.corrdelta);
+		const xnn = newname?.length ? newname : this.magentry.raw;
+		const xmprdf = this.buildxmp(xnn, this.#historystring, (undefined !== date), datestr);
+		c.toBlob((b) => {
+			if (!b) {
+				console.log('toblob failed');
+				return;
+			}
+			b.arrayBuffer().then((a) => {
+				this.#historystring = '';
+				this.writefile(xnn.substring(0,xnn.length - 4) + '_x.jpg', 'image/jpeg', 'xyzabc', a, xnn.substring(0,xnn.length - 4) + '_x.jpg');
+			});
+		}, 'image/jpeg', 90);
+	}, 10);
 }
 /* ImBCBase: build xmp for dng or direct jpeg export */
 buildxmp(rawname, hxbytes, dateok, datestr, descbytes, artby, rightby) {
@@ -19507,7 +19512,7 @@ buildxmp(rawname, hxbytes, dateok, datestr, descbytes, artby, rightby) {
 		metadatastr += this.xl('process.addcopyright');
 		metadatalen++;
 	}
-	else rightbytes = rightby;
+	else if (rightby?.length) rightbytes = rightby;
 	let artbytes = [];
 	if (this.artist?.length && !artby?.length) {
 		artbytes = txe.encode(this.artist);
@@ -19515,7 +19520,7 @@ buildxmp(rawname, hxbytes, dateok, datestr, descbytes, artby, rightby) {
 		metadatastr += this.xl('process.addartist');
 		metadatalen++;
 	}
-	else artbytes = artby;
+	else if (artby?.length) artbytes = artby;
 	let xmpx = [ xmp1 ];
 	let pvdx = '';
 	let datbytes = [];
@@ -19539,6 +19544,8 @@ buildxmp(rawname, hxbytes, dateok, datestr, descbytes, artby, rightby) {
 		xmpx.push(`</rdf:li></rdf:Alt></dc:description>`);
 	}
 	else descbytes = '';
+	if (typeof hxbytes === 'string')
+		hxbytes = txe.encode(hxbytes);
 	if (hxbytes?.length /*|| dateok*/) {
 		xmpx[xmpx.length-1] += `<history:documentHistory><rdf:Seq>`;
 		/*if (dateok) {

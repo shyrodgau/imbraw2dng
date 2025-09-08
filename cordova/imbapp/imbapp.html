@@ -20008,23 +20008,28 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 }
 /* ImBCBase: write jpeg */
 dljpg() {
-	let c = document.querySelector('#xmag .eeraw');
-	this.#historystring = this.magentry.raw;
-	// do UTF-8 bytes instead of ASCII if necessary
-	this.#historystring += (',' + ImBCBase.progname + ' ' + globals.version);
-	const hbytes = txe.encode(this.#historystring);
-	let { date, datestr, nn, newname } = ImBCBase.nametotime(this.magentry.raw, this.corrdelta);
-	const xnn = newname?.length ? newname : this.magentry.raw;
-	const xmprdf = this.buildxmp(xnn, hbytes, (undefined !== date), datestr);
-	c.toBlob((b) => {
-		if (!b) {
-			console.log('toblob failed');
-			return;
-		}
-		b.arrayBuffer().then((a) => {
-			this.writefile(xnn.substring(0,xnn.length - 4) + '_x.jpg', 'image/jpeg', '', a, xnn.substring(0,xnn.length - 4) + '_x.jpg');
-		});
-	}, 'image/jpeg', 90);
+	this.mappx(0, 'process.processing', this.magentry.raw);
+	this.showdlprog(true);
+	setTimeout(() => {
+		let c = document.querySelector('#xmag .eeraw');
+		this.#historystring = this.magentry.raw;
+		// do UTF-8 bytes instead of ASCII if necessary
+		this.#historystring += (',' + ImBCBase.progname + ' ' + globals.version);
+		//const hbytes = txe.encode(this.#historystring);
+		let { date, datestr, newname } = ImBCBase.nametotime(this.magentry.raw, this.corrdelta);
+		const xnn = newname?.length ? newname : this.magentry.raw;
+		const xmprdf = this.buildxmp(xnn, this.#historystring, (undefined !== date), datestr);
+		c.toBlob((b) => {
+			if (!b) {
+				console.log('toblob failed');
+				return;
+			}
+			b.arrayBuffer().then((a) => {
+				this.#historystring = '';
+				this.writefile(xnn.substring(0,xnn.length - 4) + '_x.jpg', 'image/jpeg', 'xyzabc', a, xnn.substring(0,xnn.length - 4) + '_x.jpg');
+			});
+		}, 'image/jpeg', 90);
+	}, 10);
 }
 /* ImBCBase: build xmp for dng or direct jpeg export */
 buildxmp(rawname, hxbytes, dateok, datestr, descbytes, artby, rightby) {
@@ -20044,7 +20049,7 @@ buildxmp(rawname, hxbytes, dateok, datestr, descbytes, artby, rightby) {
 		metadatastr += this.xl('process.addcopyright');
 		metadatalen++;
 	}
-	else rightbytes = rightby;
+	else if (rightby?.length) rightbytes = rightby;
 	let artbytes = [];
 	if (this.artist?.length && !artby?.length) {
 		artbytes = txe.encode(this.artist);
@@ -20052,7 +20057,7 @@ buildxmp(rawname, hxbytes, dateok, datestr, descbytes, artby, rightby) {
 		metadatastr += this.xl('process.addartist');
 		metadatalen++;
 	}
-	else artbytes = artby;
+	else if (artby?.length) artbytes = artby;
 	let xmpx = [ xmp1 ];
 	let pvdx = '';
 	let datbytes = [];
@@ -20076,6 +20081,8 @@ buildxmp(rawname, hxbytes, dateok, datestr, descbytes, artby, rightby) {
 		xmpx.push(`</rdf:li></rdf:Alt></dc:description>`);
 	}
 	else descbytes = '';
+	if (typeof hxbytes === 'string')
+		hxbytes = txe.encode(hxbytes);
 	if (hxbytes?.length /*|| dateok*/) {
 		xmpx[xmpx.length-1] += `<history:documentHistory><rdf:Seq>`;
 		/*if (dateok) {
@@ -22882,14 +22889,25 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 			   }).then((uri) => {
 				   console.log("Successful file write... " + uri);
 				   cordova.plugins.safMediastore.getFileName(uri).then((f) => {console.log('F is ' + f);});
-				   if (okmsg?.length)  {
+					if (okmsg === 'xyzabc') {
+						this.modalback = 'closeprog';
+						document.getElementById('progmsg').style['display'] = '';
+						document.getElementById('dlprogresslogbtn').disabled = false;
+						document.getElementById('progokbut').disabled = false;
+						document.getElementById('progcancelbut').disabled = true;
+						document.getElementById('progmsg').innerHTML = this.xl('process.totals', 1,1,0,0);
+						document.getElementById('dlprogress').style['border-color'] = 'green';
+						this.appmsgxl(false, 'words.finished');
+						this.appmsgxl(true, 'process.converted', name);
+					}
+					else if (okmsg?.length) {
 					   this.appmsgxl(false, 'words.finished');
 					   this.appmsgxl(0, okmsg, name);
 				   }
 				   if (undefined !== renameidx) this.appmsgxl(true, 'process.renamed');
 				   else this.appmsg('');
 				   fe.remove();
-				   if (type !== 'application/zip' && type !== 'text/html')
+				   if (okmsg !== 'xyzabc' && type !== 'application/zip' && type !== 'text/html')
 						   this.writepostok(origname);
 			   }).catch((e) => {
 			   	   //fe.remove();
@@ -23490,9 +23508,14 @@ showmag(entry) {
 		orig: entry
 	};
 	if (0 < this.jbigflag && entry.type === 'RAW')
+	{
+		document.getElementById('refts').style['left'] = '7.1em';
 		document.getElementById('xjbtn').style['display'] = '';
-	else
+	}
+	else {
+		document.getElementById('refts').style['left'] = '5.1em';
 		document.getElementById('xjbtn').style['display'] = 'none';
+	}
 	const check = this.magentry.entry.querySelector('input.selcb');
 	if (check) {
 		check.checked = entry.selected;
@@ -24614,10 +24637,14 @@ setjprev(pv) {
 		this.jbigflag = pv;
 		document.getElementById('jprev').value = this.jbigflag;
 	}
-	if (0 < this.jbigflag)
+	if (0 < this.jbigflag) {
+		document.getElementById('refts').style['left'] = '7.1em';
 		document.getElementById('xjbtn').style['display'] = '';
-	else
+	}
+	else {
+		document.getElementById('refts').style['left'] = '5.1em';
 		document.getElementById('xjbtn').style['display'] = 'none';
+	}
 }
 /* TopApp: translate html for new language */
 setlang() {
@@ -26883,7 +26910,7 @@ function init2() {
 			<span class="biggiebtn descbtn" id="descbut" style="left: 2.3em;" onclick="imbc.magdescx();">&#x270e;</span>
 			<input class="biggiebtn desctxt" type="text" id="desctxt" minlength="0" data-myplaceholder="process.photodesc"
 			   onkeyup="imbc.magdescchg()" style="left:5.1em; background-color:rgba(255,255,255,0.7);font-weight:normal;border-radius:5px;border: 1px solid rgba(0,0,0,0);font-size:80%;width:25em;">
-			<span class="dlbtn biggiebtn" id="xjbtn" style="top:-1.2em;left:3.5em;display:none;" data-mytitlexlkey="app.dlbigprev" onclick="imbc.dljpg();">J</span>
+			<span class="dlbtn biggiebtn" id="xjbtn" style="top:-1.6em;left:4.4em;display:none;font-size:95%;" data-mytitlexlkey="app.dlbigprev" onclick="imbc.dljpg();">J</span>
 			<div class="backnextmag" id="backnl" style="left:3vw;" onclick="imbc.magnav();">&#x25c0;</div>
 			<div class="backnextmag" id="backnr" style="right:3vw;" onclick="imbc.magnav(true);">&#x25b6;</div>
 		</div>
