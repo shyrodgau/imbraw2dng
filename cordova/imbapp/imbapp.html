@@ -20006,31 +20006,6 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 	};
 	reader.readAsArrayBuffer(f.imbackintension ? f.imbackintension : f);
 }
-/* ImBCBase: write jpeg */
-dljpg() {
-	this.mappx(0, 'process.processing', this.magentry.raw);
-	this.showdlprog(true);
-	setTimeout(() => {
-		let c = document.querySelector('#xmag .eeraw');
-		this.#historystring = this.magentry.raw;
-		// do UTF-8 bytes instead of ASCII if necessary
-		this.#historystring += (',' + ImBCBase.progname + ' ' + globals.version);
-		//const hbytes = txe.encode(this.#historystring);
-		let { date, datestr, newname } = ImBCBase.nametotime(this.magentry.raw, this.corrdelta);
-		const xnn = newname?.length ? newname : this.magentry.raw;
-		const xmprdf = this.buildxmp(xnn, this.#historystring, (undefined !== date), datestr);
-		c.toBlob((b) => {
-			if (!b) {
-				console.log('toblob failed');
-				return;
-			}
-			b.arrayBuffer().then((a) => {
-				this.#historystring = '';
-				this.writefile(xnn.substring(0,xnn.length - 4) + '_x.jpg', 'image/jpeg', 'xyzabc', a, xnn.substring(0,xnn.length - 4) + '_x.jpg');
-			});
-		}, 'image/jpeg', 90);
-	}, 10);
-}
 /* ImBCBase: build xmp for dng or direct jpeg export */
 buildxmp(rawname, hxbytes, dateok, datestr, descbytes, artby, rightby) {
 	const txe = new TextEncoder();
@@ -23332,6 +23307,62 @@ loaderrunning=false; // currently handled browser raw preview download
 fromvisbrows = false;
 /* deleting/downloading */
 rotphase = 0;
+/* ImBCBase: write jpeg */
+dljpg() {
+	this.mappx(0, 'process.processing', this.magentry.raw);
+	this.showdlprog(true);
+	setTimeout(() => {
+		let c = document.querySelector('#xmag .eeraw');
+		this.#historystring = this.magentry.raw;
+		// do UTF-8 bytes instead of ASCII if necessary
+		this.#historystring += (',' + ImBCBase.progname + ' ' + globals.version);
+		//const hbytes = txe.encode(this.#historystring);
+		let { date, datestr, newname } = ImBCBase.nametotime(this.magentry.raw, this.corrdelta);
+		const xnn = newname?.length ? newname : this.magentry.raw;
+		const xmprdf = this.buildxmp(xnn, this.#historystring, (undefined !== date), datestr);
+		c.toBlob((b) => {
+			if (!b) {
+				console.log('toblob failed');
+				return;
+			}
+			b.arrayBuffer().then((a) => {
+				this.#historystring = '';
+				let odv = new DataView(a);
+				let nab = new ArrayBuffer(a.byteLength + xmprdf.length + 33);
+				let ndv = new DataView(nab);
+				let oo = 0, o = 0;
+				ndv.setUint8(o++, odv.getUint8(oo++));
+				ndv.setUint8(o++, odv.getUint8(oo++));
+				/* first seg */
+				ndv.setUint8(o++, odv.getUint8(oo++));
+				ndv.setUint8(o++, odv.getUint8(oo++));
+				let slen = odv.getUint8(oo)*256 + odv.getUint8(oo+1);
+				ndv.setUint8(o++, odv.getUint8(oo));
+				ndv.setUint8(o++, odv.getUint8(oo+1));
+				oo+=2;
+				for (let j=0; j<slen-2; j++)
+					ndv.setUint8(o++, odv.getUint8(oo++));
+				/* now comes the xmp */
+				ndv.setUint8(o++, 255);
+				ndv.setUint8(o++, 0xe1);
+				let nslen = 31 + xmprdf.length;
+				ndv.setUint8(o++, (Math.floor(nslen/256)));
+				ndv.setUint8(o++, nslen % 256);
+				const xmpns = 'http://ns.adobe.com/xap/1.0/';
+				for (let k=0; k<xmpns.length; k++)
+					ndv.setUint8(o++, xmpns.charCodeAt(k));
+				ndv.setUint8(o++, 0);
+				/* xmp contents */
+				for (let l=0; l<xmprdf.length; l++)
+					ndv.setUint8(o++, xmprdf[l]);
+				/* the rest */
+				for (; oo < a.byteLength; oo++)
+					ndv.setUint8(o++, odv.getUint8(oo));
+				this.writefile(xnn.substring(0,xnn.length - 4) + '_x.jpg', 'image/jpeg', 'xyzabc', ndv, xnn.substring(0,xnn.length - 4) + '_x.jpg');
+			});
+		}, 'image/jpeg', 0.93);
+	}, 10);
+}
 stylegrp() {
 	document.activeElement.blur();
 	if (document.getElementById('grpsel')?.value === 'time')
