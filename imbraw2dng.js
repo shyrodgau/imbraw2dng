@@ -1519,7 +1519,7 @@ artist = '';
 #addimgs = [];
 addall = false;
 addscaleall = false;
-#historystring = '';
+historystring = '';
 
 /* ImBCBase: For processing several files */
 totnum=0;
@@ -18912,13 +18912,13 @@ handleone(orientation, upd) {
 			targbits = 12;
 		if (this.addall && this.totnum > 1) {
 			if (this.#addimgs.length === 0)
-				this.#historystring='';
+				this.historystring='';
 			this.#addimgs.push(view);
 			this.mappx(0, 'main.fakelong.added', inname);
-			if (this.#historystring.length < 2)
-				this.#historystring += rawname;
+			if (this.historystring.length < 2)
+				this.historystring += rawname;
 			else
-				this.#historystring += ('+' + rawname);
+				this.historystring += ('+' + rawname);
 			if (this.actnum === this.totnum - 1) {
 				const npic = this.#addimgs.length;
 				let fc = 0; //Math.ceil(npic / 16);
@@ -19046,7 +19046,7 @@ handleone(orientation, upd) {
 					view = nvv; //new DataView(nnv);
 				}
 				if (fc > 1) {
-					this.#historystring = '(' + this.#historystring + ')/' + Math.round(fc*100)/100;
+					this.historystring = '(' + this.historystring + ')/' + Math.round(fc*100)/100;
 				}
 				addimgs = this.#addimgs.length;
 				this.#addimgs = [];
@@ -19093,17 +19093,17 @@ handleone(orientation, upd) {
 		ti.addEntry(272, 'ASCII', globals.types[typ0]); /* Model */
 		ti.addEntry(274, 'SHORT', [ ori ]); /* Orientation */
 		ti.addEntry(305, 'ASCII', ImBCBase.progname + ' ' + globals.version); /* SW and version */
-		if (!this.#historystring?.length)
-			this.#historystring = rawname;
-		let hxbytes = txe.encode(this.#historystring);
+		if (!this.historystring?.length)
+			this.historystring = rawname;
+		let hxbytes = txe.encode(this.historystring);
 		// do UTF-8 bytes instead of ASCII if necessary
-		this.#historystring += (',' + ImBCBase.progname + ' ' + globals.version);
-		const hbytes = txe.encode(this.#historystring);
-		if (hbytes.length === this.#historystring.length)
-			ti.addEntry(37395, 'ASCII', this.#historystring); /* image history */
+		this.historystring += (',' + ImBCBase.progname + ' ' + globals.version);
+		const hbytes = txe.encode(this.historystring);
+		if (hbytes.length === this.historystring.length)
+			ti.addEntry(37395, 'ASCII', this.historystring); /* image history */
 		else
 			ti.addEntry(37395, 'BYTE', hbytes); /* image history */
-		let privdatstr = 'IMBACK.EU_SHY ' + this.#historystring;
+		let privdatstr = 'IMBACK.EU_SHY ' + this.historystring;
 		if (this.imbweb?.length) {
 			privdatstr += (' (' + this.imbweb + ')');
 		}
@@ -19111,7 +19111,7 @@ handleone(orientation, upd) {
 		const privdatbytes = txe.encode(privdatstr);
 		privdatbytes[13] = 0;
 		ti.addEntry(50740, 'BYTE', privdatbytes); /* dng private */
-		this.#historystring = '';
+		this.historystring = '';
 		let myexif = null;
 		if (dateok) {
 			ti.addEntry(306, 'ASCII', datestr); /* datetime */
@@ -19133,16 +19133,12 @@ handleone(orientation, upd) {
 				myexif = e.data;
 			}
 		}
-		let metadatastr = this.xl('process.metadata') + ' ';
-		let metadatalen = 0;
 		let rightbytes = [];
 		if (this.metadata && this.copyright?.length) {
 			// do UTF-8 bytes instead of ASCII if necessary
 			rightbytes = txe.encode(this.copyright);
 			if (rightbytes.length === this.copyright.length)
 				ti.addEntry(33432, 'ASCII', this.copyright); /* copyright */
-			metadatastr += this.xl('process.addcopyright');
-			metadatalen++;
 		}
 		let artbytes = [];
 		if (this.metadata && this.artist?.length) {
@@ -19150,23 +19146,17 @@ handleone(orientation, upd) {
 			artbytes = txe.encode(this.artist);
 			if (artbytes.length === this.artist.length)
 				ti.addEntry(315, 'ASCII', this.artist); /* artist */
-			if (metadatalen) metadatastr += ', ';
-			metadatastr += this.xl('process.addartist');
-			metadatalen++;
 		}
 		let desc = '', descbytes = [];
 		if (this.iinf?.length) {
 			const ii = this.iinf.findIndex((e) => e.n === inname);
 			if (ii !== -1 && this.iinf[ii].d !== undefined)
 				desc = this.iinf[ii].d;
-			if (desc.length) {
+			if (desc?.length) {
 				// do UTF-8 bytes instead of ASCII if necessary
 				descbytes = txe.encode(desc);
 				if (descbytes.length === desc.length)
 					ti.addEntry(270, 'ASCII', desc); /* image description */
-				if (metadatalen) metadatastr += ', ';
-				metadatastr += this.xl0('process.photodesc');
-				metadatalen++;
 			}
 		}
 		ti.addSubIfd(34665); /* **************************************** */
@@ -19207,9 +19197,8 @@ handleone(orientation, upd) {
 			}
 		}
 		ti.closeSub();  /* **************************************** */
-		if (metadatalen) this.appmsg(metadatastr);
 		if (!this.neutral) {
-			const xmprdf = this.buildxmp(rawname, hxbytes, dateok, datestr, descbytes, artbytes, rightbytes);
+			const xmprdf = this.buildxmp(rawname, hxbytes, dateok, datestr, desc, artbytes, rightbytes);
 			ti.addEntry(700, 'BYTE', xmprdf); /* XMP */
 			ti.addEntry(50827, 'ASCII', rawnamearr); /* Raw file name */
 			ti.addEntry(50728, 'RATIONAL', wb); /* As shot neutral */
@@ -19307,7 +19296,7 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 	reader.readAsArrayBuffer(f.imbackintension ? f.imbackintension : f);
 }
 /* ImBCBase: build xmp for dng or direct jpeg export */
-buildxmp(rawname, hxbytes, dateok, datestr, descbytes, artby, rightby) {
+buildxmp(rawname, hxbytes, dateok, datestr, desc, artby, rightby) {
 	const txe = new TextEncoder();
 	const xmp1 = `<?xpacket begin='\ufeff' id='W5M0MpCehiHzreSzNTczkc9d'?><x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="imbraw2dng"><rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#' xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:xmp='http://ns.adobe.com/xap/1.0/' xmlns:history="http://ns.adobe.com/xap/1.0/history/" xmlns:stEvt='http://ns.adobe.com/xap/1.0/sType/ResourceEvent#'><rdf:Description rdf:about='' dc:source='`;
 	const xmp3 = `' xmp:CreateDate='`;
@@ -19319,19 +19308,10 @@ buildxmp(rawname, hxbytes, dateok, datestr, descbytes, artby, rightby) {
 	let metadatastr = this.xl('process.metadata') + ' ';
 	const rawnamearr = txe.encode(rawname);
 	let rightbytes = [];
-	if (this.copyright?.length && !rightby?.length) {
-		rightbytes = txe.encode(this.copyright);
-		metadatastr += this.xl('process.addcopyright');
-		metadatalen++;
-	}
+	if (this.copyright?.length && !rightby?.length) rightbytes = txe.encode(this.copyright);
 	else if (rightby?.length) rightbytes = rightby;
 	let artbytes = [];
-	if (this.artist?.length && !artby?.length) {
-		artbytes = txe.encode(this.artist);
-		if (metadatalen) metadatastr += ', ';
-		metadatastr += this.xl('process.addartist');
-		metadatalen++;
-	}
+	if (this.artist?.length && !artby?.length) artbytes = txe.encode(this.artist);
 	else if (artby?.length) artbytes = artby;
 	let xmpx = [ xmp1 ];
 	let pvdx = '';
@@ -19346,16 +19326,24 @@ buildxmp(rawname, hxbytes, dateok, datestr, descbytes, artby, rightby) {
 	if (artbytes?.length) {
 		xmpx[xmpx.length-1] += `<dc:creator><rdf:Seq><rdf:li>`;
 		xmpx.push(`</rdf:li></rdf:Seq></dc:creator>`);
+		metadatastr += this.xl('process.addartist');
+		metadatalen++;
 	}
 	if (rightbytes?.length) {
 		xmpx[xmpx.length-1] += `<dc:rights><rdf:Alt><rdf:li xml:lang='x-default'>`;
 		xmpx.push(`</rdf:li></rdf:Alt></dc:rights>`);
+		if (metadatalen) metadatastr += ', ';
+		metadatastr += this.xl('process.addcopyright');
+		metadatalen++;
 	}
-	if (descbytes?.length) {
+	let descbytes = [];
+	if (desc?.length) {
+		descbytes = txe.encode(desc);
 		xmpx[xmpx.length-1] += `<dc:description><rdf:Alt><rdf:li xml:lang='x-default'>`;
 		xmpx.push(`</rdf:li></rdf:Alt></dc:description>`);
+		if (metadatalen) metadatastr += ', ';
+		metadatastr += this.xl('process.photodesc');
 	}
-	else descbytes = '';
 	if (typeof hxbytes === 'string')
 		hxbytes = txe.encode(hxbytes);
 	if (hxbytes?.length /*|| dateok*/) {
@@ -19442,6 +19430,7 @@ buildxmp(rawname, hxbytes, dateok, datestr, descbytes, artby, rightby) {
 			o += etx.length;
 		}
 	}
+	if (metadatalen) this.appmsg(metadatastr);
 	return xmprdf;
 }
 /* ImBCBase: handle one entry from imb PHOTO/MOVIE listing page */
