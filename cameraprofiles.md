@@ -4,7 +4,7 @@
 For instruction how to use them, see the documentation or help of you software.
 
 Note: The profiles were made on 35mm for Fresnel + PDLC. The difference to MF can probably be neglected if the 
-Fresnel + PDLC type is the same. For other combinations (PDLC only, Fresnel or EG-xxx only, PDLC and Fresnel inverted 
+Fresnel + PDLC type is the same. For other combinations (Film, PDLC only, Fresnel or EG-xxx only, PDLC and Fresnel inverted 
 as on some MF types) we could do a separate calibration, if these current ones would not be good enough.
 
 Note: All profiles of the same type have the same contents. That of the DCP profiles also should match the calibration data that is contained inside 
