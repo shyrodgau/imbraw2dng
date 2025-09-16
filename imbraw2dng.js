@@ -849,7 +849,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.3.8_25b7a82", // actually const // VERSION EYECATCHER
+version: "V6.3.8_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -1539,10 +1539,11 @@ latestjpg='0000';
 earliestraw='9999';
 latestraw='0000';
 
-// [0]: !=0 => use separate localstorage namespace from imbraw2dng
-// [1]: imbweb: for non-emulator: 1 => use = 'http://192.168.8.101:8080'; 2 => use = 'http://192.168.0.72:8080'; android emulator: !=0 => use 10.0.2.2 (host connection)
-// [2]: !=0 => use longer startup timeout, debug versio
-// [3]: ==1 => fake delete works for 2029_0710_010203_001..., ==2 => fake delete works for 2029_0707_120426_021...
+// [0]: (1,2)   !=0 => use separate localstorage namespace from imbraw2dng
+// [1]: (3,6)   imbweb: for non-emulator: 1 => use = 'http://192.168.8.101:8080'; 2 => use = 'http://192.168.0.72:8080'; android emulator: !=0 => use 10.0.2.2 (host connection)
+// [2]: (9,18)  !=0 => use longer startup timeout, debug version
+// [3]: (27,54) ==1 => fake delete works for 2029_0710_010203_001..., ==2 => fake delete works for 2029_0707_120426_021...
+// [4]: (81,162) !=0 => do not save JPG files but use only exif metadata from them
 expflags = [ 0, 0, 0, 0, 0 ];
 
 //////// DYNAMIC SOURCE 1
@@ -19296,9 +19297,9 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 	reader.readAsArrayBuffer(f.imbackintension ? f.imbackintension : f);
 }
 /* ImBCBase: build xmp for dng or direct jpeg export */
-buildxmp(rawname, hxbytes, dateok, datestr, desc, artby, rightby) {
+buildxmp(rawname, hxbytes, dateok, datestr, desc, artby, rightby, type) {
 	const txe = new TextEncoder();
-	const xmp1 = `<?xpacket begin='\ufeff' id='W5M0MpCehiHzreSzNTczkc9d'?><x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="imbraw2dng"><rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#' xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:xmp='http://ns.adobe.com/xap/1.0/' xmlns:history="http://ns.adobe.com/xap/1.0/history/" xmlns:stEvt='http://ns.adobe.com/xap/1.0/sType/ResourceEvent#'><rdf:Description rdf:about='' dc:source='`;
+	const xmp1 = `<?xpacket begin='\ufeff' id='W5M0MpCehiHzreSzNTczkc9d'?><x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="imbraw2dng"><rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#' xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:xmp='http://ns.adobe.com/xap/1.0/' xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/" xmlns:stEvt='http://ns.adobe.com/xap/1.0/sType/ResourceEvent#'><rdf:Description rdf:about='' dc:source='`;
 	const xmp3 = `' xmp:CreateDate='`;
 	const xmp3b = `' xmp:ModifyDate='`;
 	const xmp4 = `' xmp:CreatorTool='`;
@@ -19347,14 +19348,13 @@ buildxmp(rawname, hxbytes, dateok, datestr, desc, artby, rightby) {
 	if (typeof hxbytes === 'string')
 		hxbytes = txe.encode(hxbytes);
 	if (hxbytes?.length /*|| dateok*/) {
-		xmpx[xmpx.length-1] += `<history:documentHistory><rdf:Seq>`;
-		/*if (dateok) {
+		xmpx[xmpx.length-1] += `<xmpMM:History><rdf:Seq>`;
+		if (dateok && (undefined !== type)) {
 			xmpx[xmpx.length-1] += `<rdf:li stEvt:when="`;
-			xmpx.push(`" stEvt:softwareAgent="`);
 			pvdx = txe.encode(new Date(Date.now()).toISOString());
 			xmpx.push(`" stEvt:parameters="`);
-			xmpx.push(`" stEvt:action="created"/>`;
-		}*/
+			xmpx.push(`" stEvt:action="created"/>`);
+		}
 		if (hxbytes?.length) {
 			xmpx[xmpx.length-1] += `<rdf:li stEvt:when="`;
 			xmpx.push(`" stEvt:softwareAgent="`);
@@ -19362,7 +19362,7 @@ buildxmp(rawname, hxbytes, dateok, datestr, desc, artby, rightby) {
 			xmpx.push(`" stEvt:parameters="`);
 			xmpx.push(`" stEvt:action="converted"/>`);
 		}
-		xmpx[xmpx.length-1] += `</rdf:Seq></history:documentHistory>`;
+		xmpx[xmpx.length-1] += `</rdf:Seq></xmpMM:History>`;
 	}
 	let swbytes;
 	if (this.imbweb?.length) {
