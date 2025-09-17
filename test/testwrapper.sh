@@ -26,6 +26,8 @@ ${TESTWORK}/test_node.sh 2>&1 | tee --output-error=exit -a $log 2>&1
 xs=$(( ${PIPESTATUS[0]} + ${PIPESTATUS[1]} ))
 test ${xs} -ne 0 && echo node failed && exit
 
+rm -rf ~/Downloads/.tmpimbtest
+
 touch ~/Downloads/imbraw2dng_test_${testid}_startmark
 sleep 1
 
@@ -34,7 +36,20 @@ sleep 3
 touch ~/Downloads/imbraw2dng_test_${testid}_endmark
 
 mkdir -p ${TESTWORK}/outdir/html
-find ~/Downloads -newer ~/Downloads/imbraw2dng_test_${testid}_startmark -type f ! -name imbraw2dng_test_${testid}_endmark -exec mv -v {} ${TESTWORK}/outdir/html \; 2>&1 | tee -a $log
+find ~/Downloads/.tmpimbtest -newer ~/Downloads/imbraw2dng_test_${testid}_startmark -type f ! -name imbraw2dng_test_${testid}_endmark -exec basename {} \; |  while read uqf; do
+	nf=${uqf%%@*}
+	if [ -e ${TESTWORK}/outdir/html/$nf ]; then
+		i=1
+		while [ -e ${TESTWORK}/outdir/html/${nf%%.*}" ("$i")."${nf##*.} ]; do
+			i=$(( $i + 1 ))
+		done
+		mv -v ~/Downloads/.tmpimbtest/$uqf ${TESTWORK}/outdir/html/${nf%%.*}" ("$i")."${nf##*.} 2>&1 | tee -a $log
+	else
+		mv -v ~/Downloads/.tmpimbtest/$uqf ${TESTWORK}/outdir/html/$nf 2>&1 | tee -a $log
+	fi
+done
+#	mv -v {} ${TESTWORK}/outdir/html \; 2>&1 | tee -a $log
+find ~/Downloads/ -newer ~/Downloads/imbraw2dng_test_${testid}_startmark -type f ! -name imbraw2dng_test_${testid}_endmark -exec rm -v {} \; 2>&1 | tee -a $log
 rm ~/Downloads/imbraw2dng_test_${testid}_endmark ~/Downloads/imbraw2dng_test_${testid}_startmark
 
 touch ~/Downloads/imbraw2dng_test_${testid}_startmark

@@ -13,9 +13,11 @@ const TESTEXES='/home/hegny/prog/imbraw2dng/github';
 const TESTWORK='/home/hegny/prog/imbraw2dng/github/test';
 
 const {Builder, forBrowser, By, until, Browser, Capabilities, Select} = require('selenium-webdriver');
-//const chrome = require('chromedriver');
-//const { suite, test } = require('selenium-webdriver/testing');
-//const { ChromeOptions } = require('selenium-webdriver/chrome');
+const chrome = require('selenium-webdriver/chrome');
+const downloadDirBase = '/home/hegny/Downloads/';
+const fs = require('fs');
+let tdir;
+let idx = 0;
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -51,15 +53,48 @@ function waitfor(driver, what, id, cnt=0) {
 		})
 	})
 }
+
+function renameDownload(downloadDir) {
+  const files = fs.readdirSync(downloadDir);
+  if (files.some(f => f.endsWith('.crdownload'))) {
+  	  while (files.some(f => f.endsWith('.crdownload'))) {}
+  	  return renameDownloads(downloadDir);
+  }
+  const newf = files.filter(f => (-1 === f.indexOf('@')));
+  for (const f of newf) {
+  	  // for case C.1
+  	  if (f === 'mf6x6_large_1.dng' || f === 'kb_large_10.dng') {
+  	  	  fs.copyFileSync(downloadDir + '/'+f, '/home/hegny/Downloads/'+f);
+  	  }
+  	  fs.renameSync(downloadDir + '/'+f, downloadDir + '/'+f + '@' + idx);
+  	  idx++;
+  }
+}
+
+var ino = 0;
+
 describe('A Convert Raw Local', function() {
 	let driver, opts, errflg = false;
 	before(async function() {
 			this.timeout(36000);
-			//const chromcapa = Capabilities.chrome();
-			//const opts = [ 'prefs', { 'download.default_directory': '/home/hegny/Downloads/testoutputdir' } ];
-			//chromcapa.set('chromeOptions', opts);
-			driver = await new Builder().forBrowser(Browser.CHROME).build();
-			//driver = await new Builder().forBrowser(Browser.CHROME).withCapabilities(chromcapa).build();
+		  // Configure ChromeOptions
+		  tdir = downloadDirBase + '.tmpimbtest';
+		  fs.mkdirSync(tdir, { recursive: true });
+		  const options = new chrome.Options();
+		  options.setUserPreferences({
+			'download.default_directory': tdir,
+			'download.prompt_for_download': false,
+			'profile.default_content_settings.popups': 0,
+		  });
+		  options.addArguments('--no-sandbox');
+		  options.addArguments('--disable-dev-shm-usage');
+  			driver = await new Builder().forBrowser(Browser.CHROME).setChromeOptions(options).build();
+		   // Use DevTools Protocol to allow multiple downloads
+			const cdpConnection = await driver.createCDPConnection('page');
+			await driver.sendDevToolsCommand('Page.setDownloadBehavior', {
+			  behavior: 'allow',
+			  downloadPath: tdir,
+			});
 			await driver.get(TESTURL + 'IMBACK/imbraw2dng.html');
 			driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));alert(JSON.stringify(e));}');
 			await driver.executeScript('window.localStorage.setItem("imbapp_dnsad1", "1")',[]);
@@ -80,6 +115,7 @@ describe('A Convert Raw Local', function() {
 			const fi = await driver.findElement(By.id('infile'));
 			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw');
 			await driver.actions({async: true}).pause(900).perform();
+			renameDownload(tdir);
 			await driver.actions({async: true}).clear();
 			await fi.clear();
 	});
@@ -106,6 +142,7 @@ describe('A Convert Raw Local', function() {
 			await driver.actions({async: true})
 				.move({origin: doit}).pause(300).click().pause(300).perform();
 			await driver.actions({async: true}).pause(900).perform();
+			renameDownload(tdir);
 			await driver.actions({async: true}).clear();
 	});
 	it('A.3 Convert with question and more rotation', async function dotest() {
@@ -136,10 +173,12 @@ describe('A Convert Raw Local', function() {
 			await driver.actions({async: true})
 				.move({origin: doit}).pause(300).click().pause(300).perform();
 			await driver.actions({async: true}).pause(900).perform();
+			renameDownload(tdir);
 			const doit2 = await driver.findElement(By.id('procthis'));
 			await driver.actions({async: true})
 				.move({origin: doit2}).pause(300).click().pause(300).perform();
 			await driver.actions({async: true}).pause(900).perform();
+			renameDownload(tdir);
 			await driver.actions({async: true}).clear();
 	});
 	it('A.4 Convert to zip with copyright', async function dotest() {
@@ -190,6 +229,7 @@ describe('A Convert Raw Local', function() {
 			// do something to make it flutsch
 			await driver.actions({async: true})
 				.pause(700).move({ origin: cb }).pause(700).perform();
+			renameDownload(tdir);
 	});
 	it('A.5 Convert to zip with exif', async function dotest() {
 			this.timeout(11000);
@@ -203,6 +243,7 @@ describe('A Convert Raw Local', function() {
 			// do something to make it flutsch
 			await driver.actions({async: true})
 				.pause(700).move({ origin: cb }).pause(700).perform();
+			renameDownload(tdir);
 	});
 	it('A.6 Convert without date', async function dotest() {
 			this.timeout(11000);
@@ -244,6 +285,7 @@ describe('A Convert Raw Local', function() {
 			// do something to make it flutsch
 			await driver.actions({async: true})
 				.pause(700).move({ origin: cb }).pause(700).perform();
+			renameDownload(tdir);
 	});
 	it('A.7 Old style wb', async function dotest() {
 			this.timeout(11000);
@@ -286,6 +328,7 @@ describe('A Convert Raw Local', function() {
 			// do something to make it flutsch
 			await driver.actions({async: true})
 				.pause(700).move({ origin: cb }).pause(700).perform();
+			renameDownload(tdir);
 	});
 	after(async function() {
 			let me = await driver.findElement(By.id('thebody'));
@@ -307,11 +350,24 @@ describe('B Convert Raw from Imback', function() {
 	let driver, opts, errflg = false;
 	before(async function() {
 			this.timeout(36000);
-			//const chromcapa = Capabilities.chrome();
 			const opts = [ 'prefs', { 'download.default_directory': '/home/hegny/Downloads/testoutputdir' } ];
-			//chromcapa.set('chromeOptions', opts);
-			driver = await new Builder().forBrowser(Browser.CHROME).build();
-			//driver = await new Builder().forBrowser(Browser.CHROME).withCapabilities(chromcapa).build();
+		  tdir = downloadDirBase + '.tmpimbtest';
+		  fs.mkdirSync(tdir, { recursive: true });
+		  const options = new chrome.Options();
+		  options.setUserPreferences({
+			'download.default_directory': tdir,
+			'download.prompt_for_download': false,
+			'profile.default_content_settings.popups': 0,
+		  });
+		  options.addArguments('--no-sandbox');
+		  options.addArguments('--disable-dev-shm-usage');
+  			driver = await new Builder().forBrowser(Browser.CHROME).setChromeOptions(options).build();
+		   // Use DevTools Protocol to allow multiple downloads
+			const cdpConnection = await driver.createCDPConnection('page');
+			await driver.sendDevToolsCommand('Page.setDownloadBehavior', {
+			  behavior: 'allow',
+			  downloadPath: tdir,
+			});
 			await driver.get(TESTURL + 'IMBACK/imbraw2dng_00.html');
 			driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));alert(JSON.stringify(e));}');
 	});
@@ -349,6 +405,7 @@ describe('B Convert Raw from Imback', function() {
 				.pause(900)
 				.perform();
 			await driver.actions({async: true}).pause(100);
+			renameDownload(tdir);
 			await driver.actions({async: true}).clear();
 			const stpv = await waitfor(driver, 'id', 'steppreview');
 			await driver.actions({async: true})
@@ -409,6 +466,7 @@ describe('B Convert Raw from Imback', function() {
 			const dlmsgbut = await waitfor(driver, 'id', 'dlmsgbut');
 			await driver.actions({async: true})
 				.pause(700).move({ origin: dlmsgbut }).pause(300).click().pause(700).perform();
+			renameDownload(tdir);
 	});
 	after(async function() {
 			let me = await driver.findElement(By.id('thebody'));
@@ -430,11 +488,24 @@ describe('C Convert Backward', function() {
 	let driver, opts, errflg = false;
 	before(async function() {
 			this.timeout(36000);
-			//const chromcapa = Capabilities.chrome();
 			const opts = [ 'prefs', { 'download.default_directory': '/home/hegny/Downloads/testoutputdir' } ];
-			//chromcapa.set('chromeOptions', opts);
-			driver = await new Builder().forBrowser(Browser.CHROME).build();
-			//driver = await new Builder().forBrowser(Browser.CHROME).withCapabilities(chromcapa).build();
+		  tdir = downloadDirBase + '.tmpimbtest';
+		  fs.mkdirSync(tdir, { recursive: true });
+		  const options = new chrome.Options();
+		  options.setUserPreferences({
+			'download.default_directory': tdir,
+			'download.prompt_for_download': false,
+			'profile.default_content_settings.popups': 0,
+		  });
+		  options.addArguments('--no-sandbox');
+		  options.addArguments('--disable-dev-shm-usage');
+  			driver = await new Builder().forBrowser(Browser.CHROME).setChromeOptions(options).build();
+		   // Use DevTools Protocol to allow multiple downloads
+			const cdpConnection = await driver.createCDPConnection('page');
+			await driver.sendDevToolsCommand('Page.setDownloadBehavior', {
+			  behavior: 'allow',
+			  downloadPath: tdir,
+			});
 			await driver.get(TESTURL + 'IMBACK/imbdng2raw.html');
 			driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));}');
 	});
@@ -445,6 +516,7 @@ describe('C Convert Backward', function() {
 			await fi.sendKeys('/home/hegny/Downloads/mf6x6_large_1.dng\n/home/hegny/Downloads/kb_large_10.dng');
 			await driver.actions({async: true})
 				.pause(300).move({ origin: fi }).pause(1000).perform();
+			renameDownload(tdir);
 	});
 	after(async function() {
 			let me = await driver.findElement(By.id('thebody'));
@@ -466,11 +538,24 @@ describe('E Convert Raw from Imback APP', function() {
 	let driver, opts, errflg = false;
 	before(async function() {
 			this.timeout(96000);
-			//const chromcapa = Capabilities.chrome();
 			const opts = [ 'prefs', { 'download.default_directory': '/home/hegny/Downloads/testoutputdir' } ];
-			//chromcapa.set('chromeOptions', opts);
-			driver = await new Builder().forBrowser(Browser.CHROME).build();
-			//driver = await new Builder().forBrowser(Browser.CHROME).withCapabilities(chromcapa).build();
+		  tdir = downloadDirBase + '.tmpimbtest';
+		  fs.mkdirSync(tdir, { recursive: true });
+		  const options = new chrome.Options();
+		  options.setUserPreferences({
+			'download.default_directory': tdir,
+			'download.prompt_for_download': false,
+			'profile.default_content_settings.popups': 0,
+		  });
+		  options.addArguments('--no-sandbox');
+		  options.addArguments('--disable-dev-shm-usage');
+  			driver = await new Builder().forBrowser(Browser.CHROME).setChromeOptions(options).build();
+		   // Use DevTools Protocol to allow multiple downloads
+			const cdpConnection = await driver.createCDPConnection('page');
+			await driver.sendDevToolsCommand('Page.setDownloadBehavior', {
+			  behavior: 'allow',
+			  downloadPath: tdir,
+			});
 			await driver.get(TESTURL + 'IMBACK/imbapp.htm');
 			// Initialize or set localStorage (for example, setting a key-value pair) /* 27 */
 			await driver.executeScript('window.localStorage.setItem("imbapp_expflags", "27");',[]);
@@ -627,6 +712,7 @@ describe('E Convert Raw from Imback APP', function() {
 				.click()
 				.pause(900)
 				.perform();
+			renameDownload(tdir);
 			const sorb = await driver.findElement(By.css('#grpsel'));
 			const sorbe = new Select(sorb);
 			await sorbe.selectByIndex(1);
@@ -761,6 +847,7 @@ describe('E Convert Raw from Imback APP', function() {
 				.click()
 				.pause(900)
 				.perform();
+			renameDownload(tdir);
 			const hm2 = await waitfor(driver, 'id', 'hamb');
 			await driver.actions({ async: true })
 				.move({ origin: hm2 })
@@ -800,11 +887,23 @@ describe('F Convert Raw Local APP', function() {
 	let driver, opts, errflg = false;
 	before(async function() {
 			this.timeout(36000);
-			//const chromcapa = Capabilities.chrome();
-			//const opts = [ 'prefs', { 'download.default_directory': '/home/hegny/Downloads/testoutputdir' } ];
-			//chromcapa.set('chromeOptions', opts);
-			driver = await new Builder().forBrowser(Browser.CHROME).build();
-			//driver = await new Builder().forBrowser(Browser.CHROME).withCapabilities(chromcapa).build();
+		  tdir = downloadDirBase + '.tmpimbtest';
+		  fs.mkdirSync(tdir, { recursive: true });
+  		  const options = new chrome.Options();
+		  options.setUserPreferences({
+			'download.default_directory': tdir,
+			'download.prompt_for_download': false,
+			'profile.default_content_settings.popups': 0,
+		  });
+		  options.addArguments('--no-sandbox');
+		  options.addArguments('--disable-dev-shm-usage');
+  			driver = await new Builder().forBrowser(Browser.CHROME).setChromeOptions(options).build();
+		   // Use DevTools Protocol to allow multiple downloads
+			const cdpConnection = await driver.createCDPConnection('page');
+			await driver.sendDevToolsCommand('Page.setDownloadBehavior', {
+			  behavior: 'allow',
+			  downloadPath: tdir,
+			});
 			await driver.get('file://' + TESTDAT + '/IMBACK/imbapp.htm');
 			await driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));}');
 	});
@@ -822,6 +921,7 @@ describe('F Convert Raw Local APP', function() {
 				.pause(900)
 				.perform();
 			//await fi.clear();
+			renameDownload(tdir);
 	});
 	it('F.2 Convert multipe', async function dotest() {
 			this.timeout(9000);
@@ -852,6 +952,7 @@ describe('F Convert Raw Local APP', function() {
 				.pause(1900)
 				.perform();
 			//await fi.clear();
+			renameDownload(tdir);
 	});
 	after(async function() {
 			this.timeout(36000);
@@ -875,11 +976,23 @@ describe('G Stacking DNG and RAW on old html', function() {
 	let driver, opts, errflg = false;
 	before(async function() {
 			this.timeout(36000);
-			//const chromcapa = Capabilities.chrome();
-			const opts = [ 'prefs', { 'download.default_directory': '/home/hegny/Downloads/testoutputdir' } ];
-			//chromcapa.set('chromeOptions', opts);
-			driver = await new Builder().forBrowser(Browser.CHROME).build();
-			//driver = await new Builder().forBrowser(Browser.CHROME).withCapabilities(chromcapa).build();
+		  tdir = downloadDirBase + '.tmpimbtest';
+		  fs.mkdirSync(tdir, { recursive: true });
+		  const options = new chrome.Options();
+		  options.setUserPreferences({
+			'download.default_directory': tdir,
+			'download.prompt_for_download': false,
+			'profile.default_content_settings.popups': 0,
+		  });
+		  options.addArguments('--no-sandbox');
+		  options.addArguments('--disable-dev-shm-usage');
+  			driver = await new Builder().forBrowser(Browser.CHROME).setChromeOptions(options).build();
+		   // Use DevTools Protocol to allow multiple downloads
+			const cdpConnection = await driver.createCDPConnection('page');
+			await driver.sendDevToolsCommand('Page.setDownloadBehavior', {
+			  behavior: 'allow',
+			  downloadPath: tdir,
+			});
 			await driver.get(TESTURL + 'IMBACK/imbraw2dng.html');
 			driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));}');
 	});
@@ -893,6 +1006,7 @@ describe('G Stacking DNG and RAW on old html', function() {
 			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw\n' + TESTDAT + '/IMBACK/PHOTO/2024_1015_123011_001.raw');
 			await driver.actions({async: true})
 				.pause(300).move({ origin: fi }).pause(2000).perform();
+			renameDownload(tdir);
 	});
 	it('G.2 Convert stacking DNG', async function dotest() {
 			this.timeout(36000);
@@ -901,6 +1015,7 @@ describe('G Stacking DNG and RAW on old html', function() {
 			await fi.sendKeys('/home/hegny/Downloads/mf6x6_large_1.dng\n/home/hegny/Downloads/kb_large_10.dng');
 			await driver.actions({async: true})
 				.pause(300).move({ origin: fi }).pause(2000).perform();
+			renameDownload(tdir);
 	});
 	after(async function() {
 			let me = await driver.findElement(By.id('thebody'));
@@ -922,11 +1037,23 @@ describe('H Stack DNG and Raw Local APP', function() {
 	let driver, opts, errflg = false;
 	before(async function() {
 			this.timeout(39000);
-			//const chromcapa = Capabilities.chrome();
-			//const opts = [ 'prefs', { 'download.default_directory': '/home/hegny/Downloads/testoutputdir' } ];
-			//chromcapa.set('chromeOptions', opts);
-			driver = await new Builder().forBrowser(Browser.CHROME).build();
-			//driver = await new Builder().forBrowser(Browser.CHROME).withCapabilities(chromcapa).build();
+		  tdir = downloadDirBase + '.tmpimbtest';
+		  fs.mkdirSync(tdir, { recursive: true });
+		  const options = new chrome.Options();
+		  options.setUserPreferences({
+			'download.default_directory': tdir,
+			'download.prompt_for_download': false,
+			'profile.default_content_settings.popups': 0,
+		  });
+		  options.addArguments('--no-sandbox');
+		  options.addArguments('--disable-dev-shm-usage');
+  			driver = await new Builder().forBrowser(Browser.CHROME).setChromeOptions(options).build();
+		   // Use DevTools Protocol to allow multiple downloads
+			const cdpConnection = await driver.createCDPConnection('page');
+			await driver.sendDevToolsCommand('Page.setDownloadBehavior', {
+			  behavior: 'allow',
+			  downloadPath: tdir,
+			});
 			await driver.get('file://' + TESTDAT + '/IMBACK/imbapp.htm');
 			driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));}');
 	});
@@ -947,6 +1074,7 @@ describe('H Stack DNG and Raw Local APP', function() {
 				.pause(1900)
 				.perform();
 			//await fi.clear();
+			renameDownload(tdir);
 	});
 	it('H.1 stack DNG', async function dotest() {
 			this.timeout(9000);
@@ -962,6 +1090,7 @@ describe('H Stack DNG and Raw Local APP', function() {
 				.pause(1900)
 				.perform();
 			//await fi.clear();
+			renameDownload(tdir);
 	});
 	after(async function() {
 			this.timeout(36000);
