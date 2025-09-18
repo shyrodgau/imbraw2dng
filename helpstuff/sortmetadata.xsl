@@ -26,14 +26,14 @@ exiftool -m -xmp'<='${jpgfile}n.xmp "$jpgfile"
 		<xsl:when test="packs/pack/@n">
 			<packs>
 				<xsl:apply-templates select="packs/pack">
-					<xsl:sort key="@n" data-type="text"/>
+					<xsl:sort select="@n" data-type="text"/>
 				</xsl:apply-templates>
 			</packs>
 		</xsl:when>
 		<xsl:when test="rdf:RDF/rdf:Description/@rdf:about">
 			<rdf:RDF>
 				<xsl:apply-templates select="rdf:RDF/rdf:Description">
-					<xsl:sort key="@rdf:about" data-type="text"/>
+					<xsl:sort select="@rdf:about" data-type="text"/>
 				</xsl:apply-templates>
 			</rdf:RDF>
 		</xsl:when>
