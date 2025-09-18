@@ -103,9 +103,10 @@ echo '<packs>' > ${TESTWORK}/imbraw2dng_test_${testid}_xmp.xmlx 2>&1
 find * -name \*[jJdD][pPnN][gG] -type f -exec \
 	sh -c  'echo "<pack n="\""{}""\">" ; exiv2 -pX "{}" ; echo "</pack>" '  \; |sed -e  's/<[?]xml[^>]*>//g'  >> ${TESTWORK}/imbraw2dng_test_${testid}_xmp.xmlx 2>&1
 echo '</packs>' >> ${TESTWORK}/imbraw2dng_test_${testid}_xmp.xmlx 2>&1
-xmllint -format ${TESTWORK}/imbraw2dng_test_${testid}_xmp.xmlx > ${TESTWORK}/imbraw2dng_test_${testid}_xmp.xml 2>&1
+xsltproc ../../helpstuff/sortmetadata.xsl ${TESTWORK}/imbraw2dng_test_${testid}_xmp.xmlx | xmllint -format - > ${TESTWORK}/imbraw2dng_test_${testid}_xmp.xml 2>&1
 #find * -name \*[jJdD][pPnN][gG] -type f -print -exec sh -c  'echo ==== ; exiftool -xmp -b  "{}" | xmllint -format - '  \; > ${TESTWORK}/imbraw2dng_test_${testid}_xmp.xml 2>&1
-find * -type f | sort |  exiftool -X -@ - > ${TESTWORK}/imbraw2dng_test_${testid}_exif.xml
+find * -type f | sort |  exiftool -X -@ - > ${TESTWORK}/imbraw2dng_test_${testid}_exif.xmlx
+xsltproc ../../helpstuff/sortmetadata.xsl ${TESTWORK}/imbraw2dng_test_${testid}_exif.xmlx | xmllint -format - > ${TESTWORK}/imbraw2dng_test_${testid}_exif.xml 2>&1
 find * -name \*[jJdD][pPnN][gG] -type f -print0 | sort -z | xargs '-I{}' -0 exiv2 -pR -uvb '{}' > ${TESTWORK}/imbraw2dng_test_${testid}_exiv2.txt 2>&1
 
 echo 'ZIP TESTS' | tee -a $log
