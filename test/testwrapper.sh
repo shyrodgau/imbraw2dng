@@ -81,6 +81,7 @@ pushd ${TESTWORK}/outdir/app
 popd
 echo >> $log
 
+# unify zip and msg.html filenames from timestamps to serial
 kk=1
 for f in $( ls ${TESTWORK}/outdir/html/imb*zip | sort ); do
 	nn=$( basename "$f" | sed 's/\(imb[^_]*_\)[0-9]*_/\1'$kk'_/g' )
@@ -88,6 +89,14 @@ for f in $( ls ${TESTWORK}/outdir/html/imb*zip | sort ); do
 	mv -v "$f" ${TESTWORK}/outdir/html/"$nn" 2>&1 | tee -a $log
 done
 
+kk=1
+for f in $( ls ${TESTWORK}/outdir/html/imb*msg.html | sort ); do
+	nn=$( basename "$f" | sed 's/\(imb[^_]*_\)[0-9]*_/\1'$kk'_/g' )
+	kk=$(( $kk + 1 ))
+	mv -v "$f" ${TESTWORK}/outdir/html/"$nn" 2>&1 | tee -a $log
+done
+
+# unzip zip archives
 pushd ${TESTWORK}/outdir
 find . -name \*.zip | while read z; do
 	rm -rf "${z}_tmp"
@@ -95,30 +104,43 @@ find . -name \*.zip | while read z; do
 	unzip -q -d "${z}_tmp" "${z}"
 done
 
+# link files inside zips
 find */* -type f|while read x; do z=$( echo "$x" | sed 's@/@_@g' ); ln -sv "$x" "$z"; done >> $log 2>&1
 
+# generate thumb and tiff
 find . -maxdepth 1 -name \*.[dD][nN][gG] -print0 | xargs -0  dcraw -e  2>/dev/null
 exiftool -b -preview:all -w .tif *.[dD][nN][gG] > /dev/null 2>&1 # -execute -overwrite_original -orientation= %f.tif
 
+## dng and gps
+cp 'html_2024_0217_121752_001 (2).dng' 'zhtml_2024_0217_121752_001.dng'
+cp '2019_0101_002053_001_002.dng' 'z2019_0101_002053_001_002.dng'
+cp 'test1.zip_tmp_2029_0710_010203_001.dng' 'ztest1.zip_tmp_2029_0710_010203_001.dng'
+
+gpscorrelate -g ${TESTWORK}/sample.gpx ztest1.zip_tmp_2029_0710_010203_001.dng | tee -a $log 2>&1
+darktable-cli ztest1.zip_tmp_2029_0710_010203_001.dng ${TESTWORK}/ztest1.zip_tmp_2029_0710_010203_001.dng.xmp ztest1.zip_tmp_2029_0710_010203_001.jpg | tee -a $log 2>&1
+darktable-cli 'zhtml_2024_0217_121752_001.dng' ${TESTWORK}/'zhtml_2024_0217_121752_001.dng.xmp' 'zhtml_2024_0217_121752_001.jpg' | tee -a $log 2>&1
+darktable-cli z2019_0101_002053_001_002.dng ${TESTWORK}/z2019_0101_002053_001_002.dng.xmp z2019_0101_002053_001_002.jpg | tee -a $log 2>&1
+gpscorrelate -g ${TESTWORK}/sample.gpx  z2019_0101_002053_001_002.jpg | tee -a $log 2>&1
+
+# generate xmp xml
 echo '<packs>' > ${TESTWORK}/imbraw2dng_test_${testid}_xmp.xmlx 2>&1
 find * -name \*[jJdD][pPnN][gG] -type f -exec \
 	sh -c  'echo "<pack n="\""{}""\">" ; exiv2 -pX "{}" ; echo "</pack>" '  \; |sed -e  's/<[?]xml[^>]*>//g'  >> ${TESTWORK}/imbraw2dng_test_${testid}_xmp.xmlx 2>&1
 echo '</packs>' >> ${TESTWORK}/imbraw2dng_test_${testid}_xmp.xmlx 2>&1
-#temp?
-#mv -nv 'html_2024_0217_121752_001.thumb.ppm' 'html_2024_0217_121752_001 (1).thumb.ppm'
-#mv -nv 'html_2024_0217_121752_001.tif' 'html_2024_0217_121752_001 (1).tif'
-#mv -nv 'html_mf6x6_large_1.tif' 'html_mf6x6_large_1 (1).tif'
-#mv -nv 'html_mf6x6_large_1.thumb.ppm' 'html_mf6x6_large_1 (1).thumb.ppm'
-#mv -nv 'html_kb_large_10.tif' 'html_kb_large_10 (1).tif'
-#mv -nv 'html_kb_large_10.thumb.ppm' 'html_kb_large_10 (1).thumb.ppm'
-
 git restore ${TESTWORK}/results/imbraw2dng_test_xmp.xml
-xsltproc --stringparam refdoc ${TESTWORK}/results/imbraw2dng_test_xmp.xml ../../helpstuff/sortmetadata.xsl ${TESTWORK}/imbraw2dng_test_${testid}_xmp.xmlx | xmllint -format - > ${TESTWORK}/imbraw2dng_test_${testid}_xmp.xml 2>&1
-#find * -name \*[jJdD][pPnN][gG] -type f -print -exec sh -c  'echo ==== ; exiftool -xmp -b  "{}" | xmllint -format - '  \; > ${TESTWORK}/imbraw2dng_test_${testid}_xmp.xml 2>&1
+xsltproc --stringparam refdoc ${TESTWORK}/results/imbraw2dng_test_xmp.xml ../../helpstuff/sortmetadata.xsl ${TESTWORK}/imbraw2dng_test_${testid}_xmp.xmlx | \
+	sed 's/  */ /g' | xmllint -format - > ${TESTWORK}/imbraw2dng_test_${testid}_xmp.xml 2>&1
+
+# generate exif xml
 find * -type f | sort |  exiftool -X -@ - > ${TESTWORK}/imbraw2dng_test_${testid}_exif.xmlx
 git restore ${TESTWORK}/results/imbraw2dng_test_exif.xml
-xsltproc --stringparam refdoc ${TESTWORK}/results/imbraw2dng_test_exif.xml ../../helpstuff/sortmetadata.xsl ${TESTWORK}/imbraw2dng_test_${testid}_exif.xmlx | xmllint -format - > ${TESTWORK}/imbraw2dng_test_${testid}_exif.xml 2>&1
-find * -name \*[jJdD][pPnN][gG] -type f -print0 | sort -z | xargs '-I{}' -0 exiv2 -pR -uvb '{}' > ${TESTWORK}/imbraw2dng_test_${testid}_exiv2.txt 2>&1
+xsltproc --stringparam refdoc ${TESTWORK}/results/imbraw2dng_test_exif.xml ../../helpstuff/sortmetadata.xsl ${TESTWORK}/imbraw2dng_test_${testid}_exif.xmlx | \
+	xmllint -format - > ${TESTWORK}/imbraw2dng_test_${testid}_exif.xml 2>&1
+
+# generate exiv2 output
+find * -name \*[jJdD][pPnN][gG] -type f -print0 | sort -z | xargs  -0 exiv2 -pR -uvb  > ${TESTWORK}/imbraw2dng_test_${testid}_exiv2.txt 2>&1
+find * -name \*[jJdD][pPnN][gG] -type f -print0 | sort -z | xargs  -0 exiv2 -PXEItk | sed 's/^\(.\{190\}\).*$/\1/g' > ${TESTWORK}/imbraw2dng_test_${testid}_exiv2x.txt 2>&1
+
 
 echo 'ZIP TESTS' | tee -a $log
 find . -name \*.zip -type f -print -exec unzip -v {} \; -exec unzip -t {} \; 2>&1 | tee -a $log
