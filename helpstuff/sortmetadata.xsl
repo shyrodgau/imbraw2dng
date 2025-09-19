@@ -21,21 +21,43 @@ exiftool -m -xmp'<='${jpgfile}n.xmp "$jpgfile"
 
 <xsl:output method="xml" omit-xml-declaration="yes"/>
 
+<xsl:param name="refdoc" select="''"/>
+
+<xsl:variable name="root" select="/"/>
+
 <xsl:template match="/">
 	<xsl:choose>
-		<xsl:when test="packs/pack/@n">
+		<xsl:when test="packs/pack/@n and ''=$refdoc">
 			<packs>
 				<xsl:apply-templates select="packs/pack">
 					<xsl:sort select="@n" data-type="text"/>
 				</xsl:apply-templates>
 			</packs>
 		</xsl:when>
-		<xsl:when test="rdf:RDF/rdf:Description/@rdf:about">
+		<xsl:when test="rdf:RDF/rdf:Description/@rdf:about and ''=$refdoc">
 			<rdf:RDF>
 				<xsl:apply-templates select="rdf:RDF/rdf:Description">
 					<xsl:sort select="@rdf:about" data-type="text"/>
 				</xsl:apply-templates>
 			</rdf:RDF>
+		</xsl:when>
+		<xsl:when test="rdf:RDF/rdf:Description/@rdf:about and document($refdoc)/rdf:RDF/rdf:Description/@rdf:about">
+			<rdf:RDF>
+				<xsl:apply-templates mode="cpyrelrdf" select="document($refdoc)/rdf:RDF/rdf:Description"/>
+				<xsl:if test="rdf:RDF/rdf:Description[not(document($refdoc)/rdf:RDF/rdf:Description/@rdf:about = @rdf:about)]">
+					<extra/>
+					<xsl:apply-templates select="rdf:RDF/rdf:Description[not(document($refdoc)/rdf:RDF/rdf:Description/@rdf:about = @rdf:about)]"/>
+				</xsl:if>
+			</rdf:RDF>
+		</xsl:when>
+		<xsl:when test="packs/pack/@n and document($refdoc)/packs/pack/@n">
+			<packs>
+				<xsl:apply-templates mode="cpyrelpack" select="document($refdoc)/packs/pack"/>
+				<xsl:if test="/packs/pack[not(document($refdoc)/packs/pack/@n = @n)]">
+					<extra/>
+					<xsl:apply-templates select="/packs/pack[not(document($refdoc)/packs/pack/@n = @n)]"/>
+				</xsl:if>
+			</packs>
 		</xsl:when>
 		<xsl:otherwise>
 			<xsl:message>Dont know what to do</xsl:message>
@@ -43,13 +65,33 @@ exiftool -m -xmp'<='${jpgfile}n.xmp "$jpgfile"
 	</xsl:choose>
 </xsl:template>
 
-
 <xsl:template match="*|processing-instruction()|text()">
 	<!-- generic recursive copy template -->
-	<xsl:copy>
-		<xsl:copy-of select="@*"/>
-		<xsl:apply-templates/>
-	</xsl:copy>
+	<xsl:copy-of select="."/>
+</xsl:template>
+
+<xsl:template match="*" mode="cpyrelrdf">
+	<xsl:variable name="n" select="@rdf:about"/>
+	<xsl:choose>
+		<xsl:when test="$root/rdf:RDF/rdf:Description[@rdf:about=$n]">
+			<xsl:apply-templates select="$root/rdf:RDF/rdf:Description[@rdf:about=$n]"/>
+		</xsl:when>
+		<xsl:otherwise>
+			<missing n="{@n}"/>
+		</xsl:otherwise>
+	</xsl:choose>
+</xsl:template>
+
+<xsl:template match="*" mode="cpyrelpack">
+	<xsl:variable name="n" select="@n"/>
+	<xsl:choose>
+		<xsl:when test="$root/packs/pack[@n=$n]">
+			<xsl:apply-templates select="$root/packs/pack[@n=$n]"/>
+		</xsl:when>
+		<xsl:otherwise>
+			<missing n="{@n}"/>
+		</xsl:otherwise>
+	</xsl:choose>
 </xsl:template>
 
 
