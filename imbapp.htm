@@ -1550,7 +1550,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.3.8_@_d_e_v", // actually const // VERSION EYECATCHER
+version: "V6.4.0_4b3f381", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -22211,6 +22211,7 @@ browserdelete() {
 	document.getElementById('delcancelbut').disabled = false;
 	document.getElementById('delprogmsg').innerHTML = '';
 	document.getElementById('delq').showModal();
+	this.appmsgxl(0, 'del.question', this.imbeles.filter((o) => o.selected).length);
 	this.addmodkeyev();
 	this.delstate = 1;
 	this.modalback = 'closedelprog';
@@ -22224,6 +22225,7 @@ magdelete() {
 	document.getElementById('delcancelbut').disabled = false;
 	document.getElementById('delprogmsg').innerHTML = '';
 	document.getElementById('delq').showModal();
+	this.appmsgxl(0, 'del.question', 1);
 	this.addmodkeyev();
 	this.delstate = 1;
 	this.modalback = 'closedelprog';
@@ -22294,6 +22296,7 @@ dodelete(list, status) {
 	} else {
 		/* list finished */
 		document.getElementById('delprogmsg').innerHTML = this.xl('process.totals', status.no, status.ok, (status.no - status.ok - status.err), status.err);
+		this.appmsgxl(true, 'process.totals', status.no, status.ok, (status.no - status.ok - status.err), status.err);
 		document.getElementById('delokbut').disabled = false;
 		document.getElementById('delcancelbut').disabled = true;
 		this.modalback = 'closedelprog';
