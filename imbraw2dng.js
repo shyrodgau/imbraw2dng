@@ -19199,7 +19199,7 @@ handleone(orientation, upd) {
 		}
 		ti.closeSub();  /* **************************************** */
 		if (!this.neutral) {
-			const xmprdf = this.buildxmp(rawname, hxbytes, dateok, datestr, desc, artbytes, rightbytes);
+			const xmprdf = this.buildxmp(rawname, hxbytes, dateok, datestr, desc, artbytes, rightbytes, typ0);
 			ti.addEntry(700, 'BYTE', xmprdf); /* XMP */
 			ti.addEntry(50827, 'ASCII', rawnamearr); /* Raw file name */
 			ti.addEntry(50728, 'RATIONAL', wb); /* As shot neutral */
@@ -19351,27 +19351,28 @@ buildxmp(rawname, hxbytes, dateok, datestr, desc, artby, rightby, type) {
 		xmpx[xmpx.length-1] += `<xmpMM:History><rdf:Seq>`;
 		if (dateok && (undefined !== type)) {
 			xmpx[xmpx.length-1] += `<rdf:li stEvt:when="`;
-			pvdx = txe.encode(new Date(Date.now()).toISOString());
-			xmpx.push(`" stEvt:parameters="`);
+			xmpx.push(`" stEvt:softwareAgent="`);
 			xmpx.push(`" stEvt:action="created"/>`);
 		}
-		if (hxbytes?.length) {
-			xmpx[xmpx.length-1] += `<rdf:li stEvt:when="`;
-			xmpx.push(`" stEvt:softwareAgent="`);
-			pvdx = txe.encode(new Date(Date.now()).toISOString());
-			xmpx.push(`" stEvt:parameters="`);
-			xmpx.push(`" stEvt:action="converted"/>`);
-		}
+		//if (hxbytes?.length) {
+		xmpx[xmpx.length-1] += `<rdf:li stEvt:when="`;
+		xmpx.push(`" stEvt:softwareAgent="`);
+		pvdx = txe.encode(new Date(Date.now()).toISOString());
+		xmpx.push(`" stEvt:parameters="`);
+		xmpx.push(`" stEvt:action="converted"/>`);
+		//}
 		xmpx[xmpx.length-1] += `</rdf:Seq></xmpMM:History>`;
 	}
+	xmpx[xmpx.length-1] += xmp6;
 	let swbytes;
 	if (this.imbweb?.length) {
 		swbytes = txe.encode(ImBCBase.progname + ' ' + globals.version + ' (' + this.imbweb + ')');
 	}
 	else
 		swbytes = txe.encode(ImBCBase.progname + ' ' + globals.version);
-	xmpx[xmpx.length-1] += xmp6;
-	const xmprdf = new Uint8Array(artbytes.length + rightbytes.length + descbytes.length + 2*swbytes.length + rawnamearr.length + 2*datbytes.length + hxbytes.length + pvdx.length + xmpx.reduce((sum, a) => (sum + txe.encode(a).length), 0));
+	const xmprdf = new Uint8Array(artbytes.length + rightbytes.length + descbytes.length + 2*swbytes.length + rawnamearr.length + 2*datbytes.length + hxbytes.length + pvdx.length +
+			(dateok && (undefined !== type) ? (datbytes.length + globals.types[type].length + 7) : 0) +
+			xmpx.reduce((sum, a) => (sum + txe.encode(a).length), 0));
 	let o=0;
 	let swflag = true, rawflag = true;
 	for (let c = 0; c < xmpx.length; c++) {
@@ -19390,7 +19391,7 @@ buildxmp(rawname, hxbytes, dateok, datestr, desc, artby, rightby, type) {
 		else if (datbytes?.length && c === 2) {
 			xmprdf.set(datbytes, o);
 			o += datbytes.length;
-			datbytes = undefined;
+			//datbytes = undefined;
 		}
 		else if (swbytes?.length && swflag) {
 			xmprdf.set(swbytes, o);
@@ -19413,6 +19414,19 @@ buildxmp(rawname, hxbytes, dateok, datestr, desc, artby, rightby, type) {
 			descbytes = undefined;
 		}
 		else if (hxbytes?.length) {
+			if (dateok && (undefined !== type)) {
+				xmprdf.set(datbytes, o);
+				o += datbytes.length;
+				let etx = txe.encode(xmpx[++c]);
+				xmprdf.set(etx, o);
+				o += etx.length;
+				etx = txe.encode("ImBack " + globals.types[type]);
+				xmprdf.set(etx, o);
+				o += etx.length;
+				etx = txe.encode(xmpx[++c]);
+				xmprdf.set(etx, o);
+				o += etx.length;
+			}
 			xmprdf.set(pvdx, o);
 			o += pvdx.length;
 			let etx = txe.encode(xmpx[++c]);

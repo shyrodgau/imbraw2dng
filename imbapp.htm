@@ -19900,7 +19900,7 @@ handleone(orientation, upd) {
 		}
 		ti.closeSub();  /* **************************************** */
 		if (!this.neutral) {
-			const xmprdf = this.buildxmp(rawname, hxbytes, dateok, datestr, desc, artbytes, rightbytes);
+			const xmprdf = this.buildxmp(rawname, hxbytes, dateok, datestr, desc, artbytes, rightbytes, typ0);
 			ti.addEntry(700, 'BYTE', xmprdf); /* XMP */
 			ti.addEntry(50827, 'ASCII', rawnamearr); /* Raw file name */
 			ti.addEntry(50728, 'RATIONAL', wb); /* As shot neutral */
@@ -19998,7 +19998,7 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 	reader.readAsArrayBuffer(f.imbackintension ? f.imbackintension : f);
 }
 /* ImBCBase: build xmp for dng or direct jpeg export */
-buildxmp(rawname, hxbytes, dateok, datestr, desc, artby, rightby) {
+buildxmp(rawname, hxbytes, dateok, datestr, desc, artby, rightby, type) {
 	const txe = new TextEncoder();
 	const xmp1 = `<?xpacket begin='\ufeff' id='W5M0MpCehiHzreSzNTczkc9d'?><x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="imbraw2dng"><rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#' xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:xmp='http://ns.adobe.com/xap/1.0/' xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/" xmlns:stEvt='http://ns.adobe.com/xap/1.0/sType/ResourceEvent#'><rdf:Description rdf:about='' dc:source='`;
 	const xmp3 = `' xmp:CreateDate='`;
@@ -20050,30 +20050,30 @@ buildxmp(rawname, hxbytes, dateok, datestr, desc, artby, rightby) {
 		hxbytes = txe.encode(hxbytes);
 	if (hxbytes?.length /*|| dateok*/) {
 		xmpx[xmpx.length-1] += `<xmpMM:History><rdf:Seq>`;
-		/*if (dateok) {
+		if (dateok && (undefined !== type)) {
 			xmpx[xmpx.length-1] += `<rdf:li stEvt:when="`;
 			xmpx.push(`" stEvt:softwareAgent="`);
-			pvdx = txe.encode(new Date(Date.now()).toISOString());
-			xmpx.push(`" stEvt:parameters="`);
-			xmpx.push(`" stEvt:action="created"/>`;
-		}*/
-		if (hxbytes?.length) {
-			xmpx[xmpx.length-1] += `<rdf:li stEvt:when="`;
-			xmpx.push(`" stEvt:softwareAgent="`);
-			pvdx = txe.encode(new Date(Date.now()).toISOString());
-			xmpx.push(`" stEvt:parameters="`);
-			xmpx.push(`" stEvt:action="converted"/>`);
+			xmpx.push(`" stEvt:action="created"/>`);
 		}
+		//if (hxbytes?.length) {
+		xmpx[xmpx.length-1] += `<rdf:li stEvt:when="`;
+		xmpx.push(`" stEvt:softwareAgent="`);
+		pvdx = txe.encode(new Date(Date.now()).toISOString());
+		xmpx.push(`" stEvt:parameters="`);
+		xmpx.push(`" stEvt:action="converted"/>`);
+		//}
 		xmpx[xmpx.length-1] += `</rdf:Seq></xmpMM:History>`;
 	}
+	xmpx[xmpx.length-1] += xmp6;
 	let swbytes;
 	if (this.imbweb?.length) {
 		swbytes = txe.encode(ImBCBase.progname + ' ' + globals.version + ' (' + this.imbweb + ')');
 	}
 	else
 		swbytes = txe.encode(ImBCBase.progname + ' ' + globals.version);
-	xmpx[xmpx.length-1] += xmp6;
-	const xmprdf = new Uint8Array(artbytes.length + rightbytes.length + descbytes.length + 2*swbytes.length + rawnamearr.length + 2*datbytes.length + hxbytes.length + pvdx.length + xmpx.reduce((sum, a) => (sum + txe.encode(a).length), 0));
+	const xmprdf = new Uint8Array(artbytes.length + rightbytes.length + descbytes.length + 2*swbytes.length + rawnamearr.length + 2*datbytes.length + hxbytes.length + pvdx.length +
+			(dateok && (undefined !== type) ? (datbytes.length + globals.types[type].length + 7) : 0) +
+			xmpx.reduce((sum, a) => (sum + txe.encode(a).length), 0));
 	let o=0;
 	let swflag = true, rawflag = true;
 	for (let c = 0; c < xmpx.length; c++) {
@@ -20092,7 +20092,7 @@ buildxmp(rawname, hxbytes, dateok, datestr, desc, artby, rightby) {
 		else if (datbytes?.length && c === 2) {
 			xmprdf.set(datbytes, o);
 			o += datbytes.length;
-			datbytes = undefined;
+			//datbytes = undefined;
 		}
 		else if (swbytes?.length && swflag) {
 			xmprdf.set(swbytes, o);
@@ -20115,6 +20115,19 @@ buildxmp(rawname, hxbytes, dateok, datestr, desc, artby, rightby) {
 			descbytes = undefined;
 		}
 		else if (hxbytes?.length) {
+			if (dateok && (undefined !== type)) {
+				xmprdf.set(datbytes, o);
+				o += datbytes.length;
+				let etx = txe.encode(xmpx[++c]);
+				xmprdf.set(etx, o);
+				o += etx.length;
+				etx = txe.encode("ImBack " + globals.types[type]);
+				xmprdf.set(etx, o);
+				o += etx.length;
+				etx = txe.encode(xmpx[++c]);
+				xmprdf.set(etx, o);
+				o += etx.length;
+			}
 			xmprdf.set(pvdx, o);
 			o += pvdx.length;
 			let etx = txe.encode(xmpx[++c]);
@@ -21009,7 +21022,7 @@ dljpg() {
 			if (ii !== -1 && this.iinf[ii].d !== undefined)
 				desc = this.iinf[ii].d;
 		}
-		const xmprdf = this.buildxmp(xnn, this.historystring, (undefined !== date), datestr, desc);
+		const xmprdf = this.buildxmp(xnn, this.historystring, (undefined !== date), datestr, desc, undefined, undefined, this.magentry.t);
 		c.toBlob((b) => {
 			if (!b) {
 				console.log('toblob failed');
@@ -21226,15 +21239,18 @@ showmag(entry) {
 		selected: entry.selected,
 		timesync: entry.timesync,
 		desc: entry.desc,
-		orig: entry
+		orig: entry,
+		t: undefined /* imback type */
 	};
 	if (0 < this.jbigflag && entry.type === 'RAW')
 	{
 		document.getElementById('refts').style['left'] = '7.1em';
+		document.getElementById('refts').style['transform'] = 'scale(0.9)';
 		document.getElementById('xjbtn').style['display'] = '';
 	}
 	else {
 		document.getElementById('refts').style['left'] = '5.1em';
+		document.getElementById('refts').style['transform'] = '';
 		document.getElementById('xjbtn').style['display'] = 'none';
 	}
 	const check = this.magentry.entry.querySelector('input.selcb');
@@ -22367,10 +22383,12 @@ setjprev(pv) {
 	}
 	if (0 < this.jbigflag) {
 		document.getElementById('refts').style['left'] = '7.1em';
+		document.getElementById('refts').style['transform'] = 'scale(0.9)';
 		document.getElementById('xjbtn').style['display'] = '';
 	}
 	else {
 		document.getElementById('refts').style['left'] = '5.1em';
+		document.getElementById('refts').style['transform'] = '';
 		document.getElementById('xjbtn').style['display'] = 'none';
 	}
 }
@@ -22496,6 +22514,12 @@ prevdef(ev) {
 buildpreview(f, size, onok, onerr, orientation, targ, afterload) {
 	let cachehit;
 	if ((cachehit = this.findcache(f.url ? f.url :(f.name ? f.name : f)))) {
+		  if (size >= 2 && cachehit?.l && this.magentry) {
+			const zz = globals.infos.findIndex(v => v.size === cachehit.l);
+			if (zz > -1) {
+				this.magentry.t = globals.infos[zz].typ;
+			}
+		  }
 		  this.workerstate.push({ cmd: 'previewfromcache', c: cachehit, n: (f.url ? f.url :f), o: orientation, onok: onok, onerr: onerr, t: targ, cid: this.cid });
 		  this.pvw({ cmd: 'previewfromcache', c: { n: cachehit.url, d: cachehit.d, l: cachehit.l, wb: cachehit.wb } , n: (f.url ? f.url :f), o: orientation, size: size, cid: this.cid++ });
 		  // onmessage: { pix: array, c: cache, n: name, o: orientation }
@@ -22517,6 +22541,7 @@ buildpreview(f, size, onok, onerr, orientation, targ, afterload) {
 		onerr(f);
 		return;
 	}
+	if (this.magentry) this.magentry.t = globals.infos[zz].typ;
 
 	let canv;
 	if (undefined !== targ)
@@ -23238,6 +23263,12 @@ workermsg(msg) {
 		break;
 	case 'tobuildpreview':
 		d.d.cmd = 'buildpreview';
+		if (d.d.size >= 2 && d.d.f?.size && this.magentry) {
+			const zz = globals.infos.findIndex(v => v.size === d.d.f?.size);
+			if (zz > -1) {
+				this.magentry.t = globals.infos[zz].typ;
+			}
+		}
 		this.pvw(d.d);
 		break;
 	case 'afterload':
