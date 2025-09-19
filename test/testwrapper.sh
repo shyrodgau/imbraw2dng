@@ -36,8 +36,9 @@ sleep 3
 touch ~/Downloads/imbraw2dng_test_${testid}_endmark
 
 mkdir -p ${TESTWORK}/outdir/html
-find ~/Downloads/.tmpimbtest -newer ~/Downloads/imbraw2dng_test_${testid}_startmark -type f ! -name imbraw2dng_test_${testid}_endmark -exec basename {} \; |  while read uqf; do
-	nf=${uqf%%@*}
+ls -tr ~/Downloads/.tmpimbtest/*  |  while read xuqf; do
+	uqf=$( basename "$xuqf")
+	nf="${uqf%%@*}"
 	if [ -e ${TESTWORK}/outdir/html/$nf ]; then
 		i=1
 		while [ -e ${TESTWORK}/outdir/html/${nf%%.*}" ("$i")."${nf##*.} ]; do
@@ -103,10 +104,20 @@ echo '<packs>' > ${TESTWORK}/imbraw2dng_test_${testid}_xmp.xmlx 2>&1
 find * -name \*[jJdD][pPnN][gG] -type f -exec \
 	sh -c  'echo "<pack n="\""{}""\">" ; exiv2 -pX "{}" ; echo "</pack>" '  \; |sed -e  's/<[?]xml[^>]*>//g'  >> ${TESTWORK}/imbraw2dng_test_${testid}_xmp.xmlx 2>&1
 echo '</packs>' >> ${TESTWORK}/imbraw2dng_test_${testid}_xmp.xmlx 2>&1
-xsltproc ../../helpstuff/sortmetadata.xsl ${TESTWORK}/imbraw2dng_test_${testid}_xmp.xmlx | xmllint -format - > ${TESTWORK}/imbraw2dng_test_${testid}_xmp.xml 2>&1
+#temp?
+#mv -nv 'html_2024_0217_121752_001.thumb.ppm' 'html_2024_0217_121752_001 (1).thumb.ppm'
+#mv -nv 'html_2024_0217_121752_001.tif' 'html_2024_0217_121752_001 (1).tif'
+#mv -nv 'html_mf6x6_large_1.tif' 'html_mf6x6_large_1 (1).tif'
+#mv -nv 'html_mf6x6_large_1.thumb.ppm' 'html_mf6x6_large_1 (1).thumb.ppm'
+#mv -nv 'html_kb_large_10.tif' 'html_kb_large_10 (1).tif'
+#mv -nv 'html_kb_large_10.thumb.ppm' 'html_kb_large_10 (1).thumb.ppm'
+
+git restore ${TESTWORK}/results/imbraw2dng_test_xmp.xml
+xsltproc --stringparam refdoc ${TESTWORK}/results/imbraw2dng_test_xmp.xml ../../helpstuff/sortmetadata.xsl ${TESTWORK}/imbraw2dng_test_${testid}_xmp.xmlx | xmllint -format - > ${TESTWORK}/imbraw2dng_test_${testid}_xmp.xml 2>&1
 #find * -name \*[jJdD][pPnN][gG] -type f -print -exec sh -c  'echo ==== ; exiftool -xmp -b  "{}" | xmllint -format - '  \; > ${TESTWORK}/imbraw2dng_test_${testid}_xmp.xml 2>&1
 find * -type f | sort |  exiftool -X -@ - > ${TESTWORK}/imbraw2dng_test_${testid}_exif.xmlx
-xsltproc ../../helpstuff/sortmetadata.xsl ${TESTWORK}/imbraw2dng_test_${testid}_exif.xmlx | xmllint -format - > ${TESTWORK}/imbraw2dng_test_${testid}_exif.xml 2>&1
+git restore ${TESTWORK}/results/imbraw2dng_test_exif.xml
+xsltproc --stringparam refdoc ${TESTWORK}/results/imbraw2dng_test_exif.xml ../../helpstuff/sortmetadata.xsl ${TESTWORK}/imbraw2dng_test_${testid}_exif.xmlx | xmllint -format - > ${TESTWORK}/imbraw2dng_test_${testid}_exif.xml 2>&1
 find * -name \*[jJdD][pPnN][gG] -type f -print0 | sort -z | xargs '-I{}' -0 exiv2 -pR -uvb '{}' > ${TESTWORK}/imbraw2dng_test_${testid}_exiv2.txt 2>&1
 
 echo 'ZIP TESTS' | tee -a $log

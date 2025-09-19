@@ -53,9 +53,9 @@ exiftool -m -xmp'<='${jpgfile}n.xmp "$jpgfile"
 		<xsl:when test="packs/pack/@n and document($refdoc)/packs/pack/@n">
 			<packs>
 				<xsl:apply-templates mode="cpyrelpack" select="document($refdoc)/packs/pack"/>
-				<xsl:if test="/packs/pack[not(document($refdoc)/packs/pack/@n = @n)]">
+				<xsl:if test="packs/pack[not(document($refdoc)/packs/pack/@n = @n)]">
 					<extra/>
-					<xsl:apply-templates select="/packs/pack[not(document($refdoc)/packs/pack/@n = @n)]"/>
+					<xsl:apply-templates select="packs/pack[not(document($refdoc)/packs/pack/@n = @n)]"/>
 				</xsl:if>
 			</packs>
 		</xsl:when>
@@ -77,7 +77,7 @@ exiftool -m -xmp'<='${jpgfile}n.xmp "$jpgfile"
 			<xsl:apply-templates select="$root/rdf:RDF/rdf:Description[@rdf:about=$n]"/>
 		</xsl:when>
 		<xsl:otherwise>
-			<missing n="{@n}"/>
+			<missing n="{$n}"/>
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:template>
@@ -89,7 +89,7 @@ exiftool -m -xmp'<='${jpgfile}n.xmp "$jpgfile"
 			<xsl:apply-templates select="$root/packs/pack[@n=$n]"/>
 		</xsl:when>
 		<xsl:otherwise>
-			<missing n="{@n}"/>
+			<missing n="{$n}"/>
 		</xsl:otherwise>
 	</xsl:choose>
 </xsl:template>
