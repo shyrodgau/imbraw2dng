@@ -24587,6 +24587,7 @@ dodelete(list, status) {
 						pvo.parentElement.classList.add('picdeleted');
 					this.magnav(document.getElementById('solder').checked ? 0: 1);
 				}
+				this.appmsg(list[0].raw);
 				this.dloads = this.dloads.filter(e => e.toLowerCase() !== list[0].raw.toLowerCase());
 				this.iinf = this.iinf.filter(e => e.n.toLowerCase() !== list[0].raw.toLowerCase());
 				this.#updateselections();
@@ -24601,7 +24602,7 @@ dodelete(list, status) {
 	} else {
 		/* list finished */
 		document.getElementById('delprogmsg').innerHTML = this.xl('process.totals', status.no, status.ok, (status.no - status.ok - status.err), status.err);
-		this.appmsgxl(true, 'process.totals', status.no, status.ok, (status.no - status.ok - status.err), status.err);
+		this.appmsgxl(0, 'process.totals', status.no, status.ok, (status.no - status.ok - status.err), status.err);
 		document.getElementById('delokbut').disabled = false;
 		document.getElementById('delcancelbut').disabled = true;
 		this.modalback = 'closedelprog';
@@ -24617,6 +24618,7 @@ delcancel() {
 		this.delstate = 3;
 		return;
 	}
+	this.appmsg('', true);
 	document.getElementById('delq').close();
 	document.getElementById('browser').style['display'] = '';
 	this.rotphase = 0;
@@ -26501,7 +26503,7 @@ applystyle(span, msg, base) {
 }
 /* Browserhelper: download log */
 logdownload() {
-	let h = '<html><body>' + document.getElementById('xmsg').innerHTML + '</body></html>';
+	let h = '<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"></head><body>' + document.getElementById('xmsg').innerHTML + '</body></html>';
 	this.writefile('imbapp_' + ('' + Date.now()).substring(3,10) + '_msg.html', 'text/html', ImBCBase.progname.startsWith('imbapp') ? 'process.copyokcheckdl' : 'process.copyok', new TextEncoder().encode(h));
 }
 /* Browserhelper: output function to main log */

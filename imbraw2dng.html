@@ -20648,7 +20648,7 @@ applystyle(span, msg, base) {
 }
 /* Browserhelper: download log */
 logdownload() {
-	let h = '<html><body>' + document.getElementById('xmsg').innerHTML + '</body></html>';
+	let h = '<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"></head><body>' + document.getElementById('xmsg').innerHTML + '</body></html>';
 	this.writefile('imbapp_' + ('' + Date.now()).substring(3,10) + '_msg.html', 'text/html', ImBCBase.progname.startsWith('imbapp') ? 'process.copyokcheckdl' : 'process.copyok', new TextEncoder().encode(h));
 }
 /* Browserhelper: output function to main log */
