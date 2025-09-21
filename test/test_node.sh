@@ -300,23 +300,28 @@ tn=$(( $tn + 1 ))
 
 
 echo '##########    15    ##########'
+rm -rf ${testout}/tmptest
+mkdir -p ${testout}/tmptest
+echo '{ "d": "'${testout}'/tmptest" }' > ${testout}/.imbraw2dng.json
 echo Test ${tn} stacking DNG
 set -x
 ${TESTEXES}/imbraw2dng.js -fla 2029_0710_010203_001.dng 2029_0707_120426_021.dng 2023_0311_120252_002.dng 
 rc=$?
-n=$( ls .|wc -l )
+n=$( ls tmptest|wc -l )
 set +x
 if [ $rc -ne 0 ]; then
 	echo Test ${tn} failed $rc
 	exit $tn
 fi
 sumnum=$(( $sumnum + 1 ))
-if [ $n -ne $sumnum ]; then
+if [ $n -ne 1 ]; then
 	echo Test ${tn} failed NO $n
 	exit $tn
 fi
 echo Test ${tn} okay
 tn=$(( $tn + 1 ))
+mv tmptest/* .
+rmdir tmptest
 
 echo '##########    15    ##########'
 echo Test ${tn} stacking RAW
@@ -336,7 +341,6 @@ if [ $n -ne $sumnum ]; then
 fi
 echo Test ${tn} okay
 tn=$(( $tn + 1 ))
-
 
 ############ etc.
 

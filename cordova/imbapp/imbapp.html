@@ -1549,7 +1549,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.4.0_4b3f381", // actually const // VERSION EYECATCHER
+version: "V6.4.0_4038049", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -20064,17 +20064,18 @@ buildxmp(rawname, hxbytes, dateok, datestr, desc, artby, rightby, type) {
 		xmpx[xmpx.length-1] += `</rdf:Seq></xmpMM:History>`;
 	}
 	xmpx[xmpx.length-1] += xmp6;
-	let swbytes;
+	let swbytes, swxbytes;
 	if (this.imbweb?.length) {
 		swbytes = txe.encode(ImBCBase.progname + ' ' + globals.version + ' (' + this.imbweb + ')');
 	}
 	else
 		swbytes = txe.encode(ImBCBase.progname + ' ' + globals.version);
-	const xmprdf = new Uint8Array(artbytes.length + rightbytes.length + descbytes.length + 2*swbytes.length + rawnamearr.length + 2*datbytes.length + hxbytes.length + pvdx.length +
+	swxbytes = txe.encode(ImBCBase.progname);
+	const xmprdf = new Uint8Array(artbytes.length + rightbytes.length + descbytes.length + swbytes.length + swxbytes.length + rawnamearr.length + 2*datbytes.length + hxbytes.length + pvdx.length +
 			(dateok && (undefined !== type) ? (datbytes.length + globals.types[type].length + 7) : 0) +
 			xmpx.reduce((sum, a) => (sum + txe.encode(a).length), 0));
 	let o=0;
-	let swflag = true, rawflag = true;
+	let rawflag = true;
 	for (let c = 0; c < xmpx.length; c++) {
 		const et = txe.encode(xmpx[c]);
 		xmprdf.set(et, o);
@@ -20093,10 +20094,10 @@ buildxmp(rawname, hxbytes, dateok, datestr, desc, artby, rightby, type) {
 			o += datbytes.length;
 			//datbytes = undefined;
 		}
-		else if (swbytes?.length && swflag) {
-			xmprdf.set(swbytes, o);
-			o += swbytes.length;
-			swflag = false;
+		else if (swxbytes?.length) {
+			xmprdf.set(swxbytes, o);
+			o += swxbytes.length;
+			swxbytes = undefined;
 		}
 		else if (artbytes?.length) {
 			xmprdf.set(artbytes, o);
