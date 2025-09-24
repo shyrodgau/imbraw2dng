@@ -34,21 +34,21 @@ des [github Repositorys](https://github.com/shyrodgau/imbraw2dng) oder in der [I
 
 ## Los gehts
 
-Wenn jemand Android benutzt, probiert die [Android app](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk), mit dem Androiden im ImB WLAN.
+Wenn jemand **Android** benutzt, probiert die [Android app](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk), mit dem Androiden im ImB WLAN.
 
-Wenn es jemand auf dem PC oder Smartphone im Browser verwenden möchte, folgende Möglichkeiten:
+Wenn es jemand auf dem PC oder Smartphone im **Browser** verwenden möchte, folgende Möglichkeiten:
 
 - die Datei [`IMBAPP.HTM`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) und/oder [historische `IMBRAW2DNG.HTML`](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html)   
 direkt im Internet benutzen oder auf die Festplatte oder sonstwohin kopieren.    
-(**Alle Daten bleiben im Browser!**)   
+(Alle Daten bleiben im Browser!)   
 In diesem Fall müssen die Dateien von ImB per USB, Micro SD Adapter, original App oder sonstwie geholt werden.
 
 - <a name="browsing-on-the-imback">  </a>wenn man diese Datei auf die MicroSD vom ImB schiebt, ([wie macht man das?](#wie-kopiere-ich-html-dateien-auf-die-microsd)), kann Holen und Konvertieren nach DNG zusammengefasst werden (JPG und Filme können auch geholt werden).   
 `http://192.168.1.254/IMBACK/IMBAPP.HTM` (neuer, kann auch die Zeit einstellen und Bilder und Video aufnehmen!)   
-**Das Gerät, auf dem die Seite geöffnet wird, muss im ImB WLAN sein.**
+Das Gerät, auf dem die Seite geöffnet wird, muss im ImB WLAN sein.
 
 
-Wenn man gerne Kommandozeile verwendet, kann [imbraw2dng.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.js) mit node.js verwendet werden. Das kann auch direkt auf die Dateien von ImB zugreifen, wenn
+Wenn man gerne **Kommandozeile** verwendet, kann [imbraw2dng.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.js) mit node.js verwendet werden. Das kann auch direkt auf die Dateien von ImB zugreifen, wenn
 man im WLAN ist. [Kommandozeilen-Doku](#kommandozeile-mit-nodejs)
 
 ## Wie kopiere ich HTML Dateien auf die MicroSD?
@@ -112,7 +112,7 @@ I'm Back digital back [Developers Group on Facebook](https://www.facebook.com/gr
 Eine starke grüne oder magentafarbige Tönung der Bilder sollte nicht mehr vorkommen! Wenn aber eine da ist, die sich **nicht** durch 
 Farbkalibrierung/Farbmatrix/Weißabgleich entfernen lässt, könnte ein Beispielbild interessant sein.
 
-Wenn in der Bildmitte ein rot hervorstechender Punkt ist, muss eine manuelle Retusche erfolgen, oder im darktable die folgende Einstellung 
+Wenn in der Bildmitte ein rot hervorstechender Punkt ist (ImB 35mm/MF), muss eine manuelle Retusche erfolgen, oder im darktable die folgende Einstellung 
 verwenden und dann einen Kreis manuell darumherum platziern.
 
 Um den roten Punkt von vornherein zu vermeiden, eine größere Blende (kleine Blendenzahl) nehmen oder die normale PDLC Mattscheibe mit 
@@ -169,6 +169,34 @@ Bezüglich Konfigurierbarkeit siehe [imbraw2dng.json](imbraw2dng.json).
 
 ## Tipps, Tricks, Interna und Details
 
+### Metadaten, EXIF
+
+Die EXIF Daten in den JPEG Bildern von ImB sind nur eingeschränkt nützlich, da sie die Perspektive vom ImB Sensor abbilden. Aber wenn sie in den DNG Dateien drin gewünscht werden, ist das möglich. Zuerst das JPEG und dann das passende RAW verarbeiten.
+"Passend" ist definiert als: Zeitunterschied < 5 sec. und Unterschied des Zähler (letzter Teil des Dateinamens) &lt;= eins. Muss nicht direkt aufeinanderfolgend sein, erst alle JPEGs und dann die RAWs sollte tun.
+
+Es können für alle Bilder Metadaten Autor/Ersteller und Copyright sowie pro Bild eine Beschreibung (&#x270e;&#xfe0e;) direkt gesetzt werden.
+
+Zeitkorrektur kann automatisch mitgemacht werden (&#x231a;&#xfe0e;).
+
+### Lange Aufnahme simulieren<a name="a-lot-more-tricks-and-details"> </a>
+
+Wenn du eine lange Aufnahme durch mehrere kürzere simulieren willst, und das spezifische Rauschen zu vermeiden, geht das bei node.js mit den `-fla`/`-flx` Parametern.
+Oder im HTML das Häkchen unter dem blauen Bereich setzen und dann die aufzuaddierenden RAW-Dateien zusammen in das blaue Feld ziehen und ablegen.   
+In der Android App müssen die RAWs zunächst nach DNG konvertiert werden. Dann die zu addierenden DNG Dateien auswählen und mit der ImB OS App teilen.
+
+### Zurück nach RAW
+
+Um mit der App die ursprüngliche RAW Datei aus einer original konvertierten DNG-Datei zu bekommen, jeweils genau eine DNG-Datei mit der ImB OS App teilen.
+
+Oder [imbdng2raw.html](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html) oder [imbdng2raw.js](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js) nehmen.
+
+
+### iPhone
+
+Die Android App besteht aus dem HTML/Javascript Code der Seiten, mit Apache Cordova verpackt. Eine IOS App sollte sich damit auch bauen lassen, allerdings habe ich weder Mac noch iphone. Wenn jemand helfen möchte?
+
+[Würde ungefähr so aussehen](https://www.facebook.com/groups/imbackofficial/posts/1656635048623845/?__cft__[0]=AZUQGC5WjATUlof9OXx2kE7BZLYYyqvhqUxhPdWTr9FO4NQBNIas8aA9MyhgNrgwVi49RuFZHBUUa-BH2mrAIYT1HQ8NRqvdRuaopAgHHT71hD1ZsDm4yuag3Lez_Ok74OVOYIY2tGymh9nIzngaZ9bCO0_dj-dGBLbPSxlXcZJc5g&__tn__=%2CO%2CP-R)
+
 ### Vergleiche
 
 Bezüglich  `IMBAPP.HTM` und der Original App:    
@@ -192,32 +220,6 @@ Vorteile gegenüber historischem `imbraw2dng.html`, wenn es auf ImB benutzt wird
 - JPEG Vorschau schneller
 - Bildparameter (Größe, Belichtungskorrektur etc.) können gesetzt werden
 
-
-### EXIF
-
-Die EXIF Daten in den JPEG Bildern von ImB sind nur eingeschränkt nützlich, da sie die Perspektive vom ImB Sensor abbilden. Aber wenn sie in den DNG Dateien drin gewünscht werden, ist das möglich. Zuerst das JPEG und dann das passende RAW verarbeiten.
-"Passend" ist definiert als: Zeitunterschied < 5 sec. und Unterschied des Zähler (letzter Teil des Dateinamens) eins. Muss nicht direkt aufeinanderfolgend sein, erst alle JPEGs und dann die RAWs sollte tun.
-
-Es können für alle Bilder Metadaten Autor/Ersteller und Copyright sowie pro Bild eine Beschreibung direkt gesetzt werden.
-
-### Lange Aufnahme simulieren<a name="a-lot-more-tricks-and-details"> </a>
-
-Wenn du eine lange Aufnahme durch mehrere kürzere simulieren willst, und das spezifische Rauschen zu vermeiden, geht das bei node.js mit den `-fla`/`-flx` Parametern.
-Oder im HTML das Häkchen unter dem blauen Bereich setzen und dann die aufzuaddierenden RAW-Dateien zusammen in das blaue Feld ziehen und ablegen.   
-In der Android App müssen die RAWs zunächst nach DNG konvertiert werden. Dann die zu addierenden DNG Dateien auswählen und mit der ImB OS App teilen.
-
-### Zurück nach RAW
-
-Um mit der App die ursprüngliche RAW Datei aus einr original konvertierten DNG-Datei zu bekommen, jeweils genau eine DNG-Datei mit der ImB OS App teilen.
-
-Oder [imbdng2raw.html](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html) oder [imbdng2raw.js](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js) nehmen.
-
-
-### iPhone
-
-Die Android App besteht aus dem HTML/Javascript Code der Seiten, mit Apache Cordova verpackt. Eine IOS App sollte sich damit auch bauen lassen, allerdings habe ich weder Mac noch iphone. Wenn jemand helfen möchte?
-
-[Würde ungefähr so aussehen](https://www.facebook.com/groups/imbackofficial/posts/1656635048623845/?__cft__[0]=AZUQGC5WjATUlof9OXx2kE7BZLYYyqvhqUxhPdWTr9FO4NQBNIas8aA9MyhgNrgwVi49RuFZHBUUa-BH2mrAIYT1HQ8NRqvdRuaopAgHHT71hD1ZsDm4yuag3Lez_Ok74OVOYIY2tGymh9nIzngaZ9bCO0_dj-dGBLbPSxlXcZJc5g&__tn__=%2CO%2CP-R)
 
 ### etc.
 

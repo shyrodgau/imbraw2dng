@@ -33,20 +33,20 @@ of the [github repos](https://github.com/shyrodgau/imbraw2dng) or in the [I'm Ba
 
 ## Get Started
 
-If you use android, try the [Android app](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk) with your android device in the ImB Wifi.
+If you use **android**, try the [Android app](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk) with your android device in the ImB Wifi.
 
-If you prefer using it in the browser on your PC or smartphone, there are the choices:
+If you prefer using it in the **browser** on your PC or smartphone, there are the choices:
 
 - use the [`IMBAPP.HTM`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) and/or [historic `IMBRAW2DNG.HTML`](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) 
 directly from the internet or copy them anywhere you like on your harddisk or memory.   
-(**All data will stay inside your browser!**)   
+(All data will stay inside your browser!)   
 In this case, you need to transfer the files from ImB or access the MicroSD via USB, adapter, original ImB App or whatsoever.
 
 - <a name="browsing-on-the-imback">  </a>when you copy that file directly onto the MicroSD into the `IMBACK` folder ([How do I do that?](#how-do-i-copy-html-files-to-the-microsd)), you can directly combine download and conversion to DNG: (videos and JPG can also be downloaded)    
 `http://192.168.1.254/IMBACK/IMBAPP.HTM` (newer, also allows to set the clock time, record video or take pictures!)   
-**The device where you open the page needs to be in the ImB Wifi.**
+The device where you open the page needs to be in the ImB Wifi.
 
-If you like to use the command line, you can use the [imbraw2dng.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) with node.js. It can also access the ImB if you are in the device Wifi. 
+If you like to use the **command line**, you can use the [imbraw2dng.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) with node.js. It can also access the ImB if you are in the device Wifi. 
 [Command line help](#command-line-using-nodejs)
 
 
@@ -106,7 +106,7 @@ I'm Back digital back [Developers Group on Facebook](https://www.facebook.com/gr
 A strong green or magenta tint all over the image should not happen any more! But if you have one and **can not** level it out using your software's 
 color matrix/color calibration or white-balancing, a sample image might be interesing to fix it.
 
-If a red highlighted spot is in the center of the image, a manual retouche after the processing is required, or use the following darktable setting, 
+If a red highlighted spot is in the center of the image (ImB 35mm/MF), a manual retouche after the processing is required, or use the following darktable setting, 
 placing and sizing a circle shape manually around the area.
 
 To avoid the red spot from the start, use a bigger aperture (smaller f-number) or combine the standard PDLC matte with a Fresnel screen from I'm Back 
@@ -159,6 +159,33 @@ About configuration see [imbraw2dng.json](imbraw2dng.json).
 
 ## Tipps, tricks, internals and details
 
+### Metadata, EXIF
+
+The EXIF data in the JPEG files from ImB is of limited use, because it reflects the perspective of the ImB optics and sensor and not of the actual camera. But if you would like to add it to your DNG files, this is possible. Process the JPEG first and then the corresponding RAW.
+Corresponding is defined as: time difference < 5 sec and counter (last part of filename) difference &lt;= 1. It is not neccessary to be directly consecutive, first all JPEGs and then the RAWs should do it.
+
+Author/creator and copyright metadata can be set globally, and per-image a description (&#x270e;&#xfe0e;) can be set.
+
+Time correction can be applied automatically (&#x231a;&#xfe0e;).
+
+### Long Exposure<a name="a-lot-more-tricks-and-details"> </a>
+
+If you want to simulate a long "Long exposure" by several shorter ones to avoid the specific noise, you can do so by using the `-fla`/`-flx` parameters on node.js. 
+Or set the checkbox below the blue field on the HTML page and then drag and drop the RAW-files you want to stack up together into the blue field.   
+In the app, you first need to convert all RAWs to DNGs. Then select the DNGs you want to stack in your file browser and share these with the ImB OS App.
+
+### Revert to RAW
+
+If you want back the original raw for an original converted DNG in the app, select only one single DNG in the file browser and share it with the ImB OS App.
+
+Or use [imbdng2raw.html](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html) or [imbdng2raw.js](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js)
+
+### iPhone
+
+The android app consists of the same HTML/Javascript code as the html pages but wrapped with Apache Cordova. Building an IOS App should be possible similarly, but I neither own a Mac nor an iphone. If someone would like to help out??
+
+[Would look somehow like this](https://www.facebook.com/groups/imbackofficial/posts/1656635048623845/?__cft__[0]=AZUQGC5WjATUlof9OXx2kE7BZLYYyqvhqUxhPdWTr9FO4NQBNIas8aA9MyhgNrgwVi49RuFZHBUUa-BH2mrAIYT1HQ8NRqvdRuaopAgHHT71hD1ZsDm4yuag3Lez_Ok74OVOYIY2tGymh9nIzngaZ9bCO0_dj-dGBLbPSxlXcZJc5g&__tn__=%2CO%2CP-R)
+
 ### Comparison
 
 Concerning `IMBAPP.HTM` and the Android app:    
@@ -182,31 +209,6 @@ Advantages over the historic `imbraw2dng.html` when used on the ImB:
 - faster jpeg previews
 - can set image parameters (size, EV...)
 
-
-### EXIF
-
-The EXIF data in the JPEG files from ImB is of limited use, because it reflects the perspective of the ImB optics and sensor and not of the actual camera. But if you would like to add it to your DNG files, this is possible. Process the JPEG first and then the corresponding RAW.
-Corresponding is defined as: time difference < 5 sec and counter (last part of filename) difference 1. It is not neccessary to be directly consecutive, first all JPEGs and then the RAWs should do it.
-
-Author/creator and copyright metadata can be set globally, and per-image a description can be set.
-
-### Long Exposure<a name="a-lot-more-tricks-and-details"> </a>
-
-If you want to simulate a long "Long exposure" by several shorter ones to avoid the specific noise, you can do so by using the `-fla`/`-flx` parameters on node.js. 
-Or set the checkbox below the blue field on the HTML page and then drag and drop the RAW-files you want to stack up together into the blue field.   
-In the app, you first need to convert all RAWs to DNGs. Then select the DNGs you want to stack in your file browser and share these with the ImB OS App.
-
-### Revert to RAW
-
-If you want back the original raw for an original converted DNG in the app, select only one single DNG in the file browser and share it with the ImB OS App.
-
-Or use [imbdng2raw.html](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html) or [imbdng2raw.js](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js)
-
-### iPhone
-
-The android app consists of the same HTML/Javascript code as the html pages but wrapped with Apache Cordova. Building an IOS App should be possible similarly, but I neither own a Mac nor an iphone. If someone would like to help out??
-
-[Would look somehow like this](https://www.facebook.com/groups/imbackofficial/posts/1656635048623845/?__cft__[0]=AZUQGC5WjATUlof9OXx2kE7BZLYYyqvhqUxhPdWTr9FO4NQBNIas8aA9MyhgNrgwVi49RuFZHBUUa-BH2mrAIYT1HQ8NRqvdRuaopAgHHT71hD1ZsDm4yuag3Lez_Ok74OVOYIY2tGymh9nIzngaZ9bCO0_dj-dGBLbPSxlXcZJc5g&__tn__=%2CO%2CP-R)
 
 ### etc.
 
