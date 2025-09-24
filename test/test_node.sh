@@ -260,6 +260,7 @@ tn=$(( $tn + 1 ))
 
 
 echo '##########    13    ##########'
+echo '{ "l": "de" }' > ${testout}/.imbraw2dng.json
 echo Test ${tn} old-style
 set -x
 ${TESTEXES}/imbraw2dng.js -ndcp -owb -r ${TESTDAT}/../*.raw
@@ -305,7 +306,7 @@ mkdir -p ${testout}/tmptest
 echo '{ "d": "'${testout}'/tmptest" }' > ${testout}/.imbraw2dng.json
 echo Test ${tn} stacking DNG
 set -x
-${TESTEXES}/imbraw2dng.js -fla 2029_0710_010203_001.dng 2029_0707_120426_021.dng 2023_0311_120252_002.dng 
+${TESTEXES}/imbraw2dng_de.js -fla 2029_0710_010203_001.dng 2029_0707_120426_021.dng 2023_0311_120252_002.dng 
 rc=$?
 n=$( ls tmptest|wc -l )
 set +x
@@ -324,9 +325,10 @@ mv tmptest/* .
 rmdir tmptest
 
 echo '##########    15    ##########'
+echo '{ }' > ${testout}/.imbraw2dng.json
 echo Test ${tn} stacking RAW
 set -x
-${TESTEXES}/imbraw2dng.js -flx -d stackraw.zip ${TESTDAT}/IMBACK/*/*.[rR]* 
+${TESTEXES}/imbraw2dng_en.js -flx -d stackraw.zip ${TESTDAT}/IMBACK/*/*.[rR]* 
 rc=$?
 n=$( ls .|wc -l )
 set +x
@@ -341,6 +343,8 @@ if [ $n -ne $sumnum ]; then
 fi
 echo Test ${tn} okay
 tn=$(( $tn + 1 ))
+
+${TESTEXES}/imbraw2dng_00.js -CSV 
 
 ############ etc.
 

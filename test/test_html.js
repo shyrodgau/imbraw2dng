@@ -1091,6 +1091,9 @@ describe('H Stack DNG and Raw Local APP', function() {
 				.perform();
 			//await fi.clear();
 			renameDownload(tdir);
+			driver.executeScript('imbc.dlmytexts();');
+			await driver.actions({async: true}).pause(900).perform();
+			renameDownload(tdir);
 	});
 	after(async function() {
 			this.timeout(36000);

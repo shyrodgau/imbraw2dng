@@ -849,7 +849,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.4.0_a38d89a", // actually const // VERSION EYECATCHER
+version: "V6.4.0_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -18549,7 +18549,11 @@ xl(str, arg0, arg1, arg2, arg3, base) {
 querylang(name, offset) {
 	if (undefined === offset) offset = 8;
 	if (name[name.length - offset] !== '_') return;
-	let l = this.trylang(name.substring(name.length - offset + 1, name.length - offset + 3));
+	let l;
+	if (this.trylang)
+		l = this.trylang(name.substring(name.length - offset + 1, name.length - offset + 3));
+	else
+		l = this.findlang(name.substring(name.length - offset + 1, name.length - offset + 3));
 	if ('00' === l) {
 		globals.debugflag = true;
 		if (this.netwworker) this.netwworker.postMessage({ cmd: 'setdbg' });
@@ -18571,33 +18575,41 @@ querylang(name, offset) {
 	// followed by xlall anyway
 }
 /* ImBCBase: debug: print translations for csv */
+dlmytexts() {
+	let res = '';
+	for (const el of Object.keys(mytexts))
+		res += this.prxl(el, mytexts[el]);
+	this.writefile('imbraw2dng_' + ('' + Date.now()).substring(3,10) + '_texts.csv', 'text/csv', 'xyzabc', new TextEncoder().encode(res));
+}
+/* ImBCBase: debug: print translations for csv */
 prxl(key, el) {
+	let res = '';
 	if (el['de'] && el['en']) {
 		try{
 		if (typeof el['de'] === 'string') {
-			let out = key + ';';
+			let out = '"' + key + ':' + ImBCBase.progname + '";';
 			for (const l of globals.alllangs) {
 				if (undefined !== el[l]) {
 					let a = el[l];
 					let b = '"';
-					if (-1 !== a.indexOf('"')) b = '\'';
-					out += b + a  + b + ';';
+					//if (-1 !== a.indexOf('"')) b = '\'';
+					out += b + a.replace('"','""')  + b + ';';
 				} else out += ';'
 			}
-			console.log(out);
+			res += (out + `\u000d\u000a`);
 		}
 		else if (typeof el['de'][0] === 'string') {
 			for (let i=0; i< el['de'].length; i++) {
-				let out = key + '[' + i + '];';
+				let out = '"' + key + '[' + i + ']:' + ImBCBase.progname + '";';
 				for (const l of globals.alllangs) {
 					if (undefined !== el[l] && undefined !== el[l][i]) {
 						let a = el[l][i];
 						let b = '"';
-						if (-1 !== a.indexOf('"')) b = '\'';
-						out += b + a  + b + ';';
+						//if (-1 !== a.indexOf('"')) b = '\'';
+						out += b + a.replace('"','""')  + b + ';';
 					} else out += ';';
 				}
-				console.log(out);
+				res += (out + `\u000d\u000a`);
 			}
 		}
 		} catch (e) {
@@ -18608,8 +18620,9 @@ prxl(key, el) {
 		}
 	}
 	for (const ne of Object.keys(el).filter((k) => ((k !== 'en') && (k !== 'de') && (typeof(el[k]) !== 'string')))) {
-		this.prxl(key + '.' + ne, el[ne]);
+		res += this.prxl(key + '.' + ne, el[ne]);
 	}
+	return res;
 }
 /* ImBCBase: language helper */
 findlang(i) {
@@ -19874,7 +19887,7 @@ writefile(name, type, okmsg, arr1, renameidx) {
 				if (undefined !== this.exitcode) this.exitcode++;
 				this.handlenext();
 			}
-			else {
+			else if (okmsg !== 'xyzabc') {
 				this.appmsgxl(false, 'words.finished');
 				this.appmsgxl(0, okmsg, outfile);
 				if (undefined !== renameidx) this.appmsgxl(true, 'node.renamed');
@@ -20432,8 +20445,7 @@ startnode(notfirst) {
 						this.imbweb = 'http://192.168.0.72:8080';
 				}
 				else if (v.substring(0,4)==='-CSV' && globals.debugflag) {
-					for (const el of Object.keys(mytexts))
-						this.prxl(el, mytexts[el]);
+					this.dlmytexts();
 					wantxl = true;
 				}
 				else if (v ==='-fla') {
@@ -20740,50 +20752,38 @@ const mytexts = { // actually const
 		error: {
 			de: '\u001b[31m\u001b[1mFEHLER:\u001b[0m ',
 			en: '\u001b[31m\u001b[1mERROR:\u001b[0m ',
-			fr: '\u001b[31m\u001b[1mERREUR:\u001b[0m ',
-			ja: '\u001b[31m\u001b[1mエラー:\u001b[0m ',
+			ja: '\u001b[31m\u001b[1mエラー：\u001b[0m ',
 			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
 		},
 		warning: {
 			de: '\u001b[31mWarnung:\u001b[0m ',
 			en: '\u001b[31mWarning:\u001b[0m ',
-			fr: '\u001b[31mAvertissement:\u001b[0m ',
-			ja: '\u001b[31m警告:\u001b[0m',
+			ja: '\u001b[31m警告：\u001b[0m ',
 			htmlstyle: [ [ 'background-color','#ffdddd' ] ]
 		},
 		finished: {
 			de: '\u001b[32m\u001b[1mFertig!\u001b[0m ',
 			en: '\u001b[32m\u001b[1mFinished!\u001b[0m ',
-			fr: '\u001b[32m\u001b[1mFini!\u001b[0m ',
 			ja: '\u001b[32m\u001b[1m終了!\u001b[0m ',
 			htmlstyle: [ [ 'background-color','#ddffdd' ], [ 'font-weight', 'bold' ] ]
 		},
 		sorryerr: {
 			de: '\u001b[31m\u001b[1mENTSCHULDIGUNG! FEHLER:\u001b[0m ',
 			en: '\u001b[31m\u001b[1mSORRY! ERROR:\u001b[0m  ',
-			fr: '\u001b[31m\u001b[1mDÉSOLÉE! ERREUR:\u001b[0m ',
-			ja: '\u001b[31m\u001b[1m申し訳ございません! エラー:\u001b[0m  ',
+			ja: '\u001b[31m\u001b[1m申し訳ございません! エラー：\u001b[0m  ',
 			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
 		},
 		sorry: {
 			de: '\u001b[31mENTSCHULDIGUNG!\u001b[0m ',
 			en: '\u001b[31mSORRY!\u001b[0m  ',
-			fr: '\u001b[31mDÉSOLÉE!\u001b[0m ',
 			ja: '\u001b[31m申し訳ございません!\u001b[0m  ',
 			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
 		}
 	},
 	main: {
-		coloursyourrisk: {
-			de: 'Bei Farben bin ich raus! Eigenes Risiko, fraach mich net!',
-			en: 'About colurs, I am out! Own risk, do not ask me!',
-			fr: 'About colurs, I am out! Own risk, do not ask me!',
-			ja: '色については、アウトです！ 自己責任ですので、私に尋ねないでください。'
-		},
 		title: {
 			de: 'ImB RAW nach DNG Konverter',
 			en: 'ImB RAW to DNG converter',
-			fr: 'Convertisseur ImB RAW a DNG',
 			ru: 'Конвертер ImB RAW в DNG',
 			ja: 'ImB RAW を DNG に変換'
 		},
@@ -20796,14 +20796,12 @@ const mytexts = { // actually const
 		help: {
 			de: '? Hilfe Doku',
 			en: '? Help Doc',
-			fr: '? Aide Doc',
 			ru: '? Помощь Док',
 			ja: '? ヘルプ資料'
 		},
 		helplink: {
 			de: 'https://shyrodgau.github.io/imbraw2dng/README_de',
 			en: 'https://shyrodgau.github.io/imbraw2dng/',
-			fr: 'https://shyrodgau.github.io/imbraw2dng/',
 			ja: 'https://shyrodgau.github.io/imbraw2dng/README_ja'
 		},
 		fakelong: {
@@ -20818,37 +20816,32 @@ const mytexts = { // actually const
 		connected: {
 			de: 'ImB Verbunden! ',
 			en: 'ImB Connected! ',
-			fr: 'ImB Connecté! ',
 			ja: 'ImB 接続済み! '
 		},
 		errconnect: {
 			de: '\u001b[31mFEHLER\u001b[0m bei der Verbindung zu ImB auf $$0! Im ImB WLAN?',
 			en: '\u001b[31mERROR\u001b[0m connecting to ImB on $$0! In the ImB WiFi?',
-			fr: '\u001b[31mERREUR\u001b[0m lors de la connexion à imback. Dans le Wifi ImB?',
 			ja: '\u001b[31mエラー\u001b[0m $$0 でImB に接続しています! ImB WiFi ですか?'
 		},
 		nomatch: {
 			de: 'Keine passenden Dateien gefunden. Kann vorübergehend sein.',
 			en: 'No matching files found. Might be temporary.',
-			fr: 'Aucun fiche correspondant trouvé. Peut-etre temporaire.',
 			ja: '一致するファイルが見つかりませんでした。 一時的なものかもしれません。'
 		},
 		strangename: {
 			de: 'Komischer Dateiname: $$0',
 			en: 'Strange file name: $$0',
-			fr: 'Nom de fiche inhabituel: $$0',
-			ja: '無効なファイル名: $$0'
+			ja: '無効なファイル名： $$0'
 		},
 		invaltime: {
 			de: 'Ungültiger Zeitstempel: $$0',
 			en: 'Invalid timestamp: $$0',
-			fr: 'Horodatage invalide: $$0',
-			ja: '無効なタイムスタンプ: $$0'
+			ja: '無効なタイムスタンプ： $$0'
 		},
 		invaltimediff: {
 			de: 'Ungültige Zeitanpassung: $$0',
 			en: 'Invalid time adjustment: $$0',
-			ja: '無効なタイムスタンプ: $$0'
+			ja: '無効なタイムスタンプ： $$0'
 		},
 	},
 	process: {
@@ -20875,91 +20868,76 @@ const mytexts = { // actually const
 		nothing: {
 			de: 'Nichts ausgewählt.. ?',
 			en: 'Nothing selected...?',
-			fr: 'Rien de sélectionné',
 			ja: '何も選択されていません...?'
 		},
 		erraccess: {
 			de: 'beim Zugriff auf $$0.',
 			en: 'occured accessing $$0.',
-			fr: 'lors de l\'accès à $$0.',
 			ja: '>アクセス中にエラーが発生しました $$0.'
 		},
 		notraw: {
 			de: 'Durchleitung weil nicht raw: $$0',
 			en: 'Passing through as not raw: $$0',
-			fr: 'Passage comme non RAW: $$0',
-			ja: 'RAW ではないのでスルー: $$0'
+			ja: 'RAW ではないのでスルー： $$0'
 		},
 		copyok: {
 			de: 'Nach $$0 kopiert',
 			en: 'Copied to $$0',
-			fr: 'Copié sur $$0',
 			ja: '$$0 にコピー'
 		},
 		errorreadingfile: {
 			de: 'beim Lesen der Datei $$0',
 			en: 'occured reading file $$0',
-			fr: 'de lecture du fiche $$0',
 			ja: 'ファイル $$0 の読み取り中にエラーが発生しました。 '
 		},
 		unknownsizex: {
 			de: 'Die Dateigröße $$0 passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!',
 			en: 'File Size $$0 does not match known formats. Please contact developer!',
-			fr: 'La taille du fiche $$0 ne correspond pas au format connu. Veuillez contacter le développeur',
 			ja: 'が、ファイルサイズ $$0 は既知の形式と一致しません。開発者にお問い合わせください。'
 		},
 		processing: {
 			de: 'Verarbeite Datei: $$0 ',
 			en: 'Processing file: $$0',
-			fr: 'Je suis en train de traiter le fiche $$0',
-			ja: '処理中のファイル: $$0'
+			ja: '処理中のファイル： $$0'
 		},
 		assuming: {
 			de: 'Annahme: $$0 $$1',
 			en: 'Assuming $$0 $$1',
-			fr: 'Hypothèse: $$0 $$1',
 			ja: '認識 $$0 $$1'
 		},
 		datetime: {
 			de: 'Datum/Zeit: $$0',
 			en: 'Date/Time: $$0 ',
-			fr: 'Date/heure: $$0',
-			ja: '日付/時刻: $$0 '
+			ja: '日付/時刻： $$0 '
 		},
 		orientation: {
 			de: 'Drehung: $$0',
 			en: 'Orientation: $$0',
-			fr: 'Rotation: $$0',
-			ja: '向き: $$0'
+			ja: '向き： $$0'
 		},
 		converted: {
 			de: 'Nach $$0 konvertiert',
 			en: 'Converted to $$0',
-			fr: 'Converti en $$0',
 			ja: '$$0 に変換'
 		},
 		errsave: {
 			de: 'Konnte Datei $$0 nicht speichern.',
 			en: 'Could not write file $$0',
-			fr: 'Impossible d\'écrire le fiche $$0.',
 			ja: 'ファイル $$0 に書き込めませんでした'
 		},
 		frombackn: {
 			de: '$$0 Datei(en) vom ImB zu verarbeiten.',
 			en: 'Got $$0 file(s) from ImB.',
-			fr: 'J\'ai reçu $$0 fiche(s) d\'ImB',
 			ja: 'ImB から $$0 ファイルを取得しました。'
 		},
 		totals: {
 			en: 'Total: $$0, ok: $$1, skipped: $$2, Errors: $$3',
 			de: 'Total: $$0, ok $$1, übersprungen: $$2, Fehler: $$3',
-			fr: 'Total: $$0, ok: $$1, Ignoré: $$2, Erreur: $$3',
 			ja: '合計 $$0、OK $$1、スキップ $$2、エラー $$3'
 		},
 		addpreview: {
 			en: 'Add preview thumbnail to DNG',
 			de: 'Kleines Vorschaubild im DNG',
-			fr: 'Petite image d\'aperçu en DNG',
 			ja: 'プレビューのサムネイルを DNG に追加する'
 		},
 		addexif: {
@@ -20992,7 +20970,6 @@ const mytexts = { // actually const
 		unknownsize: {
 			de: 'Unerkannte RAW-Dateigröße, Entwickler kontaktieren',
 			en: 'Unrecognized RAW file size, contact developer',
-			fr: 'La taille du fiche RAW ne correspond pas au format connu. Veuillez contacter le développeur',
 			ja: '反時計回り'
 		},
 	},
@@ -21057,33 +21034,6 @@ const mytexts = { // actually const
 				' -----',
 				' \u001b[1m--\u001b[0m - treat rest of parameters as local files or dirs',
 				' <files-or-dirs> - process local files or directories recursively, e.g. on MicroSD from ImB',],
-			fr: [ `\u001b[1mBienvenu a imbraw2dng\u001b[0m $$0 !`, `Operation: node $$0 \u001b[1m[\u001b[0m-l ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-d ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-owb\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-ndcp\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr ..\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-at ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n ..\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \
-\u001b[1m[\u001b[0m \u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mfiches-ou-repertoires\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m`,
-				'Choix:',
-				' \u001b[1m-h\u001b[0m - montrer cette aide',
-				' \u001b[1m-nc\u001b[0m - n\'utilisez pas de texte en couleur',
-				' \u001b[1m-co\u001b[0m - utilisez de texte en couleur',
-				' \u001b[1m-l XX\u001b[0m - quand XX est une code du langue valide (actuellement: DE, EN, JA)',
-				'         La langue peut également être définie en changeant le nom du fiche en imbraw2dng_XX.js .',
-				' \u001b[1m-d repertoire\u001b[0m - mettre les fiches de sortie dans le répertoire',
-				' \u001b[1m-f\u001b[0m - écraser les fiches existants',
-				' \u001b[1m-r\u001b[0m - quand fiche existe, renommer le résultat',
-				' \u001b[1m-np\u001b[0m - Pas petite image d\'aperçu en DNG',
-				' \u001b[1m-np\u001b[0m - Do not add preview thumbnail to DNG',
-				' \u001b[1m-owb\u001b[0m - Use old style constant white balance',
-				' \u001b[1m-cr \'copyright...\'\u001b[0m - add copyright to DNG',
-				' \u001b[1m-at \'author...\'\u001b[0m - add author/creator to DNG',
-				' \u001b[1m-fla\u001b[0m, \u001b[1m-flx\u001b[0m - add multiple images to fake long exposure, flx scales down',
-				' \u001b[1m-R\u001b[0m - obtenez RAW d\'ImB connecté via Wifi ou repertoires donnés',
-				' \u001b[1m-J\u001b[0m - obtenez JPEG d\'ImB connecté via Wifi ou repertoires donnés',
-				' \u001b[1m-O\u001b[0m - obtenez du non-RAW/non-JPEG d\'ImB connecté via Wifi ou repertoires donnés',
-				' \u001b[1m-n yyyy_mm_dd-hh_mm_ss\u001b[0m (ou préfixe de n\'importe quelle longueur) - sélectionnez uniquement plus récent que cet horodatage d\'ImB ou repertoires donnés',
-				' -----',
-				' \u001b[1m--\u001b[0m - traiter le reste des paramètres comme des fiches ou des répertoires locaux',
-				' <fiches-ou-repertoires> - traiter des fiches ou des répertoires locaux de manière récursive, par exemple sur MicroSD d\'ImB',],
 			de: [ `\u001b[1mWillkommen bei imbraw2dng\u001b[0m $$0 !`, `Aufruf: node $$0 \u001b[1m[\u001b[0m-l ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \
 \u001b[1m[\u001b[0m-d ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-owb\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-ndcp\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr ..\u001b[1m]\u001b[0m \
 \u001b[1m[\u001b[0m-at ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-at ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n ..\u001b[1m]\u001b[0m \
@@ -21146,25 +21096,21 @@ const mytexts = { // actually const
 		unkopt: {
 			en: '\u001b[31mUnknown Option:\u001b[0m $$0',
 			de: '\u001b[31mUnbekannte Option:\u001b[0m $$0',
-			fr: '\u001b[31mOption inconnue:\u001b[0m $$0',
 			ja: '\u001b[31m最後のパラメータの値が欠落しています。\u001b[0m'
 		},
 		missingval: {
 			en: '\u001b[31mMissing value for last parameter.\u001b[0m',
 			de: '\u001b[31mFehlender Wert für letzten Parameter.\u001b[0m',
-			fr: '\u001b[31mValeur manquante pour le dernier paramètre.\u001b[0m',
 			ja: '\u001b[31m最後のパラメータの値が欠落しています。\u001b[0m'
 		},
 		fnwarn: {
 			en: '\u001b[31mWarning:\u001b[0m $$0 looks like a timestamp, did you forget \u001b[1m-n\u001b[0m or \u001b[1m--\u001b[0m in front of it?',
 			de: '\u001b[31mWarnung:\u001b[0m $$0 sieht wie ein Zeitstempel aus, vielleicht \u001b[1m-n\u001b[0m oder \u001b[1m--\u001b[0m davor vergessen?',
-			fr: '\u001b[31mAvertissement:\u001b[0m $$0 ressemble à un horodatage, oubliée \u001b[1m-n\u001b[0m ou \u001b[1m--\u001b[0m?',
 			ja: '\u001b[31m警告:\u001b[0m $$0 lタイムスタンプのようですが、 \u001b[1m-n\u001b[0m または \u001b[1m--\u001b[0m 手前にあるのを忘れましたか?'
 		},
 		renamed: {
 			en: '(renamed)',
 			de: '(umbenannt)',
-			fr: '(renomee)',
 			ja: '(リネーム)'
 		},
 		readconfig: {

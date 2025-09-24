@@ -1550,7 +1550,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.4.0_a38d89a", // actually const // VERSION EYECATCHER
+version: "V6.4.0_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -19250,7 +19250,11 @@ xl(str, arg0, arg1, arg2, arg3, base) {
 querylang(name, offset) {
 	if (undefined === offset) offset = 8;
 	if (name[name.length - offset] !== '_') return;
-	let l = this.trylang(name.substring(name.length - offset + 1, name.length - offset + 3));
+	let l;
+	if (this.trylang)
+		l = this.trylang(name.substring(name.length - offset + 1, name.length - offset + 3));
+	else
+		l = this.findlang(name.substring(name.length - offset + 1, name.length - offset + 3));
 	if ('00' === l) {
 		globals.debugflag = true;
 		if (this.netwworker) this.netwworker.postMessage({ cmd: 'setdbg' });
@@ -19272,33 +19276,41 @@ querylang(name, offset) {
 	// followed by xlall anyway
 }
 /* ImBCBase: debug: print translations for csv */
+dlmytexts() {
+	let res = '';
+	for (const el of Object.keys(mytexts))
+		res += this.prxl(el, mytexts[el]);
+	this.writefile('imbraw2dng_' + ('' + Date.now()).substring(3,10) + '_texts.csv', 'text/csv', 'xyzabc', new TextEncoder().encode(res));
+}
+/* ImBCBase: debug: print translations for csv */
 prxl(key, el) {
+	let res = '';
 	if (el['de'] && el['en']) {
 		try{
 		if (typeof el['de'] === 'string') {
-			let out = key + ';';
+			let out = '"' + key + ':' + ImBCBase.progname + '";';
 			for (const l of globals.alllangs) {
 				if (undefined !== el[l]) {
 					let a = el[l];
 					let b = '"';
-					if (-1 !== a.indexOf('"')) b = '\'';
-					out += b + a  + b + ';';
+					//if (-1 !== a.indexOf('"')) b = '\'';
+					out += b + a.replace('"','""')  + b + ';';
 				} else out += ';'
 			}
-			console.log(out);
+			res += (out + `\u000d\u000a`);
 		}
 		else if (typeof el['de'][0] === 'string') {
 			for (let i=0; i< el['de'].length; i++) {
-				let out = key + '[' + i + '];';
+				let out = '"' + key + '[' + i + ']:' + ImBCBase.progname + '";';
 				for (const l of globals.alllangs) {
 					if (undefined !== el[l] && undefined !== el[l][i]) {
 						let a = el[l][i];
 						let b = '"';
-						if (-1 !== a.indexOf('"')) b = '\'';
-						out += b + a  + b + ';';
+						//if (-1 !== a.indexOf('"')) b = '\'';
+						out += b + a.replace('"','""')  + b + ';';
 					} else out += ';';
 				}
-				console.log(out);
+				res += (out + `\u000d\u000a`);
 			}
 		}
 		} catch (e) {
@@ -19309,8 +19321,9 @@ prxl(key, el) {
 		}
 	}
 	for (const ne of Object.keys(el).filter((k) => ((k !== 'en') && (k !== 'de') && (typeof(el[k]) !== 'string')))) {
-		this.prxl(key + '.' + ne, el[ne]);
+		res += this.prxl(key + '.' + ne, el[ne]);
 	}
+	return res;
 }
 /* ImBCBase: language helper */
 findlang(i) {
@@ -24519,13 +24532,13 @@ const mytexts = { // actually const
 		error: {
 			de: '\u001b[31m\u001b[1mFEHLER:\u001b[0m ',
 			en: '\u001b[31m\u001b[1mERROR:\u001b[0m ',
-			ja: '\u001b[31m\u001b[1mエラー： \u001b[0m ',
+			ja: '\u001b[31m\u001b[1mエラー：\u001b[0m ',
 			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
 		},
 		warning: {
 			de: '\u001b[31mWarnung:\u001b[0m ',
 			en: '\u001b[31mWarning:\u001b[0m ',
-			ja: '\u001b[31m警告： \u001b[0m',
+			ja: '\u001b[31m警告：\u001b[0m ',
 			htmlstyle: [ [ 'background-color','#ffdddd' ] ]
 		},
 		finished: {
@@ -24537,7 +24550,7 @@ const mytexts = { // actually const
 		sorryerr: {
 			de: '\u001b[31m\u001b[1mENTSCHULDIGUNG! FEHLER:\u001b[0m ',
 			en: '\u001b[31m\u001b[1mSORRY! ERROR:\u001b[0m  ',
-			ja: '\u001b[31m\u001b[1m申し訳ございません! エラー： \u001b[0m  ',
+			ja: '\u001b[31m\u001b[1m申し訳ございません! エラー：\u001b[0m  ',
 			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
 		},
 		sorry: {
@@ -24552,11 +24565,6 @@ const mytexts = { // actually const
 			en: 'choose file',
 			de: 'datei auswählen',
 			ja: 'ファイルを選択'
-		},
-		coloursyourrisk: {
-			de: 'Bei Farben bin ich raus! Eigenes Risiko, fraach mich net!',
-			en: 'About colurs, I am out! Own risk, do not ask me!',
-			ja: '色については、アウトです！ 自己責任ですので、私に尋ねないでください。'
 		},
 		title: {
 			de: 'ImB RAW nach DNG Konverter',
@@ -24696,12 +24704,12 @@ const mytexts = { // actually const
 		strangename: {
 			de: 'Komischer Dateiname: $$0',
 			en: 'Strange file name: $$0',
-			ja: '無効なファイル名：  $$0'
+			ja: '無効なファイル名： $$0'
 		},
 		invaltime: {
 			de: 'Ungültiger Zeitstempel: $$0',
 			en: 'Invalid timestamp: $$0',
-			ja: '無効なタイムスタンプ：  $$0'
+			ja: '無効なタイムスタンプ： $$0'
 		},
 	},
 	process: {
@@ -24738,7 +24746,7 @@ const mytexts = { // actually const
 		notraw: {
 			de: 'Durchleitung weil nicht raw: $$0',
 			en: 'Passing through as not raw: $$0',
-			ja: 'RAW ではないのでスルー：  $$0'
+			ja: 'RAW ではないのでスルー： $$0'
 		},
 		selectedn: {
 			de: '$$0 Datei(en) wurden ausgewählt.',
@@ -24768,22 +24776,22 @@ const mytexts = { // actually const
 		processing: {
 			de: 'Verarbeite Datei: $$0 ',
 			en: 'Processing file: $$0',
-			ja: '処理中のファイル：  $$0'
+			ja: '処理中のファイル： $$0'
 		},
 		assuming: {
 			de: 'Annahme: $$0 $$1',
 			en: 'Assuming $$0 $$1',
-			ja: '認識  $$0 $$1'
+			ja: '認識 $$0 $$1'
 		},
 		datetime: {
 			de: 'Datum/Zeit: $$0',
 			en: 'Date/Time: $$0 ',
-			ja: '日付/時刻：  $$0 '
+			ja: '日付/時刻： $$0 '
 		},
 		orientation: {
 			de: 'Drehung: $$0',
 			en: 'Orientation: $$0',
-			ja: '向き：  $$0'
+			ja: '向き： $$0'
 		},
 		convertedcheckdl: {
 			de: 'Nach $$0 konvertiert (Downloads-Ordner prüfen)',
@@ -26988,6 +26996,7 @@ function init() {
 <div ><input type="checkbox" id="incdcp" checked onchange="imbc.dirtysettings('incdcp')"> <label for="incdcp" data-myxlkey="process.includedcp"></label></div>
 <div ><input type="checkbox" id="oldstylewb" onchange="imbc.dirtysettings('owb')"> <label for="oldstylewb" data-myxlkey="process.oldstylewb"></label></div>
 </div>
+<div style="width:20em;" class="btop"><input type="button" onclick="imbc.dlmytexts();" value="Download texts as csv"></div>
 </div>
 <!-- end of the extras -->
 <div id="pages" style="display:none;"><!-- container for navigationable pages -->

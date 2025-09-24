@@ -89,6 +89,14 @@ for f in $( ls ${TESTWORK}/outdir/html/imb*zip | sort ); do
 	mv -v "$f" ${TESTWORK}/outdir/html/"$nn" 2>&1 | tee -a $log
 done
 
+# unzip zip archives
+pushd ${TESTWORK}/outdir
+find . -name \*.zip | while read z; do
+	rm -rf "${z}_tmp"
+	mkdir "${z}_tmp"
+	unzip -q -d "${z}_tmp" "${z}"
+done
+
 kk=1
 for f in $( ls ${TESTWORK}/outdir/html/imb*msg.html | sort ); do
 	nn=$( basename "$f" | sed 's/\(imb[^_]*_\)[0-9]*_/\1'$kk'_/g' )
@@ -96,12 +104,12 @@ for f in $( ls ${TESTWORK}/outdir/html/imb*msg.html | sort ); do
 	mv -v "$f" ${TESTWORK}/outdir/html/"$nn" 2>&1 | tee -a $log
 done
 
-# unzip zip archives
-pushd ${TESTWORK}/outdir
-find . -name \*.zip | while read z; do
-	rm -rf "${z}_tmp"
-	mkdir "${z}_tmp"
-	unzip -q -d "${z}_tmp" "${z}"
+kk=1
+for f in $( find ${TESTWORK}/outdir/ -name \*.csv | sort ); do
+	d=$( dirname $f )
+	nn=$( basename "$f" | sed 's/\(imb[^_]*_\)[0-9]*_/\1'$kk'_/g' )
+	kk=$(( $kk + 1 ))
+	mv -v "$f" ${d}/"$nn" 2>&1 | tee -a $log
 done
 
 # link files inside zips
@@ -175,6 +183,23 @@ echo imbapp.html preview worker $stlc | tee -a $log
 node /home/hegny/prog/imbraw2dng/github/node_modules/eslint/bin/eslint.js -c ${TESTEXES}/eslint.config.mjs  iapw.js 2>&1 | tee -a $log
 
 ls -l ia*.js ih.mjs ih.js
+
+# texts
+#sed -i.bk -e 's/imbapp_app/imbapp/g' -e 's/imbapp.htm/imbapp/g' *.csv
+rm -f zz
+cat [a-z]*.csv|sort -u > 0.csv
+cut -d: -f1 0.csv | grep -v langs | sort -u | while read w
+do
+	n=$( grep '^'$w':' [a-z]*.csv |cut -d';' -f 2-9999|sort -u|wc -l )
+	if [ $n -gt 1 ]
+	then
+		grep -h '^'$w':' [a-z]*csv >> zz
+	else
+		grep -h '^'$w':' [a-z]*csv | sed 's/:[^"]*"/"/g' | sort -u >> zz
+	fi
+done
+echo -en '"langs";"DE";"EN";"JA";\015\012' > ../imbraw2dng_test_${testid}_texts.csv
+cat zz >> ../imbraw2dng_test_${testid}_texts.csv
 
 cd ..
 for f in imbraw2dng_test_${testid}* ; do

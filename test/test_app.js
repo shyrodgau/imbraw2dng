@@ -116,7 +116,6 @@ async function runTest() {
   	// empty the dir, first add a file so it is not empty
   	driver.executeScript('mobile: pushFile', [{remotePath: '/storage/emulated/0/DCIM/nn/x', payload: 'bml4Cg=='}]);
   	driver.executeScript('mobile: shell', [{command:'rm', args: [ '/storage/emulated/0/DCIM/nn/*' ]}]);
-	await driver.pause(300);
 
 	await driver.pause(400);
     const imgrp = await waitfor(driver,'#SELC_2029_07');
@@ -315,6 +314,9 @@ async function runTest() {
 	await driver.pause(1000);
     const msglog = await driver.$('#outmsg');
     const txt = await msglog.getText();
+	await driver.pause(300);
+  	await driver.executeScript('imbc.dlmytexts();',[]);
+	await driver.pause(300);
     console.log(txt);
     let proc = true;
     let fileidx = 0;
