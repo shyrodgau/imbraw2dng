@@ -1012,7 +1012,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.4.1_94c6def", // actually const // VERSION EYECATCHER
+version: "V6.4.1_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -18725,8 +18725,6 @@ querylang(name, offset) {
 				this.previewworkers[i].w.postMessage({ cmd: 'setdbg' });
 		}
 		if (document) { // translation output into browser log
-			for (const el of Object.keys(mytexts))
-				this.prxl(el, mytexts[el]);
 			document.getElementById('langsel').innerHTML += '<option value="00" onclick="imbc.setlang()">00</option></select>';
 			if (this.useimblang && '00' === l)
 				document.getElementById('langsel').value = '99';
@@ -18739,13 +18737,17 @@ querylang(name, offset) {
 }
 /* ImBCBase: debug: print translations for csv */
 dlmytexts() {
-	let res = '';
-	for (const el of Object.keys(mytexts))
-		res += this.prxl(el, mytexts[el]);
+	let res = this.prxl();
 	this.writefile('imbraw2dng_' + ('' + Date.now()).substring(3,10) + '_texts.csv', 'text/csv', 'xyzabc', new TextEncoder().encode(res));
 }
 /* ImBCBase: debug: print translations for csv */
 prxl(key, el) {
+	if (undefined === key) {
+		let res = '"version' + ':' + ImBCBase.progname + '";"' + globals.version + `";\u000d\u000a`;
+		for (const el of Object.keys(mytexts))
+			res += this.prxl(el, mytexts[el]);
+		return res;
+	}
 	let res = '';
 	if (el['de'] && el['en']) {
 		try{
@@ -18756,7 +18758,7 @@ prxl(key, el) {
 					let a = el[l];
 					let b = '"';
 					//if (-1 !== a.indexOf('"')) b = '\'';
-					out += b + a.replace('"','""')  + b + ';';
+					out += b + a.replaceAll('"','""')  + b + ';';
 				} else out += ';'
 			}
 			res += (out + `\u000d\u000a`);
@@ -18769,7 +18771,7 @@ prxl(key, el) {
 						let a = el[l][i];
 						let b = '"';
 						//if (-1 !== a.indexOf('"')) b = '\'';
-						out += b + a.replace('"','""')  + b + ';';
+						out += b + a.replaceAll('"','""')  + b + ';';
 					} else out += ';';
 				}
 				res += (out + `\u000d\u000a`);
