@@ -193,9 +193,9 @@ do
 	n=$( grep '^'$w':' [a-z]*.csv |cut -d';' -f 2-9999|sort -u|wc -l )
 	if [ $n -gt 1 ]
 	then
-		grep -h '^'$w':' [a-z]*csv >> zz
+		grep -Fh "$w"':' [a-z]*csv >> zz
 	else
-		grep -h '^'$w':' [a-z]*csv | sed 's/^\("[^":]*\):[^"]*"/\1"/g' | sort -u >> zz
+		grep -Fh "$w"':' [a-z]*csv | sed 's/^\("[^":]*\):[^"]*"/\1"/g' | sort -u >> zz
 	fi
 done
 echo -en '"langs";"DE";"EN";"JA";\015\012' > ../imbraw2dng_test_${testid}_texts.csv
