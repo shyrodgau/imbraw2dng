@@ -143,7 +143,7 @@ Optionen:
  -h - diesen Hilfetext zeigen
  -nc - keinen farbigen Text zeigen
  -co - farbigen Text zeigen
- -l XX - wo XX ein gültiger Sprachcode ist (derzeit: DE, EN, FR, JA)
+ -l XX - wo XX ein gültiger Sprachcode ist (derzeit: DE, EN, JA)
          Die Sprache kann auch durch Umbenennen in imbraw2dng_XX.js geändert werden.
  -d ordner - Ausgabedateien in diesen Ordner ablegen
  -f - existierende Dateien überschreiben
@@ -204,7 +204,7 @@ Vorteile gegenüber der [APP von ImB](https://imback.eu/home/app/):
 - auf jedem Browser benutzbar
 - kann raw anzeigen
 - konvertiert beim Herunterladen raw nach DNG
-- kann wie imbraw2dng auch offline für Dateien benutzt werden
+- kann auch offline für lokale Dateien benutzt werden
 
 Nachteile gegenüber APP vom ImB:
 - Keine Funktion für Live-Bild bei Video eingebaut
@@ -212,14 +212,15 @@ Nachteile gegenüber APP vom ImB:
 - kein knuffiger Kerl guckt dich an
 
 Unterschiede gegenüber APP von ImB:
-- Zeit wird nicht bei jeder Verbindung einstellt, muss manuell aus Menü gewählt werden (oder in Einstellungen auf automatisch ändern)
+- Zeit wird nicht bei jeder Verbindung einstellt, muss manuell aus Menü gewählt werden (oder in Einstellungen auf automatisch ändern)   
+(vorteilhaft bei ImB Film, weil Zeit setzen immer 0 Uhr setzt)
 
-Vorteile gegenüber historischem `imbraw2dng.html`, wenn es auf ImB benutzt wird:
+<!--Vorteile gegenüber historischem `imbraw2dng.html`, wenn es auf ImB benutzt wird:
 - Kann die Zeit auf ImB setzen
 - Kann Bilder und Videos aufnehmen
 - JPEG Vorschau schneller
 - Bildparameter (Größe, Belichtungskorrektur etc.) können gesetzt werden
-
+-->
 
 ### etc.
 
