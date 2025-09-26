@@ -186,7 +186,7 @@ ls -l ia*.js ih.mjs ih.js
 
 # texts
 #sed -i.bk -e 's/imbapp_app/imbapp/g' -e 's/imbapp.htm/imbapp/g' *.csv
-rm -f 0.csv
+rm -f zz
 cat [a-z]*.csv|sort -u > 0.csv
 cut -d: -f1 0.csv | grep -v '^"langs"' | sort -u | while read w
 do
@@ -199,8 +199,8 @@ do
 	fi
 done
 echo -en '"langs";"DE";"EN";"JA";\015\012' > ../imbraw2dng_test_${testid}_texts.csv
-grep '^"version:' zz >> ../imbraw2dng_test_${testid}_texts.csv
-grep -v '^"version:' zz >> ../imbraw2dng_test_${testid}_texts.csv
+grep '^"version' zz >> ../imbraw2dng_test_${testid}_texts.csv
+grep -v '^"version' zz >> ../imbraw2dng_test_${testid}_texts.csv
 
 cd ..
 for f in imbraw2dng_test_${testid}* ; do
