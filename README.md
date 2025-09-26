@@ -25,7 +25,7 @@ also in different languages as `imbraw2dng_XX.html` (see [Internationalization](
 
 The ImB RAWs are not really "B&W RAW" but actually the RAW sensor data that also contains the colour filtering (unfortunately only 8 bit deep for 35mm and MF, but 12 bit for Film). 
 
-DNG is an open TIFF-like format and consists mainly of constant data around the original image scanlines. 
+DNG (Adobe&reg; Digital NeGative) is an open format and consists mainly of the original image scanlines. 
 If it is from an MF or Film ImB then the Color Filter Array is different.
 
 Problems and ideas can also be discussed on the "[Issues](https://github.com/shyrodgau/imbraw2dng/issues)" or "[Discussions](https://github.com/shyrodgau/imbraw2dng/discussions)" tabs 

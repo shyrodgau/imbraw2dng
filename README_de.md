@@ -26,7 +26,7 @@ von DNG nach RAW zurück konvertieren, nur für originale hiermit nach DNG konve
  
 Es sind keine "Schwarz-Weiß RAW"-Dateien, sondern die echten Roh-Sensordaten mit der Farbfilterung darauf (leider aber nur 8 bit bei 35mm und MF, 12 bit bei Film). 
 
-DNG ist ein auf TIFF basierendes Dateiformat, das hauptsächlich konstante Daten um die ursprünglichen Bilddaten herum hat. 
+DNG (Adobe&reg; Digital NeGativ) ist offenes Dateiformat, das hauptsächlich aus den ursprünglichen Bilddaten besteht. 
 Bei Dateien von MF und Film ist die Farbfilter-Matrix (Color Filter Array) anders.
 
 Probleme und Ideen können auch unter "[Issues](https://github.com/shyrodgau/imbraw2dng/issues)" oder "[Discussions](https://github.com/shyrodgau/imbraw2dng/discussions)"  
