@@ -251,3 +251,13 @@ Anschauen des Codes ist gern erwünscht.
 14065920 B = 4320 x 3256 = unknown historic
 
 ------------------------------------
+
+## Credits
+
+Besonderer Dank an:
+
+**Michele Asciutti** - der erste, der das Farbfilter-Muster von ImBack decodiert hat
+
+**Sadami Inoue** - Übersetzungen nach Japanisch
+
+**Samuel Mello Medeiros** - Erfinder von ImBack

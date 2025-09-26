@@ -241,3 +241,13 @@ You are welcome to browse the code, help translation or optimizing!
 14065920 B = 4320 x 3256 = unknown historic
 
 ---------------------------
+
+## Credits
+
+Special Thanks to:
+
+**Michele Asciutti** - first one to decode the ImB colour filter array pattern
+
+**Sadami Inoue** - japanese translations
+
+**Samuel Mello Medeiros** - inventor of ImBack
