@@ -21,7 +21,7 @@ auch in verschiedenen Sprachen als `imbraw2dng_XX.html` (siehe [Internationalisi
 
 - Kalibrierte [Kameraprofile zum Herunterladen](cameraprofiles.md) für ImB
 
-- [**&#x261e;**`imbdng2raw.html`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html), [`imbdng2raw.js`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js)
+- [**&#x261e;**`imbdng2raw.html`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html), [**&#x261e;**`imbdng2raw.js`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js)
 von DNG nach RAW zurück konvertieren, nur für originale hiermit nach DNG konvertierte Dateien
  
 Es sind keine "Schwarz-Weiß RAW"-Dateien, sondern die echten Roh-Sensordaten mit der Farbfilterung darauf (leider aber nur 8 bit bei 35mm und MF, 12 bit bei Film). 
@@ -60,7 +60,6 @@ man im WLAN ist. [Kommandozeilen-Doku](#kommandozeile-mit-nodejs)
 Die [echte App](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk) installieren, dann ins ImB WLAN und Extras Menü schauen.
 
 #### Mit einem Micro SD Kartenleser/Adapter oder USB-Kabel
-
 Die Micro SD aus der ImB entnehmen und in (einen Adapter am) Computer stecken, oder Computer und ImB via USB verbinden und auf ImB `Massenspeicher` wählen
 
 Inhalt der Micro SD/USB-Laufwerk öffnen, könnte `VOLUME1`  oder `0000-0001` heißen und müsste einen Ordner namens `IMBACK` oder `imback` enthalten.  
@@ -70,7 +69,6 @@ Mit dem Dateiexplorer oder Betriebssystem die [heruntergeladene Datei `imbapp.ht
 Micro SD aus dem Computer auswerfen und wieder ins ImB stecken - fertig.
 
 #### Per Netzwerk
-
 Smartphone oder Computer in das ImB WLAN stecken..
 
 Neues Browserfenster (oder Registerkarte) verwenden, um auf  [http://192.168.1.254/IMBACK/](http://192.168.1.254/IMBACK/) zu navigieren.
@@ -125,9 +123,9 @@ einer Fresnel-Scheibe von I'm Back oder einer Canon EG-xxx Mattscheibe verbinden
 ## Internationalisierung
 
 Im Moment werden die Sprachen Englisch (EN), Japanisch (JA) und Deutsch (DE) unterstützt. Wenn man die imbraw2dng.js-Datei mit geändertem Namen
-als `imbraw2dng_XX.js` abspeichert, wobei `XX` das Sprachkürzel ist, arbeitet die Seite direkt in dieser Sprache. Wenn
+als `imbraw2dng_XX.js` abspeichert, wobei `XX` das Sprachkürzel ist, arbeitet die Seite direkt in dieser Sprache. **Wenn
 du beim Übersetzen helfen magst, übersetze die Seite, die du gerade liest oder schau [hier](https://shyrodgau.github.io/imbraw2dng/translations.xls) und nimm Kontakt
-auf.
+auf.**
 
 Z.B. [historische deutsche Version](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html), [historische japanische Version](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_ja.html) (gleiche Dateien, nur anderer Name). 
 

@@ -20,7 +20,7 @@ also in different languages as `imbraw2dng_XX.html` (see [Internationalization](
 
 - Calibrated [Camera profiles for download](cameraprofiles.md) for ImB
 
-- [**&#x261e;**`imbdng2raw.html`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html), [`imbdng2raw.js`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js) backward conversion from DNG to RAW, only for original DNGs converted using these tools
+- [**&#x261e;**`imbdng2raw.html`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html), [**&#x261e;**`imbdng2raw.js`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js) backward conversion from DNG to RAW, only for original DNGs converted using these tools
 
 
 The ImB RAWs are not really "B&W RAW" but actually the RAW sensor data that also contains the colour filtering (unfortunately only 8 bit deep for 35mm and MF, but 12 bit for Film). 
@@ -59,7 +59,6 @@ If you like to use the **command line**, you can use the [imbraw2dng.js](https:/
 Install the [real app](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk), then enter ImB Wifi and use the extras menu.
 
 #### Using a Micro SD reader/adapter or USB cable
-
 Take the Micro SD from your back and insert it into Micro SD Adapter on your computer or phone, or connect ImB to your PC via USB and select `Mass Storage` on ImB.
 
 Open the contents of the Micro SD/USB drive, it might be named `VOLUME1` or `0000-0001` and you should see a folder named `imback` or `IMBACK`.
@@ -70,7 +69,6 @@ Use your operating system/file explorer to copy the file [`imbapp.htm` that you 
 Eject the Micro SD from computer or phone and put back into your device - ready!
 
 #### Via network
-
 Put your Phone or PC into the ImB Wifi.
 
 Use a new browser window or tab, navigate to [http://192.168.1.254/IMBACK/](http://192.168.1.254/IMBACK/).
@@ -118,8 +116,8 @@ or a Canon EG-xxx screen.
 ## Internationalization
 
 The current supported langauges are english (EN), japanese (JA) and german (DE). If you save the imbraw2dng.js file with a name change to `imbraw2dng_XX.js` where `XX` 
-is the language shortcut, it will run directly in that language. If you want to contribute to translating, translate what you are reading now or look 
-[here](https://shyrodgau.github.io/imbraw2dng/translations.xls) and get in contact!
+is the language shortcut, it will run directly in that language. **If you want to contribute to translating, translate what you are reading now or look 
+[here](https://shyrodgau.github.io/imbraw2dng/translations.xls) and get in contact!**
 
 E.g. [historic german version](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html), [historic japanese version](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_ja.html) (same files, different names). 
 
