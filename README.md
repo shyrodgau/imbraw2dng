@@ -8,19 +8,19 @@ oder [AUF DEUTSCH](https://shyrodgau.github.io/imbraw2dng/README_de)
  
 ## What to find here
 
-- [`imbapp.htm`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) - App-Like converter for use in browser from hard disk, internet, or directly from ImB
+- [**&#x261e;**`imbapp.htm`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) - App-Like converter for use in browser from hard disk, internet, or directly from ImB
 
-- [`imbraw2dng.html`](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) - Historic version   
-also in different languages as `imbraw2dng_XX.html` (see [Internationalization](#internationalization))
+- [**&#x261e;**`imbapp.apk`](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk) - Real Android app.  For Apple, see [here](#iphone).
 
-- [`imbapp.apk`](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk) - Real Android app.  For Apple, see [here](#iphone).
-
-- [`imbraw2dng.js`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js) - Node.js version for command line use   
+- [**&#x261e;**`imbraw2dng.js`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js) - Node.js version for command line use   
 also in different languages as `imbraw2dng_XX.js`  (see [Internationalization](#internationalization))
+
+- [**&#x261e;**`imbraw2dng.html`](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) - Historic version   
+also in different languages as `imbraw2dng_XX.html` (see [Internationalization](#internationalization))
 
 - Calibrated [Camera profiles for download](cameraprofiles.md) for ImB
 
-- [`imbdng2raw.html`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html), [`imbdng2raw.js`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js) backward conversion from DNG to RAW, only for original DNGs converted using these tools
+- [**&#x261e;**`imbdng2raw.html`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html), [`imbdng2raw.js`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js) backward conversion from DNG to RAW, only for original DNGs converted using these tools
 
 
 The ImB RAWs are not really "B&W RAW" but actually the RAW sensor data that also contains the colour filtering (unfortunately only 8 bit deep for 35mm and MF, but 12 bit for Film). 
@@ -37,9 +37,9 @@ If you use **android**, try the [Android app](https://shyrodgau.github.io/imbraw
 
 If you prefer using it in the **browser** on your PC or smartphone, there are the choices:
 
-- use the [`IMBAPP.HTM`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) and/or [historic `IMBRAW2DNG.HTML`](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) 
-directly from the internet or copy them anywhere you like on your harddisk or memory.   
+- use the [**&#x261e;**`IMBAPP.HTM`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) directly from the internet or copy them anywhere you like on your harddisk or memory.   
 (All data will stay inside your browser!)   
+Some browsers (even on mobiles) will allow you to install it as PortableWebApp for easy offline use. It might also be called or hidden behind "Add to desktop".   
 In this case, you need to transfer the files from ImB or access the MicroSD via USB, adapter, original ImB App or whatsoever.
 
 - <a name="browsing-on-the-imback">  </a>when you copy that file directly onto the MicroSD into the `IMBACK` folder ([How do I do that?](#how-do-i-copy-html-files-to-the-microsd)), you can directly combine download and conversion to DNG: (videos and JPG can also be downloaded)    

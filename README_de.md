@@ -9,19 +9,19 @@ or [IN ENGLISH](https://shyrodgau.github.io/imbraw2dng/)
  
 ## Hier gibts:
 
-- [`imbapp.htm`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm)  - App-artiger Konverter für Browser von Festplatte, Internet oder direkt von ImB
+- [**&#x261e;**`imbapp.htm`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm)  - App-artiger Konverter für Browser von Festplatte, Internet oder direkt von ImB
 
-- [`imbraw2dng.html`](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html) - Historische Version    
-auch in verschiedenen Sprachen als `imbraw2dng_XX.html` (siehe [Internationalisierung](#internationalisierung))
+- [**&#x261e;**`imbapp.apk`](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk) - Echte Android App. Für Apple, [hier](#iphone) schauen.
 
-- [`imbapp.apk`](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk) - Echte Android App. Für Apple, [hier](#iphone) schauen.
-
-- [`imbraw2dng.js`](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) - Node.js Version für Benutzung auf der Kommandozeile   
+- [**&#x261e;**`imbraw2dng.js`](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) - Node.js Version für Benutzung auf der Kommandozeile   
 auch in verschiedenen Sprachen als `imbraw2dng_XX.js` (siehe [Internationalisierung](#internationalisierung))
+
+- [**&#x261e;**`imbraw2dng.html`](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html) - Historische Version    
+auch in verschiedenen Sprachen als `imbraw2dng_XX.html` (siehe [Internationalisierung](#internationalisierung))
 
 - Kalibrierte [Kameraprofile zum Herunterladen](cameraprofiles.md) für ImB
 
-- [`imbdng2raw.html`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html), [`imbdng2raw.js`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js)
+- [**&#x261e;**`imbdng2raw.html`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html), [`imbdng2raw.js`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js)
 von DNG nach RAW zurück konvertieren, nur für originale hiermit nach DNG konvertierte Dateien
  
 Es sind keine "Schwarz-Weiß RAW"-Dateien, sondern die echten Roh-Sensordaten mit der Farbfilterung darauf (leider aber nur 8 bit bei 35mm und MF, 12 bit bei Film). 
@@ -38,9 +38,9 @@ Wenn jemand **Android** benutzt, probiert die [Android app](https://shyrodgau.gi
 
 Wenn es jemand auf dem PC oder Smartphone im **Browser** verwenden möchte, folgende Möglichkeiten:
 
-- die Datei [`IMBAPP.HTM`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) und/oder [historische `IMBRAW2DNG.HTML`](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html)   
-direkt im Internet benutzen oder auf die Festplatte oder sonstwohin kopieren.    
+- die Datei [**&#x261e;**`IMBAPP.HTM`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) direkt im Internet benutzen oder auf die Festplatte oder sonstwohin kopieren.    
 (Alle Daten bleiben im Browser!)   
+Manche Browser (sogar auf Handys) bieten an, es als PortableWebApp zu installieren (leicht offline zu finden). Das könnte sich auch unter "Zum Desktop dazufügen" o.ä. verbergen.   
 In diesem Fall müssen die Dateien von ImB per USB, Micro SD Adapter, original App oder sonstwie geholt werden.
 
 - <a name="browsing-on-the-imback">  </a>wenn man diese Datei auf die MicroSD vom ImB schiebt, ([wie macht man das?](#wie-kopiere-ich-html-dateien-auf-die-microsd)), kann Holen und Konvertieren nach DNG zusammengefasst werden (JPG und Filme können auch geholt werden).   
