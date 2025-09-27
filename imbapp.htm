@@ -20630,10 +20630,21 @@ fselected() {
 	this.actnum = 0;
 	let n = 0;
 	this.fromvisbrows = true;
+	this.fromintent = 0;
+	this.addscaleall = false;
 	document.getElementById('droptarget').style['display'] = 'none';
 	document.getElementById('infile').disabled = true
 	this.showdlprog();
 	this.topreccheck(false);
+	if (document.getElementById('makebackw')?.checked) {
+		// backward goes loose
+		this.fromintent = 3;
+	}
+	else if (document.getElementById('fakelongexpadd')?.checked) {
+		// fakelongexpadd goes loose
+		this.fromintent = 2;
+		this.addscaleall = document.getElementById('fakelongexpscale')?.checked;
+	}
 	for (const f of el.files) {
 		let r = new FileReader();
 		let fel = {
@@ -20650,7 +20661,7 @@ fselected() {
 					me.onerror( me.errevent );
 			}
 		};
-		 if (document.getElementById('makebackw')?.checked || document.getElementById('fakelongexpadd')?.checked || el.files.length <= 1)
+		 if (this.fromintent === 2 || this.fromintent === 3 || el.files.length <= 1)
 			 this.allfiles.push(fel);
 		 else
 		 	 this.handle1imb(fel);
@@ -20665,11 +20676,9 @@ fselected() {
 				this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
 				//this.appmsgxl(true, 'process.selectedn', this.totnum);
 				this.showlog();
-				if (document.getElementById('fakelongexpadd')?.checked) {
-					this.fromintent = 2;
+				if (this.fromintent === 2 || this.fromintent == 3 || el.files.length <= 1) {
 					this.stepmode = 0;
 					this.addall = true;
-					this.addscaleall = document.getElementById('fakelongexpscale')?.checked;
 					this.startloadimg();
 				} else {
 					this.addall = false;
@@ -20692,11 +20701,9 @@ fselected() {
 				this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
 				//this.appmsgxl(true, 'process.selectedn', this.totnum);
 				this.showlog();
-				if (document.getElementById('fakelongexpadd')?.checked) {
-					this.fromintent = 2;
+				if (this.fromintent === 2 || this.fromintent === 3 || el.files.length <= 1) {
 					this.stepmode = 0;
 					this.addall = true;
-					this.addscaleall = document.getElementById('fakelongexpscale')?.checked;
 					this.startloadimg();
 				} else {
 					this.addall = false;

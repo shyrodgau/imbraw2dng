@@ -534,6 +534,62 @@ describe('C Convert Backward', function() {
 	});
 });
 
+describe('X Convert Backward App', function() {
+	let driver, opts, errflg = false;
+	before(async function() {
+			this.timeout(36000);
+			const opts = [ 'prefs', { 'download.default_directory': '/home/hegny/Downloads/testoutputdir' } ];
+		  tdir = downloadDirBase + '.tmpimbtest';
+		  fs.mkdirSync(tdir, { recursive: true });
+		  const options = new chrome.Options();
+		  options.setUserPreferences({
+			'download.default_directory': tdir,
+			'download.prompt_for_download': false,
+			'profile.default_content_settings.popups': 0,
+		  });
+		  options.addArguments('--no-sandbox');
+		  options.addArguments('--disable-dev-shm-usage');
+  			driver = await new Builder().forBrowser(Browser.CHROME).setChromeOptions(options).build();
+		   // Use DevTools Protocol to allow multiple downloads
+			const cdpConnection = await driver.createCDPConnection('page');
+			await driver.sendDevToolsCommand('Page.setDownloadBehavior', {
+			  behavior: 'allow',
+			  downloadPath: tdir,
+			});
+			await driver.get('file://' + TESTDAT + '/IMBACK/imbapp.htm');
+			driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));}');
+	});
+	it('X.1 Convert without question', async function dotest() {
+			this.timeout(36000);
+			const mbw = await driver.findElement(By.id('makebackw'));
+			await driver.actions({ async: true })
+				.move({ origin: mbw })
+				.pause(300)
+				.click()
+				.pause(600)
+				.perform();
+			const fi = await driver.findElement(By.id('infile'));
+			await fi.clear();
+			await fi.sendKeys('/home/hegny/Downloads/mf6x6_large_1.dng\n/home/hegny/Downloads/kb_large_10.dng');
+			await driver.actions({async: true}).pause(1000).perform();
+			renameDownload(tdir);
+	});
+	after(async function() {
+			let me = await driver.findElement(By.id('thebody'));
+			let ma = await me.getAttribute('data-err');
+			console.log('Message Content:');
+			console.log('= = = = = = = = = = = = = = = = = = =');
+			let m = await driver.findElement(By.id('xmsg'));
+			let t = await m.getText();
+			console.log(t);
+			console.log('= = = = = = = = = = = = = = = = = = =');
+			if (ma) {
+				console.log('***ERR: ' + ma);
+			} else if (undefined === process.env.KEYX)
+				driver.quit();
+	});
+});
+
 describe('E Convert Raw from Imback APP', function() {
 	let driver, opts, errflg = false;
 	before(async function() {
