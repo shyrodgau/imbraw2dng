@@ -9,7 +9,8 @@ oder [AUF DEUTSCH](https://shyrodgau.github.io/imbraw2dng/README_de)
 ## What to find here
 
 - [**&#x261e;**`imbapp.htm`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) - App-Like converter for use in browser from hard disk, internet, or directly from ImB   
-also in different languages as `imbapp_XX.htm` (see [Internationalization](#internationalization))
+also in different languages as `imbapp_XX.htm` (see [Internationalization](#internationalization))   
+Can also do backward.
 
 - [**&#x261e;**`imbapp.apk`](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk) - Real Android app.  For Apple, see [here](#iphone).
 
@@ -21,7 +22,7 @@ also in different languages as `imbraw2dng_XX.html` (see [Internationalization](
 
 - Calibrated [Camera profiles for download](cameraprofiles.md) for ImB
 
-- [**&#x261e;**`imbdng2raw.html`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html), [**&#x261e;**`imbdng2raw.js`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js) backward conversion from DNG to RAW, only for original DNGs converted using these tools
+- [**&#x261e;**`imbdng2raw.html` (deprecated)](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html), [**&#x261e;**`imbdng2raw.js` (stays alive)](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js) backward conversion from DNG to RAW, only for original DNGs converted using these tools
 
 
 The ImB RAWs are not really "B&W RAW" but actually the RAW sensor data that also contains the colour filtering (unfortunately only 8 bit deep for 35mm and MF, but 12 bit for Film). 
@@ -177,7 +178,9 @@ In the app, you first need to convert all RAWs to DNGs. Then select the DNGs you
 
 If you want back the original raw for an original converted DNG in the app, select only one single DNG in the file browser and share it with the ImB OS App.
 
-Or use [imbdng2raw.html](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html) or [imbdng2raw.js](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js)
+Or use the normal imbapp page and check the corresponding checkbox.
+
+Or use [imbdng2raw.html, might go away](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html) or [imbdng2raw.js](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js)
 
 ### iPhone
 

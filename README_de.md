@@ -10,7 +10,8 @@ or [IN ENGLISH](https://shyrodgau.github.io/imbraw2dng/)
 ## Hier gibts:
 
 - [**&#x261e;**`imbapp.htm`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm)  - App-artiger Konverter für Browser von Festplatte, Internet oder direkt von ImB    
-auch in verschiedenen Sprachen als `imbapp_XX.html` (siehe [Internationalisierung](#internationalisierung))
+auch in verschiedenen Sprachen als `imbapp_XX.html` (siehe [Internationalisierung](#internationalisierung))   
+Kann auch umgekehrt.
 
 - [**&#x261e;**`imbapp.apk`](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk) - Echte Android App. Für Apple, [hier](#iphone) schauen.
 
@@ -22,7 +23,7 @@ auch in verschiedenen Sprachen als `imbraw2dng_XX.html` (siehe [Internationalisi
 
 - Kalibrierte [Kameraprofile zum Herunterladen](cameraprofiles.md) für ImB
 
-- [**&#x261e;**`imbdng2raw.html`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html), [**&#x261e;**`imbdng2raw.js`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js)
+- [**&#x261e;**`imbdng2raw.html` (abgekündigt)](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html), [**&#x261e;**`imbdng2raw.js` (bleibt)](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js)
 von DNG nach RAW zurück konvertieren, nur für originale hiermit nach DNG konvertierte Dateien
  
 Es sind keine "Schwarz-Weiß RAW"-Dateien, sondern die echten Roh-Sensordaten mit der Farbfilterung darauf (leider aber nur 8 bit bei 35mm und MF, 12 bit bei Film). 
@@ -187,7 +188,9 @@ In der Android App müssen die RAWs zunächst nach DNG konvertiert werden. Dann 
 
 Um mit der App die ursprüngliche RAW Datei aus einer original konvertierten DNG-Datei zu bekommen, jeweils genau eine DNG-Datei mit der ImB OS App teilen.
 
-Oder [imbdng2raw.html](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html) oder [imbdng2raw.js](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js) nehmen.
+Oder die normale imbapp Seite nehmen und das entsprechende Häkchen setzen.
+
+Oder [imbdng2raw.html, könnte irgendwann verschwinden](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html) oder [imbdng2raw.js](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js) nehmen.
 
 
 ### iPhone
