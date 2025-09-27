@@ -8,15 +8,16 @@ oder [AUF DEUTSCH](https://shyrodgau.github.io/imbraw2dng/README_de)
  
 ## What to find here
 
-- [**&#x261e;**`imbapp.htm`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) - App-Like converter for use in browser from hard disk, internet, or directly from ImB
+- [**&#x261e;**`imbapp.htm`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) - App-Like converter for use in browser from hard disk, internet, or directly from ImB   
+also in different languages as `imbapp_XX.htm` (see [Internationalization](#internationalization))
 
 - [**&#x261e;**`imbapp.apk`](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk) - Real Android app.  For Apple, see [here](#iphone).
 
 - [**&#x261e;**`imbraw2dng.js`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js) - Node.js version for command line use   
 also in different languages as `imbraw2dng_XX.js`  (see [Internationalization](#internationalization))
 
-- [**&#x261e;**`imbraw2dng.html`](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) - Historic version   
-also in different languages as `imbraw2dng_XX.html` (see [Internationalization](#internationalization))
+<!-- - [**&#x261e;**`imbraw2dng.html`](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) - Historic version   
+also in different languages as `imbraw2dng_XX.html` (see [Internationalization](#internationalization))-->
 
 - Calibrated [Camera profiles for download](cameraprofiles.md) for ImB
 
@@ -37,7 +38,7 @@ If you use **android**, try the [Android app](https://shyrodgau.github.io/imbraw
 
 If you prefer using it in the **browser** on your PC or smartphone, there are the choices:
 
-- use the [**&#x261e;**`IMBAPP.HTM`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) directly from the internet or copy them anywhere you like on your harddisk or memory.   
+- use the [**&#x261e;**`IMBAPP.HTM`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) directly from the internet or copy it anywhere you like on your harddisk or memory.   
 (All data will stay inside your browser!)   
 Some browsers (even on mobiles) will allow you to install it as PortableWebApp for easy offline use. It might also be called or hidden behind "Add to desktop".   
 In this case, you need to transfer the files from ImB or access the MicroSD via USB, adapter, original ImB App or whatsoever.
@@ -119,7 +120,7 @@ The current supported langauges are english (EN), japanese (JA) and german (DE).
 is the language shortcut, it will run directly in that language. **If you want to contribute to translating, translate what you are reading now or look 
 [here](https://shyrodgau.github.io/imbraw2dng/translations.xls) and get in contact!**
 
-E.g. [historic german version](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html), [historic japanese version](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_ja.html) (same files, different names). 
+E.g. [german version](https://shyrodgau.github.io/imbraw2dng/imbapp_de.htm), [japanese version](https://shyrodgau.github.io/imbraw2dng/imbapp_ja.htm) (same files, different names). 
 
 ## Command line using node.js
 

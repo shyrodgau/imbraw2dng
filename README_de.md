@@ -9,15 +9,16 @@ or [IN ENGLISH](https://shyrodgau.github.io/imbraw2dng/)
  
 ## Hier gibts:
 
-- [**&#x261e;**`imbapp.htm`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm)  - App-artiger Konverter für Browser von Festplatte, Internet oder direkt von ImB
+- [**&#x261e;**`imbapp.htm`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm)  - App-artiger Konverter für Browser von Festplatte, Internet oder direkt von ImB    
+auch in verschiedenen Sprachen als `imbapp_XX.html` (siehe [Internationalisierung](#internationalisierung))
 
 - [**&#x261e;**`imbapp.apk`](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk) - Echte Android App. Für Apple, [hier](#iphone) schauen.
 
 - [**&#x261e;**`imbraw2dng.js`](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) - Node.js Version für Benutzung auf der Kommandozeile   
 auch in verschiedenen Sprachen als `imbraw2dng_XX.js` (siehe [Internationalisierung](#internationalisierung))
 
-- [**&#x261e;**`imbraw2dng.html`](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html) - Historische Version    
-auch in verschiedenen Sprachen als `imbraw2dng_XX.html` (siehe [Internationalisierung](#internationalisierung))
+<!--- [**&#x261e;**`imbraw2dng.html`](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html) - Historische Version    
+auch in verschiedenen Sprachen als `imbraw2dng_XX.html` (siehe [Internationalisierung](#internationalisierung))-->
 
 - Kalibrierte [Kameraprofile zum Herunterladen](cameraprofiles.md) für ImB
 
@@ -38,7 +39,7 @@ Wenn jemand **Android** benutzt, probiert die [Android app](https://shyrodgau.gi
 
 Wenn es jemand auf dem PC oder Smartphone im **Browser** verwenden möchte, folgende Möglichkeiten:
 
-- die Datei [**&#x261e;**`IMBAPP.HTM`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) direkt im Internet benutzen oder auf die Festplatte oder sonstwohin kopieren.    
+- die Datei [**&#x261e;**`imbapp_de.htm`](https://shyrodgau.github.io/imbraw2dng/imbapp_de.htm) direkt im Internet benutzen oder auf die Festplatte oder sonstwohin kopieren.    
 (Alle Daten bleiben im Browser!)   
 Manche Browser (sogar auf Handys) bieten an, es als PortableWebApp zu installieren (leicht offline zu finden). Das könnte sich auch unter "Zum Desktop dazufügen" o.ä. verbergen.   
 In diesem Fall müssen die Dateien von ImB per USB, Micro SD Adapter, original App oder sonstwie geholt werden.
@@ -127,7 +128,7 @@ als `imbraw2dng_XX.js` abspeichert, wobei `XX` das Sprachkürzel ist, arbeitet d
 du beim Übersetzen helfen magst, übersetze die Seite, die du gerade liest oder schau [hier](https://shyrodgau.github.io/imbraw2dng/translations.xls) und nimm Kontakt
 auf.**
 
-Z.B. [historische deutsche Version](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html), [historische japanische Version](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_ja.html) (gleiche Dateien, nur anderer Name). 
+Z.B. [deutsche Version](https://shyrodgau.github.io/imbraw2dng/imbapp_de.htm), [japanische Version](https://shyrodgau.github.io/imbraw2dng/imbapp_ja.htm) (gleiche Dateien, nur anderer Name). 
 
 ## Kommandozeile mit node.js
 

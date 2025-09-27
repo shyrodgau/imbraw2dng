@@ -8,8 +8,8 @@
 
 ## ここで見つけるもの
 
-- `imbraw2dng.html` - [オリジナル コンバーター](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_ja.html)。ハードディスク、インターネット、または ImB から直接ブラウザーで使用する
-`imbraw2dng_XX.html` としてさまざまな言語でも使用できます ([国際化](#国際化) を参照)
+<!-- `imbraw2dng.html` - [オリジナル コンバーター](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_ja.html)。ハードディスク、インターネット、または ImB から直接ブラウザーで使用する
+`imbraw2dng_XX.html` としてさまざまな言語でも使用できます ([国際化](#国際化) を参照)-->
 
 - `imbapp.htm` - 新しい [アプリのようなバージョン](https://shyrodgau.github.io/imbraw2dng/imbapp.htm)
 
