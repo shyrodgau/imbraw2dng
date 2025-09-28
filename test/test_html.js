@@ -63,7 +63,7 @@ function renameDownload(downloadDir) {
   const newf = files.filter(f => (-1 === f.indexOf('@')));
   for (const f of newf) {
   	  // for case C.1
-  	  if (f === 'mf6x6_large_1.dng' || f === 'kb_large_10.dng') {
+  	  if (f === 'mf6x6_large_1.dng' || f === 'kb_large_10.dng' || f === '2029_0710_010203_001.dng') {
   	  	  fs.copyFileSync(downloadDir + '/'+f, '/home/hegny/Downloads/'+f);
   	  }
   	  fs.renameSync(downloadDir + '/'+f, downloadDir + '/'+f + '@' + idx);
@@ -513,65 +513,9 @@ describe('C Convert Backward', function() {
 			this.timeout(36000);
 			const fi = await driver.findElement(By.id('infileb'));
 			await fi.clear();
-			await fi.sendKeys('/home/hegny/Downloads/mf6x6_large_1.dng\n/home/hegny/Downloads/kb_large_10.dng');
+			await fi.sendKeys('/home/hegny/Downloads/mf6x6_large_1.dng\n/home/hegny/Downloads/kb_large_10.dng\n/home/hegny/Downloads/2029_0710_010203_001.dng');
 			await driver.actions({async: true})
 				.pause(300).move({ origin: fi }).pause(1000).perform();
-			renameDownload(tdir);
-	});
-	after(async function() {
-			let me = await driver.findElement(By.id('thebody'));
-			let ma = await me.getAttribute('data-err');
-			console.log('Message Content:');
-			console.log('= = = = = = = = = = = = = = = = = = =');
-			let m = await driver.findElement(By.id('xmsg'));
-			let t = await m.getText();
-			console.log(t);
-			console.log('= = = = = = = = = = = = = = = = = = =');
-			if (ma) {
-				console.log('***ERR: ' + ma);
-			} else if (undefined === process.env.KEYX)
-				driver.quit();
-	});
-});
-
-describe('X Convert Backward App', function() {
-	let driver, opts, errflg = false;
-	before(async function() {
-			this.timeout(36000);
-			const opts = [ 'prefs', { 'download.default_directory': '/home/hegny/Downloads/testoutputdir' } ];
-		  tdir = downloadDirBase + '.tmpimbtest';
-		  fs.mkdirSync(tdir, { recursive: true });
-		  const options = new chrome.Options();
-		  options.setUserPreferences({
-			'download.default_directory': tdir,
-			'download.prompt_for_download': false,
-			'profile.default_content_settings.popups': 0,
-		  });
-		  options.addArguments('--no-sandbox');
-		  options.addArguments('--disable-dev-shm-usage');
-  			driver = await new Builder().forBrowser(Browser.CHROME).setChromeOptions(options).build();
-		   // Use DevTools Protocol to allow multiple downloads
-			const cdpConnection = await driver.createCDPConnection('page');
-			await driver.sendDevToolsCommand('Page.setDownloadBehavior', {
-			  behavior: 'allow',
-			  downloadPath: tdir,
-			});
-			await driver.get('file://' + TESTDAT + '/IMBACK/imbapp.htm');
-			driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));}');
-	});
-	it('X.1 Convert without question', async function dotest() {
-			this.timeout(36000);
-			const mbw = await driver.findElement(By.id('makebackw'));
-			await driver.actions({ async: true })
-				.move({ origin: mbw })
-				.pause(300)
-				.click()
-				.pause(600)
-				.perform();
-			const fi = await driver.findElement(By.id('infile'));
-			await fi.clear();
-			await fi.sendKeys('/home/hegny/Downloads/mf6x6_large_1.dng\n/home/hegny/Downloads/kb_large_10.dng');
-			await driver.actions({async: true}).pause(1000).perform();
 			renameDownload(tdir);
 	});
 	after(async function() {
@@ -979,7 +923,7 @@ describe('F Convert Raw Local APP', function() {
 			//await fi.clear();
 			renameDownload(tdir);
 	});
-	it('F.2 Convert multipe', async function dotest() {
+	it('F.2 Convert multiple', async function dotest() {
 			this.timeout(9000);
 			const fi = await driver.findElement(By.id('infile'));
 			await fi.clear();
@@ -1167,4 +1111,69 @@ describe('H Stack DNG and Raw Local APP', function() {
 				driver.quit();
 	});
 });
+
+describe('I Convert Backward App', function() {
+	let driver, opts, errflg = false;
+	before(async function() {
+			this.timeout(36000);
+			const opts = [ 'prefs', { 'download.default_directory': '/home/hegny/Downloads/testoutputdir' } ];
+		  tdir = downloadDirBase + '.tmpimbtest';
+		  fs.mkdirSync(tdir, { recursive: true });
+		  const options = new chrome.Options();
+		  options.setUserPreferences({
+			'download.default_directory': tdir,
+			'download.prompt_for_download': false,
+			'profile.default_content_settings.popups': 0,
+		  });
+		  options.addArguments('--no-sandbox');
+		  options.addArguments('--disable-dev-shm-usage');
+  			driver = await new Builder().forBrowser(Browser.CHROME).setChromeOptions(options).build();
+		   // Use DevTools Protocol to allow multiple downloads
+			const cdpConnection = await driver.createCDPConnection('page');
+			await driver.sendDevToolsCommand('Page.setDownloadBehavior', {
+			  behavior: 'allow',
+			  downloadPath: tdir,
+			});
+			await driver.get('file://' + TESTDAT + '/IMBACK/imbapp.htm');
+			driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));}');
+	});
+	it('I.1 Convert without question', async function dotest() {
+			this.timeout(36000);
+			const mbw = await driver.findElement(By.id('makebackw'));
+			await driver.actions({ async: true })
+				.move({ origin: mbw })
+				.pause(300)
+				.click()
+				.pause(600)
+				.perform();
+			const fi = await driver.findElement(By.id('infile'));
+			await fi.clear();
+			await fi.sendKeys('/home/hegny/Downloads/mf6x6_large_1.dng\n/home/hegny/Downloads/kb_large_10.dng\n/home/hegny/Downloads/2029_0710_010203_001.dng');
+			await driver.actions({async: true}).pause(1000).perform();
+			const okbb = await waitfor(driver, 'id', 'dlprogresslogbtn');
+			await driver.actions({ async: true })
+				.move({ origin: okbb })
+				.pause(100)
+				.click()
+				.pause(900)
+				.perform();
+			renameDownload(tdir);
+	});
+	after(async function() {
+			let me = await driver.findElement(By.id('thebody'));
+			let ma = await me.getAttribute('data-err');
+			console.log('Message Content:');
+			console.log('= = = = = = = = = = = = = = = = = = =');
+			let m = await driver.findElement(By.id('xmsg'));
+			let t = await m.getText();
+			console.log(t);
+			console.log('= = = = = = = = = = = = = = = = = = =');
+			if (ma) {
+				console.log('***ERR: ' + ma);
+			} else if (undefined === process.env.KEYX)
+				driver.quit();
+	});
+});
+
+
 

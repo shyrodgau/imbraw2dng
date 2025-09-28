@@ -184,6 +184,8 @@ node /home/hegny/prog/imbraw2dng/github/node_modules/eslint/bin/eslint.js -c ${T
 
 ls -l ia*.js ih.mjs ih.js
 
+find ${TESTDAT}/.. ${TESTWORK} \( -name mf6x6_large_1\*.[rR][aA][wW] -o -name kb_large_10\*.[rR][aA][wW] -o -name 2029_0710_010203_001\*.[rR][aA][wW] \) -exec cksum {} \; 2>&1 | sort | tee -a $log
+
 # texts
 #sed -i.bk -e 's/imbapp_app/imbapp/g' -e 's/imbapp.htm/imbapp/g' *.csv
 rm -f zz
