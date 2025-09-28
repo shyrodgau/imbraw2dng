@@ -95,7 +95,7 @@ Bei der Konvertierung nach DNG werden die Zeitstempel-Metadaten gesetzt, wenn de
 aussieht, und OriginalRawFilename auf den Namen der RAW Eingabedatei. Somit können die DNG Dateien nach belieben 
 benannt werden, ohne viel der ursprünglichen Daten zu verlieren.
 
-Falls jemals das Original-RAW wieder benötigt wird (z.B. um es mit einer neueren Version nochmal zu konvertieren), ist das mit [imbdng2raw.html](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html) möglich.
+Falls jemals das Original-RAW wieder benötigt wird (z.B. um es mit einer neueren Version nochmal zu konvertieren), <a href="#revert-to-raw"> siehe hier </a>.
 
 
 
@@ -184,7 +184,7 @@ Wenn du eine lange Aufnahme durch mehrere kürzere simulieren willst, und das sp
 Oder im HTML das Häkchen unter dem blauen Bereich setzen und dann die aufzuaddierenden RAW-Dateien zusammen in das blaue Feld ziehen und ablegen.   
 In der Android App müssen die RAWs zunächst nach DNG konvertiert werden. Dann die zu addierenden DNG Dateien auswählen und mit der ImB OS App teilen.
 
-### Zurück nach RAW
+### <a name="revert-to-raw"> </a>Zurück nach RAW
 
 Um mit der App die ursprüngliche RAW Datei aus einer original konvertierten DNG-Datei zu bekommen, jeweils genau eine DNG-Datei mit der ImB OS App teilen.
 

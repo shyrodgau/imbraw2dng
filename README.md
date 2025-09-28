@@ -14,7 +14,7 @@ Can also do backward.
 
 - [**&#x261e;**`imbapp.apk`](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk) - Real Android app.  For Apple, see [here](#iphone).
 
-- [**&#x261e;**`imbraw2dng.js`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js) - Node.js version for command line use   
+- [**&#x261e;**`imbraw2dng.js`](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) - Node.js version for command line use   
 also in different languages as `imbraw2dng_XX.js`  (see [Internationalization](#internationalization))
 
 <!-- - [**&#x261e;**`imbraw2dng.html`](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) - Historic version   
@@ -91,7 +91,7 @@ When you use the android app or point browser directly to the converter page on 
 Conversion to DNG currently sets the Timestamp Tags if the filename seems to be a reasonable I'm Back filename, and the 
 OriginalRawFilename to the name of the RAW inputfile. That way you can name the DNG file whatever you like without losing much of the original information.
 
-If you ever need to revert the original RAW from the DNG (e.g. to do the conversion again with a never version), this is possbile using [imbdng2raw.html](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html)
+If you ever need to revert the original RAW from the DNG (e.g. to do the conversion again with a never version), <a href="#revert-to-raw"> see here </a>.
 
 
 ## Processing the DNG
@@ -174,7 +174,7 @@ If you want to simulate a long "Long exposure" by several shorter ones to avoid 
 Or set the checkbox below the blue field on the HTML page and then drag and drop the RAW-files you want to stack up together into the blue field.   
 In the app, you first need to convert all RAWs to DNGs. Then select the DNGs you want to stack in your file browser and share these with the ImB OS App.
 
-### Revert to RAW
+### <a name="revert-to-raw"> </a>Revert to RAW
 
 If you want back the original raw for an original converted DNG in the app, select only one single DNG in the file browser and share it with the ImB OS App.
 
