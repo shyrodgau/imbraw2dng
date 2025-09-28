@@ -10,7 +10,7 @@ or [IN ENGLISH](https://shyrodgau.github.io/imbraw2dng/)
 ## Hier gibts:
 
 - [**&#x261e;**`imbapp.htm`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm)  - App-artiger Konverter für Browser von Festplatte, Internet oder direkt von ImB    
-auch in verschiedenen Sprachen als `imbapp_XX.html` (siehe [Internationalisierung](#internationalisierung))   
+auch in verschiedenen Sprachen als `imbapp_XX.htm` (siehe [Internationalisierung](#internationalisierung))   
 Kann auch umgekehrt.
 
 - [**&#x261e;**`imbapp.apk`](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk) - Echte Android App. Für Apple, [hier](#iphone) schauen.
