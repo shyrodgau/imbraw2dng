@@ -849,7 +849,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.4.2_9933846", // actually const // VERSION EYECATCHER
+version: "V6.4.2_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -1514,6 +1514,7 @@ copyright = '';
 artist = '';
 // { name: 'xxx.jpg', data: array-ifd... }
 #exififds = [];
+jsett = 3;
 
 // ImBCBase: fake long exposure:
 #addimgs = [];
@@ -18681,22 +18682,25 @@ findlang(i) {
 		document.getElementById('langsel').value = this.mylang;
 	return this.mylang;
 }
+xnoexif() {
+	this.appmsg('No EXIF.');
+}
 /* ImBCBase: extract exif from jpeg */
 xexif(name, view, datestr) {
 	if (-1 !== this.#exififds.findIndex(v => v.name === name))
 		return;
-	if (view.getUint8(0) !== 0xff) return; /* JFIF */
-	if (view.getUint8(1) !== 0xd8) return;
-	if (view.getUint8(2) !== 0xff) return; /* APP1 */
-	if (view.getUint8(3) !== 0xe1) return;
-	if (view.getUint8(6) !== 0x45) return; /* E */
-	if (view.getUint8(7) !== 0x78) return; /* x */
-	if (view.getUint8(8) !== 0x69) return; /* i */
-	if (view.getUint8(9) !== 0x66) return; /* f */
-	if (view.getUint8(12) !== 0x49) return; /* I */
-	if (view.getUint8(13) !== 0x49) return; /* I */
-	if (view.getUint8(14) !== 0x2a) return; /* magic */
-	if (view.getUint8(15) !== 0x00) return; /* magic */
+	if (view.getUint8(0) !== 0xff) return this.xnoexif(); /* JFIF */
+	if (view.getUint8(1) !== 0xd8) return this.xnoexif();
+	if (view.getUint8(2) !== 0xff) return this.xnoexif(); /* APP1 */
+	if (view.getUint8(3) !== 0xe1) return this.xnoexif();
+	if (view.getUint8(6) !== 0x45) return this.xnoexif(); /* E */
+	if (view.getUint8(7) !== 0x78) return this.xnoexif(); /* x */
+	if (view.getUint8(8) !== 0x69) return this.xnoexif(); /* i */
+	if (view.getUint8(9) !== 0x66) return this.xnoexif(); /* f */
+	if (view.getUint8(12) !== 0x49) return this.xnoexif(); /* I */
+	if (view.getUint8(13) !== 0x49) return this.xnoexif(); /* I */
+	if (view.getUint8(14) !== 0x2a) return this.xnoexif(); /* magic */
+	if (view.getUint8(15) !== 0x00) return this.xnoexif(); /* magic */
 	let baseoff = 12, off = 12+4+4+2, exifoff = -1;
 	let nent = TIFFOut.readshort(view, 12+4+4);
 	for (let j=0; j<nent; j++) {
@@ -18707,9 +18711,10 @@ xexif(name, view, datestr) {
 		}
 		off += 12;
 	}
-	if (exifoff === -1) return;
+	if (exifoff === -1) return this.xnoexif();
 	off = exifoff + baseoff;
 	let t = IFDOut.parseIfd(view, off, baseoff);
+	if (!t?.length) return  this.xnoexif();
 	const iio = t.findIndex((v) => v.t === 40965);
 	if (iio !== -1) {
 		t[iio].ifd = IFDOut.parseIfd(view, t[iio].val[0] + baseoff, 0);
@@ -18720,7 +18725,10 @@ xexif(name, view, datestr) {
 				view.setUint8(e.addr + j, datestr[j]);
 		}
 	}
-	this.#exififds.push( { name: name, data: t } );
+	if ((2 & this.jsett) === 2)
+		this.#exififds.push( { name: name, data: t } );
+	else
+		this.mappx(0, 'jpeg.noexif');
 }
 /* ImBCBase: time values from filename */
 static nametotime(name, corrdelta=0) {
@@ -18853,7 +18861,14 @@ handleone(orientation, upd) {
 			for (let j=0; j<contents.byteLength; j++) {
 				out[j] = view.getUint8(j);
 			}
-			if (ImBCBase.ucex(rawname) === '.JPG') this.xexif(rawname, view, datestr);
+			if (ImBCBase.ucex(rawname) === '.JPG') {
+				this.xexif(rawname, view, datestr);
+				if (1 !== (this.jsett & 1)) {
+					this.mappx(true, 'jpeg.exifonly');
+					this.stats.ok++;
+					return this.handlenext();	
+				}
+			}
 			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out, f.name);
 		}
 		reader.onerror = (evt) => {
@@ -19129,7 +19144,7 @@ handleone(orientation, upd) {
 		ti.addEntry(50740, 'BYTE', privdatbytes); /* dng private */
 		this.historystring = '';
 		let myexif = null;
-		if (dateok) {
+		if (dateok && (2 === (this.jsett & 2))) {
 			ti.addEntry(306, 'ASCII', datestr); /* datetime */
 			ti.addEntry(36867, 'ASCII', datestr); /* Original date time */
 			// do we have exifdata ?
@@ -20446,6 +20461,10 @@ startnode(notfirst) {
 					else if (this.expflags[1] === 2)
 						this.imbweb = 'http://192.168.0.72:8080';
 				}
+				else if (flagging === 8) {
+					if (parseInt(v) > 0) this.jsett = parseInt(v);
+					flagging = 0;
+				}
 				else if (v.substring(0,4)==='-CSV' && globals.debugflag) {
 					this.dlmytexts();
 					wantxl = true;
@@ -20577,6 +20596,14 @@ startnode(notfirst) {
 				}
 				else if (v ==='-J') {
 					if ((this.typeflags % 4) < 2) this.typeflags += 2;
+				}
+				else if (v ==='-j') {
+					if (v.substring(2).length > 0) {
+						let l = v.substring(2);
+						if (parseInt(l) > 0) this.jsett = parseInt(l);
+					}
+					else
+						flagging=8;
 				}
 				else if (v ==='-O') {
 					if ((this.typeflags % 8) < 4) this.typeflags += 4;
@@ -20975,6 +21002,16 @@ const mytexts = { // actually const
 			ja: '反時計回り'
 		},
 	},
+	jpeg: {
+		exifonly: {
+			en: 'Use EXIF only, do not download',
+			de: 'Nur EXIF verwenden, nicht herunterladen'
+		},
+		noexif: {
+			en: 'Do not use EXIF',
+			de: 'EXIF nicht verwenden',
+		},
+	},
 	node: {
 	    backw: {
 			   help: {
@@ -21130,7 +21167,7 @@ const mytexts = { // actually const
 			de: 'Fehler melden: https://github.com/shyrodgau/imbraw2dng/issues',
 			ja: 'バグ報告: https://github.com/shyrodgau/imbraw2dng/issues'
 		}
-	}
+	},
 }
 const apptexts = [];
 /* *************************************** texts, E N D *************************************** */

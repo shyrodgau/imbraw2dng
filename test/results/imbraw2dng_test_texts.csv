@@ -1,5 +1,5 @@
 "langs";"DE";"EN";"JA";
-"version";"V6.4.2_9933846";
+"version";"V6.4.2_@_d_e_v";
 "ads.adv1";"Man kann <a target=""_new"" href=""https://github.com/shyrodgau/imbraw2dng/raw/refs/heads/master/imbapp.htm"">diese Datei</a> auf die SD Karte im IMBACK Verzeichnis kopieren<br>und dann im ImB WLAN direkt als http://192.168.1.254/IMBACK/imbapp.htm ansurfen!";"You can copy <a target=""_new"" href=""https://github.com/shyrodgau/imbraw2dng/raw/refs/heads/master/imbapp.htm"">this file</a> to the SD card into the IMBACK folder<br>and then access it directly in the ImB WiFi as http://192.168.1.254/IMBACK/imbapp.htm!";"<a target=""_new"" href=""https://github.com/shyrodgau/imbraw2dng/raw/refs/heads/master/imbapp.htm"">このファイルを SD カードの IMBACK ディレクトリにコピー</a>し、<br>http://192.168.1.254/IMBACK/imbapp.htm として ImB WiFi に直接アクセスできます。";;
 "ads.adv2";"Man kann es als portable web app (PWA) installieren und offline benutzen (jetzt wirklich)!<br><a href=""#"" onclick=""imbc.dnsad1 = true;imbc.savesettings('dnsad1');document.getElementById('addmod2').close();imbc.befinp.prompt(); imbc.befinp = null; return false;"">Ausprobieren</a>";"You can install this as a PWA (portable web app) and use it offline (now really)!<br><a href=""#"" onclick=""imbc.dnsad1 = true;imbc.savesettings('dnsad1');imbc.dnsad2 = true;imbc.savesettings('dnsad2');document.getElementById('addmod2').close();imbc.befinp.prompt(); imbc.befinp = null;return false;"">Try it</a>";;;
 "ads.dnsagain";"Nicht nochmal anzeigen";"Do not show again";"再度表示しない";;
@@ -13,6 +13,9 @@
 "app.free";"Freier Speicher:";"Unused memory:";"未使用のメモリ:";;
 "app.helpurl";"https://shyrodgau.github.io/imbraw2dng/README_de";"https://shyrodgau.github.io/imbraw2dng/";"https://shyrodgau.github.io/imbraw2dng/README_ja";;
 "app.install";"INSTALLIEREN";"INSTALL";"インストール";;
+"app.jpeg";"JPEGs von ImB:";"JPEGs from ImB:";;;
+"app.jpeg.dlandexif";"Herunterladen und EXIF verwenden";"Download and use EXIF";;;
+"app.jpeg.dlnoexif";"Herunterladen, EXIF nicht verwenden";"Download, do not use EXIF";;;
 "app.lang";"Sprache:";"Language:";"言語：";;
 "app.livehint";"Für Live Bild, mit Mediaplayer auf <a href=""$$0"">$$0</a> gehen";"For live view, point media player to <a href=""$$0"">$$0</a>";"ライブ画像については、メディア プレーヤーで <a href=""$$0"">$$0</a> にアクセスしてください";;
 "app.menu.extras";"Extras";"Extras";"追加機能";;
@@ -36,6 +39,8 @@
 "del.question";"Löschen von $$0 Datei(en) kann nicht rückgängig gemacht werden. Sicher damit weitermachen?";"Deleting $$0 file(s) can not be undone! Are you sure you want to continue?";"$$0 ファイルを削除すると、元に戻すことはできません。 続行してもよろしいですか?";;
 "del.question.cancel";"Abbrechen";"Cancel";"キャンセル";;
 "del.question.ok";"Ok";"Ok";"はい";;
+"jpeg.exifonly";"Nur EXIF verwenden, nicht herunterladen";"Use EXIF only, do not download";;;
+"jpeg.noexif";"EXIF nicht verwenden";"Do not use EXIF";;;
 "langs";"DE";"EN";"JA";;
 "main.choosefile";"datei auswählen";"choose file";"ファイルを選択";;
 "main.drophere";"Dateien oder Verzeichnisse von ImB hier ablegen: ";"Drop Files or directories from ImB here: ";"ここに ImB のファイルをドロップします。：  (or directories)";;

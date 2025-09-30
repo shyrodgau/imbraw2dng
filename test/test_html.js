@@ -66,6 +66,9 @@ function renameDownload(downloadDir) {
   	  if (f === 'mf6x6_large_1.dng' || f === 'kb_large_10.dng' || f === '2029_0710_010203_001.dng') {
   	  	  fs.copyFileSync(downloadDir + '/'+f, '/home/hegny/Downloads/'+f);
   	  }
+  	  else if (f === '2024_0217_131750_001_x.jpg') {
+  	  	  fs.copyFileSync(downloadDir + '/'+f, '/home/hegny/Downloads/2020_0211_213011_001.jpg');
+  	  }
   	  fs.renameSync(downloadDir + '/'+f, downloadDir + '/'+f + '@' + idx);
   	  idx++;
   }
@@ -757,6 +760,9 @@ describe('E Convert Raw from Imback APP', function() {
 			const sorcx = await driver.findElement(By.id('jprev'));
 			const sorcxe = new Select(sorcx);
 			await sorcxe.selectByIndex(1);
+			const jmsorcx = await driver.findElement(By.id('jsett'));
+			const jmsorcxe = new Select(jmsorcx);
+			await jmsorcxe.selectByIndex(1);
 			const setb = await waitfor(driver, 'id', 'settback');
 			await driver.actions({ async: true })
 				.move({ origin: setb })
@@ -927,7 +933,7 @@ describe('F Convert Raw Local APP', function() {
 			this.timeout(9000);
 			const fi = await driver.findElement(By.id('infile'));
 			await fi.clear();
-			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2024_0217_121754_002.JPG' + '\n' + TESTDAT + '/IMBACK/PHOTO/2024_0217_121752_001.RAW');
+			await fi.sendKeys('/home/hegny/Downloads/2020_0211_213011_001.jpg\n' + TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2024_0217_121754_002.JPG' + '\n' + TESTDAT + '/IMBACK/PHOTO/2024_0217_121752_001.RAW');
 			await driver.actions({async: true}).pause(900).perform();
 			await driver.actions({async: true}).clear();
 			const selall = await waitfor(driver, 'id', 'selall');

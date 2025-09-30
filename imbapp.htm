@@ -1550,7 +1550,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.4.2_9933846", // actually const // VERSION EYECATCHER
+version: "V6.4.2_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -2215,6 +2215,7 @@ copyright = '';
 artist = '';
 // { name: 'xxx.jpg', data: array-ifd... }
 #exififds = [];
+jsett = 3;
 
 // ImBCBase: fake long exposure:
 #addimgs = [];
@@ -19382,22 +19383,25 @@ findlang(i) {
 		document.getElementById('langsel').value = this.mylang;
 	return this.mylang;
 }
+xnoexif() {
+	this.appmsg('No EXIF.');
+}
 /* ImBCBase: extract exif from jpeg */
 xexif(name, view, datestr) {
 	if (-1 !== this.#exififds.findIndex(v => v.name === name))
 		return;
-	if (view.getUint8(0) !== 0xff) return; /* JFIF */
-	if (view.getUint8(1) !== 0xd8) return;
-	if (view.getUint8(2) !== 0xff) return; /* APP1 */
-	if (view.getUint8(3) !== 0xe1) return;
-	if (view.getUint8(6) !== 0x45) return; /* E */
-	if (view.getUint8(7) !== 0x78) return; /* x */
-	if (view.getUint8(8) !== 0x69) return; /* i */
-	if (view.getUint8(9) !== 0x66) return; /* f */
-	if (view.getUint8(12) !== 0x49) return; /* I */
-	if (view.getUint8(13) !== 0x49) return; /* I */
-	if (view.getUint8(14) !== 0x2a) return; /* magic */
-	if (view.getUint8(15) !== 0x00) return; /* magic */
+	if (view.getUint8(0) !== 0xff) return this.xnoexif(); /* JFIF */
+	if (view.getUint8(1) !== 0xd8) return this.xnoexif();
+	if (view.getUint8(2) !== 0xff) return this.xnoexif(); /* APP1 */
+	if (view.getUint8(3) !== 0xe1) return this.xnoexif();
+	if (view.getUint8(6) !== 0x45) return this.xnoexif(); /* E */
+	if (view.getUint8(7) !== 0x78) return this.xnoexif(); /* x */
+	if (view.getUint8(8) !== 0x69) return this.xnoexif(); /* i */
+	if (view.getUint8(9) !== 0x66) return this.xnoexif(); /* f */
+	if (view.getUint8(12) !== 0x49) return this.xnoexif(); /* I */
+	if (view.getUint8(13) !== 0x49) return this.xnoexif(); /* I */
+	if (view.getUint8(14) !== 0x2a) return this.xnoexif(); /* magic */
+	if (view.getUint8(15) !== 0x00) return this.xnoexif(); /* magic */
 	let baseoff = 12, off = 12+4+4+2, exifoff = -1;
 	let nent = TIFFOut.readshort(view, 12+4+4);
 	for (let j=0; j<nent; j++) {
@@ -19408,9 +19412,10 @@ xexif(name, view, datestr) {
 		}
 		off += 12;
 	}
-	if (exifoff === -1) return;
+	if (exifoff === -1) return this.xnoexif();
 	off = exifoff + baseoff;
 	let t = IFDOut.parseIfd(view, off, baseoff);
+	if (!t?.length) return  this.xnoexif();
 	const iio = t.findIndex((v) => v.t === 40965);
 	if (iio !== -1) {
 		t[iio].ifd = IFDOut.parseIfd(view, t[iio].val[0] + baseoff, 0);
@@ -19421,7 +19426,10 @@ xexif(name, view, datestr) {
 				view.setUint8(e.addr + j, datestr[j]);
 		}
 	}
-	this.#exififds.push( { name: name, data: t } );
+	if ((2 & this.jsett) === 2)
+		this.#exififds.push( { name: name, data: t } );
+	else
+		this.mappx(0, 'jpeg.noexif');
 }
 /* ImBCBase: time values from filename */
 static nametotime(name, corrdelta=0) {
@@ -19554,7 +19562,14 @@ handleone(orientation, upd) {
 			for (let j=0; j<contents.byteLength; j++) {
 				out[j] = view.getUint8(j);
 			}
-			if (ImBCBase.ucex(rawname) === '.JPG') this.xexif(rawname, view, datestr);
+			if (ImBCBase.ucex(rawname) === '.JPG') {
+				this.xexif(rawname, view, datestr);
+				if (1 !== (this.jsett & 1)) {
+					this.mappx(true, 'jpeg.exifonly');
+					this.stats.ok++;
+					return this.handlenext();	
+				}
+			}
 			this.writewrap(rawname, 'application/octet-stream', 'process.copyok' + (this.checkdlfolder ? 'checkdl' : ''), out, f.name);
 		}
 		reader.onerror = (evt) => {
@@ -19830,7 +19845,7 @@ handleone(orientation, upd) {
 		ti.addEntry(50740, 'BYTE', privdatbytes); /* dng private */
 		this.historystring = '';
 		let myexif = null;
-		if (dateok) {
+		if (dateok && (2 === (this.jsett & 2))) {
 			ti.addEntry(306, 'ASCII', datestr); /* datetime */
 			ti.addEntry(36867, 'ASCII', datestr); /* Original date time */
 			// do we have exifdata ?
@@ -21170,6 +21185,17 @@ pvw(cmd) {
 	return false;
 }
 
+/* TopApp: browserdisplay: jonlyexif checkbox change */
+setjsett(init) {
+    const copytext = document.getElementById('jsett');
+    if (copytext && !init) {
+    	this.jsett = copytext.value;
+    	this.savesettings('jsett');
+    }
+    else if (copytext && init)
+    	copytext.value = init;
+    	
+}
 /* TopApp: browserdisplay: copyright checkbox change */
 chgcopycheck(init) {
     const copytext = document.getElementById('copytext');
@@ -22511,6 +22537,8 @@ savesettings(which) {
 				window.localStorage.setItem(pref + 'autotime', JSON.stringify(this.autotime));
 			if ((which === 'jbig') || !which?.length || -1 !== which.indexOf('jbig'))
 				window.localStorage.setItem(pref + 'jbig', JSON.stringify(this.jbigflag));
+			if ((which === 'jsett') || !which?.length || -1 !== which.indexOf('jsett'))
+				window.localStorage.setItem(pref + 'jsett', JSON.stringify(this.jsett));
 			if (ImBCBase.progname === 'imbapp_app') {
 				if ((which === 'dooverwrite') || !which?.length || -1 !== which.indexOf('dooverwrite'))
 					window.localStorage.setItem(pref + 'f', JSON.stringify(this.dooverwrite));
@@ -23119,6 +23147,11 @@ initsettings() {
 		itm = window.localStorage.getItem('imbapp_dnsad2');
 		if (itm !== null && ImBCBase.progname === 'imbapp.htm') {
 			this.dnsad2 = JSON.parse(itm) ? true: false;
+		}
+		itm = window.localStorage.getItem(pref + 'jsett');
+		if (itm !== null) {
+			this.jsett = JSON.parse(itm);
+			this.setjsett(this.jsett);
 		}
 		itm = window.localStorage.getItem(pref + 'ii');
 		if (itm !== null) this.iinf = JSON.parse(itm);
@@ -24954,6 +24987,16 @@ const mytexts = { // actually const
 			ja: '反時計回り'
 		},
 	},
+	jpeg: {
+		exifonly: {
+			en: 'Use EXIF only, do not download',
+			de: 'Nur EXIF verwenden, nicht herunterladen'
+		},
+		noexif: {
+			en: 'Do not use EXIF',
+			de: 'EXIF nicht verwenden',
+		},
+	},
 	del: {
 		question: {
 			en: 'Deleting $$0 file(s) can not be undone! Are you sure you want to continue?',
@@ -25083,6 +25126,18 @@ const mytexts = { // actually const
 			en: 'Downloadable big preview directly as JPEG:',
 			de: 'Große Vorschau direkt als JPEG herunterladbar:',
 		},
+		jpeg: {
+			en: 'JPEGs from ImB:',
+			de: 'JPEGs von ImB:',
+			dlandexif: {
+				en: 'Download and use EXIF',
+				de: 'Herunterladen und EXIF verwenden',
+			},
+			dlnoexif: {
+				en: 'Download, do not use EXIF',
+				de: 'Herunterladen, EXIF nicht verwenden',
+			},
+		}
 	},
 	ads: {
 		dnsagain: {
@@ -26903,6 +26958,8 @@ function init() {
 <div><span data-myxlkey="app.lang"></span> <img id="langimg2"> <select id="langsel" onchange="imbc.setlang()"><option value="99" onclick="imbc.setlang()">ImB</option><option value="de" onclick="imbc.setlang()">DE</option><option value="en" selected onclick="imbc.setlang()">EN</option>
 <option value="ja" onclick="imbc.setlang()">JA</option><!--option value="fr" onclick="imbc.setlang()">FR</option><option value="ru" onclick="imbc.setlang()">RU</option--></select></div>
 <div><span data-myxlkey="app.dlbigprev"></span> <select id="jprev" onchange="imbc.setjprev()"><option value="0" onclick="imbc.setjprev()" selected>0</option><option value="1" onclick="imbc.setjprev()">1/16</option><option value="2" onclick="imbc.setjprev()">1/4</option>
+</select></div>
+<div><span data-myxlkey="app.jpeg"></span> <select id="jsett" onchange="imbc.setjsett()"><option value="2" data-myxlkey="jpeg.exifonly" onclick="imbc.setjsett()" selected></option><option value="1" data-myxlkey="app.jpeg.dlnoexif" onclick="imbc.setjsett()"></option><option value="3" data-myxlkey="app.jpeg.dlandexif" onclick="imbc.setjsett()"></option>
 </select></div>
 </div>
 </div>
