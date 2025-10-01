@@ -19304,7 +19304,7 @@ prxl(key, el) {
 		}
 		else if (typeof el['de'][0] === 'string') {
 			for (let i=0; i< el['de'].length; i++) {
-				let out = '"' + key + '[' + i + ']:' + ImBCBase.progname + '";';
+				let out = '"' + key + '[' + ((i < 10) ? '0' : '') + i + ']:' + ImBCBase.progname + '";';
 				for (const l of globals.alllangs) {
 					if (undefined !== el[l] && undefined !== el[l][i]) {
 						let a = el[l][i];
