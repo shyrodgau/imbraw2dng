@@ -20181,7 +20181,7 @@ buildxmp(rawname, hxbytes, dateok, datestr, desc, artby, rightby, type) {
 /* ImBCBase: handle one entry from imb PHOTO/MOVIE listing page */
 handle1imb(url, time) {
 	let rawname = ImBCBase.basename(url.name ? url.name : url);
-	if (rawname.substring(0,10).toUpperCase() === 'IMBRAW2DNG' || rawname.substring(0,6).toUpperCase() === 'IMBAPP' || rawname.substring(0,5).toUpperCase() === 'INDEX') return;
+	if (rawname.substring(0,6).toUpperCase() === 'IMBRAW' || rawname.substring(0,6).toUpperCase() === 'IMBAPP' || rawname.substring(0,5).toUpperCase() === 'INDEX') return;
 	let timestx = globals.fnregexx.exec(rawname);
 	let timesty = time ? globals.itsregex.exec(time) : null;
 	let timest = null, cl = '9999_99_99-99', seq = 9999999;
@@ -22878,14 +22878,26 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 			   console.log('Unexp ' + JSON.stringify(e));
 			   this.rootfs = undefined;
 			   this.mappx(false, 'words.error');
-			   if (ext1 !== '.RAW' && ext1 !== '.DNG' && ext2 !== '.RAW' && ext2 !== '.DNG') {
+			   if (ext1 !== '.RAW' && ext1 !== '.DNG' && ext2 !== '.RAW' && ext2 !== '.DNG' && origname && okmsg !== 'xyzabc') {
 				   this.appmsgxl(true, 'process.errsavetrybrowser', name, this.imbweb + globalfxns.adjurl(origname));
 			   } else {
 				   this.appmsgxl(0, 'process.errsave', name);
 				   this.appmsg(JSON.stringify(e), true);
 			   }
 			   this.stats.error ++;
-			   this.handlenext();
+				if (okmsg === 'xyzabc') {
+					this.modalback = 'closeprog';
+					document.getElementById('progmsg').style['display'] = '';
+					document.getElementById('dlprogresslogbtn').disabled = false;
+					document.getElementById('progokbut').disabled = false;
+					document.getElementById('progcancelbut').disabled = true;
+					document.getElementById('progmsg').innerHTML = this.xl('process.totals', 1,0,1,0);
+					document.getElementById('dlprogress').style['border-color'] = 'red';
+				   this.appmsgxl(false, 'words.error');
+				   this.appmsgxl(true, 'process.errsave', name);
+				}
+				else if (okmsg !== 'xyzabc' && type !== 'application/zip' && type !== 'text/html')
+					this.handlenext();
 		   });
 		} catch(e) {
 		   console.log('Unexp 2 ' + JSON.stringify(e));
@@ -22898,7 +22910,20 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 			   this.appmsg(JSON.stringify(e), true);
 		   }
 		   this.stats.error ++;
-		   this.handlenext();
+			if (okmsg === 'xyzabc') {
+				this.modalback = 'closeprog';
+				document.getElementById('progmsg').style['display'] = '';
+				document.getElementById('dlprogresslogbtn').disabled = false;
+				document.getElementById('progokbut').disabled = false;
+				document.getElementById('progcancelbut').disabled = true;
+				document.getElementById('progmsg').innerHTML = this.xl('process.totals', 1,0,1,0);
+				document.getElementById('dlprogress').style['border-color'] = 'red';
+			   this.appmsgxl(false, 'words.error');
+			   this.stats.error++;
+			   this.appmsgxl(true, 'process.errsave', name);
+			}
+			else if (okmsg !== 'xyzabc' && type !== 'application/zip' && type !== 'text/html')
+				this.handlenext();
 		};
 	   return;
 	}
@@ -22912,8 +22937,8 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 					   folder: this.rootfs,
 					   overwrite: this.dooverwrite
 			   }).then((uri) => {
-				   console.log("Successful file write... " + uri);
-				   cordova.plugins.safMediastore.getFileName(uri).then((f) => {console.log('F is ' + f);});
+				   //console.log("Successful file write... " + uri);
+				   //cordova.plugins.safMediastore.getFileName(uri).then((f) => {console.log('F is ' + f);});
 					if (okmsg === 'xyzabc') {
 						this.modalback = 'closeprog';
 						document.getElementById('progmsg').style['display'] = '';
@@ -22934,6 +22959,20 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 				   fe.remove();
 				   if (okmsg !== 'xyzabc' && type !== 'application/zip' && type !== 'text/html')
 						   this.writepostok(origname);
+			   },(reason) => {
+					if (okmsg === 'xyzabc') {
+						this.modalback = 'closeprog';
+						document.getElementById('progmsg').style['display'] = '';
+						document.getElementById('dlprogresslogbtn').disabled = false;
+						document.getElementById('progokbut').disabled = false;
+						document.getElementById('progcancelbut').disabled = true;
+						document.getElementById('progmsg').innerHTML = this.xl('process.totals', 1,1,0,0);
+						document.getElementById('dlprogress').style['border-color'] = 'green';
+					   this.appmsgxl(false, 'words.error');
+					   this.appmsgxl(true, 'process.errsave', name);
+					}
+					else if (okmsg !== 'xyzabc' && type !== 'application/zip' && type !== 'text/html')
+						this.writepostok(origname);
 			   }).catch((e) => {
 			   	   //fe.remove();
 			   	   if ('File exists' === e) {

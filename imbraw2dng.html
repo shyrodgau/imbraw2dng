@@ -19644,7 +19644,7 @@ buildxmp(rawname, hxbytes, dateok, datestr, desc, artby, rightby, type) {
 /* ImBCBase: handle one entry from imb PHOTO/MOVIE listing page */
 handle1imb(url, time) {
 	let rawname = ImBCBase.basename(url.name ? url.name : url);
-	if (rawname.substring(0,10).toUpperCase() === 'IMBRAW2DNG' || rawname.substring(0,6).toUpperCase() === 'IMBAPP' || rawname.substring(0,5).toUpperCase() === 'INDEX') return;
+	if (rawname.substring(0,6).toUpperCase() === 'IMBRAW' || rawname.substring(0,6).toUpperCase() === 'IMBAPP' || rawname.substring(0,5).toUpperCase() === 'INDEX') return;
 	let timestx = globals.fnregexx.exec(rawname);
 	let timesty = time ? globals.itsregex.exec(time) : null;
 	let timest = null, cl = '9999_99_99-99', seq = 9999999;

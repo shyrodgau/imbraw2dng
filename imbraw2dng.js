@@ -19481,7 +19481,7 @@ buildxmp(rawname, hxbytes, dateok, datestr, desc, artby, rightby, type) {
 /* ImBCBase: handle one entry from imb PHOTO/MOVIE listing page */
 handle1imb(url, time) {
 	let rawname = ImBCBase.basename(url.name ? url.name : url);
-	if (rawname.substring(0,10).toUpperCase() === 'IMBRAW2DNG' || rawname.substring(0,6).toUpperCase() === 'IMBAPP' || rawname.substring(0,5).toUpperCase() === 'INDEX') return;
+	if (rawname.substring(0,6).toUpperCase() === 'IMBRAW' || rawname.substring(0,6).toUpperCase() === 'IMBAPP' || rawname.substring(0,5).toUpperCase() === 'INDEX') return;
 	let timestx = globals.fnregexx.exec(rawname);
 	let timesty = time ? globals.itsregex.exec(time) : null;
 	let timest = null, cl = '9999_99_99-99', seq = 9999999;
@@ -19904,13 +19904,14 @@ writefile(name, type, okmsg, arr1, renameidx) {
 				if (undefined !== this.exitcode) this.exitcode++;
 				this.handlenext();
 			}
-			else if (okmsg !== 'xyzabc') {
+			else {
 				this.appmsgxl(false, 'words.finished');
-				this.appmsgxl(0, okmsg, outfile);
+				this.appmsgxl(0, (okmsg !== 'xyzabc') ? okmsg : 'process.copyok', outfile);
 				if (undefined !== renameidx) this.appmsgxl(true, 'node.renamed');
 				else this.appmsg('');
 				this.stats.ok++;
-				this.handlenext();
+				if (okmsg !== 'xyzabc')
+					this.handlenext();
 			}
 	});
 }
@@ -19963,7 +19964,7 @@ handlerecurse(already, index) {
 				}
 				else for (let i of f.filter(e => e.isFile())) {
 					const n = i.name;
-					if (n.substring(0,10).toUpperCase() === 'IMBRAW2DNG') continue;
+					if (n.substring(0,6).toUpperCase() === 'IMBRAW') continue;
 					if (((n.substring(n.length -4).toUpperCase() === '.RAW') && (this.typeflags % 2)) ||
 						((n.substring(n.length -5).toUpperCase() === '.JPEG' || n.substring(n.length -4).toUpperCase() === '.JPG') && ((this.typeflags % 4) > 1)) ||
 						(n.substring(n.length -5).toUpperCase() !== '.JPEG' && n.substring(n.length -4).toUpperCase() !== '.JPG' &&
