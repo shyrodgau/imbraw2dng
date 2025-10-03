@@ -31,7 +31,7 @@ Es sind keine "Schwarz-Weiß RAW"-Dateien, sondern die echten Roh-Sensordaten mi
 DNG (Adobe&reg; Digital NeGativ) ist offenes Dateiformat, das hauptsächlich aus den ursprünglichen Bilddaten besteht. 
 Bei Dateien von MF und Film ist die Farbfilter-Matrix (Color Filter Array) anders.
 
-Probleme und Ideen können auch unter "[Issues](https://github.com/shyrodgau/imbraw2dng/issues)" oder "[Discussions](https://github.com/shyrodgau/imbraw2dng/discussions)"  
+Probleme und Ideen können auch unter "[Issues](https://github.com/shyrodgau/imbraw2dng/issues)" oder "[Discussions](https://github.com/shyrodgau/imbraw2dng/discussions)"
 des [github Repositorys](https://github.com/shyrodgau/imbraw2dng) oder in der [I'm Back Users Gruppe auf Facebook](https://www.facebook.com/groups/1212628099691211) diskutiert werden.
 
 ## Los gehts

@@ -19,6 +19,9 @@ self.addEventListener("install", (event) => {
 
 self.addEventListener("fetch", async (event) => {
   if (event.request.url.indexOf('imbapp.htm') !== -1
+  	  || event.request.url.indexOf('imbapp_ja.htm') !== -1
+  	  || event.request.url.indexOf('imbapp_en.htm') !== -1
+  	  || event.request.url.indexOf('imbapp_de.htm') !== -1
   	  || event.request.url.indexOf('imbapp.json') !== -1
   	  || event.request.url.indexOf('LICENSE.txt') !== -1
   	  || event.request.url.indexOf('HISTORY.txt') !== -1

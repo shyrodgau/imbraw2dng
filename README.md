@@ -30,7 +30,7 @@ The ImB RAWs are not really "B&W RAW" but actually the RAW sensor data that also
 DNG (Adobe&reg; Digital NeGative) is an open format and consists mainly of the original image scanlines. 
 If it is from an MF or Film ImB then the Color Filter Array is different.
 
-Problems and ideas can also be discussed on the "[Issues](https://github.com/shyrodgau/imbraw2dng/issues)" or "[Discussions](https://github.com/shyrodgau/imbraw2dng/discussions)" tabs 
+Problems and ideas can also be discussed on the "[Issues](https://github.com/shyrodgau/imbraw2dng/issues)" or "[Discussions](https://github.com/shyrodgau/imbraw2dng/discussions)" tabs
 of the [github repos](https://github.com/shyrodgau/imbraw2dng) or in the [I'm Back Users Group on Facebook](https://www.facebook.com/groups/1212628099691211).
 
 ## Get Started
