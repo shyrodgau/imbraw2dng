@@ -470,7 +470,7 @@ body { margin: 0; }
 }
 .selnumber {
 	display: inline-block;
-	width: 2em;
+	/*width: 2em;*/
 	text-align: end;
 	font-weight: bold;
 }
@@ -1549,7 +1549,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.5.1_493413d", // actually const // VERSION EYECATCHER
+version: "V6.5.1_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -27008,9 +27008,10 @@ function init2() {
 <span class="grtit ggttminus" onclick="ImBCHtml.closep(this);" data-myxlkey="app.app"> APP </span>
 </div>
 <div class="igxtype">
-<div><input type="checkbox" onchange="imbc.chgoverwrite()" id="dooverwrite"> <label for="dooverwrite" data-myxlkey="process.dooverwrite"></div>
-<div><input type="checkbox" id="autotime" onchange="imbc.dirtysettings('autotime')"> <label for="autotime" data-myxlkey="app.autotime"> </label></div>
-<div><span data-myxlkey="app.onexit"></span> <select id="exitsel" onchange="imbc.chgexit();"><option value="photo" data-myxlkey="app.exitphoto"> </option><option value="movie" data-myxlkey="app.exitmovie"> </option><option value="browse" data-myxlkey="app.exitbrowse"> </option></select></div>
+<div><input type="checkbox" id="autotime" onchange="imbc.dirtysettings('autotime')"> <label for="autotime"><span data-myxlkey="app.autotime"> </span> <span style="font-family:Symbol3;">&#x1f570;&#xfe0e;</span></label></div>
+<div><span data-myxlkey="app.onexit"></span> <select id="exitsel" onchange="imbc.chgexit('exitmode');"><option value="photo"><span data-myxlkey="app.exitphoto"></span><span style="font-family:Symbol3;"> &#x1f4f7;&#xfe0e;</span></option>
+<option value="movie"><span data-myxlkey="app.exitmovie"></span><span style="font-family:Symbol3;"> &#x1f4fd;&#xfe0e;</span> </option>
+<option value="browse"><span data-myxlkey="app.exitbrowse"></span> <span style="font-family:Symbol3;"> &#x1f3d4;&#xfe0e;</span></option></select></div>
 <div><span data-myxlkey="app.lang"></span> <img id="langimg2"> <select id="langsel" onchange="imbc.setlang()"><option value="99" id="imblangopt" onclick="imbc.setlang()">ImB</option><option value="de" onclick="imbc.setlang()">DE</option><option value="en" selected onclick="imbc.setlang()">EN</option>
 <option value="ja" onclick="imbc.setlang()">JA</option><!--option value="fr" onclick="imbc.setlang()">FR</option><option value="ru" onclick="imbc.setlang()">RU</option--></select></div>
 <div><span data-myxlkey="app.dlbigprev"></span> <select id="jprev" onchange="imbc.setjprev()"><option value="0" onclick="imbc.setjprev()" selected>0</option><option value="1" onclick="imbc.setjprev()">1/16</option><option value="2" onclick="imbc.setjprev()">1/4</option>
@@ -27149,9 +27150,13 @@ function init2() {
 <input type="button" class="uhbtn foldersym" value="&#x1f5c2;" id="toloc" onclick="imbc.dispmode=3;imbc.showlocal();" style="font-family:Symbol3;">
 <span class="whbtn disconnected" style="padding-left:0.4em;padding-right:0.4em;display:none;"> ! &#x1f593; ! &#x1f5be; ! </span>
 </div>
-<div id="browseselectors" style="margin-bottom:0.3em;font-size:85%;">&nbsp;<!--span data-myxlkey="main.sort" style="display:none;"></span> <label for="sbytype"><input type="checkbox" id="sbytype" onclick="imbc.buildtree()"><span data-myxlkey="browser.bytype"></span></label> - <label for="solder"-->
-<select id="grpsel" style="font-weight:bold;background-color:black;color:white;font-family:Symbol3;" onchange="imbc.stylegrp();imbc.buildtree()"><option value="type" onclick="imbc.stylegrp();imbc.buildtree()" data-myxlkey="browser.bytype" style="font-family: Helvetica, Arial, sans-serif;">ImB</option><option value="time" selected onclick="imbc.stylegrp();imbc.buildtree()" style="font-family:Symbol3;">&#x231a;&#xfe0e;</option><option value="seq" selected style="font-family: Helvetica, Arial, sans-serif;" onclick="imbc.stylegrp();imbc.buildtree()">1,2,3...</option></select>&nbsp;
- - <input type="checkbox" id="solder" onclick="imbc.buildtree()"><span data-myxlkey="browser.olderfirst"></span></label> -
+<div id="browseselectors" style="margin-bottom:0.3em;font-size:85%;">
+<select id="grpsel" style="font-weight:bold;background-color:black;color:white;font-family:Symbol3;" onchange="imbc.stylegrp();imbc.buildtree()">
+<option value="type" onclick="imbc.stylegrp();imbc.buildtree()" data-myxlkey="browser.bytype" style="font-family: Helvetica, Arial, sans-serif;">ImB</option>
+<option value="time" selected onclick="imbc.stylegrp();imbc.buildtree()" style="font-family:Symbol3;">&#x231a;&#xfe0e;</option>
+<option value="seq" selected style="font-family: Helvetica, Arial, sans-serif;" onclick="imbc.stylegrp();imbc.buildtree()">1,2,3...</option></select>&nbsp;
+ &ndash; <label for="solder">
+<input type="checkbox" id="solder" onclick="imbc.buildtree()"><span data-myxlkey="browser.olderfirst"></span></label> &ndash;
  <span id="brnsel" class="selnumber">?</span> / <span id="brntot">?</span> <label for="selall" data-mytitlexlkey="browser.selall.tooltip">
  <input onclick="imbc.topreccheck()" type="checkbox" id="selall"><!--span data-myxlkey="browser.selall"></span--></label><!-- - -->
 &nbsp;<div style="display:inline-block;height:1.2em;background-color:#888888; font-family:Symbol3;text-shadow: 1px 1px white;border:0;border-radius:4px;cursor:pointer;font-weight:bold;" onclick="imbc.deselcop();"><span style="color:green;font-size:75%;"> &#x1f6c7;</span><span style="color:green;"> &#x2713; </span></div>
