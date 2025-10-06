@@ -100,7 +100,7 @@ AAAAAAAAAAAAAAAAAAAAAA">
 <style type="text/css">
 /* *************************************** app only *************************************** */
 /* * * ************************************* CSS *************************************** */
-@font-face  {
+@font-face {
 	font-family:'Symbol3';
 	src:url('data:font/woff;base64,d09GRgABAAAAADXwABQAAAAAVzAAAgAIAAAAAAAAAAAAAAAAAAAAAAAAAABGRlRNAAA1ZAAAABwA\
 AAAcmtaDsUdERUYAADMwAAAALAAAAD4AggAqR1BPUwAAM/gAAAFrAAAFWM/x33BHU1VCAAAzXAAA\
@@ -391,6 +391,7 @@ body { margin: 0; }
     opacity: 0;
   }
 }
+.appnote { display:none;font-size:80%;font-weight:bold;color:red; }
 .gg {
 	display: block;
 }
@@ -21633,6 +21634,8 @@ showdisconnect(alsoerr) {
 		document.getElementById('hamb').style['margin-right'] = '1em';
 		for (const e of document.querySelectorAll('.battery'))
 			e.style['display'] = 'none';
+		for (const e of document.querySelectorAll('.appnote'))
+			e.style['display'] = 'block';
 	}
 	this.discknown = true;
 	for (const e of document.querySelectorAll('.moviesym'))
@@ -25011,6 +25014,10 @@ const mytexts = { // actually const
 			de: 'Sprache:',
 			ja: '言語：'
 		},
+		locnote: {
+			de: 'Von lokaler Datei können keine Einstellungen gespeichert werden.',
+			en: 'No settings can be saved when used from local file.',
+		},
 		onexit: {
 			de: 'Beim Beenden ImB setzen auf: ',
 			en: 'On exit, switch ImB to: ',
@@ -26915,7 +26922,7 @@ function init() {
 </head>
 <!-- here comes the html itself -->
 <body id="thebody" style="font-family: Helvetica, Arial, sans-serif;" onload="init();" lang="en">
-<div style="font-weight:bold;display:none;"><span class="notwhenbackw" data-myxlkey='main.title'> </span><span class="onlywhenbackw" style="display:none;" data-myxlkey='main.backw.title'> </span>  -
+<div style="font-weight:bold;display:none;"><span class="notwhenbackw" data-myxlkey='main.title'> </span><span class="onlywhenbackw" style="display:none;" data-myxlkey='main.backw.title'> </span> -
  <a target="_new" data-myhrefxlkey="main.helplink" data-myxlkey='main.help'></a>
 <span class="notwhenbackw" data-myxlkey="main.newmsg"/></div>
 <br><div class="notwhenbackw" style="display:none;">&nbsp;<!--b style="background-color:#888888; text-shadow: 0.07em 0.12em 0 #FFFFFF;font-size:200%;">&#x26f6; &#x1f5d1; &#x2715;</b-->&nbsp;<br></div>
@@ -26928,12 +26935,13 @@ function init() {
 </div>
 <!-- splash end -->
 <!-- the normal display/settings -->
-<div id="normal"  style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
+<div id="normal" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
 <div style="position:fixed; top:0; left:0; width:100%;background-color:black;z-index:997;color:white;"><div>&nbsp;<span id="settx"><input id="settback" type="button" value="&#x2b60;" class="whbtn lbtn" style="padding:0 !important; border:0 !important;" onclick="imbc.showmain()"></span>
 <span style="display:inline-block;margin-left: -1.5em;"><span class="batt1 battlo battery" style="font-weight:bold; display: inline-block; width: 1em; height:1.3em; vertical-align:bottom;position:relative; top: 0em;"><span>&#xa0;</span></span>
 <span class="batt2 battlo battery" style="position: relative; left: -1.1em; font-weight:bold; display: inline-block; color:green;width: 0.7em;background-color: black;top: 0.2em;"><span>&#xa0;</span></span></span>
 <span class="whbtn disconnected" style="padding-left:0.4em;padding-right:0.4em;display:none;"> ! &#x1f593; ! &#x1f5be; ! </span>
 </div></div>
+<div class="appnote" data-myxlkey="app.locnote"></div>
 <div id="appsett" class="gg ggopen">
 <div class="ggtt titletop ggttopen">
 <span class="ggttplus ggttp mmrr" id="appsettopener" onclick="ImBCHtml.openp(this);">&#x25b6;</span>
@@ -26946,8 +26954,8 @@ function init() {
 <div><span data-myxlkey="app.onexit"></span> <select id="exitsel" onchange="imbc.chgexit('exitmode');"><option value="photo"><span data-myxlkey="app.exitphoto"></span><span style="font-family:Symbol3;"> &#x1f4f7;&#xfe0e;</span></option>
 <option value="movie"><span data-myxlkey="app.exitmovie"></span><span style="font-family:Symbol3;"> &#x1f4fd;&#xfe0e;</span> </option>
 <option value="browse"><span data-myxlkey="app.exitbrowse"></span> <span style="font-family:Symbol3;"> &#x1f3d4;&#xfe0e;</span></option></select></div>
-<div><span data-myxlkey="app.lang"></span> &#x1f1e9;&#x1f1ea; &#x1f1ec;&#x1f1e7; &#x1f1ef;&#x1f1f5; <select id="langsel" onchange="imbc.setlang()"><option value="99" id="imblangopt" onclick="imbc.setlang()">ImB</option><option value="de" onclick="imbc.setlang()">DE</option><option value="en" selected onclick="imbc.setlang()">EN</option>
-<option value="ja" onclick="imbc.setlang()">JA</option><!--option value="fr" onclick="imbc.setlang()">FR</option><option value="ru" onclick="imbc.setlang()">RU</option--></select></div>
+<div><span data-myxlkey="app.lang"></span> &#x1f1e7;&#x1f1f7;  <select id="langsel" onchange="imbc.setlang()"><option value="99" id="imblangopt" onclick="imbc.setlang()">ImB <span style="font-family:Symbol3;"> &#x1f4f7;&#xfe0e;</span></option><option value="de" onclick="imbc.setlang()">DE &#x1f1e9;&#x1f1ea;</option><option value="en" selected onclick="imbc.setlang()">EN &#x1f1ec;&#x1f1e7;</option>
+<option value="ja" onclick="imbc.setlang()">JA &#x1f1ef;&#x1f1f5;</option><!--option value="fr" onclick="imbc.setlang()">FR</option><option value="ru" onclick="imbc.setlang()">RU</option--></select></div>
 <div><span data-myxlkey="app.dlbigprev"></span> <select id="jprev" onchange="imbc.setjprev()"><option value="0" onclick="imbc.setjprev()" selected>0</option><option value="1" onclick="imbc.setjprev()">1/16</option><option value="2" onclick="imbc.setjprev()">1/4</option>
 </select></div>
 <div><span data-myxlkey="app.jpeg"></span> <select id="jsett" onchange="imbc.setjsett()"><option value="2" data-myxlkey="jpeg.exifonly" onclick="imbc.setjsett()" selected></option><option value="1" data-myxlkey="app.jpeg.dlnoexif" onclick="imbc.setjsett()"></option><option value="3" data-myxlkey="app.jpeg.dlandexif" onclick="imbc.setjsett()"></option>
@@ -26978,7 +26986,7 @@ function init() {
 <div ><span data-myxlkey="process.addartist">Artist</span> <input onchange="imbc.dirtysettings('at')" type="text" id="artist" size="22"></input></div></div>
 <!--/div-->
 </div>
-<div  style="margin-top: 0.5em;" id="genadvice" data-myxlkey="main.generaladvice"></div>
+<div style="margin-top: 0.5em;" id="genadvice" data-myxlkey="main.generaladvice"></div>
 </div>
 <!-- end of the normal display/settings -->
 <!-- this is the messagelog, generated content appended -->
@@ -27006,7 +27014,7 @@ function init() {
 <div id="xmag" style="width: fit-content;min-width:100%;min-height:90%; overflow:auto;background-color:#446688;">
 	<div id="magpic">
 		<div style="width:100%; height:95%; margin:0px; align-self:center; text-align:center; align-content:center;padding-top: 2em;" id="magpicback" onmousedown="imbc.magmd(event);" onmouseup="imbc.magmu(event);" 
-		   ontouchmove="imbc.magtm('m',event);" ontouchstart="imbc.magtm('s',event);" ontouchend="imbc.magtm('e',event);">
+		  ontouchmove="imbc.magtm('m',event);" ontouchstart="imbc.magtm('s',event);" ontouchend="imbc.magtm('e',event);">
 		<div class="errimg" style="display:none;background-color:#aaaaaa;width:100%;height:100%;pointer-events:none;">X</div>
 		<img class="eejpg" style="display:none;max-width:85vw;max-height:70vh;border:0.5em solid white;">
 		<div class="eepvx" style="background-color:#aaaaaa;width:100%;height:100%;font-family:Symbol3;">&#x1f4f7;&#xfe0e;</div>
@@ -27022,10 +27030,10 @@ function init() {
 			<span class="biggiebtn trashbin" style="left:0em;" onclick="imbc.magdelete();">&#x1f5d1;</span>
 			<span class="biggiebtn timebtn" id="cortimebut" style="left: 3.5em;top:-1.6em;font-size:90%" onclick="imbc.magtimex();">&#x231a;&#xfe0e;</span>
 			<input class="biggiebtn timetxt" type="text" maxlength="19" id="refts" minlength="0" placeholder="yyyy-MM-ddThh:mm:ss" pattern="[0-9][0-9][0-9][0-9][^0-9][0-9][0-9][^0-9][0-9][0-9][^0-9][0-9][0-9][^0-9][0-9][0-9][^0-9][0-9][0-9]"
-			   onkeyup="imbc.magtimechg()" style="left:5.1em; top:-1.8em;background-color:rgba(255,255,255,0.7);font-weight:normal;border-radius:5px;border: 1px solid rgba(0,0,0,0);font-size:80%;width:15em;">
+			  onkeyup="imbc.magtimechg()" style="left:5.1em; top:-1.8em;background-color:rgba(255,255,255,0.7);font-weight:normal;border-radius:5px;border: 1px solid rgba(0,0,0,0);font-size:80%;width:15em;">
 			<span class="biggiebtn descbtn" id="descbut" style="left: 2.3em;" onclick="imbc.magdescx();">&#x270e;</span>
 			<input class="biggiebtn desctxt" type="text" id="desctxt" minlength="0" data-myplaceholder="process.photodesc"
-			   onkeyup="imbc.magdescchg()" style="left:5.1em; background-color:rgba(255,255,255,0.7);font-weight:normal;border-radius:5px;border: 1px solid rgba(0,0,0,0);font-size:80%;width:25em;">
+			  onkeyup="imbc.magdescchg()" style="left:5.1em; background-color:rgba(255,255,255,0.7);font-weight:normal;border-radius:5px;border: 1px solid rgba(0,0,0,0);font-size:80%;width:25em;">
 			<span class="dlbtn biggiebtn" id="xjbtn" style="top:-1.6em;left:4.4em;display:none;font-size:95%;" data-mytitlexlkey="app.dlbigprev" onclick="imbc.dljpg();">J</span>
 			<div class="backnextmag" id="backnl" style="left:3vw;" onclick="imbc.magnav();">&#x25c0;</div>
 			<div class="backnextmag" id="backnr" style="right:3vw;" onclick="imbc.magnav(true);">&#x25b6;</div>
@@ -27060,13 +27068,13 @@ function init() {
 <div id="pages" style="display:none;"><!-- container for navigationable pages -->
 <!-- hamburger menu -->
 <div id="hammen" style="position:fixed; left: 0; width: fit-content; background-color:white; inset:unset; top:2em;color:black;border:1px solid gray;border-bottom-right-radius:10px;border-bottom-left-radius:10px;" popover="auto">
-<div class="hammenent" id="hamtime" onclick="imbc.closeham();imbc.settime()"><span  style="font-family:Symbol3;">&#x1f570;</span> <span data-myxlkey='app.menu.settime'>Set ImB Time</span></div>
-<div class="hammenent" id="hamlog" onclick="imbc.closeham();imbc.showlog();"><span  style="font-family:Symbol3;">&#x1f5ce;</span> <span data-myxlkey='app.menu.msglog'>Msg Log</span></div>
-<div class="hammenent" id="hamsett" onclick="imbc.closeham();imbc.shownormal();"><span  style="font-family:Symbol3;">&#x1f6e0;</span> &#x1f1e9;&#x1f1ea; &#x1f1ec;&#x1f1e7; &#x1f1ef;&#x1f1f5;<span data-myxlkey='app.menu.settings'>Settings</span></div>
-<div class="hammenent" onclick="imbc.closeham();imbc.showextras();"><span  style="font-family:Symbol3;">&#x1f578;</span> <span data-myxlkey='app.menu.extras'>Extras</span></div>
+<div class="hammenent" id="hamtime" onclick="imbc.closeham();imbc.settime()"><span style="font-family:Symbol3;">&#x1f570;</span> <span data-myxlkey='app.menu.settime'>Set ImB Time</span></div>
+<div class="hammenent" id="hamlog" onclick="imbc.closeham();imbc.showlog();"><span style="font-family:Symbol3;">&#x1f5ce;</span> <span data-myxlkey='app.menu.msglog'>Msg Log</span></div>
+<div class="hammenent" id="hamsett" onclick="imbc.closeham();imbc.shownormal();"><span style="font-family:Symbol3;">&#x1f6e0;</span> &#x1f1e8;&#x1f1ed;<span data-myxlkey='app.menu.settings'>Settings</span></div>
+<div class="hammenent" onclick="imbc.closeham();imbc.showextras();"><span style="font-family:Symbol3;">&#x1f578;</span> <span data-myxlkey='app.menu.extras'>Extras</span></div>
 <div class="hammenent" onclick="imbc.closeham();imbc.appinfo();" style="border-top: 1px solid black;"><span style="font-family:Symbol3;">&#x1f6c8;</span> <span data-myxlkey='app.menu.info'>Info</span></div>
-<div class="hammenent" id="powerelem" onclick="imbc.closeham();imbc.dopoweroff();" style="border-top: 1px solid black;"><span  style="font-family:Symbol3;">&#x23fb;</span> <span data-myxlkey='app.menu.poweroff'>Power Off</span></div>
-<div class="hammenent" id="quitelem" onclick="imbc.closeham();imbc.doquit();"><span  style="font-family:Symbol3;font-size:150%;">&#x2b60;</span> <span data-myxlkey='app.menu.quit'>Quit</span></div>
+<div class="hammenent" id="powerelem" onclick="imbc.closeham();imbc.dopoweroff();" style="border-top: 1px solid black;"><span style="font-family:Symbol3;">&#x23fb;</span> <span data-myxlkey='app.menu.poweroff'>Power Off</span></div>
+<div class="hammenent" id="quitelem" onclick="imbc.closeham();imbc.doquit();"><span style="font-family:Symbol3;font-size:150%;">&#x2b60;</span> <span data-myxlkey='app.menu.quit'>Quit</span></div>
 </div>
 <!-- end of hamburger menu -->
 <!-- navigation header -->
@@ -27098,19 +27106,21 @@ function init() {
 <!-- end of navigation header -->
 <!-- this is the picture browser, generated content appended -->
 <div id="browser" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
+<div class="appnote" data-myxlkey="app.locnote"></div>
 </div>
 <!-- end of the picture browser, generated content appended -->
 <!-- enter local files -->
 <div id="notimback" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
-<div  style="font-size:133%;margin-top: 0.5em;" data-myxlkey="main.drophere"></div>
+<div class="appnote" data-myxlkey="app.locnote"></div>
+<div style="font-size:133%;margin-top: 0.5em;" data-myxlkey="main.drophere"></div>
 <div id="droptarget" ondrop="imbc.drophandler(event);" ondragenter="imbc.prevdef(event);" ondragover="imbc.prevdef(event);" style="border: 5px solid blue;border-radius: 10px;width:300px; height:70px;background-color: rgba(0,0,255,0.2);"></div><br>
-<div  style="font-size:75%; background-color:rgba(0,0,255,0.1);width:fit-content;margin-top:-0.7em;color:#808080;">
+<div style="font-size:75%; background-color:rgba(0,0,255,0.1);width:fit-content;margin-top:-0.7em;color:#808080;">
 <input type="checkbox" id="fakelongexpadd"> <label for="fakelongexpadd" data-myxlkey="main.fakelong"> </label> -
 <input type="checkbox" id="fakelongexpscale"> <label for="fakelongexpscale" data-myxlkey="main.fakelong.scale"> </label><br>
 <input type="checkbox" id="makebackw"> <label for="makebackw" ><span data-myxlkey="main.backw.title"></span> <span data-myxlkey="main.backw.drophere"></span> </label>
 </div>
-<div  style="font-size:133%;margin-top: 0.5em;"><span  data-myxlkey="main.selectraw"></span>
-<input  type="file" accept=".*" id="infile" name="infile" multiple onchange="imbc.fselected()">
+<div style="font-size:133%;margin-top: 0.5em;"><span data-myxlkey="main.selectraw"></span>
+<input type="file" accept=".*" id="infile" name="infile" multiple onchange="imbc.fselected()">
 </div><br>
 <div class="notwhenbackw" style="margin-top: 0.5em;" data-myxlkey="main.generaladvice"></div>
 </div>
@@ -27153,7 +27163,7 @@ function init() {
 <!-- this is the wait for stop movie -->
 <dialog class="mymodal" id="movieprogress" style="border: 5px solid blue; border-radius: 20px; padding: 20px;width:fit-content;" onclose="imbc.stopmovie();this.close();imbc.remmodkeyev();">
 <div style="font-weight:bold;" id="progmoviemsg">&#x23f1;</div>
-<input id="stopbut" type="button" value="&#x2bc3;"  onclick="imbc.stopmovie()" style="font-size: 300%;color: red;font-family:Symbol3;width:1.5em; height:1.5em; border-radius:50%;">
+<input id="stopbut" type="button" value="&#x2bc3;" onclick="imbc.stopmovie()" style="font-size: 300%;color: red;font-family:Symbol3;width:1.5em; height:1.5em; border-radius:50%;">
 </dialog>
 <!-- end of the wait for stop movie -->
 <!-- this is the delete question/progress -->
@@ -27230,7 +27240,7 @@ and then access it directly in the ImB WiFi as http://192.168.1.254/IMBACK/imbap
 		<span class="ggttminus ggttm mmll">&#x25bc;</span>
 		<span class="gtype" onclick="ImBCHtml.togglep(this);imbc.addallimgs();" style="display: inline;"></span>
 		<span class="grtit ggttminus" onclick="ImBCHtml.closep(this);imbc.addallimgs();"><span class="leadzero"></span></span>
-		<span class="grtit ggttplus"  onclick="ImBCHtml.openp(this);imbc.addallimgs();"><span class="leadzero"></span></span>
+		<span class="grtit ggttplus" onclick="ImBCHtml.openp(this);imbc.addallimgs();"><span class="leadzero"></span></span>
 		<span class="selnumber">0</span> / <span class="totno"></span><input type="checkbox" class="selcb" data-mytitlexlkey="browser.selall.tooltip">
 	</div>
 </template>
