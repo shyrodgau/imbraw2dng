@@ -43,7 +43,7 @@ Top_class_for_App: 						imbapp.htm imbapp.html										(app-like)
 
 -->
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src data: 'self' http: 192.168.0.72:8080 192.168.8.101:8080 192.168.1.254; connect-src 'self' http: 192.168.0.72:8080 192.168.8.101:8080 192.168.1.254; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval';">
+<meta http-equiv="Content-Security-Policy" content="default-src data: 'self' http: 192.168.0.72:8889 192.168.8.101:8889 192.168.1.254 127.0.0.1:8889; connect-src 'self' http: 192.168.0.72:8889 192.168.8.101:8889 192.168.1.254 127.0.0.1:8889; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval';">
 <meta http-equiv='cache-control' content='no-cache'>
 <meta http-equiv='expires' content='0'>
 <meta http-equiv='pragma' content='no-cache'>
@@ -355,10 +355,18 @@ div#xmsg {
 }
 #magtext { font-size: 100% !important; }
 }
-@media (max-height: 400px) {
+@media (min-width: 800px) {
+div#notimback {
+	padding-left: 3vw;
+}
+}
+@media (max-height: 600px) {
 	#phpv { width: 240px !important; height: 160px !important; overflow: scroll;}
 	#takenpic > div { width: 122px !important; height: 87px !important; }
 	#takenpic div { font-size: 40px !important; }
+.mymodal {
+	margin-top: 2% !important;
+}
 }
 body { margin: 0; }
 #rpiclbl, #piclbl, #movlbl, #rpiccnt, #piccnt, #movcnt { font-weight: bold; }
@@ -475,6 +483,12 @@ body { margin: 0; }
 	/*width: 2em;*/
 	text-align: end;
 	font-weight: bold;
+	font-family: courier, monospace;
+	font-style: italic;
+}
+.totno {
+	font-family: courier, monospace;
+	font-style: italic;
 }
 #xmag .btnsrow { position: fixed !important; bottom: 1em !important;top:auto !important;background: none !important; padding:0 !important;}
 .btnsrow { position: absolute; top: 2em; left: 0.5em; height: 0.8em; width: 4em; padding:0.3em;background-color: rgba(200,200,180,0.5); }
@@ -2243,7 +2257,7 @@ earliestraw='9999';
 latestraw='0000';
 
 // [0]: (1,2)   !=0 => use separate localstorage namespace from imbraw2dng
-// [1]: (3,6)   imbweb: for non-emulator: 1 => use = 'http://192.168.8.101:8080'; 2 => use = 'http://192.168.0.72:8080'; android emulator: !=0 => use 10.0.2.2 (host connection)
+// [1]: (3,6)   imbweb: for non-emulator: 1 => use = 'http://192.168.8.101:8889'; 2 => use = 'http://192.168.0.72:8889'; android emulator: !=0 => use 10.0.2.2 (host connection)
 // [2]: (9,18)  !=0 => use longer startup timeout, debug version
 // [3]: (27,54) ==1 => fake delete works for 2029_0710_010203_001..., ==2 => fake delete works for 2029_0707_120426_021...
 // [4]: (81,162) !=0 => do not save JPG files but use only exif metadata from them
@@ -20611,6 +20625,8 @@ appinfo(doit) {
 	document.getElementById('genericok').style['border-color'] = 'grey';
 	document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('main.apptitle'));
 	document.getElementById('okmsg').innerHTML += '<br>';
+	document.getElementById('okmsg').innerHTML += this.rmesc(this.xl('main.title'));
+	document.getElementById('okmsg').innerHTML += '<br>';
 	document.getElementById('okmsg').innerHTML += `<a href="#" onclick="window.open('https://shyrodgau.github.io/imbraw2dng/HISTORY.txt', 'imbapphist'); return false;">` + globals.version + '</a>';
 	if (this.connvers) {
 		document.getElementById('okmsg').innerHTML += ('<br>ImB: ' + this.connvers);
@@ -20630,7 +20646,7 @@ appinfo(doit) {
 	document.getElementById('okmsg').innerHTML += `<br><span style="font-weight:normal;font-size:75%;">Contains parts of <a href="#" onclick="window.open('https://fonts.google.com/noto/specimen/Noto+Sans+Symbols+2', 'imbapplic1'); return false;">NotoSansSymbols2-Regular</a> font
 	licensed under <a href="#" onclick=" window.open('http://scripts.sil.org/OFL', 'imbapplic0'); return false;">Open Font License</a>.
 	<br>Based on work by Michele Asciutti from the ImBack User Group.</span>
-	<br><a href="#" onclick="window.open('LICENSE.txt', 'imbapplicx'); return false;">License Info:</a>
+	<br>License Info:
 	<br><iframe src="data:text/html,<html><head><meta http-equiv='content-type' content='text/html;charset=UTF-8'></head><body style='font-size:7px;'><!--@@LICENSESTART@@ -->Copyright (C) 2023,2024,2025 by Stefan Hegny, stefan@hegny.de<br><br>The following license applies to the code inside these files with the exception of<br><br>* the Symbol3 font which is an excerpt from<br>&nbsp;&nbsp;NotoSansSymbols2-Regular (https://fonts.google.com/noto/specimen/Noto+Sans+Symbols+2) which is licensed under the<br>&nbsp;&nbsp;Open Font License (https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL)<br><br>* the Android App which contains Apache Cordova (https://cordova.apache.org) and plugins with specific licenses:<br>&nbsp;&nbsp;https://github.com/apache/cordova-plugin-inappbrowser/   		InAppBrowser<br>&nbsp;&nbsp;https://github.com/apache/cordova-plugin-file/  				File<br>&nbsp;&nbsp;https://github.com/shyrodgau/cordova-plugin-saf-mediastore/ 	 SafMediastore<br>&nbsp;&nbsp;https://github.com/NeoLSN/cordova-plugin-android-permissions	AndroidPermissions<br>&nbsp;&nbsp;https://github.com/cyph/cordova-plugin-chooser/				Chooser<br>&nbsp;&nbsp;https://github.com/torsten-simon/cordova-plugin-intent/		Intent<br><br><br>Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted.<br><br>THE SOFTWARE IS PROVIDED &quot;AS IS&quot; AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.<br>IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,<br>DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.<br><!-- @@LICENSEEND@@ --></body></html>" id="liciframe" style="width: 100%;"></iframe>
 	<div id="supportedformats"><a target="_new" data-myhrefxlapp="#fmt" data-myhrefxlkey="main.helplink">Formats</a></div>`;
 	this.xlateall();
@@ -21181,7 +21197,6 @@ setjsett(init) {
     }
     else if (copytext && init)
     	copytext.value = init;
-    	
 }
 /* TopApp: browserdisplay: copyright checkbox change */
 chgcopycheck(init) {
@@ -21634,8 +21649,6 @@ showdisconnect(alsoerr) {
 		document.getElementById('hamb').style['margin-right'] = '1em';
 		for (const e of document.querySelectorAll('.battery'))
 			e.style['display'] = 'none';
-		for (const e of document.querySelectorAll('.appnote'))
-			e.style['display'] = 'block';
 	}
 	this.discknown = true;
 	for (const e of document.querySelectorAll('.moviesym'))
@@ -24631,7 +24644,6 @@ const mytexts = { // actually const
 		generaladvice: {
 			de: 'Daten werden nur im Browser verarbeitet, nicht im \'Internet\'.<br>Kann sein, dass der Browser fragt, ob Sie zulassen wollen, dass mehrere Dateien heruntergeladen werden.<br>Dateien, die nicht oder unbekannte RAW-Dateien sind, werden 1:1 kopiert.',
 			en: 'Data processing is entirely in the browser, not in \'the internet\'<br>Browser may ask you if you want to allow downloading multiple files.<br>Not or unrecognized RAW Files simply will be copied.',
-			ru: 'Данные обрабатываются только в браузере, а не в \'Интернете\'.<br>Браузер может спросить, хотите ли вы разрешить загрузку нескольких файлов.<br>Файлы, которые не являются или неизвестными файлами RAW, копируются 1:1.',
 			ja: 'データはブラウザ内でのみ処理され、「インターネット」上では処理されません。<br>ブラウザは、複数のファイルのダウンロードを許可するかどうかを尋ねる場合があります。<br>RAW ファイルではないファイル、または不明なファイルは 1:1 でコピーされます。'
 		},
 		drophere: {
@@ -24640,14 +24652,8 @@ const mytexts = { // actually const
 			ja: 'ここに ImB のファイルをドロップします。：  (or directories)'
 		},
 		selectraw: {
-			de: 'Oder diese Seite per WLAN <a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README_de#browsing-on-the-imback\',\'_system\');return false;">direkt von ImB</a> verwenden.<br>Oder <tt>.RAW</tt> Datei(en) auswählen:',
-			en: 'Or use this page via Wifi <a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README#browsing-on-the-imback\',\'_system\');return false;">directly from ImB</a>.<br>Or select <tt>.RAW</tt> File(s):',
-			ja: 'または、このページを WiFi 経由で<a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README_ja#browsing-on-the-imback\',\'_system\');return false;">ImB から直接</a>使用します。<br >または、<tt>.RAW</tt> ファイルを選択します。：'
-		},
-		selectrawx: {
 			de: 'Oder <tt>.RAW</tt> Datei(en) auswählen:',
 			en: 'Or select <tt>.RAW</tt> File(s):',
-			ru: 'Или выберите файл(ы) <tt>RAW</tt>:',
 			ja: 'または、<tt>.RAW</tt> ファイルを選択します。：'
 		},
 		types: {
@@ -26890,7 +26896,7 @@ function init() {
 		let ex = 0;
 		if (imbc.exitmode === 'movie') ex = 1;
 		else if (imbc.exitmode === 'browse') ex = 2;
-		imbc.custcmdB( 3001,  'document', ('par=' + ex));
+		imbc.custcmdB( 3001, 'document', ('par=' + ex));
 		if (document.getElementById('pages').style['display'] === 'none') {
 			imbc.handleback();
 			return true;
@@ -26916,16 +26922,18 @@ function init() {
 		imbc.dnsad2 = true;
 		imbc.savesettings('dnsad2');
 	});
+	if (window.location.origin.startsWith('file:/')) {
+		for (const e of document.querySelectorAll('.appnote'))
+			e.style['display'] = 'block';
+	}
 }
 </script>
 <!-- SERVICE WORKER must be via http(s): imbappsvcw.js -->
 </head>
 <!-- here comes the html itself -->
 <body id="thebody" style="font-family: Helvetica, Arial, sans-serif;" onload="init();" lang="en">
-<div style="font-weight:bold;display:none;"><span class="notwhenbackw" data-myxlkey='main.title'> </span><span class="onlywhenbackw" style="display:none;" data-myxlkey='main.backw.title'> </span> -
- <a target="_new" data-myhrefxlkey="main.helplink" data-myxlkey='main.help'></a>
-<span class="notwhenbackw" data-myxlkey="main.newmsg"/></div>
-<br><div class="notwhenbackw" style="display:none;">&nbsp;<!--b style="background-color:#888888; text-shadow: 0.07em 0.12em 0 #FFFFFF;font-size:200%;">&#x26f6; &#x1f5d1; &#x2715;</b-->&nbsp;<br></div>
+<div style="font-weight:bold;display:none;"><span data-myxlkey='main.title'> </span></div>
+<br><div style="display:none;">&nbsp;<!--b style="background-color:#888888; text-shadow: 0.07em 0.12em 0 #FFFFFF;font-size:200%;">&#x26f6; &#x1f5d1; &#x2715;</b-->&nbsp;<br></div>
 <!-- splash -->
 <div id="splash" style="width:100%; height:100%; font-weight:bold; font-size:200%;color:white;background-color:black;">
 <div style="text-align:center; width:100%;" ><span data-myxlkey="main.apptitle"> </span> <span id="mainversion"> </span></div>
@@ -26958,7 +26966,7 @@ function init() {
 <option value="ja" onclick="imbc.setlang()">JA &#x1f1ef;&#x1f1f5;</option><!--option value="fr" onclick="imbc.setlang()">FR</option><option value="ru" onclick="imbc.setlang()">RU</option--></select></div>
 <div><span data-myxlkey="app.dlbigprev"></span> <select id="jprev" onchange="imbc.setjprev()"><option value="0" onclick="imbc.setjprev()" selected>0</option><option value="1" onclick="imbc.setjprev()">1/16</option><option value="2" onclick="imbc.setjprev()">1/4</option>
 </select></div>
-<div><span data-myxlkey="app.jpeg"></span> <select id="jsett" onchange="imbc.setjsett()"><option value="2" data-myxlkey="jpeg.exifonly" onclick="imbc.setjsett()" selected></option><option value="1" data-myxlkey="app.jpeg.dlnoexif" onclick="imbc.setjsett()"></option><option value="3" data-myxlkey="app.jpeg.dlandexif" onclick="imbc.setjsett()"></option>
+<div><span data-myxlkey="app.jpeg"></span> <select id="jsett" onchange="imbc.setjsett()"><option value="2" data-myxlkey="jpeg.exifonly" onclick="imbc.setjsett()" selected></option><option value="1" data-myxlkey="app.jpeg.dlnoexif" onclick="imbc.setjsett()"></option><option value="3" data-myxlkey="app.jpeg.dlandexif" selected onclick="imbc.setjsett()"></option>
 </select></div>
 </div>
 </div>
@@ -27053,15 +27061,15 @@ function init() {
 </div>
 <div style="width: fit-content;white-space: pre-wrap;"><span style="font-weight:bold;" data-myxlkey="app.menu.extras"></span><br>
 <div>
-<div><input type="button" onclick="imbc.clearcache();" data-myvalxlkey="app.menu.extras.clearcache"></div>
-<div class="btop"><span data-myxlkey="app.menu.extras.cachesize">Visual Browser Cache Size:</span> <input type="number" onchange="imbc.chgcache()" id="dbgcache" style="width: 5em;"></div>
-<div><span>Expert Flags:</span> <input type="number" onchange="imbc.chgflags()" id="expflags" style="width: 5em;"></div>
-</div></div>
-<div class="igxtype">
+<div class="igxtype btop">
 <div ><input type="checkbox" id="dngpreview" checked onchange="imbc.chgdngpreview()"> <label for="dngpreview" data-myxlkey="process.addpreview"></label></div>
 <div ><input type="checkbox" id="incdcp" checked onchange="imbc.dirtysettings('incdcp')"> <label for="incdcp" data-myxlkey="process.includedcp"></label></div>
 <div ><input type="checkbox" id="oldstylewb" onchange="imbc.dirtysettings('owb')"> <label for="oldstylewb" data-myxlkey="process.oldstylewb"></label></div>
 </div>
+<div class="btop"><input type="button" onclick="imbc.clearcache();" data-myvalxlkey="app.menu.extras.clearcache"></div>
+<div class="btop"><span data-myxlkey="app.menu.extras.cachesize">Visual Browser Cache Size:</span> <input type="number" onchange="imbc.chgcache()" id="dbgcache" style="width: 5em;"></div>
+<div><span>Expert Flags:</span> <input type="number" onchange="imbc.chgflags()" id="expflags" style="width: 5em;"></div>
+</div></div>
 <!--div style="width:20em;" class="btop"><input type="button" onclick="imbc.dlmytexts();" value="Download texts as csv"></div-->
 </div>
 <!-- end of the extras -->
@@ -27113,16 +27121,16 @@ function init() {
 <div id="notimback" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
 <div class="appnote" data-myxlkey="app.locnote"></div>
 <div style="font-size:133%;margin-top: 0.5em;" data-myxlkey="main.drophere"></div>
-<div id="droptarget" ondrop="imbc.drophandler(event);" ondragenter="imbc.prevdef(event);" ondragover="imbc.prevdef(event);" style="border: 5px solid blue;border-radius: 10px;width:300px; height:70px;background-color: rgba(0,0,255,0.2);"></div><br>
-<div style="font-size:75%; background-color:rgba(0,0,255,0.1);width:fit-content;margin-top:-0.7em;color:#808080;">
-<input type="checkbox" id="fakelongexpadd"> <label for="fakelongexpadd" data-myxlkey="main.fakelong"> </label> -
-<input type="checkbox" id="fakelongexpscale"> <label for="fakelongexpscale" data-myxlkey="main.fakelong.scale"> </label><br>
-<input type="checkbox" id="makebackw"> <label for="makebackw" ><span data-myxlkey="main.backw.title"></span> <span data-myxlkey="main.backw.drophere"></span> </label>
-</div>
+<div id="droptarget" ondrop="imbc.drophandler(event);" ondragenter="imbc.prevdef(event);" ondragover="imbc.prevdef(event);" style="border: 5px solid blue;border-radius: 10px;width:300px; height:70px;background-color: rgba(0,0,255,0.2);"></div>
 <div style="font-size:133%;margin-top: 0.5em;"><span data-myxlkey="main.selectraw"></span>
 <input type="file" accept=".*" id="infile" name="infile" multiple onchange="imbc.fselected()">
 </div><br>
-<div class="notwhenbackw" style="margin-top: 0.5em;" data-myxlkey="main.generaladvice"></div>
+<div style="font-size:75%; background-color:rgba(150,150,150,0.1);width:fit-content;margin-top:-0.7em;color:#404040;">
+<input type="checkbox" id="fakelongexpadd"> <label for="fakelongexpadd" data-myxlkey="main.fakelong"> </label> -
+<input type="checkbox" id="fakelongexpscale"> <label for="fakelongexpscale" data-myxlkey="main.fakelong.scale"> </label><br>
+<input type="checkbox" id="makebackw"> <label for="makebackw" ><span data-myxlkey="main.backw.title"></span> </label>
+</div>
+<div style="margin-top: 0.5em;" data-myxlkey="main.generaladvice"></div>
 </div>
 <!-- end of the normal display -->
 <!-- this is the take photos page -->

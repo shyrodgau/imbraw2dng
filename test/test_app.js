@@ -7,8 +7,6 @@ var fs = require('fs');
 const TESTDAT='/home/hegny/prog/imbraw2dng/samples/webroot';
 const TESTDAT0='/home/hegny/prog/imbraw2dng/samples';
 
-const TESTURL='http://127.0.0.1:8889/';
-
 const FILELIST=[ /*'2024_0217_121752_001.dng', '2029_0710_010203_001.dng', '2024_0217_121754_002.JPG', '2024_0217_131752_002.JPG', '2024_0217_131750_001.dng', '2029_0707_120426_021.dng', '2024_0217_131750_001_x.jpg'*/ ];
 let dirzip;
 
@@ -133,10 +131,10 @@ async function runTest() {
 	await driver.executeScript('mobile:swipeGesture', [{left:350,top:300,width:10,height:1200,direction:'up',percent:0.95}]);
 	const iyy2 = await waitfor(driver, '#div_2019_0101_002053_001_RAW_X .eeraw');
 	await driver.pause(300);
-	await driver.executeScript('mobile:swipeGesture', [{left:350,top:300,width:10,height:1000,direction:'down',percent:0.7}]);
+	await driver.executeScript('mobile:swipeGesture', [{left:150,top:300,width:10,height:1000,direction:'down',percent:0.7}]);
     const imgrpz = await waitfor(driver, '#gg_2024_02_19_X');
     const imgrp2 = await waitfor(driver, '#SELC_2024_02_17');
-	await driver.executeScript('mobile:swipeGesture', [{left:350,top:300,width:10,height:50,direction:'up',percent:0.3}]);
+	await driver.executeScript('mobile:swipeGesture', [{left:150,top:300,width:10,height:50,direction:'up',percent:0.3}]);
     await imgrp2.click();
 	await driver.pause(1000);
 	const sbytype = await waitfor(driver, '#grpsel');

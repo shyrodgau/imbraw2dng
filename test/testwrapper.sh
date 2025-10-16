@@ -18,8 +18,8 @@ log=${TESTWORK}/imbraw2dng_test_${testid}.log
 pushd $TESTDAT
 ( python3 -m http.server 8889 > ${log}_http 2>&1 )&
 webid=$!
-( python3 -m http.server 8080 > /dev/null 2>&1 )&
-webidb=$!
+( cd $TESTEXES && python3 -m http.server 8181 > /dev/null 2>&1 )&
+webidc=$!
 rm -rf ${TESTWORK}/outdir/*
 
 ${TESTWORK}/test_node.sh 2>&1 | tee --output-error=exit -a $log 2>&1
@@ -213,7 +213,9 @@ done
 #rm -rf *_${$}_tmp 2>&1 | tee -a $log 2>&1
 
 kill $webid 2>&1 | tee -a $log 2>&1
-kill $webidb
+kill $webidc
 kill %1
 kill %2
 kill %3
+kill %4
+

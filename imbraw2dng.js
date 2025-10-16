@@ -1541,7 +1541,7 @@ earliestraw='9999';
 latestraw='0000';
 
 // [0]: (1,2)   !=0 => use separate localstorage namespace from imbraw2dng
-// [1]: (3,6)   imbweb: for non-emulator: 1 => use = 'http://192.168.8.101:8080'; 2 => use = 'http://192.168.0.72:8080'; android emulator: !=0 => use 10.0.2.2 (host connection)
+// [1]: (3,6)   imbweb: for non-emulator: 1 => use = 'http://192.168.8.101:8889'; 2 => use = 'http://192.168.0.72:8889'; android emulator: !=0 => use 10.0.2.2 (host connection)
 // [2]: (9,18)  !=0 => use longer startup timeout, debug version
 // [3]: (27,54) ==1 => fake delete works for 2029_0710_010203_001..., ==2 => fake delete works for 2029_0707_120426_021...
 // [4]: (81,162) !=0 => do not save JPG files but use only exif metadata from them
@@ -20213,11 +20213,12 @@ parseconfig(data) {
 	if (undefined !== d.ef) {
 		this.parseexpflags(parseInt(d.ef));
 		if (this.expflags[1] === 1)
-			this.imbweb = 'http://127.0.0.1:8080';
+			this.imbweb = 'http://127.0.0.1:8889';
 		else if (this.expflags[1] === 2)
-			this.imbweb = 'http://192.168.0.72:8080';
+			this.imbweb = 'http://192.168.0.72:8889';
 	}
 	if (d.l) this.findlang(d.l);
+	if (d.j) this.jsett = parseInt(d.j);
 	if (d.d) this.outdir = d.d;
 	if (d.f) this.ovwout = true;
 	if (d.r) this.renamefiles = true;
@@ -20458,9 +20459,9 @@ startnode(notfirst) {
 					flagging = 0;
 					this.parseexpflags(parseInt(v));
 					if (this.expflags[1] === 1)
-						this.imbweb = 'http://127.0.0.1:8080';
+						this.imbweb = 'http://127.0.0.1:8889';
 					else if (this.expflags[1] === 2)
-						this.imbweb = 'http://192.168.0.72:8080';
+						this.imbweb = 'http://192.168.0.72:8889';
 				}
 				else if (flagging === 8) {
 					if (parseInt(v) > 0) this.jsett = parseInt(v);
@@ -20584,9 +20585,9 @@ startnode(notfirst) {
 					else {
 						this.parseexpflags(parseInt(v));
 						if (this.expflags[1] === 1)
-							this.imbweb = 'http://127.0.0.1:8080';
+							this.imbweb = 'http://127.0.0.1:8889';
 						else if (this.expflags[1] === 2)
-							this.imbweb = 'http://192.168.0.72:8080';
+							this.imbweb = 'http://192.168.0.72:8889';
 					}
 				}
 				else if (v ==='-e') {

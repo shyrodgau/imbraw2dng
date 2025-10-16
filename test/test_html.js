@@ -5,6 +5,7 @@ const TESTDAT='/home/hegny/prog/imbraw2dng/samples/webroot';
 const TESTDAT0='/home/hegny/prog/imbraw2dng/samples';
 
 const TESTURL='http://127.0.0.1:8889/';
+const TESTURLB='http://127.0.0.1:8181/';
 
 // test executable path:
 const TESTEXES='/home/hegny/prog/imbraw2dng/github';
@@ -892,7 +893,7 @@ describe('E Convert Raw from Imback APP', function() {
 describe('F Convert Raw Local APP', function() {
 	let driver, opts, errflg = false;
 	before(async function() {
-			this.timeout(36000);
+			this.timeout(6000);
 		  tdir = downloadDirBase + '.tmpimbtest';
 		  fs.mkdirSync(tdir, { recursive: true });
   		  const options = new chrome.Options();
@@ -910,58 +911,64 @@ describe('F Convert Raw Local APP', function() {
 			  behavior: 'allow',
 			  downloadPath: tdir,
 			});
-			await driver.get('file://' + TESTDAT + '/IMBACK/imbapp.htm');
+			//await driver.get('file://' + TESTDAT + '/IMBACK/imbapp.htm');
+			await driver.get(TESTURLB + 'imbapp.htm');
 			await driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));}');
 	});
 	it('F.1 Convert without question', async function dotest() {
-			this.timeout(6000);
+			this.timeout(19000);
+			await driver.actions({ async: true })
+				.pause(6000)
+				.perform();
 			const fi = await driver.findElement(By.id('infile'));
 			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw');
-			await driver.actions({async: true}).pause(900).perform();
-			await driver.actions({async: true}).clear();
+			//await driver.actions({async: true}).clear();
 			const okb = await waitfor(driver, 'id','progokbut');
 			await driver.actions({ async: true })
 				.move({ origin: okb })
-				.pause(300)
+				.pause(1000)
 				.click()
-				.pause(900)
+				.pause(1000)
 				.perform();
-			//await fi.clear();
+			//await driver.actions({async: true}).clear();
 			renameDownload(tdir);
 	});
 	it('F.2 Convert multiple', async function dotest() {
-			this.timeout(9000);
+			this.timeout(19000);
+			await driver.actions({ async: true })
+				.pause(3000)
+				.perform();
 			const fi = await driver.findElement(By.id('infile'));
-			await fi.clear();
+			//await fi.clear();
 			await fi.sendKeys('/home/hegny/Downloads/2020_0211_213011_001.jpg\n' + TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2024_0217_121754_002.JPG' + '\n' + TESTDAT + '/IMBACK/PHOTO/2024_0217_121752_001.RAW');
 			await driver.actions({async: true}).pause(900).perform();
 			await driver.actions({async: true}).clear();
 			const selall = await waitfor(driver, 'id', 'selall');
 			await driver.actions({async: true})
 				.move({origin: selall })
-				.pause(100)
+				.pause(1000)
 				.click()
-				.pause(100)
+				.pause(1000)
 				.perform();
 			const dosel = await waitfor(driver,'id','doselbut');
 			await driver.actions({async: true})
 				.move({origin: dosel })
-				.pause(100)
+				.pause(1000)
 				.click()
-				.pause(100)
+				.pause(1000)
 				.perform();
 			const okb = await waitfor(driver, 'id','dlprogresslogbtn');
 			await driver.actions({ async: true })
 				.move({ origin: okb })
-				.pause(300)
+				.pause(1000)
 				.click()
-				.pause(1900)
+				.pause(1000)
 				.perform();
 			//await fi.clear();
 			renameDownload(tdir);
 	});
 	after(async function() {
-			this.timeout(36000);
+			this.timeout(6000);
 			let me = await driver.findElement(By.id('thebody'));
 			let ma = await me.getAttribute('data-err');
 			console.log('Message Content:');

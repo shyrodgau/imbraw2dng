@@ -43,7 +43,7 @@ Top_class_for_App: 						imbapp.htm imbapp.html										(app-like)
 
 -->
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src data: 'self' http: 192.168.0.72:8080 192.168.8.101:8080 192.168.1.254 *; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval'">
+<meta http-equiv="Content-Security-Policy" content="default-src data: 'self' http: 192.168.0.72:8889 192.168.8.101:8889 192.168.1.254 *; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval'">
 <meta http-equiv='cache-control' content='no-cache'>
 <meta http-equiv='expires' content='0'>
 <meta http-equiv='pragma' content='no-cache'>
@@ -99,7 +99,7 @@ AAAAAAAAAAAAAAAAAAAAAA">
 <style type="text/css">
 /* *************************************** app only *************************************** */
 /* * * ************************************* CSS *************************************** */
-@font-face  {
+@font-face {
 	font-family:'Symbol3';
 	src:url('data:font/woff;base64,d09GRgABAAAAADXwABQAAAAAVzAAAgAIAAAAAAAAAAAAAAAAAAAAAAAAAABGRlRNAAA1ZAAAABwA\
 AAAcmtaDsUdERUYAADMwAAAALAAAAD4AggAqR1BPUwAAM/gAAAFrAAAFWM/x33BHU1VCAAAzXAAA\
@@ -354,10 +354,18 @@ div#xmsg {
 }
 #magtext { font-size: 100% !important; }
 }
-@media (max-height: 400px) {
+@media (min-width: 800px) {
+div#notimback {
+	padding-left: 3vw;
+}
+}
+@media (max-height: 600px) {
 	#phpv { width: 240px !important; height: 160px !important; overflow: scroll;}
 	#takenpic > div { width: 122px !important; height: 87px !important; }
 	#takenpic div { font-size: 40px !important; }
+.mymodal {
+	margin-top: 2% !important;
+}
 }
 body { margin: 0; }
 #rpiclbl, #piclbl, #movlbl, #rpiccnt, #piccnt, #movcnt { font-weight: bold; }
@@ -390,6 +398,7 @@ body { margin: 0; }
     opacity: 0;
   }
 }
+.appnote { display:none;font-size:80%;font-weight:bold;color:red; }
 .gg {
 	display: block;
 }
@@ -473,6 +482,12 @@ body { margin: 0; }
 	/*width: 2em;*/
 	text-align: end;
 	font-weight: bold;
+	font-family: courier, monospace;
+	font-style: italic;
+}
+.totno {
+	font-family: courier, monospace;
+	font-style: italic;
 }
 #xmag .btnsrow { position: fixed !important; bottom: 1em !important;top:auto !important;background: none !important; padding:0 !important;}
 .btnsrow { position: absolute; top: 2em; left: 0.5em; height: 0.8em; width: 4em; padding:0.3em;background-color: rgba(200,200,180,0.5); }
@@ -2241,7 +2256,7 @@ earliestraw='9999';
 latestraw='0000';
 
 // [0]: (1,2)   !=0 => use separate localstorage namespace from imbraw2dng
-// [1]: (3,6)   imbweb: for non-emulator: 1 => use = 'http://192.168.8.101:8080'; 2 => use = 'http://192.168.0.72:8080'; android emulator: !=0 => use 10.0.2.2 (host connection)
+// [1]: (3,6)   imbweb: for non-emulator: 1 => use = 'http://192.168.8.101:8889'; 2 => use = 'http://192.168.0.72:8889'; android emulator: !=0 => use 10.0.2.2 (host connection)
 // [2]: (9,18)  !=0 => use longer startup timeout, debug version
 // [3]: (27,54) ==1 => fake delete works for 2029_0710_010203_001..., ==2 => fake delete works for 2029_0707_120426_021...
 // [4]: (81,162) !=0 => do not save JPG files but use only exif metadata from them
@@ -20553,8 +20568,8 @@ const mytexts = { // actually const
 	},
 	main: {
 		choosefile: {
-			en: 'choose file',
-			de: 'datei auswählen',
+			en: 'Choose File',
+			de: 'Datei Auswählen',
 			ja: 'ファイルを選択'
 		},
 		title: {
@@ -20580,25 +20595,21 @@ const mytexts = { // actually const
 			ru: '? Помощь Док',
 			ja: '? ヘルプ資料'
 		},
-		helplink: {
-			de: 'https://shyrodgau.github.io/imbraw2dng/README_de',
-			en: 'https://shyrodgau.github.io/imbraw2dng/',
-			fr: 'https://shyrodgau.github.io/imbraw2dng/',
-			ja: 'https://shyrodgau.github.io/imbraw2dng/README_ja'
-		},
 		generaladvice: {
-			de: 'Daten werden nur im Browser verarbeitet, nicht im \'Internet\'.<br>Kann sein, dass der Browser fragt, ob Sie zulassen wollen, dass mehrere Dateien heruntergeladen werden.<br>Dateien, die nicht oder unbekannte RAW-Dateien sind, werden 1:1 kopiert.',
+			de: 'Daten werden nur im Browser verarbeitet, nicht im \'Internet\'.<br>Kann sein, dass der Browser fragt, ob Sie zulassen wollen, dass mehrere Dateien heruntergeladen werden.<br>Dateien, die keine oder unbekannte RAW-Dateien sind, werden 1:1 kopiert.',
 			en: 'Data processing is entirely in the browser, not in \'the internet\'<br>Browser may ask you if you want to allow downloading multiple files.<br>Not or unrecognized RAW Files simply will be copied.',
 			fr: 'L\'information est entièrement traitée dans le navigateur et non sur \'Internet\'<br>Le navigateur peux questionner que vous acceptez le téléchargement de beaucoup de fiches.<br>Fiches pas-RAW ou RAW inconnue sont copiée 1:1.',
 			ru: 'Данные обрабатываются только в браузере, а не в \'Интернете\'.<br>Браузер может спросить, хотите ли вы разрешить загрузку нескольких файлов.<br>Файлы, которые не являются или неизвестными файлами RAW, копируются 1:1.',
 			ja: 'データはブラウザ内でのみ処理され、「インターネット」上では処理されません。<br>ブラウザは、複数のファイルのダウンロードを許可するかどうかを尋ねる場合があります。<br>RAW ファイルではないファイル、または不明なファイルは 1:1 でコピーされます。'
 		},
-		selectrawx: {
-			de: 'Oder <tt>.RAW</tt> Datei(en) auswählen:',
-			en: 'Or select <tt>.RAW</tt> File(s):',
-			fr: 'Ou selectez <tt>.RAW</tt> fiche(s):',
-			ru: 'Или выберите файл(ы) <tt>RAW</tt>:',
+		selectraw: {
+			de: '<tt>.RAW</tt> Datei(en) auswählen:',
+			en: 'Select <tt>.RAW</tt> File(s):',
 			ja: 'または、<tt>.RAW</tt> ファイルを選択します。：'
+		},
+		appnotes: {
+			de: 'Oder Smartphone ins ImB WLAN stecken!<br>&nbsp;<br>DNG zurück nach RAW:<br>Im Explorer/Datei-Manager genau eine DNG Datei auswählen und mit dieser ImB OS App teilen<br>&nbsp;<br>Lange Aufnahme Simulieren/Übereinanderlegen:<br>Im Explorer/Datei-Manager mehrere DNG Dateien auswählen und mit dieser ImB OS App teilen',
+			en: 'Or place smartphone in ImB WiFi!<br>&nbsp;<br>DNG backwards to RAW:<br>Select exactly one DNG file in Explorer/File Manager and share with this ImB OS App<br>&nbsp;<br>Simulate long exposure/Stacking:<br>Select multiple DNG files in Explorer/File Manager and share with this ImB OS App',
 		},
 		types: {
 			notpic: {
@@ -20633,9 +20644,9 @@ const mytexts = { // actually const
 			ja: '選択済み'
 		},
 		fakelong: {
-			en: 'Fake long exposure by adding up all (<a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README#a-lot-more-tricks-and-details\',\'_system\');return false;">read more</a>)',
-			de: 'Langzeitbelichtung durch Addieren simulieren (<a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README_de#a-lot-more-tricks-and-details\',\'_system\');return false;">mehr lesen</a>)',
-			ja: '「追加して長時間露光をシミュレートします (<a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README_ja#a-lot-more-tricks-and-details\',\'_system\');return false;">続きを読む</a>)」すべてを加算して長時間露光をシミュレートする',
+			en: 'Fake long exposure by adding up all',
+			de: 'Langzeitbelichtung durch Addieren simulieren',
+			ja: '「追加して長時間露光をシミュレートします 」すべてを加算して長時間露光をシミュレートする',
 			scale: {
 				en: 'Scale values down',
 				de: 'Werte dabei herunterskalieren',
@@ -21072,9 +21083,9 @@ const mytexts = { // actually const
 			ja: '未使用のメモリ:'
 		},
 		helpurl: {
-			de: 'https://shyrodgau.github.io/imbraw2dng/README_de',
-			en: 'https://shyrodgau.github.io/imbraw2dng/',
-			ja: 'https://shyrodgau.github.io/imbraw2dng/README_ja'
+			de: 'res/README_de.html',
+			en: 'res/README.html',
+			ja: 'res/README_ja.html'
 		},
 		livehint: {
 			en: 'For live view, point media player to <a href="$$0">$$0</a>',
@@ -23093,6 +23104,8 @@ appinfo(doit) {
 	document.getElementById('genericok').style['border-color'] = 'grey';
 	document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('main.apptitle'));
 	document.getElementById('okmsg').innerHTML += '<br>';
+	document.getElementById('okmsg').innerHTML += this.rmesc(this.xl('main.title'));
+	document.getElementById('okmsg').innerHTML += '<br>';
 	document.getElementById('okmsg').innerHTML += `<a href="#" onclick="window.open('https://shyrodgau.github.io/imbraw2dng/HISTORY.txt', '_system'); return false;">` + globals.version + '</a>';
 	if (this.connvers) {
 		document.getElementById('okmsg').innerHTML += ('<br>ImB: ' + this.connvers);
@@ -23108,7 +23121,7 @@ appinfo(doit) {
 		//	document.getElementById('okmsg').innerHTML += ('<br>Free: ' + Math.round(this.imbfree/100)/10 + ' KB');
 		//document.getElementById('okmsg').innerHTML += ('<br>Free: ' + this.imbfree + ' B');
 	}
-	document.getElementById('okmsg').innerHTML += `<br><a href="#" onclick="window.open(imbc.xl('app.helpurl'), '_system'); return false;" data-myxlkey="main.help"></a> - <span data-myxlkey="main.newmsg"/>`;
+	document.getElementById('okmsg').innerHTML += `<br><a href="#" onclick="window.open(imbc.xl('app.helpurl')+'','_new');return false;" data-myxlkey="main.help"></a> - <span data-myxlkey="main.newmsg"/>`;
 	document.getElementById('okmsg').innerHTML += `<br><span style="font-weight:normal;font-size:75%;">Contains parts of <a href="#" onclick="window.open('https://fonts.google.com/noto/specimen/Noto+Sans+Symbols+2', '_system'); return false;">NotoSansSymbols2-Regular</a> font
 	licensed under <a href="#" onclick=" window.open('http://scripts.sil.org/OFL', '_system'); return false;">Open Font License</a>.</span>`;
 	// https://github.com/apache/cordova-plugin-inappbrowser/ https://github.com/apache/cordova-plugin-file/ https://github.com/frontyard/cordova-plugin-exoplayer/
@@ -23120,11 +23133,11 @@ appinfo(doit) {
 	<a href="#" onclick="window.open('https://github.com/torsten-simon/cordova-plugin-intent/','_system'); return false;">Intent</a>,
 	<a href="#" onclick="window.open('https://github.com/shyrodgau/cordova-plugin-saf-mediastore/','_system'); return false;">SafMediastore</a><br>Based on work by Michele Asciutti from the ImBack User Group.</span>
 	<br>License Info:
-	<br><iframe src="http://localhost/res/LICENSE.html" id="liciframe" style="width: 100%"></iframe>
-	<div id="supportedformats"></div>`;
+	<br><iframe src="res/LICENSE.html" id="liciframe" style="width: 100%"></iframe>
+	<div id="supportedformats"><a href="#" onclick="window.open(imbc.xl('app.helpurl') + '#fmt','_new');return false;">Formats</a></div>`;
 	this.xlateall();
 	this.showmsg();
-	document.getElementById('supportedformats').innerHTML = globals.fmtsupp();
+	//document.getElementById('supportedformats').innerHTML = globals.fmtsupp();
 }
 /* AndroidSpec: browserdisplay: choose a file */
 fselect() {
@@ -23140,19 +23153,17 @@ fselect() {
 		   if (!f || !d) return;
 		   f.data = d;
 		   this.checkchecks();
-		   this.totnum = 1;
+	   	   this.totnum = 1;
 		   this.actnum = 0;
 		   this.stats = { total: this.totnum, skipped: 0, error: 0, ok: 0 };
 		   this.allfiles = [ f ];
-		   if (this.totnum > 0) {
-			   this.appmsgxl(true, 'process.selectedn', this.totnum);
-			   document.getElementById('infile').disabled = true;
-			   this.rotphase = 1;
-			   this.fromvisbrows = true;
-			   this.showdlprog();
-			   this.topreccheck(false);
-			   this.startloadimg();
-		   }
+		   this.appmsgxl(true, 'process.selectedn', this.totnum);
+		   document.getElementById('infile').disabled = true;
+		   this.rotphase = 1;
+		   this.fromvisbrows = true;
+		   this.showdlprog();
+		   this.topreccheck(false);
+		   this.startloadimg();
 		}).catch((e) => {
 			console.log(e);
 		   this.showmain();
@@ -23235,6 +23246,40 @@ copytoimb(names) {
            this.showmsg();
    }
 }
+/*dlhtml(names) {
+   let n = 'imbapp.htm';
+   let xhr = new XMLHttpRequest();
+   xhr.responseType = 'blob';
+   xhr.onload = (/*evt* /) => {
+           if (xhr.status !== 200) {
+                   console.log('XHR send exception (post5) for ');
+                   document.getElementById('genericok').style['border-color'] = 'red';
+                   document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.install'));
+                   this.showmsg();
+                   return;
+           }
+           this.writefile('imbapp.htm', 'text/html', 'xyzabc', xhr.response, 'imbapp.htm');
+   };
+   xhr.onerror = (evt, typ) => {
+           console.log('XZY');
+           document.getElementById('genericok').style['border-color'] = 'red';
+           document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.install'));
+           this.showmsg();
+   };
+   xhr.onabort = (evt) => { xhr.onerror(evt, 'abort'); };
+   xhr.ontimeout = (evt) => { xhr.onerror(evt, 'timeout'); };
+   xhr.open('GET', 'http://localhost/res/' + n);
+   xhr.setRequestHeader('Cache-control','max-stale');
+   xhr.timeout = 30000;
+   try {
+           xhr.send();
+   } catch (e) {
+           console.log('XHR send exception (post) for ');
+           document.getElementById('genericok').style['border-color'] = 'red';
+           document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.install'));
+           this.showmsg();
+   }
+}*/
 /* AndroidSpec: internal intent handling */
 intentinthandler(optarg) {
 	this.loaderrunning = 'blah!';
@@ -23533,7 +23578,6 @@ setjsett(init) {
     }
     else if (copytext && init)
     	copytext.value = init;
-    	
 }
 /* TopApp: browserdisplay: copyright checkbox change */
 chgcopycheck(init) {
@@ -26935,11 +26979,11 @@ function init2() {
 		imbc.initsettings();
 		mytexts['main']['apptitle']['en'] = imbc.expflags[2] > 0 ? 'ImB DBG App' : 'ImB OS App';
 		if (imbc.expflags[1] !== 0 && emu)
-			imbc.imbweb = 'http://10.0.2.2:8080';
+			imbc.imbweb = 'http://10.0.2.2:8889';
 		else if (imbc.expflags[1] === 1 && !emu)
-			imbc.imbweb = 'http://192.168.8.101:8080';
+			imbc.imbweb = 'http://192.168.8.101:8889';
 		else if (imbc.expflags[1] === 2 && !emu)
-			imbc.imbweb = 'http://192.168.0.72:8080';
+			imbc.imbweb = 'http://192.168.0.72:8889';
 		setTimeout(() => {
 			imbc.chgcopycheck();
 			imbc.querylang(window.location.pathname);
@@ -26965,9 +27009,7 @@ function init2() {
 </head>
 <!-- here comes the html itself -->
 <body id="thebody" style="font-family: Helvetica, Arial, sans-serif;" onload="init();" lang="en">
-<div style="font-weight:bold;display:none;"><span data-myxlkey='main.title'> </span><span class="onlywhenbackw" style="display:none;" data-myxlkey='main.backw.title'> </span> -
- <a target="_new" data-myhrefxlkey="main.helplink" data-myxlkey='main.help'></a>
-<span data-myxlkey="main.newmsg"/></div>
+<div style="font-weight:bold;display:none;"><span data-myxlkey='main.title'> </span></div>
 <br><div style="display:none;">&nbsp;<!--b style="background-color:#888888; text-shadow: 0.07em 0.12em 0 #FFFFFF;font-size:200%;">&#x26f6; &#x1f5d1; &#x2715;</b-->&nbsp;<br></div>
 <!-- splash -->
 <div id="splash" style="width:100%; height:100%; font-weight:bold; font-size:200%;color:white;background-color:black;">
@@ -27000,7 +27042,7 @@ function init2() {
 <option value="ja" onclick="imbc.setlang()">JA &#x1f1ef;&#x1f1f5;</option><!--option value="fr" onclick="imbc.setlang()">FR</option><option value="ru" onclick="imbc.setlang()">RU</option--></select></div>
 <div><span data-myxlkey="app.dlbigprev"></span> <select id="jprev" onchange="imbc.setjprev()"><option value="0" onclick="imbc.setjprev()" selected>0</option><option value="1" onclick="imbc.setjprev()">1/16</option><option value="2" onclick="imbc.setjprev()">1/4</option>
 </select></div>
-<div><span data-myxlkey="app.jpeg"></span> <select id="jsett" onchange="imbc.setjsett()"><option value="2" data-myxlkey="jpeg.exifonly" onclick="imbc.setjsett()" selected></option><option value="1" data-myxlkey="app.jpeg.dlnoexif" onclick="imbc.setjsett()"></option><option value="3" data-myxlkey="app.jpeg.dlandexif" onclick="imbc.setjsett()"></option>
+<div><span data-myxlkey="app.jpeg"></span> <select id="jsett" onchange="imbc.setjsett()"><option value="2" data-myxlkey="jpeg.exifonly" onclick="imbc.setjsett()" selected></option><option value="1" data-myxlkey="app.jpeg.dlnoexif" onclick="imbc.setjsett()"></option><option value="3" data-myxlkey="app.jpeg.dlandexif" onclick="imbc.setjsett()" selected></option>
 </select></div>
 </div>
 </div>
@@ -27096,16 +27138,18 @@ function init2() {
 <div>
 <div><span data-myxlkey="app.menu.extras.copytoimb"></span><br>
 <input type="button" data-myvalxlkey="app.install" onclick="imbc.copytoimb();">
+<!--br>
+<input type="button" value="&#x2b73;;" onclick="imbc.dlhtml();"-->
+</div>
+<div class="igxtype btop">
+<div ><input type="checkbox" id="dngpreview" checked onchange="imbc.chgdngpreview()"> <label for="dngpreview" data-myxlkey="process.addpreview"></label></div>
+<div ><input type="checkbox" id="incdcp" checked onchange="imbc.dirtysettings('incdcp')"> <label for="incdcp" data-myxlkey="process.includedcp"></label></div>
+<div ><input type="checkbox" id="oldstylewb" onchange="imbc.dirtysettings('owb')"> <label for="oldstylewb" data-myxlkey="process.oldstylewb"></label></div>
 </div>
 <div class="btop"><input type="button" onclick="imbc.clearcache();" data-myvalxlkey="app.menu.extras.clearcache"></div>
 <div class="btop"><span data-myxlkey="app.menu.extras.cachesize">Visual Browser Cache Size:</span> <input type="number" onchange="imbc.chgcache()" id="dbgcache" style="width: 5em;"></div>
 <div><span>Expert Flags:</span> <input type="number" onchange="imbc.chgflags()" id="expflags" style="width: 5em;"></div>
 </div></div>
-<div class="igxtype">
-<div ><input type="checkbox" id="dngpreview" checked onchange="imbc.chgdngpreview()"> <label for="dngpreview" data-myxlkey="process.addpreview"></label></div>
-<div ><input type="checkbox" id="incdcp" checked onchange="imbc.dirtysettings('incdcp')"> <label for="incdcp" data-myxlkey="process.includedcp"></label></div>
-<div ><input type="checkbox" id="oldstylewb" onchange="imbc.dirtysettings('owb')"> <label for="oldstylewb" data-myxlkey="process.oldstylewb"></label></div>
-</div>
 <div style="width:20em;" class="btop"><input type="button" onclick="imbc.dlmytexts();" value="Download texts as csv"></div>
 </div>
 <!-- end of the extras -->
@@ -27114,7 +27158,7 @@ function init2() {
 <div id="hammen" style="position:fixed; left: 0; width: fit-content; background-color:white; inset:unset; top:2em;color:black;border:1px solid gray;border-bottom-right-radius:10px;border-bottom-left-radius:10px;" popover="auto">
 <div class="hammenent" id="hamtime" onclick="imbc.closeham();imbc.settime()"><span style="font-family:Symbol3;">&#x1f570;</span> <span data-myxlkey='app.menu.settime'>Set ImB Time</span></div>
 <div class="hammenent" id="hamlog" onclick="imbc.closeham();imbc.showlog();"><span style="font-family:Symbol3;">&#x1f5ce;</span> <span data-myxlkey='app.menu.msglog'>Msg Log</span></div>
-<div class="hammenent" id="hamsett" onclick="imbc.closeham();imbc.shownormal();"><span style="font-family:Symbol3;">&#x1f6e0;</span> &#x1f1e9;&#x1f1ea; &#x1f1ec;&#x1f1e7; &#x1f1ef;&#x1f1f5; <span data-myxlkey='app.menu.settings'>Settings</span></div>
+<div class="hammenent" id="hamsett" onclick="imbc.closeham();imbc.shownormal();"><span style="font-family:Symbol3;">&#x1f6e0;</span> &#x1f1e8;&#x1f1ed;<span data-myxlkey='app.menu.settings'>Settings</span></div>
 <div class="hammenent" onclick="imbc.closeham();imbc.showextras();"><span style="font-family:Symbol3;">&#x1f578;</span> <span data-myxlkey='app.menu.extras'>Extras</span></div>
 <div class="hammenent" onclick="imbc.closeham();imbc.appinfo();" style="border-top: 1px solid black;"><span style="font-family:Symbol3;">&#x1f6c8;</span> <span data-myxlkey='app.menu.info'>Info</span></div>
 <div class="hammenent" id="powerelem" onclick="imbc.closeham();imbc.dopoweroff();" style="border-top: 1px solid black;"><span style="font-family:Symbol3;">&#x23fb;</span> <span data-myxlkey='app.menu.poweroff'>Power Off</span></div>
@@ -27154,9 +27198,10 @@ function init2() {
 <!-- end of the picture browser, generated content appended -->
 <!-- enter local files -->
 <div id="notimback" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
-<div style="font-size:133%;margin-top: 0.5em;"><span data-myxlkey="main.selectrawx"></span>
+<div style="font-size:133%;margin-top: 0.5em;"><span data-myxlkey="main.selectraw"></span>
 <input type="button" id="infile" name="infile" multiple onclick="imbc.fselect()" data-myvalxlkey="main.choosefile" value="XX">
 </div><br>
+<div style="margin-top: 0.5em;" data-myxlkey="main.appnotes"></div>
 <div style="margin-top: 0.5em;" data-myxlkey="main.generaladvice"></div>
 </div>
 <!-- end of the normal display -->

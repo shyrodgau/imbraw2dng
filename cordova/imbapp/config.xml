@@ -22,6 +22,9 @@
     <resource-file src="imbapp.html" target="app/src/main/assets/www/imbapp.html"/>
     <resource-file src="../../LICENSE.txt" target="app/src/main/assets/www/res/LICENSE.txt"/>
     <resource-file src="../../LICENSE.html" target="app/src/main/assets/www/res/LICENSE.html"/>
+    <resource-file src="../../README.html" target="app/src/main/assets/www/res/README.html"/>
+    <resource-file src="../../README_de.html" target="app/src/main/assets/www/res/README_de.html"/>
+    <resource-file src="../../README_ja.html" target="app/src/main/assets/www/res/README_ja.html"/>
     <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application">
       <application android:usesCleartextTraffic="true" android:largeHeap="true" android:requestLegacyExternalStorage="true" />
     </edit-config>
@@ -44,6 +47,9 @@
       <resource-file src="../../imbapp.htm" target="app/src/main/assets/www/res/imbapp.htm"/>
       <resource-file src="imbapp.html" target="app/src/main/assets/www/imbapp.html"/>
       <resource-file src="../../LICENSE.txt" target="app/src/main/assets/www/res/LICENSE.txt"/>
+      <resource-file src="../../README.html" target="app/src/main/assets/www/res/README.htm"/>
+      <resource-file src="../../README_de.html" target="app/src/main/assets/www/res/README_de.htm"/>
+      <resource-file src="../../README_ja.html" target="app/src/main/assets/www/res/README_ja.htm"/>
     </platform>
   <icon src="res/logo.png"/>
   <exclude-files pattern="imbapp-dbg.html"/>

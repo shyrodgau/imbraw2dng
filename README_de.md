@@ -1,4 +1,5 @@
 <!-- SPDX-License-Identifier: 0BSD -->
+<!-- pandoc -f markdown -t html -o README_de.html README_de.md -->
 # imbraw2dng - Konvertierung von RAW-Dateien von [I'mBack<sup>&reg;</sup>](https://imback.eu) nach DNG
 
 Das meiste ist freie Software ([0-Klausel-BSD-Lizenz](LICENSE.txt)) ohne kommerzielle Unterstützung.
