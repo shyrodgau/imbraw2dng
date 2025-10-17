@@ -20954,12 +20954,12 @@ const mytexts = { // actually const
 	},
 	jpeg: {
 		exifonly: {
-			en: 'Use EXIF only, do not download',
-			de: 'Nur EXIF verwenden, nicht herunterladen'
+			en: 'Use EXIF for DNG only, do not download',
+			de: 'Nur EXIF für DNG verwenden, nicht herunterladen'
 		},
 		noexif: {
-			en: 'Do not use EXIF',
-			de: 'EXIF nicht verwenden',
+			en: 'Do not use EXIF for DNG',
+			de: 'EXIF nicht für DNG verwenden',
 		},
 	},
 	del: {
@@ -21103,12 +21103,12 @@ const mytexts = { // actually const
 			en: 'JPEGs from ImB:',
 			de: 'JPEGs von ImB:',
 			dlandexif: {
-				en: 'Download and use EXIF',
-				de: 'Herunterladen und EXIF verwenden',
+				en: 'Download JPEG and use EXIF for DNG',
+				de: 'JPEGs Herunterladen und EXIF für DNG verwenden',
 			},
 			dlnoexif: {
-				en: 'Download, do not use EXIF',
-				de: 'Herunterladen, EXIF nicht verwenden',
+				en: 'Download JPEG, do not use EXIF for DNG',
+				de: 'JPEGs Herunterladen, EXIF nicht für DNG verwenden',
 			},
 		}
 	}
@@ -24012,11 +24012,13 @@ showmovie() {
 /* TopApp: show disconnection */
 showdisconnect(alsoerr) {
 	document.getElementById('hamtime').onclick = () => {  } ; // style['display'] = 'none';
-	document.getElementById('hamtime').style['color'] = '#444';
 	document.getElementById('hamtime').classList.remove('hammenent');
+	document.getElementById('hamtime').style['color'] = '#444';
+	document.getElementById('hamtime').style['cursor'] = 'not-allowed';
 	document.getElementById('powerelem').onclick = () => {  } ; // style['display'] = 'none';
-	document.getElementById('powerelem').style['color'] = '#444';
 	document.getElementById('powerelem').classList.remove('hammenent');
+	document.getElementById('powerelem').style['color'] = '#444';
+	document.getElementById('powerelem').style['cursor'] = 'not-allowed';
 	document.getElementById('imblangopt').disabled = true;
 	if (this.disconnected) return;
 	this.disconnected = true;
@@ -27036,7 +27038,7 @@ function init2() {
 <div><span data-myxlkey="app.onexit"></span> <select id="exitsel" onchange="imbc.chgexit('exitmode');"><option value="photo"><span data-myxlkey="app.exitphoto"></span><span style="font-family:Symbol3;"> &#x1f4f7;&#xfe0e;</span></option>
 <option value="movie"><span data-myxlkey="app.exitmovie"></span><span style="font-family:Symbol3;"> &#x1f4fd;&#xfe0e;</span> </option>
 <option value="browse"><span data-myxlkey="app.exitbrowse"></span> <span style="font-family:Symbol3;"> &#x1f3d4;&#xfe0e;</span></option></select></div>
-<div><span data-myxlkey="app.lang"></span> &#x1f1e7;&#x1f1f7;  <select id="langsel" onchange="imbc.setlang()"><option value="99" id="imblangopt" onclick="imbc.setlang()">ImB <span style="font-family:Symbol3;"> &#x1f4f7;&#xfe0e;</span></option><option value="de" onclick="imbc.setlang()">DE &#x1f1e9;&#x1f1ea;</option><option value="en" selected onclick="imbc.setlang()">EN &#x1f1ec;&#x1f1e7;</option>
+<div><span data-myxlkey="app.lang"></span> &#x1f1e7;&#x1f1f7;<span style="position:relative; transform: translateX(-110%) translateY(1%);display:inline-block;clip-path: polygon(0% 0%, 90% 10%, 20% 100%);">&#x1f1e8;&#x1f1ed;</span><select id="langsel" onchange="imbc.setlang()"><option value="99" id="imblangopt" onclick="imbc.setlang()">ImB <span style="font-family:Symbol3;"> &#x1f4f7;&#xfe0e;</span></option><option value="de" onclick="imbc.setlang()">DE &#x1f1e9;&#x1f1ea;</option><option value="en" selected onclick="imbc.setlang()">EN &#x1f1ec;&#x1f1e7;</option>
 <option value="ja" onclick="imbc.setlang()">JA &#x1f1ef;&#x1f1f5;</option><!--option value="fr" onclick="imbc.setlang()">FR</option><option value="ru" onclick="imbc.setlang()">RU</option--></select></div>
 <div><span data-myxlkey="app.dlbigprev"></span> <select id="jprev" onchange="imbc.setjprev()"><option value="0" onclick="imbc.setjprev()" selected>0</option><option value="1" onclick="imbc.setjprev()">1/16</option><option value="2" onclick="imbc.setjprev()">1/4</option>
 </select></div>
@@ -27156,7 +27158,7 @@ function init2() {
 <div id="hammen" style="position:fixed; left: 0; width: fit-content; background-color:white; inset:unset; top:2em;color:black;border:1px solid gray;border-bottom-right-radius:10px;border-bottom-left-radius:10px;" popover="auto">
 <div class="hammenent" id="hamtime" onclick="imbc.closeham();imbc.settime()"><span style="font-family:Symbol3;">&#x1f570;</span> <span data-myxlkey='app.menu.settime'>Set ImB Time</span></div>
 <div class="hammenent" id="hamlog" onclick="imbc.closeham();imbc.showlog();"><span style="font-family:Symbol3;">&#x1f5ce;</span> <span data-myxlkey='app.menu.msglog'>Msg Log</span></div>
-<div class="hammenent" id="hamsett" onclick="imbc.closeham();imbc.shownormal();"><span style="font-family:Symbol3;">&#x1f6e0;</span> &#x1f1e8;&#x1f1ed;<span data-myxlkey='app.menu.settings'>Settings</span></div>
+<div class="hammenent" id="hamsett" onclick="imbc.closeham();imbc.shownormal();"><span style="font-family:Symbol3;">&#x1f6e0;</span> &#x1f1e7;&#x1f1f7;<span style="position:relative; transform: translateX(-110%) translateY(1%);display:inline-block;clip-path: polygon(0% 0%, 90% 10%, 20% 100%);">&#x1f1e8;&#x1f1ed;</span><span data-myxlkey='app.menu.settings'>Settings</span></div>
 <div class="hammenent" onclick="imbc.closeham();imbc.showextras();"><span style="font-family:Symbol3;">&#x1f578;</span> <span data-myxlkey='app.menu.extras'>Extras</span></div>
 <div class="hammenent" onclick="imbc.closeham();imbc.appinfo();" style="border-top: 1px solid black;"><span style="font-family:Symbol3;">&#x1f6c8;</span> <span data-myxlkey='app.menu.info'>Info</span></div>
 <div class="hammenent" id="powerelem" onclick="imbc.closeham();imbc.dopoweroff();" style="border-top: 1px solid black;"><span style="font-family:Symbol3;">&#x23fb;</span> <span data-myxlkey='app.menu.poweroff'>Power Off</span></div>
