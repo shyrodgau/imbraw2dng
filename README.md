@@ -23,7 +23,7 @@ also in different languages as `imbraw2dng_XX.html` (see [Internationalization](
 
 - Calibrated [Camera profiles for download](cameraprofiles.md) for ImB
 
-- [**&#x261e;**`imbdng2raw.html` (deprecated)](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html), [**&#x261e;**`imbdng2raw.js` (stays alive)](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js) backward conversion from DNG to RAW, only for original DNGs converted using these tools
+- [**&#x261e;**`imbdng2raw.html`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html), [**&#x261e;**`imbdng2raw.js`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js) backward conversion from DNG to RAW, only for original DNGs converted using these tools
 
 
 The ImB RAWs are not really "B&W RAW" but actually the RAW sensor data that also contains the colour filtering (unfortunately only 8 bit deep for 35mm and MF, but 12 bit for Film). 
@@ -79,7 +79,7 @@ Use a new browser window or tab, navigate to [http://192.168.1.254/IMBACK/](http
 Click on `Choose file` and select the [`imbapp.htm` you just downloaded](https://raw.githubusercontent.com/shyrodgau/imbraw2dng/master/imbapp.htm). Click `upload file` (wordings need to be checked) - ready!
 
 
-## Usage
+## <a name="usage"> </a>Usage
 
 You can drag and drop all directories or files from the I'm back (i.e. from the micro SD inserted into your PC or the USB mass storage) into the blue field. It will then copy all non-RAW 
 files exactly and convert the RAW files to DNG, replacing the `.raw`/`.RAW` file extension with `.dng`. When you use the `Choose Files` button, you can select RAW files directly. 
@@ -181,7 +181,7 @@ If you want back the original raw for an original converted DNG in the app, sele
 
 Or use the normal imbapp page and check the corresponding checkbox.
 
-Or use [imbdng2raw.html, might go away](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html) or [imbdng2raw.js](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js)
+Or use [imbdng2raw.html](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html) or [imbdng2raw.js](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js)
 
 ### iPhone
 

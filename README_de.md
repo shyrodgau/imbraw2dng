@@ -24,7 +24,7 @@ auch in verschiedenen Sprachen als `imbraw2dng_XX.html` (siehe [Internationalisi
 
 - Kalibrierte [Kameraprofile zum Herunterladen](cameraprofiles.md) für ImB
 
-- [**&#x261e;**`imbdng2raw.html` (abgekündigt)](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html), [**&#x261e;**`imbdng2raw.js` (bleibt)](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js)
+- [**&#x261e;**`imbdng2raw.html`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html), [**&#x261e;**`imbdng2raw.js`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js)
 von DNG nach RAW zurück konvertieren, nur für originale hiermit nach DNG konvertierte Dateien
  
 Es sind keine "Schwarz-Weiß RAW"-Dateien, sondern die echten Roh-Sensordaten mit der Farbfilterung darauf (leider aber nur 8 bit bei 35mm und MF, 12 bit bei Film). 
@@ -79,7 +79,7 @@ Neues Browserfenster (oder Registerkarte) verwenden, um auf  [http://192.168.1.2
 `Datei auswählen` klicken und die gerade [heruntergeladene `imbapp.htm`](https://raw.githubusercontent.com/shyrodgau/imbraw2dng/master/imbapp.htm) auswählen. Auf `upload file` (exakter Wortlaut muss geprüft werden) - fertig!
 
 
-## Benutzung
+## <a name="usage"> </a>Benutzung
 
 Man kann alle Verzeichnisse oder Dateien vom I'm back (also von der in den PC gesteckten micro-SD-Karte oder dem USB Massenspeicher) in das blaue Feld ziehen und ablegen. 
 Dann werden nicht-RAW Dateien eins-zu-eins kopiert und die RAW-Dateien nach DNG konvertiert, wobei die `.raw`/`.RAW` Dateiendung 
@@ -191,7 +191,7 @@ Um mit der App die ursprüngliche RAW Datei aus einer original konvertierten DNG
 
 Oder die normale imbapp Seite nehmen und das entsprechende Häkchen setzen.
 
-Oder [imbdng2raw.html, könnte irgendwann verschwinden](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html) oder [imbdng2raw.js](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js) nehmen.
+Oder [imbdng2raw.html](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html) oder [imbdng2raw.js](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js) nehmen.
 
 
 ### iPhone
