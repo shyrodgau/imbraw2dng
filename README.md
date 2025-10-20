@@ -11,7 +11,7 @@ oder [AUF DEUTSCH](https://shyrodgau.github.io/imbraw2dng/README_de)
 
 - [**&#x261e;**`imbapp.htm`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) - App-Like converter for use in browser from hard disk, internet, or directly from ImB   
 also in different languages as `imbapp_XX.htm` (see [Internationalization](#internationalization))   
-Can also do backward.
+Can also do backward dng to raw.
 
 - [**&#x261e;**`imbapp.apk`](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk) - Real Android app.  For Apple, see [here](#iphone).
 
@@ -107,13 +107,13 @@ I'm Back digital back [Developers Group on Facebook](https://www.facebook.com/gr
 A strong green or magenta tint all over the image should not happen any more! But if you have one and **can not** level it out using your software's 
 color matrix/color calibration or white-balancing, a sample image might be interesing to fix it.
 
-If a red highlighted spot is in the center of the image (ImB 35mm/MF), a manual retouche after the processing is required, or use the following darktable setting, 
+If a red highlighted spot is in the center of the image (ImB 35mm/MF), a manual retouche after the processing is required, or use the <a href="https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_redcircle.png">this darktable setting</a>, 
 placing and sizing a circle shape manually around the area.
 
 To avoid the red spot from the start, use a bigger aperture (smaller f-number) or combine the standard PDLC matte with a Fresnel screen from I'm Back 
 or a Canon EG-xxx screen.
 
-![darktable sample agains red circle](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_redcircle.png "darktable sample agains red circle")
+<!-- ![darktable sample agains red circle](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_redcircle.png "darktable sample agains red circle") -->
 
 
 ## Internationalization

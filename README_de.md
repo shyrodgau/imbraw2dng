@@ -12,7 +12,7 @@ or [IN ENGLISH](https://shyrodgau.github.io/imbraw2dng/)
 
 - [**&#x261e;**`imbapp.htm`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm)  - App-artiger Konverter für Browser von Festplatte, Internet oder direkt von ImB    
 auch in verschiedenen Sprachen als `imbapp_XX.htm` (siehe [Internationalisierung](#internationalisierung))   
-Kann auch umgekehrt.
+Kann auch rückwärts von dng nach raw.
 
 - [**&#x261e;**`imbapp.apk`](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk) - Echte Android App. Für Apple, [hier](#iphone) schauen.
 
@@ -113,14 +113,14 @@ I'm Back digital back [Developers Group on Facebook](https://www.facebook.com/gr
 Eine starke grüne oder magentafarbige Tönung der Bilder sollte nicht mehr vorkommen! Wenn aber eine da ist, die sich **nicht** durch 
 Farbkalibrierung/Farbmatrix/Weißabgleich entfernen lässt, könnte ein Beispielbild interessant sein.
 
-Wenn in der Bildmitte ein rot hervorstechender Punkt ist (ImB 35mm/MF), muss eine manuelle Retusche erfolgen, oder im darktable die folgende Einstellung 
+Wenn in der Bildmitte ein rot hervorstechender Punkt ist (ImB 35mm/MF), muss eine manuelle Retusche erfolgen, oder im darktable <a href="https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_redcircle.png">diese Einstellung</a> 
 verwenden und dann einen Kreis manuell darumherum platziern.
 
 Um den roten Punkt von vornherein zu vermeiden, eine größere Blende (kleine Blendenzahl) nehmen oder die normale PDLC Mattscheibe mit 
 einer Fresnel-Scheibe von I'm Back oder einer Canon EG-xxx Mattscheibe verbinden.
 
-![darktable Beispiel gegen roten Kreis](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_redcircle.png 
-"darktable Beispiel gegen roten Kreis")
+<!-- ![darktable Beispiel gegen roten Kreis](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_redcircle.png 
+"darktable Beispiel gegen roten Kreis") -->
 
 
 ## Internationalisierung
