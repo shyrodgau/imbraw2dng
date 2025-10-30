@@ -99,7 +99,7 @@ If you ever need to revert the original RAW from the DNG (e.g. to do the convers
 
 Use your favourite software, e.g. darktable, lightroom, ufraw, rawtherapee etc.
 
-Do **not** expect the image to be okay out-of-the-box. I will probably not be able to provide all tags in the DNG to satisfy all possible programmes. 
+Do **not** expect the image to be okay out-of-the-box.
 Take your time to adjust the colours and then the rest. *If anyone is experienced around DNGs or knows someone who would be willing to help - please get in contact* 
 e.g. on [Discussion on pixls.us](https://discuss.pixls.us/t/converting-plain-raw-from-imback-to-dng/) for Darktable/RawSpeed or 
 I'm Back digital back [Developers Group on Facebook](https://www.facebook.com/groups/2812057398929350).
@@ -108,9 +108,7 @@ A strong green or magenta tint all over the image should not happen any more! Bu
 color matrix/color calibration or white-balancing, a sample image might be interesing to fix it.
 
 If a red highlighted spot is in the center of the image (ImB 35mm/MF), a manual retouche after the processing is required, or use the <a href="https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_redcircle.png">this darktable setting</a>, 
-placing and sizing a circle shape manually around the area.
-
-To avoid the red spot from the start, use a bigger aperture (smaller f-number) or combine the standard PDLC matte with a Fresnel screen from I'm Back 
+placing and sizing a circle shape manually around the area. To avoid the red spot from the start, use a bigger aperture (smaller f-number) or combine the standard PDLC matte with a Fresnel screen from I'm Back 
 or a Canon EG-xxx screen.
 
 <!-- ![darktable sample agains red circle](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_redcircle.png "darktable sample agains red circle") -->

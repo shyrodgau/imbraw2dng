@@ -104,19 +104,17 @@ Falls jemals das Original-RAW wieder benötigt wird (z.B. um es mit einer neuere
 
 Nimm deine Lieblingssoftware dafür, z.B. darktable, lightroom, ufraw, rawtherapee etc.
 
-Bitte **nicht** erwarten, dass die Bilder direkt okay sind. Ich werde es kaum  schaffen, alles ins DNG hineinzupacken, was alle möglichen 
-Programme dafür erwarten. Zeit nehmen, die Farben mal richtig kriegen und dann den Rest. *Wenn jemand Erfahrung mit dem DNG-Dateiformat hat oder 
+Bitte **nicht** erwarten, dass die Bilder direkt okay sind.
+Die Farben mal richtig kriegen und dann den Rest. *Wenn jemand Erfahrung mit dem DNG-Dateiformat hat oder 
 jemanden kennt, der helfen könnte - bitte Kontakt aufnehmen* z.B. über die 
 [Discussion on pixls.us](https://discuss.pixls.us/t/converting-plain-raw-from-imback-to-dng/) für Darktable/RawSpeed oder 
-I'm Back digital back [Developers Group on Facebook](https://www.facebook.com/groups/2812057398929350).
+I'm Back digital back [Developers Group on Facebook](https://www.facebook.com/groups/2812057398929350).    
 
 Eine starke grüne oder magentafarbige Tönung der Bilder sollte nicht mehr vorkommen! Wenn aber eine da ist, die sich **nicht** durch 
 Farbkalibrierung/Farbmatrix/Weißabgleich entfernen lässt, könnte ein Beispielbild interessant sein.
 
 Wenn in der Bildmitte ein rot hervorstechender Punkt ist (ImB 35mm/MF), muss eine manuelle Retusche erfolgen, oder im darktable <a href="https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_redcircle.png">diese Einstellung</a> 
-verwenden und dann einen Kreis manuell darumherum platziern.
-
-Um den roten Punkt von vornherein zu vermeiden, eine größere Blende (kleine Blendenzahl) nehmen oder die normale PDLC Mattscheibe mit 
+verwenden und dann einen Kreis manuell darumherum platziern. Um den roten Punkt von vornherein zu vermeiden, eine größere Blende (kleine Blendenzahl) nehmen oder die normale PDLC Mattscheibe mit 
 einer Fresnel-Scheibe von I'm Back oder einer Canon EG-xxx Mattscheibe verbinden.
 
 <!-- ![darktable Beispiel gegen roten Kreis](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_redcircle.png 
