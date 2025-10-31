@@ -4,10 +4,12 @@
 
 Most of this is free software ([0-clause BSD-License](LICENSE.txt)) and not commercially supported.
 
-oder [AUF DEUTSCH](https://shyrodgau.github.io/imbraw2dng/README_de)  
- [日本語](https://shyrodgau.github.io/imbraw2dng/README_ja)
+oder [AUF DEUTSCH&#x1f1e9;&#x1f1ea;](https://shyrodgau.github.io/imbraw2dng/README_de)  
+ [日本語&#x1f1ef;&#x1f1f5;](https://shyrodgau.github.io/imbraw2dng/README_ja)
  
 ## What to find here
+
+[Get started](#getstarted) - [Usage](#usage) - [Processing the DNG](#processingdng) - [Metadata/Exif](#metaexif) - [Credits](#credits) - and more
 
 - [**&#x261e;**`imbapp.htm`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) - App-Like converter for use in browser from hard disk, internet, or directly from ImB   
 also in different languages as `imbapp_XX.htm` (see [Internationalization](#internationalization))   
@@ -34,7 +36,7 @@ If it is from an MF or Film ImB then the Color Filter Array is different.
 Problems and ideas can also be discussed on the "[Issues](https://github.com/shyrodgau/imbraw2dng/issues)" or "[Discussions](https://github.com/shyrodgau/imbraw2dng/discussions)" tabs
 of the [github repos](https://github.com/shyrodgau/imbraw2dng) or in the [I'm Back Users Group on Facebook](https://www.facebook.com/groups/1212628099691211).
 
-## Get Started
+## <a name="getstarted">  </a>Get Started
 
 If you use **android**, try the [Android app](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk) with your android device in the ImB Wifi.
 
@@ -95,7 +97,7 @@ OriginalRawFilename to the name of the RAW inputfile. That way you can name the 
 If you ever need to revert the original RAW from the DNG (e.g. to do the conversion again with a never version), <a href="#revert-to-raw"> see here </a>.
 
 
-## Processing the DNG
+## <a name="processingdng">  </a>Processing the DNG
 
 Use your favourite software, e.g. darktable, lightroom, ufraw, rawtherapee etc.
 
@@ -158,7 +160,7 @@ About configuration see [imbraw2dng.json](imbraw2dng.json).
 
 ## Tipps, tricks, internals and details
 
-### Metadata, EXIF
+### <a name="metaexif">  </a>Metadata, EXIF
 
 The EXIF data in the JPEG files from ImB is of limited use, because it reflects the perspective of the ImB optics and sensor and not of the actual camera. But if you would like to add it to your DNG files, this is possible. Process the JPEG first and then the corresponding RAW.
 Corresponding is defined as: time difference < 5 sec and counter (last part of filename) difference &lt;= 1. It is not neccessary to be directly consecutive, first all JPEGs and then the RAWs should do it.
@@ -243,7 +245,7 @@ You are welcome to browse the code, help translation or optimizing!
 
 ---------------------------
 
-## Credits
+## <a name="credits">  </a>Credits
 
 Special Thanks to:
 

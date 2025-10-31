@@ -23104,7 +23104,7 @@ appinfo(doit) {
 	document.getElementById('okmsg').innerHTML += '<br>';
 	document.getElementById('okmsg').innerHTML += this.rmesc(this.xl('main.title'));
 	document.getElementById('okmsg').innerHTML += '<br>';
-	document.getElementById('okmsg').innerHTML += `<a href="#" onclick="window.open('https://shyrodgau.github.io/imbraw2dng/HISTORY.txt', '_system'); return false;">` + globals.version + '</a>';
+	document.getElementById('okmsg').innerHTML += `<a href="#" onclick="window.open('HISTORY.txt', '_new'); return false;">` + globals.version + '</a>';
 	if (this.connvers) {
 		document.getElementById('okmsg').innerHTML += ('<br>ImB: ' + this.connvers);
 		const s = document.createElement('span');
@@ -23115,14 +23115,10 @@ appinfo(doit) {
 			document.getElementById('okmsg').innerHTML += (' ' + Math.round(this.imbfree/100000000)/10 + ' GB');
 		else /*if (this.imbfree > 10000000)*/
 			document.getElementById('okmsg').innerHTML += (' ' + Math.round(this.imbfree/100000)/10 + ' MB');
-		//else
-		//	document.getElementById('okmsg').innerHTML += ('<br>Free: ' + Math.round(this.imbfree/100)/10 + ' KB');
-		//document.getElementById('okmsg').innerHTML += ('<br>Free: ' + this.imbfree + ' B');
 	}
-	document.getElementById('okmsg').innerHTML += `<br><a href="#" onclick="window.open(imbc.xl('app.helpurl')+'','_new');return false;" data-myxlkey="main.help"></a> - <span data-myxlkey="main.newmsg"/>`;
+	document.getElementById('okmsg').innerHTML += `<br><a href="#" onclick="window.open(imbc.xl('app.helpurl')+'#usage','_new');return false;" data-myxlkey="main.help"></a> - <span data-myxlkey="main.newmsg"/>`;
 	document.getElementById('okmsg').innerHTML += `<br><span style="font-weight:normal;font-size:75%;">Contains parts of <a href="#" onclick="window.open('https://fonts.google.com/noto/specimen/Noto+Sans+Symbols+2', '_system'); return false;">NotoSansSymbols2-Regular</a> font
 	licensed under <a href="#" onclick=" window.open('http://scripts.sil.org/OFL', '_system'); return false;">Open Font License</a>.</span>`;
-	// https://github.com/apache/cordova-plugin-inappbrowser/ https://github.com/apache/cordova-plugin-file/ https://github.com/frontyard/cordova-plugin-exoplayer/
 	document.getElementById('okmsg').innerHTML += `<br><span style="font-weight:normal;font-size:75%;">Powered by <a href="#" onclick="window.open('https://cordova.apache.org','_system'); return false;">Apache Cordova</a> Plugins:
 	<a href="#" onclick="window.open('https://github.com/apache/cordova-plugin-inappbrowser/','_system'); return false;">InAppBrowser</a>,
 	<a href="#" onclick="window.open('https://github.com/apache/cordova-plugin-file/','_system'); return false;">File</a>,

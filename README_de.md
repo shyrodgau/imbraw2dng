@@ -4,11 +4,13 @@
 
 Das meiste ist freie Software ([0-Klausel-BSD-Lizenz](LICENSE.txt)) ohne kommerzielle Unterstützung.
 
-or [IN ENGLISH](https://shyrodgau.github.io/imbraw2dng/)  
- [日本語](https://shyrodgau.github.io/imbraw2dng/README_ja)
+or [IN ENGLISH&#x1f1ec;&#x1f1e7;](https://shyrodgau.github.io/imbraw2dng/README)  
+ [日本語&#x1f1ef;&#x1f1f5;](https://shyrodgau.github.io/imbraw2dng/README_ja)
 
  
 ## Hier gibts:
+
+[Los gehts](#getstarted) - [Benutzung](#usage) - [Verarbeitung des DNG](#processingdng) - [Metadata/Exif](#metaexif) - [Credits](#credits) - u.v.a.m
 
 - [**&#x261e;**`imbapp.htm`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm)  - App-artiger Konverter für Browser von Festplatte, Internet oder direkt von ImB    
 auch in verschiedenen Sprachen als `imbapp_XX.htm` (siehe [Internationalisierung](#internationalisierung))   
@@ -35,7 +37,7 @@ Bei Dateien von MF und Film ist die Farbfilter-Matrix (Color Filter Array) ander
 Probleme und Ideen können auch unter "[Issues](https://github.com/shyrodgau/imbraw2dng/issues)" oder "[Discussions](https://github.com/shyrodgau/imbraw2dng/discussions)"
 des [github Repositorys](https://github.com/shyrodgau/imbraw2dng) oder in der [I'm Back Users Gruppe auf Facebook](https://www.facebook.com/groups/1212628099691211) diskutiert werden.
 
-## Los gehts
+## <a name="getstarted">  </a>Los gehts
 
 Wenn jemand **Android** benutzt, probiert die [Android app](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk), mit dem Androiden im ImB WLAN.
 
@@ -100,7 +102,7 @@ Falls jemals das Original-RAW wieder benötigt wird (z.B. um es mit einer neuere
 
 
 
-## Verarbeitung des DNG
+## <a name="processingdng">  </a>Verarbeitung des DNG
 
 Nimm deine Lieblingssoftware dafür, z.B. darktable, lightroom, ufraw, rawtherapee etc.
 
@@ -168,7 +170,7 @@ Bezüglich Konfigurierbarkeit siehe [imbraw2dng.json](imbraw2dng.json).
 
 ## Tipps, Tricks, Interna und Details
 
-### Metadaten, EXIF
+### <a name="metaexif">  </a>Metadaten, EXIF
 
 Die EXIF Daten in den JPEG Bildern von ImB sind nur eingeschränkt nützlich, da sie die Perspektive vom ImB Sensor abbilden. Aber wenn sie in den DNG Dateien drin gewünscht werden, ist das möglich. Zuerst das JPEG und dann das passende RAW verarbeiten.
 "Passend" ist definiert als: Zeitunterschied < 5 sec. und Unterschied des Zähler (letzter Teil des Dateinamens) &lt;= eins. Muss nicht direkt aufeinanderfolgend sein, erst alle JPEGs und dann die RAWs sollte tun.
@@ -253,7 +255,7 @@ Anschauen des Codes ist gern erwünscht.
 
 ------------------------------------
 
-## Credits
+## <a name="metaexif">  </a>Credits
 
 Besonderer Dank an:
 

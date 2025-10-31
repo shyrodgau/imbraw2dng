@@ -4,8 +4,8 @@
 
 そのほとんどはフリーソフトウェア ([0 条項 BSD ライセンス](LICENSE.txt)) であり、商用サポートは提供されていません。
 
-または [deutsch](https://shyrodgau.github.io/imbraw2dng/README_de)   
-  [english](https://shyrodgau.github.io/imbraw2dng/README)
+または [deutsch&#x1f1e9;&#x1f1ea;](https://shyrodgau.github.io/imbraw2dng/README_de)   
+  [english&#x1f1ec;&#x1f1e7;](https://shyrodgau.github.io/imbraw2dng/README)
 
 ## ここで見つけるもの
 
