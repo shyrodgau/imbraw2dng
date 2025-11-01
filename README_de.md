@@ -204,17 +204,25 @@ Die Android App besteht aus dem HTML/Javascript Code der Seiten, mit Apache Cord
 
 Bezüglich  `IMBAPP.HTM` und der Original App:    
 Vorteile gegenüber der [APP von ImB](https://imback.eu/home/app/):
+
 - auf jedem Browser benutzbar
+
 - kann raw anzeigen
+
 - konvertiert beim Herunterladen raw nach DNG
+
 - kann auch offline für lokale Dateien benutzt werden
 
 Nachteile gegenüber APP vom ImB:
+
 - Keine Funktion für Live-Bild bei Video eingebaut
+
 - Lokales Album auf Smartphone/PC/Mac kann nicht betrachtet werden
+
 - kein knuffiger Kerl guckt dich an
 
 Unterschiede gegenüber APP von ImB:
+
 - Zeit wird nicht bei jeder Verbindung einstellt, muss manuell aus Menü gewählt werden (oder in Einstellungen auf automatisch ändern)   
 (vorteilhaft bei ImB Film, weil Zeit setzen immer 0 Uhr setzt)
 
