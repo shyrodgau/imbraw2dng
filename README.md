@@ -23,7 +23,7 @@ also in different languages as `imbraw2dng_XX.js`  (see [Internationalization](#
 <!-- - [**&#x261e;**`imbraw2dng.html`](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) - Historic version   
 also in different languages as `imbraw2dng_XX.html` (see [Internationalization](#internationalization))-->
 
-- Calibrated [Camera profiles for download](cameraprofiles.md) for ImB
+- Calibrated [Camera profiles for download](https://shyrodgau.github.io/imbraw2dng/cameraprofiles) for ImB
 
 - [**&#x261e;**`imbdng2raw.html`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html), [**&#x261e;**`imbdng2raw.js`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js) backward conversion from DNG to RAW, only for original DNGs converted using these tools
 
@@ -48,7 +48,7 @@ Some browsers (even on mobiles) will allow you to install it as PortableWebApp f
 In this case, you need to transfer the files from ImB or access the MicroSD via USB, adapter, original ImB App or whatsoever.
 
 - <a name="browsing-on-the-imback">  </a>when you copy that file directly onto the MicroSD into the `IMBACK` folder ([How do I do that?](#how-do-i-copy-html-files-to-the-microsd)), you can directly combine download and conversion to DNG: (videos and JPG can also be downloaded)    
-`http://192.168.1.254/IMBACK/IMBAPP.HTM` (newer, also allows to set the clock time, record video or take pictures!)   
+`http://192.168.1.254/IMBACK/IMBAPP.HTM` (also allows to set the clock time, record video or take pictures!)   
 The device where you open the page needs to be in the ImB Wifi.
 
 If you like to use the **command line**, you can use the [imbraw2dng.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) with node.js. It can also access the ImB if you are in the device Wifi. 

@@ -18744,7 +18744,7 @@ dlmytexts() {
 /* ImBCBase: debug: print translations for csv */
 prxl(key, el) {
 	if (undefined === key) {
-		let res = '"version' + ':' + ImBCBase.progname + '";"' + globals.version + `";\u000d\u000a`;
+		let res = '"version' + ':' + ImBCBase.progname + '","' + globals.version + `",,\u000a`;
 		for (const el of Object.keys(mytexts))
 			res += this.prxl(el, mytexts[el]);
 		return res;
@@ -18753,29 +18753,29 @@ prxl(key, el) {
 	if (el['de'] && el['en']) {
 		try{
 		if (typeof el['de'] === 'string') {
-			let out = '"' + key + ':' + ImBCBase.progname + '";';
+			let out = '"' + key + ':' + ImBCBase.progname + '",';
 			for (const l of globals.alllangs) {
 				if (undefined !== el[l]) {
 					let a = el[l];
 					let b = '"';
 					//if (-1 !== a.indexOf('"')) b = '\'';
-					out += b + a.replaceAll('"','""')  + b + ';';
-				} else out += ';'
+					out += b + a.replaceAll('"','""')  + b + ',';
+				} else out += ','
 			}
 			res += (out + `\u000d\u000a`);
 		}
 		else if (typeof el['de'][0] === 'string') {
 			for (let i=0; i< el['de'].length; i++) {
-				let out = '"' + key + '[' + ((i < 10) ? '0' : '') + i + ']:' + ImBCBase.progname + '";';
+				let out = '"' + key + '[' + ((i < 10) ? '0' : '') + i + ']:' + ImBCBase.progname + '",';
 				for (const l of globals.alllangs) {
 					if (undefined !== el[l] && undefined !== el[l][i]) {
 						let a = el[l][i];
 						let b = '"';
 						//if (-1 !== a.indexOf('"')) b = '\'';
-						out += b + a.replaceAll('"','""')  + b + ';';
-					} else out += ';';
+						out += b + a.replaceAll('"','""')  + b + ',';
+					} else out += ',';
 				}
-				res += (out + `\u000d\u000a`);
+				res += (out + `\u000a`);
 			}
 		}
 		} catch (e) {

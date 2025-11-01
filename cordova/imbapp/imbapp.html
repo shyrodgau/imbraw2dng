@@ -355,7 +355,7 @@ div#xmsg {
 #magtext { font-size: 100% !important; }
 }
 @media (min-width: 800px) {
-div#notimback {
+.subpage {
 	padding-left: 3vw;
 }
 }
@@ -372,6 +372,11 @@ body { margin: 0; }
 #imbvisbrows {
 	padding: 0.4em;
 	margin: 0.4em;
+}
+.subpage {
+	padding-top:3em; 
+	padding-bottom:1em;
+	flex-direction:column;
 }
 .blink {
   animation: blinker 1s linear infinite;
@@ -19296,7 +19301,7 @@ dlmytexts() {
 /* ImBCBase: debug: print translations for csv */
 prxl(key, el) {
 	if (undefined === key) {
-		let res = '"version' + ':' + ImBCBase.progname + '";"' + globals.version + `";\u000d\u000a`;
+		let res = '"version' + ':' + ImBCBase.progname + '","' + globals.version + `",,\u000a`;
 		for (const el of Object.keys(mytexts))
 			res += this.prxl(el, mytexts[el]);
 		return res;
@@ -19305,29 +19310,29 @@ prxl(key, el) {
 	if (el['de'] && el['en']) {
 		try{
 		if (typeof el['de'] === 'string') {
-			let out = '"' + key + ':' + ImBCBase.progname + '";';
+			let out = '"' + key + ':' + ImBCBase.progname + '",';
 			for (const l of globals.alllangs) {
 				if (undefined !== el[l]) {
 					let a = el[l];
 					let b = '"';
 					//if (-1 !== a.indexOf('"')) b = '\'';
-					out += b + a.replaceAll('"','""')  + b + ';';
-				} else out += ';'
+					out += b + a.replaceAll('"','""')  + b + ',';
+				} else out += ','
 			}
 			res += (out + `\u000d\u000a`);
 		}
 		else if (typeof el['de'][0] === 'string') {
 			for (let i=0; i< el['de'].length; i++) {
-				let out = '"' + key + '[' + ((i < 10) ? '0' : '') + i + ']:' + ImBCBase.progname + '";';
+				let out = '"' + key + '[' + ((i < 10) ? '0' : '') + i + ']:' + ImBCBase.progname + '",';
 				for (const l of globals.alllangs) {
 					if (undefined !== el[l] && undefined !== el[l][i]) {
 						let a = el[l][i];
 						let b = '"';
 						//if (-1 !== a.indexOf('"')) b = '\'';
-						out += b + a.replaceAll('"','""')  + b + ';';
-					} else out += ';';
+						out += b + a.replaceAll('"','""')  + b + ',';
+					} else out += ',';
 				}
-				res += (out + `\u000d\u000a`);
+				res += (out + `\u000a`);
 			}
 		}
 		} catch (e) {
@@ -27016,7 +27021,7 @@ function init2() {
 </div>
 <!-- splash end -->
 <!-- the normal display/settings -->
-<div id="normal" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
+<div id="normal" class="subpage" style="display:none;">
 <div style="position:fixed; top:0; left:0; width:100%;background-color:black;z-index:997;color:white;"><div>&nbsp;<span id="settx"><input id="settback" type="button" value="&#x2b60;" class="whbtn lbtn" style="padding:0 !important; border:0 !important;" onclick="imbc.showmain()"></span>
 <span style="display:inline-block;margin-left: -1.5em;"><span class="batt1 battlo battery" style="font-weight:bold; display: inline-block; width: 1em; height:1.3em; vertical-align:bottom;position:relative; top: 0em;"><span>&#xa0;</span></span>
 <span class="batt2 battlo battery" style="position: relative; left: -1.1em; font-weight:bold; display: inline-block; color:green;width: 0.7em;background-color: black;top: 0.2em;"><span>&#xa0;</span></span></span>
@@ -27070,7 +27075,7 @@ function init2() {
 </div>
 <!-- end of the normal display/settings -->
 <!-- this is the messagelog, generated content appended -->
-<div id="msglog" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;width:100vw; height:100vh; overflow:auto;">
+<div id="msglog" class="subpage" style="display:none;width:100vw; height:100vh; overflow:auto;">
 <div style="position:fixed; top:0; left:0; width:100%;background-color:black;z-index:997;color:white;"><div>&nbsp;<span id="msglogx"><input type="button" value="&#x2b60;" class="whbtn lbtn" style="padding:0 !important; border:0 !important;" onclick="imbc.showmain()"></span>
 <span style="display:inline-block;margin-left: -1.5em;"><span class="batt1 battlo battery" style="font-weight:bold; display: inline-block; width: 1em; height:1.3em; vertical-align:bottom;position:relative; top: 0em;"><span>&#xa0;</span></span>
 <span class="batt2 battlo battery" style="position: relative; left: -1.1em; font-weight:bold; display: inline-block; color:green;width: 0.7em;background-color: black;top: 0.2em;"><span>&#xa0;</span></span></span>
@@ -27123,7 +27128,7 @@ function init2() {
 </div>
 <!-- end of the magnification -->
 <!-- this is the Extras -->
-<div id="extraid" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
+<div id="extraid" class="subpage" style="display:none;">
 <div style="position:fixed; top:0; left:0; width:100%;background-color:black;z-index:997;color:white;"><div>&nbsp;<span id="extrasx"><input type="button" value="&#x2b60;" class="whbtn lbtn" style="padding:0 !important; border:0 !important;" onclick="imbc.showmain()"></span>
 <span style="display:inline-block;margin-left: -1.5em;"><span class="batt1 battlo battery" style="font-weight:bold; display: inline-block; width: 1em; height:1.3em; vertical-align:bottom;position:relative; top: 0em;"><span>&#xa0;</span></span>
 <span class="batt2 battlo battery" style="position: relative; left: -1.1em; font-weight:bold; display: inline-block; color:green;width: 0.7em;background-color: black;top: 0.2em;"><span>&#xa0;</span></span></span>
@@ -27152,13 +27157,13 @@ function init2() {
 <div id="pages" style="display:none;"><!-- container for navigationable pages -->
 <!-- hamburger menu -->
 <div id="hammen" style="position:fixed; left: 0; width: fit-content; background-color:white; inset:unset; top:2em;color:black;border:1px solid gray;border-bottom-right-radius:10px;border-bottom-left-radius:10px;" popover="auto">
-<div class="hammenent" id="hamtime" onclick="imbc.closeham();imbc.settime()"><span style="font-family:Symbol3;">&#x1f570;</span> <span data-myxlkey='app.menu.settime'>Set ImB Time</span></div>
 <div class="hammenent" id="hamlog" onclick="imbc.closeham();imbc.showlog();"><span style="font-family:Symbol3;">&#x1f5ce;</span> <span data-myxlkey='app.menu.msglog'>Msg Log</span></div>
 <div class="hammenent" id="hamsett" onclick="imbc.closeham();imbc.shownormal();"><span style="font-family:Symbol3;">&#x1f6e0;</span> &#x1f1e7;&#x1f1f7;<span style="position:relative; transform: translateX(-110%) translateY(1%);display:inline-block;clip-path: polygon(0% 0%, 90% 10%, 20% 100%);">&#x1f1e8;&#x1f1ed;</span><span data-myxlkey='app.menu.settings'>Settings</span></div>
 <div class="hammenent" onclick="imbc.closeham();imbc.showextras();"><span style="font-family:Symbol3;">&#x1f578;</span> <span data-myxlkey='app.menu.extras'>Extras</span></div>
 <div class="hammenent" onclick="imbc.closeham();imbc.appinfo();" style="border-top: 1px solid black;"><span style="font-family:Symbol3;">&#x1f6c8;</span> <span data-myxlkey='app.menu.info'>Info</span></div>
 <div class="hammenent" id="powerelem" onclick="imbc.closeham();imbc.dopoweroff();" style="border-top: 1px solid black;"><span style="font-family:Symbol3;">&#x23fb;</span> <span data-myxlkey='app.menu.poweroff'>Power Off</span></div>
-<div class="hammenent" id="quitelem" onclick="imbc.closeham();imbc.doquit();"><span style="font-family:Symbol3;font-size:150%;">&#x2b60;</span> <span data-myxlkey='app.menu.quit'>Quit</span></div>
+<div class="hammenent" id="hamtime" onclick="imbc.closeham();imbc.settime()"><span style="font-family:Symbol3;">&#x1f570;</span> <span data-myxlkey='app.menu.settime'>Set ImB Time</span></div>
+<div class="hammenent" id="quitelem" onclick="imbc.closeham();imbc.doquit();" style="border-top: 1px solid black;"><span style="font-family:Symbol3;font-size:150%;">&#x2b60;</span> <span data-myxlkey='app.menu.quit'>Quit</span></div>
 </div>
 <!-- end of hamburger menu -->
 <!-- navigation header -->
@@ -27193,7 +27198,7 @@ function init2() {
 </div>
 <!-- end of the picture browser, generated content appended -->
 <!-- enter local files -->
-<div id="notimback" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
+<div id="notimback" class="subpage" style="display:none;">
 <div style="font-size:133%;margin-top: 0.5em;"><span data-myxlkey="main.selectraw"></span>
 <input type="button" id="infile" name="infile" multiple onclick="imbc.fselect()" data-myvalxlkey="main.choosefile" value="XX">
 </div><br>
@@ -27202,7 +27207,7 @@ function init2() {
 </div>
 <!-- end of the normal display -->
 <!-- this is the take photos page -->
-<div id="takephotos" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
+<div id="takephotos" class="subpage" style="display:none;">
 <div style="display:flex;flex-flow:wrap;">
 <div style="margin-right: 1em;">
 <input type="button" onclick="imbc.takephoto()" style="font-weight:bold;font-size:200%;background-color:red;width:97px;height:97px;margin:10px;font-family:Symbol3;border-radius:50%;margin-right: 30px;" value="&#x1f4f7; !"><br>
@@ -27227,7 +27232,7 @@ function init2() {
 </div>
 <!-- end of the take photos -->
 <!-- this is the take movies page -->
-<div id="takemovies" style="padding-top:3em; padding-bottom:1em;display:none;flex-direction:column;">
+<div id="takemovies" class="subpage" style="display:none;">
 <div style="display:flex;flex-flow:wrap;">
 <input type="button" onclick="imbc.takemovie()" style="font-weight:bold;font-size:200%;background-color:red;width:97px;height:97px;margin:10px;font-family:Symbol3;border-radius:50%;margin-right: 30px;" value="&#x1f3ac; !">&nbsp;
 	<div id="videosett">

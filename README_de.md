@@ -24,7 +24,7 @@ auch in verschiedenen Sprachen als `imbraw2dng_XX.js` (siehe [Internationalisier
 <!--- [**&#x261e;**`imbraw2dng.html`](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html) - Historische Version    
 auch in verschiedenen Sprachen als `imbraw2dng_XX.html` (siehe [Internationalisierung](#internationalisierung))-->
 
-- Kalibrierte [Kameraprofile zum Herunterladen](cameraprofiles.md) für ImB
+- Kalibrierte [Kameraprofile zum Herunterladen](https://shyrodgau.github.io/imbraw2dng/cameraprofiles) für ImB
 
 - [**&#x261e;**`imbdng2raw.html`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html), [**&#x261e;**`imbdng2raw.js`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js)
 von DNG nach RAW zurück konvertieren, nur für originale hiermit nach DNG konvertierte Dateien
@@ -49,11 +49,11 @@ Manche Browser (sogar auf Handys) bieten an, es als PortableWebApp zu installier
 In diesem Fall müssen die Dateien von ImB per USB, Micro SD Adapter, original App oder sonstwie geholt werden.
 
 - <a name="browsing-on-the-imback">  </a>wenn man diese Datei auf die MicroSD vom ImB schiebt, ([wie macht man das?](#wie-kopiere-ich-html-dateien-auf-die-microsd)), kann Holen und Konvertieren nach DNG zusammengefasst werden (JPG und Filme können auch geholt werden).   
-`http://192.168.1.254/IMBACK/IMBAPP.HTM` (neuer, kann auch die Zeit einstellen und Bilder und Video aufnehmen!)   
+`http://192.168.1.254/IMBACK/IMBAPP.HTM` (kann auch die Zeit einstellen und Bilder und Video aufnehmen!)   
 Das Gerät, auf dem die Seite geöffnet wird, muss im ImB WLAN sein.
 
 
-Wenn man gerne **Kommandozeile** verwendet, kann [imbraw2dng.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.js) mit node.js verwendet werden. Das kann auch direkt auf die Dateien von ImB zugreifen, wenn
+Wenn man gerne **Kommandozeile** verwendet, kann [imbraw2dng_de.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.js) mit node.js verwendet werden. Das kann auch direkt auf die Dateien von ImB zugreifen, wenn
 man im WLAN ist. [Kommandozeilen-Doku](#kommandozeile-mit-nodejs)
 
 ## Wie kopiere ich HTML Dateien auf die MicroSD?
