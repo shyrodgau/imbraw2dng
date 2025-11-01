@@ -849,7 +849,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.5.1_18034d7", // actually const // VERSION EYECATCHER
+version: "V6.5.2_f06d391", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -21006,12 +21006,12 @@ const mytexts = { // actually const
 	},
 	jpeg: {
 		exifonly: {
-			en: 'Use EXIF only, do not download',
-			de: 'Nur EXIF verwenden, nicht herunterladen'
+			en: 'Use EXIF for DNG only, do not download',
+			de: 'Nur EXIF für DNG verwenden, nicht herunterladen'
 		},
 		noexif: {
-			en: 'Do not use EXIF',
-			de: 'EXIF nicht verwenden',
+			en: 'Do not use EXIF for DNG',
+			de: 'EXIF nicht für DNG verwenden',
 		},
 	},
 	node: {

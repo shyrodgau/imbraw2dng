@@ -20006,7 +20006,7 @@ writewrap(name, type, okmsg, arr1) {
 				this.zip.finish(() => {
 					let o = new Uint8Array(this.zipdata.length);
 					for (let p=0; p<this.zipdata.length; p++) o[p] = this.zipdata[p];
-					this.writefile('imbraw2dng_' + ('' + Date.now()).substring(3,10) + '_out.zip', 'application/zip', 'process.copyokcheckdl', o);
+					this.writefile('imbraw2dng_' + ('' + Date.now()).substring(3,11) + '_out.zip', 'application/zip', 'process.copyokcheckdl', o);
 					this.zipdata = [];
 					this.zip = new ZIPHelp((data, cb) => {
 						for (let l=0; l<data.length; l++) this.zipdata.push(data[l]);
