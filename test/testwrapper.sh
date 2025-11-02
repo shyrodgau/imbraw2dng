@@ -192,7 +192,7 @@ rm -f zz
 cat [a-z]*.csv|sort -u > 0.csv
 cut -d: -f1 0.csv | grep -v '^"langs$' | sort -u | while read w
 do
-	n=$( grep '^'$w':' [a-z]*.csv |cut -d';' -f 2-9999|sort -u|wc -l )
+	n=$( grep '^'$w':' [a-z]*.csv |cut -d',' -f 2-9999|sort -u|wc -l )
 	if [ $n -gt 1 ]
 	then
 		grep -Fh "$w"':' [a-z]*csv >> zz

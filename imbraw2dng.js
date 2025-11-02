@@ -18599,7 +18599,7 @@ prxl(key, el) {
 					out += b + a.replaceAll('"','""')  + b + ',';
 				} else out += ','
 			}
-			res += (out + `\u000d\u000a`);
+			res += (out + `\u000a`);
 		}
 		else if (typeof el['de'][0] === 'string') {
 			for (let i=0; i< el['de'].length; i++) {

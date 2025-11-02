@@ -12,7 +12,10 @@ self.addEventListener("install", (event) => {
       "imbapp.json",
       "imbappsvcw.js",
       "LICENSE.txt",
-      "HISTORY.txt"
+      "HISTORY.txt",
+      "README",
+      "README_ja",
+      "README_de"
     ]),
   );
 });
@@ -24,6 +27,9 @@ self.addEventListener("fetch", async (event) => {
   	  || event.request.url.indexOf('imbapp_de.htm') !== -1
   	  || event.request.url.indexOf('imbapp.json') !== -1
   	  || event.request.url.indexOf('LICENSE.txt') !== -1
+  	  || event.request.url.indexOf('README') !== -1
+  	  || event.request.url.indexOf('README_ja') !== -1
+  	  || event.request.url.indexOf('README_de') !== -1
   	  || event.request.url.indexOf('HISTORY.txt') !== -1
 	  || event.request.url.indexOf('imbappsvcw.js') !== -1) {
 	 event.respondWith(

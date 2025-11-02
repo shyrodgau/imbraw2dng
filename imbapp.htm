@@ -19320,7 +19320,7 @@ prxl(key, el) {
 					out += b + a.replaceAll('"','""')  + b + ',';
 				} else out += ','
 			}
-			res += (out + `\u000d\u000a`);
+			res += (out + `\u000a`);
 		}
 		else if (typeof el['de'][0] === 'string') {
 			for (let i=0; i< el['de'].length; i++) {
@@ -20652,7 +20652,7 @@ appinfo(doit) {
 	licensed under <a href="#" onclick=" window.open('http://scripts.sil.org/OFL', 'imbapplic0'); return false;">Open Font License</a>.
 	<br>Based on work by Michele Asciutti from the ImBack User Group.</span>
 	<br>License Info:
-	<br><iframe src="data:text/html,<html><head><meta http-equiv='content-type' content='text/html;charset=UTF-8'></head><body style='font-size:7px;'><!--@@LICENSESTART@@ -->Copyright (C) 2023,2024,2025 by Stefan Hegny, stefan@hegny.de<br><br>The following license applies to the code inside these files with the exception of<br><br>* the Symbol3 font which is an excerpt from<br>&nbsp;&nbsp;NotoSansSymbols2-Regular (https://fonts.google.com/noto/specimen/Noto+Sans+Symbols+2) which is licensed under the<br>&nbsp;&nbsp;Open Font License (https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL)<br><br>* the Android App which contains Apache Cordova (https://cordova.apache.org) and plugins with specific licenses:<br>&nbsp;&nbsp;https://github.com/apache/cordova-plugin-inappbrowser/   		InAppBrowser<br>&nbsp;&nbsp;https://github.com/apache/cordova-plugin-file/  				File<br>&nbsp;&nbsp;https://github.com/shyrodgau/cordova-plugin-saf-mediastore/ 	 SafMediastore<br>&nbsp;&nbsp;https://github.com/NeoLSN/cordova-plugin-android-permissions	AndroidPermissions<br>&nbsp;&nbsp;https://github.com/cyph/cordova-plugin-chooser/				Chooser<br>&nbsp;&nbsp;https://github.com/torsten-simon/cordova-plugin-intent/		Intent<br><br><br>Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted.<br><br>THE SOFTWARE IS PROVIDED &quot;AS IS&quot; AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.<br>IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,<br>DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.<br><!-- @@LICENSEEND@@ --></body></html>" id="liciframe" style="width: 100%;"></iframe>
+	<br><iframe src="data:text/html,<html><head><meta http-equiv='content-type' content='text/html;charset=UTF-8'></head><body style='font-size:7px;'><!--@@LICENSESTART@@ -->Copyright (C) 2023,2024,2025 by Stefan Hegny, stefan@hegny.de<br><br>The following license applies to the code inside these files with the exception of<br><br>* the Symbol3 font which is an excerpt from<br>&nbsp;&nbsp;NotoSansSymbols2-Regular (https://fonts.google.com/noto/specimen/Noto+Sans+Symbols+2) which is licensed under the<br>&nbsp;&nbsp;Open Font License (https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL)<br><br>Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted.<br><br>THE SOFTWARE IS PROVIDED &quot;AS IS&quot; AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.<br>IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,<br>DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.<br><!-- @@LICENSEEND@@ --></body></html>" id="liciframe" style="width: 100%;"></iframe>
 	<div id="supportedformats"><a target="_new" data-myhrefxlapp="#fmt" data-myhrefxlkey="main.helplink">Formats</a></div>`;
 	this.xlateall();
 	this.showmsg();
@@ -27073,8 +27073,8 @@ function init() {
 <div ><input type="checkbox" id="incdcp" checked onchange="imbc.dirtysettings('incdcp')"> <label for="incdcp" data-myxlkey="process.includedcp"></label></div>
 <div ><input type="checkbox" id="oldstylewb" onchange="imbc.dirtysettings('owb')"> <label for="oldstylewb" data-myxlkey="process.oldstylewb"></label></div>
 </div>
-<div class="btop"><input type="button" onclick="imbc.clearcache();" data-myvalxlkey="app.menu.extras.clearcache"></div>
-<div class="btop"><span data-myxlkey="app.menu.extras.cachesize">Visual Browser Cache Size:</span> <input type="number" onchange="imbc.chgcache()" id="dbgcache" style="width: 5em;"></div>
+<div class="btop"><input type="button" onclick="imbc.clearcache();" data-myvalxlkey="app.menu.extras.clearcache"> </div>
+<div class="btop"><span data-myxlkey="app.menu.extras.cachesize"> </span> <input type="number" onchange="imbc.chgcache()" id="dbgcache" style="width: 5em;"></div>
 <div><span>Expert Flags:</span> <input type="number" onchange="imbc.chgflags()" id="expflags" style="width: 5em;"></div>
 </div></div>
 <!--div style="width:20em;" class="btop"><input type="button" onclick="imbc.dlmytexts();" value="Download texts as csv"></div-->
@@ -27083,13 +27083,13 @@ function init() {
 <div id="pages" style="display:none;"><!-- container for navigationable pages -->
 <!-- hamburger menu -->
 <div id="hammen" style="position:fixed; left: 0; width: fit-content; background-color:white; inset:unset; top:2em;color:black;border:1px solid gray;border-bottom-right-radius:10px;border-bottom-left-radius:10px;" popover="auto">
-<div class="hammenent" id="hamlog" onclick="imbc.closeham();imbc.showlog();"><span style="font-family:Symbol3;">&#x1f5ce;</span> <span data-myxlkey='app.menu.msglog'>Msg Log</span></div>
-<div class="hammenent" id="hamsett" onclick="imbc.closeham();imbc.shownormal();"><span style="font-family:Symbol3;">&#x1f6e0;</span> &#x1f1e7;&#x1f1f7;<span style="position:relative; transform: translateX(-110%) translateY(1%);display:inline-block;clip-path: polygon(0% 0%, 90% 10%, 20% 100%);">&#x1f1e8;&#x1f1ed;</span><span data-myxlkey='app.menu.settings'>Settings</span></div>
-<div class="hammenent" onclick="imbc.closeham();imbc.showextras();"><span style="font-family:Symbol3;">&#x1f578;</span> <span data-myxlkey='app.menu.extras'>Extras</span></div>
-<div class="hammenent" onclick="imbc.closeham();imbc.appinfo();" style="border-top: 1px solid black;"><span style="font-family:Symbol3;">&#x1f6c8;</span> <span data-myxlkey='app.menu.info'>Info</span></div>
-<div class="hammenent" id="powerelem" onclick="imbc.closeham();imbc.dopoweroff();" style="border-top: 1px solid black;"><span style="font-family:Symbol3;">&#x23fb;</span> <span data-myxlkey='app.menu.poweroff'>Power Off</span></div>
-<div class="hammenent" id="hamtime" onclick="imbc.closeham();imbc.settime()"><span style="font-family:Symbol3;">&#x1f570;</span> <span data-myxlkey='app.menu.settime'>Set ImB Time</span></div>
-<div class="hammenent" id="quitelem" onclick="imbc.closeham();imbc.doquit();" style="border-top: 1px solid black;"><span style="font-family:Symbol3;font-size:150%;">&#x2b60;</span> <span data-myxlkey='app.menu.quit'>Quit</span></div>
+<div class="hammenent" id="hamlog" onclick="imbc.closeham();imbc.showlog();"><span style="font-family:Symbol3;">&#x1f5ce;</span> <span data-myxlkey='app.menu.msglog'> </span></div>
+<div class="hammenent" id="hamsett" onclick="imbc.closeham();imbc.shownormal();"><span style="font-family:Symbol3;">&#x1f6e0;</span> &#x1f1e7;&#x1f1f7;<span style="position:relative; transform: translateX(-110%) translateY(1%);display:inline-block;clip-path: polygon(0% 0%, 90% 10%, 20% 100%);">&#x1f1e8;&#x1f1ed;</span><span data-myxlkey='app.menu.settings'> </span></div>
+<div class="hammenent" onclick="imbc.closeham();imbc.showextras();"><span style="font-family:Symbol3;">&#x1f578;</span> <span data-myxlkey='app.menu.extras'> </span></div>
+<div class="hammenent" onclick="imbc.closeham();imbc.appinfo();" style="border-top: 1px solid black;"><span style="font-family:Symbol3;">&#x1f6c8;</span> <span data-myxlkey='app.menu.info'> </span></div>
+<div class="hammenent" id="powerelem" onclick="imbc.closeham();imbc.dopoweroff();" style="border-top: 1px solid black;"><span style="font-family:Symbol3;">&#x23fb;</span> <span data-myxlkey='app.menu.poweroff'> </span></div>
+<div class="hammenent" id="hamtime" onclick="imbc.closeham();imbc.settime()"><span style="font-family:Symbol3;">&#x1f570;</span> <span data-myxlkey='app.menu.settime'> </span></div>
+<div class="hammenent" id="quitelem" onclick="imbc.closeham();imbc.doquit();" style="border-top: 1px solid black;"><span style="font-family:Symbol3;font-size:150%;">&#x2b60;</span> <span data-myxlkey='app.menu.quit'> </span></div>
 </div>
 <!-- end of hamburger menu -->
 <!-- navigation header -->
@@ -27107,7 +27107,7 @@ function init() {
 </div>
 <div id="browseselectors" style="margin-bottom:0.3em;font-size:85%;">
 <select id="grpsel" style="font-weight:bold;background-color:black;color:white;font-family:Symbol3;" onchange="imbc.stylegrp();imbc.buildtree()">
-<option value="type" onclick="imbc.stylegrp();imbc.buildtree()" data-myxlkey="browser.bytype" style="font-family: Helvetica, Arial, sans-serif;">ImB</option>
+<option value="type" onclick="imbc.stylegrp();imbc.buildtree()" data-myxlkey="browser.bytype" style="font-family: Helvetica, Arial, sans-serif;"> </option>
 <option value="time" selected onclick="imbc.stylegrp();imbc.buildtree()" style="font-family:Symbol3;">&#x231a;&#xfe0e;</option>
 <option value="seq" selected style="font-family: Helvetica, Arial, sans-serif;" onclick="imbc.stylegrp();imbc.buildtree()">1,2,3...</option></select>&nbsp;
  &ndash; <label for="solder">
@@ -27205,17 +27205,17 @@ function init() {
 <!-- end of the generic ok/error -->
 <!-- advertisement -->
 <dialog id="addmod1" class="mymodal" style="border: 5px solid yellow; border-radius: 20px; padding: 20px;width:fit-content;">
-<div data-myxlkey="ads.haveyoutried" style="font-weight:bold;">Have you tried it?</div>
-<div data-myxlkey="ads.adv1">You can copy <a target="_new" href="https://github.com/shyrodgau/imbraw2dng/raw/refs/heads/master/imbapp.htm">this file</a> to the SD card into the IMBACK folder<br>
+<div data-myxlkey="ads.haveyoutried" style="font-weight:bold;"> </div>
+<div data-myxlkey="ads.adv1"> <br>
 and then access it directly in the ImB WiFi as http://192.168.1.254/IMBACK/imbapp.htm!</div>
-<div><input type="checkbox" id="dnsad1" checked autofocus><label for="dnsad1" data-myxlkey="ads.dnsagain">Do not show again</label></div>
+<div><input type="checkbox" id="dnsad1" checked autofocus><label for="dnsad1" data-myxlkey="ads.dnsagain"> </label></div>
 <input id="adconfirmbut" type="button" data-myvalxlkey="del.question.ok" onclick="imbc.closead1();">
 </dialog>
 <!-- advertisement 2 -->
 <dialog id="addmod2" class="mymodal" style="border: 5px solid yellow; border-radius: 20px; padding: 20px;width:fit-content;">
-<div data-myxlkey="ads.haveyoutried" style="font-weight:bold;">Have you tried it?</div>
-<div data-myxlkey="ads.adv2">You can install this as a PWA (portable web app) and use it offline.</div>
-<div><input type="checkbox" id="dnsad2" checked autofocus><label for="dnsad2" data-myxlkey="ads.dnsagain">Do not show again</label></div>
+<div data-myxlkey="ads.haveyoutried" style="font-weight:bold;"> </div>
+<div data-myxlkey="ads.adv2"> </div>
+<div><input type="checkbox" id="dnsad2" checked autofocus><label for="dnsad2" data-myxlkey="ads.dnsagain"> </label></div>
 <input id="adconfirmbut2" type="button" data-myvalxlkey="del.question.ok" onclick="imbc.closead2();">
 </dialog>
 <!-- end of the generic ok/error -->
