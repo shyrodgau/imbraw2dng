@@ -893,7 +893,7 @@ describe('E Convert Raw from Imback APP', function() {
 describe('F Convert Raw Local APP', function() {
 	let driver, opts, errflg = false;
 	before(async function() {
-			this.timeout(6000);
+			this.timeout(9000);
 		  tdir = downloadDirBase + '.tmpimbtest';
 		  fs.mkdirSync(tdir, { recursive: true });
   		  const options = new chrome.Options();

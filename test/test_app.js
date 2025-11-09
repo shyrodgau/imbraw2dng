@@ -159,7 +159,7 @@ async function runTest() {
 	await dlxx.click();
 	await driver.pause(1000);
     const logbut00 = await waitfor(driver, '#dlprogresslogbtn');
-    const okbut00 = await waitfor(driver, '#progokbut');
+    const okbut00 = await driver.$('#progokbut');
     while (1) {
 		const cliki = await okbut00.getAttribute('disabled')
 		//console.log('CLICK *** ' + cliki + '*** CLIC ');
@@ -212,12 +212,12 @@ async function runTest() {
 	//console.log(JSON.stringify(ctxx));
 	//await driver.context('NATIVE_APP');
     const logbut = await waitfor(driver, '#dlprogresslogbtn');
-    const okbut = await waitfor(driver, '#progokbut');
+    const okbut = await driver.$('#progokbut');
     while (1) {
 		const cliki = await logbut.getAttribute('disabled')
 		//console.log('CLICK *** ' + cliki + '*** CLIC ');
-		if (!cliki) break;
 		await sleep(500);
+		if (!cliki) break;
 	}
 	await okbut.click();
 	await driver.pause(200);
@@ -256,6 +256,23 @@ async function runTest() {
 	await driver.pause(200);
 	const setb = await waitfor(driver, '#settback');
 	await setb.click();
+	await driver.pause(600);
+	const zoom0x4 = await waitfor(driver,'#gg_2024_02_17_X .onepic');
+	await zoom0x4.click();
+	await driver.pause(200);
+	const zoom05 = await waitfor(driver, '#gg_2024_02_17_X .dlbtn');
+	await zoom05.click();
+	await driver.pause(1000);
+	await driver.pause(1000);
+    const logbut009 = await waitfor(driver, '#dlprogresslogbtn');
+    const okbut009 = await driver.$('#progokbut');
+    while (1) {
+		const cliki = await okbut009.getAttribute('disabled')
+		//console.log('CLICK *** ' + cliki + '*** CLIC ');
+		if (!cliki) break;
+		await sleep(500);
+	}
+	await okbut009.click();
 	await driver.pause(200);
 	const zoom0x2 = await waitfor(driver,'#gg_2024_02_17_X .onepic');
 	await zoom0x2.click();
@@ -281,16 +298,17 @@ async function runTest() {
 	await xdbt.click();
 	const dstr = 'Krokus';
 	await xdbt.sendKeys([dstr]);
-	await driver.pause(200);
+	await driver.pause(500);
 	const xjdbt = await waitfor(driver, '#xjbtn');
 	await xjdbt.click();
+	await driver.pause(500);
 	const logbut2x = await driver.$('#progokbtn');
     //const fold = await driver.$('=USE THIS FOLDER');
     while (1) {
 		const cliki = await okbut.getAttribute('disabled')
 		//console.log('CLICK *** ' + cliki + '*** CLIC ');
-		if (!cliki) break;
 		await sleep(500);
+		if (!cliki) break;
 	}
 	await okbut.click();
 	
