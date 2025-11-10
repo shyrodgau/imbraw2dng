@@ -16,3 +16,9 @@ README_ja.html:	README_ja.md Makefile
 	sed -i -e 's@"https://shyrodgau.github.io/imbraw2dng/README"@"README.html"@g' README_ja.html
 	sed -i -e 's@"https://shyrodgau.github.io/imbraw2dng/README_de"@"README_de.html"@g' README_ja.html
 
+LICENSE.html:	LICENSE.txt Makefile
+	/home/hegny/prog/imbraw2dng/github/helpstuff/licensehelp.sh
+
+LICENSE_noapp.html:	LICENSE_noapp.txt Makefile
+	/home/hegny/prog/imbraw2dng/github/helpstuff/licensehelp.sh
+
