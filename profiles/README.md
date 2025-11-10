@@ -16,10 +16,10 @@ Usable for: [rawtherapee](#rawtherapee), lightroom, photoshop ... ??
 
 The DCP profiles are dual-illuminant and should normally be interpolated for the actual illuminant/white-balance by the software.
 
- [for 35mm](profiles/DCP/ImBack%20ImB35mm.dcp)   
- [for MF 6x4.5](profiles/DCP/ImBack%20MF6x4.5.dcp)   
- [for MF 6x6](profiles/DCP/ImBack%20MF%206x6%20.dcp)   
- [for MF 6x7](profiles/DCP/ImBack%20MF%206x7%20.dcp)    
+ [for 35mm](DCP/ImBack%20ImB35mm.dcp)   
+ [for MF 6x4.5](DCP/ImBack%20MF6x4.5.dcp)   
+ [for MF 6x6](DCP/ImBack%20MF%206x6%20.dcp)   
+ [for MF 6x7](DCP/ImBack%20MF%206x7%20.dcp)    
 
 ## ICC format
 
@@ -27,10 +27,10 @@ Usable for: [darktable](#darktable), [rawtherapee](#rawtherapee) (but prefer DCP
 
 The ICC profiles only are adjusted to D65 (daylight) illuminant.
 
- [for 35mm](profiles/ICC/ImBack%20ImB35mm.icc)   
- [for MF 6x4.5](profiles/ICC/ImBack%20MF6x4.5.icc)   
- [for MF 6x6](profiles/ICC/ImBack%20MF%206x6%20.icc)   
- [for MF 6x7](profiles/ICC/ImBack%20MF%206x7%20.icc)    
+ [for 35mm](ICC/ImBack%20ImB35mm.icc)   
+ [for MF 6x4.5](ICC/ImBack%20MF6x4.5.icc)   
+ [for MF 6x6](ICC/ImBack%20MF%206x6%20.icc)   
+ [for MF 6x7](ICC/ImBack%20MF%206x7%20.icc)    
 
 ## rawtherapee
 
