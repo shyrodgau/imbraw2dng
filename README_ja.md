@@ -19,7 +19,7 @@
 - [`imbraw2dng.js`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js) - コマンドラインで使用するための Node.js バージョン
 `imbraw2dng_XX.js` としてさまざまな言語でも使用可能 ([国際化](#国際化) を参照)
 
-- ImB 用に調整された [ダウンロード用カメラ プロファイル](cameraprofiles.md)
+- ImB 用に調整された [ダウンロード用カメラ プロファイル](profiles/README.md)
 
 - [`imbdng2raw.html`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html)、[`imbdng2raw.js`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js) DNG から RAW への逆変換 (これらのツールを使用して変換された元の DNG のみ)
 

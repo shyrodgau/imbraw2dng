@@ -23,7 +23,7 @@ also in different languages as `imbraw2dng_XX.js`  (see [Internationalization](#
 <!-- - [**&#x261e;**`imbraw2dng.html`](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) - Historic version   
 also in different languages as `imbraw2dng_XX.html` (see [Internationalization](#internationalization))-->
 
-- Calibrated [Camera profiles for download](https://shyrodgau.github.io/imbraw2dng/cameraprofiles) for ImB
+- Calibrated [Camera profiles for download](https://shyrodgau.github.io/imbraw2dng/profiles/README) for ImB
 
 - [**&#x261e;**`imbdng2raw.html`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html), [**&#x261e;**`imbdng2raw.js`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js) backward conversion from DNG to RAW, only for original DNGs converted using these tools
 

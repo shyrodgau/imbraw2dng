@@ -24,7 +24,7 @@ auch in verschiedenen Sprachen als `imbraw2dng_XX.js` (siehe [Internationalisier
 <!--- [**&#x261e;**`imbraw2dng.html`](https://shyrodgau.github.io/imbraw2dng/imbraw2dng_de.html) - Historische Version    
 auch in verschiedenen Sprachen als `imbraw2dng_XX.html` (siehe [Internationalisierung](#internationalisierung))-->
 
-- Kalibrierte [Kameraprofile zum Herunterladen](https://shyrodgau.github.io/imbraw2dng/cameraprofiles) für ImB
+- Kalibrierte [Kameraprofile zum Herunterladen](https://shyrodgau.github.io/imbraw2dng/profiles/README) für ImB
 
 - [**&#x261e;**`imbdng2raw.html`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html), [**&#x261e;**`imbdng2raw.js`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js)
 von DNG nach RAW zurück konvertieren, nur für originale hiermit nach DNG konvertierte Dateien
