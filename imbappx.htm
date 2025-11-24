@@ -22828,7 +22828,7 @@ checkimb() {
 	document.getElementById('dbgcache').value = this.maxcache;
 	let imblang = '';
 	this.imblang = false;
-	if (ImBCBase.progname === 'imbapp.htm' && -1 !== window.location.pathname.indexOf('imbraw2dng') && -1 !== window.location.pathname.indexOf('htmlpreview')) {
+	if (ImBCBase.progname === 'imbapp.htm' && -1 !== window.location.href.indexOf('imbraw2dng')) {
 		this.discknown = true;
 		this.disconnected = false;
 		this.showdisconnect();
