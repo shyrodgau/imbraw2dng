@@ -97,7 +97,6 @@ LCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwgAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAA">
-<link rel="manifest" href="imbappx.json">
 <style type="text/css">
 /* *************************************** app only *************************************** */
 /* * * ************************************* CSS *************************************** */
@@ -26861,11 +26860,11 @@ const apptexts = [
 let imbc;
 /* onload of html body */
 async function initsvc() {
-	if ("serviceWorker" in navigator && -1 !== window.location.origin.indexOf('github')) {
+	if ("serviceWorker" in navigator && window.location.origin.startsWith('http')) {
 		try {
-		  const registration = await navigator.serviceWorker.register('imbappsvcwx.js', {
+		  //const registration = await navigator.serviceWorker.register('imbappsvcw.js', {
 			/*scope: "/imbraw2dng/",*/
-		  });
+		  //});
 		  if (registration.installing) {
 			console.log("Service worker installing");
 		  } else if (registration.waiting) {
