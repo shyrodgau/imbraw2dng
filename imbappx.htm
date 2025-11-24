@@ -97,7 +97,7 @@ LCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwgAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAA">
-<link rel="manifest" href="https://raw.githubusercontent.com/shyrodgau/imbraw2dng/refs/heads/master/imbappx.json">
+<link rel="manifest" href="imbappx.json">
 <style type="text/css">
 /* *************************************** app only *************************************** */
 /* * * ************************************* CSS *************************************** */
@@ -26863,7 +26863,7 @@ let imbc;
 async function initsvc() {
 	if ("serviceWorker" in navigator && -1 !== window.location.origin.indexOf('github')) {
 		try {
-		  const registration = await navigator.serviceWorker.register('https://raw.githubusercontent.com/shyrodgau/imbraw2dng/refs/heads/master/imbappsvcwx.js', {
+		  const registration = await navigator.serviceWorker.register('imbappsvcwx.js', {
 			/*scope: "/imbraw2dng/",*/
 		  });
 		  if (registration.installing) {
