@@ -43,6 +43,7 @@ Top_class_for_App: 						imbapp.htm imbapp.html										(app-like)
 
 -->
 <head>
+<base href="https://raw.githubusercontent.com/shyrodgau/imbraw2dng/refs/heads/master/imbappx.htm">
 <meta http-equiv="Content-Security-Policy" content="default-src data: 'self' http: 192.168.0.72:8889 192.168.8.101:8889 192.168.1.254 127.0.0.1:8889; connect-src 'self' http: 192.168.0.72:8889 192.168.8.101:8889 192.168.1.254 127.0.0.1:8889; style-src 'self' 'unsafe-inline'; script-src blob: 'self' 'unsafe-inline' 'unsafe-eval';">
 <meta http-equiv='cache-control' content='no-cache'>
 <meta http-equiv='expires' content='0'>
@@ -96,7 +97,7 @@ LCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwsLCwgAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAA">
-<link rel="manifest" href="https://htmlpreview.github.io/?https://github.com/shyrodgau/imbraw2dng/blob/master/imbappx.json">
+<link rel="manifest" href="https://raw.githubusercontent.com/shyrodgau/imbraw2dng/refs/heads/master/imbappx.json">
 <style type="text/css">
 /* *************************************** app only *************************************** */
 /* * * ************************************* CSS *************************************** */
@@ -26860,9 +26861,9 @@ const apptexts = [
 let imbc;
 /* onload of html body */
 async function initsvc() {
-	if ("serviceWorker" in navigator && window.location.origin.startsWith('https://htmlpreview.github.io')) {
+	if ("serviceWorker" in navigator && -1 !== window.location.origin.indexOf('github')) {
 		try {
-		  const registration = await navigator.serviceWorker.register('https://htmlpreview.github.io/?https://github.com/shyrodgau/imbraw2dng/blob/master/imbappsvcwx.js', {
+		  const registration = await navigator.serviceWorker.register('https://raw.githubusercontent.com/shyrodgau/imbraw2dng/refs/heads/master/imbappsvcwx.js', {
 			/*scope: "/imbraw2dng/",*/
 		  });
 		  if (registration.installing) {
