@@ -18595,9 +18595,9 @@ prxl(key, el) {
 		return res;
 	}
 	let res = '';
-	if (el['de'] && el['en']) {
+	if (el['en']) {
 		try{
-		if (typeof el['de'] === 'string') {
+		if (typeof el['en'] === 'string') {
 			let out = '"' + key + ':' + ImBCBase.progname + '",';
 			for (const l of globals.alllangs) {
 				if (undefined !== el[l]) {
@@ -18609,7 +18609,7 @@ prxl(key, el) {
 			}
 			res += (out + `\u000a`);
 		}
-		else if (typeof el['de'][0] === 'string') {
+		else if (typeof el['en'][0] === 'string') {
 			for (let i=0; i< el['de'].length; i++) {
 				let out = '"' + key + '[' + ((i < 10) ? '0' : '') + i + ']:' + ImBCBase.progname + '",';
 				for (const l of globals.alllangs) {

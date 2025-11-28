@@ -19316,9 +19316,9 @@ prxl(key, el) {
 		return res;
 	}
 	let res = '';
-	if (el['de'] && el['en']) {
+	if (el['en']) {
 		try{
-		if (typeof el['de'] === 'string') {
+		if (typeof el['en'] === 'string') {
 			let out = '"' + key + ':' + ImBCBase.progname + '",';
 			for (const l of globals.alllangs) {
 				if (undefined !== el[l]) {
@@ -19330,7 +19330,7 @@ prxl(key, el) {
 			}
 			res += (out + `\u000a`);
 		}
-		else if (typeof el['de'][0] === 'string') {
+		else if (typeof el['en'][0] === 'string') {
 			for (let i=0; i< el['de'].length; i++) {
 				let out = '"' + key + '[' + ((i < 10) ? '0' : '') + i + ']:' + ImBCBase.progname + '",';
 				for (const l of globals.alllangs) {
@@ -25181,9 +25181,9 @@ const mytexts = { // actually const
 			ja: 'もう試しましたか？'
 		},
 		adv1: {
-			en: 'You can copy <a target="_new" href="https://github.com/shyrodgau/imbraw2dng/raw/refs/heads/master/imbapp.htm">this file</a> to the SD card into the IMBACK folder<br>and then access it directly in the ImB WiFi as http://192.168.1.254/IMBACK/imbapp.htm!',
-			de: 'Man kann <a target="_new" href="https://github.com/shyrodgau/imbraw2dng/raw/refs/heads/master/imbapp.htm">diese Datei</a> auf die SD Karte im IMBACK Verzeichnis kopieren<br>und dann im ImB WLAN direkt als http://192.168.1.254/IMBACK/imbapp.htm ansurfen!',
-			ja: '<a target="_new" href="https://github.com/shyrodgau/imbraw2dng/raw/refs/heads/master/imbapp.htm">このファイルを SD カードの IMBACK ディレクトリにコピー</a>し、<br>http://192.168.1.254/IMBACK/imbapp.htm として ImB WiFi に直接アクセスできます。'
+			en: 'You can copy <a target="_new" href="https://github.com/shyrodgau/imbraw2dng/raw/refs/heads/master/imbapp.htm">this file</a> to the SD card into the IMBACK folder<br>and then access it directly in the ImB (Film/MF/35mm) WiFi as http://192.168.1.254/IMBACK/imbapp.htm!',
+			de: 'Man kann <a target="_new" href="https://github.com/shyrodgau/imbraw2dng/raw/refs/heads/master/imbapp.htm">diese Datei</a> auf die SD Karte im IMBACK Verzeichnis kopieren<br>und dann im ImB (Film/MF/35mm) WLAN direkt als http://192.168.1.254/IMBACK/imbapp.htm ansurfen!',
+			ja: '<a target="_new" href="https://github.com/shyrodgau/imbraw2dng/raw/refs/heads/master/imbapp.htm">このファイルを SD カードの IMBACK ディレクトリにコピー</a>し、<br>http://192.168.1.254/IMBACK/imbapp.htm として ImB (Film/MF/35mm) WiFi に直接アクセスできます。'
 		},
 		adv2: {
 			en: 'You can install this as a PWA (portable web app) and use it offline (now really)!<br><a href="#" onclick="imbc.dnsad1 = true;imbc.savesettings(\'dnsad1\');imbc.dnsad2 = true;imbc.savesettings(\'dnsad2\');document.getElementById(\'addmod2\').close();imbc.befinp.prompt(); imbc.befinp = null;return false;">Try it</a>',
