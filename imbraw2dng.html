@@ -1012,7 +1012,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.5.3_9a5f4bf", // actually const // VERSION EYECATCHER
+version: "V6.5.3_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -1032,8 +1032,8 @@ itsregex: new RegExp('^([2-3][0-9][0-9][0-9])([/])([01][0-9])([/])([0123][0-9])(
 fnregexx: /^([2-3][0-9][0-9][0-9])([^0-9]?)([01][0-9])([^0-9]?)([0123][0-9])([^0-9]?)([012][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-6][0-9])([^0-9]?)([0-9]*)/ , // actually const
 orients: [ '', 'none', '', 'upsidedown', '', '', 'clockwise', '', 'counterclockwise' ], // actually const
 oriecw: [ 1, 6, 3, 8 ], // clockwise indices // actually const
-types: [ "unknown", "35mm", "MF6x7", "MF6x4.5", "MF6x6", "Film" ], // all length 7, actually const
-twelvebitsizes: [ 9706416, 11501280, 14709888, 17428128, 17915904, 19406448, 21098880, 23003136, 23887872, 30607488 ],
+types: [ "unknown", "35mm", "MF6x7", "MF6x4.5", "MF6x6", "Film", "MiMi" ], // actually const
+twelvebitsizes: [ 9706416, 11501280, 14709888, 17428128, 17915904, 19406448, 21098880, 23003136, 23887872, 30607488, 18000000 ],
 infos: [ // actually const
 	{
 		size: 14065920,
@@ -1098,6 +1098,14 @@ infos: [ // actually const
 		w: 5216,
 		h:3912,
 		typ: 5,
+		mode: ''
+	},
+	/* MiMi ! */
+	{
+		size: 18000000,
+		w: 4000,
+		h:3000,
+		typ: 6,
 		mode: ''
 	}
 ],
@@ -1304,14 +1312,14 @@ getPix: function(x, y, w, view, typ, whitelvl) {
 		shiftr ++;
 	}
 	const dd = (typ === 5 || typ === 69) ? 240 : 0;
-	if (typ === 5 || typ == 33) {
+	if (typ === 5 || typ === 6 || typ == 33) {
 		/* film or stacked 35mm */
 		reds.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
 		reds.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
 		reds.push(((view.getUint8((y+2)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
 		reds.push(((view.getUint8((y+2)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
 	}
-	else if (typ === 69 || typ == 65) {
+	else if (typ === 69 || typ === 70 || typ == 65) {
 		/* 16 bit film or 35mm */
 		reds.push(((view.getUint8((y+0)*w3 + xx+2) +  ((view.getUint8((y+0)*w3 + xx+3)) << 8))-dd)>>shiftr);
 		reds.push(((view.getUint8((y+0)*w3 + xx+6) +  ((view.getUint8((y+0)*w3 + xx+7)) << 8))-dd)>>shiftr);
@@ -1349,7 +1357,7 @@ getPix: function(x, y, w, view, typ, whitelvl) {
 	// median of red pixels
 	outrgb.push((reds[1] + reds[2]) / 2.0);
 	let greens = [];
-	if (typ === 5 || typ == 33) {
+	if (typ === 5 || typ === 6 || typ == 33) {
 		/* film or stacked 35mm */
 		greens.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
 		greens.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
@@ -1360,7 +1368,7 @@ getPix: function(x, y, w, view, typ, whitelvl) {
 		greens.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
 		greens.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
 	}
-	else if (typ === 69 || typ == 65) {
+	else if (typ === 69 || typ === 70 || typ == 65) {
 		/* 16 bit film or stacked 35mm */
 		greens.push((((view.getUint8((y+0)*w3 + xx+0)) +  ((view.getUint8((y+0)*w3 + xx+1) <<8)))-dd)>>shiftr);
 		greens.push((((view.getUint8((y+0)*w3 + xx+4)) +  ((view.getUint8((y+0)*w3 + xx+5) <<8)))-dd)>>shiftr);
@@ -1415,13 +1423,13 @@ getPix: function(x, y, w, view, typ, whitelvl) {
 	greens.sort(function(a,b) { return a - b; });
 	outrgb.push((greens[3] + greens[4]) / 2.0);
 	let blues = [];
-	if (typ === 5 || typ === 33) {
+	if (typ === 5 || typ === 6 || typ === 33) {
 		blues.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
 		blues.push((((view.getUint8((y+1)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
 		blues.push((((view.getUint8((y+3)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
 		blues.push((((view.getUint8((y+3)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
 	}
-	else if (typ === 69 || typ === 65) {
+	else if (typ === 69 || typ === 70 || typ === 65) {
 		blues.push((((view.getUint8((y+1)*w3 + xx+0)) +  ((view.getUint8((y+1)*w3 + xx+1) ) <<8))-dd)>>shiftr);
 		blues.push((((view.getUint8((y+1)*w3 + xx+4)) +  ((view.getUint8((y+1)*w3 + xx+5) ) <<8))-dd)>>shiftr);
 		blues.push((((view.getUint8((y+3)*w3 + xx+0)) +  ((view.getUint8((y+3)*w3 + xx+1) ) <<8))-dd)>>shiftr);
@@ -1465,11 +1473,11 @@ getPixh: function(x, y, w, view, typ, whitelvl) {
 		shiftr ++;
 	}
 	const dd = (typ === 5 || typ === 69) ? 240 : 0;
-	if (typ === 5 || typ == 33) {
+	if (typ === 5 || typ === 6 || typ == 33) {
 		/* film or stacked 35mm */
 		outrgb.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
 	}
-	else if (typ === 69 || typ == 65) {
+	else if (typ === 69 || typ === 70 || typ == 65) {
 		/* 16 bit film or 35mm */
 		outrgb.push(((view.getUint8((y+0)*w3 + xx+2) +  ((view.getUint8((y+0)*w3 + xx+3)) << 8))-dd)>>shiftr);
 	}
@@ -1489,12 +1497,12 @@ getPixh: function(x, y, w, view, typ, whitelvl) {
 		outrgb.push(view.getUint8(y*w + x + 1));
 	}
 	let greens = [];
-	if (typ === 5 || typ == 33) {
+	if (typ === 5 || typ === 6 || typ == 33) {
 		/* film or stacked 35mm */
 		greens.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
 		greens.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
 	}
-	else if (typ === 69 || typ == 65) {
+	else if (typ === 69 || typ == 70 || typ == 65) {
 		/* 16 bit film or stacked 35mm */
 		greens.push((((view.getUint8((y+0)*w3 + xx+0)) +  ((view.getUint8((y+0)*w3 + xx+1) <<8)))-dd)>>shiftr);
 		greens.push(((view.getUint8((y+1)*w3 + xx+2) +  ((view.getUint8((y+1)*w3 + xx+3)) << 8))-dd)>>shiftr);
@@ -1518,10 +1526,10 @@ getPixh: function(x, y, w, view, typ, whitelvl) {
 	}
 	greens.sort(function(a,b) { return a - b; });
 	outrgb.push((greens[0] + greens[1]) / 2.0);
-	if (typ === 5 || typ === 33) {
+	if (typ === 5 || typ === 6 || typ === 33) {
 		outrgb.push((((view.getUint8((y+1)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
 	}
-	else if (typ === 69 || typ === 65) {
+	else if (typ === 69 || typ === 70 || typ === 65) {
 		outrgb.push((((view.getUint8((y+1)*w3 + xx+0)) +  ((view.getUint8((y+1)*w3 + xx+1) ) <<8))-dd)>>shiftr);
 	}
 	else if (typ > 65) {
@@ -19090,7 +19098,7 @@ handleone(orientation, upd) {
 	if (date && datestr) dateok = true;
 	else datestr = '';
 	let whitelvl = 255;
-	if (typ === 5) whitelvl = 4095;
+	if (typ === 5 || typ === 6) whitelvl = 4095;
 	let addimgs = 0;
 
 	const reader = f.imbackextension ? f : new FileReader();
@@ -19102,7 +19110,7 @@ handleone(orientation, upd) {
 		if (contents.buffer) contents = contents.buffer;
 		let view = new DataView(contents);
 		let targbits = 8;
-		if (typ === 5)
+		if (typ === 5 || typ === 6)
 			targbits = 12;
 		if (this.addall && this.totnum > 1) {
 			if (this.#addimgs.length === 0)
@@ -19124,6 +19132,14 @@ handleone(orientation, upd) {
 					if (fc < 1) fc = 1;
 					targbits = 16;
 					whitelvl = Math.ceil(240 + ((4095 - 240) * this.#addimgs.length / fc));
+					if (whitelvl > 65535) whitelvl = 65535;
+				}
+				else if (typ === 6) {
+					/* mimi */
+					fc = (npic / 16);
+					if (fc < 1) fc = 1;
+					targbits = 16;
+					whitelvl = Math.ceil((4095 * this.#addimgs.length / fc));
 					if (whitelvl > 65535) whitelvl = 65535;
 				}
 				else if (npic > 16) {
@@ -19148,7 +19164,7 @@ handleone(orientation, upd) {
 				try {
 					let ovflag = false, ov5flag = false, ov6flag = false;
 					if (typ >= 5) {
-						/* input is FILM or (ould) stacked already (12 bpp) */
+						/* input is FILM or MiMi or (ould) stacked already (12 bpp) */
 						let o=0;
 						for (let j=0; j < (w*h*3)/2; j+=3) {
 							let res = 0;
@@ -19464,13 +19480,16 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		if (typ0  === 5) {
 			ti.addEntry(50714, 'SHORT', [ 240, 240, 240, 240 ] ); /* Blacklevel */
 		}
+		else if (typ0  === 6) {
+			ti.addEntry(50714, 'SHORT', [ 0, 0, 0, 0 ] ); /* Blacklevel */
+		}
 		else if (typ0 > 1 && bl) {
 			ti.addEntry(50714, 'SHORT', [ 0, bl, bl, 0 ] ); /* Blacklevel */
 		}
 		else if (bl) {
 			ti.addEntry(50714, 'SHORT', [ bl, 0, 0, bl ] ); /* Blacklevel */
 		}
-		if (bl || typ0 === 5)
+		if (bl || typ0 === 5 || typ === 6)
 			ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
 		ti.addEntry(262, 'SHORT', [ 0x8023 ]); /* Photometric - CFA */
 		ti.addEntry(277, 'SHORT', [ 1 ]); /* Samples per Pixel */
@@ -19811,7 +19830,7 @@ parseDng(f, onok, onerr) {
 			// 16 bit for 8?
 			if (zz === -1) {
 				zz = globals.infos.findIndex(v => v.size === (datalen * 3) / 4);
-				// 16 bit for 12 (film)?
+				// 16 bit for 12 (film,MiMi)?
 				if (zz === -1) {
 					this.appmsg('Works only for originally created DNGs.', true);
 					return onerr(f.name);

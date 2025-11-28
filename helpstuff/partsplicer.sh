@@ -28,11 +28,11 @@ if [ "$tof" -nt "$frf" ]; then
 fi
 
 validcomb="
-IFDOut  imbapp.htm  imbapp.html  imbraw2dng.html  imbraw2dng.js
-Browser_specifics  imbapp.htm  imbapp.html  imbraw2dng.html
+IFDOut  imbapp.htm  imbapp.html  imbappx.htm  imbraw2dng.html  imbraw2dng.js
+Browser_specifics  imbapp.htm  imbappx.htm  imbapp.html  imbraw2dng.html
 Backward_helper_class  imbraw2dng.html  imbraw2dng.js
-Top_class_for_App  imbapp.htm  imbapp.html
-app_only  imbapp.htm  imbapp.html
+Top_class_for_App  imbapp.htm  imbappx.htm  imbapp.html
+app_only  imbapp.htm  imbappx.htm  imbapp.html
 "
 
 frb=$( basename $frf )

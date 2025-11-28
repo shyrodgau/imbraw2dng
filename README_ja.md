@@ -221,6 +221,8 @@ Android アプリは HTML ページと同じ HTML/Javascript コードで構成�
 
 ## <a name="fmt">  </a>Formats
 
+18000000 B = 4000 x 3000 (12bpp) = MiMi
+
 30607488 B = 5216 x 3912 (12bpp) = Film
 
 15335424 B = 4608 x 3328 = 35mm

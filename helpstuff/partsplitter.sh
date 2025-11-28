@@ -34,7 +34,7 @@ function onefile { # path
 
 
 if [ -z "$1" ]; then
-	for f in /home/hegny/prog/imbraw2dng/github/imbraw2dng.js /home/hegny/prog/imbraw2dng/github/imbraw2dng.html /home/hegny/prog/imbraw2dng/github/imbapp.htm /home/hegny/prog/imbraw2dng/github/cordova/imbapp/imbapp.html; do
+	for f in /home/hegny/prog/imbraw2dng/github/imbraw2dng.js /home/hegny/prog/imbraw2dng/github/imbraw2dng.html /home/hegny/prog/imbraw2dng/github/imbapp.htm /home/hegny/prog/imbraw2dng/github/imbappx.htm /home/hegny/prog/imbraw2dng/github/cordova/imbapp/imbapp.html; do
 		onefile $f
 	done
 	for t in app_only.js Browser_specifics.js Backward_helper_class.js IFDOut.js Top_class_for_App.js  ; do

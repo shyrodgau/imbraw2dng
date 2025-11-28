@@ -241,6 +241,8 @@ Anschauen des Codes ist gern erwünscht.
 
 ## <a name="fmt">  </a>Formate
 
+18000000 B = 4000 x 3000 (12bpp) = MiMi
+
 30607488 B = 5216 x 3912 (12bpp) = Film
 
 15335424 B = 4608 x 3328 = 35mm
