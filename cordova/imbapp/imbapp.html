@@ -1569,7 +1569,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.5.4_650eeff", // actually const // VERSION EYECATCHER
+version: "V6.5.5_694b266", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -20632,6 +20632,7 @@ const mytexts = { // actually const
 		appnotes: {
 			de: 'Oder Smartphone ins ImB WLAN stecken!<br>&nbsp;<br>Oder RAW Datei(en) aus Explorer/Dateimanager mit dieser ImB OS App teilen.<br>&nbsp;<br>DNG zurück nach RAW:<br>Im Explorer/Datei-Manager genau eine DNG Datei auswählen und mit dieser ImB OS App teilen<br>&nbsp;<br>Lange Aufnahme Simulieren/Übereinanderlegen:<br>Im Explorer/Datei-Manager mehrere DNG Dateien auswählen und mit dieser ImB OS App teilen',
 			en: 'Or place smartphone in ImB WiFi!<br>&nbsp;<br>Or share RAW file(s) from explorer/file manager with this ImB OS App.<br>&nbsp;<br>DNG backwards to RAW:<br>Select exactly one DNG file in Explorer/File Manager and share with this ImB OS App<br>&nbsp;<br>Simulate long exposure/Stacking:<br>Select multiple DNG files in Explorer/File Manager and share with this ImB OS App',
+			ja: 'または、スマートフォンをImB WiFiに接続してください。<br>&nbsp;<br>DNGをRAWに変換する:<br>エクスプローラー/ファイルマネージャーでDNGファイルを1つだけ選択し、このImB OSアプリと共有します<br>&nbsp;<br>長時間露光/スタッキングをシミュレートする:<br>エクスプローラー/ファイルマネージャーで複数のDNGファイルを選択し、このImB OSアプリと共有します',
 		},
 		types: {
 			notpic: {
@@ -20979,11 +20980,13 @@ const mytexts = { // actually const
 	jpeg: {
 		exifonly: {
 			en: 'Use EXIF for DNG only, do not download',
-			de: 'Nur EXIF für DNG verwenden, nicht herunterladen'
+			de: 'Nur EXIF für DNG verwenden, nicht herunterladen',
+			ja: 'DNGのみにEXIFを使用し、ダウンロードしないでください。',
 		},
 		noexif: {
 			en: 'Do not use EXIF for DNG',
 			de: 'EXIF nicht für DNG verwenden',
+			ja: 'DNGにはEXIFを使用しないでください。',
 		},
 	},
 	del: {
@@ -21126,13 +21129,16 @@ const mytexts = { // actually const
 		jpeg: {
 			en: 'JPEGs from ImB:',
 			de: 'JPEGs von ImB:',
+			ja: 'ImBからのJPEG：',
 			dlandexif: {
 				en: 'Download JPEG and use EXIF for DNG',
 				de: 'JPEGs Herunterladen und EXIF für DNG verwenden',
+				ja: 'JPEGをダウンロードし、DNGにはEXIFを使用します。',
 			},
 			dlnoexif: {
 				en: 'Download JPEG, do not use EXIF for DNG',
 				de: 'JPEGs Herunterladen, EXIF nicht für DNG verwenden',
+				ja: 'JPEGをダウンロードし、DNGにはEXIFを使用しません。',
 			},
 		}
 	}

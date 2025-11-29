@@ -36,7 +36,7 @@ If it is from an MF or Film ImB then the Color Filter Array is different.
 Problems and ideas can also be discussed on the "[Issues](https://github.com/shyrodgau/imbraw2dng/issues)" or "[Discussions](https://github.com/shyrodgau/imbraw2dng/discussions)" tabs
 of the [github repos](https://github.com/shyrodgau/imbraw2dng) or in the [I'm Back Users Group on Facebook](https://www.facebook.com/groups/1212628099691211).
 
-## <a name="getstarted">  </a>Get Started
+## <a id="getstarted" name="getstarted">  </a>Get Started
 
 If you use **android**, try the [Android app](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk) with your android device in the ImB Wifi.
 
@@ -47,7 +47,7 @@ If you prefer using it in the **browser** on your PC or smartphone, there are th
 Some browsers (even on mobiles) will allow you to install it as PortableWebApp for easy offline use. It might also be called or hidden behind "Add to desktop".   
 In this case, you need to transfer the files from ImB or access the MicroSD via USB, adapter, original ImB App or whatsoever.
 
-- <a name="browsing-on-the-imback">  </a>when you copy that file directly onto the MicroSD into the `IMBACK` folder ([How do I do that?](#how-do-i-copy-html-files-to-the-microsd)), you can directly combine download and conversion to DNG: (videos and JPG can also be downloaded)    
+- <a id="browsing-on-theimback" name="browsing-on-the-imback">  </a>when you copy that file directly onto the MicroSD into the `IMBACK` folder ([How do I do that?](#how-do-i-copy-html-files-to-the-microsd)), you can directly combine download and conversion to DNG: (videos and JPG can also be downloaded)    
 `http://192.168.1.254/IMBACK/IMBAPP.HTM` (also allows to set the clock time, record video or take pictures!)   
 The device where you open the page needs to be in the ImB Wifi.
 
@@ -81,7 +81,7 @@ Use a new browser window or tab, navigate to [http://192.168.1.254/IMBACK/](http
 Click on `Choose file` and select the [`imbapp.htm` you just downloaded](https://raw.githubusercontent.com/shyrodgau/imbraw2dng/master/imbapp.htm). Click `upload file` (wordings need to be checked) - ready!
 
 
-## <a name="usage"> </a>Usage
+## <a id="usage" name="usage"> </a>Usage
 
 You can drag and drop all directories or files from the I'm back (i.e. from the micro SD inserted into your PC or the USB mass storage) into the blue field. It will then copy all non-RAW 
 files exactly and convert the RAW files to DNG, replacing the `.raw`/`.RAW` file extension with `.dng`. When you use the `Choose Files` button, you can select RAW files directly. 
@@ -97,7 +97,7 @@ OriginalRawFilename to the name of the RAW inputfile. That way you can name the 
 If you ever need to revert the original RAW from the DNG (e.g. to do the conversion again with a never version), <a href="#revert-to-raw"> see here </a>.
 
 
-## <a name="processingdng">  </a>Processing the DNG
+## <a id="processingdng" name="processingdng">  </a>Processing the DNG
 
 Use your favourite software, e.g. darktable, lightroom, ufraw, rawtherapee etc.
 
@@ -160,7 +160,7 @@ About configuration see [imbraw2dng.json](imbraw2dng.json).
 
 ## Tipps, tricks, internals and details
 
-### <a name="metaexif">  </a>Metadata, EXIF
+### <a id="metadexif" name="metaexif">  </a>Metadata, EXIF
 
 The EXIF data in the JPEG files from ImB is of limited use, because it reflects the perspective of the ImB optics and sensor and not of the actual camera. But if you would like to add it to your DNG files, this is possible. Process the JPEG first and then the corresponding RAW.
 Corresponding is defined as: time difference < 5 sec and counter (last part of filename) difference &lt;= 1. It is not neccessary to be directly consecutive, first all JPEGs and then the RAWs should do it.
@@ -169,13 +169,13 @@ Author/creator and copyright metadata can be set globally, and per-image a descr
 
 Time correction can be applied automatically (&#x231a;&#xfe0e;).
 
-### Long Exposure<a name="a-lot-more-tricks-and-details"> </a>
+### Long Exposure<a name="a-lot-more-tricks-and-details" id="a-lot-more-tricks-and-details"> </a>
 
 If you want to simulate a long "Long exposure" by several shorter ones to avoid the specific noise, you can do so by using the `-fla`/`-flx` parameters on node.js. 
 Or set the checkbox below the blue field on the HTML page and then drag and drop the RAW-files you want to stack up together into the blue field.   
 In the app, you first need to convert all RAWs to DNGs. Then select the DNGs you want to stack in your file browser and share these with the ImB OS App.
 
-### <a name="revert-to-raw"> </a>Revert to RAW
+### <a id="revert-to-raw" name="revert-to-raw"> </a>Revert to RAW
 
 If you want back the original raw for an original converted DNG in the app, select only one single DNG in the file browser and share it with the ImB OS App.
 
@@ -229,7 +229,7 @@ Your preferred settings can be saved in a configuration file for node.js (see ab
 You are welcome to browse the code, help translation or optimizing!
 
 
-## <a name="fmt">  </a>Formats
+## <a id="fmt" name="fmt">  </a>Formats
 
 18000000 B = 4000 x 3000 (12bpp) = MiMi
 
@@ -255,7 +255,7 @@ You are welcome to browse the code, help translation or optimizing!
 
 ---------------------------
 
-## <a name="credits">  </a>Credits
+## <a id="credits" name="credits">  </a>Credits
 
 Special Thanks to:
 

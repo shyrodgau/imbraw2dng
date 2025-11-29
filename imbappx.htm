@@ -1572,7 +1572,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.5.4_650eeff", // actually const // VERSION EYECATCHER
+version: "V6.5.5_694b266", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -25018,11 +25018,13 @@ const mytexts = { // actually const
 	jpeg: {
 		exifonly: {
 			en: 'Use EXIF for DNG only, do not download',
-			de: 'Nur EXIF für DNG verwenden, nicht herunterladen'
+			de: 'Nur EXIF für DNG verwenden, nicht herunterladen',
+			ja: 'DNGのみにEXIFを使用し、ダウンロードしないでください。',
 		},
 		noexif: {
 			en: 'Do not use EXIF for DNG',
 			de: 'EXIF nicht für DNG verwenden',
+			ja: 'DNGにはEXIFを使用しないでください。',
 		},
 	},
 	del: {
@@ -25157,17 +25159,21 @@ const mytexts = { // actually const
 		dlbigprev: {
 			en: 'Downloadable big preview directly as JPEG:',
 			de: 'Große Vorschau direkt als JPEG herunterladbar:',
+			ja: 'JPEGとして直接ダウンロード可能な大きなプレビュー',
 		},
 		jpeg: {
 			en: 'JPEGs from ImB:',
 			de: 'JPEGs von ImB:',
+			ja: 'ImBからのJPEG：',
 			dlandexif: {
 				en: 'Download JPEG and use EXIF for DNG',
 				de: 'JPEGs Herunterladen und EXIF für DNG verwenden',
+				ja: 'JPEGをダウンロードし、DNGにはEXIFを使用します。',
 			},
 			dlnoexif: {
 				en: 'Download JPEG, do not use EXIF for DNG',
 				de: 'JPEGs Herunterladen, EXIF nicht für DNG verwenden',
+				ja: 'JPEGをダウンロードし、DNGにはEXIFを使用しません。',
 			},
 		}
 	},
@@ -25183,13 +25189,14 @@ const mytexts = { // actually const
 			ja: 'もう試しましたか？'
 		},
 		adv1: {
-			en: 'You can copy <a target="_new" href="https://github.com/shyrodgau/imbraw2dng/raw/refs/heads/master/imbapp.htm">this file</a> to the SD card into the IMBACK folder<br>and then access it directly in the ImB WiFi as http://192.168.1.254/IMBACK/imbapp.htm!',
-			de: 'Man kann <a target="_new" href="https://github.com/shyrodgau/imbraw2dng/raw/refs/heads/master/imbapp.htm">diese Datei</a> auf die SD Karte im IMBACK Verzeichnis kopieren<br>und dann im ImB WLAN direkt als http://192.168.1.254/IMBACK/imbapp.htm ansurfen!',
-			ja: '<a target="_new" href="https://github.com/shyrodgau/imbraw2dng/raw/refs/heads/master/imbapp.htm">このファイルを SD カードの IMBACK ディレクトリにコピー</a>し、<br>http://192.168.1.254/IMBACK/imbapp.htm として ImB WiFi に直接アクセスできます。'
+			en: 'You can copy <a target="_new" href="https://github.com/shyrodgau/imbraw2dng/raw/refs/heads/master/imbapp.htm">this file</a> to the SD card into the IMBACK folder<br>and then access it directly in the ImB (Film/MF/35mm) WiFi as http://192.168.1.254/IMBACK/imbapp.htm!',
+			de: 'Man kann <a target="_new" href="https://github.com/shyrodgau/imbraw2dng/raw/refs/heads/master/imbapp.htm">diese Datei</a> auf die SD Karte im IMBACK Verzeichnis kopieren<br>und dann im ImB (Film/MF/35mm) WLAN direkt als http://192.168.1.254/IMBACK/imbapp.htm ansurfen!',
+			ja: '<a target="_new" href="https://github.com/shyrodgau/imbraw2dng/raw/refs/heads/master/imbapp.htm">このファイルを SD カードの IMBACK ディレクトリにコピー</a>し、<br>http://192.168.1.254/IMBACK/imbapp.htm として ImB (Film/MF/35mm) WiFi に直接アクセスできます。'
 		},
 		adv2: {
 			en: 'You can install this as a PWA (portable web app) and use it offline (now really)!<br><a href="#" onclick="imbc.dnsad1 = true;imbc.savesettings(\'dnsad1\');imbc.dnsad2 = true;imbc.savesettings(\'dnsad2\');document.getElementById(\'addmod2\').close();imbc.befinp.prompt(); imbc.befinp = null;return false;">Try it</a>',
 			de: 'Man kann es als portable web app (PWA) installieren und offline benutzen (jetzt wirklich)!<br><a href="#" onclick="imbc.dnsad1 = true;imbc.savesettings(\'dnsad1\');document.getElementById(\'addmod2\').close();imbc.befinp.prompt(); imbc.befinp = null; return false;">Ausprobieren</a>',
+			ja: 'これを PWA (ポータブル ウェブ アプリ) としてインストールして、オフラインで使用できます (今すぐ)。<br><a href="#" onclick="imbc.dnsad1 = true;imbc.savesettings(\'dnsad1\');imbc.dnsad2 = true;imbc.savesettings(\'dnsad2\');document.getElementById(\'addmod2\').close();imbc.befinp.prompt(); imbc.befinp = null;return false;">試してみる</a>',
 		}
 	}
 }
