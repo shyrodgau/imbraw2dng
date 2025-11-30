@@ -849,7 +849,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.5.5_0204e89", // actually const // VERSION EYECATCHER
+version: "V6.5.5_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -19160,7 +19160,7 @@ handleone(orientation, upd) {
 		ti.addEntry(50740, 'BYTE', privdatbytes); /* dng private */
 		this.historystring = '';
 		let myexif = null;
-		if (dateok && (2 === (this.jsett & 2))) {
+		if (dateok) {
 			ti.addEntry(306, 'ASCII', datestr); /* datetime */
 			ti.addEntry(36867, 'ASCII', datestr); /* Original date time */
 			// do we have exifdata ?
@@ -19176,8 +19176,10 @@ handleone(orientation, upd) {
 			}
 			if (cand.length) {
 				let e =  cand.sort((a, b) => a.td - b.td)[0].e;
-				this.mappx(0, 'process.addexif', e.name);
-				myexif = e.data;
+				if (2 === (this.jsett & 2)){
+					this.mappx(0, 'process.addexif', e.name);
+					myexif = e.data;
+				}
 			}
 		}
 		let rightbytes = [];

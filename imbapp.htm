@@ -1570,7 +1570,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.5.5_0204e89", // actually const // VERSION EYECATCHER
+version: "V6.5.5_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -19881,7 +19881,7 @@ handleone(orientation, upd) {
 		ti.addEntry(50740, 'BYTE', privdatbytes); /* dng private */
 		this.historystring = '';
 		let myexif = null;
-		if (dateok && (2 === (this.jsett & 2))) {
+		if (dateok) {
 			ti.addEntry(306, 'ASCII', datestr); /* datetime */
 			ti.addEntry(36867, 'ASCII', datestr); /* Original date time */
 			// do we have exifdata ?
@@ -19897,8 +19897,10 @@ handleone(orientation, upd) {
 			}
 			if (cand.length) {
 				let e =  cand.sort((a, b) => a.td - b.td)[0].e;
-				this.mappx(0, 'process.addexif', e.name);
-				myexif = e.data;
+				if (2 === (this.jsett & 2)){
+					this.mappx(0, 'process.addexif', e.name);
+					myexif = e.data;
+				}
 			}
 		}
 		let rightbytes = [];
@@ -25059,19 +25061,19 @@ const mytexts = { // actually const
 			ja: '終了時に、ImB を次のように切り替えます。 '
 		},
 		exitphoto: {
-			de: 'Fotos aufnehmen',
-			en: 'Take photos',
-			ja: '写真を撮る'
+			de: 'Fotos aufnehmen &#x1f4f7;&#xfe0e;',
+			en: 'Take photos &#x1f4f7;&#xfe0e;',
+			ja: '写真を撮る &#x1f4f7;&#xfe0e;'
 		},
 		exitmovie: {
-			de: 'Filme aufnehmen',
-			en: 'Take movies',
-			ja: '映画を撮る'
+			de: 'Filme aufnehmen &#x1f4fd;&#xfe0e;',
+			en: 'Take movies &#x1f4fd;&#xfe0e;',
+			ja: '映画を撮る &#x1f4fd;&#xfe0e;'
 		},
 		exitbrowse: {
-			de: 'Aufgen. Bilder durchstöbern',
-			en: 'Browse taken images',
-			ja: '撮影した画像を閲覧する'
+			de: 'Aufgen. Bilder durchstöbern &#x1f3d4;&#xfe0e;',
+			en: 'Browse taken images &#x1f3d4;&#xfe0e;',
+			ja: '撮影した画像を閲覧する &#x1f3d4;&#xfe0e;'
 		},
 		menu: {
 			settime: {
@@ -26993,9 +26995,9 @@ function init() {
 </div>
 <div class="igxtype">
 <div><input type="checkbox" id="autotime" onchange="imbc.dirtysettings('autotime')"> <label for="autotime"><span data-myxlkey="app.autotime"> </span> <span style="font-family:Symbol3;">&#x1f570;&#xfe0e;</span></label></div>
-<div><span data-myxlkey="app.onexit"></span> <select id="exitsel" onchange="imbc.chgexit('exitmode');"><option value="photo"><span data-myxlkey="app.exitphoto"></span><span style="font-family:Symbol3;"> &#x1f4f7;&#xfe0e;</span></option>
-<option value="movie"><span data-myxlkey="app.exitmovie"></span><span style="font-family:Symbol3;"> &#x1f4fd;&#xfe0e;</span> </option>
-<option value="browse"><span data-myxlkey="app.exitbrowse"></span> <span style="font-family:Symbol3;"> &#x1f3d4;&#xfe0e;</span></option></select></div>
+<div><span data-myxlkey="app.onexit"></span> <select id="exitsel" onchange="imbc.chgexit('exitmode');"><option value="photo" data-myxlkey="app.exitphoto"></option>
+<option value="movie" data-myxlkey="app.exitmovie"></option>
+<option value="browse" data-myxlkey="app.exitbrowse"> </option></select></div>
 <div><span data-myxlkey="app.lang"></span> &#x1f1e7;&#x1f1f7;<span style="position:relative; transform: translateX(-110%) translateY(1%);display:inline-block;clip-path: polygon(0% 0%, 90% 10%, 20% 100%);">&#x1f1e8;&#x1f1ed;</span><select id="langsel" onchange="imbc.setlang()"><option value="99" id="imblangopt" onclick="imbc.setlang()">ImB <span style="font-family:Symbol3;"> &#x1f4f7;&#xfe0e;</span></option><option value="de" onclick="imbc.setlang()">DE &#x1f1e9;&#x1f1ea;</option><option value="en" selected onclick="imbc.setlang()">EN &#x1f1ec;&#x1f1e7;</option>
 <option value="ja" onclick="imbc.setlang()">JA &#x1f1ef;&#x1f1f5;</option><!--option value="fr" onclick="imbc.setlang()">FR</option><option value="ru" onclick="imbc.setlang()">RU</option--></select></div>
 <div><span data-myxlkey="app.dlbigprev"></span> <select id="jprev" onchange="imbc.setjprev()"><option value="0" onclick="imbc.setjprev()" selected>0</option><option value="1" onclick="imbc.setjprev()">1/16</option><option value="2" onclick="imbc.setjprev()">1/4</option>
@@ -27093,6 +27095,7 @@ function init() {
 <span class="whbtn disconnected" style="font-weight:bold;font-family:Symbol3;padding-left:0.4em;padding-right:0.4em;background-color:red !important;display:none;"> ! &#x1f593; ! </span>
 </div>
 </div>
+<div class="appnote" data-myxlkey="app.locnote"></div>
 <div style="width: fit-content;white-space: pre-wrap;"><span style="font-weight:bold;" data-myxlkey="app.menu.extras"></span><br>
 <div>
 <div class="igxtype btop">
