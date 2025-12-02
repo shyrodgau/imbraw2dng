@@ -21834,7 +21834,7 @@ buildpreview(f, size, onok, onerr, orientation, targ, afterload) {
 	w = globals.infos[zz].w;
 	typ = globals.infos[zz].typ;
 	h = globals.infos[zz].h;
-	const whitelvl = (typ === 5) ? 4095: 255;
+	const whitelvl = (typ === 5 || typ === 6) ? 4095: 255;
 
 	let canv;
 	if (undefined !== targ)

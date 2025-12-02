@@ -957,7 +957,7 @@ function buildpreview(struc, f, size, orientation) {
 	w = globals.infos[zz].w;
 	typ = globals.infos[zz].typ;
 	h = globals.infos[zz].h;
-	const whitelvl = (typ === 5) ? 4095: 255;
+	const whitelvl = (typ === 5 || typ === 6) ? 4095: 255;
 
 	const reader = f.imbackextension ? f : new FileReader();
 	reader.onload = (evt) => {
@@ -1001,7 +1001,7 @@ function buildpreviewcache(struc, f, size, orientation) {
 	w = globals.infos[zz].w;
 	typ = globals.infos[zz].typ;
 	h = globals.infos[zz].h;
-	const whitelvl = (typ === 5) ? 4095: 255;
+	const whitelvl = (typ === 5 || typ === 6) ? 4095: 255;
 
 	const contents = f.d;
 	const view = new DataView(contents);
