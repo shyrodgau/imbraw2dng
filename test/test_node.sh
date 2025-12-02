@@ -34,7 +34,7 @@ pushd $testout
 echo '##########    1    ##########'
 echo Test ${tn} convert all
 set -x
-${TESTEXES}/imbraw2dng.js $( find ${TESTDAT}/IMBACK/*/ \( -type f -o -type l \) ! -name index.html )
+${TESTEXES}/imbraw2dng.js $( find ${TESTDAT}/IMBACK/*/ ${TESTDAT}/NOVATEK/*/ \( -type f -o -type l \) ! -name index.html )
 rc=$?
 n=$( ls .|wc -l )
 set +x
@@ -53,7 +53,7 @@ tn=$(( $tn + 1 ))
 echo '##########    2    ##########'
 echo Test ${tn} convert again but do not overwrite expect error
 set -x
-${TESTEXES}/imbraw2dng.js $( find ${TESTDAT}/IMBACK/*/ \( -type f -o -type l  \) ! -name index.html )
+${TESTEXES}/imbraw2dng.js $( find ${TESTDAT}/IMBACK/*/ ${TESTDAT}/NOVATEK/*/ \( -type f -o -type l  \) ! -name index.html )
 rc=$?
 n=$( ls .|wc -l )
 set +x
@@ -71,7 +71,7 @@ tn=$(( $tn + 1 ))
 echo '##########    3    ##########'
 echo Test ${tn} convert again but overwrite
 set -x
-${TESTEXES}/imbraw2dng.js -f $( find ${TESTDAT}/IMBACK/*/ \( -type f -o -type l \) ! -name index.html )
+${TESTEXES}/imbraw2dng.js -f $( find ${TESTDAT}/IMBACK/*/ ${TESTDAT}/NOVATEK/*/ \( -type f -o -type l \) ! -name index.html )
 rc=$?
 n=$( ls .|wc -l )
 set +x
@@ -89,7 +89,7 @@ tn=$(( $tn + 1 ))
 echo '##########    4    ##########'
 echo Test ${tn} convert again but rename
 set -x
-${TESTEXES}/imbraw2dng.js -r $( find ${TESTDAT}/IMBACK/*/ \( -type f -o -type l  \) ! -name index.html )
+${TESTEXES}/imbraw2dng.js -r $( find ${TESTDAT}/IMBACK/*/ ${TESTDAT}/NOVATEK/*/ \( -type f -o -type l  \) ! -name index.html )
 rc=$?
 n=$( ls .|wc -l )
 set +x
@@ -108,7 +108,7 @@ tn=$(( $tn + 1 ))
 echo '##########    5    ##########'
 echo Test ${tn} convert all recursive
 set -x
-${TESTEXES}/imbraw2dng.js -r -R -J -O ${TESTDAT}/IMBACK/*/
+${TESTEXES}/imbraw2dng.js -r -R -J -O ${TESTDAT}/IMBACK/*/ ${TESTDAT}/NOVATEK/*/ 
 rc=$?
 n=$( ls .|wc -l )
 set +x
@@ -116,7 +116,7 @@ if [ $rc -ne 0 ]; then
 	echo Test ${tn} failed $rc
 	exit 5
 fi
-sumnum=$(( $sumnum + $rawcnt + 2 ))
+sumnum=$(( $sumnum + $rawcnt + 3 ))
 if [ $n -ne $sumnum ]; then
 	echo Test ${tn} failed NO $n
 	exit 5
@@ -127,7 +127,7 @@ tn=$(( $tn + 1 ))
 echo '##########    6    ##########'
 echo Test ${tn} convert to zip
 set -x
-${TESTEXES}/imbraw2dng.js -d test1.zip ${TESTDAT}/IMBACK/*/*.[rRmMjJ]*
+${TESTEXES}/imbraw2dng.js -d test1.zip ${TESTDAT}/IMBACK/*/*.[rRmMjJ]* ${TESTDAT}/NOVATEK/*/*.[rRmMjJ]*
 rc=$?
 n=$( ls .|wc -l )
 set +x
@@ -146,7 +146,7 @@ tn=$(( $tn + 1 ))
 echo '##########    7    ##########'
 echo Test ${tn} convert again but exists
 set -x
-${TESTEXES}/imbraw2dng.js -d test1.zip ${TESTDAT}/IMBACK/*/*.[rRmMjJ]*
+${TESTEXES}/imbraw2dng.js -d test1.zip ${TESTDAT}/IMBACK/*/*.[rRmMjJ]* ${TESTDAT}/NOVATEK/*/*.[rRmMjJ]*
 rc=$?
 n=$( ls .|wc -l )
 set +x
@@ -164,7 +164,7 @@ tn=$(( $tn + 1 ))
 echo '##########    8    ##########'
 echo Test ${tn} convert again but no thum but copyright and zip
 set -x
-${TESTEXES}/imbraw2dng.js -np -cr 'testcopyright debugging' -d test2.zip ${TESTDAT}/IMBACK/*/*.[rRmMjJ]*
+${TESTEXES}/imbraw2dng.js -np -cr 'testcopyright debugging' -d test2.zip ${TESTDAT}/IMBACK/*/*.[rRmMjJ]* ${TESTDAT}/NOVATEK/*/*.[rRmMjJ]*
 rc=$?
 n=$( ls .|wc -l )
 set +x
@@ -184,7 +184,7 @@ tn=$(( $tn + 1 ))
 echo '##########    9    ##########'
 echo Test ${tn} convert again but no thum but copyright and rename
 set -x
-${TESTEXES}/imbraw2dng.js -np -cr 'testcopyright debugging' -r ${TESTDAT}/IMBACK/*/*.[rRmMjJ]*
+${TESTEXES}/imbraw2dng.js -np -cr 'testcopyright debugging' -r ${TESTDAT}/IMBACK/*/*.[rRmMjJ]* ${TESTDAT}/NOVATEK/*/*.[rRmMjJ]*
 rc=$?
 n=$( ls .|wc -l )
 set +x
@@ -328,7 +328,7 @@ echo '##########    15    ##########'
 echo '{ }' > ${testout}/.imbraw2dng.json
 echo Test ${tn} stacking RAW
 set -x
-${TESTEXES}/imbraw2dng_en.js -flx -d stackraw.zip ${TESTDAT}/IMBACK/*/*.[rR]* 
+${TESTEXES}/imbraw2dng_en.js -flx -d stackraw.zip  ${TESTDAT}/NOVATEK/*/*.[rRmMjJ]* ${TESTDAT}/IMBACK/*/*.[rR]* 
 rc=$?
 n=$( ls .|wc -l )
 set +x

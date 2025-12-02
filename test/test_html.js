@@ -117,7 +117,7 @@ describe('A Convert Raw Local', function() {
 				.perform();
 			const sel2 = await cb.isSelected();
 			const fi = await driver.findElement(By.id('infile'));
-			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw');
+			await fi.sendKeys(TESTDAT + '/NOVATEK/PHOTO/2020_0211_213011_001.raw');
 			await driver.actions({async: true}).pause(900).perform();
 			renameDownload(tdir);
 			await driver.actions({async: true}).clear();
@@ -164,7 +164,7 @@ describe('A Convert Raw Local', function() {
 			}
 			const fi = await driver.findElement(By.id('infile'));
 			await fi.clear();
-			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw\n' + TESTDAT + '/IMBACK/PHOTO/2024_1015_123011_001.raw');
+			await fi.sendKeys(TESTDAT + '/NOVATEK/PHOTO/2020_0211_213011_001.raw\n' + TESTDAT + '/IMBACK/PHOTO/2024_1015_123011_001.raw');
 			const rcw = await driver.findElement(By.id('procthisccw'));
 			await driver.actions({async: true})
 				.pause(300).move({origin: rcw}).pause(300).click().pause(300).perform();
@@ -229,7 +229,7 @@ describe('A Convert Raw Local', function() {
 			await copytext.sendKeys('(c) Stefan Hegny debugging');
 			const fi = await driver.findElement(By.id('infile'));
 			await fi.clear();
-			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2023_1114_113011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2024_1015_123011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2029_0710_010203_001.raw');
+			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2023_1114_113011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2024_1015_123011_001.raw' + '\n' + TESTDAT + '/NOVATEK/PHOTO/2020_0211_213011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2029_0710_010203_001.raw');
 			// do something to make it flutsch
 			await driver.actions({async: true})
 				.pause(700).move({ origin: cb }).pause(700).perform();
@@ -921,7 +921,7 @@ describe('F Convert Raw Local APP', function() {
 				.pause(6000)
 				.perform();
 			const fi = await driver.findElement(By.id('infile'));
-			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw');
+			await fi.sendKeys(TESTDAT + '/NOVATEK/PHOTO/2020_0211_213011_001.raw');
 			//await driver.actions({async: true}).clear();
 			const okb = await waitfor(driver, 'id','progokbut');
 			await driver.actions({ async: true })
@@ -940,7 +940,7 @@ describe('F Convert Raw Local APP', function() {
 				.perform();
 			const fi = await driver.findElement(By.id('infile'));
 			//await fi.clear();
-			await fi.sendKeys('/home/hegny/Downloads/2020_0211_213011_001.jpg\n' + TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2024_0217_121754_002.JPG' + '\n' + TESTDAT + '/IMBACK/PHOTO/2024_0217_121752_001.RAW');
+			await fi.sendKeys('/home/hegny/Downloads/2020_0211_213011_001.jpg\n' + TESTDAT + '/NOVATEK/PHOTO/2020_0211_213011_001.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2024_0217_121754_002.JPG' + '\n' + TESTDAT + '/IMBACK/PHOTO/2024_0217_121752_001.RAW');
 			await driver.actions({async: true}).pause(900).perform();
 			await driver.actions({async: true}).clear();
 			const selall = await waitfor(driver, 'id', 'selall');
@@ -1016,7 +1016,7 @@ describe('G Stacking DNG and RAW on old html', function() {
 				.pause(200).move({origin: zipb}).pause(300).click().pause(300).perform();
 			const fi = await driver.findElement(By.id('infile'));
 			await fi.clear();
-			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw\n' + TESTDAT + '/IMBACK/PHOTO/2024_1015_123011_001.raw');
+			await fi.sendKeys(TESTDAT + '/NOVATEK/PHOTO/2020_0211_213011_001.raw\n' + TESTDAT + '/IMBACK/PHOTO/2024_1015_123011_001.raw');
 			await driver.actions({async: true})
 				.pause(300).move({ origin: fi }).pause(2000).perform();
 			renameDownload(tdir);
@@ -1076,7 +1076,7 @@ describe('H Stack DNG and Raw Local APP', function() {
 			await driver.actions({async: true})
 				.pause(200).move({origin: zipb}).pause(300).click().pause(300).perform();
 			const fi = await driver.findElement(By.id('infile'));
-			await fi.sendKeys(TESTDAT + '/IMBACK/PHOTO/2020_0211_213011_001.raw\n' + TESTDAT + '/IMBACK/PHOTO/2024_1015_123011_001.raw');
+			await fi.sendKeys(TESTDAT + '/NOVATEK/PHOTO/2020_0211_213011_001.raw\n' + TESTDAT + '/IMBACK/PHOTO/2024_1015_123011_001.raw');
 			await driver.actions({async: true}).pause(900).perform();
 			await driver.actions({async: true}).clear();
 			const okb = await driver.findElement(By.id('progokbut'));
