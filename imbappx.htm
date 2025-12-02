@@ -22780,6 +22780,33 @@ custcmdB(cmd, type, restargs, cb) {
 		document.getElementById('overlay').style['display'] = 'none';
 	});
 }
+/* TopApp: load imgs via normal dir listing */
+loaddir(dirname, onfinish){
+	const xhr = new XMLHttpRequest();
+	xhr.onloadend = (/*event*/) => {
+		if (xhr.status === 200) {
+			const sel2 = xhr.responseXML.querySelectorAll('a');
+			for (const r of sel2) {
+				let n = r.href;
+				if (ImBCBase.ucex(n) !== '.RAW' || -1 !== n.indexOf('del=')) continue;
+				if (n.startsWith(this.imbweb)) n = n.substring(this.imbweb.length);
+				n = ImBCBase.basename(n);
+				//let z = this.imbeles.indexOf(e => (e.name === n));
+				if (-1 !== this.imbeles.findIndex(e => (e.name === n))) continue;
+				this.handle1imb('A:\\' + dirname + '\\PHOTO\\' + ImBCBase.basename(n));
+			}
+			onfinish();
+		}
+		else
+			onfinish();
+	};
+	xhr.onerror = (/*event*/) => {
+		onfinish();
+	};
+	xhr.open('GET', this.imbweb + '/' + dirname + '/PHOTO/');
+	xhr.responseType = 'document';
+	xhr.send();
+}
 /* TopApp: load imgs from back */
 loadimgs() {
 	this.showsplash();
@@ -22803,38 +22830,16 @@ loadimgs() {
 			//const se = doc[1].querySelectorAll('LIST ALLFile File FPATH');
 			//if (!rawfound && se.length && se[0].textContent.length >= 40) {
 				// check existance of raw for all jpegs if film
-				const xhr = new XMLHttpRequest();
-				xhr.onloadend = (/*event*/) => {
-					if (xhr.status === 200) {
-						const sel2 = xhr.responseXML.querySelectorAll('a');
-						for (const r of sel2) {
-							let n = r.href;
-							if (ImBCBase.ucex(n) !== '.RAW' || -1 !== n.indexOf('del=')) continue;
-							if (n.startsWith(this.imbweb)) n = n.substring(this.imbweb.length);
-							n = ImBCBase.basename(n);
-							//let z = this.imbeles.indexOf(e => (e.name === n));
-							if (-1 !== this.imbeles.findIndex(e => (e.name === n))) continue;
-							this.handle1imb('A:\\IMBACK\\PHOTO\\' + ImBCBase.basename(n));
-						}
+				this.loaddir('IMBACK', () => {
+					this.loaddir('NOVATEK', () => {
 						if (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0) {
 							this.aftercheck();
 							this.showbrowser();
 						} else {
 							this.showmain();
 						}
-					}
-				};
-				xhr.onerror = (/*event*/) => {
-					if (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0) {
-						this.aftercheck();
-						this.showbrowser();
-					} else {
-						this.showmain();
-					}
-				};
-				xhr.open('GET', this.imbweb + '/IMBACK/PHOTO/');
-				xhr.responseType = 'document';
-				xhr.send();
+					});
+				});
 				return;
 			/*}
 			if (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0) {
@@ -25111,11 +25116,6 @@ const mytexts = { // actually const
 				en: 'Extras',
 				de: 'Extras',
 				ja: '追加機能',
-				copytoimb: {
-					de: 'Wenn Sie die imbapp.htm Seite auf ImB installieren, können Sie mit einem beliebigen Webbrowser unter der Adresse http://192.168.1.254/IMBACK/IMBAPP.HTM auch fast alles machen.',
-					en: 'When you install imbapp.htm page on ImB, you can do nearly everything with any web browser at the addresse http://192.168.1.254/IMBACK/IMBAPP.HTM.',
-					ja: 'imbapp.htm ページを IMB にインストールすると、http://192.168.1.254/IMBACK/IMBAPP.HTM というアドレスで、どの Web ブラウザからでもほぼすべての操作を実行できるようになります。'
-				},
 				clearcache: {
 					de: 'Internen Zwichenspeicher löschen',
 					en: 'Clear internal cache',
@@ -25191,9 +25191,9 @@ const mytexts = { // actually const
 			ja: 'もう試しましたか？'
 		},
 		adv1: {
-			en: 'You can copy <a target="_new" href="https://github.com/shyrodgau/imbraw2dng/raw/refs/heads/master/imbapp.htm">this file</a> to the SD card into the IMBACK folder<br>and then access it directly in the ImB (Film/MF/35mm) WiFi as http://192.168.1.254/IMBACK/imbapp.htm!',
-			de: 'Man kann <a target="_new" href="https://github.com/shyrodgau/imbraw2dng/raw/refs/heads/master/imbapp.htm">diese Datei</a> auf die SD Karte im IMBACK Verzeichnis kopieren<br>und dann im ImB (Film/MF/35mm) WLAN direkt als http://192.168.1.254/IMBACK/imbapp.htm ansurfen!',
-			ja: '<a target="_new" href="https://github.com/shyrodgau/imbraw2dng/raw/refs/heads/master/imbapp.htm">このファイルを SD カードの IMBACK ディレクトリにコピー</a>し、<br>http://192.168.1.254/IMBACK/imbapp.htm として ImB (Film/MF/35mm) WiFi に直接アクセスできます。'
+			en: 'You can copy <a target="_new" href="https://github.com/shyrodgau/imbraw2dng/raw/refs/heads/master/imbapp.htm">this file</a> to the SD card into the IMBACK folder<br>and then access it directly in the ImB WiFi as http://192.168.1.254/IMBACK/imbapp.htm! (MiMi: IMBACK&rarr;NOVATEK)',
+			de: 'Man kann <a target="_new" href="https://github.com/shyrodgau/imbraw2dng/raw/refs/heads/master/imbapp.htm">diese Datei</a> auf die SD Karte im IMBACK Verzeichnis kopieren<br>und dann im ImB WLAN direkt als http://192.168.1.254/IMBACK/imbapp.htm ansurfen! (MiMi: IMBACK&rarr;NOVATEK)',
+			ja: '<a target="_new" href="https://github.com/shyrodgau/imbraw2dng/raw/refs/heads/master/imbapp.htm">このファイルを SD カードの IMBACK ディレクトリにコピー</a>し、<br>http://192.168.1.254/IMBACK/imbapp.htm として ImB WiFi に直接アクセスできます。 (MiMi: IMBACK&rarr;NOVATEK)'
 		},
 		adv2: {
 			en: 'You can install this as a PWA (portable web app) and use it offline (now really)!<br><a href="#" onclick="imbc.dnsad1 = true;imbc.savesettings(\'dnsad1\');imbc.dnsad2 = true;imbc.savesettings(\'dnsad2\');document.getElementById(\'addmod2\').close();imbc.befinp.prompt(); imbc.befinp = null;return false;">Try it</a>',

@@ -29,7 +29,7 @@ auch in verschiedenen Sprachen als `imbraw2dng_XX.html` (siehe [Internationalisi
 - [**&#x261e;**`imbdng2raw.html`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html), [**&#x261e;**`imbdng2raw.js`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js)
 von DNG nach RAW zurück konvertieren, nur für originale hiermit nach DNG konvertierte Dateien
  
-Es sind keine "Schwarz-Weiß RAW"-Dateien, sondern die echten Roh-Sensordaten mit der Farbfilterung darauf (leider aber nur 8 bit bei 35mm und MF, 12 bit bei Film). 
+Es sind keine "Schwarz-Weiß RAW"-Dateien, sondern die echten Roh-Sensordaten mit der Farbfilterung darauf (leider aber nur 8 bit bei 35mm und MF, 12 bit bei Film und MiMi). 
 
 DNG (Adobe&reg; Digital NeGativ) ist offenes Dateiformat, das hauptsächlich aus den ursprünglichen Bilddaten besteht. 
 Bei Dateien von MF und Film ist die Farbfilter-Matrix (Color Filter Array) anders.

@@ -28,7 +28,7 @@ also in different languages as `imbraw2dng_XX.html` (see [Internationalization](
 - [**&#x261e;**`imbdng2raw.html`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html), [**&#x261e;**`imbdng2raw.js`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js) backward conversion from DNG to RAW, only for original DNGs converted using these tools
 
 
-The ImB RAWs are not really "B&W RAW" but actually the RAW sensor data that also contains the colour filtering (unfortunately only 8 bit deep for 35mm and MF, but 12 bit for Film). 
+The ImB RAWs are not really "B&W RAW" but actually the RAW sensor data that also contains the colour filtering (unfortunately only 8 bit deep for 35mm and MF, but 12 bit for Film and MiMi). 
 
 DNG (Adobe&reg; Digital NeGative) is an open format and consists mainly of the original image scanlines. 
 If it is from an MF or Film ImB then the Color Filter Array is different.
