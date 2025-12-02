@@ -1548,6 +1548,8 @@ latestjpg='0000';
 earliestraw='9999';
 latestraw='0000';
 
+ismimi=false;
+
 // [0]: (1,2)   !=0 => use separate localstorage namespace from imbraw2dng
 // [1]: (3,6)   imbweb: for non-emulator: 1 => use = 'http://192.168.8.101:8889'; 2 => use = 'http://192.168.0.72:8889'; android emulator: !=0 => use 10.0.2.2 (host connection)
 // [2]: (9,18)  !=0 => use longer startup timeout, debug version
