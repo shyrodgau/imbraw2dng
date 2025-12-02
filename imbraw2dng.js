@@ -20314,54 +20314,61 @@ handlenext() {
 	}
 }
 /* ImBCNode: nodejs: get imb data for node js */
-checkimb(type, found) {
+checkimb(type, found, mimiflag) {
 	//let subdir = '';
 	let subdir = 'PHOTO';
 	if (type) subdir='MOVIE';
 	//this.ht.get('http://127.0.0.1:8000/PHOTO.html', (res) => {
 	//console.log('GET ' + subdir);
-	this.ht.get(this.imbweb + '/IMBACK/' + subdir + '/', (res) => {
-			let err = false;
-			if (res.statusCode !== 200 || !/^text\/html/.test(res.headers['content-type'])) {
-				err = true;
-				res.resume();
-				if (!type) {
-					return this.checkimb(true, false);
-				}
-				else if (type && !found) {
-					console.log(this.xl('onimback.errconnect', this.imbweb));
-					console.log('Status: ' + res.statusCode + ' Type: ' + res.headers['content-type']);
-					process.exit(1);
-				}
-				else this.imbdoit();
-				return;
+	this.ht.get(this.imbweb + '/' + (mimiflag ? 'NOVATEK' : 'IMBACK') + '/' + subdir + '/', (res) => {
+		let err = false;
+		if (res.statusCode !== 200 || !/^text\/html/.test(res.headers['content-type'])) {
+			err = true;
+			res.resume();
+			if (!type) {
+				return this.checkimb(true, found, mimiflag);
 			}
-			let b = '';
-			res.on('data', (chunk) => {
-				if (!this.#connmsg) console.log(this.rmesc('\u001b[32m' + this.xl('onimback.connected') + '\u001b[0m'));
-				this.#connmsg = true;
-				b += chunk;
-			});
-			res.on('end', () => {
-				let i=0, j;
-				while ((j = b.substring(i).toLowerCase().indexOf('<a href=')) !== -1) {
-					let delim = b.substring(i+j+8, i+j+9);
-					let endstr = b.substring(i+j+9).indexOf(delim);
-					let url = b.substring(i+j+9, i+j+9+endstr);
-					if (-1 === url.indexOf('?del=')) {
-						if (url.startsWith(this.imbweb))
-							this.handle1imb(url);
-						else
-							this.handle1imb(this.imbweb+ url);
-					}
-					i=i+j+10;
+			else if (!mimiflag) {
+				return this.checkimb(false, found, true);
+			}
+			else if (type && !found) {
+				console.log(this.xl('onimback.errconnect', this.imbweb));
+				console.log('Status: ' + res.statusCode + ' Type: ' + res.headers['content-type']);
+				process.exit(1);
+			}
+			else this.imbdoit();
+			return;
+		}
+		let b = '';
+		res.on('data', (chunk) => {
+			if (!this.#connmsg) console.log(this.rmesc('\u001b[32m' + this.xl('onimback.connected') + '\u001b[0m'));
+			this.#connmsg = true;
+			b += chunk;
+		});
+		res.on('end', () => {
+			let i=0, j;
+			while ((j = b.substring(i).toLowerCase().indexOf('<a href=')) !== -1) {
+				let delim = b.substring(i+j+8, i+j+9);
+				let endstr = b.substring(i+j+9).indexOf(delim);
+				let url = b.substring(i+j+9, i+j+9+endstr);
+				if (-1 === url.indexOf('?del=')) {
+					if (url.startsWith(this.imbweb))
+						this.handle1imb(url);
+					else
+						this.handle1imb(this.imbweb+ url);
 				}
-				if (type) { if (!err || found) this.imbdoit(); }
-				else this.checkimb(true, !err);
-			});
+				i=i+j+10;
+			}
+			if (type && mimiflag) { if (!err || found) this.imbdoit(); }
+			else if (type) this.checkimb(false, found, true);
+			else this.checkimb(true, !err);
+		});
 	}).on('error', (e) => {
 		if (!type) {
-			return this.checkimb(true, false);
+			return this.checkimb(true, found, mimiflag);
+		}
+		else if (!mimiflag) {
+			return this.checkimb(false, found, true);
 		}
 		else if (type && !found) {
 			console.log(this.xl('onimback.errconnect', this.imbweb));
