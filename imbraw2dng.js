@@ -20361,7 +20361,7 @@ checkimb(type, found, mimiflag) {
 			}
 			if (type && mimiflag) { if (!err || found) this.imbdoit(); }
 			else if (type) this.checkimb(false, found, true);
-			else this.checkimb(true, !err);
+			else this.checkimb(true, !err, mimiflag);
 		});
 	}).on('error', (e) => {
 		if (!type) {
