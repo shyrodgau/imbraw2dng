@@ -110,9 +110,7 @@ insdyn ~/prog/imbraw2dng/imbraw2dng/imbraw2dng.html 2
 insdyn ~/prog/imbraw2dng/imbraw2dng/imbraw2dng.html 1
 insdyn ~/prog/imbraw2dng/imbraw2dng/imbapp.htm 2
 insdyn ~/prog/imbraw2dng/imbraw2dng/imbapp.htm 1
-insdyn ~/prog/imbraw2dng/imbraw2dng/imbapp_00.html 2
-insdyn ~/prog/imbraw2dng/imbraw2dng/imbapp_00.html 1
+insdyn ~/prog/imbraw2dng/imbraw2dng/imbappx.htm 2
+insdyn ~/prog/imbraw2dng/imbraw2dng/imbappx.htm 1
 insdyn ~/prog/imbraw2dng/imbraw2dng/cordova/imbapp/www/imbapp.html 2
 insdyn ~/prog/imbraw2dng/imbraw2dng/cordova/imbapp/www/imbapp.html 1
-insdyn ~/prog/imbraw2dng/imbraw2dng/cordova/imbapp/www/imbapp-dbg.html 2
-insdyn ~/prog/imbraw2dng/imbraw2dng/cordova/imbapp/www/imbapp-dbg.html 1

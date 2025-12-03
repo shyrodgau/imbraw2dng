@@ -7,4 +7,6 @@ Can not be used out-of-the-box without matching testdata.
 
 [Node/Mocha-Testscript for html](test_html.js)
 
+[Node-Testscript for Android](test_app.js)
+
 [Bash Wrapper](testwrapper.sh)
