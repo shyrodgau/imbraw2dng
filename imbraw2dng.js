@@ -21037,11 +21037,13 @@ const mytexts = { // actually const
 	jpeg: {
 		exifonly: {
 			en: 'Use EXIF for DNG only, do not download',
-			de: 'Nur EXIF für DNG verwenden, nicht herunterladen'
+			de: 'Nur EXIF für DNG verwenden, nicht herunterladen',
+			ja: 'DNGのみにEXIFを使用し、ダウンロードしないでください。',
 		},
 		noexif: {
 			en: 'Do not use EXIF for DNG',
 			de: 'EXIF nicht für DNG verwenden',
+			ja: 'DNGにはEXIFを使用しないでください。',
 		},
 	},
 	node: {
