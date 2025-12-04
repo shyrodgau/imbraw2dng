@@ -98,26 +98,16 @@ If you ever need to revert the original RAW from the DNG (e.g. to do the convers
 
 ![](https://shyrodgau.github.io/imbraw2dng/helpstuff/usercontrols.png "User controls")
 
-1: Menu
-
-2: Battery level (when connected to ImB)
-
-3: Delete selected
-
-4: Download selected
-
-5: Picture Browser (when files loaded)
-
-6: Take Photos (when connected to ImB)
-
-7: Take Videos
-
-8: Grouping
-
-9: Sorting
-
-10: Select all/none
-
+1: Menu    
+2: Battery level (when connected to ImB)    
+3: Delete selected    
+4: Download selected    
+5: Picture Browser (when files loaded)    
+6: Take Photos (when connected to ImB)    
+7: Take Videos    
+8: Grouping    
+9: Sorting    
+10: Select all/none    
 11: File Selection (when not connected to ImB)
 
 

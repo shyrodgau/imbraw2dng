@@ -102,26 +102,16 @@ Falls jemals das Original-RAW wieder benötigt wird (z.B. um es mit einer neuere
 
 ![](https://shyrodgau.github.io/imbraw2dng/helpstuff/usercontrols.png "Bedienelemente")
 
-1: Menü
-
-2: Batteriefüllstand (wenn mit ImB verbunden)
-
-3: Ausgewählte Löschen
-
-4: Ausgewählte Herunterladen
-
-5: Bild-Browser (wenn Bilder geladen)
-
-6: Foto aufnehmen (wenn mit ImB verbunden)
-
-7: Video aufnehmen
-
-8: Gruppierung
-
-9: Sortierung
-
-10: Alle/Keine auswählen
-
+1: Menü    
+2: Batteriefüllstand (wenn mit ImB verbunden)    
+3: Ausgewählte Löschen    
+4: Ausgewählte Herunterladen    
+5: Bild-Browser (wenn Bilder geladen)    
+6: Foto aufnehmen (wenn mit ImB verbunden)    
+7: Video aufnehmen    
+8: Gruppierung    
+9: Sortierung    
+10: Alle/Keine auswählen    
 11: Datei-Auswahl (wenn nicht mit ImB verbunden)
 
 ## <a id="processingdng" name="processingdng">  </a>Verarbeitung des DNG
