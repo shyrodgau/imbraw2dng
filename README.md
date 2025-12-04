@@ -96,6 +96,30 @@ OriginalRawFilename to the name of the RAW inputfile. That way you can name the 
 
 If you ever need to revert the original RAW from the DNG (e.g. to do the conversion again with a never version), <a href="#revert-to-raw"> see here </a>.
 
+![](https://shyrodgau.github.io/imbraw2dng/helpstuff/usercontrols.png "User controls")
+
+1: Menu
+
+2: Battery level (when connected to ImB)
+
+3: Delete selected
+
+4: Download selected
+
+5: Picture Browser (when files loaded)
+
+6: Take Photos (when connected to ImB)
+
+7: Take Videos
+
+8: Grouping
+
+9: Sorting
+
+10: (don't know exactly)
+
+11: File Selection (when not connected to ImB)
+
 
 ## <a id="processingdng" name="processingdng">  </a>Processing the DNG
 

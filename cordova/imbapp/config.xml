@@ -27,6 +27,7 @@
     <resource-file src="../../README_de.html" target="app/src/main/assets/www/res/README_de.html"/>
     <resource-file src="../../README_ja.html" target="app/src/main/assets/www/res/README_ja.html"/>
     <resource-file src="../../imbraw2dng.json" target="app/src/main/assets/www/res/imbraw2dng.json"/>
+    <resource-file src="../../helpstuff/usercontrols.png" target="app/src/main/assets/www/res/usercontrols.png"/>
     <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application">
       <application android:usesCleartextTraffic="true" android:largeHeap="true" android:requestLegacyExternalStorage="true" />
     </edit-config>
@@ -55,6 +56,7 @@
       <resource-file src="../../README_de.html" target="app/src/main/assets/www/res/README_de.htm"/>
       <resource-file src="../../README_ja.html" target="app/src/main/assets/www/res/README_ja.htm"/>
     <resource-file src="../../imbraw2dng.json" target="app/src/main/assets/www/res/imbraw2dng.json"/>
+    <resource-file src="../../helpstuff/usercontrols.png" target="app/src/main/assets/www/res/usercontrols.png"/>
     </platform>
   <icon src="res/logo.png"/>
   <exclude-files pattern="imbapp-dbg.html"/>
