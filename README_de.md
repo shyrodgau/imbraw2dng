@@ -120,7 +120,7 @@ Falls jemals das Original-RAW wieder benötigt wird (z.B. um es mit einer neuere
 
 9: Sortierung
 
-10: (weiß nicht genau)
+10: Alle/Keine auswählen
 
 11: Datei-Auswahl (wenn nicht mit ImB verbunden)
 

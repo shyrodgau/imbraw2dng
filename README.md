@@ -116,7 +116,7 @@ If you ever need to revert the original RAW from the DNG (e.g. to do the convers
 
 9: Sorting
 
-10: (don't know exactly)
+10: Select all/none
 
 11: File Selection (when not connected to ImB)
 
