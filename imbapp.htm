@@ -20651,7 +20651,7 @@ appinfo(doit) {
 	//document.getElementById('pages').style['display'] = 'none';
 	document.getElementById('phpv').src="";
 	document.getElementById('genericok').style['border-color'] = 'grey';
-	document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('main.apptitle'));
+	document.getElementById('okmsg').innerHTML = ('<span style="font-family:Symbol3;font-weight:normal;">&#x1f6c8;</span> ' + this.rmesc(this.xl('main.apptitle')));
 	document.getElementById('okmsg').innerHTML += '<br>';
 	document.getElementById('okmsg').innerHTML += this.rmesc(this.xl('main.title'));
 	document.getElementById('okmsg').innerHTML += '<br>';
@@ -26917,6 +26917,7 @@ function init() {
 	imbc = new ImBCHtml();
 	ImBCBase.progname = 'imbapp.htm';
 	document.getElementById('normal').style['display'] = 'none';
+	history.pushState(event.state,'');
 	setTimeout(() => {
 		imbc.initsettings();
 		imbc.chgcopycheck(true);
@@ -26963,6 +26964,10 @@ function init() {
 	window.addEventListener('appinstalled', function (/*event*/) {
 		imbc.dnsad2 = true;
 		imbc.savesettings('dnsad2');
+	});
+	window.addEventListener('popstate', function (event) {
+		history.pushState(event.state,'');
+		imbc.handleback();
 	});
 	if (window.location.origin.startsWith('file:/')) {
 		for (const e of document.querySelectorAll('.appnote'))
