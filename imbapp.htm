@@ -26917,7 +26917,9 @@ function init() {
 	imbc = new ImBCHtml();
 	ImBCBase.progname = 'imbapp.htm';
 	document.getElementById('normal').style['display'] = 'none';
-	history.pushState({imbr: true},'');
+	history.replaceState({imbr: true},'',window.location.href);
+	history.pushState({imbr: true},'', window.location.href);
+	history.pushState({imbr: true},'',window.location.href);
 	setTimeout(() => {
 		imbc.initsettings();
 		imbc.chgcopycheck(true);
@@ -26966,7 +26968,9 @@ function init() {
 		imbc.savesettings('dnsad2');
 	});
 	window.addEventListener('popstate', function (event) {
-		history.pushState({imbr: true},'');
+		event.preventDefault();
+		history.pushState({imbr: true},'',window.location.href);
+		history.pushState({imbr: true},'',window.location.href);
 		imbc.handleback();
 	});
 	if (window.location.origin.startsWith('file:/')) {
