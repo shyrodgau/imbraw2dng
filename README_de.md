@@ -102,17 +102,27 @@ Falls jemals das Original-RAW wieder benötigt wird (z.B. um es mit einer neuere
 
 ![](https://shyrodgau.github.io/imbraw2dng/helpstuff/usercontrols.png "Bedienelemente")
 
-1: Menü    
+1: &#x2261; Menü    
 2: Batteriefüllstand (wenn mit ImB verbunden)    
-3: Ausgewählte Löschen    
-4: Ausgewählte Herunterladen    
-5: Bild-Browser (wenn Bilder geladen)    
-6: Foto aufnehmen (wenn mit ImB verbunden)    
-7: Video aufnehmen    
+3: &#x1f5d1;&#xfe0e; Ausgewählte Löschen    
+4: &#x2b73;&#xfe0e; Download selected    
+5: &#x1f3d4;&#xfe0e; Bild-Browser (wenn Bilder geladen)    
+6: &#x1f4f7;&#xfe0e; Foto aufnehmen (wenn mit ImB verbunden)    
+7: &#x1f4fd;&#xfe0e; Video aufnehmen (wenn mit ImB verbunden)    
 8: Gruppierung    
 9: Sortierung    
 10: Alle/Keine auswählen    
-11: Datei-Auswahl (wenn nicht mit ImB verbunden)
+11: &#x1f5c2;&#xfe0e; Datei-Auswahl (wenn nicht mit ImB verbunden)    
+12: &#x2b73;&#xfe0e; Herunterladen    
+13: &#x2b6e;&#xfe0e; im Uhrzeigersinn drehen (wenn RAW)  
+14: &#x2b6f;&#xfe0e; gegen den Uhrzeigersinn drehen (wenn RAW)   
+15: &#x231a;&#xfe0e; Zeitstempel korrigieren     
+16: raw JPEG herunterladen (sofern konfiguriert und RAW)    
+17: &#x1f5d1;&#xfe0e; Löschen   
+18: Dieses auswählen    
+19: &#x270e;&#xfe0e; Beschreibung setzen (wenn RAW)    
+20: &#x1f50d;&#xfe0e; Vergrößerte Ansicht
+
 
 ## <a id="processingdng" name="processingdng">  </a>Verarbeitung des DNG
 

@@ -98,17 +98,26 @@ If you ever need to revert the original RAW from the DNG (e.g. to do the convers
 
 ![](https://shyrodgau.github.io/imbraw2dng/helpstuff/usercontrols.png "User controls")
 
-1: Menu    
+1: &#x2261; Menu    
 2: Battery level (when connected to ImB)    
-3: Delete selected    
-4: Download selected    
-5: Picture Browser (when files loaded)    
-6: Take Photos (when connected to ImB)    
-7: Take Videos    
+3: &#x1f5d1;&#xfe0e; Delete selected    
+4: &#x2b73;&#xfe0e; Download selected    
+5: &#x1f3d4;&#xfe0e; Picture Browser (when files loaded)    
+6: &#x1f4f7;&#xfe0e; Take Photos (when connected to ImB)    
+7: &#x1f4fd;&#xfe0e; Take Videos (when connected to ImB)    
 8: Grouping    
 9: Sorting    
 10: Select all/none    
-11: File Selection (when not connected to ImB)
+11: &#x1f5c2;&#xfe0e; File Selection (when not connected to ImB)    
+12: &#x2b73;&#xfe0e; Download     
+13: &#x2b6e;&#xfe0e; Rotate clockwise  (if raw)  
+14: &#x2b6f;&#xfe0e; Rotate counterclockwise  (if raw)   
+15: &#x231a;&#xfe0e; Correct timestamp     
+16: Download raw JPEG  (if raw and configured)    
+17: &#x1f5d1;&#xfe0e; Delete    
+18: Select this    
+19: &#x270e;&#xfe0e; Set description  (if raw)    
+20: &#x1f50d;&#xfe0e; View magnified
 
 
 ## <a id="processingdng" name="processingdng">  </a>Processing the DNG
