@@ -100,8 +100,8 @@ If you ever need to revert the original RAW from the DNG (e.g. to do the convers
 
 1: &#x2261; Menu    
 2: Battery level (when connected to ImB)    
-3: &#x1f5d1;&#xfe0e; Delete selected    
-4: &#x2b73;&#xfe0e; Download selected    
+3: &#x1f5d1;&#xfe0e; Delete selected (when connected to ImB)    
+4: &#x2b73;&#xfe0e; Download/Convert selected    
 5: &#x1f3d4;&#xfe0e; Picture Browser (when files loaded)    
 6: &#x1f4f7;&#xfe0e; Take Photos (when connected to ImB)    
 7: &#x1f4fd;&#xfe0e; Take Videos (when connected to ImB)    

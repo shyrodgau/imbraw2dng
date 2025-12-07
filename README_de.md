@@ -104,10 +104,10 @@ Falls jemals das Original-RAW wieder benötigt wird (z.B. um es mit einer neuere
 
 1: &#x2261; Menü    
 2: Batteriefüllstand (wenn mit ImB verbunden)    
-3: &#x1f5d1;&#xfe0e; Ausgewählte Löschen    
-4: &#x2b73;&#xfe0e; Download selected    
+3: &#x1f5d1;&#xfe0e; Ausgewählte Löschen (wenn mit ImB verbunden)    
+4: &#x2b73;&#xfe0e; Ausgewählte Herunterladen/Konvertieren    
 5: &#x1f3d4;&#xfe0e; Bild-Browser (wenn Bilder geladen)    
-6: &#x1f4f7;&#xfe0e; Foto aufnehmen (wenn mit ImB verbunden)    
+6: &#x1f4f7;&#xfe0e; Fotos aufnehmen (wenn mit ImB verbunden)    
 7: &#x1f4fd;&#xfe0e; Video aufnehmen (wenn mit ImB verbunden)    
 8: Gruppierung    
 9: Sortierung    
