@@ -105,17 +105,17 @@ If you ever need to revert the original RAW from the DNG (e.g. to do the convers
 5: &#x1f3d4;&#xfe0e; Picture Browser (when files loaded)    
 6: &#x1f4f7;&#xfe0e; Take Photos (when connected to ImB)    
 7: &#x1f4fd;&#xfe0e; Take Videos (when connected to ImB)    
-8: Grouping    
-9: Sorting    
-10: Select all/none    
-11: &#x1f5c2;&#xfe0e; File Selection (when not connected to ImB)    
-12: &#x2b73;&#xfe0e; Download     
+8: Grouping (only Picture Browser)    
+9: Sorting (only Picture Browser)    
+10: Select all/none (only Picture Browser)    
+11: &#x1f5c2;&#xfe0e; File Selection (when not connected to ImB. Sharing files with app is always possible)    
+12: &#x2b73;&#xfe0e; Download/Convert this     
 13: &#x2b6e;&#xfe0e; Rotate clockwise  (if raw)  
 14: &#x2b6f;&#xfe0e; Rotate counterclockwise  (if raw)   
 15: &#x231a;&#xfe0e; Correct timestamp     
 16: Download raw JPEG  (if raw and configured)    
 17: &#x1f5d1;&#xfe0e; Delete    
-18: Select this    
+18: Select this for action in picture browser   
 19: &#x270e;&#xfe0e; Set description  (if raw)    
 20: &#x1f50d;&#xfe0e; View magnified
 
