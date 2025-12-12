@@ -1012,7 +1012,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.5.7_@_d_e_v", // actually const // VERSION EYECATCHER
+version: "V6.5.8_439324a", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -19517,7 +19517,7 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 /* ImBCBase: build xmp for dng or direct jpeg export */
 buildxmp(rawname, hxbytes, dateok, datestr, desc, artby, rightby, type) {
 	const txe = new TextEncoder();
-	const xmp1 = `<?xpacket begin="\ufeff" id="W5M0MpCehiHzreSzNTczkc9d"?><x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="imbraw2dng"><rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#' xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:xmp='http://ns.adobe.com/xap/1.0/' xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/" xmlns:stEvt='http://ns.adobe.com/xap/1.0/sType/ResourceEvent#'><rdf:Description rdf:about='' dc:source='`;
+	const xmp1 = `<?xpacket begin="\ufeff" id="W5M0MpCehiHzreSzNTczkc9d"?><x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="imbraw2dng"><rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#' xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:xmp='http://ns.adobe.com/xap/1.0/' xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/" xmlns:stEvt='http://ns.adobe.com/xap/1.0/sType/ResourceEvent#' xmlns:exif='http://ns.adobe.com/exif/1.0/'><rdf:Description rdf:about='' dc:source='`;
 	const xmp3 = `' xmp:CreateDate='`;
 	const xmp3b = `' xmp:ModifyDate='`;
 	const xmp4 = `' xmp:CreatorTool='`;
@@ -19555,11 +19555,13 @@ buildxmp(rawname, hxbytes, dateok, datestr, desc, artby, rightby, type) {
 		metadatastr += this.xl('process.addcopyright');
 		metadatalen++;
 	}
-	let descbytes = [];
+	let descbytes = []; //, descbytes2 = [];
 	if (desc?.length) {
 		descbytes = txe.encode(desc);
+		//descbytes2 = txe.encode(desc);
 		xmpx[xmpx.length-1] += `<dc:description><rdf:Alt><rdf:li xml:lang='x-default'>`;
-		xmpx.push(`</rdf:li></rdf:Alt></dc:description>`);
+		xmpx.push(`</rdf:li></rdf:Alt></dc:description>`); //<exif:UserComment><rdf:Alt><rdf:li xml:lang='x-default'>`);
+		//xmpx.push(`</rdf:li></rdf:Alt></exif:UserComment>`);
 		if (metadatalen) metadatastr += ', ';
 		metadatastr += this.xl('process.photodesc');
 	}
@@ -19632,6 +19634,11 @@ buildxmp(rawname, hxbytes, dateok, datestr, desc, artby, rightby, type) {
 			o += descbytes.length;
 			descbytes = undefined;
 		}
+		/*else if (descbytes2?.length) {
+			xmprdf.set(descbytes2, o);
+			o += descbytes2.length;
+			descbytes2 = undefined;
+		}*/
 		else if (hxbytes?.length) {
 			if (dateok && (undefined !== type)) {
 				xmprdf.set(datbytes, o);
@@ -20052,8 +20059,13 @@ writefile(name, type, okmsg, arr1, ) {
 	outel.href = thisurl;
 	outel.click();
 	this.appmsgxl(false, 'words.finished');
-	this.appmsgxl(true, okmsg, name);
-	if (type !== 'application/zip' && type !== 'text/html')
+	if (okmsg === 'xyzabc') {
+		this.appmsgxl(true, 'process.converted', name);
+	}
+	else if (okmsg?.length) {
+		this.appmsgxl(true, okmsg, name);
+	}
+	if (okmsg !== 'xyzabc' && type !== 'application/zip' && type !== 'text/html')
 		this.writepostok(name);
 }
 /* ImBCHtmlOut: wrapper for zip output */
@@ -22332,30 +22344,35 @@ const mytexts =  { // actually const
 		error: {
 			de: '\u001b[31m\u001b[1mFEHLER:\u001b[0m ',
 			en: '\u001b[31m\u001b[1mERROR:\u001b[0m ',
-			ja: '\u001b[31m\u001b[1mエラー:\u001b[0m ',
+			fr: '\u001b[31m\u001b[1mERREUR:\u001b[0m ',
+			ja: '\u001b[31m\u001b[1mエラー：\u001b[0m ',
 			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
 		},
 		warning: {
 			de: '\u001b[31mWarnung:\u001b[0m ',
 			en: '\u001b[31mWarning:\u001b[0m ',
-			ja: '\u001b[31m警告:\u001b[0m',
+			fr: '\u001b[31mAvertissement:\u001b[0m ',
+			ja: '\u001b[31m警告：\u001b[0m ',
 			htmlstyle: [ [ 'background-color','#ffdddd' ] ]
 		},
 		finished: {
 			de: '\u001b[32m\u001b[1mFertig!\u001b[0m ',
 			en: '\u001b[32m\u001b[1mFinished!\u001b[0m ',
+			fr: '\u001b[32m\u001b[1mFini!\u001b[0m ',
 			ja: '\u001b[32m\u001b[1m終了!\u001b[0m ',
 			htmlstyle: [ [ 'background-color','#ddffdd' ], [ 'font-weight', 'bold' ] ]
 		},
 		sorryerr: {
 			de: '\u001b[31m\u001b[1mENTSCHULDIGUNG! FEHLER:\u001b[0m ',
 			en: '\u001b[31m\u001b[1mSORRY! ERROR:\u001b[0m  ',
-			ja: '\u001b[31m\u001b[1m申し訳ございません! エラー:\u001b[0m  ',
+			fr: '\u001b[31m\u001b[1mDÉSOLÉE! ERREUR:\u001b[0m ',
+			ja: '\u001b[31m\u001b[1m申し訳ございません! エラー：\u001b[0m  ',
 			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
 		},
 		sorry: {
 			de: '\u001b[31mENTSCHULDIGUNG!\u001b[0m ',
 			en: '\u001b[31mSORRY!\u001b[0m  ',
+			fr: '\u001b[31mDÉSOLÉE!\u001b[0m ',
 			ja: '\u001b[31m申し訳ございません!\u001b[0m  ',
 			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
 		}
@@ -22373,10 +22390,10 @@ const mytexts =  { // actually const
 			ja: 'ImB RAW を DNG に変換'
 		},
 	    backw: {
-			   title:  { en: 'ImB DNG to RAW back converter' },
-			   generaladvice: { en: 'Only works for the exact original converted DNG.' },
-			   selectdng: { en: 'Select orig. DNG' },
-			   drophere: { en: 'Drop DNGs here' }
+			   title:  { en: 'ImB DNG to RAW back converter', ja: "ImB DNG から RAW へのコンバーター", de: "ImB DNG nach RAW Rückwärts" },
+			   generaladvice: { en: 'Only works for the exact original converted DNG.', ja: "変換されたオリジナルの DNG のみ有効です。" },
+			   selectdng: { en: 'Select orig. DNG', ja: "元の DNG を選択" },
+			   drophere: { en: 'Drop DNGs here', ja: "DNG をここにドロップしてください" }
 	    },
 		help: {
 			de: '? Hilfe Doku',
@@ -22389,19 +22406,19 @@ const mytexts =  { // actually const
 			en: 'https://shyrodgau.github.io/imbraw2dng/',
 			ja: 'https://shyrodgau.github.io/imbraw2dng/README_ja'
 		},
-		generaladvice: {
+		generaladvicex: {
 			de: 'Daten werden nur im Browser verarbeitet, nicht im \'Internet\'.<br>Kann sein, dass der Browser fragt, ob Sie zulassen wollen, dass mehrere Dateien heruntergeladen werden.<br>Dateien, die nicht oder unbekannte RAW-Dateien sind, werden 1:1 kopiert.',
 			en: 'Data processing is entirely in the browser, not in \'the internet\'<br>Browser may ask you if you want to allow downloading multiple files.<br>Not or unrecognized RAW Files simply will be copied.',
 			ru: 'Данные обрабатываются только в браузере, а не в \'Интернете\'.<br>Браузер может спросить, хотите ли вы разрешить загрузку нескольких файлов.<br>Файлы, которые не являются или неизвестными файлами RAW, копируются 1:1.',
 			ja: 'データ処理は完全にブラウザ内で行われ、\'インターネット\'では行われません。<br>ブラウザにより複数のファイルのダウンロードを許可するかを尋ねることがあります。<br>RAW ファイルが存在しない、または認識されない場合は、単純にコピーされます。'
 		},
-		drophere: {
+		dropherex: {
 			de: 'Dateien von ImB hier ablegen: ',
 			en: 'Drop Files from ImB here: ',
 			ru: 'Храните файлы из ImB здесь: ',
 			ja: 'ここに ImB のファイルをドロップします。: '
 		},
-		selectraw: {
+		selectrawx: {
 			de: 'Oder diese Seite per WLAN <a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README_de#browsing-on-the-imback\',\'_system\');return false;">direkt von ImB</a> verwenden.<br>Oder <tt>.RAW</tt> Datei(en) auswählen:',
 			en: 'Or use this page via Wifi <a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README#browsing-on-the-imback\',\'_system\');return false;">directly from ImB</a>.<br>Or select <tt>.RAW</tt> File(s):',
 			ja: 'または、このページを WiFi 経由で<a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README_ja#browsing-on-the-imback\',\'_system\');return false;">ImB から直接</a>使用します。<br >または、<tt>.RAW</tt> ファイルを選択します。：'
@@ -22429,9 +22446,10 @@ const mytexts =  { // actually const
 				ja: 'その他'
 			},
 			notpic: {
-				de: 'Keine Bilder',
-				en: 'Not pictures',
-				ja: '画像ではない'
+				de: 'MP4: ',
+				en: 'MP4: ',
+				fr: 'MP4: ',
+				ja: 'MP4: '
 			}
 		},
 		file: {
@@ -22450,11 +22468,6 @@ const mytexts =  { // actually const
 				en: 'File $$0<br>Unknown raw size $$1, please contact developer! No preview...',
 				ja: 'File $$0<br>不明な raw サイズ $$1, 開発者にお問い合わせください! プレビューなし...'
 			},
-			dngimpnote: {
-				de: 'Import eines DNG geht nur, wenn diese genau das hiermit erzeugte Original ist.',
-				en: 'Re-import of a DNG is only possible if this is exactly the original that was created here.',
-				ja: 'DNG の再インポートは、これがここで作成されたオリジナルである場合にのみ可能です。'
-			},
 			de: 'Datei $$0',
 			en: 'File $$0',
 			ja: 'ファイル $$0'
@@ -22462,7 +22475,7 @@ const mytexts =  { // actually const
 		sort: {
 			de: 'Sortiere',
 			en: 'Sort:',
-			ja: 'ソート:'
+			ja: 'ソート： '
 		},
 		or: {
 			de: 'Oder ',
@@ -22472,7 +22485,8 @@ const mytexts =  { // actually const
 		log: {
 			de: 'Protokoll-Ausgabe:',
 			en: 'Message Log:',
-			ja: 'メッセージ ログ:'
+			fr: 'Journal des messages',
+			ja: 'メッセージ ログ： '
 		},
 		selected: {
 			de: 'Ausgewählt',
@@ -22480,9 +22494,9 @@ const mytexts =  { // actually const
 			ja: '選択済み'
 		},
 		fakelong: {
-			en: 'Fake long exposure by adding up all (<a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README#a-lot-more-tricks-and-details\',\'_system\');return false;">read more</a>)',
-			de: 'Langzeitbelichtung durch Addieren simulieren (<a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README_de#a-lot-more-tricks-and-details\',\'_system\');return false;">mehr lesen</a>)',
-			ja: '「追加して長時間露光をシミュレートします (<a href="#" onclick="window.open(\'https://shyrodgau.github.io/imbraw2dng/README_ja#a-lot-more-tricks-and-details\',\'_system\');return false;">続きを読む</a>)」すべてを加算して長時間露光をシミュレートする',
+			en: 'Fake long exposure by adding up all',
+			de: 'Langzeitbelichtung durch Addieren simulieren',
+			ja: '「追加して長時間露光をシミュレートします 」すべてを加算して長時間露光をシミュレートする',
 			scale: {
 				en: 'Scale values down',
 				de: 'Werte dabei herunterskalieren',
@@ -22505,15 +22519,15 @@ const mytexts =  { // actually const
 			}
 		},
 		newmsg: {
-			en: '<a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/issues\',\'_system\');return false;">Report bugs</a>',
-			de: '<a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/issues\',\'_system\');return false;">Fehler melden</a>',
-			ja: '<a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/issues\',\'_system\');return false;">バグ報告</a>'
+			en: '<a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/issues\',\'imbappgithubbugs\');return false;">Report bugs</a>',
+			de: '<a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/issues\',\'imbappgithubbugs\');return false;">Fehler melden</a>',
+			ja: '<a href="#" onclick="window.open(\'https://github.com/shyrodgau/imbraw2dng/issues\',\'imbappgithubbugs\');return false;">バグ報告</a>'
 		}
 	},
 	browser: {
 		bytype: {
-			de: 'nach Typ',
-			en: 'by type',
+			de: 'Nach Typ',
+			en: 'By type',
 			ja: '種類別'
 		},
 		olderfirst: {
@@ -22596,17 +22610,14 @@ const mytexts =  { // actually const
 		strangename: {
 			de: 'Komischer Dateiname: $$0',
 			en: 'Strange file name: $$0',
-			ja: '無効なファイル名: $$0'
+			fr: 'Nom de fiche inhabituel: $$0',
+			ja: '無効なファイル名： $$0'
 		},
 		invaltime: {
 			de: 'Ungültiger Zeitstempel: $$0',
 			en: 'Invalid timestamp: $$0',
-			ja: '無効なタイムスタンプ: $$0'
-		},
-		invaltimediff: {
-			de: 'Ungültige Zeitanpassung: $$0',
-			en: 'Invalid time adjustment: $$0',
-			ja: '無効なタイムスタンプ: $$0'
+			fr: 'Horodatage invalide: $$0',
+			ja: '無効なタイムスタンプ： $$0'
 		},
 	},
 	process: {
@@ -22648,7 +22659,8 @@ const mytexts =  { // actually const
 		notraw: {
 			de: 'Durchleitung weil nicht raw: $$0',
 			en: 'Passing through as not raw: $$0',
-			ja: 'RAW ではないのでスルー: $$0'
+			fr: 'Passage comme non RAW: $$0',
+			ja: 'RAW ではないのでスルー： $$0'
 		},
 		selectedn: {
 			de: '$$0 Datei(en) wurden ausgewählt.',
@@ -22678,7 +22690,8 @@ const mytexts =  { // actually const
 		processing: {
 			de: 'Verarbeite Datei: $$0 ',
 			en: 'Processing file: $$0',
-			ja: '処理中のファイル: $$0'
+			fr: 'Je suis en train de traiter le fiche $$0',
+			ja: '処理中のファイル： $$0'
 		},
 		assuming: {
 			de: 'Annahme: $$0 $$1',
@@ -22688,12 +22701,13 @@ const mytexts =  { // actually const
 		datetime: {
 			de: 'Datum/Zeit: $$0',
 			en: 'Date/Time: $$0 ',
-			ja: '日付/時刻: $$0 '
+			fr: 'Date/heure: $$0',
+			ja: '日付/時刻： $$0 '
 		},
 		orientation: {
 			de: 'Drehung: $$0',
 			en: 'Orientation: $$0',
-			ja: '向き: $$0'
+			ja: '向き： $$0'
 		},
 		convertedcheckdl: {
 			de: 'Nach $$0 konvertiert (Downloads-Ordner prüfen)',
@@ -22729,7 +22743,8 @@ const mytexts =  { // actually const
 			remaining: {
 				de: 'Verbleibende $$0 Dateien auf Anforderung übersprungen',
 				en: 'Skipping remaining $$0 images at your request',
-				ja: 'リクエストに応じてスキップ: $$0'
+				fr: '$$0 fiches restants ignorés sur demande',
+				ja: 'リクエストに応じてスキップ：  $$0'
 			},
 			de: 'Auf Anforderung übersprungen: $$0',
 			en: 'Skipped at your request: $$0',
@@ -22850,11 +22865,13 @@ const mytexts =  { // actually const
 	jpeg: {
 		exifonly: {
 			en: 'Use EXIF for DNG only, do not download',
-			de: 'Nur EXIF für DNG verwenden, nicht herunterladen'
+			de: 'Nur EXIF für DNG verwenden, nicht herunterladen',
+			ja: 'DNGのみにEXIFを使用し、ダウンロードしないでください。',
 		},
 		noexif: {
 			en: 'Do not use EXIF for DNG',
 			de: 'EXIF nicht für DNG verwenden',
+			ja: 'DNGにはEXIFを使用しないでください。',
 		},
 	},
 	selection: {
@@ -22956,7 +22973,7 @@ function init() {
 <span id="setsettings"><input type="button" data-myvalxlkey="browser.setfrom" onclick="imbc.savesettings()"></input>&#xa0;<span id="setsettingsurl" data-myxlkey="browser.forurl"></span></span-->
 <!-- here goes the save preferences .. -->
 </div>
-<div class="notwhenbackw" style="margin-top: 0.5em;" data-myxlkey="main.generaladvice"></div>
+<div class="notwhenbackw" style="margin-top: 0.5em;" data-myxlkey="main.generaladvicex"></div>
 <div class="onlywhenbackw" style="margin-top: 0.5em;display:none;" data-myxlkey="main.backw.generaladvice"></div>
 <!-- connected ! -->
 <div id="onimback" style="background-color:#ffffbb;border: 5px solid #ffff88;border-radius: 10px;width:fit-content;padding:1em;display:none;"><div style="font-size:133%;" data-myxlkey="onimback.connected">&nbsp;<br></div>
@@ -22970,14 +22987,14 @@ function init() {
 </div>
 <!-- end of connected -->
 <div id="notimback">
-<div class="notwhenbackw" style="font-size:133%;margin-top: 0.5em;" data-myxlkey="main.drophere"></div>
+<div class="notwhenbackw" style="font-size:133%;margin-top: 0.5em;" data-myxlkey="main.dropherex"></div>
 <div class="onlywhenbackw" style="font-size:133%;margin-top: 0.5em;display:none;" data-myxlkey="main.backw.drophere"></div>
 <div id="droptarget" ondrop="imbc.drophandler(event);" ondragenter="imbc.prevdef(event);" ondragover="imbc.prevdef(event);" style="border: 5px solid blue;border-radius: 10px;width:300px; height:70px;background-color: rgba(0,0,255,0.2);"></div><br>
 <div class="notwhenbackw" style="font-size:75%; background-color:rgba(0,0,255,0.1);width:fit-content;margin-top:-0.7em;color:#808080;">
 <input type="checkbox" id="fakelongexpadd"> <label for="fakelongexpadd" data-myxlkey="main.fakelong"> </label> -
 <input type="checkbox" id="fakelongexpscale"> <label for="fakelongexpscale" data-myxlkey="main.fakelong.scale"> </label>
 </div>
-<div  style="font-size:133%;margin-top: 0.5em;"><span class="notwhenbackw" data-myxlkey="main.selectraw"></span><span class="onlywhenbackw" data-myxlkey="main.backw.selectdng" style="display:none;"></span>
+<div  style="font-size:133%;margin-top: 0.5em;"><span class="notwhenbackw" data-myxlkey="main.selectrawx"></span><span class="onlywhenbackw" data-myxlkey="main.backw.selectdng" style="display:none;"></span>
 <input class="notwhenbackw" type="file" accept=".raw,.RAW" id="infile" name="infile" multiple onchange="imbc.fselected()">
 <input class="onlywhenbackw" style="display:none;" type="file" accept=".dng,.DNG" id="infileb" name="infileb" multiple onchange="imbc.fselected()">
 </div><br>
