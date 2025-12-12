@@ -33,6 +33,8 @@ Browser_specifics  imbapp.htm  imbappx.htm  imbapp.html  imbraw2dng.html
 Backward_helper_class  imbraw2dng.html  imbraw2dng.js
 Top_class_for_App  imbapp.htm  imbappx.htm  imbapp.html
 app_only  imbapp.htm  imbappx.htm  imbapp.html
+texts    imbapp.htm    imbappx.htm
+HTML_app_class    imbapp.htm    imbappx.htm
 "
 
 frb=$( basename $frf )

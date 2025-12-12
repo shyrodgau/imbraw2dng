@@ -64,22 +64,15 @@ If you like to use the **command line**, you can use the [imbraw2dng.js](https:/
 Install the [real app](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk), then enter ImB Wifi and use the extras menu.
 
 #### Using a Micro SD reader/adapter or USB cable
-Take the Micro SD from your back and insert it into Micro SD Adapter on your computer or phone, or connect ImB to your PC via USB and select `Mass Storage` on ImB.
-
-Open the contents of the Micro SD/USB drive, it might be named `VOLUME1` or `0000-0001` and you should see a folder named `imback` or `IMBACK`.
-
-Use your operating system/file explorer to copy the file [`imbapp.htm` that you downloaded](https://raw.githubusercontent.com/shyrodgau/imbraw2dng/master/imbapp.htm) into the `imback` or `IMBACK` folder.  
-<!--You can rename it with a language code `XX` (DE, JA, FR, more translations needed!) to `imbapp_XX.html` (note: `html` instead of `htm`!), but then you need to adjust the link below.-->
-
+Take the Micro SD from your back and insert it into Micro SD Adapter on your computer or phone, or connect ImB to your PC via USB and select `Mass Storage` on ImB.    
+Open the contents of the Micro SD/USB drive, it might be named `VOLUME1` or `0000-0001` and you should see a folder named `imback` or `IMBACK`.    
+Use your operating system/file explorer to copy the file [`imbapp.htm` that you downloaded](https://raw.githubusercontent.com/shyrodgau/imbraw2dng/master/imbapp.htm) into the `imback` or `IMBACK` folder.      
 Eject the Micro SD from computer or phone and put back into your device - ready!
 
 #### Via network
-Put your Phone or PC into the ImB Wifi.
-
-Use a new browser window or tab, navigate to [http://192.168.1.254/IMBACK/](http://192.168.1.254/IMBACK/).
-
-Click on `Choose file` and select the [`imbapp.htm` you just downloaded](https://raw.githubusercontent.com/shyrodgau/imbraw2dng/master/imbapp.htm). Click `upload file` (wordings need to be checked) - ready!
-
+Put your Phone or PC into the ImB Wifi.    
+Use a new browser window or tab, navigate to [http://192.168.1.254/IMBACK/](http://192.168.1.254/IMBACK/).    
+Click on `Choose file` and select the [`imbapp.htm` you just downloaded](https://raw.githubusercontent.com/shyrodgau/imbraw2dng/master/imbapp.htm). Click `upload file` (wordings need to be checked) - ready!    
 
 ## <a id="usage" name="usage"> </a>Usage
 
@@ -185,7 +178,7 @@ About configuration see [imbraw2dng.json](imbraw2dng.json).
 
 ### <a id="metadexif" name="metaexif">  </a>Metadata, EXIF
 
-The EXIF data in the JPEG files from ImB is of limited use, because it reflects the perspective of the ImB optics and sensor and not of the actual camera. But if you would like to add it to your DNG files, this is possible. Process the JPEG first and then the corresponding RAW.
+The EXIF data in the JPEG files from ImB is of limited use (excl. MiMi!), because it reflects the perspective of the ImB optics and sensor and not of the actual camera. But if you would like to add it to your DNG files, this is possible. Process the JPEG first and then the corresponding RAW.
 Corresponding is defined as: time difference < 5 sec and counter (last part of filename) difference &lt;= 1. It is not neccessary to be directly consecutive, first all JPEGs and then the RAWs should do it.
 
 Author/creator and copyright metadata can be set globally, and per-image a description (&#x270e;&#xfe0e;) can be set.

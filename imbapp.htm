@@ -1570,7 +1570,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.5.8_439324a", // actually const // VERSION EYECATCHER
+version: "V6.5.8_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -20680,7 +20680,7 @@ appinfo(doit) {
 		//document.getElementById('okmsg').innerHTML += ('<br>Free: ' + this.imbfree + ' B');
 	}
 	document.getElementById('okmsg').innerHTML += `<br><a href="#" onclick="window.open(imbc.xl('app.helpurl'), 'imbapphelp'); return false;" data-myxlkey="main.help"></a> - <span data-myxlkey="main.newmsg"/>`;
-	document.getElementById('okmsg').innerHTML += `<br>Based on work by Michele Asciutti from the ImBack User Group.</span>
+	document.getElementById('okmsg').innerHTML += `<br><span style="font-weight:normal;font-size:75%;">Based on work by Michele Asciutti from the ImBack User Group.</span>
 	<br>License Info:
 	<br><iframe src="data:text/html,<html><head><meta http-equiv='content-type' content='text/html;charset=UTF-8'></head><body style='font-size:7px;'><!--@@LICENSESTART@@ -->Copyright (C) 2023,2024,2025 by Stefan Hegny, stefan@hegny.de<br><br>The following license applies to the code inside these files with the exception of<br><br>* the Symbol3 font which is an excerpt from<br>&nbsp;&nbsp;NotoSansSymbols2-Regular (https://fonts.google.com/noto/specimen/Noto+Sans+Symbols+2) which is licensed under the<br>&nbsp;&nbsp;Open Font License (https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL)<br><br>Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted.<br><br>THE SOFTWARE IS PROVIDED &quot;AS IS&quot; AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.<br>IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,<br>DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.<br><!-- @@LICENSEEND@@ --></body></html>" id="liciframe" style="width: 100%;"></iframe>
 	<div id="supportedformats"><a target="_new" data-myhrefxlapp="#fmt" data-myhrefxlkey="main.helplink">Formats</a></div>`;
@@ -24955,51 +24955,6 @@ const mytexts = { // actually const
 		}
 	},
 	preview: {
-		err: {
-			de: 'Fehler bei Vorschau :-(',
-			en: 'Error with Preview :-(',
-			ja: 'プレビューでのエラー :-('
-		},
-		rotcw: {
-			de: 'im Uhrzeigersinn drehen',
-			en: 'Rotate clockwise',
-			ja: '時計回りに回転'
-		},
-		rotccw: {
-			de: 'gegen den Uhrzeigersinn drehen',
-			en: 'rotate counterclockwise',
-			ja: '反時計回りに回転'
-		},
-		rot180: {
-			de: 'auf den Kopf',
-			en: 'Rotate 180°',
-			ja: '180°回転'
-		},
-		rotreset: {
-			de: 'Drehung zurücksetzen',
-			en: 'Reset',
-			ja: 'リセット',
-			tooltip: {
-				de: 'Ursprüngliche Bildausrichtung wiederherstellen',
-				en: 'Reset original image orientation',
-				ja: '元の画像の向きにリセット'
-			}
-		},
-		process: {
-			de: 'Kopieren/Konvertieren',
-			en: 'Copy/Convert',
-			ja: '元の画像の向きにリセット'
-		},
-		skip: {
-			de: 'Überspringen',
-			en: 'Skip',
-			ja: 'コピー/変換'
-		},
-		forall: {
-			de: 'Für alle weiteren das selbe',
-			en: 'Do this for all following',
-			ja: '以下のすべてに対してこれを実行します'
-		},
 		orients: {
 			none: {
 				de: 'keine',

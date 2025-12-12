@@ -52,7 +52,7 @@ PCまたはスマートフォンの**ブラウザ**で使用したい場合は�
 **コマンドライン**を使用する場合は、node.jsで[imbraw2dng.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js)を使用できます。デバイスのWi-Fiに接続していれば、ImBにアクセスすることもできます。
 [コマンドラインヘルプ](#command-line-using-nodejs)
 
-<a id="how-do-i-copy-html-files-to-the-microsd" name="how-do-i-copy-html-files-to-the-microsd"></a>HTMLファイルをMicroSDにコピーするにはどうすればよいですか？
+## <a id="how-do-i-copy-html-files-to-the-microsd" name="how-do-i-copy-html-files-to-the-microsd"></a>HTMLファイルをMicroSDにコピーするにはどうすればよいですか？
 
 …ImBからブラウザで直接ダウンロード/変換したい場合。
 
@@ -62,21 +62,15 @@ PCまたはスマートフォンの**ブラウザ**で使用したい場合は�
 
 #### Micro SDリーダー/アダプターまたはUSBケーブルを使用する 
 
-Micro SDカードを取り出し、コンピューターまたはスマートフォンのMicro SDアダプターに挿入するか、ImBをUSB経由でPCに接続し、ImBで「大容量ストレージ」を選択します。
-
-Micro SD/USBドライブの内容を開きます。「VOLUME1」または「0000-0001」という名前になっている場合があり、「imback」または「IMBACK」という名前のフォルダが表示されます。
-
-オペレーティングシステムまたはファイルエクスプローラーを使用して、[ダウンロードしたファイル[`imbapp.htm`](https://raw.githubusercontent.com/shyrodgau/imbraw2dng/master/imbapp.htm)を「imback」または「IMBACK」フォルダにコピーします。
-<!-- 言語コード `XX` (DE, JA, FR、その他の翻訳が必要です!) を付けてファイル名を `imbapp_XX.html` に変更することもできます (注意: `htm` ではなく `html` を使用してください)。ただし、以下のリンクを調整する必要があります。-->
-
-Micro SD をコンピューターまたはスマートフォンから取り出し、デバイスに挿入します。準備完了です!
+Micro SDカードを取り出し、コンピューターまたはスマートフォンのMicro SDアダプターに挿入するか、ImBをUSB経由でPCに接続し、ImBで「大容量ストレージ」を選択します。   
+Micro SD/USBドライブの内容を開きます。「VOLUME1」または「0000-0001」という名前になっている場合があり、「imback」または「IMBACK」という名前のフォルダが表示されます。   
+オペレーティングシステムまたはファイルエクスプローラーを使用して、[ダウンロードしたファイル[`imbapp.htm`](https://raw.githubusercontent.com/shyrodgau/imbraw2dng/master/imbapp.htm)を「imback」または「IMBACK」フォルダにコピーします。    
+Micro SD をコンピューターまたはスマートフォンから取り出し、デバイスに挿入します。準備完了です!    
 
 #### ネットワーク経由
-スマートフォンまたは PC を ImB Wi-Fi に接続します。
-
-新しいブラウザウィンドウまたはタブで、[http://192.168.1.254/IMBACK/](http://192.168.1.254/IMBACK/) にアクセスします。
-
-[ファイルを選択] をクリックし、先ほどダウンロードした [`imbapp.htm`](https://raw.githubusercontent.com/shyrodgau/imbraw2dng/master/imbapp.htm) を選択します。 「ファイルをアップロード」をクリックしてください（文言を確認する必要があります） - 準備完了！
+スマートフォンまたは PC を ImB Wi-Fi に接続します。   
+新しいブラウザウィンドウまたはタブで、[http://192.168.1.254/IMBACK/](http://192.168.1.254/IMBACK/) にアクセスします。    
+[ファイルを選択] をクリックし、先ほどダウンロードした [`imbapp.htm`](https://raw.githubusercontent.com/shyrodgau/imbraw2dng/master/imbapp.htm) を選択します。 「ファイルをアップロード」をクリックしてください（文言を確認する必要があります） - 準備完了！    
 
 ## <a id="usage" name="usage"> </a>使用方法
 
