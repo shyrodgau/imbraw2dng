@@ -20074,7 +20074,7 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 /* ImBCBase: build xmp for dng or direct jpeg export */
 buildxmp(rawname, hxbytes, dateok, datestr, desc, artby, rightby, type) {
 	const txe = new TextEncoder();
-	const xmp1 = `<?xpacket begin="\ufeff" id="W5M0MpCehiHzreSzNTczkc9d"?><x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="imbraw2dng"><rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#' xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:xmp='http://ns.adobe.com/xap/1.0/' xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/" xmlns:stEvt='http://ns.adobe.com/xap/1.0/sType/ResourceEvent#'><rdf:Description rdf:about='' dc:source='`;
+	const xmp1 = `<?xpacket begin="\ufeff" id="W5M0MpCehiHzreSzNTczkc9d"?><x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="imbraw2dng"><rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#' xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:xmp='http://ns.adobe.com/xap/1.0/' xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/" xmlns:stEvt='http://ns.adobe.com/xap/1.0/sType/ResourceEvent#' xmlns:exif='http://ns.adobe.com/exif/1.0/'><rdf:Description rdf:about='' dc:source='`;
 	const xmp3 = `' xmp:CreateDate='`;
 	const xmp3b = `' xmp:ModifyDate='`;
 	const xmp4 = `' xmp:CreatorTool='`;
@@ -20112,11 +20112,13 @@ buildxmp(rawname, hxbytes, dateok, datestr, desc, artby, rightby, type) {
 		metadatastr += this.xl('process.addcopyright');
 		metadatalen++;
 	}
-	let descbytes = [];
+	let descbytes = []; //, descbytes2 = [];
 	if (desc?.length) {
 		descbytes = txe.encode(desc);
+		//descbytes2 = txe.encode(desc);
 		xmpx[xmpx.length-1] += `<dc:description><rdf:Alt><rdf:li xml:lang='x-default'>`;
-		xmpx.push(`</rdf:li></rdf:Alt></dc:description>`);
+		xmpx.push(`</rdf:li></rdf:Alt></dc:description>`); //<exif:UserComment><rdf:Alt><rdf:li xml:lang='x-default'>`);
+		//xmpx.push(`</rdf:li></rdf:Alt></exif:UserComment>`);
 		if (metadatalen) metadatastr += ', ';
 		metadatastr += this.xl('process.photodesc');
 	}
@@ -20189,6 +20191,11 @@ buildxmp(rawname, hxbytes, dateok, datestr, desc, artby, rightby, type) {
 			o += descbytes.length;
 			descbytes = undefined;
 		}
+		/*else if (descbytes2?.length) {
+			xmprdf.set(descbytes2, o);
+			o += descbytes2.length;
+			descbytes2 = undefined;
+		}*/
 		else if (hxbytes?.length) {
 			if (dateok && (undefined !== type)) {
 				xmprdf.set(datbytes, o);
@@ -20563,35 +20570,30 @@ const mytexts = { // actually const
 		error: {
 			de: '\u001b[31m\u001b[1mFEHLER:\u001b[0m ',
 			en: '\u001b[31m\u001b[1mERROR:\u001b[0m ',
-			fr: '\u001b[31m\u001b[1mERREUR:\u001b[0m ',
 			ja: '\u001b[31m\u001b[1mエラー：\u001b[0m ',
 			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
 		},
 		warning: {
 			de: '\u001b[31mWarnung:\u001b[0m ',
 			en: '\u001b[31mWarning:\u001b[0m ',
-			fr: '\u001b[31mAvertissement:\u001b[0m ',
 			ja: '\u001b[31m警告：\u001b[0m ',
 			htmlstyle: [ [ 'background-color','#ffdddd' ] ]
 		},
 		finished: {
 			de: '\u001b[32m\u001b[1mFertig!\u001b[0m ',
 			en: '\u001b[32m\u001b[1mFinished!\u001b[0m ',
-			fr: '\u001b[32m\u001b[1mFini!\u001b[0m ',
 			ja: '\u001b[32m\u001b[1m終了!\u001b[0m ',
 			htmlstyle: [ [ 'background-color','#ddffdd' ], [ 'font-weight', 'bold' ] ]
 		},
 		sorryerr: {
 			de: '\u001b[31m\u001b[1mENTSCHULDIGUNG! FEHLER:\u001b[0m ',
 			en: '\u001b[31m\u001b[1mSORRY! ERROR:\u001b[0m  ',
-			fr: '\u001b[31m\u001b[1mDÉSOLÉE! ERREUR:\u001b[0m ',
 			ja: '\u001b[31m\u001b[1m申し訳ございません! エラー：\u001b[0m  ',
 			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
 		},
 		sorry: {
 			de: '\u001b[31mENTSCHULDIGUNG!\u001b[0m ',
 			en: '\u001b[31mSORRY!\u001b[0m  ',
-			fr: '\u001b[31mDÉSOLÉE!\u001b[0m ',
 			ja: '\u001b[31m申し訳ございません!\u001b[0m  ',
 			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
 		}
@@ -20613,10 +20615,7 @@ const mytexts = { // actually const
 			en: 'ImB OS App'
 		},
 	    backw: {
-			   title:  { en: 'ImB DNG to RAW back converter' },
-			   generaladvice: { en: 'Only works for the exact original converted DNG.' },
-			   selectdng: { en: 'Select orig. DNG' },
-			   drophere: { en: 'Drop DNGs here' }
+			   title:  { en: 'ImB DNG to RAW back converter', ja: "ImB DNG から RAW へのコンバーター", de: 'ImB DNG nach RAW Rückwärts' },
 	    },
 		help: {
 			de: '? Hilfe Doku',
@@ -20644,14 +20643,12 @@ const mytexts = { // actually const
 			notpic: {
 				de: 'MP4: ',
 				en: 'MP4: ',
-				fr: 'MP4: ',
 				ja: 'MP4: '
 			}
 		},
 		sort: {
 			de: 'Sortiere',
 			en: 'Sort:',
-			fr: 'Trier:',
 			ja: 'ソート： '
 		},
 		or: {
@@ -20663,7 +20660,6 @@ const mytexts = { // actually const
 		log: {
 			de: 'Protokoll-Ausgabe:',
 			en: 'Message Log:',
-			fr: 'Journal des messages',
 			ja: 'メッセージ ログ： '
 		},
 		selected: {
@@ -20741,13 +20737,11 @@ const mytexts = { // actually const
 		strangename: {
 			de: 'Komischer Dateiname: $$0',
 			en: 'Strange file name: $$0',
-			fr: 'Nom de fiche inhabituel: $$0',
 			ja: '無効なファイル名： $$0'
 		},
 		invaltime: {
 			de: 'Ungültiger Zeitstempel: $$0',
 			en: 'Invalid timestamp: $$0',
-			fr: 'Horodatage invalide: $$0',
 			ja: '無効なタイムスタンプ： $$0'
 		},
 	},
@@ -20793,7 +20787,6 @@ const mytexts = { // actually const
 		notraw: {
 			de: 'Durchleitung weil nicht raw: $$0',
 			en: 'Passing through as not raw: $$0',
-			fr: 'Passage comme non RAW: $$0',
 			ja: 'RAW ではないのでスルー： $$0'
 		},
 		selectedn: {
@@ -20829,7 +20822,6 @@ const mytexts = { // actually const
 		processing: {
 			de: 'Verarbeite Datei: $$0 ',
 			en: 'Processing file: $$0',
-			fr: 'Je suis en train de traiter le fiche $$0',
 			ja: '処理中のファイル： $$0'
 		},
 		assuming: {
@@ -20841,7 +20833,6 @@ const mytexts = { // actually const
 		datetime: {
 			de: 'Datum/Zeit: $$0',
 			en: 'Date/Time: $$0 ',
-			fr: 'Date/heure: $$0',
 			ja: '日付/時刻： $$0 '
 		},
 		orientation: {
@@ -20896,7 +20887,6 @@ const mytexts = { // actually const
 			remaining: {
 				de: 'Verbleibende $$0 Dateien auf Anforderung übersprungen',
 				en: 'Skipping remaining $$0 images at your request',
-				fr: '$$0 fiches restants ignorés sur demande',
 				ja: 'リクエストに応じてスキップ：  $$0'
 			},
 			de: 'Auf Anforderung übersprungen: $$0',
@@ -23140,15 +23130,8 @@ appinfo(doit) {
 			document.getElementById('okmsg').innerHTML += (' ' + Math.round(this.imbfree/100000)/10 + ' MB');
 	}
 	document.getElementById('okmsg').innerHTML += `<br><a href="#" onclick="window.open(imbc.xl('app.helpurl')+'#usage','_new');return false;" data-myxlkey="main.help"></a> - <span data-myxlkey="main.newmsg"/>`;
-	document.getElementById('okmsg').innerHTML += `<br><span style="font-weight:normal;font-size:75%;">Contains parts of <a href="#" onclick="window.open('https://fonts.google.com/noto/specimen/Noto+Sans+Symbols+2', '_system'); return false;">NotoSansSymbols2-Regular</a> font
-	licensed under <a href="#" onclick=" window.open('http://scripts.sil.org/OFL', '_system'); return false;">Open Font License</a>.</span>`;
-	document.getElementById('okmsg').innerHTML += `<br><span style="font-weight:normal;font-size:75%;">Powered by <a href="#" onclick="window.open('https://cordova.apache.org','_system'); return false;">Apache Cordova</a> Plugins:
-	<a href="#" onclick="window.open('https://github.com/apache/cordova-plugin-inappbrowser/','_system'); return false;">InAppBrowser</a>,
-	<a href="#" onclick="window.open('https://github.com/apache/cordova-plugin-file/','_system'); return false;">File</a>,
-	<a href="#" onclick="window.open('https://github.com/NeoLSN/cordova-plugin-android-permissions','_system'); return false;">AndroidPermissions</a>,
-	<a href="#" onclick="window.open('https://github.com/cyph/cordova-plugin-chooser/','_system'); return false;">Chooser</a>,
-	<a href="#" onclick="window.open('https://github.com/torsten-simon/cordova-plugin-intent/','_system'); return false;">Intent</a>,
-	<a href="#" onclick="window.open('https://github.com/shyrodgau/cordova-plugin-saf-mediastore/','_system'); return false;">SafMediastore</a><br>Based on work by Michele Asciutti from the ImBack User Group.</span>
+	document.getElementById('okmsg').innerHTML += `<br><span style="font-weight:normal;font-size:75%;">Based on work by Michele Asciutti from the ImBack User Group.
+	<br>Powered by <a href="#" onclick="window.open('https://cordova.apache.org','_system'); return false;">Apache Cordova</a></span>
 	<br>License Info:
 	<br><iframe src="res/LICENSE.html" id="liciframe" style="width: 100%"></iframe>
 	<div id="supportedformats"><a href="#" onclick="window.open(imbc.xl('app.helpurl') + '#fmt','_new');return false;">Formats</a></div>`;

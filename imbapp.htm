@@ -20075,7 +20075,7 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 /* ImBCBase: build xmp for dng or direct jpeg export */
 buildxmp(rawname, hxbytes, dateok, datestr, desc, artby, rightby, type) {
 	const txe = new TextEncoder();
-	const xmp1 = `<?xpacket begin="\ufeff" id="W5M0MpCehiHzreSzNTczkc9d"?><x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="imbraw2dng"><rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#' xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:xmp='http://ns.adobe.com/xap/1.0/' xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/" xmlns:stEvt='http://ns.adobe.com/xap/1.0/sType/ResourceEvent#'><rdf:Description rdf:about='' dc:source='`;
+	const xmp1 = `<?xpacket begin="\ufeff" id="W5M0MpCehiHzreSzNTczkc9d"?><x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="imbraw2dng"><rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#' xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:xmp='http://ns.adobe.com/xap/1.0/' xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/" xmlns:stEvt='http://ns.adobe.com/xap/1.0/sType/ResourceEvent#' xmlns:exif='http://ns.adobe.com/exif/1.0/'><rdf:Description rdf:about='' dc:source='`;
 	const xmp3 = `' xmp:CreateDate='`;
 	const xmp3b = `' xmp:ModifyDate='`;
 	const xmp4 = `' xmp:CreatorTool='`;
@@ -20113,11 +20113,13 @@ buildxmp(rawname, hxbytes, dateok, datestr, desc, artby, rightby, type) {
 		metadatastr += this.xl('process.addcopyright');
 		metadatalen++;
 	}
-	let descbytes = [];
+	let descbytes = []; //, descbytes2 = [];
 	if (desc?.length) {
 		descbytes = txe.encode(desc);
+		//descbytes2 = txe.encode(desc);
 		xmpx[xmpx.length-1] += `<dc:description><rdf:Alt><rdf:li xml:lang='x-default'>`;
-		xmpx.push(`</rdf:li></rdf:Alt></dc:description>`);
+		xmpx.push(`</rdf:li></rdf:Alt></dc:description>`); //<exif:UserComment><rdf:Alt><rdf:li xml:lang='x-default'>`);
+		//xmpx.push(`</rdf:li></rdf:Alt></exif:UserComment>`);
 		if (metadatalen) metadatastr += ', ';
 		metadatastr += this.xl('process.photodesc');
 	}
@@ -20190,6 +20192,11 @@ buildxmp(rawname, hxbytes, dateok, datestr, desc, artby, rightby, type) {
 			o += descbytes.length;
 			descbytes = undefined;
 		}
+		/*else if (descbytes2?.length) {
+			xmprdf.set(descbytes2, o);
+			o += descbytes2.length;
+			descbytes2 = undefined;
+		}*/
 		else if (hxbytes?.length) {
 			if (dateok && (undefined !== type)) {
 				xmprdf.set(datbytes, o);
@@ -20673,9 +20680,7 @@ appinfo(doit) {
 		//document.getElementById('okmsg').innerHTML += ('<br>Free: ' + this.imbfree + ' B');
 	}
 	document.getElementById('okmsg').innerHTML += `<br><a href="#" onclick="window.open(imbc.xl('app.helpurl'), 'imbapphelp'); return false;" data-myxlkey="main.help"></a> - <span data-myxlkey="main.newmsg"/>`;
-	document.getElementById('okmsg').innerHTML += `<br><span style="font-weight:normal;font-size:75%;">Contains parts of <a href="#" onclick="window.open('https://fonts.google.com/noto/specimen/Noto+Sans+Symbols+2', 'imbapplic1'); return false;">NotoSansSymbols2-Regular</a> font
-	licensed under <a href="#" onclick=" window.open('http://scripts.sil.org/OFL', 'imbapplic0'); return false;">Open Font License</a>.
-	<br>Based on work by Michele Asciutti from the ImBack User Group.</span>
+	document.getElementById('okmsg').innerHTML += `<br>Based on work by Michele Asciutti from the ImBack User Group.</span>
 	<br>License Info:
 	<br><iframe src="data:text/html,<html><head><meta http-equiv='content-type' content='text/html;charset=UTF-8'></head><body style='font-size:7px;'><!--@@LICENSESTART@@ -->Copyright (C) 2023,2024,2025 by Stefan Hegny, stefan@hegny.de<br><br>The following license applies to the code inside these files with the exception of<br><br>* the Symbol3 font which is an excerpt from<br>&nbsp;&nbsp;NotoSansSymbols2-Regular (https://fonts.google.com/noto/specimen/Noto+Sans+Symbols+2) which is licensed under the<br>&nbsp;&nbsp;Open Font License (https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL)<br><br>Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted.<br><br>THE SOFTWARE IS PROVIDED &quot;AS IS&quot; AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.<br>IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,<br>DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.<br><!-- @@LICENSEEND@@ --></body></html>" id="liciframe" style="width: 100%;"></iframe>
 	<div id="supportedformats"><a target="_new" data-myhrefxlapp="#fmt" data-myhrefxlkey="main.helplink">Formats</a></div>`;
@@ -24666,10 +24671,7 @@ const mytexts = { // actually const
 			en: 'ImB HTML App'
 		},
 	    backw: {
-			   title:  { en: 'ImB DNG to RAW back converter' },
-			   generaladvice: { en: 'Only works for the exact original converted DNG.' },
-			   selectdng: { en: 'Select orig. DNG' },
-			   drophere: { en: 'Drop DNGs here' }
+			   title:  { en: 'ImB DNG to RAW back converter', ja: "ImB DNG から RAW へのコンバーター", de: 'ImB DNG nach RAW Rückwärts' },
 	    },
 		help: {
 			de: '? Hilfe Doku',

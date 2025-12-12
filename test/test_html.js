@@ -515,6 +515,7 @@ describe('C Convert Backward', function() {
 	});
 	it('C.1 Convert without question', async function dotest() {
 			this.timeout(36000);
+			await driver.executeScript('imbc.dlmytexts()',[]);
 			const fi = await driver.findElement(By.id('infileb'));
 			await fi.clear();
 			await fi.sendKeys('/home/hegny/Downloads/mf6x6_large_1.dng\n/home/hegny/Downloads/kb_large_10.dng\n/home/hegny/Downloads/2029_0710_010203_001.dng');

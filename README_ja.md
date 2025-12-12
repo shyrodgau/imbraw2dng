@@ -23,11 +23,11 @@ dngからrawへの逆変換も可能です。
 <!-- - [**&#x261e;**`imbraw2dng.html`](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.html) - 旧バージョン
 `imbraw2dng_XX.html`として他言語版も公開されています([国際化](#internationalization)を参照)-->
 
-- キャリブレーション済みの[ダウンロード用カメラプロファイル](https://shyrodgau.github.io/imbraw2dng/cameraprofiles) ImBの場合
+- キャリブレーション済みの[ダウンロード用カメラプロファイル](https://shyrodgau.github.io/imbraw2dng/profiles/README) ImBの場合
 
 - [**&#x261e;**`imbdng2raw.html`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html)、[**&#x261e;**`imbdng2raw.js`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js) DNGからRAWへの逆変換。これらのツールで変換されたオリジナルDNGのみ対象です。
 
-ImB RAWは厳密には「白黒RAW」ではなく、実際にはカラーフィルタ処理（残念ながら35mmとMFでは8ビット深度、フィルムでは12ビット深度）を含むRAWセンサーデータです。
+ImB RAWは厳密には「白黒RAW」ではなく、実際にはカラーフィルタ処理（残念ながら35mmとMFでは8ビット深度、FilmとMiMiでは12ビット深度）を含むRAWセンサーデータです。
 
 DNG（Adobe® Digital Negative）はオープンフォーマットで、主にオリジナル画像の走査線で構成されています。
 MFまたはフィルムのImBの場合、カラーフィルタ配列は異なります。
@@ -91,6 +91,29 @@ DNGへの変換では、ファイル名が「I'm Back」ファイル名として
 OriginalRawFilename はRAW入力ファイル名に設定されます。これにより、元の情報をあまり失うことなく、DNGファイルに好きな名前を付けることができます。
 
 DNGから元のRAW画像に戻す必要がある場合（例：一度も変換したことのない画像で再度変換する場合）は、<a href="#revert-to-raw">こちら</a>をご覧ください。
+
+![](https://shyrodgau.github.io/imbraw2dng/helpstuff/usercontrols.png "ユーザーコントロール")
+
+1: &#x2261; メニュー    
+2: バッテリーレベル（ImB接続時）    
+3: &#x1f5d1;&#xfe0e; 選択項目の削除（ImB接続時）    
+4: &#x2b73;&#xfe0e; 選択項目のダウンロード/変換    
+5: &#x1f3d4;&#xfe0e; 画像ブラウザ（ファイル読み込み時）    
+6: &#x1f4f7;&#xfe0e; 写真撮影（ImB接続時）    
+7: &#x1f4fd;&#xfe0e;ビデオを撮影する（ImB に接続している場合）    
+8: グループ化（画像ブラウザのみ）    
+9: 並べ替え（画像ブラウザのみ）    
+10: すべて選択/なし選択（画像ブラウザのみ）    
+11: &#x1f5c2;&#xfe0e; ファイル選択（ImB に接続していない場合。アプリとのファイル共有はいつでも可能です）    
+12: &#x2b73;&#xfe0e; ダウンロード/変換    
+13: &#x2b6e;&#xfe0e; 時計回りに回転（RAW の場合）    
+14: &#x2b6f;&#xfe0e; 反時計回りに回転（RAW の場合）    
+15: &#x231a;&#xfe0e; タイムスタンプを修正    
+16: RAW JPEG をダウンロードする（RAW で設定されている場合）    
+17: &#x1f5d1;&#xfe0e;削除    
+18: 画像ブラウザでの操作として選択    
+19: &#x270e;&#xfe0e; 説明を設定（RAW画像の場合）    
+20: &#x1f50d;&#xfe0e; 拡大表示
 
 ## <a id="processingdng" name="processingdng"> </a>DNGの処理
 
