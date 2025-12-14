@@ -1,11 +1,12 @@
 <!-- SPDX-License-Identifier: 0BSD -->
 <!-- pandoc -f markdown -t html -o README.html README.md -->
-# imbraw2dng - Convert RAW files from [I'mBack<sup>&reg;</sup>](https://imback.eu) into DNG
+# imbraw2dng - Convert RAW files from [I'mBack<sup>&reg;</sup>](https://imback.eu) 35/MF/Film into DNG
 
 Most of this is free software ([0-clause BSD-License](LICENSE.txt)) and not commercially supported.
 
 oder [AUF DEUTSCH&#x1f1e9;&#x1f1ea;](https://shyrodgau.github.io/imbraw2dng/README_de)  
- [日本語&#x1f1ef;&#x1f1f5;](https://shyrodgau.github.io/imbraw2dng/README_ja)
+ [日本語&#x1f1ef;&#x1f1f5;](https://shyrodgau.github.io/imbraw2dng/README_ja)    
+ [**&rarr;MiMi&larr;**](https://shyrodgau.github.io/imbraw2dng/README_MiMi)
  
 ## What to find here
 
@@ -38,7 +39,7 @@ of the [github repos](https://github.com/shyrodgau/imbraw2dng) or in the [I'm Ba
 
 ## <a id="getstarted" name="getstarted">  </a>Get Started
 
-If you use **android**, try the [Android app](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk) with your android device in the ImB Wifi.
+If you use **android**, try the [Android app](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk) with your android device in (or out of) the ImB Wifi.
 
 If you prefer using it in the **browser** on your PC or smartphone, there are the choices:
 

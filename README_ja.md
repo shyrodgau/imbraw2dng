@@ -1,11 +1,13 @@
 <!-- SPDX-License-Identifier: 0BSD -->
 <!-- pandoc -f markdown -t html -o README.html README.md -->
-# imbraw2dng - [I'mBack<sup>&reg;</sup>](https://imback.eu) の RAW ファイルを DNG に変換します。
+# imbraw2dng - [I'mBack<sup>&reg;</sup>](https://imback.eu) 35/MF/Film の RAW ファイルを DNG に変換します。
 
 このツールのほとんどはフリーソフトウェア ([0 条項 BSD ライセンス](LICENSE.txt)) であり、商用サポートは提供されていません。
 
 または[deutsch&#x1f1e9;&#x1f1ea;](https://shyrodgau.github.io/imbraw2dng/README_de)   
-or  [english&#x1f1ec;&#x1f1e7;](https://shyrodgau.github.io/imbraw2dng/README)
+or  [english&#x1f1ec;&#x1f1e7;](https://shyrodgau.github.io/imbraw2dng/README)   
+ [**&rarr;MiMi&larr;**](https://shyrodgau.github.io/imbraw2dng/README_MiMi_ja)
+
 
 ## ここで何が見つかるか
 
