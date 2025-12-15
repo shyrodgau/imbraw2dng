@@ -190,7 +190,7 @@ Bezüglich Konfigurierbarkeit siehe [imbraw2dng.json](imbraw2dng.json).
 
 ### <a id="metaexif" name="metaexif">  </a>Metadaten, EXIF
 
-Die EXIF Daten in den JPEG Bildern von ImB bei MiMi nützlich. Wenn sie in den DNG Dateien drin gewünscht werden, ist das möglich. Zuerst das JPEG und dann das passende RAW verarbeiten.
+Die EXIF Daten in den JPEG Bildern von ImB sind bei MiMi nützlich. Wenn sie in den DNG Dateien drin gewünscht werden, ist das möglich. Zuerst das JPEG und dann das passende RAW verarbeiten.
 "Passend" ist definiert als: Zeitunterschied < 5 sec. und Unterschied des Zähler (letzter Teil des Dateinamens) &lt;= eins. Muss nicht direkt aufeinanderfolgend sein, erst alle JPEGs und dann die RAWs sollte tun.
 
 Es können für alle Bilder Metadaten Autor/Ersteller und Copyright sowie pro Bild eine Beschreibung (&#x270e;&#xfe0e;) direkt gesetzt werden.
