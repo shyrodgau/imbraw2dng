@@ -101,7 +101,7 @@ Falls jemals das Original-RAW wieder benötigt wird (z.B. um es mit einer neuere
 1: &#x2261; Menü    
 2: Batteriefüllstand (wenn mit ImB verbunden)    
 3: &#x1f5d1;&#xfe0e; Ausgewählte Löschen (wenn mit ImB verbunden)    
-4: &#x2b73;&#xfe0e; Ausgewählte Herunterladen/Konvertieren    
+4: &#x2b73;&#xfe0e; Ausgewählte Herunterladen/Konvertieren (nur Bild-Browser)    
 5: &#x1f3d4;&#xfe0e; Bild-Browser (wenn Bilder geladen)    
 6: &#x1f4f7;&#xfe0e; Fotos aufnehmen (wenn mit ImB verbunden)    
 7: &#x1f4fd;&#xfe0e; Video aufnehmen (wenn mit ImB verbunden)    
@@ -190,7 +190,7 @@ Bezüglich Konfigurierbarkeit siehe [imbraw2dng.json](imbraw2dng.json).
 
 ### <a id="metaexif" name="metaexif">  </a>Metadaten, EXIF
 
-Die EXIF Daten in den JPEG Bildern von ImB sind nur eingeschränkt nützlich (außer MiMi!), da sie die Perspektive vom ImB Sensor abbilden. Aber wenn sie in den DNG Dateien drin gewünscht werden, ist das möglich. Zuerst das JPEG und dann das passende RAW verarbeiten.
+Die EXIF Daten in den JPEG Bildern von ImB bei MiMi nützlich. Wenn sie in den DNG Dateien drin gewünscht werden, ist das möglich. Zuerst das JPEG und dann das passende RAW verarbeiten.
 "Passend" ist definiert als: Zeitunterschied < 5 sec. und Unterschied des Zähler (letzter Teil des Dateinamens) &lt;= eins. Muss nicht direkt aufeinanderfolgend sein, erst alle JPEGs und dann die RAWs sollte tun.
 
 Es können für alle Bilder Metadaten Autor/Ersteller und Copyright sowie pro Bild eine Beschreibung (&#x270e;&#xfe0e;) direkt gesetzt werden.

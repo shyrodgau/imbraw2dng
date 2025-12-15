@@ -95,7 +95,7 @@ If you ever need to revert the original RAW from the DNG (e.g. to do the convers
 1: &#x2261; Menu    
 2: Battery level (when connected to ImB)    
 3: &#x1f5d1;&#xfe0e; Delete selected (when connected to ImB)    
-4: &#x2b73;&#xfe0e; Download/Convert selected    
+4: &#x2b73;&#xfe0e; Download/Convert selected (only Picture Browser)    
 5: &#x1f3d4;&#xfe0e; Picture Browser (when files loaded)    
 6: &#x1f4f7;&#xfe0e; Take Photos (when connected to ImB)    
 7: &#x1f4fd;&#xfe0e; Take Videos (when connected to ImB)    
@@ -179,7 +179,7 @@ About configuration see [imbraw2dng.json](imbraw2dng.json).
 
 ### <a id="metadexif" name="metaexif">  </a>Metadata, EXIF
 
-The EXIF data in the JPEG files from ImB is of limited use (excl. MiMi!), because it reflects the perspective of the ImB optics and sensor and not of the actual camera. But if you would like to add it to your DNG files, this is possible. Process the JPEG first and then the corresponding RAW.
+The EXIF data in the JPEG files from ImB is useful for MiMi. If you would like to add it to your DNG files, this is possible. Process the JPEG first and then the corresponding RAW.
 Corresponding is defined as: time difference < 5 sec and counter (last part of filename) difference &lt;= 1. It is not neccessary to be directly consecutive, first all JPEGs and then the RAWs should do it.
 
 Author/creator and copyright metadata can be set globally, and per-image a description (&#x270e;&#xfe0e;) can be set.

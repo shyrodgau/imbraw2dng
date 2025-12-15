@@ -2269,7 +2269,7 @@ latestjpg='0000';
 earliestraw='9999';
 latestraw='0000';
 
-ismimi=false;
+ismimi=0;
 
 // [0]: (1,2)   !=0 => use separate localstorage namespace from imbraw2dng
 // [1]: (3,6)   imbweb: for non-emulator: 1 => use = 'http://192.168.8.101:8889'; 2 => use = 'http://192.168.0.72:8889'; android emulator: !=0 => use 10.0.2.2 (host connection)
@@ -20679,11 +20679,12 @@ appinfo(doit) {
 		//	document.getElementById('okmsg').innerHTML += ('<br>Free: ' + Math.round(this.imbfree/100)/10 + ' KB');
 		//document.getElementById('okmsg').innerHTML += ('<br>Free: ' + this.imbfree + ' B');
 	}
-	document.getElementById('okmsg').innerHTML += `<br><a href="#" onclick="window.open(imbc.xl('app.helpurl'), 'imbapphelp'); return false;" data-myxlkey="main.help"></a> - <span data-myxlkey="main.newmsg"/>`;
+	const h = (1 === this.ismimi) ? 'app.helpurlmimi' : 'app.helpurl';
+	document.getElementById('okmsg').innerHTML += `<br><a href="#" onclick="window.open(imbc.xl('`+ h + `'), 'imbapphelp'); return false;" data-myxlkey="main.help"></a> - <span data-myxlkey="main.newmsg"/>`;
 	document.getElementById('okmsg').innerHTML += `<br><span style="font-weight:normal;font-size:75%;">Based on work by Michele Asciutti from the ImBack User Group.</span>
 	<br>License Info:
 	<br><iframe src="data:text/html,<html><head><meta http-equiv='content-type' content='text/html;charset=UTF-8'></head><body style='font-size:7px;'><!--@@LICENSESTART@@ -->Copyright (C) 2023,2024,2025 by Stefan Hegny, stefan@hegny.de<br><br>The following license applies to the code inside these files with the exception of<br><br>* the Symbol3 font which is an excerpt from<br>&nbsp;&nbsp;NotoSansSymbols2-Regular (https://fonts.google.com/noto/specimen/Noto+Sans+Symbols+2) which is licensed under the<br>&nbsp;&nbsp;Open Font License (https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL)<br><br>Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted.<br><br>THE SOFTWARE IS PROVIDED &quot;AS IS&quot; AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.<br>IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,<br>DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.<br><!-- @@LICENSEEND@@ --></body></html>" id="liciframe" style="width: 100%;"></iframe>
-	<div id="supportedformats"><a target="_new" data-myhrefxlapp="#fmt" data-myhrefxlkey="main.helplink">Formats</a></div>`;
+	<div id="supportedformats"><a target="_new" data-myhrefxlapp="#fmt" data-myhrefxlkey="`+ h + `">Formats</a></div>`;
 	this.xlateall();
 	this.showmsg();
 	//document.getElementById('supportedformats').innerHTML = globals.fmtsupp();
@@ -20905,7 +20906,6 @@ async drophandler(ev) {
 						mm[i] = mm[i].getAsFileSystemHandle(); // replace with promise
 						//if (m) mapped.push(m);
 					} else {
-						this.noGetFsH = true;
 						mapped.push(m0[i]);
 					}
 				}
@@ -22801,8 +22801,10 @@ loaddir(dirname, onfinish){
 				//let z = this.imbeles.indexOf(e => (e.name === n));
 				if (-1 !== this.imbeles.findIndex(e => (e.name === n))) continue;
 				this.handle1imb('A:\\' + dirname + '\\PHOTO\\' + ImBCBase.basename(n));
-				if (dirname === 'NOVATEK')
-					this.ismimi = true;
+				if ((dirname.toUpperCase() === 'NOVATEK') && (this.ismimi !== -1))
+					this.ismimi = 1;
+				else if (dirname.toUpperCase() === 'IMBACK')
+					this.ismimi = -1;
 			}
 			onfinish();
 		}
@@ -22835,8 +22837,10 @@ loadimgs() {
 			for (const e of doc[1].querySelectorAll('LIST ALLFile File FPATH')) {
 				//if (ImBCBase.ucex(e.textContent) === '.RAW') rawfound = true;
 				this.handle1imb(e.textContent, e.parentElement.querySelector('TIME').textContent);
-				if (e.textContent.toUpperCase().indexOf('NOVATEK') !== -1)
-					this.ismimi = true;
+				if ((e.textContent.toUpperCase().indexOf('NOVATEK') !== -1) && (this.ismimi !== -1))
+					this.ismimi = 1;
+				else if (e.textContent.toUpperCase().indexOf('IMBACK') !== -1)
+					this.ismimi = -1;
 			}
 			//const se = doc[1].querySelectorAll('LIST ALLFile File FPATH');
 			//if (!rawfound && se.length && se[0].textContent.length >= 40) {
@@ -24679,11 +24683,6 @@ const mytexts = { // actually const
 			ru: '? Помощь Док',
 			ja: '? ヘルプ資料'
 		},
-		helplink: {
-			de: 'https://shyrodgau.github.io/imbraw2dng/README_de',
-			en: 'https://shyrodgau.github.io/imbraw2dng/',
-			ja: 'https://shyrodgau.github.io/imbraw2dng/README_ja'
-		},
 		generaladvice: {
 			de: 'Daten werden nur im Browser verarbeitet, nicht im \'Internet\'.<br>Kann sein, dass der Browser fragt, ob Sie zulassen wollen, dass mehrere Dateien heruntergeladen werden.<br>Dateien, die keine oder unbekannte RAW-Dateien sind, werden 1:1 kopiert.',
 			en: 'Data processing is entirely in the browser, not in \'the internet\'<br>Browser may ask you if you want to allow downloading multiple files.<br>Not or unrecognized RAW Files simply will be copied.',
@@ -25111,6 +25110,11 @@ const mytexts = { // actually const
 			de: 'https://shyrodgau.github.io/imbraw2dng/README_de',
 			en: 'https://shyrodgau.github.io/imbraw2dng/README',
 			ja: 'https://shyrodgau.github.io/imbraw2dng/README_ja'
+		},
+		helpurlmimi: {
+			de: 'https://shyrodgau.github.io/imbraw2dng/README_MiMi_de',
+			en: 'https://shyrodgau.github.io/imbraw2dng/README_MiMi',
+			ja: 'https://shyrodgau.github.io/imbraw2dng/README_MiMi_ja'
 		},
 		livehint: {
 			en: 'For live view, point media player to <a href="$$0">$$0</a>',
