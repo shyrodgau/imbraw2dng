@@ -12,13 +12,15 @@
   <preference name="AndroidPersistentFileLocation" value="Compatibility"/>
   <preference name="AndroidXEnabled" value="true"/>
   <preference name="AndroidInsecureFileModeEnabled" value="true"/>
+  <!--hook type="before_build" src="sh -c 'cd ../../.. && make'"/-->
+  <hook type="before_build" src="scripts/make.sh"/>
   <platform name="android">
     <preference name="AndroidWindowSplashScreenAnimatedIcon" value="www/img/logo.png" />
     <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application">
       <application android:usesCleartextTraffic="true" android:requestLegacyExternalStorage="true" />
     </edit-config>
     <resource-file src="network_config.xml" target="app/src/main/res/xml/network_config.xml"/>
-    <resource-file src="../../imbapp.htm" target="app/src/main/assets/www/res/imbapp.htm"/>
+    <resource-file src="../../imbappzzz.htm" target="app/src/main/assets/www/res/imbapp.htm"/>
     <resource-file src="imbapp.html" target="app/src/main/assets/www/imbapp.html"/>
     <resource-file src="../../LICENSE.txt" target="app/src/main/assets/www/res/LICENSE.txt"/>
     <resource-file src="../../HISTORY.txt" target="app/src/main/assets/www/res/HISTORY.txt"/>
@@ -50,7 +52,7 @@
     </config-file>
   </platform>
     <platform name="ios">
-      <resource-file src="../../imbapp.htm" target="app/src/main/assets/www/res/imbapp.htm"/>
+      <resource-file src="../../imbappzzz.htm" target="app/src/main/assets/www/res/imbapp.htm"/>
       <resource-file src="imbapp.html" target="app/src/main/assets/www/imbapp.html"/>
       <resource-file src="../../LICENSE.txt" target="app/src/main/assets/www/res/LICENSE.txt"/>
     <resource-file src="../../HISTORY.txt" target="app/src/main/assets/www/res/HISTORY.txt"/>

@@ -632,6 +632,7 @@ body:has(dialog[open]), html:has(dialog[open]) {
 </style>
 <!-- WORKER -->
 <script type="text/js-netwworker" language="javascript">
+"use strict;"
 /* * * ************************************* WORKER *************************************** */
 let base, msg = false, curxhr, evtq = [], imgstopped = false;
 let progress = false, queue = [], wdtimer, currcust, errcount = 0;
@@ -910,6 +911,7 @@ function custcmdi(struc, c, t, restargs, cb, results) {
 }
 </script><!-- js-netwworker -->
 <script type="text/js-previewworker" language="javascript">
+"use strict;"
 /* * * ************************************* preview WORKER *************************************** */
 let constwb = false;
 /* WORKER onmessage */
@@ -1569,7 +1571,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.5.9_6cafb5d", // actually const // VERSION EYECATCHER
+version: "V6.5.9_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -23180,76 +23182,154 @@ fselect() {
 	});
 }
 /* AndroidSpec: upload html */
-copytoimb(names) {
-   if (undefined === names) {
-   	   this.copytoimb(['imbapp.htm' /*, 'imbapp.json'*/ ]);
-   	   return;
-   }
-   let n = names[0];
+copytoimb() {
    let xhr = new XMLHttpRequest();
-   xhr.responseType = 'blob';
+   xhr.responseType = 'arraybuffer';
    xhr.onload = (/*evt*/) => {
-           if (xhr.status !== 200) {
-                   console.log('XHR send exception (post5) for ');
-                   document.getElementById('genericok').style['border-color'] = 'red';
-                   document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.install'));
-                   this.showmsg();
-                   return;
-           }
-           let xhr2 = new XMLHttpRequest();
-           let fd = new FormData();
-           fd.append('fileupload1', xhr.response, n);
-           fd.append('upbtn', 'Upload Files');
-           xhr2.onerror = (e) => { xhr.onerror(e); };
-           xhr2.onaboer = (e) => { xhr.onerror(e); };
-           xhr2.ontimeout = (e) => { xhr.onerror(e); };
-           xhr2.responseType = 'document';
-           xhr2.onload = () => {
-                   if (xhr2.status !== 200) {
-                           console.log('XHR send exception (post2) for ');
-                           document.getElementById('genericok').style['border-color'] = 'red';
-                           document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.install'));
-                           this.showmsg();
-                           return;
-                   }
-                   if (names.length > 1) {
-                   	   names.splice(0,1);
-                   	   this.copytoimb(names);
-                   }
-                   else {
-					   document.getElementById('genericok').style['border-color'] = 'green';
-					   document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('app.okay'));
-					   this.showmsg();
-				   }
-           };
-           try {
-                   xhr2.open('POST', this.imbweb + (this.ismimi ? '/NOVATEK' : '/IMBACK'));
-                   xhr2.send(fd);
-           } catch (e) {
-                   console.log('XHR send exception (post4) for ');
-                   document.getElementById('genericok').style['border-color'] = 'red';
-                   document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.install'));
-                   this.showmsg();
-           }
+	   if (xhr.status !== 200) {
+		   console.log('XHR send exception (post5) for ');
+		   document.getElementById('genericok').style['border-color'] = 'red';
+		   document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.install')) + ' 1 ' + xhr.status;
+		   this.showmsg();
+		   return;
+	   }
+	   
+	   
+	   let xhr3 = new XMLHttpRequest();
+	   xhr3.responseType = 'arraybuffer';
+	   xhr3.onload = (/*evt*/) => {
+		   if (xhr3.status !== 200) {
+			   console.log('XHR send exception (post5) for ');
+			   document.getElementById('genericok').style['border-color'] = 'red';
+			   document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.install')) + ' 3 ' + xhr3.status;
+			   this.showmsg();
+			   return;
+		   }
+	   /* ******************************************************* */
+		   let ab = new ArrayBuffer(xhr3.response.byteLength + xhr.response.byteLength);
+		   let dv = new DataView(ab);
+		   let dvi = new DataView(xhr.response);
+		   let dvib = new DataView(xhr3.response);
+		   let sti = 0, outi = 0;
+		   while (sti < xhr.response.byteLength) {
+		   	   let k = dvi.getUint8(sti++);
+		   	   let l = 0, o = 0;
+		   	   if (k === 73 /* I */) {
+		   	   	   l = (10 * l) + (dvi.getUint8(sti++) - 48);
+		   	   	   l = (10 * l) + (dvi.getUint8(sti++) - 48);
+		   	   	   l = (10 * l) + (dvi.getUint8(sti++) - 48);
+		   	   	   l = (10 * l) + (dvi.getUint8(sti++) - 48);
+		   	   	   l = (10 * l) + (dvi.getUint8(sti++) - 48);
+		   	   	   l = (10 * l) + (dvi.getUint8(sti++) - 48);
+		   	   	   l = (10 * l) + (dvi.getUint8(sti++) - 48);
+		   	   	   for (let j = 0; j < l; j++) {
+		   	   	   	   dv.setUint8(outi++, dvi.getUint8(sti++));
+		   	   	   }
+		   	   } else if (k == 67 /* C */) {
+		   	   	   o = (10 * o) + (dvi.getUint8(sti++) - 48);
+		   	   	   o = (10 * o) + (dvi.getUint8(sti++) - 48);
+		   	   	   o = (10 * o) + (dvi.getUint8(sti++) - 48);
+		   	   	   o = (10 * o) + (dvi.getUint8(sti++) - 48);
+		   	   	   o = (10 * o) + (dvi.getUint8(sti++) - 48);
+		   	   	   o = (10 * o) + (dvi.getUint8(sti++) - 48);
+		   	   	   o = (10 * o) + (dvi.getUint8(sti++) - 48);
+		   	   	   l = (10 * l) + (dvi.getUint8(sti++) - 48);
+		   	   	   l = (10 * l) + (dvi.getUint8(sti++) - 48);
+		   	   	   l = (10 * l) + (dvi.getUint8(sti++) - 48);
+		   	   	   l = (10 * l) + (dvi.getUint8(sti++) - 48);
+		   	   	   l = (10 * l) + (dvi.getUint8(sti++) - 48);
+		   	   	   l = (10 * l) + (dvi.getUint8(sti++) - 48);
+		   	   	   l = (10 * l) + (dvi.getUint8(sti++) - 48);
+		   	   	   for (let j = 0; j < l; j++) {
+		   	   	   	   dv.setUint8(outi++, dvib.getUint8(o+j));
+		   	   	   }
+		   	   } else {
+		   	   	   break;
+		   	   }
+		   }
+		   
+		   let abc = ab.slice(0, outi);
+		   //this.writefile('imbapp.htm', 'text/html', 'xyzabc', abc, 'imbapp.htm');
+		   //return;
+	   /* ******************************************************* */
+	   
+	   	   let bb = new Blob([ abc ], { type: 'text/html' });
+		   let xhr2 = new XMLHttpRequest();
+		   let fd = new FormData();
+		   fd.append('fileupload1', bb, 'imbapp.htm');
+		   fd.append('upbtn', 'Upload Files');
+		   xhr2.onabort = (evt) => { xhr.onerror(evt, 'abort2'); };
+		   xhr2.ontimeout = (evt) => { xhr.onerror(evt, 'timeout2'); };
+		   xhr2.onerror = (e) => { xhr.onerror(e, 'err2'); };
+		   xhr2.responseType = 'document';
+		   xhr2.onload = () => {
+			   if (xhr2.status !== 200) {
+				   console.log('XHR send exception (post2) for ');
+				   document.getElementById('genericok').style['border-color'] = 'red';
+				   document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.install')) + ' 2 ' + xhr2.status;
+				   this.showmsg();
+				   return;
+			   }
+			   if (names.length > 1) {
+				   names.splice(0,1);
+				   this.copytoimb(names);
+			   }
+			   else {
+				   document.getElementById('genericok').style['border-color'] = 'green';
+				   document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('app.okay'));
+				   this.showmsg();
+			   }
+		   };
+		   try {
+			   xhr2.open('POST', this.imbweb + (this.ismimi ? '/NOVATEK' : '/IMBACK'));
+			   xhr2.send(fd);
+		   } catch (e) {
+			   console.log('XHR send exception (post4) for ');
+			   document.getElementById('genericok').style['border-color'] = 'red';
+			   document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.install')) + ' e2';
+			   this.showmsg();
+		   }
+		   
+	   /* ******************************************************* */
+	   
+	   };
+	   /* ******************************************************* */
+	   
+	   xhr3.onerror = (evt) => { xhr.onerror(evt, 'err3'); };
+	   xhr3.onabort = (evt) => { xhr.onerror(evt, 'abort3'); };
+	   xhr3.ontimeout = (evt) => { xhr.onerror(evt, 'timeout3'); };
+	   xhr3.open('GET', 'http://localhost/imbapp.html');
+	   xhr3.setRequestHeader('Cache-control','max-stale');
+	   xhr3.timeout = 30000;
+	   try {
+		   xhr3.send();
+	   } catch (e) {
+		   console.log('XHR send exception (post) for ');
+		   document.getElementById('genericok').style['border-color'] = 'red';
+		   document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.install')) + ' e3';
+		   this.showmsg();
+	   }
+	   
    };
    xhr.onerror = (evt, typ) => {
-           console.log('XZY');
-           document.getElementById('genericok').style['border-color'] = 'red';
-           document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.install'));
-           this.showmsg();
+	   console.log('XZY');
+	   if (!typ) typ='err';
+	   document.getElementById('genericok').style['border-color'] = 'red';
+	   document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.install')) + ' ' + typ;
+	   this.showmsg();
    };
    xhr.onabort = (evt) => { xhr.onerror(evt, 'abort'); };
    xhr.ontimeout = (evt) => { xhr.onerror(evt, 'timeout'); };
-   xhr.open('GET', 'http://localhost/res/' + n);
+   xhr.open('GET', 'http://localhost/res/imbapp.htm');
    xhr.setRequestHeader('Cache-control','max-stale');
    xhr.timeout = 30000;
    try {
-           xhr.send();
+       xhr.send();
    } catch (e) {
-           console.log('XHR send exception (post) for ');
-           document.getElementById('genericok').style['border-color'] = 'red';
-           document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.install'));
-           this.showmsg();
+	   console.log('XHR send exception (post) for ');
+	   document.getElementById('genericok').style['border-color'] = 'red';
+	   document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('words.error')) + ' ' + this.rmesc(this.xl('app.install')) + ' e1';
+	   this.showmsg();
    }
 }
 /*dlhtml(names) {
@@ -26980,6 +27060,7 @@ adjurl: function(url) {
 </script>
 <script src="cordova.js"></script>
 <script type="text/javascript" language="javascript">
+"use strict;"
 /* outside of classes: */
 let imbc;
 /* onload of html body */

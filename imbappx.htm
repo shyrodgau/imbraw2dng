@@ -635,6 +635,7 @@ body:has(dialog[open]), html:has(dialog[open]) {
 </style>
 <!-- WORKER -->
 <script type="text/js-netwworker" language="javascript">
+"use strict;"
 /* * * ************************************* WORKER *************************************** */
 let base, msg = false, curxhr, evtq = [], imgstopped = false;
 let progress = false, queue = [], wdtimer, currcust, errcount = 0;
@@ -913,6 +914,7 @@ function custcmdi(struc, c, t, restargs, cb, results) {
 }
 </script><!-- js-netwworker -->
 <xscript style="display:none;">
+"use strict;"
 /* * * ************************************* preview WORKER *************************************** */
 let constwb = false;
 /* WORKER onmessage */
@@ -1572,7 +1574,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.5.9_6cafb5d", // actually const // VERSION EYECATCHER
+version: "V6.5.9_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
