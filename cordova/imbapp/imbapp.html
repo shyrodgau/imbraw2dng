@@ -23270,18 +23270,12 @@ copytoimb() {
 				   this.showmsg();
 				   return;
 			   }
-			   if (names.length > 1) {
-				   names.splice(0,1);
-				   this.copytoimb(names);
-			   }
-			   else {
-				   document.getElementById('genericok').style['border-color'] = 'green';
-				   document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('app.okay'));
-				   this.showmsg();
-			   }
+			   document.getElementById('genericok').style['border-color'] = 'green';
+			   document.getElementById('okmsg').innerHTML = this.rmesc(this.xl('app.okay'));
+			   this.showmsg();
 		   };
 		   try {
-			   xhr2.open('POST', this.imbweb + (this.ismimi ? '/NOVATEK' : '/IMBACK'));
+			   xhr2.open('POST', this.imbweb + ((1 === this.ismimi) ? '/NOVATEK' : '/IMBACK'));
 			   xhr2.send(fd);
 		   } catch (e) {
 			   console.log('XHR send exception (post4) for ');
