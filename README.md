@@ -93,7 +93,7 @@ If you ever need to revert the original RAW from the DNG (e.g. to do the convers
 
 ![](https://shyrodgau.github.io/imbraw2dng/helpstuff/usercontrols.png "User controls")
 
-1: &#x2261; Menu    
+1: &#x22ee; Menu    
 2: Battery level (when connected to ImB)    
 3: &#x1f5d1;&#xfe0e; Delete selected (when connected to ImB)    
 4: &#x2b73;&#xfe0e; Download/Convert selected (only Picture Browser)    

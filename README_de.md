@@ -98,7 +98,7 @@ Falls jemals das Original-RAW wieder benötigt wird (z.B. um es mit einer neuere
 
 ![](https://shyrodgau.github.io/imbraw2dng/helpstuff/usercontrols.png "Bedienelemente")
 
-1: &#x2261; Menü    
+1: &#x22ee; Menü    
 2: Batteriefüllstand (wenn mit ImB verbunden)    
 3: &#x1f5d1;&#xfe0e; Ausgewählte Löschen (wenn mit ImB verbunden)    
 4: &#x2b73;&#xfe0e; Ausgewählte Herunterladen/Konvertieren (nur Bild-Browser)    

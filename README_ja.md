@@ -90,7 +90,7 @@ DNGから元のRAW画像に戻す必要がある場合（例：一度も変換�
 
 ![](https://shyrodgau.github.io/imbraw2dng/helpstuff/usercontrols.png "ユーザーコントロール")
 
-1: &#x2261; メニュー    
+1: &#x22ee; メニュー    
 2: バッテリーレベル（ImB接続時）    
 3: &#x1f5d1;&#xfe0e; 選択項目の削除（ImB接続時）    
 4: &#x2b73;&#xfe0e; 選択項目のダウンロード/変換    

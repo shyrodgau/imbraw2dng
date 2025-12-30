@@ -1571,7 +1571,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.6.0_632ae5c", // actually const // VERSION EYECATCHER
+version: "V6.6.0_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -23215,31 +23215,16 @@ copytoimb() {
 		   	   let k = dvi.getUint8(sti++);
 		   	   let l = 0, o = 0;
 		   	   if (k === 73 /* I */) {
-		   	   	   l = (10 * l) + (dvi.getUint8(sti++) - 48);
-		   	   	   l = (10 * l) + (dvi.getUint8(sti++) - 48);
-		   	   	   l = (10 * l) + (dvi.getUint8(sti++) - 48);
-		   	   	   l = (10 * l) + (dvi.getUint8(sti++) - 48);
-		   	   	   l = (10 * l) + (dvi.getUint8(sti++) - 48);
-		   	   	   l = (10 * l) + (dvi.getUint8(sti++) - 48);
-		   	   	   l = (10 * l) + (dvi.getUint8(sti++) - 48);
+		   	   	   for (let s=0; s<7; s++)
+		   	   	   	   l = (10 * l) + (dvi.getUint8(sti++) - 48);
 		   	   	   for (let j = 0; j < l; j++) {
 		   	   	   	   dv.setUint8(outi++, dvi.getUint8(sti++));
 		   	   	   }
 		   	   } else if (k == 67 /* C */) {
-		   	   	   o = (10 * o) + (dvi.getUint8(sti++) - 48);
-		   	   	   o = (10 * o) + (dvi.getUint8(sti++) - 48);
-		   	   	   o = (10 * o) + (dvi.getUint8(sti++) - 48);
-		   	   	   o = (10 * o) + (dvi.getUint8(sti++) - 48);
-		   	   	   o = (10 * o) + (dvi.getUint8(sti++) - 48);
-		   	   	   o = (10 * o) + (dvi.getUint8(sti++) - 48);
-		   	   	   o = (10 * o) + (dvi.getUint8(sti++) - 48);
-		   	   	   l = (10 * l) + (dvi.getUint8(sti++) - 48);
-		   	   	   l = (10 * l) + (dvi.getUint8(sti++) - 48);
-		   	   	   l = (10 * l) + (dvi.getUint8(sti++) - 48);
-		   	   	   l = (10 * l) + (dvi.getUint8(sti++) - 48);
-		   	   	   l = (10 * l) + (dvi.getUint8(sti++) - 48);
-		   	   	   l = (10 * l) + (dvi.getUint8(sti++) - 48);
-		   	   	   l = (10 * l) + (dvi.getUint8(sti++) - 48);
+		   	   	   for (let r=0; r<7; r++)
+		   	   	   	   o = (10 * o) + (dvi.getUint8(sti++) - 48);
+		   	   	   for (let s=0; s<7; s++)
+		   	   	   	   l = (10 * l) + (dvi.getUint8(sti++) - 48);
 		   	   	   for (let j = 0; j < l; j++) {
 		   	   	   	   dv.setUint8(outi++, dvib.getUint8(o+j));
 		   	   	   }
@@ -27263,7 +27248,7 @@ function init2() {
 <!-- end of hamburger menu -->
 <!-- navigation header -->
 <div id="navheader" style="position:fixed; top:0; width:100%;background-color:black;z-index:997;color:white;"><div>&nbsp;
-<span class="browserx"><input type="button" value="&#x2261;" style="padding-left: 0em; margin-top: -0.3em; margin-bottom: -0.5em;font-size:200%;border:0 !important;margin-right: 0;padding-right: 0;" class="whbtn" id="hamb" onclick="return imbc.handleham();"></span>
+<span class="browserx"><input type="button" value="&#x22ee;" style="padding-left: 0em; margin-top: 0.1em; margin-bottom: -0.5em;font-size:133%;border:0 !important;margin-right: 0;padding-right: 0;" class="whbtn" id="hamb" onclick="return imbc.handleham();"></span>
 <span id="batt1" class="batt1 battlo battery" style="font-weight:bold; display: inline-block; width: 1em; height:1.3em; vertical-align:bottom;position:relative; top: -0.7em;"><span>&#xa0;</span></span>
 <span id="batt2" class="batt2 battlo battery" style="position: relative; left: -1.1em; font-weight:bold; display: inline-block; color:green;width: 0.7em;background-color: black;margin-right: 1em;top: -0.3em;"><span>&#xa0;</span></span>
 <input type="button" value="&#x1f5d1;" class="uhbtn" onclick="imbc.browserdelete()" id="delselbut" disabled style="font-family:Symbol3;font-weight: normal;" data-mytitlexlkey="browser.delall">
