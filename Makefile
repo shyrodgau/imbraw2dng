@@ -1,6 +1,9 @@
 
 all:	README.html README_de.html README_ja.html README_MiMi.html README_MiMi_de.html README_MiMi_ja.html LICENSE.html LICENSE_noapp.html imbappzzz.htm
 
+clean:
+	rm -f README.html README_de.html README_ja.html README_MiMi.html README_MiMi_de.html README_MiMi_ja.html LICENSE.html LICENSE_noapp.html imbappzzz.htm
+
 README.html:	README.md Makefile
 	pandoc -f markdown -t html -o README.html README.md
 	sed -i -e 's@"https://shyrodgau.github.io/imbraw2dng/README_MiMi@"README_MiMi.html"@g' -e \
@@ -43,12 +46,12 @@ README_MiMi_ja.html:	README_MiMi_ja.md Makefile
 	   's@"https://shyrodgau.github.io/imbraw2dng/README_MiMi_de"@"README_MiMi_de.html"@g' -e \
 	   's@"https://shyrodgau.github.io/imbraw2dng/helpstuff/usercontrols.png"@"usercontrols.png"@g' README_MiMi_ja.html
 
-LICENSE.html:	LICENSE.txt Makefile /home/hegny/prog/imbraw2dng/github/helpstuff/licensehelp.sh
-	/home/hegny/prog/imbraw2dng/github/helpstuff/licensehelp.sh
+LICENSE.html:	LICENSE.txt Makefile helpstuff/licensehelp.sh
+	helpstuff/licensehelp.sh
 
-LICENSE_noapp.html:	LICENSE_noapp.txt Makefile /home/hegny/prog/imbraw2dng/github/helpstuff/licensehelp.sh
-	/home/hegny/prog/imbraw2dng/github/helpstuff/licensehelp.sh
+LICENSE_noapp.html:	LICENSE_noapp.txt Makefile helpstuff/licensehelp.sh
+	helpstuff/licensehelp.sh
 
-imbappzzz.htm:	imbapp.htm /home/hegny/prog/imbraw2dng/github/cordova/imbapp/imbapp.html /home/hegny/prog/imbraw2dng/github/helpstuff/ximbapp.sh
-	/home/hegny/prog/imbraw2dng/github/helpstuff/ximbapp.sh
+imbappzzz.htm:	imbapp.htm cordova/imbapp/imbapp.html helpstuff/ximbapp.sh
+	helpstuff/ximbapp.sh
 
