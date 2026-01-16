@@ -110,6 +110,7 @@ async function runTest() {
 
   	// Initialize or set localStorage (for example, setting a key-value pair) /* 1 + 3 + (2*27) */
   	await driver.executeScript('window.localStorage.setItem("imbapp_expflags", "58")',[]);
+  	//await driver.executeScript('window.localStorage.setItem("imbapp_expflags", "59")',[]);
 
   	// empty the dir, first add a file so it is not empty
   	driver.executeScript('mobile: pushFile', [{remotePath: '/storage/emulated/0/DCIM/nn/x', payload: 'bml4Cg=='}]);

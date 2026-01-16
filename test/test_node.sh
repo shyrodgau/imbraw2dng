@@ -204,6 +204,7 @@ echo '##########    10    ##########'
 echo Test ${tn} convert from imback
 set -x
 ${TESTEXES}/imbraw2dng.js -ef 3 -np -at 'test creator debugging' -r -j 2 -J -R -O -n 2023 -d fromback.zip
+#${TESTEXES}/imbraw2dng.js -ef 5 -np -at 'test creator debugging' -r -j 2 -J -R -O -n 2023 -d fromback.zip
 rc=$?
 n=$( ls .|wc -l )
 set +x

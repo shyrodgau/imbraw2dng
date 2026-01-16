@@ -915,6 +915,7 @@ describe('F Convert Raw Local APP', function() {
 			//await driver.get('file://' + TESTDAT + '/IMBACK/imbapp.htm');
 			await driver.get(TESTURLB + 'imbapp.htm');
 			await driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));}');
+			//await driver.executeScript('imbc.parseexpflags(1);',[]);
 	});
 	it('F.1 Convert without question', async function dotest() {
 			this.timeout(19000);
