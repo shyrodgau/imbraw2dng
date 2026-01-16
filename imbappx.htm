@@ -2234,8 +2234,9 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 /* * * ************************************* globals, E N D *************************************** */
 /* * * ************************************* Main class *************************************** */
 class ImBCBase {
-static progname = 'whoami';
 /* Indentation out */
+imbcb = false;
+static progname = 'whoami';
 
 // ImBCBase: generic data
 mylang = 'en';
@@ -20608,7 +20609,10 @@ scrollx = 0;
 scrolly = 0;
 dnsad1 = false; // dont show ad1
 dnsad2 = false; // dont show ad2
+dnsad3 = false; // dont show ad3
 showadmod1 = false;
+showadmod2 = false;
+shownadmod3 = false;
 befinp = null; // set if before install prompt
 constructor() {
 	super();
@@ -20991,16 +20995,27 @@ async drophandler(ev) {
 	}
 }
 closead1() {
-	this.showadmod1 = false;
 	document.getElementById('addmod1').close();
 	if (document.getElementById('dnsad1').checked) {
 		this.dnsad1 = true;
 		this.savesettings('dnsad1');
 	}
 	if (!this.dnsad2 && this.befinp) {
+		this.showadmod2 = true;
 		document.getElementById('addmod2').showModal();
 		//document.getElementById('dnsad2').focus();
 	}
+	else if (!this.dnsad3 && !this.shownadmod3){
+		if (window.location.origin.startsWith('https://shyrodgau.github.io/imbraw2dng/')){
+			document.getElementById('addmod3txt').setAttribute('data-myxlkey','ads.adv3b');
+		}
+		else {
+			document.getElementById('addmod3txt').setAttribute('data-myxlkey','ads.adv3');
+		}
+		this.shownadmod3 = true;
+		document.getElementById('addmod3').showModal();
+	}
+	this.showadmod1 = false;
 }
 closead2() {
 	document.getElementById('addmod2').close();
@@ -21009,6 +21024,29 @@ closead2() {
 		this.dnsad2 = true;
 		this.savesettings('dnsad2');
 	}
+	if (!this.dnsad3 && !this.shownadmod3){
+		if (window.location.origin.startsWith('https://shyrodgau.github.io/imbraw2dng/')){
+			document.getElementById('addmod3txt').setAttribute('data-myxlkey','ads.adv3b');
+		}
+		else {
+			document.getElementById('addmod3txt').setAttribute('data-myxlkey','ads.adv3');
+		}
+		this.shownadmod3 = true;
+		document.getElementById('addmod3').showModal();
+	}
+	this.showadmod2 = false;
+}
+closead3() {
+	document.getElementById('addmod3').close();
+	if (document.getElementById('dnsad3').checked) {
+		this.dnsad3 = true;
+		this.savesettings('dnsad3');
+	}
+	if (!this.dnsad2 && this.befinp){
+		this.showadmod2 = true;
+		document.getElementById('addmod2').showModal();
+	}
+	 this.shownadmod3 = true;
 }
 async handlePwaLaunch(para) {
 	if (this.actnum !== this.allfiles.length) return;
@@ -22596,6 +22634,8 @@ savesettings(which) {
 					window.localStorage.setItem('imbapp_dnsad1', this.dnsad1);
 				if (which === 'dnsad2' || !which?.length || -1 !== which.indexOf('dnsad2'))
 					window.localStorage.setItem('imbapp_dnsad2', this.dnsad2);
+				if (which === 'dnsad3' || !which?.length || -1 !== which.indexOf('dnsad3'))
+					window.localStorage.setItem('imbapp_dnsad3', this.dnsad3);
 			}
 		}
 		catch (e) {
@@ -22883,14 +22923,25 @@ checkimb() {
 		this.xlateall();
 		this.imbweb = '';
 		if (0 === this.previewworkers?.length) this.initworker(false);
-		if (ImBCBase.progname === 'imbapp.htm' && window.location.origin.startsWith('https')) {
+		if ((ImBCBase.progname === 'imbapp.htm') && (window.location.origin.startsWith('https'))) {
 			if (!this.dnsad1) {
 				this.showadmod1 = true;
 				document.getElementById('addmod1').showModal();
 			}
 			else if (!this.dnsad2 && this.befinp) {
+				this.showadmod2 = true;
 				document.getElementById('addmod2').showModal();
 				//document.getElementById('dnsad2').focus();
+			}
+			else if (!this.dnsad3){
+				if (window.location.origin.startsWith('https://shyrodgau.github.io/imbraw2dng/')){
+					document.getElementById('addmod3txt').setAttribute('data-myxlkey','ads.adv3b');
+				}
+				else {
+					document.getElementById('addmod3txt').setAttribute('data-myxlkey','ads.adv3');
+				}
+				this.shownadmod3 = true;
+				document.getElementById('addmod3').showModal();
 			}
 		}
 		return;
@@ -23208,6 +23259,10 @@ initsettings() {
 		itm = window.localStorage.getItem('imbapp_dnsad2');
 		if (itm !== null && ImBCBase.progname === 'imbapp.htm') {
 			this.dnsad2 = JSON.parse(itm) ? true: false;
+		}
+		itm = window.localStorage.getItem('imbapp_dnsad3');
+		if (itm !== null && ImBCBase.progname === 'imbapp.htm') {
+			this.dnsad3 = JSON.parse(itm) ? true: false;
 		}
 		itm = window.localStorage.getItem(pref + 'jsett');
 		if (itm !== null) {
@@ -23698,9 +23753,10 @@ deselcop() {
 clearcache() {
 	this.dloads = [];
 	this.iinf = [];
+	this.dnsad3 = false;
 	this.dnsad2 = false;
 	this.dnsad1 = false;
-	this.savesettings(['dnsad1', 'dnsad2', 'dloads', 'ii']);
+	this.savesettings(['dnsad1', 'dnsad2', 'dnsad3', 'dloads', 'ii']);
 }
 modalkeyev(ev) {
 	//console.log(ev);
@@ -25168,9 +25224,19 @@ const mytexts = { // actually const
 			ja: '<a target="_new" href="https://github.com/shyrodgau/imbraw2dng/raw/refs/heads/master/imbapp.htm">このファイルを SD カードの IMBACK ディレクトリにコピー</a>し、<br>http://192.168.1.254/IMBACK/imbapp.htm として ImB WiFi に直接アクセスできます。 (MiMi: IMBACK&rarr;NOVATEK)'
 		},
 		adv2: {
-			en: 'You can install this as a PWA (portable web app) and use it offline (now really)!<br><a href="#" onclick="imbc.dnsad1 = true;imbc.savesettings(\'dnsad1\');imbc.dnsad2 = true;imbc.savesettings(\'dnsad2\');document.getElementById(\'addmod2\').close();imbc.befinp.prompt(); imbc.befinp = null;return false;">Try it</a>',
-			de: 'Man kann es als portable web app (PWA) installieren und offline benutzen (jetzt wirklich)!<br><a href="#" onclick="imbc.dnsad1 = true;imbc.savesettings(\'dnsad1\');document.getElementById(\'addmod2\').close();imbc.befinp.prompt(); imbc.befinp = null; return false;">Ausprobieren</a>',
-			ja: 'これを PWA (ポータブル ウェブ アプリ) としてインストールして、オフラインで使用できます (今すぐ)。<br><a href="#" onclick="imbc.dnsad1 = true;imbc.savesettings(\'dnsad1\');imbc.dnsad2 = true;imbc.savesettings(\'dnsad2\');document.getElementById(\'addmod2\').close();imbc.befinp.prompt(); imbc.befinp = null;return false;">試してみる</a>',
+			en: 'You can install this as a PWA (portable web app) and use it offline!<br><a href="#" onclick="imbc.dnsad2 = true;imbc.savesettings(\'dnsad2\');document.getElementById(\'addmod2\').close();imbc.befinp.prompt(); imbc.befinp = null;return false;">Try it</a>',
+			de: 'Man kann es als portable web app (PWA) installieren und offline benutzen!<br><a href="#" onclick="document.getElementById(\'addmod2\').close();imbc.befinp.prompt(); imbc.befinp = null; return false;">Ausprobieren</a>',
+			ja: 'これを PWA (ポータブル ウェブ アプリ) としてインストールして、オフラインで使用できます。<br><a href="#" onclick="imbc.dnsad2 = true;imbc.savesettings(\'dnsad2\');document.getElementById(\'addmod2\').close();imbc.befinp.prompt(); imbc.befinp = null;return false;">試してみる</a>',
+		},
+		adv3: {
+			en: 'You can use it offline when you open it directly from <a href="https://shyrodgau.github.io/imbraw2dng/imbapp.htm">https://shyrodgau.github.io/imbraw2dng/imbapp.htm</a>!<br>',
+			de: 'Man kann es offline benutzen, wenn direkt von  <a href="https://shyrodgau.github.io/imbraw2dng/imbapp.htm">https://shyrodgau.github.io/imbraw2dng/imbapp.htm</a> geöffnet!<br>',
+			ja: 'You can use it offline when you open it directly from <a href="https://shyrodgau.github.io/imbraw2dng/imbapp.htm">https://shyrodgau.github.io/imbraw2dng/imbapp.htm</a>!<br>',
+		},
+		adv3b: {
+			en: 'You can use it offline, it is cached internally!<br>',
+			de: 'Man kann offine benutzern, intern zwischengespeichert!<br>',
+			ja: 'You can use it offline, it is cached internally!<br>',
 		}
 	}
 }

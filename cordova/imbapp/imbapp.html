@@ -2231,8 +2231,9 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 /* * * ************************************* globals, E N D *************************************** */
 /* * * ************************************* Main class *************************************** */
 class ImBCBase {
-static progname = 'whoami';
 /* Indentation out */
+imbcb = false;
+static progname = 'whoami';
 
 // ImBCBase: generic data
 mylang = 'en';
@@ -22871,6 +22872,13 @@ photourl = 'unknown';
 cancelled = false;
 scrollx = 0;
 scrolly = 0;
+dnsad1 = false; // dont show ad1
+dnsad2 = false; // dont show ad2
+dnsad3 = false; // dont show ad3
+showadmod1 = false;
+showadmod2 = false;
+shownadmod3 = false;
+befinp = null; // set if before install prompt
 constructor() {
 	super();
 	if (undefined === document.getElementById('thebody').popover) {
@@ -25003,6 +25011,8 @@ savesettings(which) {
 					window.localStorage.setItem('imbapp_dnsad1', this.dnsad1);
 				if (which === 'dnsad2' || !which?.length || -1 !== which.indexOf('dnsad2'))
 					window.localStorage.setItem('imbapp_dnsad2', this.dnsad2);
+				if (which === 'dnsad3' || !which?.length || -1 !== which.indexOf('dnsad3'))
+					window.localStorage.setItem('imbapp_dnsad3', this.dnsad3);
 			}
 		}
 		catch (e) {
@@ -25290,14 +25300,25 @@ checkimb() {
 		this.xlateall();
 		this.imbweb = '';
 		if (0 === this.previewworkers?.length) this.initworker(false);
-		if (ImBCBase.progname === 'imbapp.htm' && window.location.origin.startsWith('https')) {
+		if ((ImBCBase.progname === 'imbapp.htm') && (window.location.origin.startsWith('https'))) {
 			if (!this.dnsad1) {
 				this.showadmod1 = true;
 				document.getElementById('addmod1').showModal();
 			}
 			else if (!this.dnsad2 && this.befinp) {
+				this.showadmod2 = true;
 				document.getElementById('addmod2').showModal();
 				//document.getElementById('dnsad2').focus();
+			}
+			else if (!this.dnsad3){
+				if (window.location.origin.startsWith('https://shyrodgau.github.io/imbraw2dng/')){
+					document.getElementById('addmod3txt').setAttribute('data-myxlkey','ads.adv3b');
+				}
+				else {
+					document.getElementById('addmod3txt').setAttribute('data-myxlkey','ads.adv3');
+				}
+				this.shownadmod3 = true;
+				document.getElementById('addmod3').showModal();
 			}
 		}
 		return;
@@ -25615,6 +25636,10 @@ initsettings() {
 		itm = window.localStorage.getItem('imbapp_dnsad2');
 		if (itm !== null && ImBCBase.progname === 'imbapp.htm') {
 			this.dnsad2 = JSON.parse(itm) ? true: false;
+		}
+		itm = window.localStorage.getItem('imbapp_dnsad3');
+		if (itm !== null && ImBCBase.progname === 'imbapp.htm') {
+			this.dnsad3 = JSON.parse(itm) ? true: false;
 		}
 		itm = window.localStorage.getItem(pref + 'jsett');
 		if (itm !== null) {
@@ -26105,9 +26130,10 @@ deselcop() {
 clearcache() {
 	this.dloads = [];
 	this.iinf = [];
+	this.dnsad3 = false;
 	this.dnsad2 = false;
 	this.dnsad1 = false;
-	this.savesettings(['dnsad1', 'dnsad2', 'dloads', 'ii']);
+	this.savesettings(['dnsad1', 'dnsad2', 'dnsad3', 'dloads', 'ii']);
 }
 modalkeyev(ev) {
 	//console.log(ev);

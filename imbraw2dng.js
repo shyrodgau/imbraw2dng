@@ -1509,8 +1509,9 @@ buildpvarray: function(view, size, typ, w, h, orientation, scale, wb, whitelvl) 
 /* * * ************************************* globals, E N D *************************************** */
 /* * * ************************************* Main class *************************************** */
 class ImBCBase {
-static progname = 'whoami';
 /* Indentation out */
+imbcb = false;
+static progname = 'whoami';
 
 // ImBCBase: generic data
 mylang = 'en';
