@@ -205,7 +205,7 @@ In der Android App müssen die RAWs zunächst nach DNG konvertiert werden. Dann 
 
 ### <a id="revert-to-raw" name="revert-to-raw"> </a>Zurück nach RAW
 
-Um mit der App die ursprüngliche RAW Datei aus einer original konvertierten DNG-Datei zu bekommen, jeweils genau eine DNG-Datei mit der ImB OS App teilen.
+Um mit der App die ursprüngliche RAW Datei aus einer original konvertierten DNG-Datei zu bekommen(z.B. um es mit einer neueren Version nochmal zu konvertieren), jeweils genau eine DNG-Datei mit der ImB OS App teilen.
 
 Oder die normale imbapp Seite nehmen und das entsprechende Häkchen setzen.
 

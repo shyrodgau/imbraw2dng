@@ -194,7 +194,7 @@ In the app, you first need to convert all RAWs to DNGs. Then select the DNGs you
 
 ### <a id="revert-to-raw" name="revert-to-raw"> </a>Revert to RAW
 
-If you want back the original raw for an original converted DNG in the app, select only one single DNG in the file browser and share it with the ImB OS App.
+If you want back the original raw (e.g. to do the conversion again) for an original converted DNG in the app, select only one single DNG in the file browser and share it with the ImB OS App.
 
 Or use the normal imbapp page and check the corresponding checkbox.
 
