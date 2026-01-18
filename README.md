@@ -87,7 +87,7 @@ throw all files into your Downloads directory (possibly renaming it) if so confi
 When you use the android app or point browser directly to the converter page on your ImB, it should be intuitive! If you do not think so, let me know.
 
 Conversion to DNG currently sets the Timestamp Tags if the filename seems to be a reasonable I'm Back filename, and the 
-OriginalRawFilename to the name of the RAW inputfile. That way you can name the DNG file whatever you like without losing much of the original information.
+OriginalRawFilename to the name of the RAW inputfile. That way you can name the DNG file whatever you like without losing <strike>much</strike> any of the original information.
 
 If you ever need to revert the original RAW from the DNG (e.g. to do the conversion again with a never version), <a href="#revert-to-raw"> see here </a>.
 

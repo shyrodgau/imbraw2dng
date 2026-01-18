@@ -92,7 +92,7 @@ Bedienung der Android-App, oder wenn die Konverter-Seite direkt im Browser von I
 
 Bei der Konvertierung nach DNG werden die Zeitstempel-Metadaten gesetzt, wenn der Dateiname wie ein normaler I'm Back Dateiname 
 aussieht, und OriginalRawFilename auf den Namen der RAW Eingabedatei. Somit können die DNG Dateien nach belieben 
-benannt werden, ohne viel der ursprünglichen Daten zu verlieren.
+benannt werden, ohne <strike>viel</strike> irgendwas der ursprünglichen Daten zu verlieren.
 
 Falls jemals das Original-RAW wieder benötigt wird (z.B. um es mit einer neueren Version nochmal zu konvertieren), <a href="#revert-to-raw"> siehe hier </a>.
 
