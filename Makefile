@@ -9,6 +9,7 @@ README.html:	README.md Makefile
 	sed -i -e 's@"https://shyrodgau.github.io/imbraw2dng/README_MiMi@"README_MiMi.html"@g' -e \
 	   's@"https://shyrodgau.github.io/imbraw2dng/README_de"@"README_de.html"@g' -e \
 	   's@"https://shyrodgau.github.io/imbraw2dng/README_ja"@"README_ja.html"@g' -e \
+	   's@"https://shyrodgau.github.io/imbraw2dng/helpstuff/demosaic.jpg"@"demosaic.jpg"@g' -e \
 	   's@"https://shyrodgau.github.io/imbraw2dng/helpstuff/usercontrols.png"@"usercontrols.png"@g' README.html
 
 README_de.html:	README_de.md Makefile
@@ -16,6 +17,7 @@ README_de.html:	README_de.md Makefile
 	sed -i -e 's@"https://shyrodgau.github.io/imbraw2dng/README_MiMi_de"@"README_MiMi_de.html"@g' -e \
 	   's@"https://shyrodgau.github.io/imbraw2dng/README"@"README.html"@g' -e \
 	   's@"https://shyrodgau.github.io/imbraw2dng/README_ja"@"README_ja.html"@g' -e \
+	   's@"https://shyrodgau.github.io/imbraw2dng/helpstuff/demosaic.jpg"@"demosaic.jpg"@g' -e \
 	   's@"https://shyrodgau.github.io/imbraw2dng/helpstuff/usercontrols.png"@"usercontrols.png"@g' README_de.html
 
 README_ja.html:	README_ja.md Makefile
@@ -23,6 +25,7 @@ README_ja.html:	README_ja.md Makefile
 	sed -i -e 's@"https://shyrodgau.github.io/imbraw2dng/README_MiMi_ja"@"README_MiMi_ja.html"@g' -e \
 	   's@"https://shyrodgau.github.io/imbraw2dng/README"@"README.html"@g' -e \
 	   's@"https://shyrodgau.github.io/imbraw2dng/README_de"@"README_de.html"@g' -e \
+	   's@"https://shyrodgau.github.io/imbraw2dng/helpstuff/demosaic.jpg"@"demosaic.jpg"@g' -e \
 	   's@"https://shyrodgau.github.io/imbraw2dng/helpstuff/usercontrols.png"@"usercontrols.png"@g' README_ja.html
 
 README_MiMi.html:	README_MiMi.md Makefile

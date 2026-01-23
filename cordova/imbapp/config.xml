@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<widget xmlns:android="http://schemas.android.com/apk/res/android" id="eu.imback.os.app" version="V6.6.2_60c22ed" xmlns="http://www.w3.org/ns/widgets" 
+<widget xmlns:android="http://schemas.android.com/apk/res/android" id="eu.imback.os.app" version="V6.6.2_609e81a" xmlns="http://www.w3.org/ns/widgets" 
  xmlns:cdv="http://cordova.apache.org/ns/1.0"
  android-versionCode="60501">
   <name>ImB OS App</name>
@@ -33,6 +33,7 @@
     <resource-file src="../../README_MiMi_ja.html" target="app/src/main/assets/www/res/README_MiMi_ja.html"/>
     <resource-file src="../../imbraw2dng.json" target="app/src/main/assets/www/res/imbraw2dng.json"/>
     <resource-file src="../../helpstuff/usercontrols.png" target="app/src/main/assets/www/res/usercontrols.png"/>
+    <resource-file src="../../helpstuff/demosaic.jpg" target="app/src/main/assets/www/res/demosaic.jpg"/>
     <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application">
       <application android:usesCleartextTraffic="true" android:largeHeap="true" android:requestLegacyExternalStorage="true" />
     </edit-config>
@@ -64,6 +65,7 @@
       <resource-file src="../../README_de.html" target="app/src/main/assets/www/res/README_de.htm"/>
       <resource-file src="../../README_ja.html" target="app/src/main/assets/www/res/README_ja.htm"/>
     <resource-file src="../../imbraw2dng.json" target="app/src/main/assets/www/res/imbraw2dng.json"/>
+    <resource-file src="../../helpstuff/demosaic.jpg" target="app/src/main/assets/www/res/demosaic.jpg"/>
     <resource-file src="../../helpstuff/usercontrols.png" target="app/src/main/assets/www/res/usercontrols.png"/>
     </platform>
   <icon src="res/logo.png"/>
