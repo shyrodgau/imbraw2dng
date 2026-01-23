@@ -126,12 +126,6 @@ I'm Back digital back [Developers Group on Facebook](https://www.facebook.com/gr
 A strong green or magenta tint all over the image should not happen any more! But if you have one and **can not** level it out using your software's 
 color matrix/color calibration or white-balancing, a sample image might be interesing to fix it.
 
-If a red highlighted spot is in the center of the image (ImB 35mm/MF), a manual retouche after the processing is required, or use the <a href="https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_redcircle.png">this darktable setting</a>, 
-placing and sizing a circle shape manually around the area. To avoid the red spot from the start, use a bigger aperture (smaller f-number) or combine the standard PDLC matte with a Fresnel screen from I'm Back 
-or a Canon EG-xxx screen.
-
-<!-- ![darktable sample agains red circle](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_redcircle.png "darktable sample agains red circle") -->
-
 
 ## Internationalization
 

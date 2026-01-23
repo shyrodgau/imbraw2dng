@@ -133,13 +133,6 @@ I'm Back digital back [Developers Group on Facebook](https://www.facebook.com/gr
 Eine starke grüne oder magentafarbige Tönung der Bilder sollte nicht mehr vorkommen! Wenn aber eine da ist, die sich **nicht** durch 
 Farbkalibrierung/Farbmatrix/Weißabgleich entfernen lässt, könnte ein Beispielbild interessant sein.
 
-Wenn in der Bildmitte ein rot hervorstechender Punkt ist (ImB 35mm/MF), muss eine manuelle Retusche erfolgen, oder im darktable <a href="https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_redcircle.png">diese Einstellung</a> 
-verwenden und dann einen Kreis manuell darumherum platziern. Um den roten Punkt von vornherein zu vermeiden, eine größere Blende (kleine Blendenzahl) nehmen oder die normale PDLC Mattscheibe mit 
-einer Fresnel-Scheibe von I'm Back oder einer Canon EG-xxx Mattscheibe verbinden.
-
-<!-- ![darktable Beispiel gegen roten Kreis](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_redcircle.png 
-"darktable Beispiel gegen roten Kreis") -->
-
 
 ## Internationalisierung
 

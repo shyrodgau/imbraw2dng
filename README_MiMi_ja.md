@@ -122,10 +122,6 @@ I'm Back digital back [Facebook 開発者グループ](https://www.facebook.com/
 
 画像全体に強いグリーンやマゼンタの色合いが出ることはもうありません！もし、そのような色合いが出ていて、ソフトウェアのカラーマトリックス/カラーキャリブレーションやホワイトバランス調整で**均一化**できない場合は、サンプル画像で修正できるかもしれません。
 
-画像中央に赤いハイライト部分がある場合（ImB 35mm/MF）、処理後に手動でレタッチするか、<a href="https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_redcircle.png">こちらのDarktable設定</a>を使用して、該当箇所の周囲に手動で円形を配置し、サイズを調整してください。最初から赤い部分を避けるには、絞りを大きくする（F値を小さくする）か、標準のPDLCマットとI'm Backのフレネルスクリーン、またはCanon EG-xxxスクリーンを組み合わせてください。
-
-<!-- ![赤い円に対するdarktableサンプル](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_redcircle.png "赤い円に対するdarktableサンプル") -->
-
 
 ## <a id="internationalization" name="internationalization"> </a>国際化
 

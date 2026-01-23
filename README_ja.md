@@ -115,6 +115,8 @@ DNGから元のRAW画像に戻す必要がある場合（例：一度も変換�
 
 darktable、lightroom、ufraw、rawtherapeeなど、お好みのソフトウェアをご使用ください。
 
+<a href="https://shyrodgau.github.io/imbraw2dng/helpstuff/demosaic.jpg">Demosaic: VNG4</a>
+
 画像がそのままで問題ないと**期待**しないでください。
 時間をかけて色を調整し、その後残りの作業を進めてください。*DNGに詳しい方、または協力してくれる方をご存知の方がいらっしゃいましたら、ご連絡ください*
 例： Darktable/RawSpeed については [pixls.us のディスカッション](https://discuss.pixls.us/t/converting-plain-raw-from-imback-to-dng/)、または

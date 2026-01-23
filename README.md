@@ -119,6 +119,8 @@ If you ever need to revert the original RAW from the DNG (e.g. to do the convers
 
 Use your favourite software, e.g. darktable, lightroom, ufraw, rawtherapee etc.
 
+<a href="https://shyrodgau.github.io/imbraw2dng/helpstuff/demosaic.jpg">Demosaic: VNG4</a>
+
 Do **not** expect the image to be okay out-of-the-box.
 Take your time to adjust the colours and then the rest. *If anyone is experienced around DNGs or knows someone who would be willing to help - please get in contact* 
 e.g. on [Discussion on pixls.us](https://discuss.pixls.us/t/converting-plain-raw-from-imback-to-dng/) for Darktable/RawSpeed or 

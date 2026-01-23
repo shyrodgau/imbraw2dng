@@ -124,6 +124,8 @@ Falls jemals das Original-RAW wieder benötigt wird (z.B. um es mit einer neuere
 
 Nimm deine Lieblingssoftware dafür, z.B. darktable, lightroom, ufraw, rawtherapee etc.
 
+<a href="https://shyrodgau.github.io/imbraw2dng/helpstuff/demosaic.jpg">Demosaic: VNG4</a>
+
 Bitte **nicht** erwarten, dass die Bilder direkt okay sind.
 Die Farben mal richtig kriegen und dann den Rest. *Wenn jemand Erfahrung mit dem DNG-Dateiformat hat oder 
 jemanden kennt, der helfen könnte - bitte Kontakt aufnehmen* z.B. über die 
