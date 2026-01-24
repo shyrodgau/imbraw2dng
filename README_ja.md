@@ -90,17 +90,17 @@ DNGから元のRAW画像に戻す必要がある場合（例：一度も変換�
 
 ![](https://shyrodgau.github.io/imbraw2dng/helpstuff/usercontrols.png "ユーザーコントロール")
 
-1: &#x22ee; メニュー    
+1: <span style="font-weight:bold;">&#x22ee;</span> メニュー    
 2: バッテリーレベル（ImB接続時）    
-3: &#x1f5d1;&#xfe0e; 選択項目の削除（ImB接続時）    
-4: &#x2b73;&#xfe0e; 選択項目のダウンロード/変換    
-5: &#x1f3d4;&#xfe0e; 画像ブラウザ（ファイル読み込み時）    
-6: &#x1f4f7;&#xfe0e; 写真撮影（ImB接続時）    
-7: &#x1f4fd;&#xfe0e;ビデオを撮影する（ImB に接続している場合）    
+3: <span style="display:inline-block;width:1.2em; height:1.2em; border: 2px solid grey; border-radius:0.63em;">&#x1f5d1;&#xfe0e;</span> 選択項目の削除（ImB接続時）    
+4: <span style="display:inline-block;width:1.2em; height:1.2em; border: 2px solid grey; border-radius:0.63em;">&#x2b73;&#xfe0e;</span> 選択項目のダウンロード/変換    
+5: <span style="display:inline-block;width:1.2em; height:1.2em; border: 2px solid grey; border-radius:0.63em;">&#x1f3d4;&#xfe0e;</span> 画像ブラウザ（ファイル読み込み時）    
+6: <span style="display:inline-block;width:1.2em; height:1.2em; border: 2px solid grey; border-radius:0.63em;">&#x1f4f7;&#xfe0e;</span> 写真撮影（ImB接続時）    
+7: <span style="display:inline-block;width:1.2em; height:1.2em; border: 2px solid grey; border-radius:0.63em;">&#x1f4fd;&#xfe0e;</span> ビデオを撮影する（ImB に接続している場合）    
 8: グループ化（画像ブラウザのみ）    
 9: 並べ替え（画像ブラウザのみ）    
 10: すべて選択/なし選択（画像ブラウザのみ）    
-11: &#x1f5c2;&#xfe0e; ファイル選択（ImB に接続していない場合。アプリとのファイル共有はいつでも可能です）    
+11: <span style="display:inline-block;width:1.2em; height:1.2em; border: 2px solid grey; border-radius:0.63em;">&#x1f5c2;&#xfe0e;</span> ファイル選択（ImB に接続していない場合。アプリとのファイル共有はいつでも可能です）    
 12: &#x2b73;&#xfe0e; ダウンロード/変換    
 13: &#x2b6e;&#xfe0e; 時計回りに回転（RAW の場合）    
 14: &#x2b6f;&#xfe0e; 反時計回りに回転（RAW の場合）    

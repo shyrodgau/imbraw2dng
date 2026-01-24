@@ -92,17 +92,17 @@ If you ever need to revert the original RAW from the DNG (e.g. to do the convers
 
 ![](https://shyrodgau.github.io/imbraw2dng/helpstuff/usercontrols.png "User controls")
 
-1: &#x22ee; Menu    
+1: <span style="font-weight:bold;">&#x22ee;</span> Menu    
 2: Battery level (when connected to ImB)    
-3: &#x1f5d1;&#xfe0e; Delete selected (when connected to ImB)    
-4: &#x2b73;&#xfe0e; Download/Convert selected (only Picture Browser)    
-5: &#x1f3d4;&#xfe0e; Picture Browser (when files loaded)    
-6: &#x1f4f7;&#xfe0e; Take Photos (when connected to ImB)    
-7: &#x1f4fd;&#xfe0e; Take Videos (when connected to ImB)    
+3: <span style="display:inline-block;width:1.2em; height:1.2em; border: 2px solid grey; border-radius:0.63em;">&#x1f5d1;&#xfe0e;</span> Delete selected (when connected to ImB)    
+4: <span style="display:inline-block;width:1.2em; height:1.2em; border: 2px solid grey; border-radius:0.63em;">&#x2b73;&#xfe0e;</span> Download/Convert selected (only Picture Browser)    
+5: <span style="display:inline-block;width:1.2em; height:1.2em; border: 2px solid grey; border-radius:0.63em;">&#x1f3d4;&#xfe0e;</span> Picture Browser (when files loaded)    
+6: <span style="display:inline-block;width:1.2em; height:1.2em; border: 2px solid grey; border-radius:0.63em;">&#x1f4f7;&#xfe0e;</span> Take Photos (when connected to ImB)    
+7: <span style="display:inline-block;width:1.2em; height:1.2em; border: 2px solid grey; border-radius:0.63em;">&#x1f4fd;&#xfe0e;</span> Take Videos (when connected to ImB)    
 8: Grouping (only Picture Browser)    
 9: Sorting (only Picture Browser)    
 10: Select all/none (only Picture Browser)    
-11: &#x1f5c2;&#xfe0e; File Selection (when not connected to ImB. Sharing files with app is always possible)    
+11: <span style="display:inline-block;width:1.2em; height:1.2em; border: 2px solid grey; border-radius:0.63em;">&#x1f5c2;&#xfe0e;</span> File Selection (when not connected to ImB. Sharing files with app is always possible)    
 12: &#x2b73;&#xfe0e; Download/Convert this     
 13: &#x2b6e;&#xfe0e; Rotate clockwise  (if raw)  
 14: &#x2b6f;&#xfe0e; Rotate counterclockwise  (if raw)   

@@ -98,17 +98,17 @@ Falls jemals das Original-RAW wieder benötigt wird (z.B. um es mit einer neuere
 
 ![](https://shyrodgau.github.io/imbraw2dng/helpstuff/usercontrols.png "Bedienelemente")
 
-1: &#x22ee; Menü    
+1: <span style="font-weight:bold;">&#x22ee;</span> Menü    
 2: Batteriefüllstand (wenn mit ImB verbunden)    
-3: &#x1f5d1;&#xfe0e; Ausgewählte Löschen (wenn mit ImB verbunden)    
-4: &#x2b73;&#xfe0e; Ausgewählte Herunterladen/Konvertieren (nur Bild-Browser)    
-5: &#x1f3d4;&#xfe0e; Bild-Browser (wenn Bilder geladen)    
-6: &#x1f4f7;&#xfe0e; Fotos aufnehmen (wenn mit ImB verbunden)    
-7: &#x1f4fd;&#xfe0e; Video aufnehmen (wenn mit ImB verbunden)    
+3: <span style="display:inline-block;width:1.2em; height:1.2em; border: 2px solid grey; border-radius:0.63em;">&#x1f5d1;&#xfe0e;</span> Ausgewählte Löschen (wenn mit ImB verbunden)    
+4: <span style="display:inline-block;width:1.2em; height:1.2em; border: 2px solid grey; border-radius:0.63em;">&#x2b73;&#xfe0e;</span> Ausgewählte Herunterladen/Konvertieren (nur Bild-Browser)    
+5: <span style="display:inline-block;width:1.2em; height:1.2em; border: 2px solid grey; border-radius:0.63em;">&#x1f3d4;&#xfe0e;</span> Bild-Browser (wenn Bilder geladen)    
+6: <span style="display:inline-block;width:1.2em; height:1.2em; border: 2px solid grey; border-radius:0.63em;">&#x1f4f7;&#xfe0e;</span> Fotos aufnehmen (wenn mit ImB verbunden)    
+7: <span style="display:inline-block;width:1.2em; height:1.2em; border: 2px solid grey; border-radius:0.63em;">&#x1f4fd;&#xfe0e;</span> Video aufnehmen (wenn mit ImB verbunden)    
 8: Gruppierung (nur Bild-Browser)         
 9: Sortierung (nur Bild-Browser)    
 10: Alle/Keine auswählen (nur Bild-Browser)    
-11: &#x1f5c2;&#xfe0e; Datei-Auswahl (wenn nicht mit ImB verbunden. Dateien mit der App teilen geht immer)    
+11: <span style="display:inline-block;width:1.2em; height:1.2em; border: 2px solid grey; border-radius:0.63em;">&#x1f5c2;&#xfe0e;</span> Datei-Auswahl (wenn nicht mit ImB verbunden. Dateien mit der App teilen geht immer)    
 12: &#x2b73;&#xfe0e; dieses Herunterladen/Konvertieren    
 13: &#x2b6e;&#xfe0e; im Uhrzeigersinn drehen (wenn RAW)  
 14: &#x2b6f;&#xfe0e; gegen den Uhrzeigersinn drehen (wenn RAW)   
