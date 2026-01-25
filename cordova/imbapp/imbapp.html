@@ -1245,6 +1245,7 @@ getData(offset) {
 	let ioff = 0, data = new Uint8Array(this.#imglen + (12 * this.#entrys.length) + this.#currentoff + 16);
 	if (this.#imgdata?.getUint8) {
 		if (this.#imglen === 30607488) {
+			let ob = ioff;
 			for (let z=0; z<this.#imgdata.byteLength; z++) {
 				// just backward but line-wise
 				if (z % 15648 < 7824) {
@@ -1252,6 +1253,13 @@ getData(offset) {
 				}
 				else {
 					data[ioff++] = this.#imgdata.getUint8(this.#imgdata.byteLength - z - 1+7824);
+				}
+			}
+			for (let l = 0; l<3912; l+=2){
+				for (let w=0; w<7824; w++){
+					let x = data[ob + (l*7824+w)];
+					data[ob + (l*7824+w)] = data[ob + ((1+l)*7824+w)];
+					data[ob + ((1+l)*7824+w)] = x;
 				}
 			}
 		}
@@ -1607,7 +1615,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.6.2_0e97efa", // actually const // VERSION EYECATCHER
+version: "V6.6.3_4590d8b", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -1907,7 +1915,7 @@ getPix: function(x, y, w, view, typ, whitelvl) {
 		shiftr ++;
 	}
 	const dd = (typ === 5 || typ === 69) ? 240 : 0;
-	if (typ === 5 || typ === 6 || typ == 33) {
+	if (typ ===  5 || typ === 6 || typ == 33) {
 		/* film or stacked 35mm */
 		reds.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
 		reds.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
@@ -1930,10 +1938,10 @@ getPix: function(x, y, w, view, typ, whitelvl) {
 	}
 	else if (typ > 33) {
 		/* stacked mf */
-		reds.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
 	}
 	else if (typ > 1) {
 		/* mf */
@@ -1952,7 +1960,7 @@ getPix: function(x, y, w, view, typ, whitelvl) {
 	// median of red pixels
 	outrgb.push((reds[1] + reds[2]) / 2.0);
 	let greens = [];
-	if (typ === 5 || typ === 6 || typ == 33) {
+	if (typ === 6 || typ == 33 || typ === 5) {
 		/* film or stacked 35mm */
 		greens.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
 		greens.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
@@ -2037,10 +2045,10 @@ getPix: function(x, y, w, view, typ, whitelvl) {
 		blues.push((((view.getUint8((y+2)*w3 + xx+4)) +  ((view.getUint8((y+2)*w3 + xx+5) ) <<8))-dd)>>shiftr);
 	}
 	else if (typ > 33) {
-		blues.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
 	}
 	else if (typ > 1) {
 		blues.push(view.getUint8(y*w + x));
@@ -19707,6 +19715,28 @@ handleone(orientation, upd) {
 		let contents = evt.target.result;
 		if (contents.buffer) contents = contents.buffer;
 		let view = new DataView(contents);
+		/*if (typ0 === 5){
+			const ww = w + (w / 2);
+			for (let ll=0; ll<h; ll+=2){
+				for (let cc=0; cc<ww; cc++){
+					let b=view.getUint8(ww*ll + cc);
+					view.setUint8(ww*ll + cc, view.getUint8(ww*(ll+1) + cc));
+					view.setUint8(ww*(ll+1) + cc, b);
+				}
+			}
+		}
+		else if (typ0 === 6){
+			const ww = w + (w / 2);
+			for (let ll=0; ll<h; ll++){
+				for (let cc=0; cc<ww; cc+=3){
+					let r = view.getUint8(ww*ll+cc+2);
+					let s = view.getUint8(ww*ll+cc+1);
+					view.setUint8(ww*ll+cc+2, view.getUint8(ww*ll+cc));
+					view.setUint8(ww*ll+cc, r);
+					view.setUint8(ww*ll+cc+1, (((s >> 4) & 15)+ ((s & 15) << 4)));
+				}
+			}
+		}*/
 		let targbits = 8;
 		if (typ === 5 || typ === 6)
 			targbits = 12;
@@ -20097,7 +20127,15 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		ti.addEntry(277, 'SHORT', [ 1 ]); /* Samples per Pixel */
 		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config - chunky */
 		ti.addEntry(33421, 'SHORT', [ 2, 2 ]); /* CFA Repeat Pattern Dim */
-		ti.addEntry(33422, 'BYTE', ((typ0 > 1) && (typ0 < 5)) ? [ 2, 1, 1, 0 ] : [ 1, 0, 2, 1 ]); /* CFA Pattern dep. on MF/35mm*/
+		if (typ === 5){
+			ti.addEntry(33422, 'BYTE', [ 2, 1, 1, 0 ]);
+		}
+		/*else if (typ0 === 6){
+			ti.addEntry(33422, 'BYTE', [ 0, 1, 1, 2 ]);
+		}*/
+		else {
+			ti.addEntry(33422, 'BYTE', ((typ0 > 1) && (typ0 < 5)) ? [ 2, 1, 1, 0 ] : [ 1, 0, 2, 1 ]); /* CFA Pattern dep. on MF/35mm*/
+		}
 		this.writewrap(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted' + ((this.checkdlfolder && !this.zip) ? 'checkdl' : ''), ti.getData(), f.name);
 	};
 	reader.onerror = (evt) => {
@@ -20413,7 +20451,7 @@ parseDng(f, onok, onerr) {
 	}
 	let sbci = ifd.findIndex((v) => v.t === 279);
 	let sboi = ifd.findIndex((v) => v.t === 273);
-	let datalen = 0, rawstripstart = 0, wl = 255, factc = 1, factd = 1, splitt = 0;
+	let datalen = 0, rawstripstart = 0, wl = 255, factc = 1, factd = 1, splitt = 0, swappl = 0;
 	if (sbci !== -1 && sboi !== -1) {
 		datalen = ifd[sbci].val.reduce((a,b) => a+b, 0);
 		rawstripstart = ifd[sboi].val[0];
@@ -20427,6 +20465,16 @@ parseDng(f, onok, onerr) {
 	if (wli !== -1)
 		wl = ifd[wli].val[0];
 	let zz = globals.infos.findIndex(v => v.size === datalen);
+	if (zz !== -1 && globals.infos[zz].typ === 5) {
+		// check if old or new order
+		let cfa = ifd.findIndex(v => v.t === 0x828e);
+		if (cfa !== -1){
+			if (ifd[cfa].val[0] === 2){
+				/* lines swapped */
+				swappl = 1;
+			}
+		}
+	}
 	if (-1 === zz) {
 		zz = globals.infos.findIndex(v => v.size === (datalen * 2) / 3);
 		if (this.fromintent !== 2) {
@@ -20486,6 +20534,19 @@ parseDng(f, onok, onerr) {
 			let i = v.getUint8(k);
 			v.setUint8(k, v.getUint8(k+2));
 			v.setUint8(k+2, i);
+		}
+	}
+	if (swappl) {
+		const w = globals.infos[zz].w;
+		const h = globals.infos[zz].h;
+		const v = new DataView(fx.data);
+		const ww = w + (w / 2);
+		for (let ll=0; ll<h; ll+=2){
+			for (let cc=0; cc<ww; cc++){
+				let b=v.getUint8(ww*ll + cc);
+				v.setUint8(ww*ll + cc, v.getUint8(ww*(ll+1) + cc));
+				v.setUint8(ww*(ll+1) + cc, b);
+			}
 		}
 	}
 	fx.readAsArrayBuffer = (fy) => {
