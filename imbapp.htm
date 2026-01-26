@@ -1635,7 +1635,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.6.4_d932131", // actually const // VERSION EYECATCHER
+version: "V6.6.4_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -20471,7 +20471,7 @@ parseDng(f, onok, onerr) {
 	}
 	let sbci = ifd.findIndex((v) => v.t === 279);
 	let sboi = ifd.findIndex((v) => v.t === 273);
-	let datalen = 0, rawstripstart = 0, wl = 255, factc = 1, factd = 1, splitt = 0, swappl = 0, swappc = 0;
+	let datalen = 0, rawstripstart = 0, wl = 255, splitt = 0, swappl = 0, swappc = 0;
 	if (sbci !== -1 && sboi !== -1) {
 		datalen = ifd[sbci].val.reduce((a,b) => a+b, 0);
 		rawstripstart = ifd[sboi].val[0];
@@ -20485,53 +20485,23 @@ parseDng(f, onok, onerr) {
 	if (wli !== -1)
 		wl = ifd[wli].val[0];
 	let zz = globals.infos.findIndex(v => v.size === datalen);
-	if (zz !== -1 && globals.infos[zz].typ === 5) {
+	let cfa = ifd.findIndex(v => v.t === 0x828e);
+	if (zz === -1 || cfa === -1) {
+		this.appmsg('Works only for originally created DNGs.', true);
+		return onerr(f.name);
+	}
+	if (globals.infos[zz].typ === 5) {
 		// check if old or new order
-		let cfa = ifd.findIndex(v => v.t === 0x828e);
-		if (cfa !== -1){
-			if (ifd[cfa].val[0] === 2){
-				/* lines swapped */
-				swappl = 1;
-			}
+		if (ifd[cfa].val[0] === 2){
+			/* lines swapped */
+			swappl = 1;
 		}
 	}
-	if (zz !== -1 && globals.infos[zz].typ === 6) {
+	if (globals.infos[zz].typ === 6) {
 		// check if old or new order
-		let cfa = ifd.findIndex(v => v.t === 0x828e);
-		if (cfa !== -1){
-			if (ifd[cfa].val[0] === 0){
-				/* columns swapped */
-				swappc = 1;
-			}
-		}
-	}
-	if (-1 === zz) {
-		zz = globals.infos.findIndex(v => v.size === (datalen * 2) / 3);
-		if (this.fromintent !== 2) {
-			this.appmsg('Works only for originally created DNGs.', true);
-			return onerr(f.name);
-		}
-		// 12 bit for 8?
-		else if (zz === -1) {
-			zz = globals.infos.findIndex(v => v.size === datalen / 2);
-			// 16 bit for 8?
-			if (zz === -1) {
-				zz = globals.infos.findIndex(v => v.size === (datalen * 3) / 4);
-				// 16 bit for 12 (film,MiMi)?
-				if (zz === -1) {
-					this.appmsg('Works only for originally created DNGs.', true);
-					return onerr(f.name);
-				}
-				else {
-					factc = 3; factd = 4;
-				}
-			}
-			else {
-				factc = 1; factd = 2;
-			}
-		}
-		else {
-			factc = 2; factd = 3;
+		if (ifd[cfa].val[0] === 0){
+			/* columns swapped */
+			swappc = 1;
 		}
 	}
 	let fx = {
@@ -20539,9 +20509,7 @@ parseDng(f, onok, onerr) {
 		name: f.name.substring(0, f.name.length - 4) + '.raw',
 		size: datalen,
 		data: f.data.slice(rawstripstart, datalen + rawstripstart),
-		wl: wl,
-		factc: factc,
-		factd: factd
+		wl: wl
 	};
 	if (datalen === 30607488 && splitt) {
 		const v = new DataView(fx.data);
