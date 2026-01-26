@@ -1264,6 +1264,25 @@ getData(offset) {
 				}
 			}
 		}
+		/* Mimi
+		R0..R7         |    g0..g3   R8..R11     |   g4..g11
+		G0..G7         |    B0..B3   G8..G11     |   B4..B11
+		target before reorder outer
+		g0..g7         |    R0..R3   g8..g11     |   R4..R11
+		B0..B7         |    G0..G3   B8..B11     |   G4..G11
+		target so really
+		R4..R11        |    R0..R3   g8..g11     |   g0..g7 
+		G4..G11        |    G0..G3   B8..B11     |   B7..B0
+		*/
+		else if (this.#imglen === 18000000){
+			for (let z=0; z<this.#imgdata.byteLength; z+=3) {
+				let v1 = this.#imgdata.getUint8(z) + ((this.#imgdata.getUint8(z+1) & 15) << 8);
+				let v2 = (this.#imgdata.getUint8(z+2) << 4) + ((this.#imgdata.getUint8(z+1) >> 4) & 15);
+				data[ioff++] = ((v1 >> 4) & 255);
+				data[ioff++] = ((v1 & 15) << 4) + ((v2 >> 8) & 15);
+				data[ioff++] = (v2 & 255);
+			}
+		}
 		else if (this.#imglen === 40809984) {
 			for (let z=0; z<this.#imgdata.byteLength; z+=4) {
 				if (z % 20864 < 10432) {
@@ -1616,7 +1635,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.6.3_68edfc1", // actually const // VERSION EYECATCHER
+version: "V6.6.3_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -20131,9 +20150,9 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		if (typ === 5){
 			ti.addEntry(33422, 'BYTE', [ 2, 1, 1, 0 ]);
 		}
-		/*else if (typ0 === 6){
+		else if (typ === 6){
 			ti.addEntry(33422, 'BYTE', [ 0, 1, 1, 2 ]);
-		}*/
+		}
 		else {
 			ti.addEntry(33422, 'BYTE', ((typ0 > 1) && (typ0 < 5)) ? [ 2, 1, 1, 0 ] : [ 1, 0, 2, 1 ]); /* CFA Pattern dep. on MF/35mm*/
 		}
@@ -20452,7 +20471,7 @@ parseDng(f, onok, onerr) {
 	}
 	let sbci = ifd.findIndex((v) => v.t === 279);
 	let sboi = ifd.findIndex((v) => v.t === 273);
-	let datalen = 0, rawstripstart = 0, wl = 255, factc = 1, factd = 1, splitt = 0, swappl = 0;
+	let datalen = 0, rawstripstart = 0, wl = 255, factc = 1, factd = 1, splitt = 0, swappl = 0, swappc = 0;
 	if (sbci !== -1 && sboi !== -1) {
 		datalen = ifd[sbci].val.reduce((a,b) => a+b, 0);
 		rawstripstart = ifd[sboi].val[0];
@@ -20473,6 +20492,16 @@ parseDng(f, onok, onerr) {
 			if (ifd[cfa].val[0] === 2){
 				/* lines swapped */
 				swappl = 1;
+			}
+		}
+	}
+	if (zz !== -1 && globals.infos[zz].typ === 6) {
+		// check if old or new order
+		let cfa = ifd.findIndex(v => v.t === 0x828e);
+		if (cfa !== -1){
+			if (ifd[cfa].val[0] === 0){
+				/* columns swapped */
+				swappc = 1;
 			}
 		}
 	}
@@ -20532,9 +20561,18 @@ parseDng(f, onok, onerr) {
 	else if (-1 !== globals.twelvebitsizes.indexOf(datalen)) {
 		const v = new DataView(fx.data);
 		for (let k=0; k < datalen; k+=3) {
-			let i = v.getUint8(k);
-			v.setUint8(k, v.getUint8(k+2));
-			v.setUint8(k+2, i);
+			if (swappc) {
+				let v1 = this.#imgdata.getUint8(k) + ((this.#imgdata.getUint8(k+1) & 15) << 8);
+				let v2 = (this.#imgdata.getUint8(k+2) << 4) + ((this.#imgdata.getUint8(k+1) >> 4) & 15);
+				v.setUint8(k, ((v1 >> 4) & 255));
+				v.setUint8(k+1, ((v1 & 15) << 4) + ((v2 >> 8) & 15));
+				v.setUint8(k+2, (v2 & 255));
+			}
+			else {
+				let i = v.getUint8(k);
+				v.setUint8(k, v.getUint8(k+2));
+				v.setUint8(k+2, i);
+			}
 		}
 	}
 	if (swappl) {
