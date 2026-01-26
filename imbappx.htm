@@ -20564,8 +20564,8 @@ parseDng(f, onok, onerr) {
 		const v = new DataView(fx.data);
 		for (let k=0; k < datalen; k+=3) {
 			if (swappc) {
-				let v1 = this.#imgdata.getUint8(k) + ((this.#imgdata.getUint8(k+1) & 15) << 8);
-				let v2 = (this.#imgdata.getUint8(k+2) << 4) + ((this.#imgdata.getUint8(k+1) >> 4) & 15);
+				let v1 = v.getUint8(k) + ((v.getUint8(k+1) & 15) << 8);
+				let v2 = (v.getUint8(k+2) << 4) + ((v.getUint8(k+1) >> 4) & 15);
 				v.setUint8(k, ((v1 >> 4) & 255));
 				v.setUint8(k+1, ((v1 & 15) << 4) + ((v2 >> 8) & 15));
 				v.setUint8(k+2, (v2 & 255));
