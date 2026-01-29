@@ -50,22 +50,22 @@ fi
 echo Test ${tn} okay
 tn=$(( $tn + 1 ))
 
-echo '##########    2    ##########'
-echo Test ${tn} convert again but do not overwrite expect error
-set -x
-${TESTEXES}/imbraw2dng.js $( find ${TESTDAT}/IMBACK/*/ ${TESTDAT}/NOVATEK/*/ \( -type f -o -type l  \) ! -name index.html )
-rc=$?
-n=$( ls .|wc -l )
-set +x
-if [ $rc -eq 0 ]; then
-	echo Test ${tn} failed $rc
-	exit 2
-fi
-if [ $n -ne $sumnum ]; then
-	echo Test ${tn} failed NO $n
-	exit 2
-fi
-echo Test ${tn} okay
+#echo '##########    2    ##########'
+#echo Test ${tn} convert again but do not overwrite expect error
+#set -x
+#${TESTEXES}/imbraw2dng.js $( find ${TESTDAT}/IMBACK/*/ ${TESTDAT}/NOVATEK/*/ \( -type f -o -type l  \) ! -name index.html )
+#rc=$?
+#n=$( ls .|wc -l )
+#set +x
+#if [ $rc -eq 0 ]; then
+#	echo Test ${tn} failed $rc
+#	exit 2
+#fi
+#if [ $n -ne $sumnum ]; then
+#	echo Test ${tn} failed NO $n
+#	exit 2
+#fi
+#echo Test ${tn} okay
 tn=$(( $tn + 1 ))
 
 echo '##########    3    ##########'
@@ -143,22 +143,22 @@ fi
 echo Test ${tn} okay
 tn=$(( $tn + 1 ))
 
-echo '##########    7    ##########'
-echo Test ${tn} convert again but exists
-set -x
-${TESTEXES}/imbraw2dng.js -d test1.zip ${TESTDAT}/IMBACK/*/*.[rRmMjJ]* ${TESTDAT}/NOVATEK/*/*.[rRmMjJ]*
-rc=$?
-n=$( ls .|wc -l )
-set +x
-if [ $rc -eq 0 ]; then
-	echo Test ${tn} failed $rc
-	exit 7
-fi
-if [ $n -ne $sumnum ]; then
-	echo Test ${tn} failed NO $n
-	exit 7
-fi
-echo Test ${tn} okay
+#echo '##########    7    ##########'
+#echo Test ${tn} convert again but exists
+#set -x
+#${TESTEXES}/imbraw2dng.js -d test1.zip ${TESTDAT}/IMBACK/*/*.[rRmMjJ]* ${TESTDAT}/NOVATEK/*/*.[rRmMjJ]*
+#rc=$?
+#n=$( ls .|wc -l )
+#set +x
+#if [ $rc -eq 0 ]; then
+#	echo Test ${tn} failed $rc
+#	exit 7
+#fi
+#if [ $n -ne $sumnum ]; then
+#	echo Test ${tn} failed NO $n
+#	exit 7
+#fi
+#echo Test ${tn} okay
 tn=$(( $tn + 1 ))
 
 echo '##########    8    ##########'

@@ -1748,7 +1748,7 @@ fmtsupp: function() {
 /* globals: get white balance */
 getwb: function(view, typidx, whitelvl) {
 	//console.log('GWB ' + typidx + ' ' + JSON.stringify(globals.infos[typidx]));
-	const t = globals.infos[typidx < 32 ? typidx : ((typidx< 64)? (typidx - 32) : (typidx - 64))];
+	const t = globals.infos[typidx % 32];
 	const rbgb = [];
 	for (let m=0;m<256;m++) {
 		rbgb.push(new Array(256));
@@ -21010,11 +21010,6 @@ const mytexts = { // actually const
 			de: 'Weißabgleich $$0 / $$1 / $$2 gefunden',
 			ja: 'ホワイトバランス $$0 / $$1 / $$2 が見つかりました'
 		},
-		dooverwrite: {
-			en: 'Overwrite existing files',
-			de: 'Vorhandene Dateien überschreiben',
-			ja: '既存のファイルを上書きする'
-		}
 	},
 	preview: {
 		orients: {
@@ -23050,7 +23045,7 @@ writefile(name, type, okmsg, arr1, origname, renameidx) {
 			   srcfile: cordova.file.applicationStorageDirectory + '/' + iname,
 			   filename: name,
 			   folder: this.rootfs,
-			   overwrite: this.dooverwrite
+			   overwrite: false
 	   }).then((uri) => {
 		   //console.log("Successful file write... " + uri);
 		   //cordova.plugins.safMediastore.getFileName(uri).then((f) => {console.log('F is ' + f);});
@@ -23548,7 +23543,6 @@ connvers = ''; // hw version from cmd 3012
 imbfree = -1;
 disconnected = true;
 discknown = false; // we do not know if connected
-dooverwrite = false;
 jbigflag = 0;
 // swiping magview
 mdx = -1;
@@ -24952,11 +24946,6 @@ chgdngpreview() {
     this.withpreview = (dngprev !== null && dngprev.checked);
     this.savesettings('np');
 }
-/* TopApp: overwrite file checkbox */
-chgoverwrite() {
-	this.dooverwrite = document.getElementById('dooverwrite')?.checked;
-	this.savesettings('dooverwrite');
-}
 /* TopApp: set new jpeg dl option */
 setjprev(pv) {
 	if (undefined == pv) {
@@ -25071,8 +25060,6 @@ savesettings(which) {
 			if ((which === 'jsett') || !which?.length || -1 !== which.indexOf('jsett'))
 				window.localStorage.setItem(pref + 'jsett', JSON.stringify(this.jsett));
 			if (ImBCBase.progname === 'imbapp_app') {
-				if ((which === 'dooverwrite') || !which?.length || -1 !== which.indexOf('dooverwrite'))
-					window.localStorage.setItem(pref + 'f', JSON.stringify(this.dooverwrite));
 			}
 			else { // imbapp.htm
 				if (which === 'dnsad1' || !which?.length || -1 !== which.indexOf('dnsad1'))
@@ -25694,10 +25681,6 @@ initsettings() {
 			this.jbigflag = JSON.parse(itm);
 			this.setjprev(this.jbigflag);
 		}
-		itm = window.localStorage.getItem(pref + 'f');
-		if (itm !== null && ImBCBase.progname === 'imbapp_app') {
-			this.dooverwrite = JSON.parse(itm) ? true: false;
-		}
 		itm = window.localStorage.getItem('imbapp_dnsad1');
 		if (itm !== null && ImBCBase.progname === 'imbapp.htm') {
 			this.dnsad1 = JSON.parse(itm) ? true: false;
@@ -25758,7 +25741,6 @@ initsettings() {
 		const dngprev = document.getElementById('dngpreview');
 		if (dngprev) dngprev.checked = this.withpreview;
 		document.getElementById('exitsel').value = this.exitmode;
-		if (document.getElementById('dooverwrite')) document.getElementById('dooverwrite').checked = this.dooverwrite;
 		document.getElementById('autotime').checked = this.autotime;
 		document.getElementById('expflags').value = JSON.stringify(this.expflags[0] + 3*this.expflags[1] + 9*this.expflags[2] + 27*this.expflags[3] + 81*this.expflags[4]);
 		this.xlateall();
@@ -26289,8 +26271,6 @@ parseconfig(data) {
 	if (d.maxcache) this.maxcache = d.maxcache;
 	if (d.dl) this.dloads = d.dl;
 	if (d.ii?.length) this.iinf = d.ii;
-	if (d.dooverwrite)
-		this.dooverwrite = true;
 	if (d.autotime)
 		this.autotime = true;
 	if (d.meta === undefined) this.metadata = true;

@@ -111,7 +111,7 @@ handleone(fx) {
 		};
 	}
 	let rawname = ImBCBase.basename(f.name);
-	if (rawname.substring(rawname.length -4).toUpperCase() === '.DNG') {
+	if (ImBCBase.ucex(rawname) === '.DNG') {
 		this.imbc.parseDng(f,
 			(name, fx) => {
 				this.handleone(fx);
@@ -124,7 +124,7 @@ handleone(fx) {
 			});
 		return;
 	}
-	else if (rawname.substring(rawname.length -4).toUpperCase() !== '.RAW') {
+	else if (ImBCBase.ucex(rawname) !== '.RAW') {
 		this.imbc.appmsg("[" + (1 + this.imbc.actnum) + " / " + this.imbc.totnum + "] ", false);
 		this.imbc.appmsg('Seems not to be DNG: ' + f.name, true);
 		this.imbc.stats.error++;
@@ -990,7 +990,7 @@ fmtsupp: function() {
 /* globals: get white balance */
 getwb: function(view, typidx, whitelvl) {
 	//console.log('GWB ' + typidx + ' ' + JSON.stringify(globals.infos[typidx]));
-	const t = globals.infos[typidx < 32 ? typidx : ((typidx< 64)? (typidx - 32) : (typidx - 64))];
+	const t = globals.infos[typidx % 32];
 	const rbgb = [];
 	for (let m=0;m<256;m++) {
 		rbgb.push(new Array(256));
@@ -20070,13 +20070,13 @@ handlerecurse(already, index) {
 				}
 				else for (let i of f.filter(e => e.isFile())) {
 					const n = i.name;
-					if (n.substring(0,6).toUpperCase() === 'IMBRAW') continue;
-					if (((n.substring(n.length -4).toUpperCase() === '.RAW') && (this.typeflags % 2)) ||
-						((n.substring(n.length -5).toUpperCase() === '.JPEG' || n.substring(n.length -4).toUpperCase() === '.JPG') && ((this.typeflags % 4) > 1)) ||
-						(n.substring(n.length -5).toUpperCase() !== '.JPEG' && n.substring(n.length -4).toUpperCase() !== '.JPG' &&
-							n.substring(n.length -4).toUpperCase() !== '.RAW' && ((this.typeflags % 8) > 3))) {
+					if (n.substring(0,6).toUpperCase() === 'IMBRAW' || n.substring(0,6).toUpperCase() === 'IMBAPP') continue;
+					if (((ImBCBase.ucex(n) === '.RAW') && (this.typeflags % 2)) ||
+						((n.substring(n.length -5).toUpperCase() === '.JPEG' || ImBCBase.ucex(n) === '.JPG') && ((this.typeflags % 4) > 1)) ||
+						(n.substring(n.length -5).toUpperCase() !== '.JPEG' && ImBCBase.ucex(n) !== '.JPG' &&
+							ImBCBase.ucex(n) !== '.RAW' && ((this.typeflags % 8) > 3))) {
 						if (this.comptime(i.name, this.fromts)) {
-							if (n.substring(n.length -4).toUpperCase() === '.RAW')
+							if (ImBCBase.ucex(n) === '.RAW')
 								already.push(i.path + this.pa.sep + i.name);
 							else
 								already.splice(0,0,i.path + this.pa.sep + i.name);
@@ -20088,7 +20088,7 @@ handlerecurse(already, index) {
 		}
 		else {
 			// plain files simply go
-			if (d.substring(d.length -4).toUpperCase() === '.RAW')
+			if (ImBCBase.ucex(d) === '.RAW')
 				already.push(d);
 			else
 				already.splice(0,0,d);
@@ -20509,7 +20509,7 @@ startnode(notfirst) {
 				}
 				else if (flagging === 2) {
 					flagging = 0;
-					if (v.substring(v.length -4).toUpperCase() === '.ZIP')
+					if (ImBCBase.ucex(v) === '.ZIP')
 						this.zipname = v;
 					else
 						this.outdir = v;
@@ -20660,7 +20660,7 @@ startnode(notfirst) {
 				}
 				else if (v.substring(0,2)==='-d') {
 					if (v.substring(2).length > 0) {
-						if (v.substring(v.length -4).toUpperCase() === '.ZIP')
+						if (ImBCBase.ucex(v) === '.ZIP')
 							this.zipname = v.substring(2);
 						else
 							this.outdir = v.substring(2);

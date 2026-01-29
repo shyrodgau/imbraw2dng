@@ -650,7 +650,6 @@ getData(offset) {
 	let ioff = 0, data = new Uint8Array(this.#imglen + (12 * this.#entrys.length) + this.#currentoff + 16);
 	if (this.#imgdata?.getUint8) {
 		if (this.#imglen === 30607488) {
-			// FILM
 			let ob = ioff;
 			for (let z=0; z<this.#imgdata.byteLength; z++) {
 				// just backward but line-wise
@@ -670,7 +669,6 @@ getData(offset) {
 			}
 		}
 		else if (this.#imglen === 18000000){
-			// MIMI
 			for (let z=0; z<this.#imgdata.byteLength; z+=3) {
 				let v1 = this.#imgdata.getUint8(z) + ((this.#imgdata.getUint8(z+1) & 15) << 8);
 				let v2 = (this.#imgdata.getUint8(z+2) << 4) + ((this.#imgdata.getUint8(z+1) >> 4) & 15);
@@ -680,7 +678,6 @@ getData(offset) {
 			}
 		}
 		else if (this.#imglen === 24000000){
-			// MIMI stacked
 			for (let z=0; z<this.#imgdata.byteLength; z+=4) {
 				data[ioff++] = this.#imgdata.getUint8(z+2);
 				data[ioff++] = this.#imgdata.getUint8(z+3);
@@ -689,7 +686,6 @@ getData(offset) {
 			}
 		}
 		else if (this.#imglen === 40809984) {
-			// FILM stacked
 			let ob = ioff;
 			for (let z=0; z<this.#imgdata.byteLength; z+=4) {
 				if (z % 20864 < 10432) {
@@ -715,7 +711,6 @@ getData(offset) {
 			}
 		}
 		else if (-1 !== globals.twelvebitsizes.indexOf(this.#imglen)) {
-			// stacked 35mm/MF when < 16
 			for (let z=0; z<this.#imgdata.byteLength; z+=3) {
 				data[ioff++] = this.#imgdata.getUint8(z+2);
 				data[ioff++] = this.#imgdata.getUint8(z+1);
@@ -1158,7 +1153,7 @@ fmtsupp: function() {
 /* globals: get white balance */
 getwb: function(view, typidx, whitelvl) {
 	//console.log('GWB ' + typidx + ' ' + JSON.stringify(globals.infos[typidx]));
-	const t = globals.infos[typidx < 32 ? typidx : ((typidx< 64)? (typidx - 32) : (typidx - 64))];
+	const t = globals.infos[typidx % 32];
 	const rbgb = [];
 	for (let m=0;m<256;m++) {
 		rbgb.push(new Array(256));
@@ -22423,30 +22418,35 @@ const mytexts =  { // actually const
 		error: {
 			de: '\u001b[31m\u001b[1mFEHLER:\u001b[0m ',
 			en: '\u001b[31m\u001b[1mERROR:\u001b[0m ',
+			fr: '\u001b[31m\u001b[1mERREUR:\u001b[0m ',
 			ja: '\u001b[31m\u001b[1mエラー：\u001b[0m ',
 			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
 		},
 		warning: {
 			de: '\u001b[31mWarnung:\u001b[0m ',
 			en: '\u001b[31mWarning:\u001b[0m ',
+			fr: '\u001b[31mAvertissement:\u001b[0m ',
 			ja: '\u001b[31m警告：\u001b[0m ',
 			htmlstyle: [ [ 'background-color','#ffdddd' ] ]
 		},
 		finished: {
 			de: '\u001b[32m\u001b[1mFertig!\u001b[0m ',
 			en: '\u001b[32m\u001b[1mFinished!\u001b[0m ',
+			fr: '\u001b[32m\u001b[1mFini!\u001b[0m ',
 			ja: '\u001b[32m\u001b[1m終了!\u001b[0m ',
 			htmlstyle: [ [ 'background-color','#ddffdd' ], [ 'font-weight', 'bold' ] ]
 		},
 		sorryerr: {
 			de: '\u001b[31m\u001b[1mENTSCHULDIGUNG! FEHLER:\u001b[0m ',
 			en: '\u001b[31m\u001b[1mSORRY! ERROR:\u001b[0m  ',
+			fr: '\u001b[31m\u001b[1mDÉSOLÉE! ERREUR:\u001b[0m ',
 			ja: '\u001b[31m\u001b[1m申し訳ございません! エラー：\u001b[0m  ',
 			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
 		},
 		sorry: {
 			de: '\u001b[31mENTSCHULDIGUNG!\u001b[0m ',
 			en: '\u001b[31mSORRY!\u001b[0m  ',
+			fr: '\u001b[31mDÉSOLÉE!\u001b[0m ',
 			ja: '\u001b[31m申し訳ございません!\u001b[0m  ',
 			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
 		}
@@ -22517,6 +22517,7 @@ const mytexts =  { // actually const
 			notpic: {
 				de: 'MP4: ',
 				en: 'MP4: ',
+				fr: 'MP4: ',
 				ja: 'MP4: '
 			}
 		},
@@ -22553,6 +22554,7 @@ const mytexts =  { // actually const
 		log: {
 			de: 'Protokoll-Ausgabe:',
 			en: 'Message Log:',
+			fr: 'Journal des messages',
 			ja: 'メッセージ ログ： '
 		},
 		selected: {
@@ -22677,11 +22679,13 @@ const mytexts =  { // actually const
 		strangename: {
 			de: 'Komischer Dateiname: $$0',
 			en: 'Strange file name: $$0',
+			fr: 'Nom de fiche inhabituel: $$0',
 			ja: '無効なファイル名： $$0'
 		},
 		invaltime: {
 			de: 'Ungültiger Zeitstempel: $$0',
 			en: 'Invalid timestamp: $$0',
+			fr: 'Horodatage invalide: $$0',
 			ja: '無効なタイムスタンプ： $$0'
 		},
 	},
@@ -22724,6 +22728,7 @@ const mytexts =  { // actually const
 		notraw: {
 			de: 'Durchleitung weil nicht raw: $$0',
 			en: 'Passing through as not raw: $$0',
+			fr: 'Passage comme non RAW: $$0',
 			ja: 'RAW ではないのでスルー： $$0'
 		},
 		selectedn: {
@@ -22754,6 +22759,7 @@ const mytexts =  { // actually const
 		processing: {
 			de: 'Verarbeite Datei: $$0 ',
 			en: 'Processing file: $$0',
+			fr: 'Je suis en train de traiter le fiche $$0',
 			ja: '処理中のファイル： $$0'
 		},
 		assuming: {
@@ -22764,6 +22770,7 @@ const mytexts =  { // actually const
 		datetime: {
 			de: 'Datum/Zeit: $$0',
 			en: 'Date/Time: $$0 ',
+			fr: 'Date/heure: $$0',
 			ja: '日付/時刻： $$0 '
 		},
 		orientation: {
@@ -22805,6 +22812,7 @@ const mytexts =  { // actually const
 			remaining: {
 				de: 'Verbleibende $$0 Dateien auf Anforderung übersprungen',
 				en: 'Skipping remaining $$0 images at your request',
+				fr: '$$0 fiches restants ignorés sur demande',
 				ja: 'リクエストに応じてスキップ：  $$0'
 			},
 			de: 'Auf Anforderung übersprungen: $$0',
