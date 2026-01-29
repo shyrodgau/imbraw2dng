@@ -115,8 +115,6 @@ DNGから元のRAW画像に戻す必要がある場合（例：一度も変換�
 
 darktable、lightroom、ufraw、rawtherapeeなど、お好みのソフトウェアをご使用ください。
 
-<a href="https://shyrodgau.github.io/imbraw2dng/helpstuff/demosaic.jpg">Demosaic: VNG4</a>
-
 画像がそのままで問題ないと**期待**しないでください。
 時間をかけて色を調整し、その後残りの作業を進めてください。*DNGに詳しい方、または協力してくれる方をご存知の方がいらっしゃいましたら、ご連絡ください*
 例： Darktable/RawSpeed については [pixls.us のディスカッション](https://discuss.pixls.us/t/converting-plain-raw-from-imback-to-dng/)、または
@@ -143,25 +141,25 @@ I'm Back digital back [Facebook 開発者グループ](https://www.facebook.com/
 ```
 使用方法: node imbraw2dng.js [-l lang] [-f | -r] [-d dir] [-nc | -co] [-np] [-ndcp] [-owb] [-cr copyright] [-R] [-J] [-O] [-n yyyy_mm_dd-hh_mm_ss] [-fla | -flx] [ [--] <files-or-dirs>* ]
 オプション:
--h - このヘルプを表示する
--nc - カラーテキストを使用しない
--co - カラーテキストを強制的に使用する
--l XX - XX は有効な言語コード (現在: DE, EN, JA)
-ファイル名を imbraw2dng_XX.js に変更することでも言語を設定できます。
--d dir - 出力ファイルをdirに出力します
--f - 既存のファイルを上書きします
--r - 出力ファイルが既に存在する場合、ファイル名を変更します
--np - DNGにプレビューサムネイルを追加しません
--owb - 従来の固定ホワイトバランスを使用します
--ndcp - 新しいDNGカラープロファイルを含めません
--cr "copyright..." - DNGに著作権を追加します
--at "author..." - DNGに作者/作成者を追加します
--fla, -flx - 複数の画像を追加して擬似長時間露光を行います。flxは縮小されます
--R - Wi-Fi接続または指定されたディレクトリにあるImBからRAWデータを変換します
--J - Wi-Fi接続または指定されたディレクトリにあるImBからJPEGデータを取得します
--O - Wi-Fi接続または指定されたディレクトリにあるImBから非RAW/非JPEGデータを取得します
--da correcttimestamp=cameratimestamp - タイムスタンプ補正（形式：yyyy_mm_dd-hh_mm_ss）
--n yyyy_mm_dd-hh_mm_ss（または任意の長さのプレフィックス） - ImBまたは指定されたディレクトリから、このタイムスタンプより新しいものだけを選択します
+ -h - このヘルプを表示する
+ -nc - カラーテキストを使用しない
+ -co - カラーテキストを強制的に使用する
+ -l XX - XX は有効な言語コード (現在: DE, EN, JA)
+     ファイル名を imbraw2dng_XX.js に変更することでも言語を設定できます。
+ -d dir - 出力ファイルをdirに出力します
+ -f - 既存のファイルを上書きします
+ -np - DNGにプレビューサムネイルを追加しません
+ -owb - 従来の固定ホワイトバランスを使用します
+ -ndcp - 新しいDNGカラープロファイルを含めません
+ -cr "copyright..." - DNGに著作権を追加します
+ -at "author..." - DNGに作者/作成者を追加します
+ -fla, -flx - 複数の画像を追加して擬似長時間露光を行います。flxは縮小されます
+ -j - JPEG handling: 1: download, 2: use exif for dng, 3: both (default)
+ -R - Wi-Fi接続または指定されたディレクトリにあるImBからRAWデータを変換します
+ -J - Wi-Fi接続または指定されたディレクトリにあるImBからJPEGデータを取得します
+ -O - Wi-Fi接続または指定されたディレクトリにあるImBから非RAW/非JPEGデータを取得します
+ -da correcttimestamp=cameratimestamp - タイムスタンプ補正（形式：yyyy_mm_dd-hh_mm_ss）
+ -n yyyy_mm_dd-hh_mm_ss（または任意の長さのプレフィックス） - ImBまたは指定されたディレクトリから、このタイムスタンプより新しいものだけを選択します
 -----
 -- - 残りのパラメータをローカルファイルまたはディレクトリとして扱います
 <files-or-dirs> - ローカルファイルまたはディレクトリを再帰的に処理します（例：ImBからMicroSDへ）。

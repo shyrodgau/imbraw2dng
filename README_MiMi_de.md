@@ -34,7 +34,6 @@ von DNG nach RAW zurück konvertieren, nur für originale hiermit nach DNG konve
 Es sind keine "Schwarz-Weiß RAW"-Dateien, sondern die echten Roh-Sensordaten mit der Farbfilterung darauf (leider aber nur 8 bit bei 35mm und MF, 12 bit bei Film und MiMi). 
 
 DNG (Adobe&reg; Digital NeGativ) ist offenes Dateiformat, das hauptsächlich aus den ursprünglichen Bilddaten besteht. 
-Bei Dateien von MF und Film ist die Farbfilter-Matrix (Color Filter Array) anders.
 
 Probleme und Ideen können auch unter "[Issues](https://github.com/shyrodgau/imbraw2dng/issues)" oder "[Discussions](https://github.com/shyrodgau/imbraw2dng/discussions)"
 des [github Repositorys](https://github.com/shyrodgau/imbraw2dng) oder in der [I'm Back Users Gruppe auf Facebook](https://www.facebook.com/groups/1212628099691211) diskutiert werden.
@@ -43,15 +42,14 @@ des [github Repositorys](https://github.com/shyrodgau/imbraw2dng) oder in der [I
 
 Wenn jemand **Android** benutzt, probiert die [Android app](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk), mit dem Androiden im (oder nicht im) ImB WLAN.
 
-Wenn es jemand auf dem PC oder Smartphone im **Browser** verwenden möchte, folgende Möglichkeiten:
+Wenn es jemand auf dem PC oder Smartphone im **Browser** verwenden möchte, folgende Möglichkeiten (Alle Daten bleiben im Browser!):
 
-- die Datei [**&#x261e;**`imbapp_de.htm`](https://shyrodgau.github.io/imbraw2dng/imbapp_de.htm) direkt im Internet benutzen oder auf die Festplatte oder sonstwohin kopieren.    
-(Alle Daten bleiben im Browser!)   
+- die Datei [**&#x261e;**`imbapp_de.htm`](https://shyrodgau.github.io/imbraw2dng/imbapp_de.htm) direkt im Internet benutzen oder auf die Festplatte oder sonstwohin kopieren.       
 Manche Browser (sogar auf Handys) bieten an, es als PortableWebApp zu installieren (leicht offline zu finden). Das könnte sich auch unter "Zum Desktop dazufügen" o.ä. verbergen.   
 In diesem Fall müssen die Dateien von ImB per USB, Micro SD Adapter, original App oder sonstwie geholt werden.
 
-- <a id="browsing-on-the-imback" name="browsing-on-the-imback">  </a>wenn man diese Datei auf die MicroSD vom ImB schiebt, ([wie macht man das?](#wie-kopiere-ich-html-dateien-auf-die-microsd)), kann Holen und Konvertieren nach DNG zusammengefasst werden (JPG und Filme können auch geholt werden).   
-`http://192.168.1.254/NOVATEK/IMBAPP.HTM` (kann auch die Zeit einstellen und Bilder und Video aufnehmen!)   
+- <a id="browsing-on-the-imback" name="browsing-on-the-imback">  </a>wenn man diese Datei auf die MicroSD vom ImB schiebt, ([wie macht man das?](#wie-kopiere-ich-html-dateien-auf-die-microsd)), kann Holen und Konvertieren nach DNG zusammengefasst werden (JPG und Filme können auch geholt werden, kann auch die Zeit einstellen und Bilder und Video aufnehmen!).   
+`http://192.168.1.254/NOVATEK/IMBAPP.HTM`    
 Das Gerät, auf dem die Seite geöffnet wird, muss im ImB WLAN sein.
 
 
@@ -130,8 +128,6 @@ jemanden kennt, der helfen könnte - bitte Kontakt aufnehmen* z.B. über die
 [Discussion on pixls.us](https://discuss.pixls.us/t/converting-plain-raw-from-imback-to-dng/) für Darktable/RawSpeed oder 
 I'm Back digital back [Developers Group on Facebook](https://www.facebook.com/groups/2812057398929350).    
 
-Eine starke grüne oder magentafarbige Tönung der Bilder sollte nicht mehr vorkommen! Wenn aber eine da ist, die sich **nicht** durch 
-Farbkalibrierung/Farbmatrix/Weißabgleich entfernen lässt, könnte ein Beispielbild interessant sein.
 
 
 ## Internationalisierung
@@ -159,13 +155,13 @@ Optionen:
          Die Sprache kann auch durch Umbenennen in imbraw2dng_XX.js geändert werden.
  -d ordner - Ausgabedateien in diesen Ordner ablegen
  -f - existierende Dateien überschreiben
- -r - Ausgabedatei umbenennen, falls schon existiert
  -np - Kein kleines Vorschaubild im DNG
  -owb - Alten konstanten Weißabgleich verwenden
  -ndcp - neues DCP Profil nicht einbetten
  -cr "copyright..." - Copyrightvermerk zum DNG dazufügen
  -at "autor..." - Autor/Ersteller zum DNG dazufügen
  -fla, -flx - mehrere Bilder als Langzeitbelichtung aufaddieren, flx skaliert dabei herunter
+ -j - JPEG Behandling: 1: herunterladen, 2: exif für dng nehmen, 3: beides (default)
  -R - RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen konvertieren
  -J - JPEG von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren
  -O - Nicht-JPEG/Nicht-RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren
@@ -183,7 +179,7 @@ Bezüglich Konfigurierbarkeit siehe [imbraw2dng.json](imbraw2dng.json).
 
 ### <a id="metaexif" name="metaexif">  </a>Metadaten, EXIF
 
-Die EXIF Daten in den JPEG Bildern von ImB sind bei MiMi nützlich. Wenn sie in den DNG Dateien drin gewünscht werden, ist das möglich. Zuerst das JPEG und dann das passende RAW verarbeiten.
+Die EXIF Daten in den JPEG Bildern von ImB sind bei MiMi nützlich. Wenn sie in den DNG Dateien drin gewünscht werden, ist das möglich. Zuerst das JPEG und dann das passende RAW verarbeiten (im gleichen Lauf).
 "Passend" ist definiert als: Zeitunterschied < 5 sec. und Unterschied des Zähler (letzter Teil des Dateinamens) &lt;= eins. Muss nicht direkt aufeinanderfolgend sein, erst alle JPEGs und dann die RAWs sollte tun.
 
 Es können für alle Bilder Metadaten Autor/Ersteller und Copyright sowie pro Bild eine Beschreibung (&#x270e;&#xfe0e;) direkt gesetzt werden.
@@ -193,8 +189,8 @@ Zeitkorrektur kann automatisch mitgemacht werden (&#x231a;&#xfe0e;).
 ### Lange Aufnahme simulieren<a id="a-lot-more-tricks-and-details" name="a-lot-more-tricks-and-details"> </a>
 
 Wenn du eine lange Aufnahme durch mehrere kürzere simulieren willst, und das spezifische Rauschen zu vermeiden, geht das bei node.js mit den `-fla`/`-flx` Parametern.
-Oder im HTML das Häkchen unter dem blauen Bereich setzen und dann die aufzuaddierenden RAW-Dateien zusammen in das blaue Feld ziehen und ablegen.   
-In der Android App müssen die RAWs zunächst nach DNG konvertiert werden. Dann die zu addierenden DNG Dateien auswählen und mit der ImB OS App teilen.
+Oder im HTML das Häkchen unter dem blauen Bereich setzen und dann die aufzuaddierenden RAW- oder DNG-Dateien zusammen in das blaue Feld ziehen und ablegen.   
+In der Android App müssen die RAWs zunächst nach DNG konvertiert werden. Dann die zu addierenden DNG Dateien (&gt;1) auswählen und mit der ImB OS App teilen.
 
 ### <a id="revert-to-raw" name="revert-to-raw"> </a>Zurück nach RAW
 

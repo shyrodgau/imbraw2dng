@@ -32,7 +32,6 @@ also in different languages as `imbraw2dng_XX.html` (see [Internationalization](
 The ImB RAWs are not really "B&W RAW" but actually the RAW sensor data that also contains the colour filtering (unfortunately only 8 bit deep for 35mm and MF, but 12 bit for Film and MiMi). 
 
 DNG (Adobe&reg; Digital NeGative) is an open format and consists mainly of the original image scanlines. 
-If it is from an MF or Film ImB then the Color Filter Array is different.
 
 Problems and ideas can also be discussed on the "[Issues](https://github.com/shyrodgau/imbraw2dng/issues)" or "[Discussions](https://github.com/shyrodgau/imbraw2dng/discussions)" tabs
 of the [github repos](https://github.com/shyrodgau/imbraw2dng) or in the [I'm Back Users Group on Facebook](https://www.facebook.com/groups/1212628099691211).
@@ -42,15 +41,14 @@ of the [github repos](https://github.com/shyrodgau/imbraw2dng) or in the [I'm Ba
 
 If you use **android**, try the [Android app](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp.apk) with your android device in (or out of) the ImB Wifi.
 
-If you prefer using it in the **browser** on your PC or smartphone, there are the choices:
+If you prefer using it in the **browser** on your PC or smartphone, there are the choices (All data will stay inside your browser!):
 
-- use the [**&#x261e;**`IMBAPP.HTM`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) directly from the internet or copy it anywhere you like on your harddisk or memory.   
-(All data will stay inside your browser!)   
+- use the [**&#x261e;**`IMBAPP.HTM`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) directly from the internet or copy it anywhere you like on your harddisk or memory.      
 Some browsers (even on mobiles) will allow you to install it as PortableWebApp for easy offline use. It might also be called or hidden behind "Add to desktop".   
 In this case, you need to transfer the files from ImB or access the MicroSD via USB, adapter, original ImB App or whatsoever.
 
-- <a id="browsing-on-theimback" name="browsing-on-the-imback">  </a>when you copy that file directly onto the MicroSD into the `IMBACK` folder ([How do I do that?](#how-do-i-copy-html-files-to-the-microsd)), you can directly combine download and conversion to DNG: (videos and JPG can also be downloaded)    
-`http://192.168.1.254/IMBACK/IMBAPP.HTM` (also allows to set the clock time, record video or take pictures!)   
+- <a id="browsing-on-theimback" name="browsing-on-the-imback">  </a>when you copy that file directly onto the MicroSD into the `IMBACK` folder ([How do I do that?](#how-do-i-copy-html-files-to-the-microsd)), you can directly combine download and conversion to DNG: (videos and JPG can also be downloaded, also allows to set the clock time, record video or take pictures!)    
+`http://192.168.1.254/IMBACK/IMBAPP.HTM`    
 The device where you open the page needs to be in the ImB Wifi.
 
 If you like to use the **command line**, you can use the [imbraw2dng.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) with node.js. It can also access the ImB if you are in the device Wifi. 
@@ -119,15 +117,12 @@ If you ever need to revert the original RAW from the DNG (e.g. to do the convers
 
 Use your favourite software, e.g. darktable, lightroom, ufraw, rawtherapee etc.
 
-<a href="https://shyrodgau.github.io/imbraw2dng/helpstuff/demosaic.jpg">Demosaic: VNG4</a>
 
 Do **not** expect the image to be okay out-of-the-box.
 Take your time to adjust the colours and then the rest. *If anyone is experienced around DNGs or knows someone who would be willing to help - please get in contact* 
 e.g. on [Discussion on pixls.us](https://discuss.pixls.us/t/converting-plain-raw-from-imback-to-dng/) for Darktable/RawSpeed or 
 I'm Back digital back [Developers Group on Facebook](https://www.facebook.com/groups/2812057398929350).
 
-A strong green or magenta tint all over the image should not happen any more! But if you have one and **can not** level it out using your software's 
-color matrix/color calibration or white-balancing, a sample image might be interesing to fix it.
 
 If a red highlighted spot is in the center of the image (ImB 35mm/MF), a manual retouche after the processing is required, or use the <a href="https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_redcircle.png">this darktable setting</a>, 
 placing and sizing a circle shape manually around the area. To avoid the red spot from the start, use a bigger aperture (smaller f-number) or combine the standard PDLC matte with a Fresnel screen from I'm Back 
@@ -159,13 +154,13 @@ Options:
          Language can also be set by changing filename to imbraw2dng_XX.js .
  -d dir - put output files into dir
  -f - overwrite existing files
- -r - rename output file, if already exists
  -np - Do not add preview thumbnail to DNG
  -owb - Use old style constant white balance
  -ndcp - Do not include new DNG Color profile
  -cr "copyright..." - add copyright to DNG
  -at "author..." - add author/creator to DNG
  -fla, -flx - add multiple images to fake long exposure, flx scales down
+ -j - JPEG handling: 1: download, 2: use exif for dng, 3: both (default)
  -R - convert RAW from ImB connected via Wifi or from given directories
  -J - get JPEG from ImB connected via Wifi or from given directories
  -O - get non-RAW/non-JPEG from ImB connected via Wifi or from given directories
@@ -182,7 +177,8 @@ About configuration see [imbraw2dng.json](imbraw2dng.json).
 
 ### <a id="metadexif" name="metaexif">  </a>Metadata, EXIF
 
-The EXIF data in the JPEG files from ImB is of limited use (excl. MiMi!), because it reflects the perspective of the ImB optics and sensor and not of the actual camera. But if you would like to add it to your DNG files, this is possible. Process the JPEG first and then the corresponding RAW.
+The EXIF data in the JPEG files from ImB is of limited use (excl. MiMi!), because it reflects the perspective of the ImB optics and sensor and not of the actual camera. But if you would like to add it to your DNG files, this is possible. 
+Process the JPEG first and then the corresponding RAW (in same run).
 Corresponding is defined as: time difference < 5 sec and counter (last part of filename) difference &lt;= 1. It is not neccessary to be directly consecutive, first all JPEGs and then the RAWs should do it.
 
 Author/creator and copyright metadata can be set globally, and per-image a description (&#x270e;&#xfe0e;) can be set.
@@ -192,8 +188,8 @@ Time correction can be applied automatically (&#x231a;&#xfe0e;).
 ### Long Exposure<a name="a-lot-more-tricks-and-details" id="a-lot-more-tricks-and-details"> </a>
 
 If you want to simulate a long "Long exposure" by several shorter ones to avoid the specific noise, you can do so by using the `-fla`/`-flx` parameters on node.js. 
-Or set the checkbox below the blue field on the HTML page and then drag and drop the RAW-files you want to stack up together into the blue field.   
-In the app, you first need to convert all RAWs to DNGs. Then select the DNGs you want to stack in your file browser and share these with the ImB OS App.
+Or set the checkbox below the blue field on the HTML page and then drag and drop the RAW- or DNG-files you want to stack up together into the blue field.   
+In the app, you first need to convert all RAWs to DNGs. Then select the DNGs (&gt;1) you want to stack in your file browser and share these with the ImB OS App.
 
 ### <a id="revert-to-raw" name="revert-to-raw"> </a>Revert to RAW
 
