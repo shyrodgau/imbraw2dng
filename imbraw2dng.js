@@ -12,7 +12,7 @@ Japanese translations by Sadami Inoue.
 
 https://github.com/shyrodgau/imbraw2dng
 
-Usage: node imbraw2dng.js [-l lang] [-f] [-d dir] [-nc | -co] [-np] [-owb] [-ndcp] [-cr copyright] [-R] [-J] [-O] [-fla | -flx] [-n yyyy_mm_dd-hh_mm_ss] [ [--] <files-or-dirs>* ]
+Usage: node imbraw2dng.js [-l lang] [-f] [-d dir] [-nc | -co] [-np] [-owb] [-ndcp] [-cr copyright] [-j flag] [-R] [-J] [-O] [-fla | -flx] [-n yyyy_mm_dd-hh_mm_ss] [ [--] <files-or-dirs>* ]
 Options:
  -h - show this help
  -nc - do not use coloured text
@@ -21,13 +21,13 @@ Options:
          Language can also be set by changing filename to imbraw2dng_XX.js .
  -d dir - put output files into dir
  -f - overwrite existing files
- -r - rename output file, if already exists
  -np - Do not add preview thumbnail to DNG
  -owb - Use old style constant white balance
  -ndcp - Do not include new DNG Camera profile
  -cr 'copyright...' - add copyright to DNG
  -at 'author...' - add author/creator to DNG
  -fla, -flx - add multiple images to fake long exposure, flx scales down'
+ -j - JPEG handling: 1: download, 2: use exif for dng, 3: both (default)
  -R - get RAW from ImB connected via Wifi or from given directories
  -J - get JPEG from ImB connected via Wifi or from given directories
  -O - get non-RAW/non-JPEG from ImB connected via Wifi or from given directories
@@ -39,7 +39,7 @@ Options:
 
 *****************************************************
 
-Usage: node imbdng2raw.js [-d dir] [ [--] <files>* ]
+Usage: node imbdng2raw.js [-d dir]  [--] <files>* 
 Options:
  -h - show this help
  -d dir - put output files into dir
@@ -505,16 +505,6 @@ getData(offset) {
 				}
 			}
 		}
-		/* Mimi
-		R0..R7         |    g0..g3   R8..R11     |   g4..g11
-		G0..G7         |    B0..B3   G8..G11     |   B4..B11
-		target before reorder outer
-		g0..g7         |    R0..R3   g8..g11     |   R4..R11
-		B0..B7         |    G0..G3   B8..B11     |   G4..G11
-		target so really
-		R4..R11        |    R0..R3   g8..g11     |   g0..g7 
-		G4..G11        |    G0..G3   B8..B11     |   B7..B0
-		*/
 		else if (this.#imglen === 18000000){
 			for (let z=0; z<this.#imgdata.byteLength; z+=3) {
 				let v1 = this.#imgdata.getUint8(z) + ((this.#imgdata.getUint8(z+1) & 15) << 8);
@@ -524,7 +514,16 @@ getData(offset) {
 				data[ioff++] = (v2 & 255);
 			}
 		}
+		else if (this.#imglen === 24000000){
+			for (let z=0; z<this.#imgdata.byteLength; z+=4) {
+				data[ioff++] = this.#imgdata.getUint8(z+2);
+				data[ioff++] = this.#imgdata.getUint8(z+3);
+				data[ioff++] = this.#imgdata.getUint8(z);
+				data[ioff++] = this.#imgdata.getUint8(z+1);
+			}
+		}
 		else if (this.#imglen === 40809984) {
+			let ob = ioff;
 			for (let z=0; z<this.#imgdata.byteLength; z+=4) {
 				if (z % 20864 < 10432) {
 					// keep groups of 4 byte = 2 samples
@@ -538,6 +537,13 @@ getData(offset) {
 					data[ioff++] = this.#imgdata.getUint8(this.#imgdata.byteLength - z - 3+10432);
 					data[ioff++] = this.#imgdata.getUint8(this.#imgdata.byteLength - z - 2+10432);
 					data[ioff++] = this.#imgdata.getUint8(this.#imgdata.byteLength - z - 1+10432);
+				}
+			}
+			for (let l = 0; l<3912; l+=2){
+				for (let w=0; w<10432; w++){
+					let x = data[ob + (l*10432+w)];
+					data[ob + (l*10432+w)] = data[ob + ((1+l)*10432+w)];
+					data[ob + ((1+l)*10432+w)] = x;
 				}
 			}
 		}
@@ -876,7 +882,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.6.4_e66da63", // actually const // VERSION EYECATCHER
+version: "V6.6.4_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -19388,14 +19394,14 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		ti.addEntry(277, 'SHORT', [ 1 ]); /* Samples per Pixel */
 		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config - chunky */
 		ti.addEntry(33421, 'SHORT', [ 2, 2 ]); /* CFA Repeat Pattern Dim */
-		if (typ === 5){
+		if (typ0 === 5){
 			ti.addEntry(33422, 'BYTE', [ 2, 1, 1, 0 ]);
 		}
-		else if (typ === 6){
+		else if (typ0 === 6){
 			ti.addEntry(33422, 'BYTE', [ 0, 1, 1, 2 ]);
 		}
 		else {
-			ti.addEntry(33422, 'BYTE', ((typ0 > 1) && (typ0 < 5)) ? [ 2, 1, 1, 0 ] : [ 1, 0, 2, 1 ]); /* CFA Pattern dep. on MF/35mm*/
+			ti.addEntry(33422, 'BYTE', (typ0 > 1) ? [ 2, 1, 1, 0 ] : [ 1, 0, 2, 1 ]); /* CFA Pattern dep. on MF/35mm*/
 		}
 		this.writewrap(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted' + ((this.checkdlfolder && !this.zip) ? 'checkdl' : ''), ti.getData(), f.name);
 	};
@@ -19915,7 +19921,7 @@ class ImBCNodeOut extends ImBCBase {
 /* Indentation out */
 // generic data
 outdir = '.';
-renamefiles = false;
+renamefiles = true;
 withcolours = true;
 ovwout = false;
 typeflags = 0;
@@ -20922,7 +20928,6 @@ const mytexts = { // actually const
 		title: {
 			de: 'ImB RAW nach DNG Konverter',
 			en: 'ImB RAW to DNG converter',
-			ru: 'Конвертер ImB RAW в DNG',
 			ja: 'ImB RAW を DNG に変換'
 		},
 	    backw: {
@@ -20932,7 +20937,6 @@ const mytexts = { // actually const
 		help: {
 			de: '? Hilfe Doku',
 			en: '? Help Doc',
-			ru: '? Помощь Док',
 			ja: '? ヘルプ資料'
 		},
 		helplink: {
@@ -21154,7 +21158,7 @@ const mytexts = { // actually const
 			   }
 	    },
 		help: {
-			en: [ `\u001b[1mWelcome to imbraw2dng\u001b[0m $$0 !`, `Usage: node $$0 \u001b[1m[\u001b[0m-l ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \
+			en: [ `\u001b[1mWelcome to imbraw2dng\u001b[0m $$0 !`, `Usage: node $$0 \u001b[1m[\u001b[0m-l ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m] [\u001b[0m-j flag\u001b[1m]\u001b[0m \
 \u001b[1m[\u001b[0m-d ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-owb\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-ndcp\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr ..\u001b[1m]\u001b[0m \
 \u001b[1m[\u001b[0m-at ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n ..\u001b[1m]\u001b[0m \
 \u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \
@@ -21167,13 +21171,13 @@ const mytexts = { // actually const
 				'         Language can also be set by changing filename to imbraw2dng_XX.js .',
 				' \u001b[1m-d dir\u001b[0m - put output files into dir',
 				' \u001b[1m-f\u001b[0m - overwrite existing files',
-				' \u001b[1m-r\u001b[0m - rename output file, if already exists',
 				' \u001b[1m-np\u001b[0m - Do not add preview thumbnail to DNG',
 				' \u001b[1m-owb\u001b[0m - Use old style constant white balance',
 				' \u001b[1m-ndcp\u001b[0m - Do not include new DNG Camera profile',
 				' \u001b[1m-cr \'copyright...\'\u001b[0m - add copyright to DNG',
 				' \u001b[1m-at \'author...\'\u001b[0m - add artist/creator to DNG',
 				' \u001b[1m-fla\u001b[0m, \u001b[1m-flx\u001b[0m - add multiple images to fake long exposure, flx scales down',
+				' \u001b[1m-j flag\u001b[0m - JPEG handling: 1: download, 2: use exif for dng, 3: both (default)',
 				' \u001b[1m-R\u001b[0m - get RAW from ImB connected via Wifi or from given directories',
 				' \u001b[1m-J\u001b[0m - get JPEG from ImB connected via Wifi or from given directories',
 				' \u001b[1m-O\u001b[0m - get non-RAW/non-JPEG from ImB connected via Wifi or from given directories',
@@ -21182,7 +21186,7 @@ const mytexts = { // actually const
 				' -----',
 				' \u001b[1m--\u001b[0m - treat rest of parameters as local files or dirs',
 				' <files-or-dirs> - process local files or directories recursively, e.g. on MicroSD from ImB',],
-			de: [ `\u001b[1mWillkommen bei imbraw2dng\u001b[0m $$0 !`, `Aufruf: node $$0 \u001b[1m[\u001b[0m-l ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \
+			de: [ `\u001b[1mWillkommen bei imbraw2dng\u001b[0m $$0 !`, `Aufruf: node $$0 \u001b[1m[\u001b[0m-l ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m] [\u001b[0m-j flag\u001b[1m]\u001b[0m \
 \u001b[1m[\u001b[0m-d ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-owb\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-ndcp\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr ..\u001b[1m]\u001b[0m \
 \u001b[1m[\u001b[0m-at ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-at ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n ..\u001b[1m]\u001b[0m \
 \u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \
@@ -21195,13 +21199,13 @@ const mytexts = { // actually const
 				'         Die Sprache kann auch durch Umbenennen in imbraw2dng_XX.js geändert werden.',
 				' \u001b[1m-d ordner\u001b[0m - Ausgabedateien in diesen Ordner ablegen',
 				' \u001b[1m-f\u001b[0m - existierende Dateien überschreiben',
-				' \u001b[1m-r\u001b[0m - Ausgabedatei umbenennen, falls schon existiert',
 				' \u001b[1m-np\u001b[0m - Kein kleines Vorschaubild im DNG',
 				' \u001b[1m-owb\u001b[0m - Alten konstanten Weißabgleich verwenden',
 				' \u001b[1m-ndcp\u001b[0m - neues DCP Profil nicht einbetten',
 				' \u001b[1m-cr \'copyright...\'\u001b[0m - Copyright dem DNG hinzufügen',
 				' \u001b[1m-at \'autor...\'\u001b[0m - Künstler/Ersteller zum DNG hinzufügen',
 				' \u001b[1m-fla\u001b[0m, \u001b[1m-flx\u001b[0m - mehrere Bilder als Langzeitbelichtung aufaddieren, flx skaliert dabei herunter',
+				' \u001b[1m-j flag\u001b[0m - JPEG Behandling: 1: herunterladen, 2: exif für dng nehmen, 3: beides (default)',
 				' \u001b[1m-R\u001b[0m - RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen konvertieren',
 				' \u001b[1m-J\u001b[0m - JPEG von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren',
 				' \u001b[1m-O\u001b[0m - Nicht-JPEG/Nicht-RAW von per WLAN verbundener ImB oder übergebenen Verzeichnissen kopieren',
@@ -21211,7 +21215,7 @@ const mytexts = { // actually const
 				' \u001b[1m--\u001b[0m - weitere Parameter als lokale Dateien oder Ordner betrachten',
 				' <dateien-oder-ordner> - lokale Dateien oder Ordner rekursiv (z.B. von der MicroSD Karte aus ImB) verarbeiten',],
 			ja: [
-				`\u001b[1mimbraw2dng へようこそ\u001b[0m $$0 !`, `Usage: node $$0 \u001b[1m[\u001b[0m-l ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m | \u001b[0m-r\u001b[1m]\u001b[0m \
+				`\u001b[1mimbraw2dng へようこそ\u001b[0m $$0 !`, `Usage: node $$0 \u001b[1m[\u001b[0m-l ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m] [\u001b[0m-j flag\u001b[1m]\u001b[0m \
 \u001b[1m[\u001b[0m-d ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-owb\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-ndcp\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr ..\u001b[1m]\u001b[0m \
 \u001b[1m[\u001b[0m-at ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n ..\u001b[1m]\u001b[0m \
 \u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \
@@ -21224,12 +21228,12 @@ const mytexts = { // actually const
 				'         ファイル名を imbraw2dng_XX.js に変更することで言語を設定することもできます。',
 				' \u001b[1m-d dir\u001b[0m - 出力ファイルを dir に置く',
 				' \u001b[1m-f\u001b[0m - 現在のファイルを上書きする',
-				' \u001b[1m-r\u001b[0m - rename output file, if already exists',
 				' \u001b[1m-np\u001b[0m - Do not add preview thumbnail to DNG',
 				' \u001b[1m-owb\u001b[0m - Use old style constant white balance',
 				' \u001b[1m-ndcp\u001b[0m - Do not include new DNG Camera profile',
 				' \u001b[1m-cr \'copyright...\'\u001b[0m - add copyright to DNG',
 				' \u001b[1m-at \'author...\'\u001b[0m - add author/creator to DNG',
+				' \u001b[1m-j flag\u001b[0m - JPEG handling: 1: download, 2: use exif for dng, 3: both (default)',
 				' \u001b[1m-fla\u001b[0m, \u001b[1m-flx\u001b[0m - add multiple images to fake long exposure, flx scales down',
 				' \u001b[1m-R\u001b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリからRAWを取得する',
 				' \u001b[1m-J\u001b[0m - Wifi経由で接続されたImBまたは指定されたディレクトリからJPEGを取得する',

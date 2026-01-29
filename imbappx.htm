@@ -1266,16 +1266,6 @@ getData(offset) {
 				}
 			}
 		}
-		/* Mimi
-		R0..R7         |    g0..g3   R8..R11     |   g4..g11
-		G0..G7         |    B0..B3   G8..G11     |   B4..B11
-		target before reorder outer
-		g0..g7         |    R0..R3   g8..g11     |   R4..R11
-		B0..B7         |    G0..G3   B8..B11     |   G4..G11
-		target so really
-		R4..R11        |    R0..R3   g8..g11     |   g0..g7 
-		G4..G11        |    G0..G3   B8..B11     |   B7..B0
-		*/
 		else if (this.#imglen === 18000000){
 			for (let z=0; z<this.#imgdata.byteLength; z+=3) {
 				let v1 = this.#imgdata.getUint8(z) + ((this.#imgdata.getUint8(z+1) & 15) << 8);
@@ -1285,7 +1275,16 @@ getData(offset) {
 				data[ioff++] = (v2 & 255);
 			}
 		}
+		else if (this.#imglen === 24000000){
+			for (let z=0; z<this.#imgdata.byteLength; z+=4) {
+				data[ioff++] = this.#imgdata.getUint8(z+2);
+				data[ioff++] = this.#imgdata.getUint8(z+3);
+				data[ioff++] = this.#imgdata.getUint8(z);
+				data[ioff++] = this.#imgdata.getUint8(z+1);
+			}
+		}
 		else if (this.#imglen === 40809984) {
+			let ob = ioff;
 			for (let z=0; z<this.#imgdata.byteLength; z+=4) {
 				if (z % 20864 < 10432) {
 					// keep groups of 4 byte = 2 samples
@@ -1299,6 +1298,13 @@ getData(offset) {
 					data[ioff++] = this.#imgdata.getUint8(this.#imgdata.byteLength - z - 3+10432);
 					data[ioff++] = this.#imgdata.getUint8(this.#imgdata.byteLength - z - 2+10432);
 					data[ioff++] = this.#imgdata.getUint8(this.#imgdata.byteLength - z - 1+10432);
+				}
+			}
+			for (let l = 0; l<3912; l+=2){
+				for (let w=0; w<10432; w++){
+					let x = data[ob + (l*10432+w)];
+					data[ob + (l*10432+w)] = data[ob + ((1+l)*10432+w)];
+					data[ob + ((1+l)*10432+w)] = x;
 				}
 			}
 		}
@@ -1637,7 +1643,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.6.4_e66da63", // actually const // VERSION EYECATCHER
+version: "V6.6.4_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -20149,14 +20155,14 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		ti.addEntry(277, 'SHORT', [ 1 ]); /* Samples per Pixel */
 		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config - chunky */
 		ti.addEntry(33421, 'SHORT', [ 2, 2 ]); /* CFA Repeat Pattern Dim */
-		if (typ === 5){
+		if (typ0 === 5){
 			ti.addEntry(33422, 'BYTE', [ 2, 1, 1, 0 ]);
 		}
-		else if (typ === 6){
+		else if (typ0 === 6){
 			ti.addEntry(33422, 'BYTE', [ 0, 1, 1, 2 ]);
 		}
 		else {
-			ti.addEntry(33422, 'BYTE', ((typ0 > 1) && (typ0 < 5)) ? [ 2, 1, 1, 0 ] : [ 1, 0, 2, 1 ]); /* CFA Pattern dep. on MF/35mm*/
+			ti.addEntry(33422, 'BYTE', (typ0 > 1) ? [ 2, 1, 1, 0 ] : [ 1, 0, 2, 1 ]); /* CFA Pattern dep. on MF/35mm*/
 		}
 		this.writewrap(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted' + ((this.checkdlfolder && !this.zip) ? 'checkdl' : ''), ti.getData(), f.name);
 	};
@@ -24834,7 +24840,6 @@ const mytexts = { // actually const
 		title: {
 			de: 'ImB RAW nach DNG Konverter',
 			en: 'ImB RAW to DNG converter',
-			ru: 'Конвертер ImB RAW в DNG',
 			ja: 'ImB RAW を DNG に変換'
 		},
 		apptitle: {
@@ -24846,7 +24851,6 @@ const mytexts = { // actually const
 		help: {
 			de: '? Hilfe Doku',
 			en: '? Help Doc',
-			ru: '? Помощь Док',
 			ja: '? ヘルプ資料'
 		},
 		generaladvice: {
@@ -24948,7 +24952,6 @@ const mytexts = { // actually const
 		nomatch: {
 			de: 'Keine passenden Dateien gefunden. Kann vorübergehend sein.',
 			en: 'No matching files found. Might be temporary.',
-			fr: 'Aucun fiche correspondant trouvé. Peut-etre temporaire.',
 			ja: '一致するファイルが見つかりませんでした。 一時的なものかもしれません。'
 		},
 		strangename: {

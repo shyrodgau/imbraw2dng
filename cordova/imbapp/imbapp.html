@@ -1263,16 +1263,6 @@ getData(offset) {
 				}
 			}
 		}
-		/* Mimi
-		R0..R7         |    g0..g3   R8..R11     |   g4..g11
-		G0..G7         |    B0..B3   G8..G11     |   B4..B11
-		target before reorder outer
-		g0..g7         |    R0..R3   g8..g11     |   R4..R11
-		B0..B7         |    G0..G3   B8..B11     |   G4..G11
-		target so really
-		R4..R11        |    R0..R3   g8..g11     |   g0..g7 
-		G4..G11        |    G0..G3   B8..B11     |   B7..B0
-		*/
 		else if (this.#imglen === 18000000){
 			for (let z=0; z<this.#imgdata.byteLength; z+=3) {
 				let v1 = this.#imgdata.getUint8(z) + ((this.#imgdata.getUint8(z+1) & 15) << 8);
@@ -1282,7 +1272,16 @@ getData(offset) {
 				data[ioff++] = (v2 & 255);
 			}
 		}
+		else if (this.#imglen === 24000000){
+			for (let z=0; z<this.#imgdata.byteLength; z+=4) {
+				data[ioff++] = this.#imgdata.getUint8(z+2);
+				data[ioff++] = this.#imgdata.getUint8(z+3);
+				data[ioff++] = this.#imgdata.getUint8(z);
+				data[ioff++] = this.#imgdata.getUint8(z+1);
+			}
+		}
 		else if (this.#imglen === 40809984) {
+			let ob = ioff;
 			for (let z=0; z<this.#imgdata.byteLength; z+=4) {
 				if (z % 20864 < 10432) {
 					// keep groups of 4 byte = 2 samples
@@ -1296,6 +1295,13 @@ getData(offset) {
 					data[ioff++] = this.#imgdata.getUint8(this.#imgdata.byteLength - z - 3+10432);
 					data[ioff++] = this.#imgdata.getUint8(this.#imgdata.byteLength - z - 2+10432);
 					data[ioff++] = this.#imgdata.getUint8(this.#imgdata.byteLength - z - 1+10432);
+				}
+			}
+			for (let l = 0; l<3912; l+=2){
+				for (let w=0; w<10432; w++){
+					let x = data[ob + (l*10432+w)];
+					data[ob + (l*10432+w)] = data[ob + ((1+l)*10432+w)];
+					data[ob + ((1+l)*10432+w)] = x;
 				}
 			}
 		}
@@ -1634,7 +1640,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.6.4_e66da63", // actually const // VERSION EYECATCHER
+version: "V6.6.4_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -20146,14 +20152,14 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		ti.addEntry(277, 'SHORT', [ 1 ]); /* Samples per Pixel */
 		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config - chunky */
 		ti.addEntry(33421, 'SHORT', [ 2, 2 ]); /* CFA Repeat Pattern Dim */
-		if (typ === 5){
+		if (typ0 === 5){
 			ti.addEntry(33422, 'BYTE', [ 2, 1, 1, 0 ]);
 		}
-		else if (typ === 6){
+		else if (typ0 === 6){
 			ti.addEntry(33422, 'BYTE', [ 0, 1, 1, 2 ]);
 		}
 		else {
-			ti.addEntry(33422, 'BYTE', ((typ0 > 1) && (typ0 < 5)) ? [ 2, 1, 1, 0 ] : [ 1, 0, 2, 1 ]); /* CFA Pattern dep. on MF/35mm*/
+			ti.addEntry(33422, 'BYTE', (typ0 > 1) ? [ 2, 1, 1, 0 ] : [ 1, 0, 2, 1 ]); /* CFA Pattern dep. on MF/35mm*/
 		}
 		this.writewrap(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted' + ((this.checkdlfolder && !this.zip) ? 'checkdl' : ''), ti.getData(), f.name);
 	};
@@ -20713,8 +20719,6 @@ const mytexts = { // actually const
 		title: {
 			de: 'ImB RAW nach DNG Konverter',
 			en: 'ImB RAW to DNG converter',
-			fr: 'Convertisseur ImB RAW a DNG',
-			ru: 'Конвертер ImB RAW в DNG',
 			ja: 'ImB RAW を DNG に変換'
 		},
 		apptitle: {
@@ -20726,8 +20730,6 @@ const mytexts = { // actually const
 		help: {
 			de: '? Hilfe Doku',
 			en: '? Help Doc',
-			fr: '? Aide Doc',
-			ru: '? Помощь Док',
 			ja: '? ヘルプ資料'
 		},
 		generaladvice: {
@@ -20760,7 +20762,6 @@ const mytexts = { // actually const
 		or: {
 			de: 'Oder ',
 			en: 'Or ',
-			fr: 'Ou ',
 			ja: 'または '
 		},
 		log: {
@@ -20771,7 +20772,6 @@ const mytexts = { // actually const
 		selected: {
 			de: 'Ausgewählt',
 			en: 'Selected',
-			fr: 'Sélectionné(s)',
 			ja: '選択済み'
 		},
 		fakelong: {
@@ -20799,37 +20799,31 @@ const mytexts = { // actually const
 		bytype: {
 			de: 'Nach Typ',
 			en: 'By type',
-			fr: 'Par type',
 			ja: '種類別'
 		},
 		olderfirst: {
 			de: 'Ältere nach oben',
 			en: 'Older first',
-			fr: 'Plus anciens ci-dessus',
 			ja: '古い順'
 		},
 		selall: {
 			tooltip: {
 				de: 'Wenn Haken nicht gesetzt, wähle alles aus. Bei Klick wenn angehakt setze Auswahl auf Nichts.',
 				en: 'If not selected then select all. If it is selected and clicked then unselect all.',
-				fr: 'S\'il n\'est pas sélectionner, sélectionner tout. Au clic si sélectionné, vider la sélection',
 				ja: '選択されていない場合は、すべてを選択します。 選択してクリックした場合は、すべての選択を解除します。'
 			},
 			de: 'Alle de-/ oder selektieren',
 			en: 'De-/select all',
-			fr: 'De-/sélectionner tout',
 			ja: 'すべての選択を解除'
 		},
 		procall: {
 			de: 'Alle ausgewählte kopieren/verarbeiten',
 			en: 'Copy/process all selected',
-			fr: 'Traiter les sélectionnés',
 			ja: '選択したものをすべてコピー/処理'
 		},
 		delall: {
 			de: 'Alle ausgewählte löschen',
 			en: 'Delete all selected',
-			fr: 'Supprimer les sélectionnés',
 			ja: '選択したものをすべて削除'
 		},
 	},
@@ -20837,7 +20831,6 @@ const mytexts = { // actually const
 		nomatch: {
 			de: 'Keine passenden Dateien gefunden. Kann vorübergehend sein.',
 			en: 'No matching files found. Might be temporary.',
-			fr: 'Aucun fiche correspondant trouvé. Peut-etre temporaire.',
 			ja: '一致するファイルが見つかりませんでした。 一時的なものかもしれません。'
 		},
 		strangename: {
@@ -20855,7 +20848,6 @@ const mytexts = { // actually const
 		renamed: {
 			en: '(renamed)',
 			de: '(umbenannt)',
-			fr: '(renomee)',
 			ja: '(リネーム)'
 		},
 		addcopyright: {
@@ -20881,13 +20873,11 @@ const mytexts = { // actually const
 		nothing: {
 			de: 'Nichts ausgewählt.. ?',
 			en: 'Nothing selected...?',
-			fr: 'Rien de sélectionné',
 			ja: '何も選択されていません...?'
 		},
 		erraccess: {
 			de: 'beim Zugriff auf $$0.',
 			en: 'occured accessing $$0.',
-			fr: 'lors de l\'accès à $$0.',
 			ja: '>アクセス中にエラーが発生しました $$0.'
 		},
 		notraw: {
@@ -20898,31 +20888,26 @@ const mytexts = { // actually const
 		selectedn: {
 			de: '$$0 Datei(en) wurden ausgewählt.',
 			en: 'Got $$0 file(s) selected.',
-			fr: '$$0 fiche(s) sélectionné(s)',
 			ja: '$$0 ファイルが選択されました。'
 		},
 		copyokcheckdl: {
 			de: 'Nach $$0 kopiert (Ordner $$X prüfen)</b>&nbsp;',
 			en: 'Copied to $$0 (Check Folder $$X)</b>&nbsp;',
-			fr: 'Copié sur $$0 (Vérifier le dossier de $$X)</b>&nbsp;',
 			ja: '$$0 にコピーされました (フォルダー $$X を確認してください)</b>&nbsp;'
 		},
 		copyok: {
 			de: 'Nach $$0 kopiert',
 			en: 'Copied to $$0',
-			fr: 'Copié sur $$0',
 			ja: '$$0 にコピー'
 		},
 		errorreadingfile: {
 			de: 'beim Lesen der Datei $$0',
 			en: 'occured reading file $$0',
-			fr: 'de lecture du fiche $$0',
 			ja: 'ファイル $$0 の読み取り中にエラーが発生しました。 '
 		},
 		unknownsize: {
 			de: 'Die Dateigröße <b>$$0</b> passt zu keinem bekannten Format. Bitte Entwickler kontaktieren!',
 			en: 'File Size <b>$$0</b> does not match known formats. Please contact developer!',
-			fr: 'La taille du fiche <b>$$0</b> ne correspond pas au format connu. Veuillez contacter le développeur',
 			ja: 'が、ファイルサイズ <b>$$0</b> は既知の形式と一致しません。開発者にお問い合わせください。'
 		},
 		processing: {
@@ -20933,7 +20918,6 @@ const mytexts = { // actually const
 		assuming: {
 			de: 'Annahme: $$0 $$1',
 			en: 'Assuming $$0 $$1',
-			fr: 'Hypothèse: $$0 $$1',
 			ja: '認識 $$0 $$1'
 		},
 		datetime: {
@@ -20944,49 +20928,41 @@ const mytexts = { // actually const
 		orientation: {
 			de: 'Drehung: $$0',
 			en: 'Orientation: $$0',
-			fr: 'Rotation: $$0',
 			ja: '向き： $$0'
 		},
 		convertedcheckdl: {
 			de: 'Nach $$0 konvertiert (Ordner $$X prüfen)',
 			en: 'Converted to $$0 (Check Folder $$X)',
-			fr: 'Converti en $$0 (Vérifier le dossier de $$X)',
 			ja: '$$0 に変換されました ($$X フォルダーを確認してください)'
 		},
 		converted: {
 			de: 'Nach $$0 konvertiert',
 			en: 'Converted to $$0',
-			fr: 'Converti en $$0',
 			ja: '$$0 に変換'
 		},
 		errsave: {
 			de: 'Konnte Datei $$0 nicht speichern.',
 			en: 'Could not write file $$0',
-			fr: 'Impossible d\'écrire le fiche $$0.',
 			ja: 'ファイル $$0 に書き込めませんでした'
 		},
 		errsavetrybrowser: {
 			de: 'Konnte Datei $$0 nicht speichern. <br><a href="#" onclick="window.open(\'$$1\', \'_system\'); return false;">Herunterladen über Browser versuchen</a>',
 			en: 'Could not write file $$0. <br><a href="#" onclick="window.open(\'$$1\', \'_system\'); return false;">Try download via Browser</a>',
-			fr: 'Impossible d\'écrire le fiche $$0. <br><a href="#" onclick="window.open(\'$$1\', \'_system\'); return false;">Try download via Browser</a>',
 			ja: 'ファイル $$0 に書き込めませんでした <br><a href="#" onclick="window.open(\'$$1\', \'_system\'); return false;">Try download via Browser</a>'
 		},
 		droppedn: {
 			de: '$$0 Datei(en) wurden abgelegt.',
 			en: 'Got $$0 file(s) dropped.',
-			fr: '$$0 fiche(s) ont été stockés',
 			ja: '$$0 個のファイルがドロップされました。'
 		},
 		frombackn: {
 			de: '$$0 Datei(en) vom ImB zu verarbeiten.',
 			en: 'Got $$0 file(s) from ImB.',
-			fr: 'J\'ai reçu $$0 fiche(s) d\'ImB',
 			ja: 'ImB から $$0 ファイルを取得しました。'
 		},
 		frombrowsern: {
 			de: '$$0 Datei(en) vom Bild-Browser zu verarbeiten.',
 			en: 'Got $$0 file(s) from Visual browser.',
-			fr: 'J\'ai obtenu $$ fiche(s) du navigateur visuel',
 			ja: 'ビジュアル ブラウザから $$0 ファイルを取得しました。'
 		},
 		skipped: {
@@ -20997,19 +20973,16 @@ const mytexts = { // actually const
 			},
 			de: 'Auf Anforderung übersprungen: $$0',
 			en: 'Skipped at your request: $$0',
-			fr: 'Ignoré à votre demande: $$0',
 			ja: 'リクエストに応じて残りの $$0 画像をスキップします'
 		},
 		totals: {
 			en: 'Total: $$0, ok: $$1, skipped: $$2, Errors: $$3',
 			de: 'Total: $$0, ok $$1, übersprungen: $$2, Fehler: $$3',
-			fr: 'Total: $$0, ok: $$1, Ignoré: $$2, Erreur: $$3',
 			ja: '合計 $$0、OK $$1、スキップ $$2、エラー $$3'
 		},
 		addpreview: {
 			en: 'Add preview thumbnail to DNG',
 			de: 'Kleines Vorschaubild im DNG',
-			fr: 'Petite image d\'aperçu en DNG',
 			ja: 'プレビューのサムネイルを DNG に追加する'
 		},
 		addexif: {
@@ -21048,25 +21021,21 @@ const mytexts = { // actually const
 			none: {
 				de: 'keine',
 				en: 'none',
-				fr: 'aucune',
 				ja: 'なし'
 			},
 			upsidedown: {
 				de: '180°',
 				en: '180°',
 				ja: '180°',
-				fr: '180°'
 			},
 			clockwise: {
 				de: 'im Uhrzeigersinn',
 				en: 'clockwise',
-				fr: 'dans le sens des aiguilles d\'une montre',
 				ja: '時計回り'
 			},
 			counterclockwise: {
 				de: 'gegen den Uhrzeigersinn',
 				en: 'counterclockwise',
-				fr: 'dans le sens inverse des aiguilles d\'une montre',
 				ja: '反時計回り'
 			}
 		}
@@ -21075,7 +21044,6 @@ const mytexts = { // actually const
 		unknownsize: {
 			de: 'Unerkannte RAW-Dateigröße, Entwickler kontaktieren',
 			en: 'Unrecognized RAW file size, contact developer',
-			fr: 'La taille du fiche RAW ne correspond pas au format connu. Veuillez contacter le développeur',
 			ja: '反時計回り'
 		},
 	},
@@ -21095,18 +21063,15 @@ const mytexts = { // actually const
 		question: {
 			en: 'Deleting $$0 file(s) can not be undone! Are you sure you want to continue?',
 			de: 'Löschen von $$0 Datei(en) kann nicht rückgängig gemacht werden. Sicher damit weitermachen?',
-			fr: 'La suppression de $$0 fiche(s) est irréversible. Es-tu sur de vouloir continuer?',
 			ja: '$$0 ファイルを削除すると、元に戻すことはできません。 続行してもよろしいですか?',
 			ok: {
 				de: 'Ok',
 				en: 'Ok',
-				fr: 'Ok',
 				ja: 'はい'
 			},
 			cancel: {
 				de: 'Abbrechen',
 				en: 'Cancel',
-				fr: 'Annuler',
 				ja: 'キャンセル'
 			}
 		},

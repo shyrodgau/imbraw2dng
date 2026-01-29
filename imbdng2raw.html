@@ -650,6 +650,8 @@ getData(offset) {
 	let ioff = 0, data = new Uint8Array(this.#imglen + (12 * this.#entrys.length) + this.#currentoff + 16);
 	if (this.#imgdata?.getUint8) {
 		if (this.#imglen === 30607488) {
+			// FILM
+			let ob = ioff;
 			for (let z=0; z<this.#imgdata.byteLength; z++) {
 				// just backward but line-wise
 				if (z % 15648 < 7824) {
@@ -659,8 +661,36 @@ getData(offset) {
 					data[ioff++] = this.#imgdata.getUint8(this.#imgdata.byteLength - z - 1+7824);
 				}
 			}
+			for (let l = 0; l<3912; l+=2){
+				for (let w=0; w<7824; w++){
+					let x = data[ob + (l*7824+w)];
+					data[ob + (l*7824+w)] = data[ob + ((1+l)*7824+w)];
+					data[ob + ((1+l)*7824+w)] = x;
+				}
+			}
+		}
+		else if (this.#imglen === 18000000){
+			// MIMI
+			for (let z=0; z<this.#imgdata.byteLength; z+=3) {
+				let v1 = this.#imgdata.getUint8(z) + ((this.#imgdata.getUint8(z+1) & 15) << 8);
+				let v2 = (this.#imgdata.getUint8(z+2) << 4) + ((this.#imgdata.getUint8(z+1) >> 4) & 15);
+				data[ioff++] = ((v1 >> 4) & 255);
+				data[ioff++] = ((v1 & 15) << 4) + ((v2 >> 8) & 15);
+				data[ioff++] = (v2 & 255);
+			}
+		}
+		else if (this.#imglen === 24000000){
+			// MIMI stacked
+			for (let z=0; z<this.#imgdata.byteLength; z+=4) {
+				data[ioff++] = this.#imgdata.getUint8(z+2);
+				data[ioff++] = this.#imgdata.getUint8(z+3);
+				data[ioff++] = this.#imgdata.getUint8(z);
+				data[ioff++] = this.#imgdata.getUint8(z+1);
+			}
 		}
 		else if (this.#imglen === 40809984) {
+			// FILM stacked
+			let ob = ioff;
 			for (let z=0; z<this.#imgdata.byteLength; z+=4) {
 				if (z % 20864 < 10432) {
 					// keep groups of 4 byte = 2 samples
@@ -676,8 +706,16 @@ getData(offset) {
 					data[ioff++] = this.#imgdata.getUint8(this.#imgdata.byteLength - z - 1+10432);
 				}
 			}
+			for (let l = 0; l<3912; l+=2){
+				for (let w=0; w<10432; w++){
+					let x = data[ob + (l*10432+w)];
+					data[ob + (l*10432+w)] = data[ob + ((1+l)*10432+w)];
+					data[ob + ((1+l)*10432+w)] = x;
+				}
+			}
 		}
 		else if (-1 !== globals.twelvebitsizes.indexOf(this.#imglen)) {
+			// stacked 35mm/MF when < 16
 			for (let z=0; z<this.#imgdata.byteLength; z+=3) {
 				data[ioff++] = this.#imgdata.getUint8(z+2);
 				data[ioff++] = this.#imgdata.getUint8(z+1);
@@ -1012,7 +1050,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.6.2_60c22ed", // actually const // VERSION EYECATCHER
+version: "V6.6.4_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -1312,7 +1350,7 @@ getPix: function(x, y, w, view, typ, whitelvl) {
 		shiftr ++;
 	}
 	const dd = (typ === 5 || typ === 69) ? 240 : 0;
-	if (typ === 5 || typ === 6 || typ == 33) {
+	if (typ ===  5 || typ === 6 || typ == 33) {
 		/* film or stacked 35mm */
 		reds.push(((view.getUint8((y+0)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
 		reds.push(((view.getUint8((y+0)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
@@ -1335,10 +1373,10 @@ getPix: function(x, y, w, view, typ, whitelvl) {
 	}
 	else if (typ > 33) {
 		/* stacked mf */
-		reds.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
-		reds.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+1)*w3 + xx+0) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+1)*w3 + xx+3) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+3)*w3 + xx+0) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF) << 8))-dd)>>shiftr);
+		reds.push(((view.getUint8((y+3)*w3 + xx+3) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF) << 8))-dd)>>shiftr);
 	}
 	else if (typ > 1) {
 		/* mf */
@@ -1357,7 +1395,7 @@ getPix: function(x, y, w, view, typ, whitelvl) {
 	// median of red pixels
 	outrgb.push((reds[1] + reds[2]) / 2.0);
 	let greens = [];
-	if (typ === 5 || typ === 6 || typ == 33) {
+	if (typ === 6 || typ == 33 || typ === 5) {
 		/* film or stacked 35mm */
 		greens.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
 		greens.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
@@ -1442,10 +1480,10 @@ getPix: function(x, y, w, view, typ, whitelvl) {
 		blues.push((((view.getUint8((y+2)*w3 + xx+4)) +  ((view.getUint8((y+2)*w3 + xx+5) ) <<8))-dd)>>shiftr);
 	}
 	else if (typ > 33) {
-		blues.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+1)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+1)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+3)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
-		blues.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+3)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+0)*w3 + xx+2)<<4) +  ((view.getUint8((y+0)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+0)*w3 + xx+5)<<4) +  ((view.getUint8((y+0)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+2)*w3 + xx+2)<<4) +  ((view.getUint8((y+2)*w3 + xx+1) &0xF0) >> 4))-dd)>>shiftr);
+		blues.push((((view.getUint8((y+2)*w3 + xx+5)<<4) +  ((view.getUint8((y+2)*w3 + xx+4) &0xF0) >> 4))-dd)>>shiftr);
 	}
 	else if (typ > 1) {
 		blues.push(view.getUint8(y*w + x));
@@ -19112,6 +19150,28 @@ handleone(orientation, upd) {
 		let contents = evt.target.result;
 		if (contents.buffer) contents = contents.buffer;
 		let view = new DataView(contents);
+		/*if (typ0 === 5){
+			const ww = w + (w / 2);
+			for (let ll=0; ll<h; ll+=2){
+				for (let cc=0; cc<ww; cc++){
+					let b=view.getUint8(ww*ll + cc);
+					view.setUint8(ww*ll + cc, view.getUint8(ww*(ll+1) + cc));
+					view.setUint8(ww*(ll+1) + cc, b);
+				}
+			}
+		}
+		else if (typ0 === 6){
+			const ww = w + (w / 2);
+			for (let ll=0; ll<h; ll++){
+				for (let cc=0; cc<ww; cc+=3){
+					let r = view.getUint8(ww*ll+cc+2);
+					let s = view.getUint8(ww*ll+cc+1);
+					view.setUint8(ww*ll+cc+2, view.getUint8(ww*ll+cc));
+					view.setUint8(ww*ll+cc, r);
+					view.setUint8(ww*ll+cc+1, (((s >> 4) & 15)+ ((s & 15) << 4)));
+				}
+			}
+		}*/
 		let targbits = 8;
 		if (typ === 5 || typ === 6)
 			targbits = 12;
@@ -19502,7 +19562,15 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		ti.addEntry(277, 'SHORT', [ 1 ]); /* Samples per Pixel */
 		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config - chunky */
 		ti.addEntry(33421, 'SHORT', [ 2, 2 ]); /* CFA Repeat Pattern Dim */
-		ti.addEntry(33422, 'BYTE', ((typ0 > 1) && (typ0 < 5)) ? [ 2, 1, 1, 0 ] : [ 1, 0, 2, 1 ]); /* CFA Pattern dep. on MF/35mm*/
+		if (typ0 === 5){
+			ti.addEntry(33422, 'BYTE', [ 2, 1, 1, 0 ]);
+		}
+		else if (typ0 === 6){
+			ti.addEntry(33422, 'BYTE', [ 0, 1, 1, 2 ]);
+		}
+		else {
+			ti.addEntry(33422, 'BYTE', (typ0 > 1) ? [ 2, 1, 1, 0 ] : [ 1, 0, 2, 1 ]); /* CFA Pattern dep. on MF/35mm*/
+		}
 		this.writewrap(rawname.substring(0, rawname.length - 3) + 'dng', 'image/x-adobe-dng', 'process.converted' + ((this.checkdlfolder && !this.zip) ? 'checkdl' : ''), ti.getData(), f.name);
 	};
 	reader.onerror = (evt) => {
@@ -19818,7 +19886,7 @@ parseDng(f, onok, onerr) {
 	}
 	let sbci = ifd.findIndex((v) => v.t === 279);
 	let sboi = ifd.findIndex((v) => v.t === 273);
-	let datalen = 0, rawstripstart = 0, wl = 255, factc = 1, factd = 1, splitt = 0;
+	let datalen = 0, rawstripstart = 0, wl = 255, splitt = 0, swappl = 0, swappc = 0;
 	if (sbci !== -1 && sboi !== -1) {
 		datalen = ifd[sbci].val.reduce((a,b) => a+b, 0);
 		rawstripstart = ifd[sboi].val[0];
@@ -19832,33 +19900,23 @@ parseDng(f, onok, onerr) {
 	if (wli !== -1)
 		wl = ifd[wli].val[0];
 	let zz = globals.infos.findIndex(v => v.size === datalen);
-	if (-1 === zz) {
-		zz = globals.infos.findIndex(v => v.size === (datalen * 2) / 3);
-		if (this.fromintent !== 2) {
-			this.appmsg('Works only for originally created DNGs.', true);
-			return onerr(f.name);
+	let cfa = ifd.findIndex(v => v.t === 0x828e);
+	if (zz === -1 || cfa === -1) {
+		this.appmsg('Works only for originally created DNGs.', true);
+		return onerr(f.name);
+	}
+	if (globals.infos[zz].typ === 5) {
+		// check if old or new order
+		if (ifd[cfa].val[0] === 2){
+			/* lines swapped */
+			swappl = 1;
 		}
-		// 12 bit for 8?
-		else if (zz === -1) {
-			zz = globals.infos.findIndex(v => v.size === datalen / 2);
-			// 16 bit for 8?
-			if (zz === -1) {
-				zz = globals.infos.findIndex(v => v.size === (datalen * 3) / 4);
-				// 16 bit for 12 (film,MiMi)?
-				if (zz === -1) {
-					this.appmsg('Works only for originally created DNGs.', true);
-					return onerr(f.name);
-				}
-				else {
-					factc = 3; factd = 4;
-				}
-			}
-			else {
-				factc = 1; factd = 2;
-			}
-		}
-		else {
-			factc = 2; factd = 3;
+	}
+	if (globals.infos[zz].typ === 6) {
+		// check if old or new order
+		if (ifd[cfa].val[0] === 0){
+			/* columns swapped */
+			swappc = 1;
 		}
 	}
 	let fx = {
@@ -19866,9 +19924,7 @@ parseDng(f, onok, onerr) {
 		name: f.name.substring(0, f.name.length - 4) + '.raw',
 		size: datalen,
 		data: f.data.slice(rawstripstart, datalen + rawstripstart),
-		wl: wl,
-		factc: factc,
-		factd: factd
+		wl: wl
 	};
 	if (datalen === 30607488 && splitt) {
 		const v = new DataView(fx.data);
@@ -19888,9 +19944,31 @@ parseDng(f, onok, onerr) {
 	else if (-1 !== globals.twelvebitsizes.indexOf(datalen)) {
 		const v = new DataView(fx.data);
 		for (let k=0; k < datalen; k+=3) {
-			let i = v.getUint8(k);
-			v.setUint8(k, v.getUint8(k+2));
-			v.setUint8(k+2, i);
+			if (swappc) {
+				let v1 = v.getUint8(k) + ((v.getUint8(k+1) & 15) << 8);
+				let v2 = (v.getUint8(k+2) << 4) + ((v.getUint8(k+1) >> 4) & 15);
+				v.setUint8(k, ((v1 >> 4) & 255));
+				v.setUint8(k+1, ((v1 & 15) << 4) + ((v2 >> 8) & 15));
+				v.setUint8(k+2, (v2 & 255));
+			}
+			else {
+				let i = v.getUint8(k);
+				v.setUint8(k, v.getUint8(k+2));
+				v.setUint8(k+2, i);
+			}
+		}
+	}
+	if (swappl) {
+		const w = globals.infos[zz].w;
+		const h = globals.infos[zz].h;
+		const v = new DataView(fx.data);
+		const ww = w + (w / 2);
+		for (let ll=0; ll<h; ll+=2){
+			for (let cc=0; cc<ww; cc++){
+				let b=v.getUint8(ww*ll + cc);
+				v.setUint8(ww*ll + cc, v.getUint8(ww*(ll+1) + cc));
+				v.setUint8(ww*(ll+1) + cc, b);
+			}
 		}
 	}
 	fx.readAsArrayBuffer = (fy) => {
@@ -22345,35 +22423,30 @@ const mytexts =  { // actually const
 		error: {
 			de: '\u001b[31m\u001b[1mFEHLER:\u001b[0m ',
 			en: '\u001b[31m\u001b[1mERROR:\u001b[0m ',
-			fr: '\u001b[31m\u001b[1mERREUR:\u001b[0m ',
 			ja: '\u001b[31m\u001b[1mエラー：\u001b[0m ',
 			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
 		},
 		warning: {
 			de: '\u001b[31mWarnung:\u001b[0m ',
 			en: '\u001b[31mWarning:\u001b[0m ',
-			fr: '\u001b[31mAvertissement:\u001b[0m ',
 			ja: '\u001b[31m警告：\u001b[0m ',
 			htmlstyle: [ [ 'background-color','#ffdddd' ] ]
 		},
 		finished: {
 			de: '\u001b[32m\u001b[1mFertig!\u001b[0m ',
 			en: '\u001b[32m\u001b[1mFinished!\u001b[0m ',
-			fr: '\u001b[32m\u001b[1mFini!\u001b[0m ',
 			ja: '\u001b[32m\u001b[1m終了!\u001b[0m ',
 			htmlstyle: [ [ 'background-color','#ddffdd' ], [ 'font-weight', 'bold' ] ]
 		},
 		sorryerr: {
 			de: '\u001b[31m\u001b[1mENTSCHULDIGUNG! FEHLER:\u001b[0m ',
 			en: '\u001b[31m\u001b[1mSORRY! ERROR:\u001b[0m  ',
-			fr: '\u001b[31m\u001b[1mDÉSOLÉE! ERREUR:\u001b[0m ',
 			ja: '\u001b[31m\u001b[1m申し訳ございません! エラー：\u001b[0m  ',
 			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
 		},
 		sorry: {
 			de: '\u001b[31mENTSCHULDIGUNG!\u001b[0m ',
 			en: '\u001b[31mSORRY!\u001b[0m  ',
-			fr: '\u001b[31mDÉSOLÉE!\u001b[0m ',
 			ja: '\u001b[31m申し訳ございません!\u001b[0m  ',
 			htmlstyle: [ [ 'background-color','#ffdddd' ], [ 'font-weight', 'bold' ] ]
 		}
@@ -22387,7 +22460,6 @@ const mytexts =  { // actually const
 		title: {
 			de: 'ImB RAW nach DNG Konverter',
 			en: 'ImB RAW to DNG converter',
-			ru: 'Конвертер ImB RAW в DNG',
 			ja: 'ImB RAW を DNG に変換'
 		},
 	    backw: {
@@ -22399,7 +22471,6 @@ const mytexts =  { // actually const
 		help: {
 			de: '? Hilfe Doku',
 			en: '? Help Doc',
-			ru: '? Помощь Док',
 			ja: '? ヘルプ資料'
 		},
 		helplink: {
@@ -22410,13 +22481,11 @@ const mytexts =  { // actually const
 		generaladvicex: {
 			de: 'Daten werden nur im Browser verarbeitet, nicht im \'Internet\'.<br>Kann sein, dass der Browser fragt, ob Sie zulassen wollen, dass mehrere Dateien heruntergeladen werden.<br>Dateien, die nicht oder unbekannte RAW-Dateien sind, werden 1:1 kopiert.',
 			en: 'Data processing is entirely in the browser, not in \'the internet\'<br>Browser may ask you if you want to allow downloading multiple files.<br>Not or unrecognized RAW Files simply will be copied.',
-			ru: 'Данные обрабатываются только в браузере, а не в \'Интернете\'.<br>Браузер может спросить, хотите ли вы разрешить загрузку нескольких файлов.<br>Файлы, которые не являются или неизвестными файлами RAW, копируются 1:1.',
 			ja: 'データ処理は完全にブラウザ内で行われ、\'インターネット\'では行われません。<br>ブラウザにより複数のファイルのダウンロードを許可するかを尋ねることがあります。<br>RAW ファイルが存在しない、または認識されない場合は、単純にコピーされます。'
 		},
 		dropherex: {
 			de: 'Dateien von ImB hier ablegen: ',
 			en: 'Drop Files from ImB here: ',
-			ru: 'Храните файлы из ImB здесь: ',
 			ja: 'ここに ImB のファイルをドロップします。: '
 		},
 		selectrawx: {
@@ -22427,7 +22496,6 @@ const mytexts =  { // actually const
 		stillcounting: {
 			de: '... zähle ... ',
 			en: '... counting ... ',
-			ru: '... подсчет ...',
 			ja: '... カウント中 ... '
 		},
 		types: {
@@ -22449,7 +22517,6 @@ const mytexts =  { // actually const
 			notpic: {
 				de: 'MP4: ',
 				en: 'MP4: ',
-				fr: 'MP4: ',
 				ja: 'MP4: '
 			}
 		},
@@ -22486,7 +22553,6 @@ const mytexts =  { // actually const
 		log: {
 			de: 'Protokoll-Ausgabe:',
 			en: 'Message Log:',
-			fr: 'Journal des messages',
 			ja: 'メッセージ ログ： '
 		},
 		selected: {
@@ -22611,13 +22677,11 @@ const mytexts =  { // actually const
 		strangename: {
 			de: 'Komischer Dateiname: $$0',
 			en: 'Strange file name: $$0',
-			fr: 'Nom de fiche inhabituel: $$0',
 			ja: '無効なファイル名： $$0'
 		},
 		invaltime: {
 			de: 'Ungültiger Zeitstempel: $$0',
 			en: 'Invalid timestamp: $$0',
-			fr: 'Horodatage invalide: $$0',
 			ja: '無効なタイムスタンプ： $$0'
 		},
 	},
@@ -22660,7 +22724,6 @@ const mytexts =  { // actually const
 		notraw: {
 			de: 'Durchleitung weil nicht raw: $$0',
 			en: 'Passing through as not raw: $$0',
-			fr: 'Passage comme non RAW: $$0',
 			ja: 'RAW ではないのでスルー： $$0'
 		},
 		selectedn: {
@@ -22691,7 +22754,6 @@ const mytexts =  { // actually const
 		processing: {
 			de: 'Verarbeite Datei: $$0 ',
 			en: 'Processing file: $$0',
-			fr: 'Je suis en train de traiter le fiche $$0',
 			ja: '処理中のファイル： $$0'
 		},
 		assuming: {
@@ -22702,7 +22764,6 @@ const mytexts =  { // actually const
 		datetime: {
 			de: 'Datum/Zeit: $$0',
 			en: 'Date/Time: $$0 ',
-			fr: 'Date/heure: $$0',
 			ja: '日付/時刻： $$0 '
 		},
 		orientation: {
@@ -22744,7 +22805,6 @@ const mytexts =  { // actually const
 			remaining: {
 				de: 'Verbleibende $$0 Dateien auf Anforderung übersprungen',
 				en: 'Skipping remaining $$0 images at your request',
-				fr: '$$0 fiches restants ignorés sur demande',
 				ja: 'リクエストに応じてスキップ：  $$0'
 			},
 			de: 'Auf Anforderung übersprungen: $$0',
