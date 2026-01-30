@@ -27052,7 +27052,7 @@ function init() {
 		imbc.xlateall();
 		imbc.checkimb();
 		if ("launchQueue" in window) {
-			if (imbc.discknown && imbc.disconnected) {
+			if (imbc.disconnected) {
 				launchQueue.setConsumer((launchpara) => {
 					imbc.handlePwaLaunch(launchpara);
 				});
