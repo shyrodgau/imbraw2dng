@@ -43,11 +43,11 @@ If you use **android**, try the [Android app](https://shyrodgau.github.io/imbraw
 
 If you prefer using it in the **browser** on your PC or smartphone, there are the choices (All data will stay inside your browser!):
 
-- use the [**&#x261e;**`IMBAPP.HTM`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) directly from the internet or copy it anywhere you like on your harddisk or memory.      
-Some browsers (even on mobiles) will allow you to install it as PortableWebApp for easy offline use. It might also be called or hidden behind "Add to desktop".   
+- use the [**&#x261e;**`IMBAPP.HTM`](https://shyrodgau.github.io/imbraw2dng/imbapp.htm) directly from the internet or copy it anywhere you like on your harddisk or memory.
+Some browsers (even on mobiles) will allow you to install it as PortableWebApp for easy offline use. It might also be called or hidden behind "Add to desktop".
 In this case, you need to transfer the files from ImB or access the MicroSD via USB, adapter, original ImB App or whatsoever.
 
-- <a id="browsing-on-theimback" name="browsing-on-the-imback">  </a>when you copy that file directly onto the MicroSD into the `IMBACK` folder ([How do I do that?](#how-do-i-copy-html-files-to-the-microsd)), you can directly combine download and conversion to DNG    
+- <a id="browsing-on-theimback" name="browsing-on-the-imback">  </a>when you copy that file directly onto the MicroSD into the `IMBACK` folder ([How do I do that?](#how-do-i-copy-html-files-to-the-microsd)), you can directly combine download and conversion to DNG
 (videos and JPG can also be downloaded, also allows to set the clock time, delete files, record video or take pictures!)    
 `http://192.168.1.254/IMBACK/IMBAPP.HTM`    
 The device where you open the page needs to be in the ImB Wifi.
