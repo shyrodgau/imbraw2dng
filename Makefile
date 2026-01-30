@@ -2,7 +2,20 @@
 all:	README.html README_de.html README_ja.html README_MiMi.html README_MiMi_de.html README_MiMi_ja.html LICENSE.html LICENSE_noapp.html imbappzzz.htm
 
 clean:
-	rm -f README.html README_de.html README_ja.html README_MiMi.html README_MiMi_de.html README_MiMi_ja.html LICENSE.html LICENSE_noapp.html imbappzzz.htm
+	rm -f README.html README_de.html README_ja.html README_MiMi.html README_MiMi_de.html README_MiMi_ja.html LICENSE.html \
+		LICENSE_noapp.html imbappzzz.htm README_MiMi_de.md README.md README_de.md README_MiMi.md
+
+README_MiMi_de.md:	README_base_de.md Makefile helpstuff/unifyreadme.sh
+	helpstuff/unifyreadme.sh
+
+README_de.md:	README_base_de.md Makefile helpstuff/unifyreadme.sh
+	helpstuff/unifyreadme.sh
+
+README_MiMi.md:	README_base.md Makefile helpstuff/unifyreadme.sh
+	helpstuff/unifyreadme.sh
+
+README.md:	README_base.md Makefile helpstuff/unifyreadme.sh
+	helpstuff/unifyreadme.sh
 
 README.html:	README.md Makefile
 	pandoc -f markdown -t html -o README.html README.md
