@@ -7,8 +7,6 @@ Das meiste ist freie Software ([0-Klausel-BSD-Lizenz](LICENSE.txt)) ohne kommerz
 or [IN ENGLISH&#x1f1ec;&#x1f1e7;](https://shyrodgau.github.io/imbraw2dng/README_MiMi)  
  [日本語&#x1f1ef;&#x1f1f5;](https://shyrodgau.github.io/imbraw2dng/README_MiMi_ja)   
  [**&rarr;35/MF/Film&larr;**](https://shyrodgau.github.io/imbraw2dng/README_de)
-
-
  
 ## Hier gibts:
 
@@ -45,6 +43,7 @@ Wenn jemand **Android** benutzt, probiert die [Android app](https://shyrodgau.gi
 Wenn es jemand auf dem PC oder Smartphone im **Browser** verwenden möchte, folgende Möglichkeiten (Alle Daten bleiben im Browser!):
 
 - die Datei [**&#x261e;**`imbapp_de.htm`](https://shyrodgau.github.io/imbraw2dng/imbapp_de.htm) direkt im Internet benutzen oder auf die Festplatte oder sonstwohin kopieren.   
+
 Manche Browser (sogar auf Handys) bieten an, es als PortableWebApp zu installieren (leicht offline zu finden). Das könnte sich auch unter "Zum Desktop dazufügen" o.ä. verbergen.
 In diesem Fall müssen die Dateien von ImB per USB, Micro SD Adapter, original App oder sonstwie geholt werden.
 
@@ -123,12 +122,12 @@ Falls jemals das Original-RAW wieder benötigt wird (z.B. um es mit einer neuere
 
 Nimm deine Lieblingssoftware dafür, z.B. darktable, lightroom, ufraw, rawtherapee etc.
 
+
 Bitte **nicht** erwarten, dass die Bilder direkt okay sind.
 Die Farben mal richtig kriegen und dann den Rest. *Wenn jemand Erfahrung mit dem DNG-Dateiformat hat oder 
 jemanden kennt, der helfen könnte - bitte Kontakt aufnehmen* z.B. über die 
 [Discussion on pixls.us](https://discuss.pixls.us/t/converting-plain-raw-from-imback-to-dng/) für Darktable/RawSpeed oder 
 I'm Back digital back [Developers Group on Facebook](https://www.facebook.com/groups/2812057398929350).    
-
 
 
 ## Internationalisierung
@@ -180,7 +179,8 @@ Bezüglich Konfigurierbarkeit siehe [imbraw2dng.json](imbraw2dng.json).
 
 ### <a id="metaexif" name="metaexif">  </a>Metadaten, EXIF
 
-Die EXIF Daten in den JPEG Bildern von ImB sind bei MiMi nützlich. Wenn sie in den DNG Dateien drin gewünscht werden, ist das möglich. Zuerst das JPEG und dann das passende RAW verarbeiten (im gleichen Lauf).
+Die EXIF Daten in den JPEG Bildern von ImB sind bei MiMi nützlich. Wenn sie in den DNG Dateien drin gewünscht werden, ist das möglich.    
+Zuerst das JPEG und dann das passende RAW verarbeiten (im gleichen Lauf).
 "Passend" ist definiert als: Zeitunterschied < 5 sec. und Unterschied des Zähler (letzter Teil des Dateinamens) &lt;= eins. Muss nicht direkt aufeinanderfolgend sein, erst alle JPEGs und dann die RAWs sollte tun.
 
 Es können für alle Bilder Metadaten Autor/Ersteller und Copyright sowie pro Bild eine Beschreibung (&#x270e;&#xfe0e;) direkt gesetzt werden.

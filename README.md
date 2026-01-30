@@ -7,7 +7,7 @@ Most of this is free software ([0-clause BSD-License](LICENSE.txt)) and not comm
 oder [AUF DEUTSCH&#x1f1e9;&#x1f1ea;](https://shyrodgau.github.io/imbraw2dng/README_de)  
  [日本語&#x1f1ef;&#x1f1f5;](https://shyrodgau.github.io/imbraw2dng/README_ja)    
  [**&rarr;MiMi&larr;**](https://shyrodgau.github.io/imbraw2dng/README_MiMi)
- 
+
 ## What to find here
 
 [Get started](#getstarted) - [Usage](#usage) - [Processing the DNG](#processingdng) - [Metadata/Exif](#metaexif) - [Credits](#credits) - and more
@@ -124,18 +124,16 @@ Take your time to adjust the colours and then the rest. *If anyone is experience
 e.g. on [Discussion on pixls.us](https://discuss.pixls.us/t/converting-plain-raw-from-imback-to-dng/) for Darktable/RawSpeed or 
 I'm Back digital back [Developers Group on Facebook](https://www.facebook.com/groups/2812057398929350).
 
-
 If a red highlighted spot is in the center of the image (ImB 35mm/MF), a manual retouche after the processing is required, or use the <a href="https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_redcircle.png">this darktable setting</a>, 
 placing and sizing a circle shape manually around the area. To avoid the red spot from the start, use a bigger aperture (smaller f-number) or combine the standard PDLC matte with a Fresnel screen from I'm Back 
 or a Canon EG-xxx screen.
-
 <!-- ![darktable sample agains red circle](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_redcircle.png "darktable sample agains red circle") -->
 
 
 ## Internationalization
 
 The current supported langauges are english (EN), japanese (JA) and german (DE). If you save the imbraw2dng.js file with a name change to `imbraw2dng_XX.js` where `XX` 
-is the language shortcut, it will run directly in that language. **If you want to contribute to translating, translate what you are reading now or look 
+is the language shortcut, it will run directly in that language. **If you want to contribute to translating, look 
 [here](https://shyrodgau.github.io/imbraw2dng/translations.xls) and get in contact!**
 
 E.g. [german version](https://shyrodgau.github.io/imbraw2dng/imbapp_de.htm), [japanese version](https://shyrodgau.github.io/imbraw2dng/imbapp_ja.htm) (same files, different names). 

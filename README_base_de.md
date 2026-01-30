@@ -1,12 +1,24 @@
 <!-- SPDX-License-Identifier: 0BSD -->
 <!-- pandoc -f markdown -t html -o README_de.html README_de.md -->
+# # # NOT MIMI
 # imbraw2dng - Konvertierung von RAW-Dateien von [I'mBack<sup>&reg;</sup>](https://imback.eu) 35/MF/Film nach DNG
+# # # END NOT MIMI
+# # # ONLY MIMI
+# imbraw2dng - Konvertierung von RAW-Dateien von [I'mBack<sup>&reg;</sup>](https://imback.eu) MiMi nach DNG
+# # # END ONLY MIMI
 
 Das meiste ist freie Software ([0-Klausel-BSD-Lizenz](LICENSE.txt)) ohne kommerzielle Unterstützung.
 
+# # # NOT MIMI
 or [IN ENGLISH&#x1f1ec;&#x1f1e7;](https://shyrodgau.github.io/imbraw2dng/README)  
  [日本語&#x1f1ef;&#x1f1f5;](https://shyrodgau.github.io/imbraw2dng/README_ja)   
  [**&rarr;MiMi&larr;**](https://shyrodgau.github.io/imbraw2dng/README_MiMi_de)
+# # # END NOT MIMI
+# # # ONLY MIMI
+or [IN ENGLISH&#x1f1ec;&#x1f1e7;](https://shyrodgau.github.io/imbraw2dng/README_MiMi)  
+ [日本語&#x1f1ef;&#x1f1f5;](https://shyrodgau.github.io/imbraw2dng/README_MiMi_ja)   
+ [**&rarr;35/MF/Film&larr;**](https://shyrodgau.github.io/imbraw2dng/README_de)
+# # # END ONLY MIMI
  
 ## Hier gibts:
 
@@ -42,14 +54,24 @@ Wenn jemand **Android** benutzt, probiert die [Android app](https://shyrodgau.gi
 
 Wenn es jemand auf dem PC oder Smartphone im **Browser** verwenden möchte, folgende Möglichkeiten (Alle Daten bleiben im Browser!):
 
+# # # NOT MIMI
 - die Datei [**&#x261e;**`imbapp_de.htm`](https://shyrodgau.github.io/imbraw2dng/imbapp_de.htm) direkt im Internet benutzen oder auf die Festplatte oder sonstwohin kopieren.
+# # # END NOT MIMI
+# # # ONLY MIMI
+- die Datei [**&#x261e;**`imbapp_de.htm`](https://shyrodgau.github.io/imbraw2dng/imbapp_de.htm) direkt im Internet benutzen oder auf die Festplatte oder sonstwohin kopieren.   
+# # # END ONLY MIMI
 
 Manche Browser (sogar auf Handys) bieten an, es als PortableWebApp zu installieren (leicht offline zu finden). Das könnte sich auch unter "Zum Desktop dazufügen" o.ä. verbergen.
 In diesem Fall müssen die Dateien von ImB per USB, Micro SD Adapter, original App oder sonstwie geholt werden.
 
 - <a id="browsing-on-the-imback" name="browsing-on-the-imback">  </a>wenn man diese Datei auf die MicroSD vom ImB schiebt, ([wie macht man das?](#wie-kopiere-ich-html-dateien-auf-die-microsd)), kann Holen und Konvertieren nach DNG zusammengefasst werden
 (JPG und Filme können auch geholt werden, kann auch die Zeit einstellen, Dateien löschen und Bilder und Video aufnehmen!).   
+# # # NOT MIMI
 `http://192.168.1.254/IMBACK/IMBAPP.HTM`    
+# # # END NOT MIMI
+# # # ONLY MIMI
+`http://192.168.1.254/NOVATEK/IMBAPP.HTM`    
+# # # END ONLY MIMI
 Das Gerät, auf dem die Seite geöffnet wird, muss im ImB WLAN sein.
 
 
@@ -66,13 +88,24 @@ Die [echte App](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk/imbapp
 
 #### Mit einem Micro SD Kartenleser/Adapter oder USB-Kabel
 Die Micro SD aus der ImB entnehmen und in (einen Adapter am) Computer stecken, oder Computer und ImB via USB verbinden und auf ImB `Massenspeicher` wählen.    
+# # # NOT MIMI
 Inhalt der Micro SD/USB-Laufwerk öffnen, könnte `VOLUME1`  oder `0000-0001` heißen und müsste einen Ordner namens `IMBACK` oder `imback` enthalten.  
 Mit dem Dateiexplorer oder Betriebssystem die [heruntergeladene Datei `imbapp.htm`](https://raw.githubusercontent.com/shyrodgau/imbraw2dng/master/imbapp.htm) in diesen `IMBACK` Ordner kopieren.    
+# # # END NOT MIMI
+# # # ONLY MIMI
+Inhalt der Micro SD/USB-Laufwerk öffnen, könnte `VOLUME1`  oder `0000-0001` heißen und müsste einen Ordner namens `NOVATEK` oder `novatek` enthalten.  
+Mit dem Dateiexplorer oder Betriebssystem die [heruntergeladene Datei `imbapp.htm`](https://raw.githubusercontent.com/shyrodgau/imbraw2dng/master/imbapp.htm) in diesen `NOVATEK` Ordner kopieren.    
+# # # END ONLY MIMI
 Micro SD aus dem Computer auswerfen und wieder ins ImB stecken - fertig.    
 
 #### Per Netzwerk
 Smartphone oder Computer in das ImB WLAN stecken.    
+# # # NOT MIMI
 Neues Browserfenster (oder Registerkarte) verwenden, um auf  [http://192.168.1.254/IMBACK/](http://192.168.1.254/IMBACK/) zu navigieren.    
+# # # END NOT MIMI
+# # # ONLY MIMI
+Neues Browserfenster (oder Registerkarte) verwenden, um auf  [http://192.168.1.254/NOVATEK/](http://192.168.1.254/NOVATEK/) zu navigieren.    
+# # # END ONLY MIMI
 `Datei auswählen` klicken und die gerade [heruntergeladene `imbapp.htm`](https://raw.githubusercontent.com/shyrodgau/imbraw2dng/master/imbapp.htm) auswählen. Auf `upload file` (exakter Wortlaut muss geprüft werden) - fertig!    
 
 ## <a id="usage" name="usage"> </a>Benutzung
@@ -129,9 +162,11 @@ jemanden kennt, der helfen könnte - bitte Kontakt aufnehmen* z.B. über die
 [Discussion on pixls.us](https://discuss.pixls.us/t/converting-plain-raw-from-imback-to-dng/) für Darktable/RawSpeed oder 
 I'm Back digital back [Developers Group on Facebook](https://www.facebook.com/groups/2812057398929350).    
 
+# # # NOT MIMI
 Wenn in der Bildmitte ein rot hervorstechender Punkt ist (ImB 35mm/MF), muss eine manuelle Retusche erfolgen, oder im darktable <a href="https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_redcircle.png">diese Einstellung</a> 
 verwenden und dann einen Kreis manuell darumherum platziern. Um den roten Punkt von vornherein zu vermeiden, eine größere Blende (kleine Blendenzahl) nehmen oder die normale PDLC Mattscheibe mit 
 einer Fresnel-Scheibe von I'm Back oder einer Canon EG-xxx Mattscheibe verbinden.
+# # # END NOT MIMI
 
 ## Internationalisierung
 
@@ -182,7 +217,12 @@ Bezüglich Konfigurierbarkeit siehe [imbraw2dng.json](imbraw2dng.json).
 
 ### <a id="metaexif" name="metaexif">  </a>Metadaten, EXIF
 
+# # # NOT MIMI
 Die EXIF Daten in den JPEG Bildern von ImB sind nur eingeschränkt nützlich (außer MiMi!), da sie die Perspektive vom ImB Sensor abbilden. Aber wenn sie in den DNG Dateien drin gewünscht werden, ist das möglich. 
+# # # END NOT MIMI
+# # # ONLY MIMI
+Die EXIF Daten in den JPEG Bildern von ImB sind bei MiMi nützlich. Wenn sie in den DNG Dateien drin gewünscht werden, ist das möglich.    
+# # # END ONLY MIMI
 Zuerst das JPEG und dann das passende RAW verarbeiten (im gleichen Lauf).
 "Passend" ist definiert als: Zeitunterschied < 5 sec. und Unterschied des Zähler (letzter Teil des Dateinamens) &lt;= eins. Muss nicht direkt aufeinanderfolgend sein, erst alle JPEGs und dann die RAWs sollte tun.
 

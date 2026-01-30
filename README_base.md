@@ -1,12 +1,24 @@
 <!-- SPDX-License-Identifier: 0BSD -->
 <!-- pandoc -f markdown -t html -o README.html README.md -->
+# # # NOT MIMI
+# imbraw2dng - Convert RAW files from [I'mBack<sup>&reg;</sup>](https://imback.eu) 35/MF/Film into DNG
+# # # END NOT MIMI
+# # # ONLY MIMI
 # imbraw2dng - Convert RAW files from [I'mBack<sup>&reg;</sup>](https://imback.eu) MiMi into DNG
+# # # END ONLY MIMI
 
 Most of this is free software ([0-clause BSD-License](LICENSE.txt)) and not commercially supported.
 
+# # # NOT MIMI
+oder [AUF DEUTSCH&#x1f1e9;&#x1f1ea;](https://shyrodgau.github.io/imbraw2dng/README_de)  
+ [日本語&#x1f1ef;&#x1f1f5;](https://shyrodgau.github.io/imbraw2dng/README_ja)    
+ [**&rarr;MiMi&larr;**](https://shyrodgau.github.io/imbraw2dng/README_MiMi)
+# # # END NOT MIMI
+# # # ONLY MIMI
 oder [AUF DEUTSCH&#x1f1e9;&#x1f1ea;](https://shyrodgau.github.io/imbraw2dng/README_MiMi_de)  
  [日本語&#x1f1ef;&#x1f1f5;](https://shyrodgau.github.io/imbraw2dng/README_MiMi_ja)    
  [**&rarr;35/MF/Film&larr;**](https://shyrodgau.github.io/imbraw2dng/README)
+# # # END ONLY MIMI
 
 ## What to find here
 
@@ -47,9 +59,16 @@ If you prefer using it in the **browser** on your PC or smartphone, there are th
 Some browsers (even on mobiles) will allow you to install it as PortableWebApp for easy offline use. It might also be called or hidden behind "Add to desktop".
 In this case, you need to transfer the files from ImB or access the MicroSD via USB, adapter, original ImB App or whatsoever.
 
+# # # NOT MIMI
+- <a id="browsing-on-theimback" name="browsing-on-the-imback">  </a>when you copy that file directly onto the MicroSD into the `IMBACK` folder ([How do I do that?](#how-do-i-copy-html-files-to-the-microsd)), you can directly combine download and conversion to DNG
+(videos and JPG can also be downloaded, also allows to set the clock time, delete files, record video or take pictures!)    
+`http://192.168.1.254/IMBACK/IMBAPP.HTM`    
+# # # END NOT MIMI
+# # # ONLY MIMI
 - <a id="browsing-on-theimback" name="browsing-on-the-imback">  </a>when you copy that file directly onto the MicroSD into the `NOVATEK` folder ([How do I do that?](#how-do-i-copy-html-files-to-the-microsd)), you can directly combine download and conversion to DNG
 (videos and JPG can also be downloaded, also allows to set the clock time, delete files, record video or take pictures!)    
 `http://192.168.1.254/NOVATEK/IMBAPP.HTM`   
+# # # END ONLY MIMI
 The device where you open the page needs to be in the ImB Wifi.
 
 If you like to use the **command line**, you can use the [imbraw2dng.js](https://shyrodgau.github.io/imbraw2dng/imbraw2dng.js) with node.js. It can also access the ImB if you are in the device Wifi. 
@@ -66,13 +85,24 @@ Install the [real app](https://shyrodgau.github.io/imbraw2dng/cordova/imbapp/apk
 
 #### Using a Micro SD reader/adapter or USB cable
 Take the Micro SD from your back and insert it into Micro SD Adapter on your computer or phone, or connect ImB to your PC via USB and select `Mass Storage` on ImB.    
+# # # NOT MIMI
+Open the contents of the Micro SD/USB drive, it might be named `VOLUME1` or `0000-0001` and you should see a folder named `imback` or `IMBACK`.    
+Use your operating system/file explorer to copy the file [`imbapp.htm` that you downloaded](https://raw.githubusercontent.com/shyrodgau/imbraw2dng/master/imbapp.htm) into the `imback` or `IMBACK` folder.      
+# # # END NOT MIMI
+# # # ONLY MIMI
 Open the contents of the Micro SD/USB drive, it might be named `VOLUME1` or `0000-0001` and you should see a folder named `novatek` or `NOVATEK`.    
 Use your operating system/file explorer to copy the file [`imbapp.htm` that you downloaded](https://raw.githubusercontent.com/shyrodgau/imbraw2dng/master/imbapp.htm) into the `novatek` or `NOVATEK` folder.      
+# # # END ONLY MIMI
 Eject the Micro SD from computer or phone and put back into your device - ready!
 
 #### Via network
 Put your Phone or PC into the ImB Wifi.    
+# # # NOT MIMI
+Use a new browser window or tab, navigate to [http://192.168.1.254/IMBACK/](http://192.168.1.254/IMBACK/).    
+# # # END NOT MIMI
+# # # ONLY MIMI
 Use a new browser window or tab, navigate to [http://192.168.1.254/NOVATEK/](http://192.168.1.254/NOVATEK/).    
+# # # END ONLY MIMI
 Click on `Choose file` and select the [`imbapp.htm` you just downloaded](https://raw.githubusercontent.com/shyrodgau/imbraw2dng/master/imbapp.htm). Click `upload file` (wordings need to be checked) - ready!    
 
 ## <a id="usage" name="usage"> </a>Usage
@@ -124,6 +154,11 @@ Take your time to adjust the colours and then the rest. *If anyone is experience
 e.g. on [Discussion on pixls.us](https://discuss.pixls.us/t/converting-plain-raw-from-imback-to-dng/) for Darktable/RawSpeed or 
 I'm Back digital back [Developers Group on Facebook](https://www.facebook.com/groups/2812057398929350).
 
+# # # NOT MIMI
+If a red highlighted spot is in the center of the image (ImB 35mm/MF), a manual retouche after the processing is required, or use the <a href="https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_redcircle.png">this darktable setting</a>, 
+placing and sizing a circle shape manually around the area. To avoid the red spot from the start, use a bigger aperture (smaller f-number) or combine the standard PDLC matte with a Fresnel screen from I'm Back 
+or a Canon EG-xxx screen.
+# # # END NOT MIMI
 <!-- ![darktable sample agains red circle](https://shyrodgau.github.io/imbraw2dng/helpstuff/darktable_redcircle.png "darktable sample agains red circle") -->
 
 
@@ -173,7 +208,13 @@ About configuration see [imbraw2dng.json](imbraw2dng.json).
 
 ### <a id="metadexif" name="metaexif">  </a>Metadata, EXIF
 
+# # # NOT MIMI
+The EXIF data in the JPEG files from ImB is of limited use (excl. MiMi!), because it reflects the perspective of the ImB optics and sensor and not of the actual camera. But if you would like to add it to your DNG files, this is possible. 
+Process the JPEG first and then the corresponding RAW (in same run).
+# # # END NOT MIMI
+# # # ONLY MIMI
 The EXIF data in the JPEG files from ImB is useful for MiMi. If you would like to add it to your DNG files, this is possible. Process the JPEG first and then the corresponding RAW (in same run).
+# # # END ONLY MIMI
 Corresponding is defined as: time difference < 5 sec and counter (last part of filename) difference &lt;= 1. It is not neccessary to be directly consecutive, first all JPEGs and then the RAWs should do it.
 
 Author/creator and copyright metadata can be set globally, and per-image a description (&#x270e;&#xfe0e;) can be set.
