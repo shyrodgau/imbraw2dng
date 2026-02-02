@@ -26,7 +26,7 @@ auch in verschiedenen Sprachen als `imbraw2dng_XX.html` (siehe [Internationalisi
 
 - Kalibrierte [Kameraprofile zum Herunterladen](https://shyrodgau.github.io/imbraw2dng/profiles/README) für ImB
 
-- [**&#x261e;**`imbdng2raw.html`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html), [**&#x261e;**`imbdng2raw.js`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js)
+- [**&#x261e;**`imbdng2raw.js`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js)
 von DNG nach RAW zurück konvertieren, nur für originale hiermit nach DNG konvertierte Dateien
  
 Es sind keine "Schwarz-Weiß RAW"-Dateien, sondern die echten Roh-Sensordaten mit der Farbfilterung darauf (leider aber nur 8 bit bei 35mm und MF, 12 bit bei Film und MiMi). 
@@ -42,8 +42,7 @@ Wenn jemand **Android** benutzt, probiert die [Android app](https://shyrodgau.gi
 
 Wenn es jemand auf dem PC oder Smartphone im **Browser** verwenden möchte, folgende Möglichkeiten (Alle Daten bleiben im Browser!):
 
-- die Datei [**&#x261e;**`imbapp_de.htm`](https://shyrodgau.github.io/imbraw2dng/imbapp_de.htm) direkt im Internet benutzen oder auf die Festplatte oder sonstwohin kopieren.
-
+- die Datei [**&#x261e;**`imbapp_de.htm`](https://shyrodgau.github.io/imbraw2dng/imbapp_de.htm) direkt im Internet benutzen oder auf die Festplatte oder sonstwohin kopieren.   
 Manche Browser (sogar auf Handys) bieten an, es als PortableWebApp zu installieren (leicht offline zu finden). Das könnte sich auch unter "Zum Desktop dazufügen" o.ä. verbergen.
 In diesem Fall müssen die Dateien von ImB per USB, Micro SD Adapter, original App oder sonstwie geholt werden.
 
@@ -202,7 +201,7 @@ Um mit der App die ursprüngliche RAW Datei aus einer original konvertierten DNG
 
 Oder die normale imbapp Seite nehmen und das entsprechende Häkchen setzen.
 
-Oder [imbdng2raw.html](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html) oder [imbdng2raw.js](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js) nehmen.
+Oder [imbdng2raw.js](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js) nehmen.
 
 
 ### iPhone

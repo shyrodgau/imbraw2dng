@@ -26,7 +26,7 @@ also in different languages as `imbraw2dng_XX.html` (see [Internationalization](
 
 - Calibrated [Camera profiles for download](https://shyrodgau.github.io/imbraw2dng/profiles/README) for ImB
 
-- [**&#x261e;**`imbdng2raw.html`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html), [**&#x261e;**`imbdng2raw.js`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js) backward conversion from DNG to RAW, only for original DNGs converted using these tools
+- [**&#x261e;**`imbdng2raw.js`](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js) backward conversion from DNG to RAW, only for original DNGs converted using these tools
 
 
 The ImB RAWs are not really "B&W RAW" but actually the RAW sensor data that also contains the colour filtering (unfortunately only 8 bit deep for 35mm and MF, but 12 bit for Film and MiMi). 
@@ -192,7 +192,7 @@ If you want back the original raw (e.g. to do the conversion again) for an origi
 
 Or use the normal imbapp page and check the corresponding checkbox.
 
-Or use [imbdng2raw.html](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.html) or [imbdng2raw.js](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js)
+Or use [imbdng2raw.js](https://shyrodgau.github.io/imbraw2dng/imbdng2raw.js)
 
 ### iPhone
 
