@@ -26,7 +26,6 @@ xdevstr=${devstr:$devst:$restlen}
 sed -i.bak \
 	-e 's!\(version *[=:] *\)".............."\(.*\)// VERSION EYECATCHER!\1"V'$va'.'$vb'.'$vc'_'$xdevstr'"\2// VERSION EYECATCHER!g' \
 	~/prog/imbraw2dng/github/imbraw2dng.js \
-	~/prog/imbraw2dng/github/imbdng2raw.html \
 	~/prog/imbraw2dng/github/imbapp.htm \
 	~/prog/imbraw2dng/github/imbappx.htm \
 	~/prog/imbraw2dng/github/cordova/imbapp/imbapp.html 
