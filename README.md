@@ -248,6 +248,8 @@ You are welcome to browse the code, help translation or optimizing!
 
 18000000 B = 4000 x 3000 (12bpp) = MiMi
 
+14634048 B = 3608 x 2704 (12bpp) = MiMi
+
 30607488 B = 5216 x 3912 (12bpp) = Film
 
 15335424 B = 4608 x 3328 = 35mm
