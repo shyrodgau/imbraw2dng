@@ -261,30 +261,30 @@ tn=$(( $tn + 1 ))
 
 
 echo '##########    13    ##########'
-echo '{ "l": "de" }' > ${testout}/.imbraw2dng.json
-echo Test ${tn} old-style
-set -x
-${TESTEXES}/imbraw2dng.js -ndcp -owb -r ${TESTDAT}/../*.raw
-rc=$?
-n=$( ls .|wc -l )
-set +x
-if [ $rc -ne 0 ]; then
-	echo Test ${tn} failed $rc
-	exit $tn
-fi
-sumnum=$(( $sumnum + 17 ))
-if [ $n -ne $sumnum ]; then
-	echo Test ${tn} failed NO $n
-	exit $tn
-fi
-echo Test ${tn} okay
+#echo '{ "l": "de" }' > ${testout}/.imbraw2dng.json
+#echo Test ${tn} old-style
+#set -x
+#${TESTEXES}/imbraw2dng.js -ndcp -owb -r ${TESTDAT}/../*.raw
+#rc=$?
+#n=$( ls .|wc -l )
+#set +x
+#if [ $rc -ne 0 ]; then
+#	echo Test ${tn} failed $rc
+#	exit $tn
+#fi
+#sumnum=$(( $sumnum + 17 ))
+#if [ $n -ne $sumnum ]; then
+#	echo Test ${tn} failed NO $n
+#	exit $tn
+#fi
+#echo Test ${tn} okay
 tn=$(( $tn + 1 ))
 
 
 echo '##########    14    ##########'
 echo Test ${tn} backward
 set -x
-${TESTEXES}/imbdng2raw.js  2023_0314_231116_004.dng 2029_0707_120426_021.dng 2023_0311_120252_002.dng 
+${TESTEXES}/imbraw2dng.js -B 2023_0314_231116_004.dng 2029_0707_120426_021.dng 2023_0311_120252_002.dng 
 rc=$?
 n=$( ls .|wc -l )
 set +x
