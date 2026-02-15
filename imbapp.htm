@@ -950,16 +950,12 @@ function custcmdi(struc, c, t, restargs, cb, results) {
 <script type="text/js-previewworker" language="javascript">
 "use strict;"
 /* * * ************************************* preview WORKER *************************************** */
-let constwb = false;
 /* WORKER onmessage */
 onmessage = (e) => {
 	//console.log('P WORKER received ' + e.data.cmd + ' ' + JSON.stringify(e));
 	switch (e.data.cmd) {
 	case 'setdbg':
 		globals.debugflag = true;
-		return;
-	case 'constwb':
-		constwb = e.data.constwb;
 		return;
 	case 'readjpg':
 		readjpg({ n: e.data.n, cmd: e.data.cmd, ori: e.data.o, siz: e.data.size, ci: e.data.cid}, e.data.f);
@@ -1002,7 +998,7 @@ function buildpreview(struc, f, size, orientation) {
 		let contents = evt.target.result;
 		if (contents.buffer) contents = contents.buffer;
 		const view = new DataView(contents);
-		const wb = constwb ? [ 6, 10, 1, 1, 6, 10 ] : globals.getwb(view, zz, whitelvl);
+		const wb = globals.getwb(view, zz, whitelvl);
 		struc.cache.wb = wb;
 		//console.log(JSON.stringify(wb));
 		let outpix = globals.buildpvarray(view, size, typ, w, h, orientation, false, wb, whitelvl);
@@ -1043,7 +1039,7 @@ function buildpreviewcache(struc, f, size, orientation) {
 
 	const contents = f.d;
 	const view = new DataView(contents);
-	const wb = constwb ? [ 6, 10, 1, 1, 6, 10 ] : (f.wb ? f.wb : globals.getwb(view, zz, whitelvl));
+	const wb = (f.wb ? f.wb : globals.getwb(view, zz, whitelvl));
 	//console.log(JSON.stringify(wb));
 	let outpix = globals.buildpvarray(view, size, typ, w, h, orientation, false, wb, whitelvl);
 	// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
@@ -2311,12 +2307,11 @@ class ImBCBase {
 /* Indentation out */
 imbcb = false;
 static progname = 'whoami';
+exitcode = 0;
 
 // ImBCBase: generic data
 mylang = 'en';
 withpreview = true;
-// experimental
-neutral = false;
 metadata = false;
 copyright = '';
 artist = '';
@@ -19214,8 +19209,6 @@ j0uw5WTtMHd/CHsnHDioef5kIslcm37GJ6ZuBejdb0XYCyRehecrzqovAz+QHSfC
 dcpProfileLookTableData_u='';
 ////    DYNAMIC SOURCE END: /home/hegny/prog/imbraw2dng/github/profiles/DCP/ImBack ImB35mm.dcp
 ////////////////////////////////////////////
-// do not try dynamic wb:
-constwb = false;
 incdcp = true;
 // mis-nomer from app
 fromintent = false; // 1: normal 2: stack/fakelong (> 1 DNG, to raw phase)  3: backward (== 1 DNG)  4: to dng phase when stacking
@@ -19427,9 +19420,7 @@ prxl(key, el) {
 		}
 		} catch (e) {
 			console.log(JSON.stringify(e));
-			if (undefined !== this.exitcode) {
-				this.exitcode++;
-			}
+			this.exitcode++;
 		}
 	}
 	for (const ne of Object.keys(el).filter((k) => ((k !== 'en') && (k !== 'de') && (typeof(el[k]) !== 'string')))) {
@@ -19629,7 +19620,7 @@ handleone(orientation, upd) {
 				this.mappx(false, 'words.sorryerr');
 				this.mappx(true, 'process.erraccess', url);
 				this.stats.error ++;
-				if (undefined !== this.exitcode) this.exitcode++;
+				this.exitcode++;
 				this.handlenext();
 		  });
 		}, 10);
@@ -19686,7 +19677,7 @@ handleone(orientation, upd) {
 			this.mappx(false, 'words.sorryerr');
 			this.mappx(true, 'process.errorreadingfile', f.name);
 			this.stats.error++;
-			if (undefined !== this.exitcode) this.exitcode++;
+			this.exitcode++;
 			this.handlenext();
 		}
 		reader.readAsArrayBuffer(f.imbackintension ? f.imbackintension : f);
@@ -19718,7 +19709,7 @@ handleone(orientation, upd) {
 			this.mappx(false, 'words.sorryerr');
 			this.mappx(true, 'process.errorreadingfile', f.name);
 			this.stats.error++;
-			if (undefined !== this.exitcode) this.exitcode++;
+			this.exitcode++;
 			this.handlenext();
 		}
 		reader.readAsArrayBuffer(f.imbackintension ? f.imbackintension : f);
@@ -19936,14 +19927,14 @@ handleone(orientation, upd) {
 			//this.mappx(0, 'process.orientation', this.xl0('preview.orients.' + globals.orients[ori]));
 			if (ori === 6 || ori === 8) transp = true;
 		}*/
-		const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : globals.getwb(view, zz, whitelvl);
+		const wb = globals.getwb(view, zz, whitelvl);
 		//console.log('WB ' + JSON.stringify(wb));
 		//if (!this.constwb)
 		//	this.mappx(0, 'process.foundwb', Math.round(100*wb[0]/wb[1]), Math.round(100*wb[2]/wb[3]), Math.round(100*wb[4]/wb[5]));
 		/* Here comes the actual building of the DNG */
 		let ti = new TIFFOut();
 		ti.addIfd(); /* **************************************** */
-		if (this.withpreview && !this.neutral) {
+		if (this.withpreview) {
 			this.mappx(0, 'process.addpreview');
 			/* **** PREVIEW image **** */
 			let scale = 32;
@@ -20072,44 +20063,43 @@ handleone(orientation, upd) {
 			}
 		}
 		ti.closeSub();  /* **************************************** */
-		if (!this.neutral) {
-			const xmprdf = this.buildxmp(rawname, hxbytes, dateok, datestr, desc, artbytes, rightbytes, typ0);
-			ti.addEntry(700, 'BYTE', xmprdf); /* XMP */
-			ti.addEntry(50827, 'ASCII', rawnamearr); /* Raw file name */
-			ti.addEntry(50728, 'RATIONAL', wb); /* As shot neutral */
-			/*  new:  */
-			if (this.incdcp) {
-				if (0 === this.dcpProfileToneCurve_u.length) {
-					await ImBCBase.mydecode(this.dcpProfileToneCurve_b64gz, (d) => {
-							this.dcpProfileToneCurve_u = d;
-					});
-				}
-				if (0 === this.dcpProfileHueSatMapData1_u.length) {
-					await ImBCBase.mydecode(this.dcpProfileHueSatMapData1_b64gz, (d) => {
-							this.dcpProfileHueSatMapData1_u = d;
-					});
-				}
-				if (0 === this.dcpProfileHueSatMapData2_u.length) {
-					await ImBCBase.mydecode(this.dcpProfileHueSatMapData2_b64gz, (d) => {
-							this.dcpProfileHueSatMapData2_u = d;
-					});
-				}
-				if (0 === this.dcpProfileLookTableData_u.length) {
-					await ImBCBase.mydecode(this.dcpProfileLookTableData_b64gz, (d) => {
-							this.dcpProfileLookTableData_u = d;
-					});
-				}
-				this.mappx(0, 'process.adddcp');
-				ti.addEntry(50936, 'ASCII', 'Generic ImB'); /* Camera calibration name */
-				ti.addEntry(50942, 'ASCII', "Stefan Hegny for ImBack CC0"); /* profile copyright */
-				ti.addEntry(50932, 'ASCII', 'Generic ImB conv profile Sig'); /* Profile calibration signature */
-				ti.addEntry(50931, 'ASCII', 'Generic ImB conv profile Sig'); /* Camera calibration signature */
-				ti.addEntry(50938, 'FLOATBIN', this.dcpProfileHueSatMapData1_u); /* Profile Hue Sat Map Data 1 */
-				ti.addEntry(50939, 'FLOATBIN', this.dcpProfileHueSatMapData2_u); /* Profile Hue Sat Map Data 2 */
-				ti.addEntry(50940, 'FLOATBIN', this.dcpProfileToneCurve_u); /* Profile tone curve */
-				ti.addEntry(50982, 'FLOATBIN', this.dcpProfileLookTableData_u); /* Profile Look Table Data */
-				ti.addEntry(50941, 'LONG', [ 3 ]); /* profile embed policy unrestricted */
-				//////// DYNAMIC SOURCE 2
+		const xmprdf = this.buildxmp(rawname, hxbytes, dateok, datestr, desc, artbytes, rightbytes, typ0);
+		ti.addEntry(700, 'BYTE', xmprdf); /* XMP */
+		ti.addEntry(50827, 'ASCII', rawnamearr); /* Raw file name */
+		ti.addEntry(50728, 'RATIONAL', wb); /* As shot neutral */
+		/*  new:  */
+		if (this.incdcp) {
+			if (0 === this.dcpProfileToneCurve_u.length) {
+				await ImBCBase.mydecode(this.dcpProfileToneCurve_b64gz, (d) => {
+						this.dcpProfileToneCurve_u = d;
+				});
+			}
+			if (0 === this.dcpProfileHueSatMapData1_u.length) {
+				await ImBCBase.mydecode(this.dcpProfileHueSatMapData1_b64gz, (d) => {
+						this.dcpProfileHueSatMapData1_u = d;
+				});
+			}
+			if (0 === this.dcpProfileHueSatMapData2_u.length) {
+				await ImBCBase.mydecode(this.dcpProfileHueSatMapData2_b64gz, (d) => {
+						this.dcpProfileHueSatMapData2_u = d;
+				});
+			}
+			if (0 === this.dcpProfileLookTableData_u.length) {
+				await ImBCBase.mydecode(this.dcpProfileLookTableData_b64gz, (d) => {
+						this.dcpProfileLookTableData_u = d;
+				});
+			}
+			this.mappx(0, 'process.adddcp');
+			ti.addEntry(50936, 'ASCII', 'Generic ImB'); /* Camera calibration name */
+			ti.addEntry(50942, 'ASCII', "Stefan Hegny for ImBack CC0"); /* profile copyright */
+			ti.addEntry(50932, 'ASCII', 'Generic ImB conv profile Sig'); /* Profile calibration signature */
+			ti.addEntry(50931, 'ASCII', 'Generic ImB conv profile Sig'); /* Camera calibration signature */
+			ti.addEntry(50938, 'FLOATBIN', this.dcpProfileHueSatMapData1_u); /* Profile Hue Sat Map Data 1 */
+			ti.addEntry(50939, 'FLOATBIN', this.dcpProfileHueSatMapData2_u); /* Profile Hue Sat Map Data 2 */
+			ti.addEntry(50940, 'FLOATBIN', this.dcpProfileToneCurve_u); /* Profile tone curve */
+			ti.addEntry(50982, 'FLOATBIN', this.dcpProfileLookTableData_u); /* Profile Look Table Data */
+			ti.addEntry(50941, 'LONG', [ 3 ]); /* profile embed policy unrestricted */
+			//////// DYNAMIC SOURCE 2
 ////////////////////////////////////////////
 ////    DYNAMIC SOURCE: /home/hegny/prog/imbraw2dng/github/profiles/DCP/ImBack ImB35mm.dcp
 ti.addEntry(50721, 'SRATIONAL', [ 26868,10000, -17291,10000, 1905,10000, 3686,10000, 1173,10000, 5173,10000, 2080,10000, -3853,10000, 6225,10000 ]); /* ColorMatrix1 */
@@ -20123,16 +20113,9 @@ ti.addEntry(50981, 'LONG', [ 90, 30, 30 ]); /* ProfileLookTableDims */
 ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 ////    DYNAMIC SOURCE END: /home/hegny/prog/imbraw2dng/github/profiles/DCP/ImBack ImB35mm.dcp
 ////////////////////////////////////////////
-				// above stuff is now replaced taken from a dual-illuminant DCP profile
-			}
-			else {
-				// like before
-				ti.addEntry(50721, 'SRATIONAL', [ 19624, 10000, -6105, 10000, -34134, 100000, -97877, 100000, 191614, 100000, 3345, 100000, 28687, 1000000, -14068, 100000, 1348676, 1000000 ]); /* Color Matrix 1 */
-				ti.addEntry(50964, 'SRATIONAL', [ 7161, 10000, 10093, 100000, 14719, 100000, 25819, 100000, 72494, 100000, 16875, 1000000, 0, 1000000, 5178, 100000, 77342, 100000 ]); /* Forward Matrix 1 */
-				ti.addEntry(50778, 'SHORT', [ 23 ]); /* Calibration Illuminant 1 - D50 */
-			}
+			// above stuff is now replaced taken from a dual-illuminant DCP profile
 		}
-		if (this.withpreview && !this.neutral) {
+		if (this.withpreview) {
 			ti.addEntry(50971, 'ASCII', new Date(Date.now()).toISOString() ); /* Preview date time */
 			ti.addSubIfd(); /* **************************************** */
 		}
@@ -20178,7 +20161,7 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		this.mappx(false, 'words.sorryerr');
 		this.mappx(true, 'process.errorreadingfile', f.name);
 		this.stats.error++;
-		if (undefined !== this.exitcode) this.exitcode++;
+		this.exitcode++;
 		this.handlenext();
 	};
 	reader.readAsArrayBuffer(f.imbackintension ? f.imbackintension : f);
@@ -20596,7 +20579,7 @@ handleoneback(fx) {
 				this.mappx(false, 'words.sorryerr');
 				this.appmsgxl(true, 'process.erraccess', url);
 				this.stats.error ++;
-				if (undefined !== this.exitcode) this.exitcode++;
+				this.exitcode++;
 				this.handlenext();
 		  });
 		});
@@ -20623,14 +20606,14 @@ handleoneback(fx) {
 				},
 				() => {
 					this.appmsg('Error reading DNG: ' + f.name, true);
-					if (undefined !== this.exitcode) this.exitcode++;
+					this.exitcode++;
 					this.stats.error++;
 					this.handlenext();
 				});
 		} catch (e) {
 			console.log(e);
 			this.appmsg('Error reading DNG: ' + f.name, true);
-			if (undefined !== this.exitcode) this.exitcode++;
+			this.exitcode++;
 			this.stats.error++;
 			this.handlenext();
 		}
@@ -20668,7 +20651,7 @@ handleoneback(fx) {
 			console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
 			this.appmsg('Error processing or reading file ' +  f.name, true);
 			this.stats.error++;
-			if (undefined !== this.exitcode) this.exitcode++;
+			this.exitcode++;
 			this.handlenext();
 		}
 		reader.readAsArrayBuffer(f.imbackintension ? f.imbackintension : f);
@@ -20676,7 +20659,7 @@ handleoneback(fx) {
 		this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
 		this.appmsg('Size of raw data of ' + f.name + ' seems not to match known formats, ignoring...', true);
 		this.stats.error++;
-		if (undefined !== this.exitcode) this.exitcode++;
+		this.exitcode++;
 		this.handlenext();
 	}
 }
@@ -21336,7 +21319,6 @@ initworker(withnet) {
 	for (let i=0; i < this.maxnpvw; i++) {
 		if (this.previewworkers.length > i) continue;
     	this.previewworkers.push({ w: new Worker(URL.createObjectURL(new Blob([scripttextg, document.querySelector("script[type='text/js-previewworker']").textContent], { type: "text/javascript" })), {name:'myprevworker'+i}), busy: false});
-		this.previewworkers[i].w.postMessage({ cmd: 'constwb', constwb: this.constwb });
 		if (globals.debugflag) this.previewworkers[i].w.postMessage({ cmd:'setdbg'});
     	this.previewworkers[i].w.onmessage = (m) => {
 			this.workermsg(m);
@@ -22672,13 +22654,6 @@ dirtysettings(which) {
 		this.incdcp = document.getElementById('incdcp').checked;
 		this.savesettings('ndcp');
 	}
-	else if (which === 'owb') {
-		const oldwb = document.getElementById('oldstylewb');
-		this.constwb = (oldwb !== null && oldwb.checked);
-		for (let i=0; i<this.previewworkers.length; i++)
-			this.previewworkers[i].w.postMessage({ cmd: 'constwb', constwb: this.constwb });
-		if (oldwb) this.savesettings('owb');
-	}
 	else if (which === 'cr') {
 		const copytext = document.getElementById('copytext');
 		this.copyright = copytext?.value?.length ? copytext.value : '';
@@ -22713,8 +22688,6 @@ savesettings(which) {
 				else if (this.lastlang && ImBCBase.progname !== 'imbapp_app')
 					window.localStorage.setItem(pref + 'll', this.lastlang);
 			}
-			if ((which === 'owb') || !which?.length || -1 !== which.indexOf('owb'))
-				window.localStorage.setItem(pref + 'owb', this.constwb ? 'true': 'false');
 			if ((which === 'ndcp') || !which?.length || -1 !== which.indexOf('ndcp'))
 				window.localStorage.setItem(pref + 'ndcp', this.incdcp ? 'false': 'true');
 			if ((which === 'exitmode') || !which?.length || -1 !== which.indexOf('exitmode'))
@@ -23336,10 +23309,6 @@ initsettings() {
 		if (itm !== null) this.trylang(itm);
 		itm = window.localStorage.getItem(pref + 'll');
 		if (itm !== null && itm !== 'undefined') this.lastlang = itm;
-		itm = window.localStorage.getItem(pref + 'owb');
-		if (itm !== null) {
-			this.constwb = JSON.parse(itm) ? true: false;
-		}
 		itm = window.localStorage.getItem(pref + 'ndcp');
 		if (itm !== null) {
 			this.incdcp = JSON.parse(itm) ? false: true;
@@ -23415,7 +23384,6 @@ initsettings() {
 			}
 		}
 		if (incdcp !== null) incdcp.checked = this.incdcp;
-		if (oldstylewb !== null) oldstylewb.checked = this.constwb;
 		const dngprev = document.getElementById('dngpreview');
 		if (dngprev) dngprev.checked = this.withpreview;
 		document.getElementById('exitsel').value = this.exitmode;
@@ -23941,9 +23909,6 @@ parseconfig(data) {
 	else this.useimblang = true;
 	if (d.ll) this.lastlang = d.ll;
 	if (d.ndcp) this.incdcp = false; else this.incdcp = true;
-	if (d.owb) this.constwb = true; else this.constwb = false;
-	for (let i=0; i<this.previewworkers.length; i++)
-			this.previewworkers[i].w.postMessage({ cmd: 'constwb', constwb: this.constwb });
 	this.stepmode = 0;
 	if (d.exitmode) this.exitmode = d.exitmode;
 	if (d.maxcache) this.maxcache = d.maxcache;
@@ -23994,9 +23959,6 @@ checkchecks() {
 	this.artist = document.getElementById('artist')?.value?.length ? document.getElementById('artist')?.value : '';
 	this.metadata = copycheck?.checked;
 	const oldwb = document.getElementById('oldstylewb');
-	this.constwb = (oldwb !== null && oldwb.checked);
-	for (let i=0; i<this.previewworkers.length; i++)
-			this.previewworkers[i].w.postMessage({ cmd: 'constwb', constwb: this.constwb });
 	const incdcp = document.getElementById('incdcp');
 	this.incdcp = (incdcp !== null && incdcp.checked);
 }
@@ -27263,7 +27225,6 @@ function init() {
 <div class="igxtype btop">
 <div ><input type="checkbox" id="dngpreview" checked onchange="imbc.chgdngpreview()"> <label for="dngpreview" data-myxlkey="process.addpreview"></label></div>
 <div ><input type="checkbox" id="incdcp" checked onchange="imbc.dirtysettings('incdcp')"> <label for="incdcp" data-myxlkey="process.includedcp"></label></div>
-<div ><input type="checkbox" id="oldstylewb" onchange="imbc.dirtysettings('owb')"> <label for="oldstylewb" data-myxlkey="process.oldstylewb"></label></div>
 </div>
 <div class="btop"><input type="button" onclick="imbc.clearcache();" data-myvalxlkey="app.menu.extras.clearcache"> </div>
 <div class="btop"><span data-myxlkey="app.menu.extras.cachesize"> </span> <input type="number" onchange="imbc.chgcache()" id="dbgcache" style="width: 5em;"></div>
