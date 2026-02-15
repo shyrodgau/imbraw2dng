@@ -12,7 +12,7 @@ Japanese translations by Sadami Inoue.
 
 https://github.com/shyrodgau/imbraw2dng
 
-Usage: node imbraw2dng.js [-l lang] [-f] [-d dir] [-nc | -co] [-np] [-owb] [-ndcp] [-cr copyright] [-j flag] [-R] [-J] [-O] [-fla | -flx] [-n yyyy_mm_dd-hh_mm_ss] [ [--] <files-or-dirs>* ]
+Usage: node imbraw2dng.js [-l lang] [-f] [-d dir] [-nc | -co] [-np] [-B] [-ndcp] [-cr copyright] [-j flag] [-R] [-J] [-O] [-fla | -flx] [-n yyyy_mm_dd-hh_mm_ss] [ [--] <files-or-dirs>* ]
 Options:
  -h - show this help
  -nc - do not use coloured text
@@ -22,7 +22,6 @@ Options:
  -d dir - put output files into dir
  -f - overwrite existing files
  -np - Do not add preview thumbnail to DNG
- -owb - Use old style constant white balance
  -ndcp - Do not include new DNG Camera profile
  -cr 'copyright...' - add copyright to DNG
  -at 'author...' - add author/creator to DNG
@@ -36,7 +35,9 @@ Options:
  -----
  -- - treat rest of parameters as local files or dirs
  <files-or-dirs> - process local files or directories recursively, e.g. on MicroSD from ImB
-
+ -----
+ -B - imbdng2raw backward
+ 
 *****************************************************
 
 Usage: node imbdng2raw.js [-d dir]  [--] <files>* 
@@ -92,7 +93,7 @@ handleone(fx) {
 				this.imbc.mappx(false, 'words.sorryerr');
 				this.imbc.appmsgxl(true, 'process.erraccess', url);
 				this.imbc.stats.error ++;
-				if (undefined !== this.exitcode) this.exitcode++;
+				this.exitcode++;
 				this.imbc.handlenext();
 		  });
 		});
@@ -118,7 +119,7 @@ handleone(fx) {
 			},
 			() => {
 				this.imbc.appmsg('Error reading DNG: ' + f.name);
-				if (undefined !== this.exitcode) this.exitcode++;
+				this.exitcode++;
 				this.imbc.handlenext();
 				this.imbc.stats.error++;
 			});
@@ -148,7 +149,7 @@ handleone(fx) {
 			console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
 			this.imbc.appmsg('Error processing or reading file ' +  f.name, true);
 			this.imbc.stats.error++;
-			if (undefined !== this.exitcode) this.exitcode++;
+			this.exitcode++;
 			this.imbc.handlenext();
 		}
 		reader.readAsArrayBuffer(f);
@@ -156,7 +157,7 @@ handleone(fx) {
 		this.imbc.appmsg("[" + (1 + this.imbc.actnum) + " / " + this.imbc.totnum + "] ", false);
 		this.imbc.appmsg('Size of raw data of ' + f.name + ' seems not to match known formats, ignoring...', true);
 		this.imbc.stats.error++;
-		if (undefined !== this.exitcode) this.exitcode++;
+		this.exitcode++;
 		this.imbc.handlenext();
 	}
 }
@@ -1552,12 +1553,11 @@ class ImBCBase {
 /* Indentation out */
 imbcb = false;
 static progname = 'whoami';
+exitcode = 0;
 
 // ImBCBase: generic data
 mylang = 'en';
 withpreview = true;
-// experimental
-neutral = false;
 metadata = false;
 copyright = '';
 artist = '';
@@ -18455,8 +18455,6 @@ j0uw5WTtMHd/CHsnHDioef5kIslcm37GJ6ZuBejdb0XYCyRehecrzqovAz+QHSfC
 dcpProfileLookTableData_u='';
 ////    DYNAMIC SOURCE END: /home/hegny/prog/imbraw2dng/github/profiles/DCP/ImBack ImB35mm.dcp
 ////////////////////////////////////////////
-// do not try dynamic wb:
-constwb = false;
 incdcp = true;
 // mis-nomer from app
 fromintent = false; // 1: normal 2: stack/fakelong (> 1 DNG, to raw phase)  3: backward (== 1 DNG)  4: to dng phase when stacking
@@ -18668,9 +18666,7 @@ prxl(key, el) {
 		}
 		} catch (e) {
 			console.log(JSON.stringify(e));
-			if (undefined !== this.exitcode) {
-				this.exitcode++;
-			}
+			this.exitcode++;
 		}
 	}
 	for (const ne of Object.keys(el).filter((k) => ((k !== 'en') && (k !== 'de') && (typeof(el[k]) !== 'string')))) {
@@ -18870,7 +18866,7 @@ handleone(orientation, upd) {
 				this.mappx(false, 'words.sorryerr');
 				this.mappx(true, 'process.erraccess', url);
 				this.stats.error ++;
-				if (undefined !== this.exitcode) this.exitcode++;
+				this.exitcode++;
 				this.handlenext();
 		  });
 		}, 10);
@@ -18927,7 +18923,7 @@ handleone(orientation, upd) {
 			this.mappx(false, 'words.sorryerr');
 			this.mappx(true, 'process.errorreadingfile', f.name);
 			this.stats.error++;
-			if (undefined !== this.exitcode) this.exitcode++;
+			this.exitcode++;
 			this.handlenext();
 		}
 		reader.readAsArrayBuffer(f.imbackintension ? f.imbackintension : f);
@@ -18959,7 +18955,7 @@ handleone(orientation, upd) {
 			this.mappx(false, 'words.sorryerr');
 			this.mappx(true, 'process.errorreadingfile', f.name);
 			this.stats.error++;
-			if (undefined !== this.exitcode) this.exitcode++;
+			this.exitcode++;
 			this.handlenext();
 		}
 		reader.readAsArrayBuffer(f.imbackintension ? f.imbackintension : f);
@@ -19177,14 +19173,14 @@ handleone(orientation, upd) {
 			//this.mappx(0, 'process.orientation', this.xl0('preview.orients.' + globals.orients[ori]));
 			if (ori === 6 || ori === 8) transp = true;
 		}*/
-		const wb = this.constwb ? [ 6, 10, 1, 1, 6, 10 ] : globals.getwb(view, zz, whitelvl);
+		const wb = globals.getwb(view, zz, whitelvl);
 		//console.log('WB ' + JSON.stringify(wb));
 		//if (!this.constwb)
 		//	this.mappx(0, 'process.foundwb', Math.round(100*wb[0]/wb[1]), Math.round(100*wb[2]/wb[3]), Math.round(100*wb[4]/wb[5]));
 		/* Here comes the actual building of the DNG */
 		let ti = new TIFFOut();
 		ti.addIfd(); /* **************************************** */
-		if (this.withpreview && !this.neutral) {
+		if (this.withpreview) {
 			this.mappx(0, 'process.addpreview');
 			/* **** PREVIEW image **** */
 			let scale = 32;
@@ -19313,44 +19309,43 @@ handleone(orientation, upd) {
 			}
 		}
 		ti.closeSub();  /* **************************************** */
-		if (!this.neutral) {
-			const xmprdf = this.buildxmp(rawname, hxbytes, dateok, datestr, desc, artbytes, rightbytes, typ0);
-			ti.addEntry(700, 'BYTE', xmprdf); /* XMP */
-			ti.addEntry(50827, 'ASCII', rawnamearr); /* Raw file name */
-			ti.addEntry(50728, 'RATIONAL', wb); /* As shot neutral */
-			/*  new:  */
-			if (this.incdcp) {
-				if (0 === this.dcpProfileToneCurve_u.length) {
-					await ImBCBase.mydecode(this.dcpProfileToneCurve_b64gz, (d) => {
-							this.dcpProfileToneCurve_u = d;
-					});
-				}
-				if (0 === this.dcpProfileHueSatMapData1_u.length) {
-					await ImBCBase.mydecode(this.dcpProfileHueSatMapData1_b64gz, (d) => {
-							this.dcpProfileHueSatMapData1_u = d;
-					});
-				}
-				if (0 === this.dcpProfileHueSatMapData2_u.length) {
-					await ImBCBase.mydecode(this.dcpProfileHueSatMapData2_b64gz, (d) => {
-							this.dcpProfileHueSatMapData2_u = d;
-					});
-				}
-				if (0 === this.dcpProfileLookTableData_u.length) {
-					await ImBCBase.mydecode(this.dcpProfileLookTableData_b64gz, (d) => {
-							this.dcpProfileLookTableData_u = d;
-					});
-				}
-				this.mappx(0, 'process.adddcp');
-				ti.addEntry(50936, 'ASCII', 'Generic ImB'); /* Camera calibration name */
-				ti.addEntry(50942, 'ASCII', "Stefan Hegny for ImBack CC0"); /* profile copyright */
-				ti.addEntry(50932, 'ASCII', 'Generic ImB conv profile Sig'); /* Profile calibration signature */
-				ti.addEntry(50931, 'ASCII', 'Generic ImB conv profile Sig'); /* Camera calibration signature */
-				ti.addEntry(50938, 'FLOATBIN', this.dcpProfileHueSatMapData1_u); /* Profile Hue Sat Map Data 1 */
-				ti.addEntry(50939, 'FLOATBIN', this.dcpProfileHueSatMapData2_u); /* Profile Hue Sat Map Data 2 */
-				ti.addEntry(50940, 'FLOATBIN', this.dcpProfileToneCurve_u); /* Profile tone curve */
-				ti.addEntry(50982, 'FLOATBIN', this.dcpProfileLookTableData_u); /* Profile Look Table Data */
-				ti.addEntry(50941, 'LONG', [ 3 ]); /* profile embed policy unrestricted */
-				//////// DYNAMIC SOURCE 2
+		const xmprdf = this.buildxmp(rawname, hxbytes, dateok, datestr, desc, artbytes, rightbytes, typ0);
+		ti.addEntry(700, 'BYTE', xmprdf); /* XMP */
+		ti.addEntry(50827, 'ASCII', rawnamearr); /* Raw file name */
+		ti.addEntry(50728, 'RATIONAL', wb); /* As shot neutral */
+		/*  new:  */
+		if (this.incdcp) {
+			if (0 === this.dcpProfileToneCurve_u.length) {
+				await ImBCBase.mydecode(this.dcpProfileToneCurve_b64gz, (d) => {
+						this.dcpProfileToneCurve_u = d;
+				});
+			}
+			if (0 === this.dcpProfileHueSatMapData1_u.length) {
+				await ImBCBase.mydecode(this.dcpProfileHueSatMapData1_b64gz, (d) => {
+						this.dcpProfileHueSatMapData1_u = d;
+				});
+			}
+			if (0 === this.dcpProfileHueSatMapData2_u.length) {
+				await ImBCBase.mydecode(this.dcpProfileHueSatMapData2_b64gz, (d) => {
+						this.dcpProfileHueSatMapData2_u = d;
+				});
+			}
+			if (0 === this.dcpProfileLookTableData_u.length) {
+				await ImBCBase.mydecode(this.dcpProfileLookTableData_b64gz, (d) => {
+						this.dcpProfileLookTableData_u = d;
+				});
+			}
+			this.mappx(0, 'process.adddcp');
+			ti.addEntry(50936, 'ASCII', 'Generic ImB'); /* Camera calibration name */
+			ti.addEntry(50942, 'ASCII', "Stefan Hegny for ImBack CC0"); /* profile copyright */
+			ti.addEntry(50932, 'ASCII', 'Generic ImB conv profile Sig'); /* Profile calibration signature */
+			ti.addEntry(50931, 'ASCII', 'Generic ImB conv profile Sig'); /* Camera calibration signature */
+			ti.addEntry(50938, 'FLOATBIN', this.dcpProfileHueSatMapData1_u); /* Profile Hue Sat Map Data 1 */
+			ti.addEntry(50939, 'FLOATBIN', this.dcpProfileHueSatMapData2_u); /* Profile Hue Sat Map Data 2 */
+			ti.addEntry(50940, 'FLOATBIN', this.dcpProfileToneCurve_u); /* Profile tone curve */
+			ti.addEntry(50982, 'FLOATBIN', this.dcpProfileLookTableData_u); /* Profile Look Table Data */
+			ti.addEntry(50941, 'LONG', [ 3 ]); /* profile embed policy unrestricted */
+			//////// DYNAMIC SOURCE 2
 ////////////////////////////////////////////
 ////    DYNAMIC SOURCE: /home/hegny/prog/imbraw2dng/github/profiles/DCP/ImBack ImB35mm.dcp
 ti.addEntry(50721, 'SRATIONAL', [ 26868,10000, -17291,10000, 1905,10000, 3686,10000, 1173,10000, 5173,10000, 2080,10000, -3853,10000, 6225,10000 ]); /* ColorMatrix1 */
@@ -19364,16 +19359,9 @@ ti.addEntry(50981, 'LONG', [ 90, 30, 30 ]); /* ProfileLookTableDims */
 ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 ////    DYNAMIC SOURCE END: /home/hegny/prog/imbraw2dng/github/profiles/DCP/ImBack ImB35mm.dcp
 ////////////////////////////////////////////
-				// above stuff is now replaced taken from a dual-illuminant DCP profile
-			}
-			else {
-				// like before
-				ti.addEntry(50721, 'SRATIONAL', [ 19624, 10000, -6105, 10000, -34134, 100000, -97877, 100000, 191614, 100000, 3345, 100000, 28687, 1000000, -14068, 100000, 1348676, 1000000 ]); /* Color Matrix 1 */
-				ti.addEntry(50964, 'SRATIONAL', [ 7161, 10000, 10093, 100000, 14719, 100000, 25819, 100000, 72494, 100000, 16875, 1000000, 0, 1000000, 5178, 100000, 77342, 100000 ]); /* Forward Matrix 1 */
-				ti.addEntry(50778, 'SHORT', [ 23 ]); /* Calibration Illuminant 1 - D50 */
-			}
+			// above stuff is now replaced taken from a dual-illuminant DCP profile
 		}
-		if (this.withpreview && !this.neutral) {
+		if (this.withpreview) {
 			ti.addEntry(50971, 'ASCII', new Date(Date.now()).toISOString() ); /* Preview date time */
 			ti.addSubIfd(); /* **************************************** */
 		}
@@ -19419,7 +19407,7 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		this.mappx(false, 'words.sorryerr');
 		this.mappx(true, 'process.errorreadingfile', f.name);
 		this.stats.error++;
-		if (undefined !== this.exitcode) this.exitcode++;
+		this.exitcode++;
 		this.handlenext();
 	};
 	reader.readAsArrayBuffer(f.imbackintension ? f.imbackintension : f);
@@ -19837,7 +19825,7 @@ handleoneback(fx) {
 				this.mappx(false, 'words.sorryerr');
 				this.appmsgxl(true, 'process.erraccess', url);
 				this.stats.error ++;
-				if (undefined !== this.exitcode) this.exitcode++;
+				this.exitcode++;
 				this.handlenext();
 		  });
 		});
@@ -19864,14 +19852,14 @@ handleoneback(fx) {
 				},
 				() => {
 					this.appmsg('Error reading DNG: ' + f.name, true);
-					if (undefined !== this.exitcode) this.exitcode++;
+					this.exitcode++;
 					this.stats.error++;
 					this.handlenext();
 				});
 		} catch (e) {
 			console.log(e);
 			this.appmsg('Error reading DNG: ' + f.name, true);
-			if (undefined !== this.exitcode) this.exitcode++;
+			this.exitcode++;
 			this.stats.error++;
 			this.handlenext();
 		}
@@ -19909,7 +19897,7 @@ handleoneback(fx) {
 			console.log('Unk-RAW process reader error for ' + f.name + ' ' + JSON.stringify(evt));
 			this.appmsg('Error processing or reading file ' +  f.name, true);
 			this.stats.error++;
-			if (undefined !== this.exitcode) this.exitcode++;
+			this.exitcode++;
 			this.handlenext();
 		}
 		reader.readAsArrayBuffer(f.imbackintension ? f.imbackintension : f);
@@ -19917,7 +19905,7 @@ handleoneback(fx) {
 		this.appmsg("[" + (1 + this.actnum) + " / " + this.totnum + "] ", false);
 		this.appmsg('Size of raw data of ' + f.name + ' seems not to match known formats, ignoring...', true);
 		this.stats.error++;
-		if (undefined !== this.exitcode) this.exitcode++;
+		this.exitcode++;
 		this.handlenext();
 	}
 }
@@ -19937,7 +19925,6 @@ typeflags = 0;
 fromts = '0000';
 // time adjustment
 corrdelta = 0;
-exitcode = 0;
 ptypeflags = 0; // from preferences
 // tried configfiles
 #configfiles = [ './.imbraw2dng.json' ];
@@ -20016,7 +20003,7 @@ writefile(name, type, okmsg, arr1, renameidx) {
 				this.appmsgxl(0, 'process.errsave', outfile);
 				this.appmsg(JSON.stringify(err), true);
 				this.stats.error++;
-				if (undefined !== this.exitcode) this.exitcode++;
+				this.exitcode++;
 				this.handlenext();
 			}
 			else {
@@ -20150,7 +20137,7 @@ resolver(url, onok, onerr) {
 		}).on('error', (e) => {
 			console.log(this.xl('onimback.errconnect', this.imbweb));
 			console.log(JSON.stringify(e));
-			if (undefined !== this.exitcode) this.exitcode++;
+			this.exitcode++;
 			onerr(url, fx);
 		});
 	}
@@ -20211,7 +20198,7 @@ handleonex() {
 						if (err) {
 							this.ziperr = true;
 							this.mappx(false, 'words.error');
-							if (undefined !== this.exitcode) this.exitcode++;
+							this.exitcode++;
 							this.appmsg(JSON.stringify(err), true);
 							require('process').exit(1);
 						}
@@ -20337,7 +20324,6 @@ parseconfig(data) {
 	if (d.d) this.outdir = d.d;
 	if (d.f) this.ovwout = true;
 	if (d.r) this.renamefiles = true;
-	if (d.owb) this.constwb = true;
 	if (d.ndcp) this.incdcp = false;
 	if (d.R && (!(this.ptypeflags % 2))) this.ptypeflags += 1;
 	if (d.J && ((this.ptypeflags % 4) < 2)) this.ptypeflags += 2;
@@ -20390,7 +20376,7 @@ handlenext() {
 				} else {
 					this.mappx(false, 'words.error');
 					this.mappx(true, 'process.errsave', this.zipname);
-					if (undefined !== this.exitcode) this.exitcode++;
+					this.exitcode++;
 				}
 				if (this.stats.total > 0) {
 					this.appmsg('');
@@ -20467,7 +20453,7 @@ checkimb(type, found, mimiflag) {
 		else if (type && !found) {
 			console.log(this.xl('onimback.errconnect', this.imbweb));
 			console.log(JSON.stringify(e));
-			if (undefined !== this.exitcode) this.exitcode++;
+			this.exitcode++;
 		}
 		else this.imbdoit();
 	});
@@ -20496,6 +20482,11 @@ writepostok() {
 }
 /* ImBCNode: nodejs runup */
 startnode(notfirst) {
+	if (process.argv.indexOf('-B') !== -1){
+		imbc = new ImBCNodeBackw();
+		ImBCBase.progname = 'imbdng2raw.js';
+		return imbc.startnode();
+	}
 	if (!notfirst) return this.readconfig(() => this.startnode(true));
 	this.querylang(process.argv[1], 6);
 	let wanthelp = false, wantxl = false, flagging=0, datefound = false, restisfiles = false;
@@ -20533,7 +20524,7 @@ startnode(notfirst) {
 						wanthelp = true;
 						this.mappx(false, 'words.error');
 						this.mappx(true, 'onimback.invaltime', v);
-						if (undefined !== this.exitcode) this.exitcode++;
+						this.exitcode++;
 					}
 				}
 				else if (flagging === 4) {
@@ -20547,7 +20538,7 @@ startnode(notfirst) {
 						wanthelp = true;
 						this.mappx(false, 'words.error');
 						this.mappx(true, 'onimback.invaltimediff', v);
-						if (undefined !== this.exitcode) this.exitcode++;
+						this.exitcode++;
 					}
 					else {
 						let t1 = v.substring(0,tssep);
@@ -20557,14 +20548,14 @@ startnode(notfirst) {
 							wanthelp = true;
 							this.mappx(false, 'words.error');
 							this.mappx(true, 'onimback.invaltime', t1);
-							if (undefined !== this.exitcode) this.exitcode++;
+							this.exitcode++;
 						}
 						let ts2 = globals.fulltsregex.exec(t2);
 						if (ts2 === null) {
 							wanthelp = true;
 							this.mappx(false, 'words.error');
 							this.mappx(true, 'onimback.invaltime', t2);
-							if (undefined !== this.exitcode) this.exitcode++;
+							this.exitcode++;
 						}
 						else if (ts1 !== null) {
 							let d1 = new Date(ts1[1] + '-' + ts1[3] + '-' + ts1[5] + 'T' + ts1[7] + ':' + ts1[9] + ':' + ts1[11]);
@@ -20612,9 +20603,6 @@ startnode(notfirst) {
 				else if (v ==='-np') {
 					this.withpreview = false;
 				}
-				else if (v ==='-owb') {
-					this.constwb = true;
-				}
 				else if (v ==='-ndcp') {
 					this.incdcp = false;
 				}
@@ -20649,14 +20637,14 @@ startnode(notfirst) {
 						wanthelp = true;
 						this.mappx(false, 'words.error');
 						this.mappx(true, 'onimback.invaltime', t1);
-						if (undefined !== this.exitcode) this.exitcode++;
+						this.exitcode++;
 					}
 					let ts2 = globals.fulltsregex.exec(t2);
 					if (ts2 === null) {
 						wanthelp = true;
 						this.mappx(false, 'words.error');
 						this.mappx(true, 'onimback.invaltime', t2);
-						if (undefined !== this.exitcode) this.exitcode++;
+						this.exitcode++;
 					}
 					else if (ts1 !== null) {
 						let d1 = new Date(ts1[1] + '-' + ts1[3] + '-' + ts1[5] + 'T' + ts1[7] + ':' + ts1[9] + ':' + ts1[11]);
@@ -20686,7 +20674,7 @@ startnode(notfirst) {
 							wanthelp = true;
 							this.mappx(false, 'words.error');
 							this.mappx(true, 'onimback.invaltime', v.substring(2));
-							if (undefined !== this.exitcode) this.exitcode++;
+							this.exitcode++;
 						}
 					}
 					else
@@ -20711,9 +20699,6 @@ startnode(notfirst) {
 						else if (this.expflags[1] === 2)
 							this.imbweb = 'http://192.168.0.72:8889';
 					}
-				}
-				else if (v ==='-e') {
-					this.neutral = true;
 				}
 				else if (v ==='-R') {
 					if (!(this.typeflags % 2)) this.typeflags += 1;
@@ -20837,6 +20822,9 @@ startnode() {
 				else if (v ==='-h') {
 					wanthelp = true;
 				}
+				else if (v ==='-B') {
+					// I know im backward
+				}
 				else if (v.substring(0,1) === '-') {
 					console.log(this.subst(this.xl0('node.unkopt'), v));
 					wanthelp = true;
@@ -20879,7 +20867,7 @@ handlenext() {
 				} else {
 					this.mappx(false, 'words.error');
 					this.mappx(true, 'process.errsave', this.zipname);
-					if (undefined !== this.exitcode) this.exitcode++;
+					this.exitcode++;
 				}
 				this.zip = null;
 				this.zipdata = null;
@@ -21137,7 +21125,7 @@ const mytexts = { // actually const
 	node: {
 	    backw: {
 			   help: {
-					   en: [ 'Welcome to imbdng2raw $$0 (BACKWARD!) !', 'Usage: node $$0 [-l lang] [-d dir] [ [--] <files>* ]',
+					   en: [ 'Welcome to imbraw2dng $$0 (BACKWARD!) !', 'Usage: node imbraw2dng.js -B [-l lang] [-d dir] [ [--] <files>* ]',
 					   'Options:',
 					   ' -h - show this help',
 					   ' -l XX - where XX is a valid language code (currently: DE, EN, JA)',
@@ -21145,8 +21133,11 @@ const mytexts = { // actually const
 					   ' -d dir - put output files into dir',
 					   ' -----',
 					   ' -- - treat rest of parameters as local files or dirs',
-					   ' <files> - process local files' ],
-					   de: [ 'Willkommen bei imbdng2raw $$0 (RÜCKWÄRTS!) !', 'Aufruf: node $$0 [-l sprache] [-d ordner] [ [--] <dateien>* ]',
+					   ' <files> - process local files',
+					   ' -----',
+					   ' -B - ImB DNG to RAW back converter'
+					   ],
+					   de: [ 'Willkommen bei imbraw2dng $$0 (RÜCKWÄRTS!) !', 'Aufruf: node imbraw2dng.js -B [-l sprache] [-d ordner] [ [--] <dateien>* ]',
 					   'Optionen:',
 						' -h - diesen Hilfetext zeigen',
 						' -l XX - wo XX ein gültiger Sprachcode ist (derzeit: DE, EN, JA)',
@@ -21154,21 +21145,26 @@ const mytexts = { // actually const
 						' -d ordner - Ausgabedateien in diesen Ordner ablegen',
 						' -----',
 						' -- - weitere Parameter als lokale Dateien oder Ordner betrachten',
-					   ' <dateien> - lokale Dateien verarbeiten', ],
-						ja: [ 'imbdng2raw $$0 (戻る!) へようこそ!', '使い方: node $$0 [-l lang] [-d dir] [ [--] <files>* ]', 'オプション:',
+					   ' <dateien> - lokale Dateien verarbeiten', 
+						' -----',
+					   ' -B - ImB DNG nach RAW Rückwärts'
+					   ],
+						ja: [ 'imbraw2dng $$0 (戻る!) へようこそ!', '使い方: node imbraw2dng.js -B [-l lang] [-d dir] [ [--] <files>* ]', 'オプション:',
 							' -h - このヘルプを表示します',
 							' -l XX - XX は有効な言語コードです (現在: DE、EN, JA)',
 							'         ファイル名を imbdng2raw_XX.js に変更することで言語を設定することもできます。',
 							' -d dir - 出力ファイルを dir に置きます',
 							' -----',
 							' -- - 残りのパラメータをローカル ファイルまたはディレクトリとして扱います',
-							' <files> - ローカル ファイルを処理します*'
-						],
+							' <files> - ローカル ファイルを処理します*',
+							' -----',
+							' -B - ImB DNG から RAW へのコンバーター'
+					],
 			   }
 	    },
 		help: {
 			en: [ `\u001b[1mWelcome to imbraw2dng\u001b[0m $$0 !`, `Usage: node $$0 \u001b[1m[\u001b[0m-l ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m] [\u001b[0m-j flag\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-d ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-owb\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-ndcp\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr ..\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-d ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-B\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-ndcp\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr ..\u001b[1m]\u001b[0m \
 \u001b[1m[\u001b[0m-at ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n ..\u001b[1m]\u001b[0m \
 \u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \
 \u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mfiles-or-dirs\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m`,
@@ -21181,7 +21177,6 @@ const mytexts = { // actually const
 				' \u001b[1m-d dir\u001b[0m - put output files into dir',
 				' \u001b[1m-f\u001b[0m - overwrite existing files',
 				' \u001b[1m-np\u001b[0m - Do not add preview thumbnail to DNG',
-				' \u001b[1m-owb\u001b[0m - Use old style constant white balance',
 				' \u001b[1m-ndcp\u001b[0m - Do not include new DNG Camera profile',
 				' \u001b[1m-cr \'copyright...\'\u001b[0m - add copyright to DNG',
 				' \u001b[1m-at \'author...\'\u001b[0m - add artist/creator to DNG',
@@ -21194,9 +21189,12 @@ const mytexts = { // actually const
 				' \u001b[1m-n yyyy_mm_dd-hh_mm_ss\u001b[0m (or prefix of any length) - select only newer than this timestamp from ImB or from given directories',
 				' -----',
 				' \u001b[1m--\u001b[0m - treat rest of parameters as local files or dirs',
-				' <files-or-dirs> - process local files or directories recursively, e.g. on MicroSD from ImB',],
+				' <files-or-dirs> - process local files or directories recursively, e.g. on MicroSD from ImB',
+				' -----',
+				'\u001b[1m-B\u001b[0m - ImB DNG to RAW back converter'
+			],
 			de: [ `\u001b[1mWillkommen bei imbraw2dng\u001b[0m $$0 !`, `Aufruf: node $$0 \u001b[1m[\u001b[0m-l ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m] [\u001b[0m-j flag\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-d ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-owb\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-ndcp\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr ..\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-d ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-B\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-ndcp\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr ..\u001b[1m]\u001b[0m \
 \u001b[1m[\u001b[0m-at ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-at ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n ..\u001b[1m]\u001b[0m \
 \u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \
 \u001b[1m[\u001b[0m \u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mdateien-oder-ordner\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m`,
@@ -21209,7 +21207,6 @@ const mytexts = { // actually const
 				' \u001b[1m-d ordner\u001b[0m - Ausgabedateien in diesen Ordner ablegen',
 				' \u001b[1m-f\u001b[0m - existierende Dateien überschreiben',
 				' \u001b[1m-np\u001b[0m - Kein kleines Vorschaubild im DNG',
-				' \u001b[1m-owb\u001b[0m - Alten konstanten Weißabgleich verwenden',
 				' \u001b[1m-ndcp\u001b[0m - neues DCP Profil nicht einbetten',
 				' \u001b[1m-cr \'copyright...\'\u001b[0m - Copyright dem DNG hinzufügen',
 				' \u001b[1m-at \'autor...\'\u001b[0m - Künstler/Ersteller zum DNG hinzufügen',
@@ -21222,10 +21219,13 @@ const mytexts = { // actually const
 				' \u001b[1m-n yyyy_mm_dd-hh_mm_ss\u001b[0m (oder beliebig langer Anfang davon) - nur Dateien neuer als dieser Zeitstempel von ImB oder übergebenen Verzeichnissen holen',
 				' -----',
 				' \u001b[1m--\u001b[0m - weitere Parameter als lokale Dateien oder Ordner betrachten',
-				' <dateien-oder-ordner> - lokale Dateien oder Ordner rekursiv (z.B. von der MicroSD Karte aus ImB) verarbeiten',],
+				' <dateien-oder-ordner> - lokale Dateien oder Ordner rekursiv (z.B. von der MicroSD Karte aus ImB) verarbeiten',
+				' -----',
+				'\u001b[1m-B\u001b[0m - ImB DNG nach RAW Rückwärts'
+			],
 			ja: [
 				`\u001b[1mimbraw2dng へようこそ\u001b[0m $$0 !`, `Usage: node $$0 \u001b[1m[\u001b[0m-l ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-f\u001b[1m] [\u001b[0m-j flag\u001b[1m]\u001b[0m \
-\u001b[1m[\u001b[0m-d ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-owb\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-ndcp\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr ..\u001b[1m]\u001b[0m \
+\u001b[1m[\u001b[0m-d ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-nc \u001b[1m|\u001b[0m -co\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-np\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-B\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-ndcp\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-cr ..\u001b[1m]\u001b[0m \
 \u001b[1m[\u001b[0m-at ..\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-R\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-J\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-O\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m-n ..\u001b[1m]\u001b[0m \
 \u001b[1m[\u001b[0m-fla \u001b[1m|\u001b[0m -flx\u001b[1m]\u001b[0m \u001b[1m[\u001b[0m \
 \u001b[1m[\u001b[0m \u001b[1m[\u001b[0m--\u001b[1m]\u001b[0m \u001b[1m<\u001b[0mfiles-or-dirs\u001b[1m>*\u001b[0m \u001b[1m]\u001b[0m`,
@@ -21238,7 +21238,6 @@ const mytexts = { // actually const
 				' \u001b[1m-d dir\u001b[0m - 出力ファイルを dir に置く',
 				' \u001b[1m-f\u001b[0m - 現在のファイルを上書きする',
 				' \u001b[1m-np\u001b[0m - Do not add preview thumbnail to DNG',
-				' \u001b[1m-owb\u001b[0m - Use old style constant white balance',
 				' \u001b[1m-ndcp\u001b[0m - Do not include new DNG Camera profile',
 				' \u001b[1m-cr \'copyright...\'\u001b[0m - add copyright to DNG',
 				' \u001b[1m-at \'author...\'\u001b[0m - add author/creator to DNG',
@@ -21251,7 +21250,9 @@ const mytexts = { // actually const
 				' \u001b[1m-n yyyy_mmdd_hhmmss\u001b[0m (または任意の長さのプレフィックス) - ImB からこのタイムスタンプより新しいもののみを選択する',
 				' -----',
 				' \u001b[1m--\u001b[0m - 残りのパラメータをローカル ファイルまたはディレクトリとして扱う',
-				'<files-or-dirs> と -R/-J/-O/-n は同時に使用できません。'
+				'<files-or-dirs> と -R/-J/-O/-n は同時に使用できません。',
+				' -----',
+				'\u001b[1m-B\u001b[0m - ImB DNG から RAW へのコンバーター'
 				]
 		},
 		unkopt: {
