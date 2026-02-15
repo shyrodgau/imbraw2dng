@@ -77,7 +77,7 @@ function renameDownload(downloadDir) {
 
 var ino = 0;
 
-describe('A Convert Raw Local', function() {
+/*describe('A Convert Raw Local', function() {
 	let driver, opts, errflg = false;
 	before(async function() {
 			this.timeout(36000);
@@ -537,7 +537,7 @@ describe('C Convert Backward', function() {
 			} else if (undefined === process.env.KEYX)
 				driver.quit();
 	});
-});
+});*/
 
 describe('E Convert Raw from Imback APP', function() {
 	let driver, opts, errflg = false;
@@ -987,7 +987,85 @@ describe('F Convert Raw Local APP', function() {
 });
 
 
-describe('G Stacking DNG and RAW on old html', function() {
+describe('G replace some older', function() {
+	let driver, opts, errflg = false;
+	before(async function() {
+			this.timeout(9000);
+		  tdir = downloadDirBase + '.tmpimbtest';
+		  fs.mkdirSync(tdir, { recursive: true });
+  		  const options = new chrome.Options();
+		  options.setUserPreferences({
+			'download.default_directory': tdir,
+			'download.prompt_for_download': false,
+			'profile.default_content_settings.popups': 0,
+		  });
+		  options.addArguments('--no-sandbox');
+		  options.addArguments('--disable-dev-shm-usage');
+  			driver = await new Builder().forBrowser(Browser.CHROME).setChromeOptions(options).build();
+		   // Use DevTools Protocol to allow multiple downloads
+			const cdpConnection = await driver.createCDPConnection('page');
+			await driver.sendDevToolsCommand('Page.setDownloadBehavior', {
+			  behavior: 'allow',
+			  downloadPath: tdir,
+			});
+			//await driver.get('file://' + TESTDAT + '/IMBACK/imbapp.htm');
+			await driver.get('file://' + TESTDAT + '/IMBACK/imbapp.htm');
+			await driver.executeScript('window.onerror = (e) => {document.getElementById("thebody").setAttribute("data-err", JSON.stringify(e));}');
+			//await driver.executeScript('imbc.parseexpflags(1);',[]);
+	});
+	it('G.2 Convert multiple', async function dotest() {
+			this.timeout(19000);
+			await driver.actions({ async: true })
+				.pause(3000)
+				.perform();
+			const fi = await driver.findElement(By.id('infile'));
+			//await fi.clear();
+			await fi.sendKeys(TESTDAT0 + '/kb_large_10.raw\n' + TESTDAT0 + '/mf6x6_large_1.raw' + '\n' + TESTDAT + '/IMBACK/PHOTO/2029_0710_010203_001.raw');
+			await driver.actions({async: true}).pause(900).perform();
+			await driver.actions({async: true}).clear();
+			const selall = await waitfor(driver, 'id', 'selall');
+			await driver.actions({async: true})
+				.move({origin: selall })
+				.pause(1000)
+				.click()
+				.pause(1000)
+				.perform();
+			const dosel = await waitfor(driver,'id','doselbut');
+			await driver.actions({async: true})
+				.move({origin: dosel })
+				.pause(1000)
+				.click()
+				.pause(1000)
+				.perform();
+			const okb = await waitfor(driver, 'id','dlprogresslogbtn');
+			await driver.actions({ async: true })
+				.move({ origin: okb })
+				.pause(1000)
+				.click()
+				.pause(1000)
+				.perform();
+			//await fi.clear();
+			renameDownload(tdir);
+	});
+	after(async function() {
+			this.timeout(6000);
+			let me = await driver.findElement(By.id('thebody'));
+			let ma = await me.getAttribute('data-err');
+			console.log('Message Content:');
+			console.log('= = = = = = = = = = = = = = = = = = =');
+			let m = await driver.findElement(By.id('xmsg'));
+			let t = await m.getText();
+			console.log(t);
+			console.log('= = = = = = = = = = = = = = = = = = =');
+			if (ma) {
+				console.log('***ERR: ' + ma);
+			} else if (undefined === process.env.KEYX)
+				driver.quit();
+	});
+});
+
+
+/*describe('G Stacking DNG and RAW on old html', function() {
 	let driver, opts, errflg = false;
 	before(async function() {
 			this.timeout(36000);
@@ -1046,7 +1124,7 @@ describe('G Stacking DNG and RAW on old html', function() {
 			} else if (undefined === process.env.KEYX)
 				driver.quit();
 	});
-});
+});*/
 
 describe('H Stack DNG and Raw Local APP', function() {
 	let driver, opts, errflg = false;

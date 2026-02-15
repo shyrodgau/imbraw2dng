@@ -329,10 +329,11 @@ async function runTest() {
 	}
     await logbut2.click();
 	await driver.pause(1000);
-    const msglog = await driver.$('#outmsg');
-    const txt = await msglog.getText();
 	await driver.pause(300);
   	await driver.executeScript('imbc.dlmytexts();',[]);
+	await driver.pause(1000);
+    const msglog = await driver.$('#outmsg');
+    const txt = await msglog.getText();
 	await driver.pause(300);
     console.log(txt);
     let proc = true;
