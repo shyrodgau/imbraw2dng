@@ -1554,6 +1554,7 @@ class ImBCBase {
 imbcb = false;
 static progname = 'whoami';
 exitcode = 0;
+rotphase = 0;
 
 // ImBCBase: generic data
 mylang = 'en';
@@ -18841,12 +18842,10 @@ static ucex(name) {
 }
 /* ImBCBase: actual processing function for one file */
 handleone(orientation, upd) {
-	if (!upd && (undefined !== this.rotphase)) {
+	if (!upd && document && document?.getElementById('progprog')) {
 		this.rotphase ++;
-		if ((this.rotphase % this.rotphases.length) % 2 == 1)
-			document.getElementById('progmsg').innerHTML = '<div style="transform: rotate(90deg);display:inline-block;">' + this.rotphases[this.rotphase % this.rotphases.length] + '</div> ' + this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
-		else
-			document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ' + this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
+        document.getElementById('progprog').setAttribute('data-x', (this.rotphase%12));
+        document.getElementById('progmsg').innerHTML = this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
 		setTimeout(() => { this.handleone(orientation, true); }, 10 );
 		return;
 	}
