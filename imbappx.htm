@@ -20171,17 +20171,20 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		const bl = Math.round(addimgs / 2);
 		if (typ0  === 5) {
 			ti.addEntry(50714, 'SHORT', [ 240, 240, 240, 240 ] ); /* Blacklevel */
+			ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
 		}
 		else if (typ0  === 6) {
 			ti.addEntry(50714, 'SHORT', [ 0, 0, 0, 0 ] ); /* Blacklevel */
+			ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
 		}
 		else if (typ0 > 1 && bl) {
 			ti.addEntry(50714, 'SHORT', [ 0, bl, bl, 0 ] ); /* Blacklevel */
+			ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
 		}
 		else if (bl) {
 			ti.addEntry(50714, 'SHORT', [ bl, 0, 0, bl ] ); /* Blacklevel */
+			ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
 		}
-		ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
 		ti.addEntry(262, 'SHORT', [ 0x8023 ]); /* Photometric - CFA */
 		ti.addEntry(277, 'SHORT', [ 1 ]); /* Samples per Pixel */
 		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config - chunky */
