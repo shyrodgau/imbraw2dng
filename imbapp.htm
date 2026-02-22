@@ -1696,56 +1696,74 @@ infos: [ // actually const
 		w: 4320,
 		h: 3256,
 		typ: 0,
-		mode: "historic"
+		mode: "historic",
+		bpp: 8,
+		cfa: [ 2, 1, 1, 0 ]
 	},
 	{ /* MF 6x7 */
 		size: 15925248,
 		w: 4608,
 		h: 3456,
 		typ: 2,
-		mode: ""
+		mode: "",
+		bpp: 8,
+		cfa: [ 2, 1, 1, 0 ]
 	}, /* Missing angle medium, small */
 	{
 		size: 9806592,
 		w: 3616, h: 2712,
 		typ: 3,
-		mode: "Medium-angle"
+		mode: "Medium-angle",
+		bpp: 8,
+		cfa: [ 2, 1, 1, 0 ]
 	},
 	{
 		size: 6470944,
 		w: 2936, h: 2204,
 		typ: 3,
-		mode: "Small-angle"
+		mode: "Small-angle",
+		bpp: 8,
+		cfa: [ 2, 1, 1, 0 ]
 	},
 	{ /* MF 6x4.5 */
 		size: 12937632,
 		w: 4152, h: 3116,
 		typ: 3,
-		mode: ""
+		mode: "",
+		bpp: 8,
+		cfa: [ 2, 1, 1, 0 ]
 	},
 	{ /* MF 6x6 */
 		size: 11943936,
 		w: 3456, h: 3456,
 		typ: 4,
-		mode: ""
+		mode: "",
+		bpp: 8,
+		cfa: [ 2, 1, 1, 0 ]
 	}, /* Missing angle medium, small */
 	{
 		size: 11618752,
 		w: 4012, h: 2896,
 		typ: 1,
-		mode: "Medium-angle"
+		mode: "Medium-angle",
+		bpp: 8,
+		cfa: [ 1, 0, 2, 1 ]
 	},
 	{
 		size: 7667520,
 		w: 3260, h: 2352,
 		typ: 1,
-		mode: "Small-angle"
+		mode: "Small-angle",
+		bpp: 8,
+		cfa: [ 1, 0, 2, 1 ]
 	},
 	{ /* 35mm */
 		size: 15335424,
 		w: 4608, h: 3328,
 		typ: 1,
-		mode: ""
+		mode: "",
+		bpp: 8,
+		cfa: [ 1, 0, 2, 1 ]
 	},
 	/* 12 bit down here: */
 	/* Film ! */
@@ -1754,7 +1772,9 @@ infos: [ // actually const
 		w: 5216,
 		h:3912,
 		typ: 5,
-		mode: ''
+		mode: '',
+		bpp: 8,
+		cfa: [ 2, 1, 1, 0 ]
 	},
 	/* MiMi ! */
 	{
@@ -1762,14 +1782,18 @@ infos: [ // actually const
 		w: 4000,
 		h:3000,
 		typ: 6,
-		mode: ''
+		mode: '',
+		bpp: 8,
+		cfa: [ 0, 1, 1, 2 ]
 	},
 	{
 		size: 14634048,
 		w: 3608,
 		h:2704,
 		typ: 7,
-		mode: ''
+		mode: '',
+		bpp: 8,
+		cfa: [ 2, 1, 1, 0 ]
 	}
 ],
 /* globals: format supported stuff */
@@ -20157,17 +20181,20 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		const bl = Math.round(addimgs / 2);
 		if (typ0  === 5) {
 			ti.addEntry(50714, 'SHORT', [ 240, 240, 240, 240 ] ); /* Blacklevel */
+			ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
 		}
 		else if (typ0  === 6) {
 			ti.addEntry(50714, 'SHORT', [ 0, 0, 0, 0 ] ); /* Blacklevel */
+			ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
 		}
 		else if (typ0 > 1 && bl) {
 			ti.addEntry(50714, 'SHORT', [ 0, bl, bl, 0 ] ); /* Blacklevel */
+			ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
 		}
 		else if (bl) {
 			ti.addEntry(50714, 'SHORT', [ bl, 0, 0, bl ] ); /* Blacklevel */
+			ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
 		}
-		ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
 		ti.addEntry(262, 'SHORT', [ 0x8023 ]); /* Photometric - CFA */
 		ti.addEntry(277, 'SHORT', [ 1 ]); /* Samples per Pixel */
 		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config - chunky */
@@ -27263,7 +27290,6 @@ function init() {
 <div class="btop"><span data-myxlkey="app.menu.extras.cachesize"> </span> <input type="number" onchange="imbc.chgcache()" id="dbgcache" style="width: 5em;"></div>
 <div><span>Expert Flags:</span> <input type="number" onchange="imbc.chgflags()" id="expflags" style="width: 5em;"></div>
 </div></div>
-<!--div style="width:20em;" class="btop"><input type="button" onclick="imbc.dlmytexts();" value="Download texts as csv"></div-->
 </div>
 <!-- end of the extras -->
 <div id="pages" style="display:none;"><!-- container for navigationable pages -->
@@ -27280,7 +27306,7 @@ function init() {
 <!-- end of hamburger menu -->
 <!-- navigation header -->
 <div id="navheader" style="position:fixed; top:0; width:100%;background-color:black;z-index:997;color:white;"><div>&nbsp;
-<span class="browserx"><input type="button" value="&#x22ee;" style="padding-left: 0em; margin-top: 0.1em; margin-bottom: -0.5em;font-size:133%;border:0 !important;margin-right: 0;padding-right: 0;" class="whbtn" id="hamb" onclick="return imbc.handleham();"></span>
+<span class="browserx"><input type="button" value="&#x22ee;" style="padding-left: 0em; margin-top: 0.1em; margin-bottom: -0.5em;font-size:133%;border:0 !important;margin-right: 0;padding-right: 0;transform:rotate(90deg);" class="whbtn" id="hamb" onclick="return imbc.handleham();"></span>
 <span id="batt1" class="batt1 battlo battery" style="font-weight:bold; display: inline-block; width: 1em; height:1.3em; vertical-align:bottom;position:relative; top: -0.7em;"><span>&#xa0;</span></span>
 <span id="batt2" class="batt2 battlo battery" style="position: relative; left: -1.1em; font-weight:bold; display: inline-block; color:green;width: 0.7em;background-color: black;margin-right: 1em;top: -0.3em;"><span>&#xa0;</span></span>
 <input type="button" value="&#x1f5d1;" class="uhbtn" onclick="imbc.browserdelete()" id="delselbut" disabled style="font-family:Symbol3;font-weight: normal;" data-mytitlexlkey="browser.delall">
