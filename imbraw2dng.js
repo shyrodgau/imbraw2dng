@@ -882,7 +882,7 @@ static readinta(arr, off) {
 const globals = {
 debugflag: false,
 /* Indentation out - globals */
-version: "V6.7.9_b3aae1f", // actually const // VERSION EYECATCHER
+version: "V6.7.9_@_d_e_v", // actually const // VERSION EYECATCHER
 alllangs: [ 'de' , 'en', 'ja', '00' /*, 'fr', 'ru'*/ ], // actually const
 // generic user input timestamp always complete
 //               y     y    y    y      .       m    m     .       d     d      .       h    h      .       m    m      .       s    s
@@ -19385,17 +19385,20 @@ ti.addEntry(51108, 'LONG', [ 1 ]); /* ProfileLookTableEncoding */
 		const bl = Math.round(addimgs / 2);
 		if (typ0  === 5) {
 			ti.addEntry(50714, 'SHORT', [ 240, 240, 240, 240 ] ); /* Blacklevel */
+			ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
 		}
 		else if (typ0  === 6) {
 			ti.addEntry(50714, 'SHORT', [ 0, 0, 0, 0 ] ); /* Blacklevel */
+			ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
 		}
 		else if (typ0 > 1 && bl) {
 			ti.addEntry(50714, 'SHORT', [ 0, bl, bl, 0 ] ); /* Blacklevel */
+			ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
 		}
 		else if (bl) {
 			ti.addEntry(50714, 'SHORT', [ bl, 0, 0, bl ] ); /* Blacklevel */
+			ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
 		}
-		ti.addEntry(50713, 'SHORT', [ 2, 2 ] ); /* Blacklevel Repeat dim */
 		ti.addEntry(262, 'SHORT', [ 0x8023 ]); /* Photometric - CFA */
 		ti.addEntry(277, 'SHORT', [ 1 ]); /* Samples per Pixel */
 		ti.addEntry(284, 'SHORT', [ 1 ]); /* Planar config - chunky */
