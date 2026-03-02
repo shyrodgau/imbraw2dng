@@ -1216,7 +1216,7 @@ Total: 13, ok: 1, skipped: 0, Errors: 1
 + n=89
 + set +x
 Test 16 okay
-Finished! Copied to ./imbraw2dng_1188922_texts.csv
+Finished! Copied to ./imbraw2dng_2482499_texts.csv
 
 
 NODE TESTS FINISHED
@@ -1224,8 +1224,36 @@ NODE TESTS FINISHED
 ~/prog/imbraw2dng/samples/webroot
 
 
+  A Convert Raw Local
+......turning off single step
+......turning off preview
+    undefined A.6 Convert without date (5078ms)
+Message Content:
+= = = = = = = = = = = = = = = = = = =
+Message Log:
+Got 2 file(s) selected.
+
+ 
+[1 / 2] Processing file: kb_large_10.raw
+Assuming MF6x4.5 (4152 x 3116)
+Adding new DCP
+Finished! Converted to kb_large_10.dng (Check Downloads Folder)
+
+ 
+[2 / 2] Processing file: mf6x6_large_1.raw
+Assuming MiMi (4000 x 3000)
+Adding new DCP
+Finished! Converted to mf6x6_large_1.dng (Check Downloads Folder)
+
+ 
+
+Total: 2, ok: 2, skipped: 0, Errors: 0
+
+ 
+= = = = = = = = = = = = = = = = = = =
+
   E Convert Raw from Imback APP
-    undefined E.1 Convert from visual browser (81257ms)
+    undefined E.1 Convert from visual browser (81136ms)
 Message Content:
 = = = = = = = = = = = = = = = = = = =
 Message Log:
@@ -1309,15 +1337,15 @@ Finished! Converted to 2024_0217_131750_001.dng (Check Downloads Folder)
 Total: 2, ok: 2, skipped: 0, Errors: 0
 
  
-Finished! Copied to imbapp_1189007_msg.html (Check Downloads Folder) 
+Finished! Copied to imbapp_2482593_msg.html (Check Downloads Folder) 
 
  
  
 = = = = = = = = = = = = = = = = = = =
 
   F Convert Raw Local APP
-    undefined F.1 Convert without question (9366ms)
-    undefined F.2 Convert multiple (14526ms)
+    undefined F.1 Convert without question (9200ms)
+    undefined F.2 Convert multiple (14111ms)
 Message Content:
 = = = = = = = = = = = = = = = = = = =
 Message Log:
@@ -1377,52 +1405,9 @@ Total: 5, ok: 5, skipped: 0, Errors: 0
  
 = = = = = = = = = = = = = = = = = = =
 
-  G replace some older
-    undefined G.2 Convert multiple (14403ms)
-Message Content:
-= = = = = = = = = = = = = = = = = = =
-Message Log:
-Warning: Strange file name: kb_large_10.raw
-
- 
-Warning: Strange file name: mf6x6_large_1.raw
-
- 
-Got 3 file(s) from Visual browser.
-
- 
-[1 / 3] Processing file: 2029_0710_010203_001.raw
-Assuming Film (5216 x 3912)
-Date/Time: 2029:07:10 01:02:03 
-Add preview thumbnail to DNG
-Adding new DCP
-Finished! Converted to 2029_0710_010203_001.dng (Check Downloads Folder)
-
- 
-[2 / 3] Processing file: kb_large_10.raw
-Assuming MF6x4.5 (4152 x 3116)
-Add preview thumbnail to DNG
-Adding new DCP
-Finished! Converted to kb_large_10.dng (Check Downloads Folder)
-
- 
-[3 / 3] Processing file: mf6x6_large_1.raw
-Assuming MiMi (4000 x 3000)
-Add preview thumbnail to DNG
-Adding new DCP
-Finished! Converted to mf6x6_large_1.dng (Check Downloads Folder)
-
- 
-
-Total: 3, ok: 3, skipped: 0, Errors: 0
-
- 
- 
-= = = = = = = = = = = = = = = = = = =
-
   H Stack DNG and Raw Local APP
-    undefined H.1 stack raw (6803ms)
-    undefined H.1 stack DNG (6656ms)
+    undefined H.1 stack raw (7092ms)
+    undefined H.1 stack DNG (7189ms)
 Message Content:
 = = = = = = = = = = = = = = = = = = =
 Message Log:
@@ -1464,14 +1449,14 @@ Finished! Converted to kb_large_10_MULTI.dng (Check Downloads Folder)
 Total: 4, ok: 1, skipped: 0, Errors: 1
 
  
-Finished! Converted to imbraw2dng_1189064_texts.csv
+Finished! Converted to imbraw2dng_2482634_texts.csv
 
  
  
 = = = = = = = = = = = = = = = = = = =
 
   I Convert Backward App
-    undefined I.1 Convert without question (5096ms)
+    undefined I.1 Convert without question (4962ms)
 Message Content:
 = = = = = = = = = = = = = = = = = = =
 Message Log:
@@ -1494,28 +1479,27 @@ Total: 3, ok: 3, skipped: 0, Errors: 0
 
   7 passing (2m)
 
-renamed '/home/hegny/Downloads/.tmpimbtest/2024_0217_121754_002.JPG@1' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/2024_0217_121754_002.JPG'
-renamed '/home/hegny/Downloads/.tmpimbtest/2024_0217_121752_001.dng@0' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/2024_0217_121752_001.dng'
-renamed '/home/hegny/Downloads/.tmpimbtest/2029_0707_120426_021.dng@2' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/2029_0707_120426_021.dng'
-renamed '/home/hegny/Downloads/.tmpimbtest/2029_0710_010203_001.dng@3' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/2029_0710_010203_001.dng'
-renamed '/home/hegny/Downloads/.tmpimbtest/2024_0217_131750_001_x.jpg@5' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/2024_0217_131750_001_x.jpg'
-renamed '/home/hegny/Downloads/.tmpimbtest/2024_0217_131752_002.JPG@6' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/2024_0217_131752_002.JPG'
-renamed '/home/hegny/Downloads/.tmpimbtest/2024_0217_131750_001.dng@4' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/2024_0217_131750_001.dng'
-renamed '/home/hegny/Downloads/.tmpimbtest/imbapp_1189007_msg.html@8' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/imbapp_1189007_msg.html'
-renamed '/home/hegny/Downloads/.tmpimbtest/2020_0211_213011_001.dng@7' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/2020_0211_213011_001.dng'
-renamed '/home/hegny/Downloads/.tmpimbtest/2020_0211_213011_001.jpg@10' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/2020_0211_213011_001.jpg'
-renamed '/home/hegny/Downloads/.tmpimbtest/2024_0217_121754_002.JPG@12' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/2024_0217_121754_002 (1).JPG'
-renamed '/home/hegny/Downloads/.tmpimbtest/2020_0211_213011_001.dng@9' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/2020_0211_213011_001 (1).dng'
-renamed '/home/hegny/Downloads/.tmpimbtest/2024_0217_121752_001.dng@11' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/2024_0217_121752_001 (1).dng'
-renamed '/home/hegny/Downloads/.tmpimbtest/2029_0710_010203_001.dng@13' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/2029_0710_010203_001 (1).dng'
-renamed '/home/hegny/Downloads/.tmpimbtest/kb_large_10.dng@14' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/kb_large_10.dng'
-renamed '/home/hegny/Downloads/.tmpimbtest/mf6x6_large_1.dng@15' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/mf6x6_large_1.dng'
-renamed '/home/hegny/Downloads/.tmpimbtest/2024_1015_123011_001_MULTI.dng@16' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/2024_1015_123011_001_MULTI.dng'
-renamed '/home/hegny/Downloads/.tmpimbtest/kb_large_10_MULTI.dng@17' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/kb_large_10_MULTI.dng'
-renamed '/home/hegny/Downloads/.tmpimbtest/imbraw2dng_1189064_texts.csv@18' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/imbraw2dng_1189064_texts.csv'
-renamed '/home/hegny/Downloads/.tmpimbtest/mf6x6_large_1.raw@21' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/mf6x6_large_1.raw'
-renamed '/home/hegny/Downloads/.tmpimbtest/kb_large_10.raw@20' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/kb_large_10.raw'
-renamed '/home/hegny/Downloads/.tmpimbtest/2029_0710_010203_001.raw@19' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/2029_0710_010203_001.raw'
+renamed '/home/hegny/Downloads/.tmpimbtest/kb_large_10.dng@0' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/kb_large_10.dng'
+renamed '/home/hegny/Downloads/.tmpimbtest/mf6x6_large_1.dng@1' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/mf6x6_large_1.dng'
+renamed '/home/hegny/Downloads/.tmpimbtest/2024_0217_121754_002.JPG@3' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/2024_0217_121754_002.JPG'
+renamed '/home/hegny/Downloads/.tmpimbtest/2024_0217_121752_001.dng@2' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/2024_0217_121752_001.dng'
+renamed '/home/hegny/Downloads/.tmpimbtest/2029_0707_120426_021.dng@4' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/2029_0707_120426_021.dng'
+renamed '/home/hegny/Downloads/.tmpimbtest/2029_0710_010203_001.dng@5' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/2029_0710_010203_001.dng'
+renamed '/home/hegny/Downloads/.tmpimbtest/2024_0217_131750_001_x.jpg@7' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/2024_0217_131750_001_x.jpg'
+renamed '/home/hegny/Downloads/.tmpimbtest/2024_0217_131752_002.JPG@8' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/2024_0217_131752_002.JPG'
+renamed '/home/hegny/Downloads/.tmpimbtest/2024_0217_131750_001.dng@6' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/2024_0217_131750_001.dng'
+renamed '/home/hegny/Downloads/.tmpimbtest/imbapp_2482593_msg.html@10' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/imbapp_2482593_msg.html'
+renamed '/home/hegny/Downloads/.tmpimbtest/2020_0211_213011_001.dng@9' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/2020_0211_213011_001.dng'
+renamed '/home/hegny/Downloads/.tmpimbtest/2020_0211_213011_001.jpg@12' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/2020_0211_213011_001.jpg'
+renamed '/home/hegny/Downloads/.tmpimbtest/2024_0217_121754_002.JPG@14' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/2024_0217_121754_002 (1).JPG'
+renamed '/home/hegny/Downloads/.tmpimbtest/2020_0211_213011_001.dng@11' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/2020_0211_213011_001 (1).dng'
+renamed '/home/hegny/Downloads/.tmpimbtest/2024_0217_121752_001.dng@13' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/2024_0217_121752_001 (1).dng'
+renamed '/home/hegny/Downloads/.tmpimbtest/2024_1015_123011_001_MULTI.dng@15' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/2024_1015_123011_001_MULTI.dng'
+renamed '/home/hegny/Downloads/.tmpimbtest/kb_large_10_MULTI.dng@16' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/kb_large_10_MULTI.dng'
+renamed '/home/hegny/Downloads/.tmpimbtest/imbraw2dng_2482634_texts.csv@17' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/imbraw2dng_2482634_texts.csv'
+renamed '/home/hegny/Downloads/.tmpimbtest/mf6x6_large_1.raw@20' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/mf6x6_large_1.raw'
+renamed '/home/hegny/Downloads/.tmpimbtest/kb_large_10.raw@19' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/kb_large_10.raw'
+renamed '/home/hegny/Downloads/.tmpimbtest/2029_0710_010203_001.raw@18' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/2029_0710_010203_001.raw'
 removed '/home/hegny/Downloads/2029_0710_010203_001.dng'
 removed '/home/hegny/Downloads/2020_0211_213011_001.jpg'
 removed '/home/hegny/Downloads/kb_large_10.dng'
@@ -1607,7 +1591,7 @@ Finished! Converted to 2024_0217_131750_001.dng (Check Folder content://com.andr
 Total: 2, ok: 2, skipped: 0, Errors: 0
 
  
-Finished! Converted to imbraw2dng_1189246_texts.csv
+Finished! Converted to imbraw2dng_2482817_texts.csv
 
  
 renamed '/home/hegny/Downloads/appium.log' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/app/appium.log'
@@ -1700,14 +1684,14 @@ Finished! Converted to 2024_0217_131750_001.dng (Check Folder content://com.andr
 Total: 2, ok: 2, skipped: 0, Errors: 0
 
  
-Finished! Converted to imbraw2dng_1189246_texts.csv
+Finished! Converted to imbraw2dng_2482817_texts.csv
 
  
 
-renamed '/home/hegny/prog/imbraw2dng/github/test/outdir/html/imbapp_1189007_msg.html' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/imbapp_1_msg.html'
-renamed '/home/hegny/prog/imbraw2dng/github/test/outdir/app/appium_imbraw2dng_1189246_texts.csv' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/app/appium_imbraw2dng_1_texts.csv'
-renamed '/home/hegny/prog/imbraw2dng/github/test/outdir/html/imbraw2dng_1189064_texts.csv' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/imbraw2dng_2_texts.csv'
-renamed '/home/hegny/prog/imbraw2dng/github/test/outdir/imbraw2dng_1188922_texts.csv' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/imbraw2dng_3_texts.csv'
+renamed '/home/hegny/prog/imbraw2dng/github/test/outdir/html/imbapp_2482593_msg.html' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/imbapp_1_msg.html'
+renamed '/home/hegny/prog/imbraw2dng/github/test/outdir/app/appium_imbraw2dng_2482817_texts.csv' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/app/appium_imbraw2dng_1_texts.csv'
+renamed '/home/hegny/prog/imbraw2dng/github/test/outdir/html/imbraw2dng_2482634_texts.csv' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/html/imbraw2dng_2_texts.csv'
+renamed '/home/hegny/prog/imbraw2dng/github/test/outdir/imbraw2dng_2482499_texts.csv' -> '/home/hegny/prog/imbraw2dng/github/test/outdir/imbraw2dng_3_texts.csv'
 'app_appium_2024_0217_121752_001.dng' -> 'app/appium_2024_0217_121752_001.dng'
 'app_appium_2024_0217_121754_002_001.JPG' -> 'app/appium_2024_0217_121754_002_001.JPG'
 'app_appium_2024_0217_121754_002.JPG' -> 'app/appium_2024_0217_121754_002.JPG'
@@ -1742,7 +1726,6 @@ renamed '/home/hegny/prog/imbraw2dng/github/test/outdir/imbraw2dng_1188922_texts
 'html_2024_0217_131752_002.JPG' -> 'html/2024_0217_131752_002.JPG'
 'html_2024_1015_123011_001_MULTI.dng' -> 'html/2024_1015_123011_001_MULTI.dng'
 'html_2029_0707_120426_021.dng' -> 'html/2029_0707_120426_021.dng'
-'html_2029_0710_010203_001 (1).dng' -> 'html/2029_0710_010203_001 (1).dng'
 'html_2029_0710_010203_001.dng' -> 'html/2029_0710_010203_001.dng'
 'html_2029_0710_010203_001.raw' -> 'html/2029_0710_010203_001.raw'
 'html_imbapp_1_msg.html' -> 'html/imbapp_1_msg.html'
@@ -1812,21 +1795,21 @@ Archive:  ./test2.zip
 --------  ------  ------- ---- ---------- ----- --------  ----
  6014005  Stored  6014005   0% 2024-02-17 12:17 0a3889f6  2024_0217_121754_002.JPG
 138864497  Stored 138864497   0% 2024-02-19 21:13 369e1a97  2024_0219_211300_015.MP4
-12991432  Stored 12991432   0% 2019-01-01 00:20 16fe6a10  2019_0101_002053_001.dng
-13985134  Stored 13985134   0% 2019-01-01 00:30 d1abf265  2019_0101_003031_002.dng
-16382918  Stored 16382918   0% 2023-03-04 12:17 918f4a6b  2023_0304_121756_002.dng
-12666246  Stored 12666246   0% 2023-03-11 12:02 e9ad2942  2023_0311_120252_002.dng
- 8715014  Stored  8715014   0% 2023-03-14 23:11 b08c7048  2023_0314_231116_004.dng
-12666246  Stored 12666246   0% 2023-11-14 11:30 9e7b74bb  2023_1114_113011_001.dng
-16383454  Stored 16383454   0% 2024-02-17 12:17 88a8718f  2024_0217_121752_001.dng
- 8715014  Stored  8715014   0% 2024-10-15 12:30 573ccec9  2024_1015_123011_001.dng
-19047514  Stored 19047514   0% 2027-07-18 15:30 808f6120  2027_0718_153011_001.dng
-31655018  Stored 31655018   0% 2029-05-06 07:08 1999e92a  2029_0506_070809_001.dng
-15113422  Stored 15113422   0% 2029-07-07 12:04 75e3218b  2029_0707_120426_021.dng
-31655018  Stored 31655018   0% 2029-07-10 01:02 d7035c18  2029_0710_010203_001.dng
-19047514  Stored 19047514   0% 2020-02-11 21:30 0dc53b19  2020_0211_213011_001.dng
+12991420  Stored 12991420   0% 2019-01-01 00:20 9f0e2c60  2019_0101_002053_001.dng
+13985122  Stored 13985122   0% 2019-01-01 00:30 28cf262b  2019_0101_003031_002.dng
+16382906  Stored 16382906   0% 2023-03-04 12:17 9b66ea54  2023_0304_121756_002.dng
+12666234  Stored 12666234   0% 2023-03-11 12:02 ab579f72  2023_0311_120252_002.dng
+ 8715002  Stored  8715002   0% 2023-03-14 23:11 925ba784  2023_0314_231116_004.dng
+12666234  Stored 12666234   0% 2023-11-14 11:30 0c3565cd  2023_1114_113011_001.dng
+16383442  Stored 16383442   0% 2024-02-17 12:17 d24a19db  2024_0217_121752_001.dng
+ 8715002  Stored  8715002   0% 2024-10-15 12:30 05cb1148  2024_1015_123011_001.dng
+19047514  Stored 19047514   0% 2027-07-18 15:30 30d88729  2027_0718_153011_001.dng
+31655018  Stored 31655018   0% 2029-05-06 07:08 39ebeba9  2029_0506_070809_001.dng
+15113410  Stored 15113410   0% 2029-07-07 12:04 39dbe8a5  2029_0707_120426_021.dng
+31655018  Stored 31655018   0% 2029-07-10 01:02 b3373681  2029_0710_010203_001.dng
+19047514  Stored 19047514   0% 2020-02-11 21:30 f746a822  2020_0211_213011_001.dng
 --------          -------  ---                            -------
-363902446         363902446   0%                            15 files
+363902338         363902338   0%                            15 files
 Archive:  ./test2.zip
     testing: 2024_0217_121754_002.JPG   OK
     testing: 2024_0219_211300_015.MP4   OK
@@ -1848,7 +1831,7 @@ No errors detected in compressed data of ./test2.zip.
 Archive:  ./stackraw.zip
  Length   Method    Size  Cmpr    Date    Time   CRC-32   Name
 --------  ------  ------- ---- ---------- ----- --------  ----
-41918610  Stored 41918610   0% 2029-07-10 01:02 18dbbd05  2029_0710_010203_001_MULTI.dng
+41918610  Stored 41918610   0% 2029-07-10 01:02 0b4b6f73  2029_0710_010203_001_MULTI.dng
 --------          -------  ---                            -------
 41918610         41918610   0%                            1 file
 Archive:  ./stackraw.zip
@@ -1858,19 +1841,19 @@ No errors detected in compressed data of ./stackraw.zip.
 Archive:  ./fromback.zip
  Length   Method    Size  Cmpr    Date    Time   CRC-32   Name
 --------  ------  ------- ---- ---------- ----- --------  ----
-16382946  Stored 16382946   0% 2023-03-04 12:17 84f816b0  2023_0304_121756_002.dng
-12666274  Stored 12666274   0% 2023-03-11 12:02 a200ba1e  2023_0311_120252_002.dng
- 8715042  Stored  8715042   0% 2023-03-14 23:11 56d72b4a  2023_0314_231116_004.dng
-12666274  Stored 12666274   0% 2023-11-14 11:30 8c48b6d0  2023_1114_113011_001.dng
-16383482  Stored 16383482   0% 2024-02-17 12:17 3b5a71cb  2024_0217_121752_001.dng
- 8715042  Stored  8715042   0% 2024-10-15 12:30 08e994cc  2024_1015_123011_001.dng
-19047542  Stored 19047542   0% 2027-07-18 15:30 88a49128  2027_0718_153011_001.dng
-31655046  Stored 31655046   0% 2029-05-06 07:08 309f6c88  2029_0506_070809_001.dng
-15113450  Stored 15113450   0% 2029-07-07 12:04 0953ad3b  2029_0707_120426_021.dng
-31655046  Stored 31655046   0% 2029-07-10 01:02 16235b63  2029_0710_010203_001.dng
+16382934  Stored 16382934   0% 2023-03-04 12:17 18b4abbf  2023_0304_121756_002.dng
+12666262  Stored 12666262   0% 2023-03-11 12:02 e5fa8a60  2023_0311_120252_002.dng
+ 8715030  Stored  8715030   0% 2023-03-14 23:11 9d07f498  2023_0314_231116_004.dng
+12666262  Stored 12666262   0% 2023-11-14 11:30 f3d0e0be  2023_1114_113011_001.dng
+16383470  Stored 16383470   0% 2024-02-17 12:17 442f8d39  2024_0217_121752_001.dng
+ 8715030  Stored  8715030   0% 2024-10-15 12:30 88f0576a  2024_1015_123011_001.dng
+19047542  Stored 19047542   0% 2027-07-18 15:30 eec262c1  2027_0718_153011_001.dng
+31655046  Stored 31655046   0% 2029-05-06 07:08 e5c13db3  2029_0506_070809_001.dng
+15113438  Stored 15113438   0% 2029-07-07 12:04 27d740eb  2029_0707_120426_021.dng
+31655046  Stored 31655046   0% 2029-07-10 01:02 49308133  2029_0710_010203_001.dng
 138864497  Stored 138864497   0% 2024-02-19 21:13 369e1a97  2024_0219_211300_015.MP4
 --------          -------  ---                            -------
-311864641         311864641   0%                            11 files
+311864557         311864557   0%                            11 files
 Archive:  ./fromback.zip
     testing: 2023_0304_121756_002.dng   OK
     testing: 2023_0311_120252_002.dng   OK
@@ -1889,9 +1872,9 @@ Archive:  ./withexif1.zip
  Length   Method    Size  Cmpr    Date    Time   CRC-32   Name
 --------  ------  ------- ---- ---------- ----- --------  ----
  6014005  Stored  6014005   0% 2024-02-17 12:17 0a3889f6  2024_0217_121754_002.JPG
-16428770  Stored 16428770   0% 2024-02-17 12:17 f594c007  2024_0217_121752_001.dng
+16428758  Stored 16428758   0% 2024-02-17 12:17 51617eae  2024_0217_121752_001.dng
 --------          -------  ---                            -------
-22442775         22442775   0%                            2 files
+22442763         22442763   0%                            2 files
 Archive:  ./withexif1.zip
     testing: 2024_0217_121754_002.JPG   OK
     testing: 2024_0217_121752_001.dng   OK
@@ -1902,21 +1885,21 @@ Archive:  ./test1.zip
 --------  ------  ------- ---- ---------- ----- --------  ----
  6014005  Stored  6014005   0% 2024-02-17 12:17 0a3889f6  2024_0217_121754_002.JPG
 138864497  Stored 138864497   0% 2024-02-19 21:13 369e1a97  2024_0219_211300_015.MP4
-13131460  Stored 13131460   0% 2019-01-01 00:20 0c9ce13b  2019_0101_002053_001.dng
-14023414  Stored 14023414   0% 2019-01-01 00:30 e3c80045  2019_0101_003031_002.dng
-16427904  Stored 16427904   0% 2023-03-04 12:17 525bc8cb  2023_0304_121756_002.dng
-12802600  Stored 12802600   0% 2023-03-11 12:02 87f74f79  2023_0311_120252_002.dng
- 8805036  Stored  8805036   0% 2023-03-14 23:11 365604f8  2023_0314_231116_004.dng
-12802600  Stored 12802600   0% 2023-11-14 11:30 f8e5cc7d  2023_1114_113011_001.dng
-16428440  Stored 16428440   0% 2024-02-17 12:17 00dedf27  2024_0217_121752_001.dng
- 8805036  Stored  8805036   0% 2024-10-15 12:30 5d2cfffc  2024_1015_123011_001.dng
-19188572  Stored 19188572   0% 2027-07-18 15:30 982c5a3d  2027_0718_153011_001.dng
-31715224  Stored 31715224   0% 2029-05-06 07:08 e033a6c8  2029_0506_070809_001.dng
-15154794  Stored 15154794   0% 2029-07-07 12:04 6b6752b1  2029_0707_120426_021.dng
-31715224  Stored 31715224   0% 2029-07-10 01:02 bcbdb3fb  2029_0710_010203_001.dng
-19188572  Stored 19188572   0% 2020-02-11 21:30 e6c78c08  2020_0211_213011_001.dng
+13131448  Stored 13131448   0% 2019-01-01 00:20 20876c14  2019_0101_002053_001.dng
+14023402  Stored 14023402   0% 2019-01-01 00:30 90a51a9a  2019_0101_003031_002.dng
+16427892  Stored 16427892   0% 2023-03-04 12:17 6be272a1  2023_0304_121756_002.dng
+12802588  Stored 12802588   0% 2023-03-11 12:02 e4a168c2  2023_0311_120252_002.dng
+ 8805024  Stored  8805024   0% 2023-03-14 23:11 7342b9e3  2023_0314_231116_004.dng
+12802588  Stored 12802588   0% 2023-11-14 11:30 887a8a6e  2023_1114_113011_001.dng
+16428428  Stored 16428428   0% 2024-02-17 12:17 f1b1f22f  2024_0217_121752_001.dng
+ 8805024  Stored  8805024   0% 2024-10-15 12:30 c2b28a74  2024_1015_123011_001.dng
+19188572  Stored 19188572   0% 2027-07-18 15:30 22d43ea5  2027_0718_153011_001.dng
+31715224  Stored 31715224   0% 2029-05-06 07:08 e8ad10b3  2029_0506_070809_001.dng
+15154782  Stored 15154782   0% 2029-07-07 12:04 8b1b74cd  2029_0707_120426_021.dng
+31715224  Stored 31715224   0% 2029-07-10 01:02 49c836ee  2029_0710_010203_001.dng
+19188572  Stored 19188572   0% 2020-02-11 21:30 55b79665  2020_0211_213011_001.dng
 --------          -------  ---                            -------
-365067378         365067378   0%                            15 files
+365067270         365067270   0%                            15 files
 Archive:  ./test1.zip
     testing: 2024_0217_121754_002.JPG   OK
     testing: 2024_0219_211300_015.MP4   OK
@@ -1939,22 +1922,22 @@ imbraw2dng.js
 
 /home/hegny/prog/imbraw2dng/imbraw2dng/test/outdir/ih.mjs
     137:46  error  'FileReader' is not defined  no-undef
-  18898:46  error  'FileReader' is not defined  no-undef
-  18942:46  error  'FileReader' is not defined  no-undef
-  18980:45  error  'FileReader' is not defined  no-undef
-  19695:46  error  'FileReader' is not defined  no-undef
-  19876:46  error  'FileReader' is not defined  no-undef
+  18921:46  error  'FileReader' is not defined  no-undef
+  18965:46  error  'FileReader' is not defined  no-undef
+  19003:45  error  'FileReader' is not defined  no-undef
+  19721:46  error  'FileReader' is not defined  no-undef
+  19902:46  error  'FileReader' is not defined  no-undef
 
 ✖ 6 problems (6 errors, 0 warnings)
 
 imbraw2dng.html 234
 
 /home/hegny/prog/imbraw2dng/imbraw2dng/test/outdir/ih.js
-  22752:10  error  'init' is defined but never used  no-unused-vars
+  22774:10  error  'init' is defined but never used  no-unused-vars
 
 ✖ 1 problem (1 error, 0 warnings)
 
-imbapp.html 671
+imbapp.html 703
 
 /home/hegny/prog/imbraw2dng/imbraw2dng/test/outdir/iaa.js
    14:8   error  'globalfxns' is not defined  no-undef
@@ -1971,7 +1954,7 @@ imbapp.html 671
 
 ✖ 11 problems (11 errors, 0 warnings)
 
-imbapp.html net worker 671
+imbapp.html net worker 703
 
 /home/hegny/prog/imbraw2dng/imbraw2dng/test/outdir/iaw.js
    14:8   error  'globalfxns' is not defined  no-undef
@@ -1988,7 +1971,7 @@ imbapp.html net worker 671
 
 ✖ 11 problems (11 errors, 0 warnings)
 
-imbapp.html preview worker 950
+imbapp.html preview worker 982
 
 /home/hegny/prog/imbraw2dng/imbraw2dng/test/outdir/iapw.js
    8:3   error  'globals' is not defined  no-undef

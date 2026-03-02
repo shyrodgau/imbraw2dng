@@ -690,7 +690,8 @@ body:has(dialog[open]), html:has(dialog[open]) {
 }
 .x[data-x='99'] { display: none; }
 .x[data-x='0']::before, .x[data-x='1']::before, .x[data-x='2']::before, .x[data-x='6']::before, .x[data-x='7']::before, .x[data-x='8']::before  {  content: '\23b1'; }
-.x[data-x='3']::before, .x[data-x='4']::before, .x[data-x='5']::before, .x[data-x='9']::before, .x[data-x='10']::before, .x[data-x='11']::before  {  content: '23f3'; }
+.x[data-x='3']::before, .x[data-x='4']::before, .x[data-x='5']::before, .x[data-x='9']::before, .x[data-x='10']::before, .x[data-x='11']::before  {  content: '\23f3'; }
+.x::before, .x { font-family: Symbol3; display: inline-block; }
 .x[data-x='1'], .x[data-x='5'], .x[data-x='9']  {  transform: rotate(45deg); }
 .x[data-x='2'], .x[data-x='6'], .x[data-x='10']  {  transform: rotate(90deg); }
 .x[data-x='3'], .x[data-x='7'], .x[data-x='11']  {  transform: rotate(135deg); }
@@ -23205,10 +23206,8 @@ writeslice(fw, name, arr, onok, onerr, off) {
 			onok();
 		else {
 			this.rotphase ++;
-			if ((this.rotphase % this.rotphases.length) % 2 == 1)
-				document.getElementById('progmsg').innerHTML = '<div style="transform: rotate(90deg);display:inline-block;">' + this.rotphases[this.rotphase % this.rotphases.length] + '</div> ' + this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
-			else
-				document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ' + this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
+			document.getElementById('progprog').setAttribute('data-x', (this.rotphase%12));
+			document.getElementById('progmsg').innerHTML = this.xl('process.totals', this.stats.total, this.stats.ok, this.stats.skipped, this.stats.error);
 			setTimeout(() => {
 				this.rootfsx.getFile(name, { create: false }, (fileEntry) => {
 					// Create a FileWriter object for our FileEntry (log.txt).
@@ -23500,7 +23499,8 @@ intentinthandler(optarg) {
 	this.stats.total = this.totnum;
 	this.actnum = 0;
 	this.appmsgxl(true, 'process.selectedn', this.totnum);
-	document.getElementById('progmsg').innerHTML = this.rotphases[this.rotphase % this.rotphases.length] + ' ';
+	document.getElementById('progprog').setAttribute('data-x', (this.rotphase % 12));
+	document.getElementById('progmsg').innerHTML = ' ';
 	this.topreccheck(false);
 	this.imbweb = '';
 	try {
