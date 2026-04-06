@@ -324,7 +324,6 @@ class IFDOut {
 /* Indentation out */
 issub = false;
 subs = [];
-camprofptr = -1; // first of the pointers, they are sequential, accessed by TIFFOut
 // rest is private:
 #entrys = [];
 #currentoff = 0;
@@ -586,13 +585,6 @@ getData(offset) {
 			TIFFOut.writeinttoout(this.#dyndata, offset, i.ptr);
 			TIFFOut.writeinttoout(this.#dyndata, offset + this.#imglen0 / 2, i.ptr + 4);
 			TIFFOut.writeinttoout(data, i.ptr + offset + this.#imglen + 6 + (12 * this.#entrys.length), ioff);
-		} else if (i.tag === 50933) { // camera profiles
-			if (undefined !== i.value) // only one, profile ptr fits into value
-				this.camprofptr = offset + ioff;
-			else {			// more than one, dereference
-				TIFFOut.writeinttoout(data, i.ptr + offset + this.#imglen + 6 + (12 * this.#entrys.length), ioff);
-				this.camprofptr = offset + this.#imglen + i.ptr + 6 + (12 * this.#entrys.length);
-			}
 		} else if (undefined !== i.value) {
 			data.set(i.value, ioff);
 		} else {
@@ -717,7 +709,6 @@ static parseIfd(view, off0, baseoff) {
 class TIFFOut {
 /* Indentation out */
 #ifds = [];
-#cameraprofiles = [];
 #currentifd = null;
 /* TIFFOut: add an ifd  (will set this as current IFD) */
 addIfd(issub) {
@@ -754,10 +745,7 @@ addImageStrip(typ, view, width, height) {
 }
 /* TIFFOut: add an entry to current ifd */
 addEntry(tag, type, data) {
-	if (this.#cameraprofiles.length > 0) {
-		this.#cameraprofiles[this.#cameraprofiles.length - 1].addEntry(tag, type, data);
-	} else
-		this.#currentifd.addEntry(tag, type, data);
+	this.#currentifd.addEntry(tag, type, data);
 }
 /* TIFFOut: map string type to tiff id */
 static types = [
@@ -794,13 +782,7 @@ static writeshorttoout(out, num, off) {
 /* TIFFOut: return the tiff binary data */
 getData() {
 	let partlens = this.#ifds.map(x => (100000+x.getOffset())).reduce((sum, a) => (sum + a), 0);
-	partlens += this.#cameraprofiles.map(() => 1000000).reduce((sum, a) => (sum + a), 0);
 	let data = new Uint8Array(partlens + 1000000);
-	if (this.#cameraprofiles.length > 0) {
-		let camprofarr = [];
-		for (let j=0; j<this.#cameraprofiles.length; j++) camprofarr.push(1);
-		this.#ifds[0].addEntry(50933, 'LONG', camprofarr); /* camera profiles pointer */
-	}
 	TIFFOut.writeshorttoout(data, 0x4949, 0); // magics
 	TIFFOut.writeshorttoout(data, 42, 2);
 	let lastoffpos = 4;
@@ -827,30 +809,7 @@ getData() {
 			TIFFOut.writeinttoout(data, j.i.ifdstart, j.o);
 		}
 	}
-	if (-1 !== this.#ifds[0].camprofptr && this.#cameraprofiles.length > 0) {
-		for (let l=0; l<this.#cameraprofiles.length; l++) {
-			TIFFOut.writeinttoout(data, lastlen, this.#ifds[0].camprofptr + (4*l));
-			let cpd = this.#getCamProfData(this.#cameraprofiles[l]);
-			data.set(cpd, lastlen);
-			lastlen += cpd.length;
-		}
-	}
 	return data.slice(0, lastlen);
-}
-// TIFFOut: add extra camera profile (will set this as current IFD), must go behind all other IFDs
-createCamProf(name) {
-	this.#cameraprofiles.push(new IFDOut());
-	this.#cameraprofiles[this.#cameraprofiles.length - 1].addEntry(50936, 'ASCII', name); /* profile name */
-}
-/* TIFFOut: get camera profile data analog to ifd */
-#getCamProfData(p) {
-	let d = p.getData(8);
-	let camprofbuf = new Uint8Array(d.length + 8);
-	TIFFOut.writeshorttoout(camprofbuf, 0x4949, 0); // magics
-	TIFFOut.writeshorttoout(camprofbuf, 0x4352, 2);
-	TIFFOut.writeinttoout(camprofbuf, 8, 4);
-	camprofbuf.set(d, 8);
-	return camprofbuf.slice(0, 8 + d.length);
 }
 /* TIFFOut: helper to read dng or exif */
 static readshort(view, off) {
@@ -910,6 +869,7 @@ infos: [ // actually const
 		size: 14065920,
 		w: 4320,
 		h: 3256,
+		//typ: "unknown",
 		typ: 0,
 		mode: "historic",
 		bpp: 8,
@@ -919,6 +879,7 @@ infos: [ // actually const
 		size: 15925248,
 		w: 4608,
 		h: 3456,
+		//typ: "MF6x7",
 		typ: 2,
 		mode: "",
 		bpp: 8,
@@ -927,6 +888,7 @@ infos: [ // actually const
 	{
 		size: 9806592,
 		w: 3616, h: 2712,
+		//typ: "MF6x4.5",
 		typ: 3,
 		mode: "Medium-angle",
 		bpp: 8,
@@ -935,6 +897,7 @@ infos: [ // actually const
 	{
 		size: 6470944,
 		w: 2936, h: 2204,
+		//typ: "MF6x4.5",
 		typ: 3,
 		mode: "Small-angle",
 		bpp: 8,
@@ -943,6 +906,7 @@ infos: [ // actually const
 	{ /* MF 6x4.5 */
 		size: 12937632,
 		w: 4152, h: 3116,
+		//typ: "MF6x4.5",
 		typ: 3,
 		mode: "",
 		bpp: 8,
@@ -951,6 +915,7 @@ infos: [ // actually const
 	{ /* MF 6x6 */
 		size: 11943936,
 		w: 3456, h: 3456,
+		//typ: "MF6x6",
 		typ: 4,
 		mode: "",
 		bpp: 8,
@@ -959,6 +924,7 @@ infos: [ // actually const
 	{
 		size: 11618752,
 		w: 4012, h: 2896,
+		//typ: "35mm",
 		typ: 1,
 		mode: "Medium-angle",
 		bpp: 8,
@@ -967,6 +933,7 @@ infos: [ // actually const
 	{
 		size: 7667520,
 		w: 3260, h: 2352,
+		//typ: "35mm",
 		typ: 1,
 		mode: "Small-angle",
 		bpp: 8,
@@ -975,6 +942,7 @@ infos: [ // actually const
 	{ /* 35mm */
 		size: 15335424,
 		w: 4608, h: 3328,
+		//typ: "35mm",
 		typ: 1,
 		mode: "",
 		bpp: 8,
@@ -986,6 +954,7 @@ infos: [ // actually const
 		size: 30607488,
 		w: 5216,
 		h:3912,
+		//typ: "Film",
 		typ: 5,
 		mode: '',
 		bpp: 8,
@@ -996,6 +965,7 @@ infos: [ // actually const
 		size: 18000000,
 		w: 4000,
 		h:3000,
+		//typ: "MiMi",
 		typ: 6,
 		mode: '',
 		bpp: 8,
@@ -1005,6 +975,7 @@ infos: [ // actually const
 		size: 14634048,
 		w: 3608,
 		h:2704,
+		//typ: "MiMi",
 		typ: 7,
 		mode: '',
 		bpp: 8,
@@ -1607,6 +1578,7 @@ static zipmax = 50000000; // byte zip length, can be adjusted
 imbpics = [];  // found jpegs
 rimbpics = []; // found raws
 imbmovies = []; // found other
+imbdngs = []; // found dng
 earliestmov = '9999';  // upper/lower bounds of dates for types
 latestmov='0000';
 earliestjpg='9999';
@@ -19359,7 +19331,7 @@ handleone(orientation, upd) {
 				});
 			}
 			this.mappx(0, 'process.adddcp');
-			ti.addEntry(50936, 'ASCII', 'Generic ImB'); /* Camera calibration name */
+			ti.addEntry(50936, 'ASCII', 'ImBack' + ' ' + globals.types[typ0]); /* Camera calibration name */
 			ti.addEntry(50942, 'ASCII', "Stefan Hegny for ImBack CC0"); /* profile copyright */
 			ti.addEntry(50932, 'ASCII', 'Generic ImB conv profile Sig'); /* Profile calibration signature */
 			ti.addEntry(50931, 'ASCII', 'Generic ImB conv profile Sig'); /* Camera calibration signature */
@@ -19618,6 +19590,7 @@ handle1imb(url, time) {
 		timest = timesty[1] + '_' + timesty[3] + '_' + timesty[5] + '-' + timesty[7] + '_' + timesty[9] + '_' + timesty[11];
 	}
 	if (this.imbeles && this.typedclasses) {
+		if (this.imbeles.filter(j => j.raw === rawname)?.length) return;
 		newimbele = {
 			url: url.name ? url.name : url,
 			raw: rawname,
@@ -19632,7 +19605,8 @@ handle1imb(url, time) {
 			time: timest,
 			size: url?.size,
 			imbackintension: url.size ? url : undefined,
-			seq: seq
+			seq: seq,
+			selopt: false
 		};
 		if (this.dloads?.length)
 			newimbele.wasselected = (-1 !== (this.dloads.findIndex(e => (e.toUpperCase() === rawname.toUpperCase()))));
@@ -19654,6 +19628,11 @@ handle1imb(url, time) {
 				this.untypedclasses.push(cl);
 			if (this.typedclasses.findIndex(v => v === ('RAW' + cl)) === -1)
 				this.typedclasses.push('RAW' + cl);
+		}
+		if (ImBCBase.progname.startsWith('imbapp')) {
+			newimbele.selopt = document.createElement('option');
+			newimbele.selopt.value = ImBCBase.basename(newimbele.url);
+			newimbele.selopt.textContent = newimbele.selopt.value;
 		}
 		if (this.imbeles) this.imbeles.push(newimbele);
 	}
@@ -19687,6 +19666,22 @@ handle1imb(url, time) {
 		}
 		if (this.imbeles) this.imbeles.push(newimbele);
 	}
+	/*else if (ImBCBase.ucex(rawname) === '.DNG') {
+		this.imbdngs.push({ url: url, time: timest });
+		if (this.imbeles && this.typedclasses) {
+			newimbele.type = 'DNG';
+			if (this.untypedclasses.findIndex(v => v === cl) === -1)
+				this.untypedclasses.push(cl);
+			if (this.typedclasses.findIndex(v => v === ('DNG' + cl)) === -1)
+				this.typedclasses.push('DNG' + cl);
+		}
+		if (ImBCBase.progname.startsWith('imbapp')) {
+			newimbele.selopt = document.createElement('option');
+			newimbele.selopt.value = ImBCBase.basename(newimbele.url);
+			newimbele.selopt.textContent = newimbele.selopt.value;
+		}
+		if (this.imbeles) this.imbeles.push(newimbele);
+	}*/
 	else {
 		this.appmsgxl(false, 'words.warning');
 		this.appmsgxl(0, 'onimback.strangename', rawname);
@@ -19718,6 +19713,8 @@ parseexpflags(flags) {
 parseDng(f, onok, onerr) {
 	// blindly assumes that it is one of our own DNG
 	if (undefined === f.data) {
+		if (f.imbackintension?.imbackextension)
+			f = f.imbackintension;
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
 			f.data = evt.target.result;

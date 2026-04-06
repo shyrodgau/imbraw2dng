@@ -472,14 +472,6 @@ body { margin: 0; }
 .grtit.ggttm, .grtit.ggttp { font-family:Symbol3; }
 .igtype > * { border: 0.5px solid grey; }
 .igxtype > * { margin: 0.2em; padding: 0.5em; }
-/*.gg:not(.gl1) {
-	margin-left: 1em;
-}*/
-/*.ggtt {
-	border: 2px solid white;
-	border-radius: 5px;
-	margin:0.2em;
-}*/
 #overlay {
     background-color: rgba(0, 0, 55, 0.3);
     z-index: 999;
@@ -541,6 +533,7 @@ body { margin: 0; }
 	margin-top: 200px;
 	line-height: 5px;
 	height: 50px;
+	color: #666666;
 }
 .selnumber {
 	display: inline-block;
@@ -549,6 +542,7 @@ body { margin: 0; }
 	font-weight: bold;
 	font-family: courier, monospace;
 	font-style: italic;
+	color: #666666;
 }
 .totno {
 	font-family: courier, monospace;
@@ -558,11 +552,11 @@ body { margin: 0; }
 .btnsrow { position: absolute; top: 2em; left: 0.5em; height: 0.8em; width: 4em; padding:0.3em;background-color: rgba(200,200,180,0.5); }
 /*div[data-state='load'] .btnsrow, div[data-state='wait'] .btnsrow, div[data-state='err'] .btnsrow { display: none; }*/
 div[data-state='wait'] .btnsrow, div[data-state='load'] .btnsrow, div[data-state='err'] .btnsrow { display: none; }
-.oth_CL .btnsrow, .JPG_CL .btnsrow { width: 2em; }
-.JPG_CL .rotbtn, .oth_CL .rotbtn { display: none; }
+.oth_CL .btnsrow, .JPG_CL .btnsrow, .DNG_CL .btnsrow { width: 2em; }
+.JPG_CL .rotbtn, .oth_CL .rotbtn, .DNG_CL .rotbtn { display: none; }
 .picdeleted .magbtn { display: none; }
-.JPG_CL .rotbtnr, .oth_CL .rotbtnr { display: none; }
-.JPG_CL .eeraw, .oth_CL .eeraw, .RAW_CL .eejpg { display: none; }
+.JPG_CL .rotbtnr, .oth_CL .rotbtnr, .DNG_CL .rotbtnr { display: none; }
+.JPG_CL .eeraw, .oth_CL .eeraw, .RAW_CL .eejpg, .DNG_CL .eejpg { display: none; }
 .biggiebtn { position: absolute; top: -0.2em; font-weight:bold; font-size:120%; text-shadow: 0.1em 0.07em 0 rgba(255,255,255,0.8), -0.07em 0.08em 0 rgba(255,255,255,0.5); z-index: 900;}
 .pictitle { z-index: 90; font-size:66%; }
 .pictitle:not(:nth-child(1)) { border-top: 1px solid black; }
@@ -691,7 +685,7 @@ body:has(dialog[open]), html:has(dialog[open]) {
 .x[data-x='99'] { display: none; }
 .x[data-x='0']::before, .x[data-x='1']::before, .x[data-x='2']::before, .x[data-x='6']::before, .x[data-x='7']::before, .x[data-x='8']::before  {  content: '\23b1'; }
 .x[data-x='3']::before, .x[data-x='4']::before, .x[data-x='5']::before, .x[data-x='9']::before, .x[data-x='10']::before, .x[data-x='11']::before  {  content: '\23f3'; }
-.x::before, .x { font-family: Symbol3; display: inline-block; }
+.x::before { font-family: Symbol3; display: inline-block; min-width: fit-content; min-height; fit-content; }
 .x[data-x='1'], .x[data-x='5'], .x[data-x='9']  {  transform: rotate(45deg); }
 .x[data-x='2'], .x[data-x='6'], .x[data-x='10']  {  transform: rotate(90deg); }
 .x[data-x='3'], .x[data-x='7'], .x[data-x='11']  {  transform: rotate(135deg); }
@@ -835,15 +829,8 @@ function resolver(struc, url, preview, notfirst)  {
 		xhr.onload = undefined;
 		xhr.ontimeout = undefined;
 		xhr.onabort = undefined;
-		/*if (globalfxns.debugflag) {
-			setTimeout(() => {
-				postMessage({ cmd: cmd, ok: false, n: name });
-				handlewait();
-			}, 300);
-		} else*/ {
-			postMessage({ cmd: struc.cmd, ok: false, n: struc.n, cid: struc.ci });
-			handlewait();
-		}
+		postMessage({ cmd: struc.cmd, ok: false, n: struc.n, cid: struc.ci });
+		handlewait();
 	};
 	xhr.onabort = (evt) => {
 		xhr.onerror(evt, 'abort');
@@ -1034,7 +1021,7 @@ function buildpreview(struc, f, size, orientation) {
 		//console.log(JSON.stringify(wb));
 		let outpix = globals.buildpvarray(view, size, typ, w, h, orientation, false, wb, whitelvl);
 		// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
-		postMessage({ cmd: struc.cmd, pix: outpix, n: struc.n, o: struc.ori, c: struc.cache, xori: (!struc.ori) ? 1 : struc.ori, size: struc.siz, cid: struc.ci });
+		postMessage({ cmd: struc.cmd, pix: outpix, n: struc.n, o: struc.ori, c: struc.cache, xori: (!struc.ori) ? 1 : struc.ori, size: struc.siz, cid: struc.ci, ifmt: zz+1 });
 	};
 	reader.onerror = (evt) => {
 		console.log('WORKER preview: error reading ' + f.name + ' E ' + evt.toString());
@@ -1076,11 +1063,11 @@ function buildpreviewcache(struc, f, size, orientation) {
 	// onmessage: { pix: array, n: n, o: orientation, c: cacheentry }
 	if (globals.debugflag) {
 		setTimeout(() => {
-			postMessage({ cmd: struc.cmd, pix: outpix, n: struc.n, o: struc.ori, c: struc.cache, xori: (!struc.ori) ? 1 : struc.ori, size: struc.siz, cid: struc.ci });
+			postMessage({ cmd: struc.cmd, pix: outpix, n: struc.n, o: struc.ori, c: struc.cache, xori: (!struc.ori) ? 1 : struc.ori, size: struc.siz, cid: struc.ci, ifmt: zz+1 });
 		}, 300);
 	}
 	else {
-		postMessage({ cmd: struc.cmd, pix: outpix, n: struc.n, o: struc.ori, c: struc.cache, xori: (!struc.ori) ? 1 : struc.ori, size: struc.siz, cid: struc.ci });
+		postMessage({ cmd: struc.cmd, pix: outpix, n: struc.n, o: struc.ori, c: struc.cache, xori: (!struc.ori) ? 1 : struc.ori, size: struc.siz, cid: struc.ci, ifmt: zz+1 });
 	}
 }
 /* WORKER read local jpeg */
@@ -1109,7 +1096,6 @@ class IFDOut {
 /* Indentation out */
 issub = false;
 subs = [];
-camprofptr = -1; // first of the pointers, they are sequential, accessed by TIFFOut
 // rest is private:
 #entrys = [];
 #currentoff = 0;
@@ -1371,13 +1357,6 @@ getData(offset) {
 			TIFFOut.writeinttoout(this.#dyndata, offset, i.ptr);
 			TIFFOut.writeinttoout(this.#dyndata, offset + this.#imglen0 / 2, i.ptr + 4);
 			TIFFOut.writeinttoout(data, i.ptr + offset + this.#imglen + 6 + (12 * this.#entrys.length), ioff);
-		} else if (i.tag === 50933) { // camera profiles
-			if (undefined !== i.value) // only one, profile ptr fits into value
-				this.camprofptr = offset + ioff;
-			else {			// more than one, dereference
-				TIFFOut.writeinttoout(data, i.ptr + offset + this.#imglen + 6 + (12 * this.#entrys.length), ioff);
-				this.camprofptr = offset + this.#imglen + i.ptr + 6 + (12 * this.#entrys.length);
-			}
 		} else if (undefined !== i.value) {
 			data.set(i.value, ioff);
 		} else {
@@ -1502,7 +1481,6 @@ static parseIfd(view, off0, baseoff) {
 class TIFFOut {
 /* Indentation out */
 #ifds = [];
-#cameraprofiles = [];
 #currentifd = null;
 /* TIFFOut: add an ifd  (will set this as current IFD) */
 addIfd(issub) {
@@ -1539,10 +1517,7 @@ addImageStrip(typ, view, width, height) {
 }
 /* TIFFOut: add an entry to current ifd */
 addEntry(tag, type, data) {
-	if (this.#cameraprofiles.length > 0) {
-		this.#cameraprofiles[this.#cameraprofiles.length - 1].addEntry(tag, type, data);
-	} else
-		this.#currentifd.addEntry(tag, type, data);
+	this.#currentifd.addEntry(tag, type, data);
 }
 /* TIFFOut: map string type to tiff id */
 static types = [
@@ -1579,13 +1554,7 @@ static writeshorttoout(out, num, off) {
 /* TIFFOut: return the tiff binary data */
 getData() {
 	let partlens = this.#ifds.map(x => (100000+x.getOffset())).reduce((sum, a) => (sum + a), 0);
-	partlens += this.#cameraprofiles.map(() => 1000000).reduce((sum, a) => (sum + a), 0);
 	let data = new Uint8Array(partlens + 1000000);
-	if (this.#cameraprofiles.length > 0) {
-		let camprofarr = [];
-		for (let j=0; j<this.#cameraprofiles.length; j++) camprofarr.push(1);
-		this.#ifds[0].addEntry(50933, 'LONG', camprofarr); /* camera profiles pointer */
-	}
 	TIFFOut.writeshorttoout(data, 0x4949, 0); // magics
 	TIFFOut.writeshorttoout(data, 42, 2);
 	let lastoffpos = 4;
@@ -1612,30 +1581,7 @@ getData() {
 			TIFFOut.writeinttoout(data, j.i.ifdstart, j.o);
 		}
 	}
-	if (-1 !== this.#ifds[0].camprofptr && this.#cameraprofiles.length > 0) {
-		for (let l=0; l<this.#cameraprofiles.length; l++) {
-			TIFFOut.writeinttoout(data, lastlen, this.#ifds[0].camprofptr + (4*l));
-			let cpd = this.#getCamProfData(this.#cameraprofiles[l]);
-			data.set(cpd, lastlen);
-			lastlen += cpd.length;
-		}
-	}
 	return data.slice(0, lastlen);
-}
-// TIFFOut: add extra camera profile (will set this as current IFD), must go behind all other IFDs
-createCamProf(name) {
-	this.#cameraprofiles.push(new IFDOut());
-	this.#cameraprofiles[this.#cameraprofiles.length - 1].addEntry(50936, 'ASCII', name); /* profile name */
-}
-/* TIFFOut: get camera profile data analog to ifd */
-#getCamProfData(p) {
-	let d = p.getData(8);
-	let camprofbuf = new Uint8Array(d.length + 8);
-	TIFFOut.writeshorttoout(camprofbuf, 0x4949, 0); // magics
-	TIFFOut.writeshorttoout(camprofbuf, 0x4352, 2);
-	TIFFOut.writeinttoout(camprofbuf, 8, 4);
-	camprofbuf.set(d, 8);
-	return camprofbuf.slice(0, 8 + d.length);
 }
 /* TIFFOut: helper to read dng or exif */
 static readshort(view, off) {
@@ -1695,6 +1641,7 @@ infos: [ // actually const
 		size: 14065920,
 		w: 4320,
 		h: 3256,
+		//typ: "unknown",
 		typ: 0,
 		mode: "historic",
 		bpp: 8,
@@ -1704,6 +1651,7 @@ infos: [ // actually const
 		size: 15925248,
 		w: 4608,
 		h: 3456,
+		//typ: "MF6x7",
 		typ: 2,
 		mode: "",
 		bpp: 8,
@@ -1712,6 +1660,7 @@ infos: [ // actually const
 	{
 		size: 9806592,
 		w: 3616, h: 2712,
+		//typ: "MF6x4.5",
 		typ: 3,
 		mode: "Medium-angle",
 		bpp: 8,
@@ -1720,6 +1669,7 @@ infos: [ // actually const
 	{
 		size: 6470944,
 		w: 2936, h: 2204,
+		//typ: "MF6x4.5",
 		typ: 3,
 		mode: "Small-angle",
 		bpp: 8,
@@ -1728,6 +1678,7 @@ infos: [ // actually const
 	{ /* MF 6x4.5 */
 		size: 12937632,
 		w: 4152, h: 3116,
+		//typ: "MF6x4.5",
 		typ: 3,
 		mode: "",
 		bpp: 8,
@@ -1736,6 +1687,7 @@ infos: [ // actually const
 	{ /* MF 6x6 */
 		size: 11943936,
 		w: 3456, h: 3456,
+		//typ: "MF6x6",
 		typ: 4,
 		mode: "",
 		bpp: 8,
@@ -1744,6 +1696,7 @@ infos: [ // actually const
 	{
 		size: 11618752,
 		w: 4012, h: 2896,
+		//typ: "35mm",
 		typ: 1,
 		mode: "Medium-angle",
 		bpp: 8,
@@ -1752,6 +1705,7 @@ infos: [ // actually const
 	{
 		size: 7667520,
 		w: 3260, h: 2352,
+		//typ: "35mm",
 		typ: 1,
 		mode: "Small-angle",
 		bpp: 8,
@@ -1760,6 +1714,7 @@ infos: [ // actually const
 	{ /* 35mm */
 		size: 15335424,
 		w: 4608, h: 3328,
+		//typ: "35mm",
 		typ: 1,
 		mode: "",
 		bpp: 8,
@@ -1771,6 +1726,7 @@ infos: [ // actually const
 		size: 30607488,
 		w: 5216,
 		h:3912,
+		//typ: "Film",
 		typ: 5,
 		mode: '',
 		bpp: 8,
@@ -1781,6 +1737,7 @@ infos: [ // actually const
 		size: 18000000,
 		w: 4000,
 		h:3000,
+		//typ: "MiMi",
 		typ: 6,
 		mode: '',
 		bpp: 8,
@@ -1790,6 +1747,7 @@ infos: [ // actually const
 		size: 14634048,
 		w: 3608,
 		h:2704,
+		//typ: "MiMi",
 		typ: 7,
 		mode: '',
 		bpp: 8,
@@ -2392,6 +2350,7 @@ static zipmax = 50000000; // byte zip length, can be adjusted
 imbpics = [];  // found jpegs
 rimbpics = []; // found raws
 imbmovies = []; // found other
+imbdngs = []; // found dng
 earliestmov = '9999';  // upper/lower bounds of dates for types
 latestmov='0000';
 earliestjpg='9999';
@@ -20144,7 +20103,7 @@ handleone(orientation, upd) {
 				});
 			}
 			this.mappx(0, 'process.adddcp');
-			ti.addEntry(50936, 'ASCII', 'Generic ImB'); /* Camera calibration name */
+			ti.addEntry(50936, 'ASCII', 'ImBack' + ' ' + globals.types[typ0]); /* Camera calibration name */
 			ti.addEntry(50942, 'ASCII', "Stefan Hegny for ImBack CC0"); /* profile copyright */
 			ti.addEntry(50932, 'ASCII', 'Generic ImB conv profile Sig'); /* Profile calibration signature */
 			ti.addEntry(50931, 'ASCII', 'Generic ImB conv profile Sig'); /* Camera calibration signature */
@@ -20403,6 +20362,7 @@ handle1imb(url, time) {
 		timest = timesty[1] + '_' + timesty[3] + '_' + timesty[5] + '-' + timesty[7] + '_' + timesty[9] + '_' + timesty[11];
 	}
 	if (this.imbeles && this.typedclasses) {
+		if (this.imbeles.filter(j => j.raw === rawname)?.length) return;
 		newimbele = {
 			url: url.name ? url.name : url,
 			raw: rawname,
@@ -20417,7 +20377,8 @@ handle1imb(url, time) {
 			time: timest,
 			size: url?.size,
 			imbackintension: url.size ? url : undefined,
-			seq: seq
+			seq: seq,
+			selopt: false
 		};
 		if (this.dloads?.length)
 			newimbele.wasselected = (-1 !== (this.dloads.findIndex(e => (e.toUpperCase() === rawname.toUpperCase()))));
@@ -20439,6 +20400,11 @@ handle1imb(url, time) {
 				this.untypedclasses.push(cl);
 			if (this.typedclasses.findIndex(v => v === ('RAW' + cl)) === -1)
 				this.typedclasses.push('RAW' + cl);
+		}
+		if (ImBCBase.progname.startsWith('imbapp')) {
+			newimbele.selopt = document.createElement('option');
+			newimbele.selopt.value = ImBCBase.basename(newimbele.url);
+			newimbele.selopt.textContent = newimbele.selopt.value;
 		}
 		if (this.imbeles) this.imbeles.push(newimbele);
 	}
@@ -20472,6 +20438,22 @@ handle1imb(url, time) {
 		}
 		if (this.imbeles) this.imbeles.push(newimbele);
 	}
+	/*else if (ImBCBase.ucex(rawname) === '.DNG') {
+		this.imbdngs.push({ url: url, time: timest });
+		if (this.imbeles && this.typedclasses) {
+			newimbele.type = 'DNG';
+			if (this.untypedclasses.findIndex(v => v === cl) === -1)
+				this.untypedclasses.push(cl);
+			if (this.typedclasses.findIndex(v => v === ('DNG' + cl)) === -1)
+				this.typedclasses.push('DNG' + cl);
+		}
+		if (ImBCBase.progname.startsWith('imbapp')) {
+			newimbele.selopt = document.createElement('option');
+			newimbele.selopt.value = ImBCBase.basename(newimbele.url);
+			newimbele.selopt.textContent = newimbele.selopt.value;
+		}
+		if (this.imbeles) this.imbeles.push(newimbele);
+	}*/
 	else {
 		this.appmsgxl(false, 'words.warning');
 		this.appmsgxl(0, 'onimback.strangename', rawname);
@@ -20503,6 +20485,8 @@ parseexpflags(flags) {
 parseDng(f, onok, onerr) {
 	// blindly assumes that it is one of our own DNG
 	if (undefined === f.data) {
+		if (f.imbackintension?.imbackextension)
+			f = f.imbackintension;
 		const reader = f.imbackextension ? f : new FileReader();
 		reader.onload = (evt) => {
 			f.data = evt.target.result;
@@ -25340,6 +25324,7 @@ loadimgs() {
 	this.imbpics = [];
 	this.rimbpics = [];
 	this.imbmovies = [];
+	this.imbdngs = [];
 	this.untypedclasses = [];
 	this.typedclasses = [];
 	this.numdclasses = [];
@@ -25361,7 +25346,7 @@ loadimgs() {
 				// check existance of raw for all jpegs if film
 				this.loaddir('IMBACK', () => {
 					this.loaddir('NOVATEK', () => {
-						if (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0) {
+						if (this.imbpics.length + this.rimbpics.length + this.imbmovies.length + this.imbdngs.length > 0) {
 							this.aftercheck();
 							this.showbrowser();
 						} else {
@@ -25370,13 +25355,6 @@ loadimgs() {
 					});
 				});
 				return;
-			/*}
-			if (this.imbpics.length + this.rimbpics.length + this.imbmovies.length > 0) {
-				this.aftercheck();
-				this.showbrowser();
-			} else {
-				this.showmain();
-			}*/
 		}
 	});
 }
@@ -27248,6 +27226,7 @@ function init2() {
 <span class="grtit ggttminus" onclick="ImBCHtml.closep(this);"> DNG </span>
 </div>
 <div class="igxtype">
+<div><input type="checkbox" id="dngpreview" checked onchange="imbc.chgdngpreview()"> <label for="dngpreview" data-myxlkey="process.addpreview"></label></div>
 <!--div style="border:5px solid #50a070;max-width:fit-content;border-radius:10px;padding:2px;background-color:rgba(80,160,112,0.3);"-->
 <div><input type="checkbox" id="copycheck" onchange="imbc.chgcopycheck()"> <label for="copycheck" data-myxlkey="process.metadata"></label></div>
 <div ><span data-myxlkey="process.addcopyright"></span> <input onchange="imbc.dirtysettings('cr')" type="text" id="copytext" size="22"></input></div>
@@ -27326,7 +27305,7 @@ function init2() {
 <input type="button" value="&#x2b73;;" onclick="imbc.dlhtml();"-->
 </div>
 <div class="igxtype btop">
-<input type="checkbox" id="dngpreview" checked onchange="imbc.chgdngpreview()"> <label for="dngpreview" data-myxlkey="process.addpreview"></label><br>
+<div ><span data-myxlkey="process.addpreview"></span> &rarr; <span data-myxlkey="app.menu.settings"></span></div>
 <input type="checkbox" id="incdcp" checked onchange="imbc.dirtysettings('incdcp')"> <label for="incdcp" data-myxlkey="process.includedcp"></label><br>
 </div>
 <div class="btop"><input type="button" onclick="imbc.clearcache();" data-myvalxlkey="app.menu.extras.clearcache"></div>
