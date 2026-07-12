@@ -15,6 +15,7 @@
   <!--hook type="before_build" src="sh -c 'cd ../../.. && make'"/-->
   <hook type="before_build" src="scripts/make.sh"/>
   <platform name="android">
+    <icon density="mdpi" monochrome="res/bg.png" foreground="res/logo.png" background="res/bg.png"/>
     <preference name="AndroidWindowSplashScreenAnimatedIcon" value="www/img/logo.png" />
     <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application">
       <application android:usesCleartextTraffic="true" android:requestLegacyExternalStorage="true" />
@@ -68,7 +69,7 @@
     <resource-file src="../../helpstuff/demosaic.jpg" target="app/src/main/assets/www/res/demosaic.jpg"/>
     <resource-file src="../../helpstuff/usercontrols.png" target="app/src/main/assets/www/res/usercontrols.png"/>
     </platform>
-  <icon src="res/logo.png"/>
+  <!--icon src="res/logo.png"/-->
   <exclude-files pattern="imbapp-dbg.html"/>
   <exclude-files pattern="*~"/>
 </widget>
