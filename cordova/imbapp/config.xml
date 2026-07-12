@@ -19,7 +19,7 @@
     <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application">
       <application android:usesCleartextTraffic="true" android:requestLegacyExternalStorage="true" />
     </edit-config>
-    <resource-file src="network_config.xml" target="app/src/main/res/xml/network_config.xml"/>
+    <!--resource-file src="network_config.xml" target="app/src/main/res/xml/network_config.xml"/-->
     <resource-file src="../../imbappzzz.htm" target="app/src/main/assets/www/res/imbapp.htm"/>
     <resource-file src="imbapp.html" target="app/src/main/assets/www/imbapp.html"/>
     <resource-file src="../../LICENSE.txt" target="app/src/main/assets/www/res/LICENSE.txt"/>

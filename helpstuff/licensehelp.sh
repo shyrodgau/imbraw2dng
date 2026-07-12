@@ -1,6 +1,6 @@
 #!/bin/bash
 
-mypath="/home/hegny/prog/imbraw2dng/github/"
+mypath="."
 
 lxh=$( sed  -e 's/^  /\&nbsp;\&nbsp;/g' -e 's/"/\&quot;/g' "$mypath"/LICENSE_noapp.txt| while read l; do echo -n "$l<br>"; done )
 
